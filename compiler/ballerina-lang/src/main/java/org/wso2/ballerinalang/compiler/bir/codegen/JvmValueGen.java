@@ -77,6 +77,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -100,7 +101,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
@@ -125,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
 
@@ -218,8 +224,17 @@ class JvmValueGen {
         mv.visitInsn(ATHROW);
     }
 
-    static String getTypeValueClassName(Object module, String typeName) {
+    static String getTypeDescClassName(Object module, String typeName) {
+        String packageName = calculateJavaPkgName(module);
+        return packageName + TYPEDESC_CLASS_PREFIX + cleanupTypeName(typeName);
+    }
 
+    static String getTypeValueClassName(Object module, String typeName) {
+        String packageName = calculateJavaPkgName(module);
+        return packageName + VALUE_CLASS_PREFIX + cleanupTypeName(typeName);
+    }
+
+    private static String calculateJavaPkgName(Object module) {
         String packageName;
         if (module instanceof BIRPackage) {
             BIRPackage birPackage = (BIRPackage) module;
@@ -229,10 +244,9 @@ class JvmValueGen {
             packageName = getPackageName(packageID.orgName, packageID.name);
         } else {
             throw new ClassCastException("module should be PackageID or BIRPackage but is : "
-                    + (module == null ? "null" : module.getClass()));
+                                         + (module == null ? "null" : module.getClass()));
         }
-
-        return packageName + "$value$" + cleanupTypeName(typeName);
+        return packageName;
     }
 
     static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
@@ -516,6 +530,49 @@ class JvmValueGen {
             return func;
         }
 
+        private byte[] createRecordTypeDescClass(BRecordType recordType, String className,
+                                                 BIRNode.BIRTypeDefinition typeDef) {
+
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            if (typeDef.pos != null && typeDef.pos.src != null) {
+                cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+            } else {
+                cw.visitSource(className, null);
+            }
+            currentClass = className;
+            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
+
+            this.createTypeDescConstructor(cw, className);
+            this.createInstantiateMethod(cw, recordType);
+
+            cw.visitEnd();
+
+            return JvmPackageGen.getBytes(cw, typeDef);
+        }
+
+        private void createInstantiateMethod(ClassWriter cw, BRecordType recordType) {
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "instantiate",
+                                              String.format("(L%s;)L%s;", STRAND, OBJECT), null, null);
+            mv.visitCode();
+
+            String className = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
+            mv.visitTypeInsn(NEW, className);
+            mv.visitInsn(DUP);
+            mv.visitInsn(DUP);
+            loadType(mv, recordType);
+            mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
+
+            // Invoke the init-function of this type.
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitInsn(SWAP);
+            mv.visitMethodInsn(INVOKESTATIC, className, "$init",
+                               String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+
+            mv.visitInsn(ARETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
+
         private byte[] createRecordValueClass(BRecordType recordType, String className,
                                               BIRNode.BIRTypeDefinition typeDef) {
 
@@ -563,6 +620,23 @@ class JvmValueGen {
                 }
                 generateMethod(func, cw, this.module, null, false, "");
             }
+        }
+
+        private void createTypeDescConstructor(ClassWriter cw, String className) {
+
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", BTYPE), null, null);
+            mv.visitCode();
+
+            // load super
+            mv.visitVarInsn(ALOAD, 0);
+            // load type
+            mv.visitVarInsn(ALOAD, 1);
+            // invoke `super(type)`;
+            mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, "<init>", String.format("(L%s;)V", BTYPE), false);
+
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
         }
 
         private void createRecordConstructor(ClassWriter cw, String className) {
@@ -1183,6 +1257,10 @@ class JvmValueGen {
                     String className = getTypeValueClassName(this.module, typeDef.name.value);
                     byte[] bytes = this.createRecordValueClass(recordType, className, typeDef);
                     jarEntries.put(className + ".class", bytes);
+
+                    String typedescClass = getTypeDescClassName(this.module, typeDef.name.value);
+                    bytes = this.createRecordTypeDescClass(recordType, typedescClass, typeDef);
+                    jarEntries.put(typedescClass + ".class", bytes);
                 }
             }
         }
