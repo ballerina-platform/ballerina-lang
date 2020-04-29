@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Email connector listener for Ballerina.
@@ -88,15 +87,9 @@ public class EmailListener {
     }
 
     protected void addService(ObjectValue service) {
-        String serviceName = service.getType().getName();
-        String serviceKey;
-        if (serviceName.equals("")) {
-            UUID uuid = UUID.randomUUID();
-            serviceKey = uuid.toString();
-        } else {
-            serviceKey = serviceName;
+        if (service != null && service.getType() != null && service.getType().getName() != null) {
+            registeredServices.put(service.getType().getName(), service);
         }
-        registeredServices.put(serviceKey, service);
     }
 
 }
