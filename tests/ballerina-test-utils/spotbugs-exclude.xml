@@ -22,6 +22,10 @@
     </Match>
 
     <Match>
+        <Package name="org.ballerinalang.test.balo"/>
+    </Match>
+
+    <Match>
         <Package name="org.ballerinalang.test.listener"/>
     </Match>
 

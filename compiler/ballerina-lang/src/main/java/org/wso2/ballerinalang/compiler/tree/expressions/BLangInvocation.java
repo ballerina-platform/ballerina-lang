@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -48,7 +49,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     //caching since at desugar level we need to identify whether this is actually attached function or not
     public BSymbol exprSymbol;
     public boolean functionPointerInvocation;
-    public boolean actionInvocation;
     public boolean langLibInvocation;
     public boolean async;
     public Set<Flag> flagSet;
@@ -121,11 +121,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
         return false;
     }
 
-    @Override
-    public boolean isActionInvocation() {
-        return this.actionInvocation;
-    }
-    
     @Override
     public boolean isAsync() {
         return async;
@@ -211,20 +206,11 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     /**
      * @since 0.94
      */
-    public static class BLangActionInvocation extends BLangInvocation {
+    public static class BLangActionInvocation extends BLangInvocation implements ActionNode {
 
-        public BLangActionInvocation(DiagnosticPos pos,
-                                     List<BLangExpression> requiredArgs,
-                                     List<BLangExpression> restArgs,
-                                     BSymbol symbol,
-                                     BType type,
-                                     boolean async) {
-            this.pos = pos;
-            this.requiredArgs = requiredArgs;
-            this.restArgs = restArgs;
-            this.symbol = symbol;
-            this.type = type;
-            this.async = async;
+        public boolean remoteMethodCall = false;
+
+        public BLangActionInvocation() {
         }
 
         @Override
