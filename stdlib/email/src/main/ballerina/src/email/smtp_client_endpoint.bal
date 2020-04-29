@@ -64,5 +64,5 @@ function send(SmtpClient clientEndpoint, Email email) returns Error? = @java:Met
 public type SmtpConfig record {|
     int port = 465;
     boolean enableSsl = true;
-    Property[]? properties = ();
+    map<string>? properties = ();
 |};

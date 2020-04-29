@@ -75,7 +75,7 @@ public class SmtpUtil {
         properties.put(EmailConstants.PROPS_SMTP_AUTH, "true");
         properties.put(EmailConstants.PROPS_SMTP_STARTTLS, "true");
         properties.put(EmailConstants.PROPS_ENABLE_SSL, smtpConfig.getBooleanValue(EmailConstants.PROPS_SSL));
-        CommonUtil.addCustomProperties(smtpConfig.getArrayValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(smtpConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("SMTP Properties set are as follows.");
