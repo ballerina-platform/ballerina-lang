@@ -10,6 +10,6 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "utils"
-    path = './lib/storedJar.jar'
+    path = '.\lib\storedJar.jar'
     groupId = "wso2"
     modules = ["mymodule"]

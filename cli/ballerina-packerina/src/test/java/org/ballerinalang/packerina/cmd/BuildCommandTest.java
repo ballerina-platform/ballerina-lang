@@ -45,6 +45,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -402,7 +403,50 @@ public class BuildCommandTest extends CommandTest {
     
         readOutput(true);
     }
-    
+
+    @Test(description = "Build a ballerina project with linux path in native-libs in toml.")
+    public void testBuildBalProjectTomlWithNativeLibsLinux() throws IOException {
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (!os.contains("win")) {
+            Path sourceRoot = this.testResources.resolve("stored-jar-dependency-project");
+            BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
+            new CommandLine(buildCommand).parse("mymodule", "--skip-tests");
+
+            buildCommand.execute();
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
+                    "\ttestOrg/mymodule:0.1.0\n" +
+                    "\nCreating balos\n" +
+                    "\ttarget/balo/mymodule-2020r1-java8-0.1.0.balo\n" +
+                    "\n" +
+                    "Generating executables\n" +
+                    "\ttarget/bin/mymodule.jar\n");
+        }
+        readOutput(true);
+    }
+
+    @Test(description = "Build a ballerina project with windows path in native-libs in toml.")
+    public void testBuildBalProjectTomlWithNativeLibsWindows() throws IOException {
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (os.contains("win")) {
+            Path sourceRoot = this.testResources.resolve("stored-jar-dependency-project-windows-path-native-libs");
+            BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
+            new CommandLine(buildCommand).parse("mymodule", "--skip-tests");
+
+            buildCommand.execute();
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
+                    "\ttestOrg/mymodule:0.1.0\n" +
+                    "\nCreating balos\n" +
+                    "\ttarget\\balo\\mymodule-2020r1-java8-0.1.0.balo\n" +
+                    "\n" +
+                    "Generating executables\n" +
+                    "\ttarget\\bin\\mymodule.jar\n");
+        }
+        readOutput(true);
+    }
+
+
     @Test(description = "Test Build Command in a Project")
     public void testBuildCommand() throws IOException {
 

@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.toml.model;
 
+import org.ballerinalang.toml.util.PathUtils;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Defines dependency object fields. The same object will be used to define patches.
@@ -26,6 +29,7 @@ import java.nio.file.Paths;
  * @since 0.964
  */
 public class DependencyMetadata {
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
     private String version;
     private String path;
 
@@ -53,7 +57,11 @@ public class DependencyMetadata {
      * @return location of the dependency
      */
     public Path getPath() {
-        return null == this.path ? null : Paths.get(this.path);
+        if (PathUtils.getPath(this.path) == null) {
+            return null;
+        } else {
+            return Paths.get(PathUtils.getPath(this.path));
+        }
     }
 
     /**
