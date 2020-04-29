@@ -71,14 +71,14 @@ public type InboundOAuth2Provider object {
     }
 };
 
-# Validates the given OAuth2 token.
+# Validates the given OAuth2 token by calling the OAuth2 introspection endpoint.
 # ```ballerina
 # oauth2:IntrospectionResponse|oauth2:Error result = oauth2:validateOAuth2Token(token, introspectionServerConfig);
 # ```
 #
-# + token - OAuth2 token that needs to be validated
+# + token - OAuth2 token, which needs to be validated
 # + config -  OAuth2 introspection server configurations
-# + return - OAuth2 introspection server response or else a `oauth2:Error` if token validation fails
+# + return - OAuth2 introspection server response or else an `oauth2:Error` if token validation fails
 public function validateOAuth2Token(string token, IntrospectionServerConfig config)
                                     returns @tainted (IntrospectionResponse|Error) {
     cache:Cache? oauth2Cache = config?.oauth2Cache;
@@ -89,8 +89,9 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
         }
     }
 
-    // Build the request to be send to the introspection endpoint.
-    // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
+    // Builds the request to be sent to the introspection endpoint.
+    // For more information, see the
+    // [OAuth 2.0 Token Introspection RFC](https://tools.ietf.org/html/rfc7662#section-2.1)
     http:Request req = new;
     string textPayload = "token=" + token;
     string? tokenTypeHint = config?.tokenTypeHint;
@@ -166,8 +167,8 @@ function addToCache(cache:Cache oauth2Cache, string token, IntrospectionResponse
     if (response?.exp is int) {
         result = oauth2Cache.put(token, response);
     } else {
-        // If the exp parameter is not set by introspection response, use cache default expiry by
-        // defaultTokenExpTimeInSeconds. Then the cached value will be removed when retrieving.
+        // If the `exp` parameter is not set by the introspection response, use the cache default expiry by
+        // the `defaultTokenExpTimeInSeconds`. Then, the cached value will be removed when retrieving.
         result = oauth2Cache.put(token, response, defaultTokenExpTimeInSeconds);
     }
     if (result is cache:Error) {
@@ -184,22 +185,23 @@ function addToCache(cache:Cache oauth2Cache, string token, IntrospectionResponse
 function validateFromCache(cache:Cache oauth2Cache, string token) returns IntrospectionResponse? {
     any|cache:Error cachedValue = oauth2Cache.get(token);
     if (cachedValue is ()) {
-        // If the cached value is expired (defaultTokenExpTimeInSeconds is passed), it will return ().
+        // If the cached value is expired (defaultTokenExpTimeInSeconds is passed), it will return `()`.
         log:printDebug(function() returns string {
-            return "Failed to validate token from from the cache, since token is expired.";
+            return "Failed to validate the token from the cache since the token is expired.";
         });
         return;
     }
     if (cachedValue is cache:Error) {
         log:printDebug(function() returns string {
-            return "Failed to validate token from from the cache. Cache error: " + cachedValue.toString();
+            return "Failed to validate the token from the cache. Cache error: " + cachedValue.toString();
         });
         return;
     }
     IntrospectionResponse response = <IntrospectionResponse>cachedValue;
     int? expTime = response?.exp;
-    // expTime can be (), that means the defaultTokenExpTimeInSeconds is not exceeded yet. Hence the token is still
-    // valid. Convert to current time and check the expiry time is exceeds if the expTime is int.
+    // The `expTime` can be `()`. This means that the `defaultTokenExpTimeInSeconds` is not exceeded yet.
+    // Hence, the token is still valid. If the `expTime` is given in int, convert this to the current time and
+    // check if the expiry time is exceeded.
     if (expTime is () || expTime > (time:currentTime().time / 1000)) {
         log:printDebug(function() returns string {
             return "OAuth2 token validated from the cache. Introspection response: " + response.toString();
@@ -215,10 +217,10 @@ function validateFromCache(cache:Cache oauth2Cache, string token) returns Intros
     }
 }
 
-# Reads the scope(s) for the user with the given username.
+# Reads the scope(s) of the user with the given username.
 #
 # + scopes - Set of scopes seperated with a space
-# + return - Array of groups for the user denoted by the username
+# + return - Array of groups for the user who is denoted by the username
 function getScopes(string? scopes) returns string[] {
     if (scopes is ()) {
         return [];
@@ -231,7 +233,7 @@ function getScopes(string? scopes) returns string[] {
     }
 }
 
-# Represents introspection server onfigurations.
+# Represents the introspection server configurations.
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
@@ -246,16 +248,16 @@ public type IntrospectionServerConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# Represents introspection server response.
+# Represents the introspection server response.
 #
 # + active - Boolean indicator of whether or not the presented token is currently active
 # + scopes - A JSON string containing a space-separated list of scopes associated with this token
-# + clientId - Client identifier for the OAuth 2.0 client that requested this token
+# + clientId - Client identifier for the OAuth 2.0 client, which requested this token
 # + username - Resource owner who authorized this token
 # + tokenType - Type of the token
 # + exp - Expiry time (seconds since the Epoch)
-# + iat - Token originally issued time (seconds since the Epoch)
-# + nbf - Token is not to be used before time (seconds since the Epoch)
+# + iat - Time when the token was issued originally (seconds since the Epoch)
+# + nbf - Token is not to be used before this time (seconds since the Epoch)
 # + sub - Subject of the token
 # + aud - Intended audience of the token
 # + iss - Issuer of the token
