@@ -68,7 +68,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private LinkedHashMap<Integer, Map.Entry<K, V>> entries;
     private LinkedHashMap<Integer, V> values;
     private LinkedHashMap<Integer, K> keys;
-    private String[] fieldNames = null;
+    private String[] fieldNames;
     private ValueHolder valueHolder;
     private int maxIntKey = 0;
     private boolean nextKeySupported;
@@ -185,6 +185,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return keys.size() == 0 ? 0 : (this.maxIntKey + 1);
     }
 
+    public BType getKeyType() {
+        return this.valueHolder.getKeyType();
+    }
+
     @Override
     public V fillAndGet(Object key) {
         return null;
@@ -265,6 +269,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.type;
     }
 
+
+
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type.getConstrainedType());
@@ -328,31 +334,22 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         public boolean containsKey(K key) {
             return false;
         }
+
+        public BType getKeyType() {
+            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "keys are not defined");
+        }
     }
 
     private class KeyHashValueHolder extends ValueHolder {
         private DefaultKeyWrapper keyWrapper;
-        private List<BType> keyTypes;
+        private BType keyType;
 
         public KeyHashValueHolder() {
             super();
-            keyTypes = new ArrayList<>();
             if (fieldNames.length > 1) {
-                populateKeyTypes();
                 keyWrapper = new MultiKeyWrapper();
             } else {
                 keyWrapper = new DefaultKeyWrapper();
-            }
-        }
-
-        private void populateKeyTypes() {
-            BType constraintType = type.getConstrainedType();
-            if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                BRecordType recordType = (BRecordType) constraintType;
-                Arrays.stream(fieldNames).forEach(field -> keyTypes.add(recordType.getFields().get(field).type));
-            } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
-                BMapType mapType = (BMapType) constraintType;
-                Arrays.stream(fieldNames).forEach(field -> keyTypes.add(mapType.getConstrainedType()));
             }
         }
 
@@ -407,12 +404,16 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return keys.containsKey(TableUtils.hash(key, new ArrayList<>()));
         }
 
+        public BType getKeyType() {
+            return keyType;
+        }
+
         private class DefaultKeyWrapper {
 
             public DefaultKeyWrapper() {
                 if (fieldNames.length == 1) {
-                    BType keyFieldType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
-                    if (keyFieldType != null && keyFieldType.getTag() == TypeTags.INT_TAG) {
+                    keyType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
+                    if (keyType != null && keyType.getTag() == TypeTags.INT_TAG) {
                         nextKeySupported = true;
                     }
                 }
@@ -425,9 +426,23 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         private class MultiKeyWrapper extends DefaultKeyWrapper {
 
+            public MultiKeyWrapper() {
+                super();
+                List<BType> keyTypes = new ArrayList<>();
+                BType constraintType = type.getConstrainedType();
+                if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    BRecordType recordType = (BRecordType) constraintType;
+                    Arrays.stream(fieldNames).forEach(field -> keyTypes.add(recordType.getFields().get(field).type));
+                } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
+                    BMapType mapType = (BMapType) constraintType;
+                    Arrays.stream(fieldNames).forEach(field -> keyTypes.add(mapType.getConstrainedType()));
+                }
+                keyType = new BTupleType(keyTypes);
+            }
+
             public Object wrapKey(MapValue data) {
                 TupleValueImpl arr = (TupleValueImpl) BValueCreator
-                        .createTupleValue(new BTupleType(keyTypes));
+                        .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
                     arr.add(i, data.get(fieldNames[i]));
                 }

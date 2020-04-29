@@ -17,6 +17,7 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BMap;
 
 /**
@@ -38,4 +39,8 @@ public interface TableValue<K, V> extends RefValue, CollectionValue, BMap<K, V> 
     V getOrThrow(Object key);
 
     V put(K key, V value);
+
+    int getNextKey();
+
+    BType getKeyType();
 }

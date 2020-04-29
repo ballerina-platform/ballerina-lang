@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -110,12 +111,13 @@ public class LangLibTableTest {
 
     @Test
     public void testGetKeyList() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetKeyList");
-        assertEquals(returns.length, 4);
-        assertEquals(returns[0].stringValue(), "Chiran");
-        assertEquals(returns[1].stringValue(), "Mohan");
-        assertEquals(returns[2].stringValue(), "Gima");
-        assertEquals(returns[3].stringValue(), "Granier");
+        BValue[] result = BRunUtil.invoke(compileResult, "testGetKeyList");
+        BValueArray returns = (BValueArray) result[0];
+        assertEquals(returns.size(), 4);
+        assertEquals(returns.getString(0), "Chiran");
+        assertEquals(returns.getString(1), "Mohan");
+        assertEquals(returns.getString(2), "Gima");
+        assertEquals(returns.getString(3), "Granier");
     }
 
     @Test
