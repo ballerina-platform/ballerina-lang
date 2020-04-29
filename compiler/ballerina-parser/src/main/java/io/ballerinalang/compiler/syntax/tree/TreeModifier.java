@@ -283,7 +283,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ReturnStatementNode returnStatementNode) {
         Token returnKeyword = modifyToken(returnStatementNode.returnKeyword());
-        ExpressionNode expression = modifyNode(returnStatementNode.expression());
+        ExpressionNode expression = modifyNode(returnStatementNode.expression().orElse(null));
         Token semicolonToken = modifyToken(returnStatementNode.semicolonToken());
         return returnStatementNode.modify(
                 returnKeyword,
