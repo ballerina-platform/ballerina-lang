@@ -156,10 +156,7 @@ import java.util.regex.Pattern;
  * @since 1.3.0
  */
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
-
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
-    public static final String VAR = "var";
-
     private BLangDiagnosticLogHelper dlog;
     private SymbolTable symTable;
     private BDiagnosticSource diagnosticSource;
@@ -736,8 +733,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                 boolean isListenerVar) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(getPosition(name), name.text()));
-        boolean isDeclaredWithVar = (VAR.equals(typeName.toString().trim()));
-        if (isDeclaredWithVar) {
+        if (typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
             bLSimpleVar.isDeclaredWithVar = true;
         } else {
             bLSimpleVar.setTypeNode(createTypeNode(typeName));
@@ -936,6 +932,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             // Map name reference as a name
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) node;
+            // TODO: Fix when there's MISSING_TOKEN
             return getBLangNameReference(nameReferenceNode.name());
         }
     }
