@@ -17,6 +17,18 @@ function testExpressions() {
     io:println(a);
     io:println(b);
 
+    //list-construct-expr
+    var myList = [111, 222];
+    var myList2 = [333, "444"];
+    io:println(myList);
+    io:println(myList2);
+
+    //mapping-construct-expr
+    var myMap = {key : "value"};
+    var myMap2 = {"key" : "value"};
+    io:println(myMap);
+    io:println(myMap2);
+
     // field-access-expr
     Foo foo = {bar: "templers rd"};
     io:println(foo.bar);
