@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -147,6 +148,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -157,6 +159,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.tree.NodeKind.LET_VARIABLE;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
@@ -841,6 +844,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 simpleVariable.type = rhsType;
 
+                if (simpleVariable.flagSet.contains(Flag.FINAL)) {
+                    simpleVariable.type = getInferredTypeForFinalVar(varRefExpr, rhsType);
+                }
+
                 int ownerSymTag = env.scope.owner.tag;
                 if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
                     // This is a variable declared in a function, an action or a resource
@@ -852,7 +859,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
                 // symbol enter. If the variable is a local variable, the symbol will be created above.
-                simpleVariable.symbol.type = rhsType;
+                simpleVariable.symbol.type = simpleVariable.type;
                 break;
             case TUPLE_VARIABLE:
                 if (variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
@@ -980,6 +987,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 recursivelySetFinalFlag(errorVariable);
                 break;
         }
+    }
+
+    private BType getInferredTypeForFinalVar(BLangExpression expr, BType originalType) {
+        // Inferred type for final variables declared with var should be the precise type
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef ref = (BLangSimpleVarRef) expr;
+                if (ref.symbol.getKind() == SymbolKind.CONSTANT) {
+                    return ((BConstantSymbol) ref.symbol).type;
+                }
+                return originalType;
+            case NUMERIC_LITERAL:
+            case LITERAL:
+                return new BFiniteType(createTypeSymbol(SymTag.FINITE_TYPE), Collections.singleton(expr));
+            case LIST_CONSTRUCTOR_EXPR:
+                BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) expr;
+                List<BType> memberTypes = new ArrayList<>();
+                for (BLangExpression expression : listConstructorExpr.exprs) {
+                    memberTypes.add(new BFiniteType(createTypeSymbol(SymTag.FINITE_TYPE),
+                            Collections.singleton(expression)));
+                }
+                return new BTupleType(memberTypes);
+        }
+        return originalType;
     }
 
     private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
