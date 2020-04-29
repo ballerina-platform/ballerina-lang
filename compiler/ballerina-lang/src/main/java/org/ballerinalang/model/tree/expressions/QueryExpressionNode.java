@@ -20,6 +20,7 @@ import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.ballerinalang.model.clauses.OnConflictClauseNode;
 
 import java.util.List;
 
@@ -37,6 +38,10 @@ public interface QueryExpressionNode extends ExpressionNode {
     SelectClauseNode getSelectClauseNode();
 
     void setSelectClauseNode(SelectClauseNode selectClauseNode);
+	
+	OnConflictClauseNode getOnConflictClauseNode();
+
+    void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode);
 
     List<? extends WhereClauseNode> getWhereClauseNode();
 

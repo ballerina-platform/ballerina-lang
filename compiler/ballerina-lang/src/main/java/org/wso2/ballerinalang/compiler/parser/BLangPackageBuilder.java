@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -282,6 +283,8 @@ public class BLangPackageBuilder {
     private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
 
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
+	
+	private Stack<BLangOnConflictClause> onConflictNodeStack = new Stack<>();
 
     private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
@@ -1929,6 +1932,9 @@ public class BLangPackageBuilder {
         while (whereClauseNodeStack.size() > 0) {
             queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
         }
+		if (onConflictNodeStack.size() > 0){
+            queryExpr.setOnConflictClauseNode(onConflictNodeStack.pop());
+        }
         addExpressionNode(queryExpr);
     }
 
@@ -2010,6 +2016,14 @@ public class BLangPackageBuilder {
         selectClause.pos = pos;
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
         selectClauseNodeStack.push(selectClause);
+    }
+	
+	void createOnConflictClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOnConflictClause onConflictClause = (BLangOnConflictClause) TreeBuilder.createOnConflictClauseNode();
+        onConflictClause.addWS(ws);
+        onConflictClause.pos = pos;
+        onConflictClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onConflictNodeStack.push(onConflictClause);
     }
 
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
