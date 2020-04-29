@@ -103,7 +103,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
     }
 
-
     @Override
     public IteratorValue getIterator() {
         return new TableIterator<K, V>(entries.values().iterator());

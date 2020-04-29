@@ -153,6 +153,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangT
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -3566,12 +3567,12 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TABLE) {
-            if (targetVarRef.multiKeyExpr != null) {
-                BLangTupleLiteral listConstructorExpr =
-                        new BLangTupleLiteral();
-                listConstructorExpr.exprs = indexAccessExpr.multiKeyExpr.multiKeyIndexExprs;
+            if (targetVarRef.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY) {
+                BLangTupleLiteral listConstructorExpr = new BLangTupleLiteral();
+                listConstructorExpr.exprs = ((BLangTableMultiKeyExpr) indexAccessExpr.indexExpr).multiKeyIndexExprs;
                 List<BType> memberTypes = new ArrayList<>();
-                indexAccessExpr.multiKeyExpr.multiKeyIndexExprs.forEach(expression -> memberTypes.add(expression.type));
+                ((BLangTableMultiKeyExpr) indexAccessExpr.indexExpr).multiKeyIndexExprs.
+                        forEach(expression -> memberTypes.add(expression.type));
                 listConstructorExpr.type = new BTupleType(memberTypes);
                 indexAccessExpr.indexExpr = listConstructorExpr;
             }
@@ -3582,6 +3583,12 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
         targetVarRef.type = indexAccessExpr.type;
         result = targetVarRef;
+    }
+
+    @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        rewriteExprs(tableMultiKeyExpr.multiKeyIndexExprs);
+        result = tableMultiKeyExpr;
     }
 
     @Override

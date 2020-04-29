@@ -28,6 +28,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Extern function to get next key from the table.
  * ballerina.model.table:nextKey()
+ *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table",

@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native implementation of lang.table:length(map).
  *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "length",

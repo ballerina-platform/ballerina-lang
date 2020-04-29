@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).
  *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "removeAll",

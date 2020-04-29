@@ -547,7 +547,6 @@ public class Types {
                     unresolvedTypes);
         }
 
-        //TODO Need to check the key specifier
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
             return isAssignableTableType((BTableType) source, (BTableType) target);
         }

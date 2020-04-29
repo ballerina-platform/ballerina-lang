@@ -28,9 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * BLangTableConstructorExpr class.
+ * Implementation of Table constructor expression.
  *
- * @see BLangTableConstructorExpr
  * @since 1.3.0
  */
 public class BLangTableConstructorExpr extends BLangExpression implements TableConstructorExprNode {

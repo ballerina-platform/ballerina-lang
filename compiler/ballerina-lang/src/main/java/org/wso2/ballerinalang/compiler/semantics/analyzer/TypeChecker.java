@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1983,7 +1984,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
-        if (indexBasedAccessExpr.multiKeyExpr != null && indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
+        if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&
+                indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
                     indexBasedAccessExpr.expr.type);
             resultType = symTable.semanticError;
@@ -5276,7 +5278,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            if (indexExpr != null) {
+            if (indexExpr.getKind() != NodeKind.TABLE_MULTI_KEY) {
                 checkExpr(indexExpr, this.env, keyTypeConstraint);
                 if (indexExpr.type == symTable.semanticError) {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
@@ -5284,7 +5286,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     return symTable.semanticError;
                 }
             } else {
-                List<BLangExpression> multiKeyExpressionList = indexBasedAccessExpr.multiKeyExpr.multiKeyIndexExprs;
+                List<BLangExpression> multiKeyExpressionList = ((BLangTableMultiKeyExpr)
+                        indexBasedAccessExpr.indexExpr).multiKeyIndexExprs;
                 List<BType> keyConstraintTypes = ((BTupleType) keyTypeConstraint).tupleTypes;
                 if (keyConstraintTypes.size() != multiKeyExpressionList.size()) {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
