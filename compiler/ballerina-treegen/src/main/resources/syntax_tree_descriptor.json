@@ -493,7 +493,8 @@
                 },
                 {
                     "name": "expression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
