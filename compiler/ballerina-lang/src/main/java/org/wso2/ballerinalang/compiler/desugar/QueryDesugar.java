@@ -22,8 +22,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -82,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -98,25 +95,23 @@ import java.util.Map;
  * @since 1.2.0
  */
 public class QueryDesugar extends BLangNodeVisitor {
-    public static final Name QUERY_CREATE_PIPELINE_FUNCTION = new Name("createPipeline");
-    public static final Name QUERY_CREATE_FROM_FUNCTION = new Name("createFromFunction");
-    public static final Name QUERY_CREATE_LET_FUNCTION = new Name("createLetFunction");
-    public static final Name QUERY_CREATE_JOIN_FUNCTION = new Name("createJoinFunction");
-    public static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
-    public static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
-    public static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
-    public static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
-    public static final Name QUERY_ADD_TO_FRAME_FUNCTION = new Name("addToFrame");
-    public static final Name QUERY_SPREAD_TO_FRAME_FUNCTION = new Name("spreadToFrame");
-    public static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
-    public static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
-    public static final String FRAME_PARAMETER_NAME = "frame";
+    private static final Name QUERY_CREATE_PIPELINE_FUNCTION = new Name("createPipeline");
+    private static final Name QUERY_CREATE_FROM_FUNCTION = new Name("createFromFunction");
+    private static final Name QUERY_CREATE_LET_FUNCTION = new Name("createLetFunction");
+    private static final Name QUERY_CREATE_JOIN_FUNCTION = new Name("createJoinFunction");
+    private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
+    private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
+    private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
+    private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
+    private static final Name QUERY_ADD_TO_FRAME_FUNCTION = new Name("addToFrame");
+    private static final Name QUERY_SPREAD_TO_FRAME_FUNCTION = new Name("spreadToFrame");
+    private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
+    private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
+    private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
+    private static final String FRAME_PARAMETER_NAME = "frame";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
-    private final SymbolEnter symbolEnter;
     private final Desugar desugar;
     private final SymbolTable symTable;
-    private final BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangDiagnosticLogHelper dlog;
     private final SymbolResolver symResolver;
     private final Names names;
     private final Types types;
@@ -127,12 +122,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         context.put(QUERY_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public static QueryDesugar getInstance(CompilerContext context) {
@@ -145,19 +137,19 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
-        BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(clauses.get(0).pos);
+        DiagnosticPos pos = clauses.get(0).pos;
+        BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, env, queryBlock);
-
-        //        // TODO
-        //        if (queryExpr.isStream) {
-        //            // addGetStreamFromPipeline(queryBlock, initPipeline);
-        //        } else {
-        //            // to array?
-        //        }
-        //        // --- end new stream desugar ---
-
-        BLangStatementExpression streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
-        streamStmtExpr.type = streamRef.type;
+        BLangStatementExpression streamStmtExpr;
+        if (queryExpr.isStream) {
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
+            streamStmtExpr.type = streamRef.type;
+        } else {
+            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+                    QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
+            streamStmtExpr.type = result.type;
+        }
         return streamStmtExpr;
     }
 

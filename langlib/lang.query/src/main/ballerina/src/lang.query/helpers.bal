@@ -66,6 +66,16 @@ public function consumeStream(stream<any|error, error?> strm) returns error? {
     }
 }
 
+public function toArray(stream<any|error, error?> strm) returns (any|error)[] {
+    (any|error)[] arr = [];
+    any|error? v = strm.next();
+    while (v is record {| (any|error) value; |}) {
+        arr.push(v.value);
+        v = strm.next();
+    }
+    return arr;
+}
+
 public function addToFrame(_Frame frame, string key, any|error value) {
     frame[key] = value;
 }
