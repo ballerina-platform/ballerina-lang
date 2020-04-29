@@ -27,16 +27,13 @@ class TestEvent {
     enum Kind {
         PKG_NODE("package"),
         SERVICE_ANN("service"),
-        RESOURCE_ANN("resource"),
-        CONNECTOR_ANN("connector"),
-        ACTION_ANN("action"),
-        STRUCT_ANN("struct"),
         TYPEDEF_ANN("struct"),
         FUNC_ANN("function"),
         VARIAVLE_ANN("variable"),
         ANNOTATION_ANN("annotation"),
-        TRANSFORM_ANN("transformer"),
-        CODE_GEN("codegen");
+        CODE_GEN("codegen"),
+        PLUGIN_START("pluginStart"),
+        PLUGIN_COMPLETE("pluginComplete");
 
         String name;
 

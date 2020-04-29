@@ -149,6 +149,7 @@ public class BaloCreator {
     /**
      * Method to clean up pkg from the ballerina repository after tests are run.
      *
+     * @param projectRoot project root.
      * @param orgName organization name.
      * @param pkgName package name.
      */
