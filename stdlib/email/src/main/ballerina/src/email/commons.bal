@@ -39,14 +39,5 @@ public type Email record {|
     mime:Entity[] attachments?;
 |};
 
-# Optional property configurations for a protocol.
-#
-# + key - Name of the property defined by the protocol
-# + value - Any type of data as the value
-public type Property record {|
-    string key;
-    anydata value;
-|};
-
 # Default folder to read emails.
 public const DEFAULT_FOLDER = "INBOX";

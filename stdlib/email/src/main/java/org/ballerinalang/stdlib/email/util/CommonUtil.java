@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.email.util;
 
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.slf4j.Logger;
@@ -96,15 +95,14 @@ public class CommonUtil {
      * @param customProperties Custom properties from Ballerina
      * @param properties Properties to be used to create the session
      */
-    public static void addCustomProperties(ArrayValue customProperties, Properties properties) {
+    public static void addCustomProperties(MapValue customProperties, Properties properties) {
         if (customProperties != null) {
-            for (int i = 0; i < customProperties.size(); i++) {
-                MapValue propertyMap = (MapValue) customProperties.get(i);
-                String key = propertyMap.getStringValue(EmailConstants.KEY);
-                Object value = propertyMap.get(EmailConstants.VALUE);
-                properties.put(key, value.toString());
-                log.debug("Added custom SMTP property with Name: " + key + ", Value: " + value.toString() +
-                        ", and Value Type: " + value.getClass().getName());
+            for (Object propertyName : customProperties.getKeys()) {
+                if (propertyName instanceof String) {
+                    properties.put(propertyName, customProperties.getStringValue((String) propertyName));
+                    log.debug("Added custom SMTP property with Name: " + propertyName + ", Value: "
+                            + customProperties.getStringValue((String) propertyName));
+                }
             }
         }
     }
