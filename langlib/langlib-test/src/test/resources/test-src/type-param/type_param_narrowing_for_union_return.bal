@@ -33,7 +33,7 @@ function assertEqual(anydata|error expected, anydata|error actual) {
                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
-function testSimpleUnionReturnParameterNarrowing() {
+function testSimpleUnion() {
     int[]|float[] arr = <int[]>[1, 2];
     [int, (int|float)][] y = arr.enumerate();
     assertTrue(y[0][1] is int);
@@ -41,13 +41,13 @@ function testSimpleUnionReturnParameterNarrowing() {
     assertEqual(2, y[1][1]);
 }
 
-function testUnionOfMapsReturnParameterNarrowing() {
+function testUnionOfMaps() {
     map<int>|map<float> m = <map<int>>{"1": 1};
     int|float x = m.get("1");
     assertEqual(1, x);
 }
 
-function testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing() {
+function testStringIntFloatSimpleAndArrayUnion() {
     string | int[] | int | float[] | float arr = <int[]>[1, 2];
     if (arr is int[] | float[]) {
         [int, (int|float)][] y = arr.enumerate();
@@ -59,7 +59,7 @@ function testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing() {
     }
 }
 
-function testIntFloatSimpleAndMapUnionReturnParameterNarrowing() {
+function testIntFloatSimpleAndMapUnion() {
     map<int> | int | map<float> | float  m = <map<int>>{"1": 1};
     if (m is map<int> | map<float>) {
         int|float x = m.get("1");
@@ -70,7 +70,7 @@ function testIntFloatSimpleAndMapUnionReturnParameterNarrowing() {
     }
 }
 
-function testIntFloatSimpleArrayMapUnionReturnParameterNarrowing() {
+function testIntFloatSimpleArrayMapUnion() {
     map<int> | int[] | map<float> | float[]  m = <map<int>>{"1": 1};
     if (m is map<float> | map<int>) {
         int|float x = m.get("1");
@@ -94,9 +94,18 @@ type IntIdRecord record {
     int id;
 };
 
-function testUnionOfRecordTypeParamNarrowing() {
+
+function testUnionOfRecordTypes() {
     StringIdRecord|IntIdRecord recordId = <StringIdRecord>{id: "34"};
     string|int stringOrIntVar = recordId.get("id");
     assertEqual("34", stringOrIntVar);
-    assertTrue(fbs is string);
+    assertTrue(stringOrIntVar is string);
+}
+
+function testUnionOfSimpleTupleTypes() {
+    [int]|[string] intOrStringTuple = <[int]>[4];
+    var x = intOrStringTuple.iterator();
+    record {|int|string value;|}? valueRecord = x.next();
+    assertEqual(4, valueRecord["value"]);
+    assertTrue(valueRecord["value"] is int);
 }

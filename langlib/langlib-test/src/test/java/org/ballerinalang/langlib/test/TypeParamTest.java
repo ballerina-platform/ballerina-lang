@@ -112,11 +112,12 @@ public class TypeParamTest {
     @Test(description = "Tests for type narrowing for union return parameters")
     public void testTypeNarrowingForUnionReturnParameters() {
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_narrowing_for_union_return.bal");
-        BRunUtil.invoke(result, "testSimpleUnionReturnParameterNarrowing");
-        BRunUtil.invoke(result, "testUnionOfMapsReturnParameterNarrowing");
-        BRunUtil.invoke(result, "testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing");
-        BRunUtil.invoke(result, "testIntFloatSimpleAndMapUnionReturnParameterNarrowing");
-        BRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnionReturnParameterNarrowing");
-        BRunUtil.invoke(result, "testUnionOfRecordTypeParamNarrowing");
+        BRunUtil.invoke(result, "testSimpleUnion");
+        BRunUtil.invoke(result, "testUnionOfMaps");
+        BRunUtil.invoke(result, "testStringIntFloatSimpleAndArrayUnion");
+        BRunUtil.invoke(result, "testIntFloatSimpleAndMapUnion");
+        BRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnion");
+        BRunUtil.invoke(result, "testUnionOfRecordTypes");
+        BRunUtil.invoke(result, "testUnionOfSimpleTupleTypes");
     }
 }

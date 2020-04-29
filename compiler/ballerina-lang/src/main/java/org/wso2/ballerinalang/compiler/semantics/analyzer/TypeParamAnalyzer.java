@@ -330,6 +330,9 @@ public class TypeParamAnalyzer {
                     findTypeParamInTuple(pos, (BTupleType) expType, (BTupleType) actualType, env, resolvedTypes,
                                          result);
                 }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnion(pos, expType, (BUnionType) actualType, env, resolvedTypes, result);
+                }
                 return;
             case TypeTags.RECORD:
                 if (actualType.tag == TypeTags.RECORD) {
@@ -337,8 +340,7 @@ public class TypeParamAnalyzer {
                                           result);
                 }
                 if (actualType.tag == TypeTags.UNION) {
-                    findTypeParamInUnion(pos, expType, (BUnionType) actualType, env,
-                                         resolvedTypes, result);
+                    findTypeParamInUnion(pos, expType, (BUnionType) actualType, env, resolvedTypes, result);
                 }
                 return;
             case TypeTags.INVOKABLE:
@@ -428,6 +430,9 @@ public class TypeParamAnalyzer {
                 for (BField field : ((BRecordType) type).getFields()) {
                     members.add(field.type);
                 }
+            }
+            if (type.tag == TypeTags.TUPLE) {
+                members.addAll(((BTupleType) type).getTupleTypes());
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, members);
