@@ -76,13 +76,13 @@ public function getLength(public handle array) returns int = @java:Method {
 
 # Returns a Ballerina array for a handle that holds a Java array.
 # ```ballerina
-# int[] array = <int[]>java.arrays:getArrayFromHandle(handleValue);
+# int[] array = <int[]>java.arrays:fromHandle(handleValue);
 # ```
 #
 # + array - The `handle`, which refers to the Java array
-# + elementType - Optional parameter to specify the element type that is referenced by the handle
+# + elementType - Optional parameter provided to specify the `string` array element type (default is set to `handle`)
 # + return - Ballerina array for the provided handle
-public function getArrayFromHandle(handle array, typedesc<any> elementType = handle) returns any[] {
+public function fromHandle(handle array, typedesc<any> elementType = handle) returns any[] {
     any[] returnArray = [];
     if (!java:isNull(array)) {
         int count = getLength(array);
@@ -104,13 +104,13 @@ public function getArrayFromHandle(handle array, typedesc<any> elementType = han
 
 # Returns a handle value representation for a Ballerina array.
 # ```ballerina
-# handle|error handleValue = java.arrays:getHandleFromArray(arg, "char");
+# handle|error handleValue = java.arrays:toHandle(arg, "char");
 # ```
 #
 # + array - Ballerina array which is to be converted to a handle reference
 # + className - Java class name or the primitive type of the array elements referenced by the handle
 # + return - The `handle|error` after the conversion
-public function getHandleFromArray(any[] array, string className) returns handle|error {
+public function toHandle(any[] array, string className) returns handle|error {
     handle returnHandle = newInstance(check java:getClass(className), array.length());
     int count=0;
     while (count < array.length()) {
