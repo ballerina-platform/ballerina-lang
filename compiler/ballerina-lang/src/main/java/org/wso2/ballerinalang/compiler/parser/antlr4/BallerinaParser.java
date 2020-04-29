@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})s
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaParser extends Parser {
 	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
 
