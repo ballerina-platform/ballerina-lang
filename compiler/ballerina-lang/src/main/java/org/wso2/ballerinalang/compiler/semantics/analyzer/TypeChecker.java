@@ -145,6 +145,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
@@ -798,11 +799,17 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.TYPEDESC:
                 return type;
             case TypeTags.JSON:
-                return symTable.arrayJsonType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayJsonType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayJsonType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANYDATA:
-                return symTable.arrayAnydataType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAnydataType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayAnydataType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANY:
-                return symTable.arrayType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayType, env, symTable,
+                                                             anonymousModelHelper, names);
         }
         return symTable.semanticError;
     }
@@ -1008,11 +1015,17 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 return type;
             case TypeTags.JSON:
-                return symTable.mapJsonType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapJsonType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapJsonType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANYDATA:
-                return symTable.mapAnydataType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAnydataType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapAnydataType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANY:
-                return symTable.mapType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapType, env, symTable,
+                                                             anonymousModelHelper, names);
         }
         return symTable.semanticError;
     }
