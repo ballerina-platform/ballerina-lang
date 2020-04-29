@@ -65,9 +65,6 @@ public class OpenApiMesseges {
     public static final String DEFINITION_EXISTS = "There is already an OpenApi contract in the location.";
     public static final String EXPERIMENTAL_FEATURE = "Note: This is an experimental tool, which only" +
             " supports a limited set of functionality.";
-    public static final String EXPERIMENTAL_ALLOF_TYPE = "[Warning] :  This tool does not support to 'allof' type " +
-            "and continue generating ballerina code (yaml file)  for " +
-            "other types in the contract except  'allof' type. ";
 
     //TODO Update keywords if Ballerina Grammer changes
     private static final String[] KEYWORDS = new String[]{"abort", "aborted", "abstract", "all", "annotation",
