@@ -264,6 +264,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                 fromClause.variableDefinitionNode.getVariable());
         Collections.reverse(symbols);
         for (BVarSymbol symbol : symbols) {
+            // since the var decl is now within lambda, remove scope entry from encl env.
+            env.scope.entries.remove(symbol.name);
             body.stmts.add(0, addToFrameFunctionStmt(pos, frameSymbol, symbol));
         }
 
@@ -323,6 +325,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BVarSymbol> symbols = getIntroducedSymbols(letClause);
         Collections.reverse(symbols);
         for (BVarSymbol symbol : symbols) {
+            // since the var decl is now within lambda, remove scope entry from encl env.
+            env.scope.entries.remove(symbol.name);
             body.stmts.add(0, addToFrameFunctionStmt(pos, frameSymbol, symbol));
         }
 
@@ -510,16 +514,15 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-        bLangRecordVariable.variableList.forEach(v -> {
-            BLangVariable variable = v.getValue();
-            identifiers.putIfAbsent(variable.symbol.name.value, variable.symbol);
-        });
+        bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
     }
 
     @Override
     public void visit(BLangSimpleVariable bLangSimpleVariable) {
         identifiers.putIfAbsent(bLangSimpleVariable.name.value, bLangSimpleVariable.symbol);
-        bLangSimpleVariable.expr.accept(this);
+        if (bLangSimpleVariable.expr != null) {
+            bLangSimpleVariable.expr.accept(this);
+        }
     }
 
     @Override
