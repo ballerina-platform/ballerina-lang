@@ -37,16 +37,16 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SERVICES;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SERVICES;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina kafka consumer endpoint bind to a service .
  */
-public class KafkaServiceTest {
+public class ServiceTest {
 
     private CompileResult compileResult;
     private static File dataDir;
@@ -61,7 +61,7 @@ public class KafkaServiceTest {
     @Test(description = "Test endpoint bind to a service")
     public void testKafkaService() {
         compileResult = BCompileUtil.compileOffline(true,
-                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service.bal")));
+                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "simple_service.bal")));
         String topic = "service-test";
         String message = "test_string";
         produceToKafkaCluster(kafkaCluster, topic, message);
@@ -81,7 +81,7 @@ public class KafkaServiceTest {
     @Test(description = "Test endpoint bind to a service")
     public void testKafkaAdvancedService() {
         compileResult = BCompileUtil.compileOffline(true,
-                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service_advanced.bal")));
+                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "advanced_service.bal")));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
 
         try {
@@ -99,7 +99,7 @@ public class KafkaServiceTest {
     @Test(description = "Test kafka service stop() function")
     public void testKafkaServiceStop() {
         compileResult = BCompileUtil.compileOffline(true,
-                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service_stop.bal")));
+                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "stop_service.bal")));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {

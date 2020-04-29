@@ -36,17 +36,17 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Tests for ballerina Kafka subscribeWithPartitionRebalance function.
  */
 @Test(singleThreaded = true)
-public class KafkaConsumerSubscribePartitionRebalanceTest {
+public class TopicSubscribePartitionRebalanceTest {
 
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
@@ -60,7 +60,7 @@ public class KafkaConsumerSubscribePartitionRebalanceTest {
     @Test(description = "Test functionality of subscribeWithPartitionRebalance() function")
     public void testKafkaConsumerSubscribeWithPartitionRebalance() {
         CompileResult result = BCompileUtil.compileOffline(true, getFilePath(
-                Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_with_partition_rebalance.bal")));
+                Paths.get(TEST_SRC, TEST_CONSUMER, "topic_subscribe_with_partition_rebalance.bal")));
         BValue[] returnBValuesRevoked = BRunUtil.invoke(result, "funcKafkaGetRebalanceInvokedPartitionsCount");
         Assert.assertEquals(returnBValuesRevoked.length, 1);
         Assert.assertTrue(returnBValuesRevoked[0] instanceof BInteger);

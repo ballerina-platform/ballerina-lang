@@ -35,15 +35,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SERDES;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SERDES;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 
 /**
  * Test class for Ballerina Kafka Serializer / Deserializer tests.
  */
-public class KafkaSerializerDeserializerTest {
+public class SerializerDeserializerTest {
 
     private CompileResult result;
     private static File dataDir;

@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
-package org.ballerinalang.messaging.kafka.ssl;
+package org.ballerinalang.messaging.kafka.security;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
@@ -47,19 +47,19 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SSL;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 
 /**
  * Test cases for ballerina.kafka consumer and producer with SSL.
  */
-public class KafkaConsumerAndProducerWithSSLTest {
+public class ConsumerAndProducerWithSslTest {
 
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
     private static String resourceDir = Paths.get("src", "test", "resources").toString();
-    private static String configFile = Paths.get(TEST_SRC, TEST_SSL, "kafka_ssl.bal").toString();
+    private static String configFile = Paths.get(TEST_SRC, TEST_SECURITY, "ssl_producer_consumer.bal").toString();
     private String message = "Hello World SSL Test";
 
     //Constants
