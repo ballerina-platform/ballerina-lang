@@ -226,4 +226,9 @@ public class ArrayTest {
     public void testArrayMapString() {
         BRunUtil.invokeFunction(compileResult, "testArrayMapString");
     }
+
+    @Test
+    public void testArrayUnionType() {
+        BRunUtil.invokeFunction(compileResult, "testArrayUnionType");
+    }
 }

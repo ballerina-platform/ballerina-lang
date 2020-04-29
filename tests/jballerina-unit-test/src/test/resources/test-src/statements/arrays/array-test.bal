@@ -220,6 +220,14 @@ function testArrayMapString() {
 
 }
 
+const TYPEDESC_UNION_ARRAY = "typedesc int|string[4][3][][2][4]";
+
+function testArrayUnionType() {
+    (int|string[4][3])[][2][4] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality(TYPEDESC_UNION_ARRAY, t.toString());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
