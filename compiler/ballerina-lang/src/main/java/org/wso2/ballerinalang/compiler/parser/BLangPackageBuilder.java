@@ -1800,7 +1800,7 @@ public class BLangPackageBuilder {
         indexBasedAccess.pos = pos;
         indexBasedAccess.addWS(ws);
         if (tableMultiKeyExpressionNodeStack.size() == 1) {
-            indexBasedAccess.multiKeyExpr = (BLangTableMultiKeyExpr) tableMultiKeyExpressionNodeStack.pop();
+            indexBasedAccess.indexExpr = (BLangTableMultiKeyExpr) tableMultiKeyExpressionNodeStack.pop();
         } else {
             indexBasedAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
         }

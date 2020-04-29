@@ -509,7 +509,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
         indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
-        indexAccessExpr.multiKeyExpr = rewrite(indexAccessExpr.multiKeyExpr);
         result = indexAccessExpr;
     }
 
