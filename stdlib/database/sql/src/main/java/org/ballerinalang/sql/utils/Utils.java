@@ -44,7 +44,6 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -135,7 +134,7 @@ class Utils {
             Object object = arrayValue.get(i);
             int index = i + 1;
             if (object == null) {
-                preparedStatement.setObject(index, null);
+                preparedStatement.setNull(index, Types.NULL);
             } else if (object instanceof String) {
                 preparedStatement.setString(index, object.toString());
             } else if (object instanceof Long) {
@@ -182,15 +181,25 @@ class Utils {
             case Constants.SqlTypes.VARCHAR:
             case Constants.SqlTypes.CHAR:
             case Constants.SqlTypes.TEXT:
-                preparedStatement.setString(index, value.toString());
+                if (value == null) {
+                    preparedStatement.setString(index, null);
+                } else {
+                    preparedStatement.setString(index, value.toString());
+                }
                 break;
             case Constants.SqlTypes.NCHAR:
             case Constants.SqlTypes.NVARCHAR:
-                preparedStatement.setNString(index, value.toString());
+                if (value == null) {
+                    preparedStatement.setNString(index, null);
+                } else {
+                    preparedStatement.setNString(index, value.toString());
+                }
                 break;
             case Constants.SqlTypes.BIT:
             case Constants.SqlTypes.BOOLEAN:
-                if (value instanceof String) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.BOOLEAN);
+                } else if (value instanceof String) {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value.toString()));
                 } else if (value instanceof Integer || value instanceof Long) {
                     long lVal = ((Number) value).longValue();
@@ -207,21 +216,27 @@ class Utils {
                 }
                 break;
             case Constants.SqlTypes.INTEGER:
-                if (value instanceof Integer || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.INTEGER);
+                } else if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setInt(index, ((Number) value).intValue());
                 } else {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.BIGINT:
-                if (value instanceof Integer || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.BIGINT);
+                } else if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setLong(index, ((Number) value).longValue());
                 } else {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.SMALLINT:
-                if (value instanceof Integer || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.SMALLINT);
+                } else if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setShort(index, ((Number) value).shortValue());
                 } else {
                     throw throwInvalidParameterError(value, sqlType);
@@ -229,7 +244,9 @@ class Utils {
                 break;
             case Constants.SqlTypes.FLOAT:
             case Constants.SqlTypes.REAL:
-                if (value instanceof Double || value instanceof Long ||
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.FLOAT);
+                } else if (value instanceof Double || value instanceof Long ||
                         value instanceof Float || value instanceof Integer) {
                     preparedStatement.setFloat(index, ((Number) value).floatValue());
                 } else if (value instanceof DecimalValue) {
@@ -239,7 +256,9 @@ class Utils {
                 }
                 break;
             case Constants.SqlTypes.DOUBLE:
-                if (value instanceof Double || value instanceof Long ||
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.DOUBLE);
+                } else if (value instanceof Double || value instanceof Long ||
                         value instanceof Float || value instanceof Integer) {
                     preparedStatement.setDouble(index, ((Number) value).doubleValue());
                 } else if (value instanceof DecimalValue) {
@@ -250,7 +269,9 @@ class Utils {
                 break;
             case Constants.SqlTypes.NUMERIC:
             case Constants.SqlTypes.DECIMAL:
-                if (value instanceof Double || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.DECIMAL);
+                } else if (value instanceof Double || value instanceof Long) {
                     preparedStatement.setBigDecimal(index, new BigDecimal(((Number) value).doubleValue(),
                             MathContext.DECIMAL64));
                 } else if (value instanceof Integer || value instanceof Float) {
@@ -265,7 +286,9 @@ class Utils {
             case Constants.SqlTypes.BINARY:
             case Constants.SqlTypes.VARBINARY:
             case Constants.SqlTypes.BLOB:
-                if (value instanceof ArrayValue) {
+                if (value == null) {
+                    preparedStatement.setBytes(index, null);
+                } else if (value instanceof ArrayValue) {
                     ArrayValue arrayValue = (ArrayValue) value;
                     if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
                         preparedStatement.setBytes(index, arrayValue.getBytes());
@@ -289,87 +312,103 @@ class Utils {
             case Constants.SqlTypes.CLOB:
             case Constants.SqlTypes.NCLOB:
                 Clob clob;
-                if (sqlType.equalsIgnoreCase(Constants.SqlTypes.NCLOB)) {
-                    clob = connection.createNClob();
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.CLOB);
                 } else {
-                    clob = connection.createClob();
-                }
-                if (value instanceof String) {
-                    clob.setString(1, value.toString());
-                    preparedStatement.setClob(index, clob);
-                } else if (value instanceof ObjectValue) {
-                    ObjectValue objectValue = (ObjectValue) value;
-                    if (objectValue.getType().getName().equalsIgnoreCase(Constants.READ_CHAR_CHANNEL_STRUCT) &&
-                            objectValue.getType().getPackage().toString()
-                                    .equalsIgnoreCase(IOConstants.IO_PACKAGE_ID.toString())) {
-                        CharacterChannel charChannel = (CharacterChannel) objectValue.getNativeData(
-                                IOConstants.CHARACTER_CHANNEL_NAME);
-                        preparedStatement.setCharacterStream(index, new CharacterChannelReader(charChannel));
+                    if (sqlType.equalsIgnoreCase(Constants.SqlTypes.NCLOB)) {
+                        clob = connection.createNClob();
                     } else {
-                        throw throwInvalidParameterError(value, sqlType);
+                        clob = connection.createClob();
+                    }
+                    if (value instanceof String) {
+                        clob.setString(1, value.toString());
+                        preparedStatement.setClob(index, clob);
+                    } else if (value instanceof ObjectValue) {
+                        ObjectValue objectValue = (ObjectValue) value;
+                        if (objectValue.getType().getName().equalsIgnoreCase(Constants.READ_CHAR_CHANNEL_STRUCT) &&
+                                objectValue.getType().getPackage().toString()
+                                        .equalsIgnoreCase(IOConstants.IO_PACKAGE_ID.toString())) {
+                            CharacterChannel charChannel = (CharacterChannel) objectValue.getNativeData(
+                                    IOConstants.CHARACTER_CHANNEL_NAME);
+                            preparedStatement.setCharacterStream(index, new CharacterChannelReader(charChannel));
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     }
                 }
                 break;
             case Constants.SqlTypes.DATE:
                 Date date;
-                if (value instanceof String) {
-                    date = Date.valueOf(value.toString());
-                } else if (value instanceof Long) {
-                    date = new Date((Long) value);
-                } else if (value instanceof MapValue) {
-                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
-                    if (dateTimeStruct.getType().getName()
-                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
-                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
-                        date = new Date(zonedDateTime.toInstant().toEpochMilli());
+                if (value == null) {
+                    preparedStatement.setDate(index, null);
+                } else {
+                    if (value instanceof String) {
+                        date = Date.valueOf(value.toString());
+                    } else if (value instanceof Long) {
+                        date = new Date((Long) value);
+                    } else if (value instanceof MapValue) {
+                        MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                        if (dateTimeStruct.getType().getName()
+                                .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                            ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                            date = new Date(zonedDateTime.toInstant().toEpochMilli());
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     } else {
                         throw throwInvalidParameterError(value, sqlType);
                     }
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
+                    preparedStatement.setDate(index, date);
                 }
-                preparedStatement.setDate(index, date);
                 break;
             case Constants.SqlTypes.TIME:
-                Time time = null;
-                if (value instanceof String) {
-                    time = Time.valueOf(value.toString());
-                } else if (value instanceof Long) {
-                    time = new Time((Long) value);
-                } else if (value instanceof MapValue) {
-                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
-                    if (dateTimeStruct.getType().getName()
-                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
-                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
-                        time = new Time(zonedDateTime.toInstant().toEpochMilli());
+                if (value == null) {
+                    preparedStatement.setTime(index, null);
+                } else {
+                    Time time;
+                    if (value instanceof String) {
+                        time = Time.valueOf(value.toString());
+                    } else if (value instanceof Long) {
+                        time = new Time((Long) value);
+                    } else if (value instanceof MapValue) {
+                        MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                        if (dateTimeStruct.getType().getName()
+                                .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                            ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                            time = new Time(zonedDateTime.toInstant().toEpochMilli());
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     } else {
                         throw throwInvalidParameterError(value, sqlType);
                     }
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
+                    preparedStatement.setTime(index, time);
                 }
-                preparedStatement.setTime(index, time);
                 break;
             case Constants.SqlTypes.TIMESTAMP:
             case Constants.SqlTypes.DATETIME:
-                Timestamp timestamp = null;
-                if (value instanceof String) {
-                    timestamp = Timestamp.valueOf(value.toString());
-                } else if (value instanceof Long) {
-                    timestamp = new Timestamp((Long) value);
-                } else if (value instanceof MapValue) {
-                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
-                    if (dateTimeStruct.getType().getName()
-                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
-                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
-                        timestamp = new Timestamp(zonedDateTime.toInstant().toEpochMilli());
+                if (value == null) {
+                    preparedStatement.setTimestamp(index, null);
+                } else {
+                    Timestamp timestamp;
+                    if (value instanceof String) {
+                        timestamp = Timestamp.valueOf(value.toString());
+                    } else if (value instanceof Long) {
+                        timestamp = new Timestamp((Long) value);
+                    } else if (value instanceof MapValue) {
+                        MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                        if (dateTimeStruct.getType().getName()
+                                .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                            ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                            timestamp = new Timestamp(zonedDateTime.toInstant().toEpochMilli());
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     } else {
                         throw throwInvalidParameterError(value, sqlType);
                     }
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
+                    preparedStatement.setTimestamp(index, timestamp);
                 }
-                preparedStatement.setTimestamp(index, timestamp);
                 break;
             case Constants.SqlTypes.ARRAY:
                 Object[] arrayData = getArrayData(value);
@@ -377,7 +416,7 @@ class Utils {
                     Array array = connection.createArrayOf((String) arrayData[1], (Object[]) arrayData[0]);
                     preparedStatement.setArray(index, array);
                 } else {
-                    preparedStatement.setObject(index, null);
+                    preparedStatement.setArray(index, null);
                 }
                 break;
             case Constants.SqlTypes.REF:
@@ -386,14 +425,16 @@ class Utils {
                 Object[] dataArray = (Object[]) structData[0];
                 String structuredSQLType = (String) structData[1];
                 if (dataArray == null) {
-                    preparedStatement.setNull(index + 1, Types.STRUCT);
+                    preparedStatement.setNull(index, Types.STRUCT);
                 } else {
                     Struct struct = connection.createStruct(structuredSQLType, dataArray);
-                    preparedStatement.setObject(index + 1, struct);
+                    preparedStatement.setObject(index, struct);
                 }
                 break;
             case Constants.SqlTypes.ROW:
-                if (value instanceof ArrayValue) {
+                if (value == null) {
+                    preparedStatement.setRowId(index, null);
+                } else if (value instanceof ArrayValue) {
                     ArrayValue arrayValue = (ArrayValue) value;
                     if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
                         RowId rowId = arrayValue::getBytes;

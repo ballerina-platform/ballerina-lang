@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 import mockclient;
-import ballerina/sql;
 import ballerina/io;
+import ballerina/sql;
+import ballerina/time;
 
 function insertIntoDataTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
     sql:ParameterizedString sqlQuery = {
@@ -109,12 +110,12 @@ function insertIntoComplexTable(string url, string user, string password) return
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) " + 
                 "VALUES (", ", ", " , CONVERT(" , ", CLOB), ", ", ", ")" ],
-                insertions: [4, binaryData, "very long text",binaryData, binaryData]
+                insertions: [5, binaryData, "very long text",binaryData, binaryData]
     };
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function insertIntoComplexTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error|error? {
+function insertIntoComplexTable2(string url, string user, string password) returns sql:ExecuteResult|error? {
     io:ReadableByteChannel blobChannel = check getBlobColumnChannel();
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
@@ -126,7 +127,7 @@ function insertIntoComplexTable2(string url, string user, string password) retur
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) " +
                 "VALUES (", ", ", " , CONVERT(" , ", CLOB), ", ", ", ")" ],
-                insertions: [5, blobType, clobType, binaryType, binaryType]
+                insertions: [6, blobType, clobType, binaryType, binaryType]
     };
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
@@ -135,7 +136,7 @@ function insertIntoComplexTable3(string url, string user, string password) retur
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) " +
                 "VALUES (", ", " , ", " , " ," , ", ", ")" ],
-                insertions: [6, (), (), (), ()]
+                insertions: [7, (), (), (), ()]
     };
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
@@ -146,33 +147,165 @@ function deleteComplexTable(string url, string user, string password) returns sq
 
     sql:ParameterizedString sqlQuery = {
                 parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , ""],
-                insertions: [1, binaryData]
+                insertions: [2, binaryData]
     };
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
 function deleteComplexTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error|error? {
-    io:ReadableByteChannel blobChannel = check getBlobColumnChannel();
-    io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
-    io:ReadableByteChannel byteChannel = check getByteColumnChannel();
-
-    sql:TypedValue blobType = {sqlType: sql:BLOB, value: blobChannel};
-    sql:TypedValue clobType = {sqlType: sql:CLOB, value: clobChannel};
-    sql:TypedValue binaryType = {sqlType: sql:BLOB, value: byteChannel};
+    sql:TypedValue blobType = {sqlType: sql:BLOB, value: ()};
+    sql:TypedValue clobType = {sqlType: sql:CLOB, value: ()};
+    sql:TypedValue binaryType = {sqlType: sql:BINARY, value: ()};
+    sql:TypedValue varBinaryType = {sqlType: sql:VARBINARY, value: ()};
 
     sql:ParameterizedString sqlQuery = {
-       parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND clob_type=" ,
-               "AND binary_type=", "AND var_binary_type="],
-       insertions: [2, blobType, clobType, binaryType, binaryType]
+       parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND clob_type=", ""],
+       insertions: [4, blobType, clobType]
     };
     return executeQueryMockClient(url, user, password, sqlQuery);
 }
 
-function deleteComplexTable3(string url, string user, string password) returns sql:ExecuteResult|sql:Error|error? {
+function insertIntoNumericTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+    sql:TypedValue bitType = {sqlType: sql:BIT, value: 1};
     sql:ParameterizedString sqlQuery = {
-       parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND clob_type=" ,
-               "AND binary_type=", "AND var_binary_type="],
-       insertions: [3, (), (), (), ()]
+        parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
+                " decimal_type, numeric_type, float_type, real_type) " +
+                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", ", ", ", ", ",", ")"],
+        insertions: [3, 2147483647, 9223372036854774807, 32767, 127, bitType, 1234.567, 1234.567, 1234.567, 1234.567]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoNumericTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
+                " decimal_type, numeric_type, float_type, real_type) " +
+                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", ", ", ", ", ",", ")"],
+        insertions: [4, (), (), (), (), (), (), (), (), ()]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoNumericTable3(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+    sql:TypedValue id = {sqlType: sql:INTEGER, value: 5};
+    sql:TypedValue intType = {sqlType: sql:INTEGER, value: 2147483647};
+    sql:TypedValue bigIntType = {sqlType: sql:BIGINT, value: 9223372036854774807};
+    sql:TypedValue smallIntType = {sqlType: sql:SMALLINT, value: 32767};
+    sql:TypedValue tinyIntType = {sqlType: sql:SMALLINT, value: 127};
+    sql:TypedValue bitType = {sqlType: sql:BIT, value: 1};
+    decimal decimalVal = 1234.567;
+    sql:TypedValue decimalType = {sqlType: sql:DECIMAL, value: decimalVal};
+    sql:TypedValue numbericType = {sqlType: sql:NUMERIC, value: 1234.567};
+    sql:TypedValue floatType = {sqlType: sql:FLOAT, value: 1234.567};
+    sql:TypedValue realType = {sqlType: sql:REAL, value: 1234.567};
+
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
+                " decimal_type, numeric_type, float_type, real_type) " +
+                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", ", ", ", ", ",", ")"],
+        insertions: [id, intType, bigIntType, smallIntType, tinyIntType, bitType, decimalType,
+                    numbericType, floatType, realType]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoDateTimeTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2," +
+                " timestamp_type2) VALUES(", ", ", ", ", ", ", " ,", " , ", ",", ")"],
+        insertions: [2,"2017-02-03", "11:35:45", "2017-02-03 11:53:00", "2017-02-03 11:53:00", "20:08:08-8:00",
+                     "2008-08-08 20:08:08+8:00"]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoDateTimeTable2(string url, string user, string password) returns sql:ExecuteResult|error? {
+    sql:TypedValue dateVal = {sqlType: sql:DATE, value: "2017-02-03"};
+    sql:TypedValue timeVal = {sqlType: sql:TIME, value: "11:35:45"};
+    sql:TypedValue dateTimeVal = {sqlType: sql:DATETIME, value: "2017-02-03 11:53:00"};
+    sql:TypedValue timestampVal = {sqlType: sql:TIMESTAMP, value: "2017-02-03 11:53:00"};
+    sql:TypedValue time2Val = {sqlType: sql:TIME, value: check time:parse("20:08:08-0800", "HH:mm:ssZ")};
+    sql:TypedValue timestamp2Val = {
+        sqlType: sql:TIMESTAMP,
+        value:  check time:parse("2008-08-08 20:08:08+0800", "yyyy-MM-dd HH:mm:ssZ")
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2," +
+                " timestamp_type2) VALUES(", ", ", ", ", ", ", " ,", " , ", ",", ")"],
+        insertions: [3, dateVal, timeVal, dateTimeVal, timestampVal, time2Val, timestamp2Val]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoDateTimeTable3(string url, string user, string password) returns sql:ExecuteResult|error? {
+    sql:TypedValue dateVal = {sqlType: sql:DATE, value: ()};
+    sql:TypedValue timeVal = {sqlType: sql:TIME, value: ()};
+    sql:TypedValue dateTimeVal = {sqlType: sql:DATETIME, value: ()};
+    sql:TypedValue timestampVal = {sqlType: sql:TIMESTAMP, value: ()};
+    sql:TypedValue time2Val = {sqlType: sql:TIME, value: ()};
+    sql:TypedValue timestamp2Val = {sqlType: sql:TIMESTAMP, value: ()};
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2," +
+                " timestamp_type2) VALUES(", ", ", ", ", ", ", " ,", " , ", ",", ")"],
+        insertions: [4, dateVal, timeVal, dateTimeVal, timestampVal, time2Val, timestamp2Val]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoDateTimeTable4(string url, string user, string password) returns sql:ExecuteResult|error? {
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2," +
+                " timestamp_type2) VALUES(", ", ", ", ", ", ", " ,", " , ", ",", ")"],
+        insertions: [5, (), (), (), (), (), ()]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoArrayTable(string url, string user, string password) returns sql:ExecuteResult|error? {
+    int[] dataint = [1, 2, 3];
+    int[] datalong = [100000000, 200000000, 300000000];
+    float[] datafloat = [245.23, 5559.49, 8796.123];
+    float[] datadouble = [245.23, 5559.49, 8796.123];
+    decimal[] datadecimal = [245, 5559, 8796];
+    string[] datastring = ["Hello", "Ballerina"];
+    boolean[] databoolean = [true, false, true];
+
+    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    byte[][] dataBlob = [<byte[]>getUntaintedData(value, "BLOB_TYPE")];
+
+    sql:TypedValue paraInt = {sqlType: sql:ARRAY, value: dataint};
+    sql:TypedValue paraLong = {sqlType: sql:ARRAY, value: datalong};
+    sql:TypedValue paraFloat = {sqlType: sql:ARRAY, value: datafloat};
+    sql:TypedValue paraDecimal = {sqlType: sql:ARRAY, value: datadecimal};
+    sql:TypedValue paraDouble = {sqlType: sql:ARRAY, value: datadouble};
+    sql:TypedValue paraString = {sqlType: sql:ARRAY, value: datastring};
+    sql:TypedValue paraBool = {sqlType: sql:ARRAY, value: databoolean};
+    sql:TypedValue paraBlob = {sqlType: sql:ARRAY, value: dataBlob};
+
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, decimal_array, " +
+                "boolean_array, string_array, blob_array) VALUES(", ", ", ", ", ", ", " ," , " ," , " ," , ",",
+                ", ", ")"],
+        insertions: [5, paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraBool, paraString, paraBlob]
+    };
+    return executeQueryMockClient(url, user, password, sqlQuery);
+}
+
+function insertIntoArrayTable2(string url, string user, string password) returns sql:ExecuteResult|error? {
+    sql:TypedValue paraInt = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraLong = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraFloat = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraDecimal = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraDouble = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraString = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraBool = {sqlType: sql:ARRAY, value: ()};
+    sql:TypedValue paraBlob = {sqlType: sql:ARRAY, value: ()};
+
+    sql:ParameterizedString sqlQuery = {
+        parts: ["INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, decimal_array, " +
+                "boolean_array, string_array, blob_array) VALUES(", ", ", ", ", ", ", " ," , " ," , " ," , ",",
+                ", ", ")"],
+        insertions: [6, paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraBool, paraString, paraBlob]
     };
     return executeQueryMockClient(url, user, password, sqlQuery);
 }

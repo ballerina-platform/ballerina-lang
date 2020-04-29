@@ -18,6 +18,7 @@
 package org.ballerinalang.sql.execute;
 
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -120,12 +121,60 @@ public class ParamsExecuteTest {
     @Test
     public void testDeleteComplexTable2() {
         BValue[] returns = BRunUtil.invokeFunction(result, "deleteComplexTable2", args);
+        validateResult(returns, 0, -1);
+    }
+
+    @Test
+    public void testInsertIntoNumericTable() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoNumericTable", args);
+        validateResult(returns, 1, 2);
+    }
+
+    @Test
+    public void testInsertIntoNumericTable2() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoNumericTable2", args);
+        validateResult(returns, 1, 2);
+    }
+
+    @Test
+    public void testInsertIntoNumericTable3() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoNumericTable3", args);
+        validateResult(returns, 1, 2);
+    }
+
+    @Test
+    public void testInsertIntoDateTimeTable() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoDateTimeTable", args);
         validateResult(returns, 1, -1);
     }
 
     @Test
-    public void testDeleteComplexTable3() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "deleteComplexTable3", args);
+    public void testInsertIntoDateTimeTable2() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoDateTimeTable2", args);
+        validateResult(returns, 1, -1);
+    }
+
+    @Test
+    public void testInsertIntoDateTimeTable3() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoDateTimeTable3", args);
+        validateResult(returns, 1, -1);
+    }
+
+    @Test
+    public void testInsertIntoDateTimeTable4() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoDateTimeTable4", args);
+        validateResult(returns, 1, -1);
+    }
+
+    @Test
+    public void testInsertIntoArrayTable() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoArrayTable", args);
+        validateResult(returns, 1, -1);
+    }
+
+    @Test
+    public void testInsertIntoArrayTable2() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "insertIntoArrayTable2", args);
         validateResult(returns, 1, -1);
     }
 
@@ -137,7 +186,7 @@ public class ParamsExecuteTest {
         if (lastId == -1) {
             Assert.assertNull(result.get(Constants.LAST_INSERTED_ID_FIELD));
         } else {
-            Assert.assertEquals(((BByte) result.get(Constants.LAST_INSERTED_ID_FIELD)).intValue(), lastId);
+            Assert.assertTrue(((BInteger) result.get(Constants.LAST_INSERTED_ID_FIELD)).intValue() > lastId);
         }
     }
 }
