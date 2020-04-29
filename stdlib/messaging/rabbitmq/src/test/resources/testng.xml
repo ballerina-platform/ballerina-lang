@@ -21,7 +21,7 @@ under the License.
 
 <suite name="ballerina-test-suite">
     <!-- RabbitMQ Compilation Tests. -->
-    <test name="ballerina-lang-test-suite" parallel="false">
+    <test name="rabbitmq-compilation-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.rabbitmq.RabbitMQServiceCompilationTest"/>
