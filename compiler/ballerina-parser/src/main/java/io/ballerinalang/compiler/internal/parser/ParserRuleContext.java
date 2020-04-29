@@ -263,6 +263,8 @@ public enum ParserRuleContext {
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
     TRAP_EXPRESSION("trap-expr"),
+    LIST_CONSTRUCTOR("list-constructor"),
+    LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

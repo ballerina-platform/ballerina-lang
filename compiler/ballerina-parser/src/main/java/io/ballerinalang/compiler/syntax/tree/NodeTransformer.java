@@ -356,6 +356,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(trapExpressionNode);
     }
 
+    public T transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        return transformSyntaxNode(listConstructorExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

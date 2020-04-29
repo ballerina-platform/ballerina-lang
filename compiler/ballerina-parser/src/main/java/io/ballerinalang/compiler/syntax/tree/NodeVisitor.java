@@ -355,6 +355,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(trapExpressionNode);
     }
 
+    public void visit(ListConstructorExpressionNode listConstructorExpressionNode) {
+        visitSyntaxNode(listConstructorExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

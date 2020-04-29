@@ -1847,6 +1847,26 @@
                     "type": "ExpressionNode"
                 }
             ]
+        },
+        {
+            "name": "ListConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "LIST_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "expressions",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
