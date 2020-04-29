@@ -183,16 +183,3 @@ INSERT INTO Person (id, age, salary, name) VALUES (3, 45, 600.25, 'Mary');
 /
 INSERT INTO Person (id, age, salary, name) VALUES (10, 22, 100.25, 'Peter');
 /
-
-CREATE TABLE IF NOT EXISTS Student(
-  reg_id INTEGER,
-  name VARCHAR(20)
-);
-/
-
-INSERT INTO Student (reg_id, name) VALUES (1, "John");
-/
-INSERT INTO Student (reg_id, name) VALUES (2, "Alex");
-/
-INSERT INTO Student (reg_id, name) VALUES (3, "Bini");
-/
