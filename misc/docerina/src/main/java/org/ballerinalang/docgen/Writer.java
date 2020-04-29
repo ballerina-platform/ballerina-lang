@@ -108,6 +108,12 @@ public class Writer {
                 return newDescription;
             });
 
+            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+                //remove anything with <pre> tagparagraph tags
+                String newString = string.replaceAll("<\\/?p>", "");
+                return newString;
+            });
+
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
                 Object param0 = options.param(0);
