@@ -85,7 +85,7 @@ public class ResourcesTestCase extends BaseTest {
         // check module's tests resources
         Assert.assertNotNull(jar.getJarEntry("resources/ballerina-test/resourceAPI/0.1.0/xyz/resource.txt"));
         // check imported module's tests resources
-        Assert.assertNotNull(jar.getJarEntry("resources/ballerinax/aws.s3/0.11.0/.keep"));
+        Assert.assertNotNull(jar.getJarEntry("resources/praveenn/testResource1/0.1.0/pqr/resource"));
         // check module's resources in testable jar
         Assert.assertNotNull(jar.getJarEntry("resources/praveenn/testResource/0.1.0/abc1/download.jpg"));
     }

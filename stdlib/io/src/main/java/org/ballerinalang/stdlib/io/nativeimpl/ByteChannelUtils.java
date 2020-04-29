@@ -49,6 +49,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -147,6 +148,12 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         return channel;
     }
 
+    /**
+     * Retrieves a ReadableByteChannel object of the resource file from a given file path.
+     *
+     * @param pathUrl Relative/absolute path string to locate the resource file
+     * @return ByteChannel representation of the resource file or `Error` if any error occurred
+     */
     public static Object getResource(String pathUrl) {
         String[] className = Thread.currentThread().getStackTrace()[4].getClassName().split("\\.");
         String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
@@ -171,8 +178,13 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         }
     }
 
+    /**
+     * Reads the resources directory and returns a list of files and directories # inside the resources directory.
+     *
+     * @return array value of resources.
+     */
     public static ArrayValue getResources() {
-        ArrayList<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
         String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
         String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
