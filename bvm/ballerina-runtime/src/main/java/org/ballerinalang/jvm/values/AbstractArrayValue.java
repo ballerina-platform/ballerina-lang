@@ -304,7 +304,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         if (length == size) {
             return;
         }
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         int newLength = (int) length;
         checkFixedLength(length);
         rangeCheck(length, size);
@@ -356,9 +356,9 @@ public abstract class AbstractArrayValue implements ArrayValue {
     protected abstract void rangeCheck(long index, int size);
 
     /**
-     * Util method to handle frozen array values.
+     * Util method to handle immutable array values.
      */
-    protected void handleFrozenArrayValue() {
+    protected void handleImmutableArrayValue() {
         if (!this.getType().isReadOnly()) {
             return;
         }

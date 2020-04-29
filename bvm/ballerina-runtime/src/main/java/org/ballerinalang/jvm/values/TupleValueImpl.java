@@ -179,7 +179,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public Object fillAndGetRefValue(long index) {
         // Need do a filling-read if index >= size
         if (index >= this.size && this.hasRestElement) {
-            handleFrozenArrayValue();
+            handleImmutableArrayValue();
             fillRead(index, refValues.length);
             return this.refValues[(int) index];
         }
@@ -262,7 +262,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, Object value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         prepareForAdd(index, value, refValues.length);
         refValues[(int) index] = value;
     }
@@ -348,7 +348,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -616,7 +616,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     protected void unshift(long index, ArrayValue vals) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         unshiftArray(index, vals.size(), getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }

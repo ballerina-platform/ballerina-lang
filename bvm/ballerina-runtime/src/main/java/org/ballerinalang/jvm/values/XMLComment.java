@@ -89,6 +89,6 @@ public class XMLComment extends XMLNonElementItem {
 
     @Override
     public BType getType() {
-        return BTypes.typeComment;
+        return this.type.isReadOnly() ? BTypes.typeReadonlyComment : BTypes.typeComment;
     }
 }

@@ -240,7 +240,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (refValues != null) {
             // Need do a filling-read if index >= size
             if (index >= this.size) {
-                handleFrozenArrayValue();
+                handleImmutableArrayValue();
                 fillRead(index, refValues.length);
             }
             return refValues[(int) index];
@@ -355,7 +355,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, Object value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         BType type = TypeChecker.getType(value);
         switch (this.elementType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
@@ -404,7 +404,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, long value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
 
         if (intValues != null) {
             prepareForAdd(index, value, BTypes.typeInt, intValues.length);
@@ -424,7 +424,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, boolean value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         prepareForAdd(index, value, BTypes.typeBoolean, booleanValues.length);
         booleanValues[(int) index] = value;
     }
@@ -437,7 +437,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, byte value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         prepareForAdd(index, value, BTypes.typeByte, byteValues.length);
         byteValues[(int) index] = value;
     }
@@ -450,7 +450,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, double value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         prepareForAdd(index, value, BTypes.typeFloat, floatValues.length);
         floatValues[(int) index] = value;
     }
@@ -468,7 +468,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             add(index, org.ballerinalang.jvm.StringUtils.fromString(value));
             return;
         }
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         prepareForAdd(index, value, BTypes.typeString, stringValues.length);
         stringValues[(int) index] = value;
     }
@@ -481,7 +481,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, BString value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         prepareForAdd(index, value, BTypes.typeString, bStringValues.length);
         bStringValues[(int) index] = value;
     }
@@ -500,7 +500,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         Object val = get(index);
         shiftArray((int) index, getArrayFromType(this.elementType.getTag()));
         return val;
@@ -954,7 +954,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void unshift(long index, ArrayValue vals) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         unshiftArray(index, vals.size(), getCurrentArrayLength());
 
         int startIndex = (int) index;

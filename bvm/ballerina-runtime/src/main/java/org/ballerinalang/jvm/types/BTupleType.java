@@ -33,6 +33,7 @@ public class BTupleType extends BType {
     private BType restType;
     private int typeFlags;
     private final boolean readonly;
+    private BTupleType immutableType;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -70,13 +71,15 @@ public class BTupleType extends BType {
      * @param restType of the tuple type
      * @param typeFlags flags associated with the type
      * @param readonly whether immutable
+     * @param immutableType the copy of the type with the immutable flag set
      */
-    public BTupleType(List<BType> typeList, BType restType, int typeFlags, boolean readonly) {
+    public BTupleType(List<BType> typeList, BType restType, int typeFlags, boolean readonly, BTupleType immutableType) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = restType;
         this.typeFlags = typeFlags;
         this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     public List<BType> getTupleTypes() {
@@ -151,5 +154,15 @@ public class BTupleType extends BType {
     @Override
     public boolean isReadOnly() {
         return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BTupleType) immutableType;
     }
 }

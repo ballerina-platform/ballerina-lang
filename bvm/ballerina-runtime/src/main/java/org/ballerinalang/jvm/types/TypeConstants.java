@@ -34,6 +34,7 @@ public class TypeConstants {
     public static final String MAP_TNAME = "map";
     public static final String FUTURE_TNAME = "future";
     public static final String XML_TNAME = "xml";
+    public static final String READONLY_XML_TNAME = "xml & readonly";
     public static final String JSON_TNAME = "json";
     public static final String READONLY_JSON_TNAME = "json & readonly";
     public static final String ITERATOR_TNAME = "iterator";

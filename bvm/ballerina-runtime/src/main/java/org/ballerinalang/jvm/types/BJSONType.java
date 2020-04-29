@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 public class BJSONType extends BType {
 
     private final boolean readonly;
+    private BJSONType immutableType;
 
     /**
      * Create a {@code BJSONType} which represents the JSON type.
@@ -39,11 +40,16 @@ public class BJSONType extends BType {
     public BJSONType(String typeName, BPackage pkg, boolean readonly) {
         super(typeName, pkg, MapValueImpl.class);
         this.readonly = readonly;
+
+        if (!readonly) {
+            this.immutableType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
+        }
     }
 
     public BJSONType() {
         super(TypeConstants.JSON_TNAME, null, MapValueImpl.class);
         this.readonly = false;
+        this.immutableType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
     }
 
     @Override
@@ -73,5 +79,15 @@ public class BJSONType extends BType {
     @Override
     public boolean isReadOnly() {
         return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BJSONType) immutableType;
     }
 }

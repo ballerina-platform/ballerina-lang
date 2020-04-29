@@ -105,6 +105,6 @@ public class XMLPi extends XMLNonElementItem {
 
     @Override
     public BType getType() {
-        return BTypes.typeProcessingInstruction;
+        return this.type.isReadOnly() ? BTypes.typeReadonlyProcessingInstruction : BTypes.typeProcessingInstruction;
     }
 }

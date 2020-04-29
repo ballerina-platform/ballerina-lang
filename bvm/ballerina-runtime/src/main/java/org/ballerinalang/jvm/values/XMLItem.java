@@ -655,6 +655,6 @@ public final class XMLItem extends XMLValue {
 
     @Override
     public BType getType() {
-        return BTypes.typeElement;
+        return this.type.isReadOnly() ? BTypes.typeReadonlyElement : BTypes.typeElement;
     }
 }

@@ -66,7 +66,7 @@ public class StackTrace {
 
         CallStack callStack = new CallStack(callStackObjType);
         callStack.callStack = getCallStackArray(value.getStackTrace());
-        callStack.freezeDirect();
+        callStack.callStack.freezeDirect();
         return callStack;
     }
 

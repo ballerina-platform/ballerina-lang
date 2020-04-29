@@ -936,6 +936,9 @@ public class Types {
             case TypeTags.ANYDATA:
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_PI:
                 return true;
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;

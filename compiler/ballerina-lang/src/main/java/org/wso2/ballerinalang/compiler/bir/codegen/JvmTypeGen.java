@@ -1111,8 +1111,16 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
+        BArrayType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZ)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZL%s;)V", BTYPE, ARRAY_TYPE),
+                           false);
     }
 
     /**
@@ -1151,8 +1159,15 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
+        BMapType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, MAP_TYPE), false);
     }
 
     private static void loadReadonlyFlag(MethodVisitor mv, BType bType) {
@@ -1180,8 +1195,15 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
+        BXMLType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, XML_TYPE), false);
     }
 
     private static void loadStreamType(MethodVisitor mv, BStreamType bType) {
@@ -1251,8 +1273,17 @@ class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
 
+        loadReadonlyFlag(mv, bType);
+
+        BType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;I)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;IZL%s;)V", BTYPE, BTYPE), false);
     }
 
     /**
@@ -1291,7 +1322,15 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;IZ)V", LIST, BTYPE), false);
+        BTupleType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>",
+                           String.format("(L%s;L%s;IZL%s;)V", LIST, BTYPE, TUPLE_TYPE), false);
     }
 
     /**

@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.values.RefValue;
 public class BAnydataType extends BType {
 
     private final boolean readonly;
+    private BAnydataType immutableType;
 
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
@@ -36,6 +37,10 @@ public class BAnydataType extends BType {
     BAnydataType(String typeName, BPackage pkg, boolean readonly) {
         super(typeName, pkg, RefValue.class);
         this.readonly = readonly;
+
+        if (!readonly) {
+            this.immutableType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
+        }
     }
 
     @Override
@@ -60,5 +65,15 @@ public class BAnydataType extends BType {
     @Override
     public boolean isReadOnly() {
         return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BAnydataType) immutableType;
     }
 }

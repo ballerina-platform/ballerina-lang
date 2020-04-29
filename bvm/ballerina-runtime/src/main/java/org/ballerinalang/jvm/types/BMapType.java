@@ -34,6 +34,7 @@ public class BMapType extends BType {
 
     private BType constraint;
     private final boolean readonly;
+    private BMapType immutableType;
 
     /**
      * Create a type from the given name.
@@ -49,13 +50,14 @@ public class BMapType extends BType {
     }
 
     public BMapType(BType constraint) {
-        this(constraint, false);
+        this(constraint, false, null);
     }
 
-    public BMapType(BType constraint, boolean readonly) {
+    public BMapType(BType constraint, boolean readonly, BMapType immutableType) {
         super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
         this.constraint = constraint;
         this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     /**
@@ -128,5 +130,15 @@ public class BMapType extends BType {
     @Override
     public boolean isReadOnly() {
         return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BMapType) immutableType;
     }
 }

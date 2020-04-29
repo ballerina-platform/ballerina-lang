@@ -39,7 +39,9 @@ public class BArrayType extends BType {
     private int size = -1;
     private boolean hasFillerValue;
     private ArrayState state = ArrayState.UNSEALED;
+
     private final boolean readonly;
+    private BArrayType immutableType;
 
     public BArrayType(BType elementType) {
         super(null, null, ArrayValue.class);
@@ -52,10 +54,10 @@ public class BArrayType extends BType {
     }
 
     public BArrayType(BType elemType, int size) {
-        this(elemType, size, false);
+        this(elemType, size, false, null);
     }
 
-    public BArrayType(BType elemType, int size, boolean readonly) {
+    public BArrayType(BType elemType, int size, boolean readonly, BArrayType immutableType) {
         super(null, null, ArrayValue.class);
         this.elementType = elemType;
         if (elementType instanceof BArrayType) {
@@ -67,6 +69,7 @@ public class BArrayType extends BType {
         }
         hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
         this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     public BType getElementType() {
@@ -169,5 +172,15 @@ public class BArrayType extends BType {
     @Override
     public boolean isReadOnly() {
         return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BArrayType) immutableType;
     }
 }

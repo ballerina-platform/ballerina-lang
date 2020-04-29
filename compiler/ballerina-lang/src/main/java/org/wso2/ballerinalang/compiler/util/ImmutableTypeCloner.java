@@ -71,7 +71,7 @@ public class ImmutableTypeCloner {
     private static BType setImmutableType(DiagnosticPos pos, Types types, BType type, SymbolEnv env,
                                          SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                          Names names, Set<BType> unresolvedTypes) {
-        if (types.isReadonlyType(type)) {
+        if (types.isReadonlyType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return type;
         }
 
@@ -138,7 +138,10 @@ public class ImmutableTypeCloner {
                 }
 
                 BTypeSymbol immutableTupleTSymbol = getReadonlyTSymbol(names, origTupleType.tsymbol, env);
-                immutableTupleType = new BTupleType(immutableTupleTSymbol, immutableMemTypes, origTupleType.restType,
+                immutableTupleType = new BTupleType(immutableTupleTSymbol, immutableMemTypes,
+                                                    setImmutableType(pos, types, origTupleType.restType, env,
+                                                                     symTable, anonymousModelHelper, names,
+                                                                     unresolvedTypes),
                                                     origTupleType.flags | Flags.READONLY);
                 immutableTupleTSymbol.type = immutableTupleType;
                 origTupleType.immutableType = immutableTupleType;

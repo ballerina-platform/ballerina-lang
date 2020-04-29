@@ -18,7 +18,7 @@
 package org.ballerinalang.model.types;
 
 /**
- * {@code SelectivelyImmutableReferenceType} represent selectively immutable reference types in Ballerina.
+ * {@code SelectivelyImmutableReferenceType} represents selectively immutable reference types in Ballerina.
  * Namely XML, lists, mappings, and tables.
  *
  * @since 1.3.0

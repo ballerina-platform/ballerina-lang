@@ -35,6 +35,7 @@ public class BRecordType extends BStructureType {
     public BType restFieldType;
     public int typeFlags;
     private final boolean readonly;
+    private BRecordType immutableType;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -113,5 +114,15 @@ public class BRecordType extends BStructureType {
     @Override
     public boolean isReadOnly() {
         return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BRecordType) immutableType;
     }
 }

@@ -568,7 +568,12 @@ public class TypeChecker {
             return true;
         }
 
-        switch (targetType.getTag()) {
+        if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
+            return false;
+        }
+
+        int targetTypeTag = targetType.getTag();
+        switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
             case TypeTags.SIGNED16_INT_TAG:
@@ -586,7 +591,7 @@ public class TypeChecker {
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == targetType.getTag();
+                return sourceType.getTag() == targetTypeTag;
             case TypeTags.INT_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -601,7 +606,11 @@ public class TypeChecker {
             case TypeTags.HANDLE_TAG:
                 return sourceType.getTag() == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
-                return isReadonlyType(sourceType);
+                return isReadonlyType(sourceType) || sourceType.isReadOnly();
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+                return targetTypeTag == sourceType.getTag();
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
@@ -1117,7 +1126,7 @@ public class TypeChecker {
         return false;
     }
 
-    private static boolean isReadonlyType(BType sourceType) {
+    public static boolean isReadonlyType(BType sourceType) {
         if (isSimpleBasicType(sourceType)) {
             return true;
         }
@@ -1133,6 +1142,78 @@ public class TypeChecker {
             case TypeTags.TYPEDESC_TAG:
             case TypeTags.HANDLE_TAG:
                 return true;
+        }
+        return false;
+    }
+
+    boolean isSelectivelyImmutableType(BType type) {
+        return isSelectivelyImmutableType(type, new HashSet<>());
+    }
+
+    public static boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
+        if (isReadonlyType(type)) {
+            // Always immutable.
+            return false;
+        }
+
+        if (unresolvedTypes.contains(type)) {
+            return true;
+        }
+        unresolvedTypes.add(type);
+
+        switch (type.getTag()) {
+            case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+                return true;
+            case TypeTags.ARRAY_TAG:
+                BType elementType = ((BArrayType) type).getElementType();
+                return isReadonlyType(elementType) || isSelectivelyImmutableType(elementType, unresolvedTypes);
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType tupMemType : tupleType.getTupleTypes()) {
+                    if (!isReadonlyType(tupMemType) && !isSelectivelyImmutableType(tupMemType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+
+                BType tupRestType = tupleType.getRestType();
+                if (tupRestType == null) {
+                    return true;
+                }
+
+                return isReadonlyType(tupRestType) || isSelectivelyImmutableType(tupRestType, unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.getFields().values()) {
+                    BType fieldType = field.type;
+                    if (!isReadonlyType(fieldType) && !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null) { // TODO: 4/28/20 Check
+                    return true;
+                }
+
+                return isReadonlyType(recordRestType) || isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+            case TypeTags.MAP_TAG:
+                BType constraintType = ((BMapType) type).getConstrainedType();
+                return isReadonlyType(constraintType) || isSelectivelyImmutableType(constraintType, unresolvedTypes);
+            // TODO: 4/28/20 Table
+            case TypeTags.UNION_TAG:
+                boolean readonlyIntersectionExists = false;
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                    if (isReadonlyType(memberType) || isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                        readonlyIntersectionExists = true;
+                    }
+                }
+                return readonlyIntersectionExists;
         }
         return false;
     }

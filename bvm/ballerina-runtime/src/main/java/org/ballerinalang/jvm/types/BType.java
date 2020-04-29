@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+
 import java.util.Objects;
 
 /**
@@ -146,7 +149,16 @@ public abstract class BType {
     }
 
     public BType getImmutableType() {
-        return this;
-//        throw new BallerinaException(this.typeName + " cannot be immutable");
+        if (TypeChecker.isReadonlyType(this)) {
+            return this;
+        }
+
+        // Selectively immutable types override this method.
+        throw new BallerinaException(this.typeName + " cannot be immutable");
+    }
+
+    public void setImmutableType(BType immutableType) {
+        // Do nothing since already set.
+        // For types that immutable type may be set later, the relevant type overrides this method.
     }
 }
