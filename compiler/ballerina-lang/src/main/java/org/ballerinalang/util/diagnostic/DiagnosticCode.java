@@ -406,7 +406,7 @@ public enum DiagnosticCode {
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
 
     // Table related codes
-    TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.stream.constraint.subtype"),
+    TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.table.constraint.subtype"),
     TABLE_KEY_SPECIFIER_MISMATCH("table.key.specifier.mismatch"),
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.mismatch.with.key.constraint"),
