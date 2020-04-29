@@ -109,12 +109,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
             }
 
             name = toPropertyName(entry.getKey());
-            try {
-                prop.setType(getPropertyType(prop));
-            } catch (NullPointerException e) {
-                //Ignore exception and try to build next property.
-                // Not to break the flow for a failure of one property.
-            }
+            prop.setType(getPropertyType(prop));
             newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
         }
 
@@ -137,11 +132,18 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
         return refPath.substring(refPath.lastIndexOf(GeneratorConstants.OAS_PATH_SEPARATOR) + 1);
     }
 
-    private String getPropertyType(Schema prop) throws NullPointerException {
-
+    private String getPropertyType(Schema prop) {
         String type;
+        String check = prop.getType();
+        if (prop instanceof ComposedSchema) {
+            if (prop.getType() == null) {
+                check = "json";
+            }
+        } else {
+            check = prop.getType();
+        }
 
-        switch (prop.getType()) {
+        switch (check) {
             case "integer":
                 type = "int";
                 break;
@@ -166,14 +168,15 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
             case "object":
                 type = "any";
                 break;
+            case "json":
+                type = "json";
+                break;
             default:
                 type = prop.getType();
                 break;
-
         }
+
         return type;
-
-
     }
 
     private void extractArraySchema(ArraySchema schema) {
