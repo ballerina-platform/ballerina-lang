@@ -1214,7 +1214,7 @@ public class BLangPackageBuilder {
                                           DiagnosticPos identifierPos, boolean isExpressionAvailable,
                                           boolean isDeclaredWithVar, int numAnnotations) {
         BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
-                true, isExpressionAvailable, isDeclaredWithVar);
+                false, isExpressionAvailable, isDeclaredWithVar);
         if (letVarListStack.isEmpty() && !this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
             varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.letBindingPatternIdentifierWS.isEmpty()) {
@@ -1278,7 +1278,7 @@ public class BLangPackageBuilder {
 
     void addTupleVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
                                          int numAnnotations) {
-        BLangTupleVariableDef varDefNode = createTupleVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        BLangTupleVariableDef varDefNode = createTupleVariableDef(pos, ws, false, true, isDeclaredWithVar);
         attachAnnotations(varDefNode.var, numAnnotations, false);
         addLetVarDecl(varDefNode);
     }
@@ -1291,7 +1291,7 @@ public class BLangPackageBuilder {
 
     void addErrorVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
                                          int numAnnotations) {
-        BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, false, true, isDeclaredWithVar);
         attachAnnotations(varDefNode.errorVariable, numAnnotations, false);
         addLetVarDecl(varDefNode);
     }
@@ -1344,7 +1344,7 @@ public class BLangPackageBuilder {
 
     void addRecordVariableLetDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar,
                                           int numAnnotations) {
-        BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, true, true, isDeclaredWithVar);
+        BLangRecordVariableDef varDefNode = createRecordVariableDef(pos, ws, false, true, isDeclaredWithVar);
         attachAnnotations(varDefNode.var, numAnnotations, false);
         addLetVarDecl(varDefNode);
 
