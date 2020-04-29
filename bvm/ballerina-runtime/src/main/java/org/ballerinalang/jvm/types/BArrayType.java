@@ -129,14 +129,14 @@ public class BArrayType extends BType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        BType element = elementType;
+        BType tempElementType = elementType;
         sb.append(getSizeString());
-        while (element instanceof BArrayType) {
-            BArrayType arrayElement = (BArrayType) element;
+        while (tempElementType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType arrayElement = (BArrayType) tempElementType;
             sb.append(arrayElement.getSizeString());
-            element = arrayElement.elementType;
+            tempElementType = arrayElement.elementType;
         }
-        sb.insert(0, element.toString());
+        sb.insert(0, tempElementType.toString());
         return sb.toString();
     }
 
