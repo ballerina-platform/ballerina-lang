@@ -52,7 +52,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testFuncDefWithExtraFuncName2() {
         test("func-definition/func_def_source_18.bal", "func-definition/func_def_assert_01.json");
     }
-    
+
     @Test
     public void testFuncDefWithMisplacedCloseBrace() {
         test("func-definition/func_def_source_04.bal", "func-definition/func_def_assert_04.json");
