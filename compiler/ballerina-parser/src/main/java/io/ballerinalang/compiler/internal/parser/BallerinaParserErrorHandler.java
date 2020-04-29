@@ -76,7 +76,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
-            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT };
+            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -1083,6 +1083,12 @@ public class BallerinaParserErrorHandler {
                 case LIST_CONSTRUCTOR_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LIST_CONSTRUCTOR_RHS,
                             isEntryPoint);
+                case FOREACH_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FOREACH_KEYWORD;
+                    break;
+                case IN_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.IN_KEYWORD;
+                    break;
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1152,6 +1158,7 @@ public class BallerinaParserErrorHandler {
                 case FORK_STMT:
                 case TRAP_EXPRESSION:
                 case LIST_CONSTRUCTOR:
+                case FOREACH_STMT:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1321,7 +1328,8 @@ public class BallerinaParserErrorHandler {
         }
 
         ParserRuleContext nextContext;
-        if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
+        if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK || 
+            parentCtx == ParserRuleContext.FOREACH_STMT) {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                 parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
@@ -1567,6 +1575,7 @@ public class BallerinaParserErrorHandler {
             case CONSTANT_EXPRESSION:
             case NAMED_WORKER_DECL:
             case FORK_STMT:
+            case FOREACH_STMT:
             case PARAMETERIZED_TYPE_DESCRIPTOR:
             case LIST_CONSTRUCTOR:
                 startContext(currentCtx);
@@ -2005,6 +2014,12 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case LIST_CONSTRUCTOR:
                 return ParserRuleContext.OPEN_BRACKET;
+            case FOREACH_STMT:
+                return ParserRuleContext.FOREACH_KEYWORD;
+            case FOREACH_KEYWORD:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case IN_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2276,6 +2291,9 @@ public class BallerinaParserErrorHandler {
                 } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
                     endContext();
                     return ParserRuleContext.STATEMENT;
+                } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
+                    endContext();
+                    return ParserRuleContext.STATEMENT;
                 }
                 return ParserRuleContext.STATEMENT;
             case MAPPING_CONSTRUCTOR:
@@ -2351,6 +2369,8 @@ public class BallerinaParserErrorHandler {
             } else {
                 return ParserRuleContext.ASSIGN_OP;
             }
+        } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
+            return ParserRuleContext.IN_KEYWORD;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
                 parentCtx == ParserRuleContext.CONSTANT_DECL) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
@@ -2585,6 +2605,7 @@ public class BallerinaParserErrorHandler {
             case EXPRESSION_STATEMENT:
             case LOCK_STMT:
             case FORK_STMT:
+            case FOREACH_STMT:
                 return true;
             default:
                 return false;
@@ -2929,6 +2950,10 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.MAP_KEYWORD;
             case TRAP_KEYWORD:
                 return SyntaxKind.TRAP_KEYWORD;
+            case FOREACH_KEYWORD:
+                return SyntaxKind.FOREACH_KEYWORD;
+            case IN_KEYWORD:
+                return SyntaxKind.IN_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -3003,6 +3028,7 @@ public class BallerinaParserErrorHandler {
             case DEFAULT_WORKER_INIT:
             case TRAP_EXPRESSION:
             case LIST_CONSTRUCTOR:
+            case FOREACH_STMT:
             default:
                 break;
         }

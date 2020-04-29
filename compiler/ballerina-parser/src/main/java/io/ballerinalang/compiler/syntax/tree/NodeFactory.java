@@ -436,6 +436,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stForkStatementNode.createUnlinkedFacade();
     }
 
+    public static ForEachStatementNode createForEachStatementNode(
+            Token forEachKeyword,
+            Node typeDescriptor,
+            Token variableName,
+            Token inKeyword,
+            Node ActionOrExpressionNode,
+            StatementNode blockStatement) {
+        Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+        Objects.requireNonNull(ActionOrExpressionNode, "ActionOrExpressionNode must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stForEachStatementNode = STNodeFactory.createForEachStatementNode(
+                forEachKeyword.internalNode(),
+                typeDescriptor.internalNode(),
+                variableName.internalNode(),
+                inKeyword.internalNode(),
+                ActionOrExpressionNode.internalNode(),
+                blockStatement.internalNode());
+        return stForEachStatementNode.createUnlinkedFacade();
+    }
+
     public static BinaryExpressionNode createBinaryExpressionNode(
             SyntaxKind kind,
             Node lhsExpr,

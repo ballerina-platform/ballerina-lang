@@ -67,6 +67,8 @@ public class LexerTerminals {
     public static final String XMLNS = "xmlns";
     public static final String FORK = "fork";
     public static final String TRAP = "trap";
+    public static final String IN = "in";
+    public static final String FOREACH = "foreach";
 
     // Types
     public static final String INT = "int";

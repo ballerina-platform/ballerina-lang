@@ -882,6 +882,10 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.TYPEDESC_KEYWORD);
             case LexerTerminals.TRAP:
                 return getSyntaxToken(SyntaxKind.TRAP_KEYWORD);
+            case LexerTerminals.IN:
+                return getSyntaxToken(SyntaxKind.IN_KEYWORD);
+            case LexerTerminals.FOREACH:
+                return getSyntaxToken(SyntaxKind.FOREACH_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

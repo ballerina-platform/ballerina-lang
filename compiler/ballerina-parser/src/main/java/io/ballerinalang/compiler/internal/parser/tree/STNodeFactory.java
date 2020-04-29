@@ -334,6 +334,23 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBraceToken);
     }
 
+    public static STNode createForEachStatementNode(
+            STNode forEachKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode inKeyword,
+            STNode ActionOrExpressionNode,
+            STNode blockStatement) {
+
+        return new STForEachStatementNode(
+                forEachKeyword,
+                typeDescriptor,
+                variableName,
+                inKeyword,
+                ActionOrExpressionNode,
+                blockStatement);
+    }
+
     public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,
