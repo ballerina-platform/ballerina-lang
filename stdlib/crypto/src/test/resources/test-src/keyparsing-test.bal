@@ -33,3 +33,7 @@ function testParsingPublicKeyFromP12(string path, string keyStorePassword, strin
     };
     return check crypto:decodePublicKey(keyStore, keyAlias);
 }
+
+function testParsingPublicKeyFromJwk(string modulus, string exponent) returns crypto:PublicKey|crypto:Error {
+    return crypto:buildRsaPublicKey(modulus, exponent);
+}
