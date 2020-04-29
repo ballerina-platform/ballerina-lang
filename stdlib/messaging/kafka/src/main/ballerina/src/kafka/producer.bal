@@ -201,38 +201,38 @@ public type Producer client object {
         return producerCommitConsumerOffsets(self, offsets, java:fromString(groupID));
     }
 
-# Flushes the batch of records already sent to the broker by the producer.
-# ```ballerina
-# kafka:ProducerError? result = producer->flushRecords();
-# ```
-#
-# + return - A `kafka:ProducerError` if records couldn't be flushed or else ()
+    # Flushes the batch of records already sent to the broker by the producer.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->flushRecords();
+    # ```
+    #
+    # + return - A `kafka:ProducerError` if records couldn't be flushed or else ()
     public remote function flushRecords() returns ProducerError? {
         return producerFlushRecords(self);
     }
 
-# Retrieves the topic partition information for the provided topic.
-# ```ballerina
-# kafka:TopicPartition[]|kafka:ProducerError result = producer->getTopicPartitions("kafka-topic");
-# ```
-#
-# + topic - Topic of which the partition information is given
-# + return - A `kafka:TopicPartition` array for the given topic or else a `kafka:ProducerError` if the operation fails
+    # Retrieves the topic partition information for the provided topic.
+    # ```ballerina
+    # kafka:TopicPartition[]|kafka:ProducerError result = producer->getTopicPartitions("kafka-topic");
+    # ```
+    #
+    # + topic - Topic of which the partition information is given
+    # + return - A `kafka:TopicPartition` array for the given topic or else a `kafka:ProducerError` if the operation fails
     public remote function getTopicPartitions(string topic) returns TopicPartition[]|ProducerError {
         return producerGetTopicPartitions(self, java:fromString(topic));
     }
 
-# Produces records to the Kafka server.
-# ```ballerina
-# kafka:ProducerError? result = producer->send("Hello World, Ballerina", "kafka-topic");
-# ```
-#
-# + value - Record contents
-# + topic - Topic to which the record will be appended
-# + key - Key that will be included in the record
-# + partition - Partition to which the record should be sent
-# + timestamp - Timestamp of the record in milliseconds since epoch
-# + return -  A `kafka:ProducerError` if send action fails to send data or else ()
+    # Produces records to the Kafka server.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->send("Hello World, Ballerina", "kafka-topic");
+    # ```
+    #
+    # + value - Record contents
+    # + topic - Topic to which the record will be appended
+    # + key - Key that will be included in the record
+    # + partition - Partition to which the record should be sent
+    # + timestamp - Timestamp of the record in milliseconds since epoch
+    # + return -  A `kafka:ProducerError` if send action fails to send data or else ()
     public remote function send(anydata value, string topic, public anydata? key = (), public int? partition = (),
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);
