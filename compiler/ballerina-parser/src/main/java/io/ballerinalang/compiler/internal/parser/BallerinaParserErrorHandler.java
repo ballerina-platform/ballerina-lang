@@ -195,7 +195,8 @@ public class BallerinaParserErrorHandler {
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
                     ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
                     ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
-                    ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.OPEN_PARENTHESIS };
+                    ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
+                    ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -263,6 +264,12 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
+
+    private static final ParserRuleContext[] TYPE_CAST_PARAM =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.ANNOTATIONS };
+
+    private static final ParserRuleContext[] TYPE_CAST_PARAM_RHS =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.GT };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -442,6 +449,8 @@ public class BallerinaParserErrorHandler {
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
             case LIST_CONSTRUCTOR_RHS:
+            case TYPE_CAST_PARAM:
+            case TYPE_CAST_PARAM_RHS:
                 return true;
             default:
                 return false;
@@ -1083,6 +1092,12 @@ public class BallerinaParserErrorHandler {
                 case LIST_CONSTRUCTOR_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LIST_CONSTRUCTOR_RHS,
                             isEntryPoint);
+                case TYPE_CAST_PARAM:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_CAST_PARAM,
+                            isEntryPoint);
+                case TYPE_CAST_PARAM_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_CAST_PARAM_RHS,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1152,6 +1167,7 @@ public class BallerinaParserErrorHandler {
                 case FORK_STMT:
                 case TRAP_EXPRESSION:
                 case LIST_CONSTRUCTOR:
+                case TYPE_CAST_EXPRESSION:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1569,6 +1585,7 @@ public class BallerinaParserErrorHandler {
             case FORK_STMT:
             case PARAMETERIZED_TYPE_DESCRIPTOR:
             case LIST_CONSTRUCTOR:
+            case TYPE_CAST_EXPRESSION:
                 startContext(currentCtx);
                 break;
             default:
@@ -2005,6 +2022,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case LIST_CONSTRUCTOR:
                 return ParserRuleContext.OPEN_BRACKET;
+            case TYPE_CAST_EXPRESSION:
+                return ParserRuleContext.LT;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2013,12 +2032,20 @@ public class BallerinaParserErrorHandler {
                 endContext();
                 return ParserRuleContext.LT;
             case LT:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
+                    return ParserRuleContext.TYPE_CAST_PARAM;
+                }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case GT:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
                     endContext();
                     return ParserRuleContext.TYPEDESC_RHS;
+                }
+                if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
+                    endContext();
+                    return ParserRuleContext.EXPRESSION;
                 }
                 // fall through
 
@@ -2075,6 +2102,8 @@ public class BallerinaParserErrorHandler {
             case DEFAULT_WORKER_INIT:
             case NAMED_WORKERS:
             case LIST_CONSTRUCTOR_RHS:
+            case TYPE_CAST_PARAM:
+            case TYPE_CAST_PARAM_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2171,6 +2200,7 @@ public class BallerinaParserErrorHandler {
             case ANNOTATION_DECL:
                 return ParserRuleContext.IDENTIFIER;
             case PARAMETERIZED_TYPE_DESCRIPTOR:
+            case TYPE_CAST_EXPRESSION:
                 return ParserRuleContext.GT;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
@@ -2307,6 +2337,8 @@ public class BallerinaParserErrorHandler {
                         return ParserRuleContext.STATEMENT_WITHOUT_ANNOTS;
                     case EXTERNAL_FUNC_BODY:
                         return ParserRuleContext.EXTERNAL_KEYWORD;
+                    case TYPE_CAST_EXPRESSION:
+                        return ParserRuleContext.TYPE_CAST_PARAM_RHS;
                     default:
                         if (isParameter(parentCtx)) {
                             return ParserRuleContext.REQUIRED_PARAM;
@@ -3003,6 +3035,7 @@ public class BallerinaParserErrorHandler {
             case DEFAULT_WORKER_INIT:
             case TRAP_EXPRESSION:
             case LIST_CONSTRUCTOR:
+            case TYPE_CAST_EXPRESSION:
             default:
                 break;
         }

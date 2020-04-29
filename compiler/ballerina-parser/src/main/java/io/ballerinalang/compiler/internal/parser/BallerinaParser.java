@@ -3165,6 +3165,9 @@ public class BallerinaParser {
                 if (solution.recoveredNode.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
                     return parseListConstructorExpr();
                 }
+                if (solution.recoveredNode.kind == SyntaxKind.LT_TOKEN) {
+                    return parseTypeCastExpr();
+                }
 
                 return solution.recoveredNode;
         }
@@ -6920,10 +6923,12 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseTypeCastExpr() {
+        startContext(ParserRuleContext.TYPE_CAST_EXPRESSION);
         STNode ltToken = parseLTToken();
         STNode typeCastParam = parseTypeCastParam();
         STNode gtToken = parseGTToken();
         STNode expression = parseExpression();
+        endContext();
         return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
     }
 
