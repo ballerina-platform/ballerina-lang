@@ -375,6 +375,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLTextNode);
     }
 
+    public void visit(XMLAttributeNode xMLAttributeNode) {
+        visitSyntaxNode(xMLAttributeNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

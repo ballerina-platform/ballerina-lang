@@ -1949,6 +1949,25 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "XMLAttributeNode",
+            "base": "Node",
+            "kind": "XML_ATTRIBUTE",
+            "attributes": [
+                {
+                    "name": "attributeName",
+                    "type": "XMLNameNode"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "value",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

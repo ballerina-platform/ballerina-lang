@@ -374,7 +374,7 @@ public class BallerinaLexer {
      * @param isLeading Flag indicating whether the currently processing leading trivia or not
      */
     private void processSyntaxTrivia(List<STNode> triviaList, boolean isLeading) {
-        while (true) {
+        while (!reader.isEOF()) {
             reader.mark();
             char c = reader.peek();
             switch (c) {
@@ -410,26 +410,24 @@ public class BallerinaLexer {
      * @return Whitespace trivia
      */
     private STNode processWhitespaces() {
-        while (true) {
-            boolean done = false;
+        while (!reader.isEOF()) {
             char c = reader.peek();
             switch (c) {
                 case LexerTerminals.SPACE:
                 case LexerTerminals.TAB:
                 case LexerTerminals.FORM_FEED:
                     reader.advance();
-                    break;
+                    continue;
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
-                    done = true;
                     break;
                 default:
-                    done = true;
+                    break;
             }
-            if (done) {
-                return STNodeFactory.createSyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
-            }
+            break;
         }
+
+        return STNodeFactory.createSyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
     }
 
     /**
@@ -548,7 +546,7 @@ public class BallerinaLexer {
         }
 
         int len = 1;
-        while (true) {
+        while (!reader.isEOF()) {
             switch (nextChar) {
                 case '.':
                 case 'e':
@@ -911,7 +909,7 @@ public class BallerinaLexer {
      */
     private STToken processStringLiteral() {
         int nextChar;
-        while (true) {
+        while (!reader.isEOF()) {
             nextChar = peek();
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
@@ -1105,7 +1103,7 @@ public class BallerinaLexer {
      * @param isLeading Flag indicating whether the currently processing leading trivia or not
      */
     private void processXMLTrivia(List<STNode> triviaList, boolean isLeading) {
-        while (true) {
+        while (!reader.isEOF()) {
             reader.mark();
             char c = reader.peek();
             switch (c) {
@@ -1255,6 +1253,12 @@ public class BallerinaLexer {
                 }
                 reader.advance();
                 break;
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                return getXMLSyntaxToken(SyntaxKind.EQUAL_TOKEN, true, true);
+            case LexerTerminals.DOUBLE_QUOTE:
+            case LexerTerminals.SINGLE_QUOTE:
+                return processXMLQuotedString();
             case LexerTerminals.BACKTICK:
                 // Back tick means the end of currently processing element as well as
                 // the end of entire XML literal. Hence end the context, and start
@@ -1296,7 +1300,7 @@ public class BallerinaLexer {
             isValid = false;
         }
 
-        while (XMLValidator.isNCName(peek())) {
+        while (!reader.isEOF() && XMLValidator.isNCName(peek())) {
             reader.advance();
         }
 
@@ -1311,14 +1315,173 @@ public class BallerinaLexer {
     private STToken getXMLNameToken(String tokenText) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
 
-        // Name tokens cannot have leading WS, but can have trailing WS.
+        // TODO: some names can have whitespaces
         if (leadingTrivia.bucketCount() != 0) {
-            reportLexerError("invalid white spaces before: " + tokenText);
+            reportLexerError("invalid whitespace before: " + tokenText);
         }
 
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingXMLTrivia();
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken processXMLQuotedString() {
+        int startingQuote = peek();
+        this.reader.advance();
+
+        int nextChar;
+        while (!reader.isEOF()) {
+            nextChar = peek();
+            switch (nextChar) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                case LexerTerminals.SINGLE_QUOTE:
+                    this.reader.advance();
+                    if (nextChar == startingQuote) {
+                        break;
+                    }
+                    continue;
+                case LexerTerminals.BITWISE_AND:
+                    processXMLReference(startingQuote);
+                    continue;
+                case LexerTerminals.LT:
+                    reader.advance();
+                    this.reportLexerError("'<' is not allowed in XML attribute value");
+                    continue;
+                default:
+                    this.reader.advance();
+                    continue;
+            }
+            break;
+        }
+
+        if (reader.isEOF()) {
+            reportLexerError("missing " + String.valueOf((char) startingQuote));
+        }
+
+        return getLiteral(SyntaxKind.STRING_LITERAL);
+    }
+
+    /**
+     * Process XML references.
+     * <p>
+     * <code>
+     * Reference := EntityRef | CharRef
+     * </code>
+     * 
+     * @param startingQuote Starting quote
+     */
+    private void processXMLReference(int startingQuote) {
+        this.reader.advance();
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.SEMICOLON:
+                reportLexerError("missing entity reference name");
+                reader.advance();
+                return;
+            case LexerTerminals.HASH:
+                processXMLCharRef(startingQuote);
+                break;
+            case LexerTerminals.DOUBLE_QUOTE:
+            case LexerTerminals.SINGLE_QUOTE:
+                if (nextChar == startingQuote) {
+                    break;
+                }
+                // fall through
+            default:
+                // Process the name component
+                processXMLEntityRef(startingQuote);
+                break;
+        }
+
+        // Process ending semicolon
+        if (peek() == LexerTerminals.SEMICOLON) {
+            reader.advance();
+        } else {
+            reportLexerError("missing ; in reference");
+        }
+    }
+
+    /**
+     * Process XML char references.
+     * <p>
+     * <code>
+     * CharRef := ('&#' [0-9]+ ';') | ('&#x' [0-9a-fA-F]+ ';')
+     * </code>
+     * 
+     * @param startingQuote Starting quote
+     */
+    private void processXMLCharRef(int startingQuote) {
+        // We reach here after consuming '&', and verifying the following '#'.
+        // Hence consume the hash token.
+        reader.advance();
+        int nextChar = peek();
+        if (nextChar == 'x') {
+            processHexDigits();
+        } else {
+            processDigits();
+        }
+    }
+
+    private void processHexDigits() {
+        int nextChar;
+        while (!reader.isEOF()) {
+            nextChar = peek();
+            switch (nextChar) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                case LexerTerminals.SINGLE_QUOTE:
+                case LexerTerminals.SEMICOLON:
+                    return;
+                default:
+                    if (!isHexDigit(nextChar)) {
+                        reportLexerError("invalid hex digit in char ref");
+                    }
+                    reader.advance();
+                    break;
+            }
+        }
+    }
+
+    private void processDigits() {
+        int nextChar;
+        while (!reader.isEOF()) {
+            nextChar = peek();
+            switch (nextChar) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                case LexerTerminals.SINGLE_QUOTE:
+                case LexerTerminals.SEMICOLON:
+                    return;
+                default:
+                    if (!isDigit(nextChar)) {
+                        reportLexerError("invalid digit in char ref");
+                    }
+                    reader.advance();
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Process the name component of an XML entity reference. This method will
+     * advance the token reader until the end of entity reference.
+     * 
+     * <p>
+     * <code>EntityRef := '&' Name ';'</code>
+     * 
+     * @param startingQuote Starting quote
+     */
+    private void processXMLEntityRef(int startingQuote) {
+        // We reach here after consuming '&'
+
+        // Process the name component
+        if (!XMLValidator.isNCNameStart(peek())) {
+            reportLexerError("invalid entity reference name start");
+        } else {
+            reader.advance();
+        }
+
+        while (!reader.isEOF() && XMLValidator.isNCName(peek())) {
+            reader.advance();
+        }
     }
 
     /*
@@ -1344,24 +1507,9 @@ public class BallerinaLexer {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
-        int nextChar = reader.peek();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                // Back tick means the end of currently processing text as well as
-                // the end of entire XML literal. Hence end the context, and start
-                // unwinding.
-                endMode();
-                return nextToken();
-            default:
-                break;
-        }
-
-        return getXMLCharacterData();
-    }
-
-    private STToken getXMLCharacterData() {
+        int nextChar;
         while (!reader.isEOF()) {
-            int nextChar = this.reader.peek();
+            nextChar = this.reader.peek();
             switch (nextChar) {
                 case LexerTerminals.LT:
                     break;
@@ -1423,8 +1571,8 @@ public class BallerinaLexer {
                 return getXMLSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN, true, true);
             case LexerTerminals.BACKTICK:
                 // If we are inside the interpolation, that means its no longer XML
-                // mode, but in default mode. Hence treat the back-tick in the same
-                // way as in the default mode.
+                // mode, but in the default mode. Hence treat the back-tick in the
+                // same way as in the default mode.
             default:
                 // Otherwise read the token from default mode.
                 return readToken();

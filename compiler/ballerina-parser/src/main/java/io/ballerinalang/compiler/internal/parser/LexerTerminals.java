@@ -96,6 +96,7 @@ public class LexerTerminals {
     public static final char PIPE = '|';
     public static final char QUESTION_MARK = '?';
     public static final char DOUBLE_QUOTE = '"';
+    public static final char SINGLE_QUOTE = '\'';
     public static final char HASH = '#';
     public static final char AT = '@';
     public static final char BACKTICK = '`';

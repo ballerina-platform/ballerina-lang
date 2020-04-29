@@ -1087,5 +1087,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STXMLTextNode(
                 content);
     }
+
+    public static STNode createXMLAttributeNode(
+            STNode attributeName,
+            STNode equalToken,
+            STNode value) {
+
+        return new STXMLAttributeNode(
+                attributeName,
+                equalToken,
+                value);
+    }
 }
 

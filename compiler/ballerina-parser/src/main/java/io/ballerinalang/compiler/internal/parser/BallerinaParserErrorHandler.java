@@ -2821,6 +2821,20 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
+            case BACKTICK_TOKEN:
+                return SyntaxKind.BACKTICK_TOKEN;
+            case LT_TOKEN:
+                return SyntaxKind.LT_TOKEN;
+            case GT_TOKEN:
+                return SyntaxKind.GT_TOKEN;
+            case INTERPOLATION_START_TOKEN:
+                return SyntaxKind.INTERPOLATION_START_TOKEN;
+            case XML_KEYWORD:
+                return SyntaxKind.XML_KEYWORD;
+            case XML_NAME:
+                return SyntaxKind.IDENTIFIER_TOKEN;
+            case XML_QUOTED_STRING:
+                return SyntaxKind.STRING_LITERAL;
 
             // TODO:
             case COMP_UNIT:

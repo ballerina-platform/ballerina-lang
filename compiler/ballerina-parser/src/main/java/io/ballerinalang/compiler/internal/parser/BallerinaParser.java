@@ -6783,7 +6783,7 @@ public class BallerinaParser {
     private STNode parseXMLElementStartOrEmptyTag() {
         STNode tagOpen = parseLTToken();
         STNode name = parseXMLNCName();
-        STNode attributes = STNodeFactory.createEmptyNode();
+        STNode attributes = parseXMLAttributes();
 
         if (peek().kind == SyntaxKind.SLASH_TOKEN) {
             STNode slash = parseSlashToken();
@@ -6854,6 +6854,67 @@ public class BallerinaParser {
             return parseQualifiedIdentifier(consume());
         } else {
             Solution sol = recover(token, ParserRuleContext.XML_NAME);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML attributes.
+     * 
+     * @return XML attributes
+     */
+    private STNode parseXMLAttributes() {
+        List<STNode> attributes = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLAttributes(nextToken.kind)) {
+            STNode attribute = parseXMLAttribute();
+            attributes.add(attribute);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(attributes);
+    }
+
+    /**
+     * Check whether the parser has reached the end of the XML attributes.
+     * 
+     * @param kind Next token kind
+     * @return <code>true</code> if this is the end of the XML attributes. <code>false</code> otherwise
+     */
+    private boolean isEndOfXMLAttributes(SyntaxKind kind) {
+        switch (kind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case GT_TOKEN:
+            case LT_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Parse XML attribute.
+     * <p>
+     * <code>Attribute := Name Eq AttValue</code>
+     * 
+     * @return XML attribute node
+     */
+    private STNode parseXMLAttribute() {
+        STNode attributeName = parseXMLNCName();
+        STNode equalToken = parseAssignOp();
+        STNode value = parseXMLQuotedString();
+        return STNodeFactory.createXMLAttributeNode(attributeName, equalToken, value);
+    }
+
+    /**
+     * @return
+     */
+    private STNode parseXMLQuotedString() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STRING_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_QUOTED_STRING);
             return sol.recoveredNode;
         }
     }

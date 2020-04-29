@@ -1077,6 +1077,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 content);
     }
 
+    @Override
+    public Node transform(XMLAttributeNode xMLAttributeNode) {
+        XMLNameNode attributeName = modifyNode(xMLAttributeNode.attributeName());
+        Token equalToken = modifyToken(xMLAttributeNode.equalToken());
+        Node value = modifyNode(xMLAttributeNode.value());
+        return xMLAttributeNode.modify(
+                attributeName,
+                equalToken,
+                value);
+    }
+
     // Tokens
 
     @Override

@@ -376,6 +376,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLTextNode);
     }
 
+    public T transform(XMLAttributeNode xMLAttributeNode) {
+        return transformSyntaxNode(xMLAttributeNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
