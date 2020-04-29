@@ -962,6 +962,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        createCall(actionInvocation, false);
+    }
+
+    @Override
     public void visit(BLangStatementExpression statementExpression) {
         statementExpression.stmt.accept(this);
         statementExpression.expr.accept(this);

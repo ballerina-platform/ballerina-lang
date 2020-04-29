@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,23 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Foo object {
-    public future<int> intFuture = getFuture();
+type Foo1 client object {
+    string name;
+
+    function __init(string name) {
+        self.name = name;
+    }
+
+    remote function getName(string s = "") returns string {
+        return s == "" ? self.name : self.name + "->" + s;
+    }
 };
 
-Foo globalFoo = new;
+function testNestedClientObjectActions() {
+    Foo1 f1 = new("f1");
+    Foo1 f2 = new("f2");
+    Foo1 f3 = new("f3");
 
-public function getIntFromFutureField() returns int {
-    Foo foo = new;
-    int a = wait foo.intFuture;
-    int b = wait globalFoo.intFuture;
-    return a + b;
-}
-
-public function getIntValue() returns int {
-    return 10;
-}
-
-public function getFuture() returns future<int> {
-    return start getIntValue();
+    // actions cannot be used as arguments
+    string result = f1->getName(f2->getName(f3->getName()));
 }

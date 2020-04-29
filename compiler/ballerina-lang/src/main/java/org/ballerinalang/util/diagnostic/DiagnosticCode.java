@@ -177,6 +177,7 @@ public enum DiagnosticCode {
 
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
+    INVALID_METHOD_INVOCATION_SYNTAX("invalid.method.invocation.syntax"),
     INVALID_INIT_INVOCATION("invalid.init.invocation"),
     INVALID_RESOURCE_FUNCTION_INVOCATION("invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
@@ -454,6 +455,7 @@ public enum DiagnosticCode {
     INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
     INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED("invalid.error.reason.argument.to.indirect.error.constructor"),
     INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON("invalid.indirect.error.constructor.invocation"),
+    INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION("invalid.functional.constructor.invocation"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
@@ -498,6 +500,10 @@ public enum DiagnosticCode {
 
     ILLEGAL_FUNCTION_CHANGE_LIST_SIZE("illegal.function.change.list.size"),
     ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE("illegal.function.change.tuple.shape"),
+
+    INVALID_WAIT_MAPPING_CONSTRUCTORS("invalid.wait.future.expr.mapping.constructors"),
+    INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
+    INVALID_SEND_EXPR("invalid.send.expr"),
     ;
     private String value;
 
