@@ -553,7 +553,7 @@ function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
 
-# Returns the `crypto:PublicKey` created with modulus and exponent retrieved from JWKs endpoint.
+# Returns the `crypto:PublicKey` created with the modulus and exponent retrieved from the JWK's endpoint.
 # ```ballerina
 # string modulus = "luZFdW1ynitztkWLC6xKegbRWxky...";
 # string exponent = "AQAB";
