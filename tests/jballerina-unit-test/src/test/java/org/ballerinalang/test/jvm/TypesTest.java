@@ -790,7 +790,7 @@ public class TypesTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
         BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
-        Assert.assertEquals(new String(baos.toByteArray()), "typedesc map<int|string>");
+        Assert.assertEquals(new String(baos.toByteArray()), "typedesc map<(int|string)>");
         System.setOut(tempOut);
     }
 }

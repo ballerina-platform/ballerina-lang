@@ -81,14 +81,14 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'string\\|int\\|\\(\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
+                    "types: '\\(string\\|int\\|\\(\\)\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,int\\|string,float\\]' cannot be cast" +
-                    " to '\\[string,int,float\\]'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,\\(int\\|string\\),float\\]' cannot " +
+                    "be cast to '\\[string,int,float\\]'.*")
     public void testTupleCastNegative() {
         BRunUtil.invoke(result, "testTupleCastNegative");
     }
@@ -120,8 +120,8 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml\\" +
-                    "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\>'.*")
+                    "<\\(lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\)\\>'.*")
     public void testXmlCastNegative() {
         BRunUtil.invoke(result, "testXmlCastNegative");
     }
@@ -172,14 +172,14 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'int' cannot be cast to 'string\\|boolean'.*")
+                    "types: 'int' cannot be cast to '\\(string\\|boolean\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'string' cannot be cast to 'Lead\\|int'.*")
+                    "types: 'string' cannot be cast to '\\(Lead\\|int\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
     }
@@ -253,9 +253,9 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml\\" +
-            "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\>'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to '\\(string\\|xml\\" +
+            "<\\(lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\)\\>\\)'.*")
     public void testFiniteTypeToRefTypeCastNegative() {
         BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
     }
