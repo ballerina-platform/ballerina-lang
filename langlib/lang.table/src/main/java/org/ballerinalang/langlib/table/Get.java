@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native implementation of lang.table:get(table&lt;Type&gt;, KeyType).
  *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "get",
