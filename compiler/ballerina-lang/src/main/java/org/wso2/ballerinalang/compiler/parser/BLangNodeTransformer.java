@@ -36,6 +36,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
+import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -413,6 +415,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         bLiteralNode.pos = getPosition(mapConstruct);
         return bLiteralNode;
+    }
+
+    @Override
+    public BLangNode transform(ListConstructorExpressionNode listConstructorExprNode) {
+        List<BLangExpression> argExprList = new ArrayList<>();
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
+        for (Node expr : listConstructorExprNode.expressions()) {
+            argExprList.add(createExpression(expr));
+        }
+        listConstructorExpr.exprs = argExprList;
+        listConstructorExpr.pos = getPosition(listConstructorExprNode);
+        return listConstructorExpr;
     }
 
     @Override
@@ -785,7 +800,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         int typeTag = -1;
         Object value = null;
         String originalValue = null;
-        String textValue = (literal instanceof BasicLiteralNode) ? ((BasicLiteralNode) literal).literalToken().text() : "";
+
+        String textValue;
+        if (literal instanceof BasicLiteralNode) {
+            textValue = ((BasicLiteralNode) literal).literalToken().text();
+        } else if (literal instanceof Token) {
+            textValue = ((Token) literal).text();
+        } else {
+            textValue = "";
+        }
 
         //TODO: Verify all types, only string type tested
         if (type == SyntaxKind.DECIMAL_INTEGER_LITERAL || type == SyntaxKind.HEX_INTEGER_LITERAL) {

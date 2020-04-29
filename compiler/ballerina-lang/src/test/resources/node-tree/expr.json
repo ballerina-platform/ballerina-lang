@@ -82,7 +82,7 @@
                         "pos": {
                             "src": "<Duplicated>",
                             "sLine": 1,
-                            "eLine": 23,
+                            "eLine": 35,
                             "sCol": 1,
                             "eCol": 2
                         },
@@ -691,7 +691,7 @@
                                         "pos": {
                                             "src": "<Duplicated>",
                                             "sLine": 11,
-                                            "eLine": 23,
+                                            "eLine": 35,
                                             "sCol": 1,
                                             "eCol": 2
                                         },
@@ -1101,7 +1101,7 @@
                                             {
                                                 "var": {
                                                     "name": {
-                                                        "value": "foo",
+                                                        "value": "myList",
                                                         "originalValue": null,
                                                         "isLiteral": false,
                                                         "type": null,
@@ -1111,6 +1111,797 @@
                                                             "src": "<Duplicated>",
                                                             "sLine": 21,
                                                             "eLine": 21,
+                                                            "sCol": 9,
+                                                            "eCol": 15
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "typeNode": null,
+                                                    "expr": {
+                                                        "exprs": [
+                                                            {
+                                                                "value": 111,
+                                                                "originalValue": "111",
+                                                                "isJSONContext": false,
+                                                                "isFiniteContext": false,
+                                                                "isConstant": false,
+                                                                "impConversionExpr": null,
+                                                                "typeChecked": false,
+                                                                "expectedType": null,
+                                                                "narrowedTypeInfo": null,
+                                                                "type": "<Duplicated>",
+                                                                "desugared": false,
+                                                                "constantPropagated": false,
+                                                                "pos": {
+                                                                    "src": "<Duplicated>",
+                                                                    "sLine": 21,
+                                                                    "eLine": 21,
+                                                                    "sCol": 19,
+                                                                    "eCol": 22
+                                                                },
+                                                                "cloneAttempt": 0
+                                                            },
+                                                            {
+                                                                "value": 222,
+                                                                "originalValue": "222",
+                                                                "isJSONContext": false,
+                                                                "isFiniteContext": false,
+                                                                "isConstant": false,
+                                                                "impConversionExpr": null,
+                                                                "typeChecked": false,
+                                                                "expectedType": null,
+                                                                "narrowedTypeInfo": null,
+                                                                "type": "<Duplicated>",
+                                                                "desugared": false,
+                                                                "constantPropagated": false,
+                                                                "pos": {
+                                                                    "src": "<Duplicated>",
+                                                                    "sLine": 21,
+                                                                    "eLine": 21,
+                                                                    "sCol": 24,
+                                                                    "eCol": 27
+                                                                },
+                                                                "cloneAttempt": 0
+                                                            }
+                                                        ],
+                                                        "isTypedescExpr": false,
+                                                        "typedescType": null,
+                                                        "impConversionExpr": null,
+                                                        "typeChecked": false,
+                                                        "expectedType": null,
+                                                        "narrowedTypeInfo": null,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 21,
+                                                            "eLine": 21,
+                                                            "sCol": 18,
+                                                            "eCol": 28
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "markdownDocumentationAttachment": null,
+                                                    "isDeclaredWithVar": true,
+                                                    "symbol": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 21,
+                                                        "eLine": 21,
+                                                        "sCol": 5,
+                                                        "eCol": 29
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "isInFork": false,
+                                                "isWorker": false,
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": "<Duplicated>",
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "var": {
+                                                    "name": {
+                                                        "value": "myList2",
+                                                        "originalValue": null,
+                                                        "isLiteral": false,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 22,
+                                                            "eLine": 22,
+                                                            "sCol": 9,
+                                                            "eCol": 16
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "typeNode": null,
+                                                    "expr": {
+                                                        "exprs": [
+                                                            {
+                                                                "value": 333,
+                                                                "originalValue": "333",
+                                                                "isJSONContext": false,
+                                                                "isFiniteContext": false,
+                                                                "isConstant": false,
+                                                                "impConversionExpr": null,
+                                                                "typeChecked": false,
+                                                                "expectedType": null,
+                                                                "narrowedTypeInfo": null,
+                                                                "type": "<Duplicated>",
+                                                                "desugared": false,
+                                                                "constantPropagated": false,
+                                                                "pos": {
+                                                                    "src": "<Duplicated>",
+                                                                    "sLine": 22,
+                                                                    "eLine": 22,
+                                                                    "sCol": 20,
+                                                                    "eCol": 23
+                                                                },
+                                                                "cloneAttempt": 0
+                                                            },
+                                                            {
+                                                                "value": "\"444\"",
+                                                                "originalValue": "\"444\"",
+                                                                "isJSONContext": false,
+                                                                "isFiniteContext": false,
+                                                                "isConstant": false,
+                                                                "impConversionExpr": null,
+                                                                "typeChecked": false,
+                                                                "expectedType": null,
+                                                                "narrowedTypeInfo": null,
+                                                                "type": "<Duplicated>",
+                                                                "desugared": false,
+                                                                "constantPropagated": false,
+                                                                "pos": {
+                                                                    "src": "<Duplicated>",
+                                                                    "sLine": 22,
+                                                                    "eLine": 22,
+                                                                    "sCol": 25,
+                                                                    "eCol": 30
+                                                                },
+                                                                "cloneAttempt": 0
+                                                            }
+                                                        ],
+                                                        "isTypedescExpr": false,
+                                                        "typedescType": null,
+                                                        "impConversionExpr": null,
+                                                        "typeChecked": false,
+                                                        "expectedType": null,
+                                                        "narrowedTypeInfo": null,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 22,
+                                                            "eLine": 22,
+                                                            "sCol": 19,
+                                                            "eCol": 31
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "markdownDocumentationAttachment": null,
+                                                    "isDeclaredWithVar": true,
+                                                    "symbol": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 22,
+                                                        "eLine": 22,
+                                                        "sCol": 5,
+                                                        "eCol": 32
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "isInFork": false,
+                                                "isWorker": false,
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": "<Duplicated>",
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "varSymbol": null,
+                                                            "pkgAlias": "<Duplicated>",
+                                                            "variableName": "<Duplicated>",
+                                                            "symbol": null,
+                                                            "lhsVar": false,
+                                                            "compoundAssignmentLhsVar": false,
+                                                            "pkgSymbol": null,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": null,
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 23,
+                                                                "eLine": 23,
+                                                                "sCol": 16,
+                                                                "eCol": 22
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "actionInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 23,
+                                                        "eLine": 23,
+                                                        "sCol": 5,
+                                                        "eCol": 23
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 23,
+                                                    "eLine": 23,
+                                                    "sCol": 5,
+                                                    "eCol": 24
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "varSymbol": null,
+                                                            "pkgAlias": "<Duplicated>",
+                                                            "variableName": "<Duplicated>",
+                                                            "symbol": null,
+                                                            "lhsVar": false,
+                                                            "compoundAssignmentLhsVar": false,
+                                                            "pkgSymbol": null,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": null,
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 24,
+                                                                "eLine": 24,
+                                                                "sCol": 16,
+                                                                "eCol": 23
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "actionInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 24,
+                                                        "eLine": 24,
+                                                        "sCol": 5,
+                                                        "eCol": 24
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 24,
+                                                    "eLine": 24,
+                                                    "sCol": 5,
+                                                    "eCol": 25
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "var": {
+                                                    "name": {
+                                                        "value": "myMap",
+                                                        "originalValue": null,
+                                                        "isLiteral": false,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 27,
+                                                            "eLine": 27,
+                                                            "sCol": 9,
+                                                            "eCol": 14
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "typeNode": null,
+                                                    "expr": {
+                                                        "fields": [
+                                                            {
+                                                                "key": {
+                                                                    "computedKey": false,
+                                                                    "expr": {
+                                                                        "varSymbol": null,
+                                                                        "pkgAlias": "<Duplicated>",
+                                                                        "variableName": {
+                                                                            "value": "key",
+                                                                            "originalValue": null,
+                                                                            "isLiteral": false,
+                                                                            "type": null,
+                                                                            "desugared": false,
+                                                                            "constantPropagated": false,
+                                                                            "pos": {
+                                                                                "src": "<Duplicated>",
+                                                                                "sLine": 27,
+                                                                                "eLine": 27,
+                                                                                "sCol": 18,
+                                                                                "eCol": 21
+                                                                            },
+                                                                            "cloneAttempt": 0
+                                                                        },
+                                                                        "symbol": null,
+                                                                        "lhsVar": false,
+                                                                        "compoundAssignmentLhsVar": false,
+                                                                        "pkgSymbol": null,
+                                                                        "impConversionExpr": null,
+                                                                        "typeChecked": false,
+                                                                        "expectedType": null,
+                                                                        "narrowedTypeInfo": null,
+                                                                        "type": null,
+                                                                        "desugared": false,
+                                                                        "constantPropagated": false,
+                                                                        "pos": "<Duplicated>",
+                                                                        "cloneAttempt": 0
+                                                                    },
+                                                                    "fieldSymbol": null,
+                                                                    "type": null,
+                                                                    "desugared": false,
+                                                                    "constantPropagated": false,
+                                                                    "pos": null,
+                                                                    "cloneAttempt": 0
+                                                                },
+                                                                "valueExpr": {
+                                                                    "value": "\"value\"",
+                                                                    "originalValue": "\"value\"",
+                                                                    "isJSONContext": false,
+                                                                    "isFiniteContext": false,
+                                                                    "isConstant": false,
+                                                                    "impConversionExpr": null,
+                                                                    "typeChecked": false,
+                                                                    "expectedType": null,
+                                                                    "narrowedTypeInfo": null,
+                                                                    "type": "<Duplicated>",
+                                                                    "desugared": false,
+                                                                    "constantPropagated": false,
+                                                                    "pos": {
+                                                                        "src": "<Duplicated>",
+                                                                        "sLine": 27,
+                                                                        "eLine": 27,
+                                                                        "sCol": 24,
+                                                                        "eCol": 31
+                                                                    },
+                                                                    "cloneAttempt": 0
+                                                                },
+                                                                "type": null,
+                                                                "desugared": false,
+                                                                "constantPropagated": false,
+                                                                "pos": null,
+                                                                "cloneAttempt": 0
+                                                            }
+                                                        ],
+                                                        "impConversionExpr": null,
+                                                        "typeChecked": false,
+                                                        "expectedType": null,
+                                                        "narrowedTypeInfo": null,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 27,
+                                                            "eLine": 27,
+                                                            "sCol": 17,
+                                                            "eCol": 32
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "markdownDocumentationAttachment": null,
+                                                    "isDeclaredWithVar": true,
+                                                    "symbol": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 27,
+                                                        "eLine": 27,
+                                                        "sCol": 5,
+                                                        "eCol": 33
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "isInFork": false,
+                                                "isWorker": false,
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": "<Duplicated>",
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "var": {
+                                                    "name": {
+                                                        "value": "myMap2",
+                                                        "originalValue": null,
+                                                        "isLiteral": false,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 28,
+                                                            "eLine": 28,
+                                                            "sCol": 9,
+                                                            "eCol": 15
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "typeNode": null,
+                                                    "expr": {
+                                                        "fields": [
+                                                            {
+                                                                "key": {
+                                                                    "computedKey": false,
+                                                                    "expr": {
+                                                                        "value": "\"key\"",
+                                                                        "originalValue": "\"key\"",
+                                                                        "isJSONContext": false,
+                                                                        "isFiniteContext": false,
+                                                                        "isConstant": false,
+                                                                        "impConversionExpr": null,
+                                                                        "typeChecked": false,
+                                                                        "expectedType": null,
+                                                                        "narrowedTypeInfo": null,
+                                                                        "type": "<Duplicated>",
+                                                                        "desugared": false,
+                                                                        "constantPropagated": false,
+                                                                        "pos": {
+                                                                            "src": "<Duplicated>",
+                                                                            "sLine": 28,
+                                                                            "eLine": 28,
+                                                                            "sCol": 19,
+                                                                            "eCol": 24
+                                                                        },
+                                                                        "cloneAttempt": 0
+                                                                    },
+                                                                    "fieldSymbol": null,
+                                                                    "type": null,
+                                                                    "desugared": false,
+                                                                    "constantPropagated": false,
+                                                                    "pos": null,
+                                                                    "cloneAttempt": 0
+                                                                },
+                                                                "valueExpr": {
+                                                                    "value": "\"value\"",
+                                                                    "originalValue": "\"value\"",
+                                                                    "isJSONContext": false,
+                                                                    "isFiniteContext": false,
+                                                                    "isConstant": false,
+                                                                    "impConversionExpr": null,
+                                                                    "typeChecked": false,
+                                                                    "expectedType": null,
+                                                                    "narrowedTypeInfo": null,
+                                                                    "type": "<Duplicated>",
+                                                                    "desugared": false,
+                                                                    "constantPropagated": false,
+                                                                    "pos": {
+                                                                        "src": "<Duplicated>",
+                                                                        "sLine": 28,
+                                                                        "eLine": 28,
+                                                                        "sCol": 27,
+                                                                        "eCol": 34
+                                                                    },
+                                                                    "cloneAttempt": 0
+                                                                },
+                                                                "type": null,
+                                                                "desugared": false,
+                                                                "constantPropagated": false,
+                                                                "pos": null,
+                                                                "cloneAttempt": 0
+                                                            }
+                                                        ],
+                                                        "impConversionExpr": null,
+                                                        "typeChecked": false,
+                                                        "expectedType": null,
+                                                        "narrowedTypeInfo": null,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 28,
+                                                            "eLine": 28,
+                                                            "sCol": 18,
+                                                            "eCol": 35
+                                                        },
+                                                        "cloneAttempt": 0
+                                                    },
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "markdownDocumentationAttachment": null,
+                                                    "isDeclaredWithVar": true,
+                                                    "symbol": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 28,
+                                                        "eLine": 28,
+                                                        "sCol": 5,
+                                                        "eCol": 36
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "isInFork": false,
+                                                "isWorker": false,
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": "<Duplicated>",
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "varSymbol": null,
+                                                            "pkgAlias": "<Duplicated>",
+                                                            "variableName": "<Duplicated>",
+                                                            "symbol": null,
+                                                            "lhsVar": false,
+                                                            "compoundAssignmentLhsVar": false,
+                                                            "pkgSymbol": null,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": null,
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 29,
+                                                                "eLine": 29,
+                                                                "sCol": 16,
+                                                                "eCol": 21
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "actionInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 29,
+                                                        "eLine": 29,
+                                                        "sCol": 5,
+                                                        "eCol": 22
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 29,
+                                                    "eLine": 29,
+                                                    "sCol": 5,
+                                                    "eCol": 23
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "expr": {
+                                                    "pkgAlias": "<Duplicated>",
+                                                    "name": "<Duplicated>",
+                                                    "argExprs": [
+                                                        {
+                                                            "varSymbol": null,
+                                                            "pkgAlias": "<Duplicated>",
+                                                            "variableName": "<Duplicated>",
+                                                            "symbol": null,
+                                                            "lhsVar": false,
+                                                            "compoundAssignmentLhsVar": false,
+                                                            "pkgSymbol": null,
+                                                            "impConversionExpr": null,
+                                                            "typeChecked": false,
+                                                            "expectedType": null,
+                                                            "narrowedTypeInfo": null,
+                                                            "type": null,
+                                                            "desugared": false,
+                                                            "constantPropagated": false,
+                                                            "pos": {
+                                                                "src": "<Duplicated>",
+                                                                "sLine": 30,
+                                                                "eLine": 30,
+                                                                "sCol": 16,
+                                                                "eCol": 22
+                                                            },
+                                                            "cloneAttempt": 0
+                                                        }
+                                                    ],
+                                                    "exprSymbol": null,
+                                                    "functionPointerInvocation": false,
+                                                    "actionInvocation": false,
+                                                    "langLibInvocation": false,
+                                                    "async": false,
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
+                                                    "expr": null,
+                                                    "optionalFieldAccess": false,
+                                                    "errorSafeNavigation": false,
+                                                    "nilSafeNavigation": false,
+                                                    "originalType": null,
+                                                    "leafNode": false,
+                                                    "symbol": null,
+                                                    "lhsVar": false,
+                                                    "compoundAssignmentLhsVar": false,
+                                                    "pkgSymbol": null,
+                                                    "impConversionExpr": null,
+                                                    "typeChecked": false,
+                                                    "expectedType": null,
+                                                    "narrowedTypeInfo": null,
+                                                    "type": null,
+                                                    "desugared": false,
+                                                    "constantPropagated": false,
+                                                    "pos": {
+                                                        "src": "<Duplicated>",
+                                                        "sLine": 30,
+                                                        "eLine": 30,
+                                                        "sCol": 5,
+                                                        "eCol": 23
+                                                    },
+                                                    "cloneAttempt": 0
+                                                },
+                                                "statementLink": null,
+                                                "type": null,
+                                                "desugared": false,
+                                                "constantPropagated": false,
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 30,
+                                                    "eLine": 30,
+                                                    "sCol": 5,
+                                                    "eCol": 24
+                                                },
+                                                "cloneAttempt": 0
+                                            },
+                                            {
+                                                "var": {
+                                                    "name": {
+                                                        "value": "foo",
+                                                        "originalValue": null,
+                                                        "isLiteral": false,
+                                                        "type": null,
+                                                        "desugared": false,
+                                                        "constantPropagated": false,
+                                                        "pos": {
+                                                            "src": "<Duplicated>",
+                                                            "sLine": 33,
+                                                            "eLine": 33,
                                                             "sCol": 9,
                                                             "eCol": 12
                                                         },
@@ -1127,8 +1918,8 @@
                                                         "constantPropagated": false,
                                                         "pos": {
                                                             "src": "<Duplicated>",
-                                                            "sLine": 21,
-                                                            "eLine": 21,
+                                                            "sLine": 33,
+                                                            "eLine": 33,
                                                             "sCol": 5,
                                                             "eCol": 8
                                                         },
@@ -1156,8 +1947,8 @@
                                                                         "constantPropagated": false,
                                                                         "pos": {
                                                                             "src": "<Duplicated>",
-                                                                            "sLine": 21,
-                                                                            "eLine": 21,
+                                                                            "sLine": 33,
+                                                                            "eLine": 33,
                                                                             "sCol": 16,
                                                                             "eCol": 19
                                                                         },
@@ -1185,8 +1976,8 @@
                                                                     "constantPropagated": false,
                                                                     "pos": {
                                                                         "src": "<Duplicated>",
-                                                                        "sLine": 21,
-                                                                        "eLine": 21,
+                                                                        "sLine": 33,
+                                                                        "eLine": 33,
                                                                         "sCol": 21,
                                                                         "eCol": 34
                                                                     },
@@ -1208,8 +1999,8 @@
                                                         "constantPropagated": false,
                                                         "pos": {
                                                             "src": "<Duplicated>",
-                                                            "sLine": 21,
-                                                            "eLine": 21,
+                                                            "sLine": 33,
+                                                            "eLine": 33,
                                                             "sCol": 15,
                                                             "eCol": 35
                                                         },
@@ -1225,8 +2016,8 @@
                                                     "constantPropagated": false,
                                                     "pos": {
                                                         "src": "<Duplicated>",
-                                                        "sLine": 21,
-                                                        "eLine": 21,
+                                                        "sLine": 33,
+                                                        "eLine": 33,
                                                         "sCol": 5,
                                                         "eCol": 36
                                                     },
@@ -1267,8 +2058,8 @@
                                                                 "constantPropagated": false,
                                                                 "pos": {
                                                                     "src": "<Duplicated>",
-                                                                    "sLine": 22,
-                                                                    "eLine": 22,
+                                                                    "sLine": 34,
+                                                                    "eLine": 34,
                                                                     "sCol": 16,
                                                                     "eCol": 19
                                                                 },
@@ -1292,8 +2083,8 @@
                                                             "constantPropagated": false,
                                                             "pos": {
                                                                 "src": "<Duplicated>",
-                                                                "sLine": 22,
-                                                                "eLine": 22,
+                                                                "sLine": 34,
+                                                                "eLine": 34,
                                                                 "sCol": 16,
                                                                 "eCol": 23
                                                             },
@@ -1328,8 +2119,8 @@
                                                     "constantPropagated": false,
                                                     "pos": {
                                                         "src": "<Duplicated>",
-                                                        "sLine": 22,
-                                                        "eLine": 22,
+                                                        "sLine": 34,
+                                                        "eLine": 34,
                                                         "sCol": 5,
                                                         "eCol": 24
                                                     },
@@ -1341,8 +2132,8 @@
                                                 "constantPropagated": false,
                                                 "pos": {
                                                     "src": "<Duplicated>",
-                                                    "sLine": 22,
-                                                    "eLine": 22,
+                                                    "sLine": 34,
+                                                    "eLine": 34,
                                                     "sCol": 5,
                                                     "eCol": 25
                                                 },
