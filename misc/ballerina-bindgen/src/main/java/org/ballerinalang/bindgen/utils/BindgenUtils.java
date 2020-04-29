@@ -283,7 +283,14 @@ public class BindgenUtils {
                 returnString.append("?");
             }
             if (jMethod.getHasException()) {
-                returnString.append("|error");
+                if (jMethod.isHandleException()) {
+                    returnString.append("|").append(jMethod.getExceptionName());
+                    if (jMethod.isReturnError()) {
+                        returnString.append("|error");
+                    }
+                } else {
+                    returnString.append("|error");
+                }
             }
             returnString.append(" ");
         } else if (jMethod.getHasException() || jMethod.getHasPrimitiveParam()) {
