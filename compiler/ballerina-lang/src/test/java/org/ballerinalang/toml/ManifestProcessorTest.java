@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 /**
@@ -128,29 +129,48 @@ public class ManifestProcessorTest {
         Assert.assertEquals(manifest.getProject().getLicense().get(1), "Apache-2.0");
     }
 
-    @Test(description = "One dependency added to the dependencies section has an effect except")
+    @Test(description = "One dependency added to the dependencies section has an effect")
     public void testSingleDependencies() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
-        String tomlData = "";
 
-        if (OS.contains("win")) {
-            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
-                    + baloPath.toString().replace("\\", "/") + "\", version = \"1.1.5\" } \n ";
-        } else {
-            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
-                    + baloPath + "\", version = \"1.1.5\" } \n ";
-        }
-
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString(tomlData);
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
+                "string-utils = {path = '" + baloPath + "', version = \"1.1.5\"} \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(),
-                baloPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), baloPath.toString());
 
         Files.delete(baloPath);
         Files.delete(tmpDir);
+    }
+
+    @Test(description = "One dependency added with path in the unusual form of path to the dependencies section " +
+            "has an effect")
+    public void testSingleDependenciesIrregularPath() throws TomlException, IOException {
+        Path tmpDir = Files.createTempDirectory("manifest-test-");
+        Path baloPath = tmpDir.resolve("string_utils.balo");
+        Files.createFile(baloPath);
+
+        if (baloPath.toString().contains("\\")) {
+            baloPath = Paths.get(baloPath.toString().replace("\\", "/"));
+        } else {
+            baloPath = Paths.get(baloPath.toString().replace("/", "\\"));
+        }
+
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
+                "string-utils = {path = '" + baloPath + "', version = \"1.1.5\"} \n");
+        Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
+
+        if (manifestPath.toString().contains("\\")) {
+            manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
+        } else {
+            manifestPath = Paths.get(manifestPath.toString().replace("/", "\\"));
+        }
+
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
+        Assert.assertEquals(manifestPath.toString(), baloPath.toString());
     }
 
     @Test(description = "Empty dependency added to the dependencies section has no effect")
@@ -160,30 +180,54 @@ public class ManifestProcessorTest {
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
     }
 
-    @Test(description = "Multiple dependencies added to the dependencies section has an effect")
+    @Test(description = "Multiple dependencies added with path in the regular form to the dependencies section " +
+            "has an effect")
     public void testMultipleDependencies() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
-        String tomlData = "";
 
-        if (OS.contains("win")) {
-            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
-                    + baloPath.toString().replace("\\", "/") + "\", version = \"1.0.5\" } \n "
-                    + "jquery = { version = \"2.2.3\" } \n";
-        } else {
-            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
-                    + baloPath + "\", version = \"1.0.5\" } \n "
-                    + "jquery = { version = \"2.2.3\" } \n";
-        }
-
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString(tomlData);
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
+                "string-utils = { path = '" + baloPath + "', version = \"1.0.5\" } \n " +
+                "jquery = { version = \"2.2.3\" } \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
         Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), baloPath.toString());
 
         Files.delete(baloPath);
         Files.delete(tmpDir);
+    }
+
+    @Test(description = "Multiple dependencies added with path in the irregular form to the dependencies section " +
+            "has an effect")
+    public void testMultipleDependenciesIrregularPath() throws TomlException, IOException {
+        Path tmpDir = Files.createTempDirectory("manifest-test-");
+        Path baloPath = tmpDir.resolve("string_utils.balo");
+        Files.createFile(baloPath);
+
+        if (baloPath.toString().contains("\\")) {
+            baloPath = Paths.get(baloPath.toString().replace("\\", "/"));
+        } else {
+            baloPath = Paths.get(baloPath.toString().replace("/", "\\"));
+        }
+
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
+                "string-utils = { path = '" + baloPath + "', version = \"1.0.5\" } \n " +
+                "jquery = { version = \"2.2.3\" } \n");
+        Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
+
+        if (manifestPath.toString().contains("\\")) {
+            manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
+        } else {
+            manifestPath = Paths.get(manifestPath.toString().replace("/", "\\"));
+        }
+
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
+        Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
+        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
+        Assert.assertEquals(manifestPath.toString(), baloPath.toString());
     }
 }
