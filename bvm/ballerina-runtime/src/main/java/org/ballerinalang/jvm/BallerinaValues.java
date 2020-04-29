@@ -107,18 +107,17 @@ public class BallerinaValues {
     }
 
     private static Scheduler getScheduler(Strand currentStrand) {
-        try {
+        if (currentStrand != null) {
             return currentStrand.scheduler;
-        } catch (Exception ex) {
-            return null;
         }
+        return null;
     }
 
     private static Strand getStrand() {
         try {
             return Scheduler.getStrand();
         } catch (Exception ex) {
-            //ignore : isssue is opened to fix this
+            //ignore : issue #22871 is opened to fix this
         }
         return null;
     }
