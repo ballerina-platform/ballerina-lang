@@ -1420,6 +1420,14 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, leadingComma, annots,
                         nextTokenOffset);
 
+                if (solution.action == Action.KEEP) {
+                    // If the solution is {@link Action#KEEP}, that means next immediate token is
+                    // at the correct place, but some token after that is not. There only one such
+                    // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
+                    qualifier = STNodeFactory.createEmptyNode();
+                    break;
+                }
+
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.

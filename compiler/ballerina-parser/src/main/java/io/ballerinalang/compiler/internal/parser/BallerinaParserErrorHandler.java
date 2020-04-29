@@ -1173,7 +1173,7 @@ public class BallerinaParserErrorHandler {
                 if (isEntryPoint) {
                     fixedPathResult.solution = fixedPathResult.fixes.peek();
                 } else {
-                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx),
+                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE,
                             currentCtx.toString());
                 }
                 return getFinalResult(matchingRulesCount, fixedPathResult);
@@ -1192,7 +1192,7 @@ public class BallerinaParserErrorHandler {
 
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
         result.solution =
-                new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
+                new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
     }
 
