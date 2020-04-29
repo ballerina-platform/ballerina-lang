@@ -63,7 +63,12 @@ public class MapUtils {
                                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
                                                                          valuesType)));
                 }
-                mapValue.put(fieldName, value);
+
+                if (isStoreOnCreation) {
+                    mapValue.putOnInitialization(fieldName, value);
+                } else {
+                    mapValue.put(fieldName, value);
+                }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recType = (BRecordType) mapType;
@@ -109,7 +114,12 @@ public class MapUtils {
                                             recFieldType, valuesType)));
                 }
 
-                mapValue.put(fieldName, value);
+                if (isStoreOnCreation) {
+                    mapValue.putOnInitialization(fieldName, value);
+                } else {
+                    mapValue.put(fieldName, value);
+                }
+
                 break;
         }
     }
@@ -133,7 +143,12 @@ public class MapUtils {
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
                                     valuesType));
                 }
-                mapValue.put(fieldName, value);
+
+                if (isStoreOnCreation) {
+                    mapValue.putOnInitialization(fieldName, value);
+                } else {
+                    mapValue.put(fieldName, value);
+                }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recType = (BRecordType) mapType;
@@ -173,7 +188,11 @@ public class MapUtils {
                                     recFieldType, valuesType));
                 }
 
-                mapValue.put(fieldName, value);
+                if (isStoreOnCreation) {
+                    mapValue.putOnInitialization(fieldName, value);
+                } else {
+                    mapValue.put(fieldName, value);
+                }
                 break;
         }
     }

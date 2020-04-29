@@ -232,6 +232,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                                   INVALID_READONLY_VALUE_UPDATE));
     }
 
+    @Override
+    public void putOnInitialization(K key, V value) {
+        putValue(key, value);
+    }
+
     /**
      * Clear map entries.
      */

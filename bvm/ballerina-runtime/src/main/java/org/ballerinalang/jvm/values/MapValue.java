@@ -55,4 +55,13 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
     void addNativeData(String key, Object data);
 
     Object getNativeData(String key);
+
+    /**
+     * Associates the specified value with the specified key in this map (optional operation) when setting the
+     * initial values of the mapping.
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     */
+    void putOnInitialization(K key, V value);
 }

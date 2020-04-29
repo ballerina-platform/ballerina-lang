@@ -46,27 +46,12 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
             }
         }
 
-        String localName = "";
-        String namespaceUri = "";
-        int closingCurlyPos = key.lastIndexOf('}');
-        if (closingCurlyPos == -1) { // no '}' found
-            localName = key;
-        } else {
-            namespaceUri = key.substring(1, closingCurlyPos);
-            localName = key.substring(closingCurlyPos + 1);
-        }
+        return insertValue(key, value);
+    }
 
-        if (localName.isEmpty()) {
-            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
-        }
-
-        // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
-        XMLValidator.validateXMLName(localName);
-
-        if (namespaceUri.isEmpty()) {
-            return super.put(localName, value);
-        }
-        return super.put(key, value);
+    @Override
+    public void putOnInitialization(String key, String value) {
+        insertValue(key, value);
     }
 
     public void setAttribute(String localName, String namespaceUri, String prefix, String value) {
@@ -110,5 +95,29 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
             String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
             super.put(xmlnsPrefix, namespaceUri);
         }
+    }
+
+    private String insertValue(String key, String value) {
+        String localName = "";
+        String namespaceUri = "";
+        int closingCurlyPos = key.lastIndexOf('}');
+        if (closingCurlyPos == -1) { // no '}' found
+            localName = key;
+        } else {
+            namespaceUri = key.substring(1, closingCurlyPos);
+            localName = key.substring(closingCurlyPos + 1);
+        }
+
+        if (localName.isEmpty()) {
+            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
+        }
+
+        // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
+        XMLValidator.validateXMLName(localName);
+
+        if (namespaceUri.isEmpty()) {
+            return super.put(localName, value);
+        }
+        return super.put(key, value);
     }
 }
