@@ -78,16 +78,9 @@ public class BallerinaValues {
      * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
+    @Deprecated
     public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
-        Object[] fields = new Object[fieldValues.length * 2];
-        Strand currentStrand = getStrand();
-        // Adding boolean values for each arg
-        for (int i = 0, j = 0; i < fieldValues.length; i++) {
-            fields[j++] = fieldValues[i];
-            fields[j++] = true;
-        }
-        return valueCreator.createObjectValue(objectTypeName, getScheduler(currentStrand), currentStrand, null, fields);
+        return createObjectValue(packageId, objectTypeName, getStrand(), fieldValues);
     }
 
     public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
@@ -95,6 +88,7 @@ public class BallerinaValues {
         //This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
+        Scheduler scheduler =  currentStrand != null ? currentStrand.scheduler : null;
 
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
@@ -102,15 +96,7 @@ public class BallerinaValues {
             fields[j++] = true;
         }
         //passing scheduler of current strand
-        return valueCreator.createObjectValue(objectTypeName, currentStrand.scheduler, currentStrand,
-                null, fields);
-    }
-
-    private static Scheduler getScheduler(Strand currentStrand) {
-        if (currentStrand != null) {
-            return currentStrand.scheduler;
-        }
-        return null;
+        return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
     }
 
     private static Strand getStrand() {
