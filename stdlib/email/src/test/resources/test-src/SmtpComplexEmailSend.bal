@@ -18,8 +18,9 @@ import ballerina/email;
 import ballerina/mime;
 
 email:SmtpConfig smtpConfig = {
-    port: 3025,
-    enableSsl: false
+    port: 30250, // This is an incorrect value. Later the correct value, 3025 will be set via a property.
+    enableSsl: false,
+    properties: {"mail.smtp.port":"3025"}
 };
 
 function testSendComplexEmail(string host, string username, string password, string subject, string body,
