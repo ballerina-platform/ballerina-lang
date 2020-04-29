@@ -30,7 +30,7 @@ import ballerina/time;
 # + issuer - Expected issuer
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
-# + signatureConfig - JWT singature configurations
+# + signatureConfig - JWT signature configurations
 # + jwtCache - Cache used to store parsed JWT information
 public type JwtValidatorConfig record {|
     string issuer?;
@@ -40,6 +40,10 @@ public type JwtValidatorConfig record {|
     cache:Cache jwtCache = new;
 |};
 
+# Represents the JWKs endpoint configurations.
+#
+# + url - URL of the JWKs endpoint
+# + clientConfig - HTTP client configurations which calls the JWKs endpoint
 public type JwksConfig record {|
     string url;
     http:ClientConfiguration clientConfig = {};
