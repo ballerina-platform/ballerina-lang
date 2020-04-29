@@ -28,6 +28,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Extern function to check existence of key.
  * ballerina.model.table:hasKey(KeyType)
+ *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "hasKey",

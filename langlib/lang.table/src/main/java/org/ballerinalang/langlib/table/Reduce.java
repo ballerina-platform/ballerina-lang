@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Native implementation of lang.table:reduce(table&lt;Type&gt;, function).
  *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "reduce",

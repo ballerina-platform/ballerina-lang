@@ -34,6 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Extern function to get key arrays from the table.
  * ballerina.model.table:keys()
+ *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table",

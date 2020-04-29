@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Native implementation of lang.table:filter(table&lt;Type&gt;, function).
  *
+ * @since 1.3.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "filter",
