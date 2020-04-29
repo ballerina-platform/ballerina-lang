@@ -837,9 +837,11 @@ public class Types {
                 return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
 
-            if (targetArrayType.size == source.size) {
-                return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
+            if (targetArrayType.size != source.size) {
+                return false;
             }
+            
+            return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
         } else if (target.tag == TypeTags.JSON) {
             return isAssignable(sourceElementType, target, unresolvedTypes);
         }
