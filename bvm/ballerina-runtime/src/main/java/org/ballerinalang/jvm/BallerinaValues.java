@@ -83,7 +83,7 @@ public class BallerinaValues {
         return createObjectValue(packageId, objectTypeName, getStrand(), fieldValues);
     }
 
-    public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
+    private static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
                                                 Object... fieldValues) {
         //This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
