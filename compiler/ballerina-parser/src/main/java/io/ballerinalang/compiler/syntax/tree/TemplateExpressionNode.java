@@ -24,13 +24,13 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class XMLTemplateExpressionNode extends ExpressionNode {
+public class TemplateExpressionNode extends ExpressionNode {
 
-    public XMLTemplateExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public TemplateExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token xmlKeyword() {
+    public Token type() {
         return childInBucket(0);
     }
 
@@ -38,7 +38,7 @@ public class XMLTemplateExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public NodeList<XMLItemNode> content() {
+    public NodeList<TemplateMemberNode> content() {
         return new NodeList<>(childInBucket(2));
     }
 
@@ -59,27 +59,29 @@ public class XMLTemplateExpressionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "xmlKeyword",
+                "type",
                 "startBacktick",
                 "content",
                 "endBacktick"};
     }
 
-    public XMLTemplateExpressionNode modify(
-            Token xmlKeyword,
+    public TemplateExpressionNode modify(
+            SyntaxKind kind,
+            Token type,
             Token startBacktick,
-            NodeList<XMLItemNode> content,
+            NodeList<TemplateMemberNode> content,
             Token endBacktick) {
         if (checkForReferenceEquality(
-                xmlKeyword,
+                type,
                 startBacktick,
                 content.underlyingListNode(),
                 endBacktick)) {
             return this;
         }
 
-        return NodeFactory.createXMLTemplateExpressionNode(
-                xmlKeyword,
+        return NodeFactory.createTemplateExpressionNode(
+                kind,
+                type,
                 startBacktick,
                 content,
                 endBacktick);

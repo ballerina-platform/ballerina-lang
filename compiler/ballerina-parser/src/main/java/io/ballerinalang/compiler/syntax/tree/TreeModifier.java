@@ -979,13 +979,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(XMLTemplateExpressionNode xMLTemplateExpressionNode) {
-        Token xmlKeyword = modifyToken(xMLTemplateExpressionNode.xmlKeyword());
-        Token startBacktick = modifyToken(xMLTemplateExpressionNode.startBacktick());
-        NodeList<XMLItemNode> content = modifyNodeList(xMLTemplateExpressionNode.content());
-        Token endBacktick = modifyToken(xMLTemplateExpressionNode.endBacktick());
-        return xMLTemplateExpressionNode.modify(
-                xmlKeyword,
+    public Node transform(TemplateExpressionNode templateExpressionNode) {
+        Token type = modifyToken(templateExpressionNode.type());
+        Token startBacktick = modifyToken(templateExpressionNode.startBacktick());
+        NodeList<TemplateMemberNode> content = modifyNodeList(templateExpressionNode.content());
+        Token endBacktick = modifyToken(templateExpressionNode.endBacktick());
+        return templateExpressionNode.modify(
+                templateExpressionNode.kind(),
+                type,
                 startBacktick,
                 content,
                 endBacktick);

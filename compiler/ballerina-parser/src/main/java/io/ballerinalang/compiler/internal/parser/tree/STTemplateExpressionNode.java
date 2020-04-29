@@ -20,38 +20,39 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.XMLTemplateExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STXMLTemplateExpressionNode extends STExpressionNode {
-    public final STNode xmlKeyword;
+public class STTemplateExpressionNode extends STExpressionNode {
+    public final STNode type;
     public final STNode startBacktick;
     public final STNode content;
     public final STNode endBacktick;
 
-    STXMLTemplateExpressionNode(
-            STNode xmlKeyword,
+    STTemplateExpressionNode(
+            SyntaxKind kind,
+            STNode type,
             STNode startBacktick,
             STNode content,
             STNode endBacktick) {
-        super(SyntaxKind.XML_TEMPLATE_EXPRESSION);
-        this.xmlKeyword = xmlKeyword;
+        super(kind);
+        this.type = type;
         this.startBacktick = startBacktick;
         this.content = content;
         this.endBacktick = endBacktick;
 
         addChildren(
-                xmlKeyword,
+                type,
                 startBacktick,
                 content,
                 endBacktick);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLTemplateExpressionNode(this, position, parent);
+        return new TemplateExpressionNode(this, position, parent);
     }
 }

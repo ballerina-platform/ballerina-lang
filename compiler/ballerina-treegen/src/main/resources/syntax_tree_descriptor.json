@@ -1756,12 +1756,11 @@
             ]
         },
         {
-            "name": "XMLTemplateExpressionNode",
+            "name": "TemplateExpressionNode",
             "base": "ExpressionNode",
-            "kind": "XML_TEMPLATE_EXPRESSION",
             "attributes": [
                 {
-                    "name": "xmlKeyword",
+                    "name": "type",
                     "type": "Token"
                 },
                 {
@@ -1770,7 +1769,7 @@
                 },
                 {
                     "name": "content",
-                    "type": "XMLItemNode",
+                    "type": "TemplateMemberNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -1780,7 +1779,7 @@
             ]
         },
         {
-            "name": "BacktickTemplateMemberNode",
+            "name": "TemplateMemberNode",
             "base": "Node",
             "isAbstract": true
         },

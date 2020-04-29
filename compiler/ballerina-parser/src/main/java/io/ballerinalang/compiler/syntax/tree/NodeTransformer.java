@@ -340,8 +340,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
-    public T transform(XMLTemplateExpressionNode xMLTemplateExpressionNode) {
-        return transformSyntaxNode(xMLTemplateExpressionNode);
+    public T transform(TemplateExpressionNode templateExpressionNode) {
+        return transformSyntaxNode(templateExpressionNode);
     }
 
     public T transform(XMLElementNode xMLElementNode) {

@@ -29,11 +29,11 @@ public class TokenReader extends AbstractTokenReader {
 
     private static final int BUFFER_SIZE = 20;
 
-    private BallerinaLexer lexer;
+    private AbstractLexer lexer;
     private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
     private STToken currentToken = null;
 
-    TokenReader(BallerinaLexer lexer) {
+    TokenReader(AbstractLexer lexer) {
         this.lexer = lexer;
     }
 

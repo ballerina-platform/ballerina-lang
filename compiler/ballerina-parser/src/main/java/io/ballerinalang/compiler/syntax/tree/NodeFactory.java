@@ -1326,22 +1326,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBuiltinSimpleNameReferenceNode.createUnlinkedFacade();
     }
 
-    public static XMLTemplateExpressionNode createXMLTemplateExpressionNode(
-            Token xmlKeyword,
+    public static TemplateExpressionNode createTemplateExpressionNode(
+            SyntaxKind kind,
+            Token type,
             Token startBacktick,
-            NodeList<XMLItemNode> content,
+            NodeList<TemplateMemberNode> content,
             Token endBacktick) {
-        Objects.requireNonNull(xmlKeyword, "xmlKeyword must not be null");
+        Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
         Objects.requireNonNull(content, "content must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
-        STNode stXMLTemplateExpressionNode = STNodeFactory.createXMLTemplateExpressionNode(
-                xmlKeyword.internalNode(),
+        STNode stTemplateExpressionNode = STNodeFactory.createTemplateExpressionNode(
+                kind,
+                type.internalNode(),
                 startBacktick.internalNode(),
                 content.underlyingListNode().internalNode(),
                 endBacktick.internalNode());
-        return stXMLTemplateExpressionNode.createUnlinkedFacade();
+        return stTemplateExpressionNode.createUnlinkedFacade();
     }
 
     public static XMLElementNode createXMLElementNode(

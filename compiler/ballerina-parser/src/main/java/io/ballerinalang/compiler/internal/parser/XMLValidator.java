@@ -289,6 +289,7 @@ public class XMLValidator {
      * <i>NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender </i>
      *
      * @param c The character to check.
+     * @return <code>true</code> if the given char is a valid XML name start char. <code>false</code> otherwise
      */
     public static boolean isNCNameStart(int c) {
         return c < 0x10000 && (CHARS[c] & MASK_NCNAME_START) != 0;
@@ -302,6 +303,7 @@ public class XMLValidator {
      * <i>Name ::= (Letter | '_' | ':') (NameChar)*</i>
      * 
      * @param c The character to check.
+     * @return <code>true</code> if the given char is a valid XML name char. <code>false</code> otherwise
      */
     public static boolean isNCName(int c) {
         return c < 0x10000 && (CHARS[c] & MASK_NCNAME) != 0;

@@ -989,14 +989,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 name);
     }
 
-    public static STNode createXMLTemplateExpressionNode(
-            STNode xmlKeyword,
+    public static STNode createTemplateExpressionNode(
+            SyntaxKind kind,
+            STNode type,
             STNode startBacktick,
             STNode content,
             STNode endBacktick) {
 
-        return new STXMLTemplateExpressionNode(
-                xmlKeyword,
+        return new STTemplateExpressionNode(
+                kind,
+                type,
                 startBacktick,
                 content,
                 endBacktick);

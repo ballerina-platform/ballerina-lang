@@ -339,8 +339,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
-    public void visit(XMLTemplateExpressionNode xMLTemplateExpressionNode) {
-        visitSyntaxNode(xMLTemplateExpressionNode);
+    public void visit(TemplateExpressionNode templateExpressionNode) {
+        visitSyntaxNode(templateExpressionNode);
     }
 
     public void visit(XMLElementNode xMLElementNode) {
