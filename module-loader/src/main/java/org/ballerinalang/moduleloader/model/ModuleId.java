@@ -1,11 +1,11 @@
-package org.ballerinalang.moduleloader;
+package org.ballerinalang.moduleloader.model;
 
 import org.wso2.ballerinalang.compiler.util.Names;
 
 public class ModuleId {
-    String orgName;
-    String moduleName;
-    String version;
+    public String orgName;
+    public String moduleName;
+    public String version;
 
     @Override
     public String toString() {

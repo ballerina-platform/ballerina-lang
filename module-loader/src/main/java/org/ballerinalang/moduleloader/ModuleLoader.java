@@ -1,5 +1,6 @@
 package org.ballerinalang.moduleloader;
 
+import org.ballerinalang.moduleloader.model.ModuleId;
 
 public interface ModuleLoader {
 
