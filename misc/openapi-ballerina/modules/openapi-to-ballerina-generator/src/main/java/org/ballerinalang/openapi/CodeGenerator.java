@@ -291,6 +291,7 @@ public class CodeGenerator {
 
             return result;
         });
+        
         return handlebars.compile(templateName);
     }
 
