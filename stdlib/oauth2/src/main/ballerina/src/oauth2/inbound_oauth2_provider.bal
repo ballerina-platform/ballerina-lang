@@ -246,16 +246,6 @@ public type IntrospectionServerConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-// TODO: Remove API since, no longer used this.
-# Represents cached OAuth2 information.
-#
-# + username - Username of the OAuth2 validated user
-# + scopes - Scopes of the OAuth2 validated user
-public type InboundOAuth2CacheEntry record {|
-    string username;
-    string scopes;
-|};
-
 # Represents introspection server response.
 #
 # + active - Boolean indicator of whether or not the presented token is currently active
