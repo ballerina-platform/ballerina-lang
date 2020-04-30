@@ -100,6 +100,18 @@ public class Writer {
                 return defaultValue;
             });
 
+            handlebars.registerHelper("editDescription", (Helper<String>) (description, options) -> {
+                //remove anything with <pre> tag
+                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>", "");
+                // select only the first sentence
+                String[] splits = newDescription.split("\\.", 2);
+                if (splits.length < 2) {
+                    return splits[0];
+                } else {
+                    return splits[0] + ".";
+                }
+            });
+
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
                 Object param0 = options.param(0);
