@@ -95,6 +95,7 @@ import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
@@ -107,7 +108,6 @@ import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStaticBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStructuredBindingPatternNode;
@@ -230,6 +230,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -260,7 +261,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -757,7 +757,9 @@ public class TreeBuilder {
         return new BLangWhile();
     }
 
-    public static BlockNode createStatementBlockNode() { return new BLangBlock(); }
+    public static BlockNode createStatementBlockNode() {
+        return new BLangBlock();
+    }
 
     public static LockNode createLockNode() {
         return new BLangLock();

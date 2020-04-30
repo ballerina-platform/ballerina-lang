@@ -155,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -182,7 +183,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -3036,7 +3036,9 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(whileNode);
     }
 
-    void startBlockStmt(){ startBlock(); }
+    void startBlockStmt() {
+        startBlock();
+    }
 
     void addBlockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangBlock blockNode = (BLangBlock) TreeBuilder.createStatementBlockNode();
