@@ -23,10 +23,12 @@ import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -47,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -108,6 +111,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -176,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -1315,6 +1321,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) symbol.type;
+                if (tableType.constraint != null) {
+                    checkForExportableType(tableType.constraint.tsymbol, pos);
+                }
+                return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
@@ -1693,6 +1705,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
+        } else if (workerSendNode.expr instanceof ActionNode) {
+            this.dlog.error(workerSendNode.expr.pos, DiagnosticCode.INVALID_SEND_EXPR);
         } else if (!type.isAnydata()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, type);
         }
@@ -1864,6 +1878,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(listConstructorExpr.exprs);
     }
 
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        analyzeExprs(tableConstructorExpr.recordLiteralList);
+    }
+
     public void visit(BLangRecordLiteral recordLiteral) {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
 
@@ -1988,6 +2007,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(indexAccessExpr.expr);
     }
 
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        analyzeExprs(tableMultiKeyExpr.multiKeyIndexExprs);
+    }
+
     public void visit(BLangInvocation invocationExpr) {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
@@ -1999,17 +2022,32 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
             }
         }
+    }
 
-        if (invocationExpr.actionInvocation || invocationExpr.async) {
-            if (invocationExpr.actionInvocation || !this.withinLockBlock) {
-                validateActionInvocation(invocationExpr.pos, invocationExpr);
-                return;
-            }
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        analyzeExpr(actionInvocation.expr);
+        analyzeExprs(actionInvocation.requiredArgs);
+        analyzeExprs(actionInvocation.restArgs);
 
-            dlog.error(invocationExpr.pos, invocationExpr.functionPointerInvocation ? 
-            DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED : 
-            DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
+        if (actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
+                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(actionInvocation.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
         }
+
+        if (actionInvocation.async && this.withinLockBlock) {
+            dlog.error(actionInvocation.pos, actionInvocation.functionPointerInvocation ?
+                    DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
+                    DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
+            return;
+        }
+
+        if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+            dlog.error(actionInvocation.pos, DiagnosticCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
+                       actionInvocation.symbol.name);
+            return;
+        }
+
+        validateActionInvocation(actionInvocation.pos, actionInvocation);
     }
 
     private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
@@ -2039,32 +2077,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateActionParentNode(DiagnosticPos pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
-        if (parent.getKind() == NodeKind.BLOCK) {
-            return;
-        }
+
         while (parent != null) {
             final NodeKind kind = parent.getKind();
-            // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT
-                    || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
-                    || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
-                    || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE
-                    || kind == NodeKind.RECORD_VARIABLE || kind == NodeKind.TUPLE_VARIABLE
-                    || kind == NodeKind.ERROR_VARIABLE || kind == NodeKind.MATCH
-                    || kind == NodeKind.FOREACH) {
+            if (parent instanceof StatementNode) {
                 return;
-            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
-                    || kind == NodeKind.WORKER_RECEIVE || kind == NodeKind.WORKER_FLUSH
-                    || kind == NodeKind.WORKER_SEND || kind == NodeKind.WAIT_EXPR
-                    || kind == NodeKind.GROUP_EXPR || kind == NodeKind.TRAP_EXPR) {
-                parent = parent.parent;
-                if (parent.getKind() == NodeKind.BLOCK || parent.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                    return;
+            } else if (parent instanceof ActionNode || parent instanceof BLangVariable || kind == NodeKind.CHECK_EXPR ||
+                    kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR ||
+                    kind == NodeKind.TYPE_CONVERSION_EXPR) {
+                if (parent instanceof BLangInvocation.BLangActionInvocation) {
+                    // Prevent use of actions as arguments in a call
+                    break;
                 }
-                continue;
-            } else if (kind == NodeKind.ELVIS_EXPR
-                    && ((BLangElvisExpr) parent).lhsExpr.getKind() == NodeKind.INVOCATION
-                    && ((BLangInvocation) ((BLangElvisExpr) parent).lhsExpr).actionInvocation) {
+
                 parent = parent.parent;
                 continue;
             }
@@ -2092,15 +2117,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitExpr awaitExpr) {
-        analyzeExpr(awaitExpr.getExpression());
+        BLangExpression expr = awaitExpr.getExpression();
+        validateWaitFutureExpr(expr);
+        analyzeExpr(expr);
         validateActionParentNode(awaitExpr.pos, awaitExpr);
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        waitForAllExpr.keyValuePairs.forEach(keyValue -> {
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitForAllExpr.keyValuePairs) {
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            validateWaitFutureExpr(expr);
             analyzeExpr(expr);
-        });
+        }
+
+        validateActionParentNode(waitForAllExpr.pos, waitForAllExpr);
+    }
+
+    // wait-future-expr := expression but not mapping-constructor-expr
+    private void validateWaitFutureExpr(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_WAIT_MAPPING_CONSTRUCTORS);
+        }
+
+        if (expr instanceof ActionNode) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_WAIT_ACTIONS);
+        }
     }
 
     @Override
@@ -2379,6 +2420,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         analyzeTypeNode(streamType.constraint, env);
         analyzeTypeNode(streamType.error, env);
+    }
+
+    public void visit(BLangTableTypeNode tableType) {
+
+        analyzeTypeNode(tableType.constraint, env);
+
+        if (tableType.tableKeyTypeConstraint != null) {
+            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, env);
+        }
     }
 
     public void visit(BLangErrorType errorType) {

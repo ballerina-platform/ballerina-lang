@@ -628,6 +628,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
+
+        // Table constructor is handled separately. When the user defines the keys in the constructor not in the table
+        // type descriptor, we have to set the type again in the variable symbol. That's because these keys are not
+        // captured in the lhsType.
+        if (rhsExpr.getKind() == NodeKind.TABLE_CONSTRUCTOR_EXPR) {
+            varNode.symbol.type = rhsExpr.type;
+            varNode.type = varNode.symbol.type;
+        }
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) &&
                 !types.checkListenerCompatibility(varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
@@ -673,7 +681,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param expr expression to be validated.
      */
     private void validateWorkerAnnAttachments(BLangExpression expr) {
-        if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
+        if (expr != null && expr instanceof BLangInvocation.BLangActionInvocation &&
+                ((BLangInvocation.BLangActionInvocation) expr).async) {
             ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
                 annotationAttachment.accept(this);
@@ -2659,6 +2668,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    // TODO: remove unused method
     private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
         if (transactionHanlder != null) {
             BSymbol handlerSymbol = ((BLangSimpleVarRef) transactionHanlder).symbol;
@@ -2855,7 +2865,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         for (BLangAnnotationAttachment attachment : attachments) {
-            if (!attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
+            if (attachment.annotationSymbol == null || // annotation symbol can be null on invalid attachment.
+                    !attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
                 continue;
             }
             String annotationName = attachment.annotationName.value;

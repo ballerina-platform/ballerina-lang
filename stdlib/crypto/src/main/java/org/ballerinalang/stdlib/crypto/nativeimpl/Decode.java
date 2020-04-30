@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
+import org.apache.commons.codec.binary.Base64;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
@@ -29,6 +30,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -38,6 +41,9 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Extern functions ballerina decoding keys.
@@ -102,6 +108,9 @@ public class Decode {
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);
+            if (certificate == null) {
+                return CryptoUtils.createError("Certificate cannot be recovered by using given key alias: " + keyAlias);
+            }
             MapValue<String, Object> certificateBMap = BallerinaValues.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.CERTIFICATE_RECORD);
             if (certificate instanceof X509Certificate) {
@@ -144,6 +153,26 @@ public class Decode {
             throw CryptoUtils.createError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
         } catch (KeyStoreException | CertificateException | IOException e) {
             throw CryptoUtils.createError("Unable to open keystore: " + e.getMessage());
+        }
+    }
+
+    public static Object buildRsaPublicKey(String modulus, String exponent) {
+        try {
+            byte[] decodedModulus = Base64.decodeBase64(modulus);
+            byte[] decodedExponent = Base64.decodeBase64(exponent);
+            RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(1, decodedModulus),
+                                                         new BigInteger(1, decodedExponent));
+            RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
+
+            MapValue<String, Object> publicKeyMap = BallerinaValues.
+                    createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
+            publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
+            publicKeyMap.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD, publicKey.getAlgorithm());
+            return publicKeyMap;
+        } catch (InvalidKeySpecException e) {
+            return CryptoUtils.createError("Invalid modulus or exponent: " + e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            throw CryptoUtils.createError("Algorithm of the key factory is not found: " + e.getMessage());
         }
     }
 }

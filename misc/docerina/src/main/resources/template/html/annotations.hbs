@@ -63,10 +63,14 @@
                         <div class="params-listing">
                             <ul>
                                 <li>
-                                    <b>{{ name }}</b><span class="type">{{#if type}} {{{ typeName
-                                        type }}}{{/if}}</span> <img class="attach-icon" src="{{ rootPath }}html-template-resources/images/attach.svg">
+                                    <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
+                                    <span class="type">{{#if type}} <span {{#if isDeprecated}}class="strike"{{/if}}>{{{ typeName type }}}</span>{{/if}}</span>
+                                    <img class="attach-icon" src="{{ rootPath }}html-template-resources/images/attach.svg">
                                         {{ attachmentPoints }}</li>
                                 <li>
+                                    {{#if isDeprecated}}
+                                        <span class="stab">Deprecated</span>
+                                    {{/if}}
                                     {{{ description }}}
                                 </li>
                             </ul>

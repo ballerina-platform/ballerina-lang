@@ -114,7 +114,6 @@ import static org.objectweb.asm.Opcodes.LXOR;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.T_INT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen.generateCast;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen.generateCheckCast;
@@ -138,7 +137,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -148,9 +146,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
@@ -166,8 +169,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadExternalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JCast;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JInstruction;
@@ -182,6 +185,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -289,6 +293,7 @@ public class JvmInstructionGen {
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -373,6 +378,7 @@ public class JvmInstructionGen {
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -1069,38 +1075,10 @@ public class JvmInstructionGen {
         }
 
         void generateMapNewIns(NewStructure mapNewIns, int localVarOffset) {
-
-            BType typeOfMapNewIns = mapNewIns.type;
-            String className = MAP_VALUE_IMPL;
-
-            if (typeOfMapNewIns.tag == TypeTags.RECORD) {
-                if (mapNewIns.isExternalDef) {
-                    className = getTypeValueClassName(mapNewIns.externalPackageId, toNameString(typeOfMapNewIns));
-                } else {
-                    className = getTypeValueClassName(this.currentPackage, toNameString(typeOfMapNewIns));
-                }
-
-                this.mv.visitTypeInsn(NEW, className);
-                this.mv.visitInsn(DUP);
-                this.mv.visitInsn(DUP);
-                if (mapNewIns.isExternalDef) {
-                    loadExternalType(this.mv, mapNewIns.externalPackageId, mapNewIns.recordName);
-                } else {
-                    loadType(this.mv, mapNewIns.type);
-                }
-                this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
-
-                // Invoke the init-function of this type.
+            this.loadVar(mapNewIns.rhsOp.variableDcl);
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
-                this.mv.visitInsn(SWAP);
-                this.mv.visitMethodInsn(INVOKESTATIC, className, "$init",
-                        String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
-            } else {
-                this.mv.visitTypeInsn(NEW, className);
-                this.mv.visitInsn(DUP);
-                loadType(this.mv, mapNewIns.type);
-                this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
-            }
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate",
+                                    String.format("(L%s;)L%s;", STRAND, OBJECT), true);
             this.storeToVar(mapNewIns.lhsOp.variableDcl);
         }
 
@@ -1328,6 +1306,50 @@ public class JvmInstructionGen {
                 }
             }
             this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        void generateTableNewIns(NewTable inst) {
+            this.mv.visitTypeInsn(NEW, TABLE_VALUE_IMPL);
+            this.mv.visitInsn(DUP);
+            loadType(this.mv, inst.type);
+            this.loadVar(inst.dataOp.variableDcl);
+            this.loadVar(inst.keyColOp.variableDcl);
+            this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, "<init>",
+                    String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
+
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        void generateTableLoadIns(FieldAccess inst) {
+
+            this.loadVar(inst.rhsOp.variableDcl);
+            this.mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
+            this.loadVar(inst.keyOp.variableDcl);
+            addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
+            BType bType = inst.lhsOp.variableDcl.type;
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "getOrThrow",
+                    String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
+
+            @Nilable String targetTypeClass = getTargetClass(bType);
+            if (targetTypeClass != null) {
+                this.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            } else {
+                addUnboxInsn(this.mv, bType);
+            }
+
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        public void generateTableStoreIns(FieldAccess inst) {
+            this.loadVar(inst.lhsOp.variableDcl);
+            this.loadVar(inst.keyOp.variableDcl);
+
+            BType valueType = inst.rhsOp.variableDcl.type;
+            this.loadVar(inst.rhsOp.variableDcl);
+            addBoxInsn(this.mv, valueType);
+
+            this.mv.visitMethodInsn(INVOKESTATIC, TABLE_UTILS, "handleTableStore",
+                    String.format("(L%s;L%s;L%s;)V", TABLE_VALUE, OBJECT, OBJECT), false);
         }
 
         void generateNewErrorIns(NewError newErrorIns) {
@@ -1654,11 +1676,15 @@ public class JvmInstructionGen {
 
         void generateNewTypedescIns(NewTypeDesc newTypeDesc) {
 
-            this.mv.visitTypeInsn(NEW, TYPEDESC_VALUE);
+            BType type = newTypeDesc.type;
+            String className = TYPEDESC_VALUE_IMPL;
+            if (type.tag == TypeTags.RECORD) {
+                className = getTypeDescClassName(type.tsymbol.pkgID, toNameString(type));
+            }
+            this.mv.visitTypeInsn(NEW, className);
             this.mv.visitInsn(DUP);
             loadType(this.mv, newTypeDesc.type);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE, "<init>",
-                    String.format("(L%s;)V", BTYPE), false);
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
             this.storeToVar(newTypeDesc.lhsOp.variableDcl);
         }
 

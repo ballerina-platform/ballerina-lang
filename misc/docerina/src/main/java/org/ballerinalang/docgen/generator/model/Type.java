@@ -142,7 +142,8 @@ public class Type {
             }
         } else if (type instanceof BLangArrayType) {
             BLangType elemtype = ((BLangArrayType) type).elemtype;
-            String moduleName = elemtype.type.tsymbol.pkgID.name.toString();
+            String moduleName = elemtype.type.tsymbol == null ? type.type.tsymbol.pkgID.name.toString() :
+                    elemtype.type.tsymbol.pkgID.name.toString();
             Type elementType = fromTypeNode(elemtype, moduleName);
             typeModel = new Type(type, currentModule);
             typeModel.elementType = elementType;

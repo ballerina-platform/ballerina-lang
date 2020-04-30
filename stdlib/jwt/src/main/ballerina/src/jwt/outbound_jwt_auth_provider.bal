@@ -29,7 +29,7 @@ import ballerina/time;
 #         keyAlias: "ballerina",
 #         keyPassword: "ballerina",
 #         keyStore: {
-#             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+#             path: "/path/to/keystore.p12",
 #             password: "ballerina"
 #         }
 #     }

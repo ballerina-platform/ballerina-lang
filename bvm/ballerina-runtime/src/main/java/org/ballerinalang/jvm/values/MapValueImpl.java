@@ -173,8 +173,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) this.type;
             Map fields = recordType.getFields();
-            if (fields.containsKey(key)) {
-                expectedType = ((BField) fields.get(key)).type;
+            if (fields.containsKey(key.toString())) {
+                expectedType = ((BField) fields.get(key.toString())).type;
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
@@ -269,16 +269,39 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return super.containsKey(key);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+           return false;
+        }
+
+        MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
+
+        if (mapValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (this.entrySet().size() != mapValue.entrySet().size()) {
+            return false;
+        }
+
+        return entrySet().equals(mapValue.entrySet());
+    }
+
     /**
-     * Returns the hash code value for map value object.
+     * Returns the hash code value.
      *
-     * @return returns hashcode value.
+     * @return returns hashcode value
      */
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
     }
-    
+
     /**
      * Remove an item from the map.
      *
