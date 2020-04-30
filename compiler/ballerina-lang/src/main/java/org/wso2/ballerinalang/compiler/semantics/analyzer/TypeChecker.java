@@ -21,7 +21,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
-import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -83,9 +82,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -3262,7 +3261,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BLangSelectClause selectClause = queryExpr.selectClause;
         BLangOnConflictClause onConflictClause = queryExpr.onConflictClause;
-        if(onConflictClause != null){
+        if (onConflictClause != null) {
             typeCheckOnConflictClause(onConflictClause, parentEnv);
         }
         SymbolEnv whereEnv = parentEnv;
@@ -3409,10 +3408,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
     }
 
-    private SymbolEnv typeCheckOnConflictClause(BLangOnConflictClause onConflictClause, SymbolEnv parentEnv){
-
+    private SymbolEnv typeCheckOnConflictClause(BLangOnConflictClause onConflictClause, SymbolEnv parentEnv) {
         BType exprType = checkExpr(onConflictClause.expression, parentEnv, symTable.errorType);
-        if(!types.isAssignable(exprType, symTable.errorType)){
+        if (!types.isAssignable(exprType, symTable.errorType)) {
             dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
                     symTable.errorType, exprType);
         }

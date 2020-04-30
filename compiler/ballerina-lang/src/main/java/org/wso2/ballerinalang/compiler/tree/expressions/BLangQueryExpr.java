@@ -19,17 +19,17 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
+import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
-import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,9 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     }
 
     @Override
-    public OnConflictClauseNode getOnConflictClauseNode() { return onConflictClause; }
+    public OnConflictClauseNode getOnConflictClauseNode() {
+        return onConflictClause;
+    }
 
     @Override
     public void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode) {
