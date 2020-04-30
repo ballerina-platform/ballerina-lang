@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeN
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -960,6 +961,41 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTableTypeDescriptor(BallerinaParser.TableTypeDescriptorContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addTableType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableKeySpecifier(BallerinaParser.TableKeySpecifierContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        if (ctx.Identifier() != null) {
+            List<BLangIdentifier> keyFieldNameIdentifierList = new ArrayList<>();
+            for (TerminalNode terminalNode : ctx.Identifier()) {
+                BLangIdentifier identifier = pkgBuilder.createIdentifier(getCurrentPos(terminalNode),
+                        terminalNode.getText());
+                keyFieldNameIdentifierList.add(identifier);
+            }
+            this.pkgBuilder.addTableKeySpecifier(getCurrentPos(ctx), getWS(ctx), keyFieldNameIdentifierList);
+        }
+    }
+
+    @Override
+    public void exitTableKeyTypeConstraint(BallerinaParser.TableKeyTypeConstraintContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addTableKeyTypeConstraint(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void enterErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
         if (isInErrorState) {
             return;
@@ -1441,6 +1477,34 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.LEFT_BRACKET() != null) {
             this.pkgBuilder.addRecordKeyWS(getWS(ctx));
         }
+    }
+
+    @Override
+    public void enterMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExprNodeList();
+    }
+
+    @Override
+    public void exitMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
+        this.pkgBuilder.createMultiKeyExpressionNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableConstructorExpr(BallerinaParser.TableConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createTableConstructor(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

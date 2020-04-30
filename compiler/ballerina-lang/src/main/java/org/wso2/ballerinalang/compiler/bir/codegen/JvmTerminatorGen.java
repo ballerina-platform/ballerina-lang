@@ -1158,6 +1158,7 @@ public class JvmTerminatorGen {
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.DECIMAL ||

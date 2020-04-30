@@ -34,7 +34,6 @@ INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_
 INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) VALUES
   (2, null, null, null, null);
 /
-
 CREATE TABLE NumericTypes (
    id INT IDENTITY,
    int_type INT NOT NULL,
@@ -53,7 +52,6 @@ INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type
     float_type, real_type) VALUES (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
     1234.567);
 /
-
 INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
     float_type, real_type) VALUES (2, 2147483647, 9223372036854774807, 32767, 127, 1, 1234, 1234, 1234,
     1234);
@@ -101,4 +99,40 @@ INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, decimal_array, boolean_array, string_array, blob_array)
   VALUES (5, ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL],
   ARRAY[NULL, NULL, NULL], ARRAY[NULL , NULL, NULL], ARRAY[NULL , NULL, NULL], ARRAY[NULL, NULL], ARRAY[NULL, NULL]);
+/
+CREATE TABLE UUIDTable(
+    id INTEGER PRIMARY KEY ,
+    data UUID DEFAULT random_uuid()
+);
+/
+INSERT INTO UUIDTable(id) VALUES (1);
+/
+CREATE TABLE ENUMTable (
+    id integer NOT NULL,
+    enum_type ENUM('admin','doctor','housekeeper') DEFAULT NULL,
+    PRIMARY KEY (id)
+);
+/
+INSERT INTO ENUMTable(id, enum_type) VALUES (1, 'doctor');
+/
+CREATE TABLE GEOTable(
+    id INTEGER NOT NULL ,
+    geom GEOMETRY
+);
+/
+INSERT INTO GEOTable (id, geom) values (1, 'POINT(7 52)');
+/
+CREATE TABLE JsonTable(
+    id INTEGER NOT NULL ,
+    json_type JSON
+);
+/
+INSERT INTO JsonTable (id, json_type) values (1, JSON_OBJECT('id': 100, 'name': 'Joe', 'groups': '[2,5]' FORMAT JSON));
+/
+CREATE TABLE IntervalTable (
+    id INTEGER,
+    interval_type INTERVAL HOUR TO MINUTE
+);
+/
+INSERT INTO IntervalTable(id, interval_type) values (1, INTERVAL 2 HOUR);
 /

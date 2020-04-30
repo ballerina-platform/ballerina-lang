@@ -166,6 +166,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -201,6 +202,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -284,6 +286,10 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", STREAM_VALUE));
                 mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE_IMPL));
+                mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -300,6 +306,10 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.FUTURE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", FUTURE_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE_IMPL));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.INVOKABLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -415,6 +425,10 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", STREAM_VALUE));
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE_IMPL));
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitVarInsn(ALOAD, index);
@@ -527,6 +541,8 @@ public class JvmMethodGen {
             jvmType = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             jvmType = String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TUPLE) {
             jvmType = String.format("L%s;", ARRAY_VALUE);
@@ -582,320 +598,6 @@ public class JvmMethodGen {
         mv.visitIntInsn(BIPUSH, paramIndex + 1);
         mv.visitInsn(AALOAD);
         mv.visitInsn(AASTORE);
-    }
-
-    private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            mv.visitInsn(LCONST_0);
-            mv.visitVarInsn(LSTORE, index);
-        } else if (bType.tag == TypeTags.BYTE) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(DCONST_0);
-            mv.visitVarInsn(DSTORE, index);
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.STREAM ||
-                bType.tag == TypeTags.ERROR ||
-                bType.tag == TypeTags.NIL ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.CHAR_STRING ||
-                bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.FUTURE ||
-                bType.tag == TypeTags.JSON ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            genJDefaultValue(mv, (JType) bType, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-    }
-
-    private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
-
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(LCONST_0);
-            mv.visitVarInsn(LSTORE, index);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(FCONST_0);
-            mv.visitVarInsn(FSTORE, index);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitInsn(DCONST_0);
-            mv.visitVarInsn(DSTORE, index);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
-        }
-    }
-
-    static void loadDefaultValue(MethodVisitor mv, BType bType) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
-            mv.visitInsn(LCONST_0);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(DCONST_0);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            mv.visitInsn(ICONST_0);
-        } else if (TypeTags.isStringTypeTag(bType.tag) ||
-                bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.ERROR ||
-                bType.tag == TypeTags.NIL ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.FUTURE ||
-                bType.tag == TypeTags.JSON ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
-            mv.visitInsn(ACONST_NULL);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            loadDefaultJValue(mv, (JType) bType);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-    }
-
-    private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
-
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(LCONST_0);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(FCONST_0);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitInsn(DCONST_0);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
-        }
-    }
-
-    public static String getMethodDesc(List<BType> paramTypes, BType retType,
-                                       BType attachedType /* = () */, boolean isExtern /* = false */) {
-
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
-
-        if (attachedType != null) {
-            desc.append(getArgTypeSignature(attachedType));
-        }
-
-        int i = 0;
-        while (i < paramTypes.size()) {
-            BType paramType = getType(paramTypes.get(i));
-            desc.append(getArgTypeSignature(paramType));
-            i += 1;
-        }
-        String returnType = generateReturnType(retType, isExtern);
-        desc.append(returnType);
-
-        return desc.toString();
-    }
-
-    private static String getLambdaMethodDesc(List<BType> paramTypes, BType retType,
-                                              int closureMapsCount) {
-
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
-        int j = 0;
-        while (j < closureMapsCount) {
-            j += 1;
-            desc.append("L").append(MAP_VALUE).append(";").append("Z");
-        }
-
-        int i = 0;
-        while (i < paramTypes.size()) {
-            BType paramType = getType(paramTypes.get(i));
-            desc.append(getArgTypeSignature(paramType));
-            i += 1;
-        }
-        String returnType = generateReturnType(retType, false);
-        desc.append(returnType);
-
-        return desc.toString();
-    }
-
-    private static String getArgTypeSignature(BType bType) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            return "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return "D";
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return "Z";
-        } else if (bType.tag == TypeTags.NIL) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
-            return String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-            return String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format("L%s;", OBJECT_VALUE);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format("L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format("L%s;", HANDLE_VALUE);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-    }
-
-    private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
-
-        if (bType == null || bType.tag == TypeTags.NIL) {
-            if (isExtern) {
-                return ")V";
-            }
-            return String.format(")L%s;", OBJECT);
-        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            return ")J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return ")I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return ")D";
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format(")L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format(")L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return ")Z";
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            return String.format(")L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.RECORD) {
-            return String.format(")L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format(")L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format(")L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format(")L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format(")L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format(")L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format(")L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format(")L%s;", FUNCTION_POINTER);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format(")L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format(")L%s;", HANDLE_VALUE);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", bType));
-        }
-    }
-
-    static BIRFunction getMainFunc(List<BIRFunction> funcs) {
-
-        BIRFunction userMainFunc = null;
-        for (BIRFunction func : funcs) {
-            if (func != null && func.name.value.equals("main")) {
-                userMainFunc = func;
-                break;
-            }
-        }
-
-        return userMainFunc;
-    }
-
-    static void createFunctionPointer(MethodVisitor mv, String klass, String lambdaName, int closureMapCount) {
-
-        mv.visitTypeInsn(NEW, FUNCTION_POINTER);
-        mv.visitInsn(DUP);
-        visitInvokeDyn(mv, klass, cleanupFunctionName(lambdaName), closureMapCount);
-
-        // load null here for type, since these are fp's created for internal usages.
-        mv.visitInsn(ACONST_NULL);
-        mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
     }
 
     private static void handleErrorFromFutureValue(MethodVisitor mv) {
@@ -1079,6 +781,391 @@ public class JvmMethodGen {
         return funcName;
     }
 
+    private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
+                                           int schedulerIndex, int futureIndex) {
+
+        String lambdaFuncName = "$lambda$" + stopFuncName;
+        // Create a schedular. A new schedular is used here, to make the stop function to not to
+        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
+
+        mv.visitVarInsn(ALOAD, schedulerIndex);
+
+        mv.visitIntInsn(BIPUSH, 1);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+
+        // create FP value
+        createFunctionPointer(mv, initClass, lambdaFuncName, 0);
+
+        // no parent strand
+        mv.visitInsn(ACONST_NULL);
+
+        loadType(mv, new BNilType());
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+
+        mv.visitVarInsn(ASTORE, futureIndex);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
+        mv.visitIntInsn(BIPUSH, 100);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+
+        // handle any runtime errors
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFNULL, labelIf);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, String.format("(L%s;)V", THROWABLE),
+                false);
+        mv.visitLabel(labelIf);
+    }
+
+    private static void generateJavaCompatibilityCheck(MethodVisitor mv) {
+
+        mv.visitLdcInsn(getJavaVersion());
+        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
+                String.format("(L%s;)V", STRING_VALUE), false);
+    }
+
+    private static String getJavaVersion() {
+
+        String versionProperty = "java.version";
+        String javaVersion = System.getProperty(versionProperty);
+        if (javaVersion != null) {
+            return javaVersion;
+        } else {
+            return "";
+        }
+    }
+
+    private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            mv.visitInsn(LCONST_0);
+            mv.visitVarInsn(LSTORE, index);
+        } else if (bType.tag == TypeTags.BYTE) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (bType.tag == TypeTags.FLOAT) {
+            mv.visitInsn(DCONST_0);
+            mv.visitVarInsn(DSTORE, index);
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (bType.tag == TypeTags.MAP ||
+                bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.ERROR ||
+                bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.OBJECT ||
+                bType.tag == TypeTags.CHAR_STRING ||
+                bType.tag == TypeTags.DECIMAL ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.RECORD ||
+                bType.tag == TypeTags.TUPLE ||
+                bType.tag == TypeTags.FUTURE ||
+                bType.tag == TypeTags.JSON ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
+                bType.tag == TypeTags.INVOKABLE ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.HANDLE ||
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType.tag == JTypeTags.JTYPE) {
+            genJDefaultValue(mv, (JType) bType, index);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+    }
+
+    private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
+
+        if (jType.jTag == JTypeTags.JBYTE) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JCHAR) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JSHORT) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JINT) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JLONG) {
+            mv.visitInsn(LCONST_0);
+            mv.visitVarInsn(LSTORE, index);
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
+            mv.visitInsn(FCONST_0);
+            mv.visitVarInsn(FSTORE, index);
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            mv.visitInsn(DCONST_0);
+            mv.visitVarInsn(DSTORE, index);
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, index);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        }
+    }
+
+    static void loadDefaultValue(MethodVisitor mv, BType bType) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
+            mv.visitInsn(LCONST_0);
+        } else if (bType.tag == TypeTags.FLOAT) {
+            mv.visitInsn(DCONST_0);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            mv.visitInsn(ICONST_0);
+        } else if (TypeTags.isStringTypeTag(bType.tag) ||
+                bType.tag == TypeTags.MAP ||
+                bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.ERROR ||
+                bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.OBJECT ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.RECORD ||
+                bType.tag == TypeTags.TUPLE ||
+                bType.tag == TypeTags.FUTURE ||
+                bType.tag == TypeTags.JSON ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
+                bType.tag == TypeTags.INVOKABLE ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.HANDLE ||
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
+            mv.visitInsn(ACONST_NULL);
+        } else if (bType.tag == JTypeTags.JTYPE) {
+            loadDefaultJValue(mv, (JType) bType);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+    }
+
+    private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
+
+        if (jType.jTag == JTypeTags.JBYTE) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JCHAR) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JSHORT) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JINT) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JLONG) {
+            mv.visitInsn(LCONST_0);
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
+            mv.visitInsn(FCONST_0);
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            mv.visitInsn(DCONST_0);
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        }
+    }
+
+    public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType, boolean isExtern) {
+
+        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+
+        if (attachedType != null) {
+            desc.append(getArgTypeSignature(attachedType));
+        }
+
+        int i = 0;
+        while (i < paramTypes.size()) {
+            BType paramType = getType(paramTypes.get(i));
+            desc.append(getArgTypeSignature(paramType));
+            i += 1;
+        }
+        String returnType = generateReturnType(retType, isExtern);
+        desc.append(returnType);
+
+        return desc.toString();
+    }
+
+    private static String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
+
+        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+        int j = 0;
+        while (j < closureMapsCount) {
+            j += 1;
+            desc.append("L").append(MAP_VALUE).append(";").append("Z");
+        }
+
+        int i = 0;
+        while (i < paramTypes.size()) {
+            BType paramType = getType(paramTypes.get(i));
+            desc.append(getArgTypeSignature(paramType));
+            i += 1;
+        }
+        String returnType = generateReturnType(retType, false);
+        desc.append(returnType);
+
+        return desc.toString();
+    }
+
+    private static String getArgTypeSignature(BType bType) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            return "J";
+        } else if (bType.tag == TypeTags.BYTE) {
+            return "I";
+        } else if (bType.tag == TypeTags.FLOAT) {
+            return "D";
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            return String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            return String.format("L%s;", DECIMAL_VALUE);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            return "Z";
+        } else if (bType.tag == TypeTags.NIL) {
+            return String.format("L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
+            return String.format("L%s;", ARRAY_VALUE);
+        } else if (bType.tag == TypeTags.ERROR) {
+            return String.format("L%s;", ERROR_VALUE);
+        } else if (bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.JSON ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.READONLY) {
+            return String.format("L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
+            return String.format("L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.FUTURE) {
+            return String.format("L%s;", FUTURE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            return String.format("L%s;", TABLE_VALUE_IMPL);
+        } else if (bType.tag == TypeTags.INVOKABLE) {
+            return String.format("L%s;", FUNCTION_POINTER);
+        } else if (bType.tag == TypeTags.TYPEDESC) {
+            return String.format("L%s;", TYPEDESC_VALUE);
+        } else if (bType.tag == TypeTags.OBJECT) {
+            return String.format("L%s;", OBJECT_VALUE);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+            return String.format("L%s;", XML_VALUE);
+        } else if (bType.tag == TypeTags.HANDLE) {
+            return String.format("L%s;", HANDLE_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+    }
+
+    private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
+
+        if (bType == null || bType.tag == TypeTags.NIL) {
+            if (isExtern) {
+                return ")V";
+            }
+            return String.format(")L%s;", OBJECT);
+        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            return ")J";
+        } else if (bType.tag == TypeTags.BYTE) {
+            return ")I";
+        } else if (bType.tag == TypeTags.FLOAT) {
+            return ")D";
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            return String.format(")L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            return String.format(")L%s;", DECIMAL_VALUE);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            return ")Z";
+        } else if (bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.TUPLE) {
+            return String.format(")L%s;", ARRAY_VALUE);
+        } else if (bType.tag == TypeTags.MAP ||
+                bType.tag == TypeTags.RECORD) {
+            return String.format(")L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.ERROR) {
+            return String.format(")L%s;", ERROR_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format(")L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            return String.format(")L%s;", TABLE_VALUE_IMPL);
+        } else if (bType.tag == TypeTags.FUTURE) {
+            return String.format(")L%s;", FUTURE_VALUE);
+        } else if (bType.tag == TypeTags.TYPEDESC) {
+            return String.format(")L%s;", TYPEDESC_VALUE);
+        } else if (bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.JSON ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
+            return String.format(")L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.OBJECT) {
+            return String.format(")L%s;", OBJECT_VALUE);
+        } else if (bType.tag == TypeTags.INVOKABLE) {
+            return String.format(")L%s;", FUNCTION_POINTER);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+            return String.format(")L%s;", XML_VALUE);
+        } else if (bType.tag == TypeTags.HANDLE) {
+            return String.format(")L%s;", HANDLE_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " +
+                    String.format("%s", bType));
+        }
+    }
+
+    static BIRFunction getMainFunc(List<BIRFunction> funcs) {
+
+        BIRFunction userMainFunc = null;
+        for (BIRFunction func : funcs) {
+            if (func != null && func.name.value.equals("main")) {
+                userMainFunc = func;
+                break;
+            }
+        }
+
+        return userMainFunc;
+    }
+
+    static void createFunctionPointer(MethodVisitor mv, String klass, String lambdaName, int closureMapCount) {
+
+        mv.visitTypeInsn(NEW, FUNCTION_POINTER);
+        mv.visitInsn(DUP);
+        visitInvokeDyn(mv, klass, cleanupFunctionName(lambdaName), closureMapCount);
+
+        // load null here for type, since these are fp's created for internal usages.
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
+    }
+
     private static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
 
         String frameClassName = pkgName;
@@ -1137,6 +1224,8 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             typeSig = String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            typeSig = String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.RECORD) {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
@@ -1239,7 +1328,7 @@ public class JvmMethodGen {
         return bfunction;
     }
 
-    public static BIRTypeDefinition getTypeDef(BIRTypeDefinition typeDef) {
+    static BIRTypeDefinition getTypeDef(BIRTypeDefinition typeDef) {
 
         if (typeDef == null) {
             throw new BLangCompilerException("Invalid type definition");
@@ -1248,7 +1337,7 @@ public class JvmMethodGen {
         return typeDef;
     }
 
-    public static BField getObjectField(BField objectField) {
+    static BField getObjectField(BField objectField) {
 
         if (objectField == null) {
             throw new BLangCompilerException("Invalid object field");
@@ -1257,7 +1346,7 @@ public class JvmMethodGen {
         return objectField;
     }
 
-    public static BField getRecordField(BField recordField) {
+    static BField getRecordField(BField recordField) {
 
         if (recordField != null) {
             return recordField;
@@ -1280,7 +1369,7 @@ public class JvmMethodGen {
         }
     }
 
-    public static BType getType(BType bType) {
+    static BType getType(BType bType) {
 
         if (bType == null) {
             throw new BLangCompilerException("Invalid type");
@@ -1301,7 +1390,7 @@ public class JvmMethodGen {
         return desc.toString();
     }
 
-    public static List<BIRFunction> getFunctions(List<BIRFunction> functions) {
+    static List<BIRFunction> getFunctions(List<BIRFunction> functions) {
 
         if (functions == null) {
             throw new BLangCompilerException(String.format("Invalid functions: %s", functions));
@@ -1321,74 +1410,6 @@ public class JvmMethodGen {
         mv.visitInsn(ATHROW);
 
         mv.visitLabel(notCancelledLabel);
-    }
-
-    private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                           int schedulerIndex, int futureIndex) {
-
-        String lambdaFuncName = "$lambda$" + stopFuncName;
-        // Create a schedular. A new schedular is used here, to make the stop function to not to
-        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
-
-        mv.visitVarInsn(ALOAD, schedulerIndex);
-
-        mv.visitIntInsn(BIPUSH, 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
-        // create FP value
-        createFunctionPointer(mv, initClass, lambdaFuncName, 0);
-
-        // no parent strand
-        mv.visitInsn(ACONST_NULL);
-
-        loadType(mv, new BNilType());
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-
-        mv.visitVarInsn(ASTORE, futureIndex);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
-        mv.visitIntInsn(BIPUSH, 100);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
-        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-
-        // handle any runtime errors
-        Label labelIf = new Label();
-        mv.visitJumpInsn(IFNULL, labelIf);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, String.format("(L%s;)V", THROWABLE),
-                false);
-        mv.visitLabel(labelIf);
-    }
-
-    private static void generateJavaCompatibilityCheck(MethodVisitor mv) {
-
-        mv.visitLdcInsn(getJavaVersion());
-        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
-                String.format("(L%s;)V", STRING_VALUE), false);
-    }
-
-    private static String getJavaVersion() {
-
-        String versionProperty = "java.version";
-        String javaVersion = System.getProperty(versionProperty);
-        if (javaVersion != null) {
-            return javaVersion;
-        } else {
-            return "";
-        }
     }
 
     public void resetIds() {
@@ -1775,6 +1796,15 @@ public class JvmMethodGen {
                             break;
                         case MAP_STORE:
                             instGen.generateMapStoreIns((FieldAccess) inst);
+                            break;
+                        case NEW_TABLE:
+                            instGen.generateTableNewIns((NewTable) inst);
+                            break;
+                        case TABLE_STORE:
+                            instGen.generateTableStoreIns((FieldAccess) inst);
+                            break;
+                        case TABLE_LOAD:
+                            instGen.generateTableLoadIns((FieldAccess) inst);
                             break;
                         case NEW_ARRAY:
                             instGen.generateArrayNewIns((NewArray) inst);
