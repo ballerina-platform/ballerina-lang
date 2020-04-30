@@ -50,7 +50,6 @@ import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -78,14 +77,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
@@ -128,7 +125,13 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            generateCheckCastBToJRef(mv, sourceType, targetType);
+            if (((JType.JRefType) targetType).typeValue.equals(STRING_VALUE)) {
+                throw new BLangCompilerException(
+                        "Casting is not supported from handle to 'java String'. " +
+                                "Use Ballerina string value instead");
+            } else {
+                generateCheckCastBToJRef(mv, sourceType, targetType);
+            }
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
@@ -465,6 +468,11 @@ public class JvmCastGen {
     }
 
     private static void generateJCastToBHandle(MethodVisitor mv, JType sourceType) {
+        String typeValue = ((JType.JRefType) sourceType).typeValue;
+        if (typeValue.equals(STRING_VALUE)) {
+            throw new BLangCompilerException(
+                    "Casting is not supported from 'handle' to 'string', use ballerina string instead");
+        }
         //  TODO do we need to support below? - rajith
         //if (sourceType is jvm:JByte) {
         //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(B)L%s;", HANDLE_VALUE), false);
