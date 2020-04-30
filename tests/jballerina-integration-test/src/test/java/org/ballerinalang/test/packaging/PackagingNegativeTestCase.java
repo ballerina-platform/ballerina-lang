@@ -232,11 +232,6 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
         initProject(tempProjectDirectory, "projectWithoutPackages");
 
-        Files.createFile(projectPath.resolve("main.bal"));
-        String content = "import ballerina/io;\n \n function main(string... args) {\n" +
-                         "    io:println(\"Hello World!\");\n }\n";
-        writeToFile(projectPath.resolve("main.bal"), content);
-
         String msg = "error: no modules found to compile";
         LogLeecher leecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[0],
