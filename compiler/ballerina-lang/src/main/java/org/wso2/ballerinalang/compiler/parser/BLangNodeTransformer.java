@@ -49,6 +49,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
@@ -126,6 +127,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -684,6 +687,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        BLangValueType typeNode = createBuiltInTypeNode(parameterizedTypeDescNode.parameterizedType());
+        refType.typeKind = typeNode.typeKind;
+        refType.pos = typeNode.pos;
+
+        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+        constrainedType.type = refType;
+        constrainedType.constraint = createTypeNode(parameterizedTypeDescNode.typeNode());
+        constrainedType.pos = getPosition(parameterizedTypeDescNode);
+        return constrainedType;
+    }
+
+    @Override
     public BLangNode transform(SimpleNameReferenceNode simpleNameRefNode) {
         return createTypeNode(simpleNameRefNode.name());
     }
@@ -888,14 +905,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangType createTypeNode(Node type) {
         if (type instanceof BuiltinSimpleNameReferenceNode || type.kind() == SyntaxKind.NIL_TYPE_DESC) {
-            // Default type
-            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            String typeText =
-                    (type.kind() != SyntaxKind.NIL_TYPE_DESC) ? ((BuiltinSimpleNameReferenceNode) type).name().text() :
-                            "()";
-            bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
-            bLValueType.pos = getPosition(type);
-            return bLValueType;
+            return createBuiltInTypeNode(type);
         } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             // Exclusive type
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
@@ -934,6 +944,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             return (BLangType) type.apply(this);
         }
+    }
+
+    private BLangValueType createBuiltInTypeNode(Node type) {
+        // Default type
+        BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+
+        String typeText;
+        if (type.kind() == SyntaxKind.NIL_TYPE_DESC) {
+            typeText = "()";
+        } else if (type instanceof BuiltinSimpleNameReferenceNode) {
+            typeText = ((BuiltinSimpleNameReferenceNode) type).name().text();
+        } else {
+            typeText = ((Token) type).text(); // TODO: Remove this once map<string> returns Nodes for `map`
+        }
+        bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
+        bLValueType.pos = getPosition(type);
+        return bLValueType;
     }
 
     private BLangNameReference getBLangNameReference(Node node) {
