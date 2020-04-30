@@ -211,21 +211,23 @@ function testMultidimensionalArrayString() {
 
 }
 
-const TYPEDESC_MAP_ARRAY = "typedesc map<Foo>[2][]";
-
 function testArrayMapString() {
     map<Foo>[2][] arr = [];
     typedesc<any> t = typeof arr;
-    assertEquality(TYPEDESC_MAP_ARRAY, t.toString());
+    assertEquality("typedesc map<Foo>[2][]", t.toString());
 
 }
-
-const TYPEDESC_UNION_ARRAY = "typedesc (int|string[4][3])[][2][4]";
 
 function testArrayUnionType() {
     (int|string[4][3])[][2][4] arr = [];
     typedesc<any> t = typeof arr;
-    assertEquality(TYPEDESC_UNION_ARRAY, t.toString());
+    assertEquality("typedesc (int|string[4][3])[][2][4]", t.toString());
+}
+
+function testArrayTupleType() {
+    [string[2],int,float[3][4]][][] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc [string[2],int,float[3][4]][][]", t.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

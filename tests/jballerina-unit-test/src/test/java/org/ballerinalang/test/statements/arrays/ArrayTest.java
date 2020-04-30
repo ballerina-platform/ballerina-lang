@@ -231,4 +231,9 @@ public class ArrayTest {
     public void testArrayUnionType() {
         BRunUtil.invokeFunction(compileResult, "testArrayUnionType");
     }
+
+    @Test
+    public void testArrayTupleType() {
+        BRunUtil.invokeFunction(compileResult, "testArrayTupleType");
+    }
 }
