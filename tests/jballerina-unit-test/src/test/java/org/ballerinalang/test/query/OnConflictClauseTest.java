@@ -27,6 +27,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
 /**
  * This contains methods to test on conflict clause in query expression.
  *
@@ -34,10 +36,12 @@ import org.testng.annotations.Test;
  */
 public class OnConflictClauseTest {
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/on-conflict-clause.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/on-conflict-clause-negative.bal");
     }
 
     @Test(description = "Test on conflict clause")
@@ -54,5 +58,11 @@ public class OnConflictClauseTest {
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+    }
+
+    @Test(description = "Test on conflict clause with function call as expression")
+    public void testOnConflictClauseWithFunction() {
+        validateError(negativeResult, 0, "incompatible types: expected 'error', found '()'",
+                24, 25);
     }
 }

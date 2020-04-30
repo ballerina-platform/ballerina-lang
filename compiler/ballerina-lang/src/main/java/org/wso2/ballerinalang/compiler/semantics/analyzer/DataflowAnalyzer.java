@@ -819,7 +819,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(queryExpr.selectClause, env);
-
         analyzeNode(queryExpr.onConflictClause, env);
     }
 

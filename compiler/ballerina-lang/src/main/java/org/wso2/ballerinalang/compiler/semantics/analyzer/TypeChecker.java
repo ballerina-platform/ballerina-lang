@@ -3408,13 +3408,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
     }
 
-    private SymbolEnv typeCheckOnConflictClause(BLangOnConflictClause onConflictClause, SymbolEnv parentEnv) {
+    private void typeCheckOnConflictClause(BLangOnConflictClause onConflictClause, SymbolEnv parentEnv) {
         BType exprType = checkExpr(onConflictClause.expression, parentEnv, symTable.errorType);
         if (!types.isAssignable(exprType, symTable.errorType)) {
             dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
                     symTable.errorType, exprType);
         }
-        return parentEnv;
     }
 
     private void handleFromClauseVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
