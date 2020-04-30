@@ -136,8 +136,10 @@ public class BArrayType extends BType {
             sb.append(arrayElement.getSizeString());
             tempElementType = arrayElement.elementType;
         }
-        sb.insert(0, tempElementType.toString());
-        return sb.toString();
+        if (tempElementType.getTag() == TypeTags.UNION_TAG) {
+            return sb.insert(0, "(" + tempElementType.toString() + ")").toString();
+        }
+        return  sb.insert(0, tempElementType.toString()).toString();
     }
 
     private String getSizeString() {
