@@ -84,7 +84,7 @@ public type _StreamPipeline object {
                 _StreamPipeline p = self.pipeline;
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
-                    Type v = <Type> f;
+                    Type v = <Type> f["$value$"];
                     record {|Type value;|} res = {value: v};
                     return res;
                 } else {

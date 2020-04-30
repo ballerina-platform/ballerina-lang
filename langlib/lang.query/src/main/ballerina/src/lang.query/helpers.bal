@@ -76,16 +76,6 @@ public function consumeStream(stream<any|error, error?> strm) returns error? {
     }
 }
 
-public function addToFrame(_Frame frame, string key, any|error value) {
-    frame[key] = value;
-}
-
-public function spreadToFrame(_Frame frame, record{} value) {
-    foreach string k in value.keys() {
-        frame[k] = value[k];
-    }
-}
-
 function lambdaTemplate(_Frame frame) returns _Frame|error? {
     return frame;
 }
