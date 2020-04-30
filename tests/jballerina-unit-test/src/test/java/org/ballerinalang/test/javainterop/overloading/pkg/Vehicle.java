@@ -38,4 +38,12 @@ public class Vehicle {
 
         return prefix + this.name;
     }
+
+    public static String foo(String fooString) {
+        return fooString;
+    }
+
+    public static String foo(Object obj) {
+        return obj.toString();
+    }
 }

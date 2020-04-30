@@ -18,6 +18,7 @@
 package org.ballerinalang.test.javainterop.overloading;
 
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -64,5 +65,15 @@ public class OverloadedMethodTests {
         String sortedStr = new String(bytes);
 
         Assert.assertEquals(returns[0].stringValue(), sortedStr);
+    }
+
+    @Test(description = "Test invoking multiple overloaded java methods")
+    public void testOverloadedMethodsWithDifferentParameters() {
+        BValue[] args = new BValue[2];
+        String strValue = "BALLERINA";
+        int intValue = 5;
+        args[0] = new BHandleValue(strValue);
+        args[1] = new BInteger(intValue);
+        BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParameters", args);
     }
 }
