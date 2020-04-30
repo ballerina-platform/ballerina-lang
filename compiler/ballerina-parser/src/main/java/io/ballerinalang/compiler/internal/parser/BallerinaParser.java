@@ -5571,23 +5571,9 @@ public class BallerinaParser {
      */
     private STNode parseStatementStartsWithIdentifier(STNode annots) {
         startContext(ParserRuleContext.STMT_START_WITH_IDENTIFIER);
-
-        STNode finalKeyword = STNodeFactory.createEmptyNode();
-        STNode stmt;
-        STToken nextToken = peek(2);
-        STToken nextNextToken = peek(3);
-        // if the next token is question-mark then it is an optional type descriptor with user defined type
-        if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-            stmt = parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-        } else if (nextToken.kind == SyntaxKind.PIPE_TOKEN && nextNextToken.kind != SyntaxKind.EQUAL_TOKEN) {
-            //If the nex token is pipe token then it can be unary type or compound assignment statement.
-            // if the nextNextToken is not an equal token then it is a unary type with user defined type.
-            stmt = parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-        } else {
-            STNode identifier = parseStatementStartIdentifier();
-            nextToken = peek();
-            stmt = parseStatementStartsWithIdentifier(nextToken.kind, annots, identifier);
-        }
+        STNode identifier = parseStatementStartIdentifier();
+        STToken nextToken = peek();
+        STNode stmt = parseStatementStartsWithIdentifier(nextToken.kind, annots, identifier);
         endContext();
         return stmt;
     }
@@ -5607,12 +5593,32 @@ public class BallerinaParser {
             case SEMICOLON_TOKEN:
                 // Here we directly start parsing as a statement that starts with an expression.
                 return parseStamentStartWithExpr(nextTokenKind, identifier);
+            case QUESTION_MARK_TOKEN:
+                // if the next token is question-mark then it is an optional type descriptor with user defined type
+                switchContext(ParserRuleContext.VAR_DECL_STMT);
+                STNode questionMarkToken = parseQuestionMark();
+                STNode optionalTypeDesc = STNodeFactory.createOptionalTypeDescriptorNode(identifier, questionMarkToken);
+                //check whether if there is more type descriptor elements
+                STNode typeDesc = parseComplexTypeDescriptor(optionalTypeDesc);
+                varName = parseVariableName();
+                finalKeyword = STNodeFactory.createEmptyNode();
+                return parseVarDeclRhs(annots, finalKeyword, typeDesc, varName, false);
             default:
                 // If its a binary operator then this can be a compound assignment statement
                 if (isCompoundBinaryOperator(nextTokenKind)) {
                     return parseCompoundAssignmentStmtRhs(identifier);
                 }
-
+                // If its not a compound assignment statement then it can be union type desc.
+                if (nextTokenKind == SyntaxKind.PIPE_TOKEN) {
+                    switchContext(ParserRuleContext.VAR_DECL_STMT);
+                    STNode pipeToken = parsePipeToken();
+                    STNode rightTypeDesc = parseTypeDescriptor();
+                    STNode unionTypeDesc = STNodeFactory.createUnionTypeDescriptorNode(identifier, pipeToken,
+                            rightTypeDesc);
+                    varName = parseVariableName();
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVarDeclRhs(annots, finalKeyword, unionTypeDesc, varName, false);
+                }
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind)) {
