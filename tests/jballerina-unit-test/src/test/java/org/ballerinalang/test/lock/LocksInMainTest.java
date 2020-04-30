@@ -56,7 +56,7 @@ public class LocksInMainTest {
 
     }
 
-    @Test(description = "Tests lock within in workers")
+    @Test(description = "Tests lock within in workers", enabled = false)
     public void simpleLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/simple-lock.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "simpleLock");
@@ -92,7 +92,7 @@ public class LocksInMainTest {
     }
 
 //    TODO:https://github.com/ballerina-platform/ballerina-lang/issues/11305
-    @Test(description = "Tests throwing and error inside lock")
+    @Test(description = "Tests throwing and error inside lock", enabled = false)
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -103,7 +103,6 @@ public class LocksInMainTest {
 
         assertEquals(((BInteger) returns[0]).intValue(), 51);
         assertEquals(returns[1].stringValue(), "second worker string");
-
     }
 
     @Test(description = "Tests throwing an error inside a lock inside try catch block")
@@ -132,7 +131,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch finally inside lock");
     }
 
-    @Test(description = "Tests throwing an error inside try finally block inside a lock")
+    @Test(description = "Tests throwing an error inside try finally block inside a lock", enabled = false)
     public void testThrowErrorInsideTryFinallyInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -196,7 +195,7 @@ public class LocksInMainTest {
         assertTrue("w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
     }
 
-    @Test(description = "Tests returning inside lock statement")
+    @Test(description = "Tests returning inside lock statement", enabled = false)
     public void testReturnInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
