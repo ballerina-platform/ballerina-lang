@@ -71,7 +71,7 @@ public class ImmutableTypeCloner {
     private static BType setImmutableType(DiagnosticPos pos, Types types, BType type, SymbolEnv env,
                                          SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                          Names names, Set<BType> unresolvedTypes) {
-        if (types.isReadonlyType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+        if (types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return type;
         }
 
@@ -223,7 +223,7 @@ public class ImmutableTypeCloner {
                 LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>();
 
                 for (BType memberType : origUnionType.getMemberTypes()) {
-                    if (types.isReadonlyType(memberType)) {
+                    if (types.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
                     }
 
@@ -237,11 +237,14 @@ public class ImmutableTypeCloner {
 
                 if (readOnlyMemTypes.size() == 1) {
                     immutableType = readOnlyMemTypes.iterator().next();
-                } else {
+                } else if (origUnionType.tsymbol != null) {
                     BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env);
                     immutableType = BUnionType.create(immutableUnionTSymbol, readOnlyMemTypes);
                     immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                     immutableUnionTSymbol.type = immutableType;
+                } else {
+                    immutableType = BUnionType.create(null, readOnlyMemTypes);
+                    immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                 }
                 origUnionType.immutableType = immutableType;
                 return immutableType;

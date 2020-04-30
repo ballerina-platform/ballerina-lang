@@ -149,7 +149,7 @@ public abstract class BType {
     }
 
     public BType getImmutableType() {
-        if (TypeChecker.isReadonlyType(this)) {
+        if (TypeChecker.isInherentlyImmutableType(this)) {
             return this;
         }
 

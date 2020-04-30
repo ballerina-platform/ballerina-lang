@@ -891,7 +891,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType rhsType = resolveTypeNode(constituentTypeNodes.get(1), env);
 
         if (lhsType == symTable.readonlyType) {
-            if (types.isReadonlyType(rhsType)) {
+            if (types.isInherentlyImmutableType(rhsType)) {
                 resultType = rhsType;
                 return;
             }
@@ -908,7 +908,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (rhsType == symTable.readonlyType) {
-            if (types.isReadonlyType(lhsType)) {
+            if (types.isInherentlyImmutableType(lhsType)) {
                 resultType = lhsType;
                 return;
             }

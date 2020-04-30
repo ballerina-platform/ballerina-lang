@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -2911,7 +2912,14 @@ public class TypeChecker extends BLangNodeVisitor {
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
-        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
+
+        if (expType == symTable.noType) {
+            resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
+            return;
+        }
+
+        resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLElementLiteral.pos, symTable.xmlElementType,
+                                                         this.expType);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -2928,13 +2936,22 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
+
+        if (expType == symTable.noType) {
+            resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
+            return;
+        }
+        resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLCommentLiteral.pos, symTable.xmlCommentType,
+                                                         this.expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
-        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
+        if (expType == symTable.noType) {
+            resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
+        }
+        resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLProcInsLiteral.pos, symTable.xmlPIType, this.expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
@@ -5714,6 +5731,52 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private BType checkXmlSubTypeLiteralCompatibility(DiagnosticPos pos, BType mutableXmlSubType, BType expType) {
+        boolean unionExpType = expType.tag == TypeTags.UNION;
+
+        if (expType == mutableXmlSubType || (!unionExpType && types.isAssignable(mutableXmlSubType, expType))) {
+            return expType;
+        }
+
+        BXMLSubType immutableXmlSubType =
+                (BXMLSubType) ImmutableTypeCloner.setImmutableType(pos, types, mutableXmlSubType, env, symTable,
+                                                                   anonymousModelHelper, names);
+        if (expType == immutableXmlSubType || (!unionExpType && types.isAssignable(immutableXmlSubType, expType))) {
+            return expType;
+        }
+
+        if (!unionExpType) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
+            return symTable.semanticError;
+        }
+
+        List<BType> compatibleTypes = new ArrayList<>();
+        for (BType memberType : ((BUnionType) expType).getMemberTypes()) {
+            if (compatibleTypes.contains(memberType)) {
+                continue;
+            }
+
+            if (memberType == mutableXmlSubType ||
+                    memberType == immutableXmlSubType ||
+                    types.isAssignable(mutableXmlSubType, memberType) ||
+                    types.isAssignable(immutableXmlSubType, memberType)) {
+                compatibleTypes.add(memberType);
+            }
+        }
+
+        if (compatibleTypes.isEmpty()) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
+            return symTable.semanticError;
+        }
+
+        if (compatibleTypes.size() == 1) {
+            return compatibleTypes.get(0);
+        }
+
+        dlog.error(pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+        return symTable.semanticError;
     }
 
     private static class FieldInfo {

@@ -534,7 +534,7 @@ public class Types {
         }
 
         if (targetTag == TypeTags.READONLY &&
-                (isReadonlyType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
+                (isInherentlyImmutableType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
             return true;
         }
 
@@ -895,7 +895,7 @@ public class Types {
                                          (s, t, ut, urt) -> isAssignable(t, s, ut, urt));
     }
 
-    public boolean isReadonlyType(BType type) {
+    public boolean isInherentlyImmutableType(BType type) {
         if (isValueType(type)) {
             return true;
         }
@@ -921,7 +921,7 @@ public class Types {
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        if (isReadonlyType(type)) {
+        if (isInherentlyImmutableType(type)) {
             // Always immutable.
             return false;
         }
@@ -942,11 +942,13 @@ public class Types {
                 return true;
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
-                return isReadonlyType(elementType) || isSelectivelyImmutableType(elementType, unresolvedTypes);
+                return isInherentlyImmutableType(elementType) ||
+                        isSelectivelyImmutableType(elementType, unresolvedTypes);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 for (BType tupMemType : tupleType.tupleTypes) {
-                    if (!isReadonlyType(tupMemType) && !isSelectivelyImmutableType(tupMemType, unresolvedTypes)) {
+                    if (!isInherentlyImmutableType(tupMemType) &&
+                            !isSelectivelyImmutableType(tupMemType, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -956,12 +958,14 @@ public class Types {
                     return true;
                 }
 
-                return isReadonlyType(tupRestType) || isSelectivelyImmutableType(tupRestType, unresolvedTypes);
+                return isInherentlyImmutableType(tupRestType) ||
+                        isSelectivelyImmutableType(tupRestType, unresolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields) {
                     BType fieldType = field.type;
-                    if (!isReadonlyType(fieldType) && !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -971,15 +975,18 @@ public class Types {
                     return true;
                 }
 
-                return isReadonlyType(recordRestType) || isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+                return isInherentlyImmutableType(recordRestType) ||
+                        isSelectivelyImmutableType(recordRestType, unresolvedTypes);
             case TypeTags.MAP:
                 BType constraintType = ((BMapType) type).constraint;
-                return isReadonlyType(constraintType) || isSelectivelyImmutableType(constraintType, unresolvedTypes);
+                return isInherentlyImmutableType(constraintType) ||
+                        isSelectivelyImmutableType(constraintType, unresolvedTypes);
             // TODO: 4/23/20 Table
             case TypeTags.UNION:
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (isReadonlyType(memberType) || isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                    if (isInherentlyImmutableType(memberType) ||
+                            isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
                     }
                 }

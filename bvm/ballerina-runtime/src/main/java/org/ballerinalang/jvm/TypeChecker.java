@@ -607,7 +607,7 @@ public class TypeChecker {
             case TypeTags.HANDLE_TAG:
                 return sourceType.getTag() == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
-                return isReadonlyType(sourceType) || sourceType.isReadOnly();
+                return isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
@@ -1127,7 +1127,7 @@ public class TypeChecker {
         return false;
     }
 
-    public static boolean isReadonlyType(BType sourceType) {
+    public static boolean isInherentlyImmutableType(BType sourceType) {
         if (isSimpleBasicType(sourceType)) {
             return true;
         }
@@ -1152,7 +1152,7 @@ public class TypeChecker {
     }
 
     public static boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        if (isReadonlyType(type)) {
+        if (isInherentlyImmutableType(type)) {
             // Always immutable.
             return false;
         }
@@ -1173,11 +1173,13 @@ public class TypeChecker {
                 return true;
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) type).getElementType();
-                return isReadonlyType(elementType) || isSelectivelyImmutableType(elementType, unresolvedTypes);
+                return isInherentlyImmutableType(elementType) ||
+                        isSelectivelyImmutableType(elementType, unresolvedTypes);
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) type;
                 for (BType tupMemType : tupleType.getTupleTypes()) {
-                    if (!isReadonlyType(tupMemType) && !isSelectivelyImmutableType(tupMemType, unresolvedTypes)) {
+                    if (!isInherentlyImmutableType(tupMemType) &&
+                            !isSelectivelyImmutableType(tupMemType, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -1187,12 +1189,14 @@ public class TypeChecker {
                     return true;
                 }
 
-                return isReadonlyType(tupRestType) || isSelectivelyImmutableType(tupRestType, unresolvedTypes);
+                return isInherentlyImmutableType(tupRestType) ||
+                        isSelectivelyImmutableType(tupRestType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.getFields().values()) {
                     BType fieldType = field.type;
-                    if (!isReadonlyType(fieldType) && !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -1202,15 +1206,18 @@ public class TypeChecker {
                     return true;
                 }
 
-                return isReadonlyType(recordRestType) || isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+                return isInherentlyImmutableType(recordRestType) ||
+                        isSelectivelyImmutableType(recordRestType, unresolvedTypes);
             case TypeTags.MAP_TAG:
                 BType constraintType = ((BMapType) type).getConstrainedType();
-                return isReadonlyType(constraintType) || isSelectivelyImmutableType(constraintType, unresolvedTypes);
+                return isInherentlyImmutableType(constraintType) ||
+                        isSelectivelyImmutableType(constraintType, unresolvedTypes);
             // TODO: 4/28/20 Table
             case TypeTags.UNION_TAG:
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (isReadonlyType(memberType) || isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                    if (isInherentlyImmutableType(memberType) ||
+                            isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
                     }
                 }

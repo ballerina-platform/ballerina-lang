@@ -67,7 +67,7 @@ class ReadOnlyUtils {
 
     static BType setImmutableType(BType type, Set<BType> unresolvedTypes) {
 
-        if (TypeChecker.isReadonlyType(type) || type.isReadOnly()) {
+        if (TypeChecker.isInherentlyImmutableType(type) || type.isReadOnly()) {
             return type;
         }
 
@@ -159,7 +159,7 @@ class ReadOnlyUtils {
                 List<BType> readOnlyMemTypes = new ArrayList<>();
 
                 for (BType memberType : origUnionType.getMemberTypes()) {
-                    if (TypeChecker.isReadonlyType(memberType)) {
+                    if (TypeChecker.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
                     }
 
