@@ -48,6 +48,8 @@ import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
+import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
@@ -131,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -239,7 +242,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(modVarDeclrNode.variableName(),
                                                         modVarDeclrNode.typeName(), modVarDeclrNode.initializer(),
-                                                        modVarDeclrNode.finalKeyword().isPresent(), false);
+                                                        modVarDeclrNode.finalKeyword().isPresent(), false, null);
         simpleVar.pos = getPosition(modVarDeclrNode);
         return simpleVar;
     }
@@ -303,6 +306,58 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(ObjectTypeDescriptorNode objTypeDescNode) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        // TODO: Look when to false isFieldAnalyseRequired
+        objectTypeNode.isFieldAnalyseRequired = true;
+
+        for (Token qualifier : objTypeDescNode.objectTypeQualifiers()) {
+            if (qualifier.kind() == SyntaxKind.ABSTRACT_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.ABSTRACT);
+            }
+
+            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.CLIENT);
+            }
+
+            if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.SERVICE);
+            }
+        }
+
+        for (Node node : objTypeDescNode.members()) {
+            // TODO: Check for fields other than SimpleVariableNode
+            BLangNode bLangNode = node.apply(this);
+            if (bLangNode.getKind() == NodeKind.FUNCTION) {
+                BLangFunction bLangFunction = (BLangFunction) bLangNode;
+                bLangFunction.attachedFunction = true;
+                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
+                    bLangFunction.objInitFunction = true;
+                    // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
+                    objectTypeNode.initFunction = bLangFunction;
+                } else {
+                    objectTypeNode.addFunction(bLangFunction);
+                }
+            } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
+                objectTypeNode.addField((BLangSimpleVariable) bLangNode);
+            }
+        }
+
+        objectTypeNode.isAnonymous = false;
+        objectTypeNode.pos = getPosition(objTypeDescNode);
+        return objectTypeNode;
+    }
+
+    @Override
+    public BLangNode transform(ObjectFieldNode objFieldNode) {
+        BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
+                                                        objFieldNode.expression(),
+                                                        false, false, objFieldNode.visibilityQualifier());
+        simpleVar.pos = getPosition(objFieldNode);
+        return simpleVar;
+    }
+
+    @Override
     public BLangNode transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         boolean hasRestField = false;
@@ -359,7 +414,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FunctionDefinitionNode funcDefNode) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        bLFunction.pos = getPosition(funcDefNode);
 
         // Set function name
         IdentifierToken funcName = funcDefNode.functionName();
@@ -371,14 +425,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.PUBLIC);
             } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
                 bLFunction.flagSet.add(Flag.PRIVATE);
+            } else if (visibilityQual.kind() == SyntaxKind.REMOTE_KEYWORD) {
+                bLFunction.flagSet.add(Flag.REMOTE);
+            } else if (visibilityQual.kind() == SyntaxKind.RESOURCE_KEYWORD) {
+                bLFunction.flagSet.add(Flag.RESOURCE);
             }
         });
 
-        // TODO populate function signature
+
         getFuncSignature(bLFunction, funcDefNode);
 
         // Set the function body
-        bLFunction.body = (BLangFunctionBody) funcDefNode.functionBody().apply(this);
+        if (funcDefNode.functionBody() == null) {
+            bLFunction.body = null;
+            bLFunction.flagSet.add(Flag.INTERFACE);
+            bLFunction.interfaceFunction = true;
+        } else {
+            bLFunction.body = (BLangFunctionBody) funcDefNode.functionBody().apply(this);
+            if (bLFunction.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+                bLFunction.flagSet.add(Flag.NATIVE);
+            }
+        }
+
+//        attachAnnotations(function, annCount, false);
+        bLFunction.pos = getPosition(funcDefNode);
         return bLFunction;
     }
 
@@ -597,7 +667,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLVarDef.pos = getPosition(varDeclaration);
         BLangSimpleVariable simpleVar = createSimpleVar(varDeclaration.variableName(), varDeclaration.typeName(),
                                                         varDeclaration.initializer().orElse(null),
-                                                        varDeclaration.finalKeyword().isPresent(), false);
+                                                        varDeclaration.finalKeyword().isPresent(), false, null);
         simpleVar.pos = getPosition(varDeclaration);
         bLVarDef.setVariable(simpleVar);
         return bLVarDef;
@@ -758,17 +828,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node type) {
-        return createSimpleVar(name, type, null, false, false);
+        return createSimpleVar(name, type, null, false, false, null);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isListenerVar) {
+                                                boolean isListenerVar,
+                                                Token visibilityQualifier) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(getPosition(name), name.text()));
         if (typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
             bLSimpleVar.isDeclaredWithVar = true;
         } else {
             bLSimpleVar.setTypeNode(createTypeNode(typeName));
+        }
+
+        if (visibilityQualifier != null) {
+            if (visibilityQualifier.kind() == SyntaxKind.PRIVATE_KEYWORD) {
+                bLSimpleVar.flagSet.add(Flag.PRIVATE);
+            } else if (visibilityQualifier.kind() == SyntaxKind.PUBLIC_KEYWORD) {
+                bLSimpleVar.flagSet.add(Flag.PUBLIC);
+            }
         }
 
         if (isFinal) {
