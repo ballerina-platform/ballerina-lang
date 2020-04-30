@@ -32,20 +32,23 @@ INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_
   X'77736F322062616C6C6572696E612062696E61727920746573742E', X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
 INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) VALUES
-  (2, null, null, null, null);
+  (2, X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB),
+  X'77736F322062616C6C6572696E612062696E61727920746573742E', X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
-
+INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) VALUES
+  (3, null, null, null, null);
+/
 CREATE TABLE NumericTypes (
    id INT IDENTITY,
-   int_type INT NOT NULL,
-   bigint_type BIGINT NOT NULL,
-   smallint_type SMALLINT NOT NULL ,
-   tinyint_type TINYINT NOT NULL ,
-   bit_type BIT NOT NULL ,
-   decimal_type DECIMAL(10,3) NOT NULL ,
-   numeric_type NUMERIC(10,3) NOT NULL ,
-   float_type FLOAT NOT NULL ,
-   real_type REAL NOT NULL ,
+   int_type INT,
+   bigint_type BIGINT,
+   smallint_type SMALLINT,
+   tinyint_type TINYINT  ,
+   bit_type BIT ,
+   decimal_type DECIMAL(10,3) ,
+   numeric_type NUMERIC(10,3),
+   float_type FLOAT ,
+   real_type REAL ,
    PRIMARY KEY (id)
 );
 /
@@ -53,7 +56,6 @@ INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type
     float_type, real_type) VALUES (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
     1234.567);
 /
-
 INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
     float_type, real_type) VALUES (2, 2147483647, 9223372036854774807, 32767, 127, 1, 1234, 1234, 1234,
     1234);
@@ -63,7 +65,7 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
   date_type      DATE,
   time_type      TIME,
   timestamp_type TIMESTAMP,
-  datetime_type  datetime,
+  datetime_type  DATETIME,
   time_type2      TIME(6) WITH TIME ZONE,
   timestamp_type2 TIMESTAMP(2) WITH TIME ZONE,
   PRIMARY KEY (row_id)
@@ -74,20 +76,20 @@ INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestam
 /
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER NOT NULL,
-  int_array     INTEGER ARRAY,
-  long_array    BIGINT ARRAY,
-  float_array   FLOAT ARRAY,
-  double_array  DOUBLE ARRAY,
-  decimal_array  DECIMAL ARRAY,
-  boolean_array BOOLEAN ARRAY,
-  string_array  VARCHAR(20) ARRAY,
-  blob_array    VARBINARY(27) ARRAY,
+  int_array     ARRAY,
+  long_array    ARRAY,
+  float_array   ARRAY,
+  double_array  ARRAY,
+  decimal_array ARRAY,
+  boolean_array ARRAY,
+  string_array  ARRAY,
+  blob_array    ARRAY,
   PRIMARY KEY (row_id)
 );
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, decimal_array, boolean_array, string_array, blob_array)
   VALUES (1, ARRAY [1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY[245.23, 5559.49, 8796.123],
-  ARRAY[245.23, 5559.49, 8796.123], ARRAY[245, 5559, 8796], ARRAY[TRUE, FALSE, TRUE], ARRAY['Hello', 'Ballerina'],
+  ARRAY[245.23, 5559.49, 8796.123], ARRAY[245.0, 5559.0, 8796.0], ARRAY[TRUE, FALSE, TRUE], ARRAY['Hello', 'Ballerina'],
   ARRAY[X'77736F322062616C6C6572696E6120626C6F6220746573742E']);
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array,  decimal_array, boolean_array, string_array, blob_array)
@@ -99,16 +101,42 @@ INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array
   VALUES (3, NULL, NULL, NULL, NULL,NULL , NULL, NULL, NULL);
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, decimal_array, boolean_array, string_array, blob_array)
-  VALUES (5, ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL],
+  VALUES (4, ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL],
   ARRAY[NULL, NULL, NULL], ARRAY[NULL , NULL, NULL], ARRAY[NULL , NULL, NULL], ARRAY[NULL, NULL], ARRAY[NULL, NULL]);
 /
-CREATE TYPE MASK_ROW_TYPE AS INTEGER;
-/
-CREATE TABLE IF NOT EXISTS MaskTable(
-  row_id       MASK_ROW_TYPE,
-  int_type     INTEGER,
-  PRIMARY KEY (row_id)
+CREATE TABLE UUIDTable(
+    id INTEGER PRIMARY KEY ,
+    data UUID DEFAULT random_uuid()
 );
 /
-INSERT INTO MaskTable (row_id, int_type) VALUES(1, 1);
+INSERT INTO UUIDTable(id) VALUES (1);
+/
+CREATE TABLE ENUMTable (
+    id integer NOT NULL,
+    enum_type ENUM('admin','doctor','housekeeper') DEFAULT NULL,
+    PRIMARY KEY (id)
+);
+/
+INSERT INTO ENUMTable(id, enum_type) VALUES (1, 'doctor');
+/
+CREATE TABLE GEOTable(
+    id INTEGER NOT NULL ,
+    geom GEOMETRY
+);
+/
+INSERT INTO GEOTable (id, geom) values (1, 'POINT(7 52)');
+/
+CREATE TABLE JsonTable(
+    id INTEGER NOT NULL ,
+    json_type JSON
+);
+/
+INSERT INTO JsonTable (id, json_type) values (1, JSON_OBJECT('id': 100, 'name': 'Joe', 'groups': '[2,5]' FORMAT JSON));
+/
+CREATE TABLE IntervalTable (
+    id INTEGER,
+    interval_type INTERVAL HOUR TO MINUTE
+);
+/
+INSERT INTO IntervalTable(id, interval_type) values (1, INTERVAL 2 HOUR);
 /

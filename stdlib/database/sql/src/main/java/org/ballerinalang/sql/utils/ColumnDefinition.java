@@ -25,27 +25,30 @@ import org.ballerinalang.jvm.types.BType;
  * @since 1.2.0
  */
 public class ColumnDefinition {
-    private String sqlName;
+    private String columnName;
     private String ballerinaFieldName;
     private int sqlType;
+    private String sqlName;
     private BType ballerinaType;
     private boolean isNullable;
 
 
-    ColumnDefinition(String sqlName, String ballerinaFieldName, int sqlType, BType ballerinaType, boolean isNullable) {
-        this.sqlName = sqlName;
+    ColumnDefinition(String columnName, String ballerinaFieldName, int sqlType, String sqlName,
+                     BType ballerinaType, boolean isNullable) {
+        this.columnName = columnName;
         if (ballerinaFieldName != null && !ballerinaFieldName.isEmpty()) {
             this.ballerinaFieldName = ballerinaFieldName;
         } else {
-            this.ballerinaFieldName = this.sqlName;
+            this.ballerinaFieldName = this.columnName;
         }
         this.sqlType = sqlType;
         this.ballerinaType = ballerinaType;
         this.isNullable = isNullable;
+        this.sqlName = sqlName;
     }
 
-    public String getSqlName() {
-        return sqlName;
+    public String getColumnName() {
+        return columnName;
     }
 
     public int getSqlType() {
@@ -62,5 +65,9 @@ public class ColumnDefinition {
 
     public String getBallerinaFieldName() {
         return ballerinaFieldName;
+    }
+
+    public String getSqlName() {
+        return sqlName;
     }
 }

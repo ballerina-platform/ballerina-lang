@@ -29,6 +29,7 @@ under the License.
             <class name="org.ballerinalang.jdbc.query.ComplexTypesQueryTest"/>
             <class name="org.ballerinalang.jdbc.query.ParamsQueryTest"/>
             <class name="org.ballerinalang.jdbc.execute.ExecuteTest"/>
+            <class name="org.ballerinalang.jdbc.execute.ParamsExecuteTest"/>
         </classes>
     </test>
 </suite>
