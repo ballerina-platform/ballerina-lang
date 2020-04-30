@@ -54,4 +54,57 @@ public class TableConstructorTest extends AbstractExpressionsTest {
                         "]",
                 "table-constructor/table_constructor_assert_07.json");
     }
+
+    // Recovery tests
+
+    @Test
+    public void testTableWithMissingCloseBracket() {
+        test("table [", "table-constructor/table_constructor_assert_08.json");
+        test("table key(age) [{age:24}", "table-constructor/table_constructor_assert_09.json");
+    }
+
+    @Test
+    public void testTableWithMissingOpenBracket() {
+        test("table ]", "table-constructor/table_constructor_assert_10.json");
+        test("table {age:24}]", "table-constructor/table_constructor_assert_11.json");
+        test("table key() {age:24}]", "table-constructor/table_constructor_assert_12.json");
+    }
+
+    @Test
+    public void testTableWithMissingCloseParenInKeySpecifier() {
+        test("table key( [{age:24}]", "table-constructor/table_constructor_assert_13.json");
+        test("table key(age [{age:24}]", "table-constructor/table_constructor_assert_14.json");
+    }
+
+    @Test
+    public void testTableWithMissingOpenParenInKeySpecifier() {
+        test("table key) [{age:24}]", "table-constructor/table_constructor_assert_15.json");
+        test("table key age) [{age:24}]", "table-constructor/table_constructor_assert_16.json");
+    }
+
+    @Test
+    public void testTableWithMissingFieldNamesInKeySpecifier() {
+        test("table key(,,) []", "table-constructor/table_constructor_assert_17.json");
+    }
+
+    @Test
+    public void testTableWithMissingCommasInKeySpecifier() {
+        test("table key(nic dob email) []", "table-constructor/table_constructor_assert_18.json");
+    }
+
+    @Test
+    public void testTableWithMissingMappingConstructor() {
+        test("table [, {a:b}]", "table-constructor/table_constructor_assert_19.json");
+        test("table [{a:b}, ]", "table-constructor/table_constructor_assert_20.json");
+    }
+
+    @Test
+    public void testTableWithMissingCommas() {
+        test("table [{a:b} {a:c} {a:d}]", "table-constructor/table_constructor_assert_21.json");
+    }
+
+    @Test
+    public void testTableWithMissingTableKeyword() {
+        test("key() [{a:b}]", "table-constructor/table_constructor_assert_22.json");
+    }
 }
