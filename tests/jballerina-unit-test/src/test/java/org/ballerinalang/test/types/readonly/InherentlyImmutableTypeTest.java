@@ -25,17 +25,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Tests for the `readonly` type.
+ * Tests for inherently immutable values with the `readonly` type.
  *
  * @since 1.3.0
  */
-public class ReadonlyTypeTest {
+public class InherentlyImmutableTypeTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/readonly/readonly_type_test.bal");
+        result = BCompileUtil.compile("test-src/types/readonly/inherently_immutable_type_test.bal");
     }
 
     @Test
