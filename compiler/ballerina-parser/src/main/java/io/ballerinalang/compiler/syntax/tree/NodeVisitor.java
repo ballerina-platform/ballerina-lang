@@ -367,6 +367,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeCastParamNode);
     }
 
+    public void visit(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        visitSyntaxNode(unionTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

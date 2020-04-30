@@ -214,6 +214,7 @@ public enum ParserRuleContext {
     RIGHT_ARROW("->"),
     GT(">"),
     LT("<"),
+    PIPE("|"),
 
     // Other terminals
     FUNC_NAME("function-name"),

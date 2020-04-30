@@ -581,6 +581,8 @@ public class BallerinaParser {
                 // Scenario foo[] (Array type descriptor with custom type)
             case QUESTION_MARK_TOKEN:
                 // Scenario foo? (Optional type descriptor with custom type)
+            case PIPE_TOKEN:
+                // Scenario foo| (Union type descriptor with custom type)
                 return true;
             case IDENTIFIER_TOKEN:
                 switch (peek(lookahead + 2).kind) {
@@ -1420,6 +1422,14 @@ public class BallerinaParser {
                 Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, leadingComma, annots,
                         nextTokenOffset);
 
+                if (solution.action == Action.KEEP) {
+                    // If the solution is {@link Action#KEEP}, that means next immediate token is
+                    // at the correct place, but some token after that is not. There only one such
+                    // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
+                    qualifier = STNodeFactory.createEmptyNode();
+                    break;
+                }
+
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
@@ -1716,7 +1726,9 @@ public class BallerinaParser {
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case OPEN_BRACKET_TOKEN:
                 return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc));
-            // TODO union type descriptor
+            // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
+            case PIPE_TOKEN:
+                return parseComplexTypeDescriptor(parseUnionTypeDescriptor(typeDesc));
             default:
                 return typeDesc;
         }
@@ -2841,12 +2853,6 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
-                STToken nextToken = peek(2);
-                // if the next token is question-mark then it is an optional type descriptor with user defined type
-                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-                    finalKeyword = STNodeFactory.createEmptyNode();
-                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             case LOCK_KEYWORD:
                 return parseLockStatement();
@@ -5579,20 +5585,24 @@ public class BallerinaParser {
     private STNode parseStatementStartsWithIdentifier(SyntaxKind nextTokenKind, STNode annots, STNode identifier) {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
-                STNode varName = parseVariableName();
-                STNode finalKeyword = STNodeFactory.createEmptyNode();
-                return parseVarDeclRhs(annots, finalKeyword, identifier, varName, false);
+            case QUESTION_MARK_TOKEN:
+                // if the next token is question-mark then it is an optional type descriptor with user defined type.
+                return parseTypeDescStartsWithIdentifier(identifier, annots);
             case EQUAL_TOKEN:
             case SEMICOLON_TOKEN:
                 // Here we directly start parsing as a statement that starts with an expression.
                 return parseStamentStartWithExpr(nextTokenKind, identifier);
+            case PIPE_TOKEN:
+                STToken nextNextToken = peek(2);
+                if (nextNextToken.kind != SyntaxKind.EQUAL_TOKEN) {
+                    return parseTypeDescStartsWithIdentifier(identifier, annots);
+                }
+                //fall through
             default:
                 // If its a binary operator then this can be a compound assignment statement
                 if (isCompoundBinaryOperator(nextTokenKind)) {
                     return parseCompoundAssignmentStmtRhs(identifier);
                 }
-
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind)) {
@@ -5612,6 +5622,14 @@ public class BallerinaParser {
 
                 return parseStatementStartsWithIdentifier(solution.tokenKind, annots, identifier);
         }
+    }
+
+    private STNode parseTypeDescStartsWithIdentifier(STNode typeDesc, STNode annots) {
+        switchContext(ParserRuleContext.VAR_DECL_STMT);
+        typeDesc = parseComplexTypeDescriptor(typeDesc);
+        STNode varName = parseVariableName();
+        STNode finalKeyword = STNodeFactory.createEmptyNode();
+        return parseVarDeclRhs(annots, finalKeyword, typeDesc, varName, false);
     }
 
     /**
@@ -6654,6 +6672,34 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse union type descriptor.
+     * union-type-descriptor := type-descriptor | type-descriptor
+     *
+     * @return parsed union type desc node
+     */
+    private STNode parseUnionTypeDescriptor(STNode leftTypeDesc) {
+        STNode pipeToken = parsePipeToken();
+        STNode rightTypeDesc = parseTypeDescriptor();
+
+        return STNodeFactory.createUnionTypeDescriptorNode(leftTypeDesc, pipeToken, rightTypeDesc);
+    }
+
+    /**
+     * Parse pipe token.
+     *
+     * @return parsed pipe token node
+     */
+    private STNode parsePipeToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PIPE_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);
             return sol.recoveredNode;
         }
     }

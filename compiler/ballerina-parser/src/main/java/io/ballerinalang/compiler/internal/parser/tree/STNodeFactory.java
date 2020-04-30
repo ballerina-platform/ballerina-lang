@@ -1073,5 +1073,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 annotations,
                 type);
     }
+
+    public static STNode createUnionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
+
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
+    }
 }
 

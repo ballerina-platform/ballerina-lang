@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -22,15 +21,49 @@
             "value": "foo"
         },
         {
-            "kind": "OPEN_PAREN_TOKEN"
+            "kind": "OPEN_PAREN_TOKEN",
+            "isMissing": true
         },
         {
             "kind": "LIST",
             "children": [
+                {
+                    "kind": "DEFAULTABLE_PARAM",
+                    "children": [
+                        {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "hello"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "NIL_LITERAL",
+                            "children": [
+                                {
+                                    "kind": "OPEN_PAREN_TOKEN"
+                                },
+                                {
+                                    "kind": "CLOSE_PAREN_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                }
             ]
         },
         {
-            "kind": "CLOSE_PAREN_TOKEN"
+            "kind": "CLOSE_PAREN_TOKEN",
+            "isMissing": true
         },
         {
             "kind": "FUNCTION_BODY_BLOCK",
@@ -41,8 +74,7 @@
                 },
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 },
                 {
                     "kind": "CLOSE_BRACE_TOKEN"

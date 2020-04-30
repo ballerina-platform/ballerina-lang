@@ -1063,6 +1063,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 type);
     }
 
+    @Override
+    public Node transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
+        Token pipeToken = modifyToken(unionTypeDescriptorNode.pipeToken());
+        Node rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
+        return unionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
+    }
+
     // Tokens
 
     @Override
