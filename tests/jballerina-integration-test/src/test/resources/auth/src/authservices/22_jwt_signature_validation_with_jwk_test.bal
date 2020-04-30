@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,23 +18,19 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:InboundJwtAuthProvider jwtAuthProvider07 = new({
-    issuer: "ballerina",
-    audience: "ballerina",
+jwt:InboundJwtAuthProvider jwtAuthProvider22 = new({
+    issuer: "https://localhost:9443/oauth2/token",
+    audience: "vEwzbcasJVQm1jVYHUHCjhxZ4tYa",
     signatureConfig: {
-        certificateAlias: "ballerina",
-        trustStore: {
-           path: config:getAsString("truststore"),
-           password: "ballerina"
-        }
+        url: "https://localhost:20102/oauth2/jwks"
     }
 });
 
-http:BearerAuthHandler jwtAuthHandler07 = new(jwtAuthProvider07);
+http:BearerAuthHandler jwtAuthHandler22 = new(jwtAuthProvider22);
 
-listener http:Listener listener07 = new(20008, {
+listener http:Listener listener22 = new(20029, {
     auth: {
-        authHandlers: [jwtAuthHandler07]
+        authHandlers: [jwtAuthHandler22]
     },
     secureSocket: {
         keyStore: {
@@ -45,12 +41,9 @@ listener http:Listener listener07 = new(20008, {
 });
 
 @http:ServiceConfig {
-    basePath: "/echo",
-    auth: {
-        scopes: ["test-scope"]
-    }
+    basePath: "/echo"
 }
-service echo07 on listener07 {
+service echo22 on listener22 {
 
     resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond();
