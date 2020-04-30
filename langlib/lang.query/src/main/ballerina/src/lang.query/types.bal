@@ -21,6 +21,18 @@ import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 // TODO: import ballerina/lang.'table as lang_table;
 
+# A type parameter that is a subtype of `any|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type Type any|error;
+
+# A type parameter that is a subtype of `error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type ErrorType error?;
+
 public type _Iterator abstract object {
     public function next() returns record {|(any|error) value;|}|error?;
 };
@@ -37,9 +49,11 @@ public type _Frame record{|
 
 public type _StreamPipeline object {
     _StreamFunction streamFunction;
+    typedesc<Type> resType;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|stream collection) {
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|stream collection, typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
+        self.resType = resType;
     }
 
     public function next() returns _Frame|error? {
@@ -58,7 +72,7 @@ public type _StreamPipeline object {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream<any|error, error?> {
+    public function getStream() returns stream<Type, error?> {
         object {
             public _StreamPipeline pipeline;
 
@@ -66,18 +80,19 @@ public type _StreamPipeline object {
                 self.pipeline = pipeline;
             }
 
-            public function next() returns record {|any|error value;|}|error? {
+            public function next() returns record {|Type value;|}|error? {
                 _StreamPipeline p = self.pipeline;
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
-                    record {|any|error value;|} r = {value: f};
-                    return r;
+                    Type v = <Type> f;
+                    record {|Type value;|} res = {value: v};
+                    return res;
                 } else {
                     return f;
                 }
             }
         } itrObj = new(self);
-        var strm = new stream<any|error, error?>(itrObj);
+        var strm = new stream<Type, error?>(itrObj);
         return strm;
     }
 };

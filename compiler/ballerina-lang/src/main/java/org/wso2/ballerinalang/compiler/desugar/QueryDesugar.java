@@ -31,8 +31,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -64,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -80,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -139,7 +144,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
@@ -157,7 +162,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangNode> clauses = queryAction.getQueryClauses();
         DiagnosticPos pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, queryAction.type, env, queryBlock);
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, symTable.errorOrNilType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
@@ -169,20 +174,21 @@ public class QueryDesugar extends BLangNodeVisitor {
      * Write the pipeline to the given `block` and return the reference to the resulting stream.
      *
      * @param clauses
+     * @param resultType
      * @param env
      * @param block
      * @return
      */
-    BLangVariableReference buildStream(List<BLangNode> clauses, SymbolEnv env, BLangBlockStmt block) {
+    BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env, BLangBlockStmt block) {
         this.env = env;
         BLangNode initFromClause = clauses.get(0);
-        final BLangVariableReference initPipeline = addPipeline(block, (BLangFromClause) initFromClause);
+        final BLangVariableReference initPipeline = addPipeline(block, (BLangFromClause) initFromClause, resultType);
         BLangVariableReference initFrom = addFromFunction(block, (BLangFromClause) initFromClause);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
-                    BLangVariableReference pipeline = addPipeline(block, (BLangFromClause) clause);
+                    BLangVariableReference pipeline = addPipeline(block, (BLangFromClause) clause, resultType);
                     BLangVariableReference fromFunc = addFromFunction(block, (BLangFromClause) clause);
                     addStreamFunction(block, pipeline, fromFunc);
                     BLangVariableReference joinFunc = addJoinFunction(block, pipeline);
@@ -217,7 +223,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param fromClause to init pipeline.
      * @return variableReference to created _StreamPipeline.
      */
-    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
+    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangFromClause fromClause, BType resultType) {
         BLangExpression collection = fromClause.collection;
         DiagnosticPos pos = fromClause.pos;
         String name = getNewVarName();
@@ -228,8 +234,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(fromClause.pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
+        if (resultType.tag == TypeTags.ARRAY) {
+            resultType = ((BArrayType) resultType).eType;
+        } else if (resultType.tag == TypeTags.STREAM) {
+            resultType = ((BStreamType) resultType).constraint;
+        }
+        BType typedescType = new BTypedescType(resultType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = resultType;
+        typedescExpr.type = typedescType;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(valueVarRef), fromClause.pos);
+                Lists.of(valueVarRef, typedescExpr), fromClause.pos);
     }
 
     /**

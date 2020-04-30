@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function createPipeline((any|error)[]|map<any|error>|record{}|string|xml|stream collection)
-        returns _StreamPipeline {
-    return new _StreamPipeline(collection);
+public function createPipeline((any|error)[]|map<any|error>|record{}|string|xml|stream collection,
+        typedesc<Type> resType) returns _StreamPipeline {
+    return new _StreamPipeline(collection, resType);
 }
 
 public function createFromFunction(function(_Frame frame) returns _Frame|error? fromFunc)
@@ -56,6 +56,16 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<a
     return pipeline.getStream();
 }
 
+public function toArray(stream<Type, error?> strm) returns Type[] {
+    Type[] arr = [];
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        arr.push(v.value);
+        v = strm.next();
+    }
+    return arr;
+}
+
 public function consumeStream(stream<any|error, error?> strm) returns error? {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
@@ -64,16 +74,6 @@ public function consumeStream(stream<any|error, error?> strm) returns error? {
     if (v is error) {
         return v;
     }
-}
-
-public function toArray(stream<any|error, error?> strm) returns (any|error)[] {
-    (any|error)[] arr = [];
-    any|error? v = strm.next();
-    while (v is record {| (any|error) value; |}) {
-        arr.push(v.value);
-        v = strm.next();
-    }
-    return arr;
 }
 
 public function addToFrame(_Frame frame, string key, any|error value) {
