@@ -29,7 +29,7 @@ import ballerina/time;
 #     trustStoreConfig: {
 #         certificateAlias: "ballerina",
 #         trustStore: {
-#             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+#             path: "/path/to/truststore.p12",
 #             password: "ballerina"
 #         }
 #     }
@@ -44,7 +44,7 @@ public type InboundJwtAuthProvider object {
     public JwtValidatorConfig jwtValidatorConfig;
     cache:Cache inboundJwtCache;
 
-    # Provides authentication based on the provided JWT token.
+    # Provides authentication based on the provided JWT.
     #
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
@@ -87,9 +87,9 @@ public type InboundJwtAuthProvider object {
     }
 };
 
-function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
-    if (jwtCache.hasKey(jwtToken)) {
-        InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwtToken);
+function authenticateFromCache(cache:Cache jwtCache, string jwt) returns JwtPayload? {
+    if (jwtCache.hasKey(jwt)) {
+        InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwt);
         int? expTime = jwtCacheEntry.expTime;
         // convert to current time and check the expiry time
         if (expTime is () || expTime > (time:currentTime().time / 1000)) {
@@ -103,7 +103,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
             }
             return payload;
         } else {
-            cache:Error? result = jwtCache.invalidate(jwtToken);
+            cache:Error? result = jwtCache.invalidate(jwt);
             if (result is cache:Error) {
                 log:printDebug(function() returns string {
                     return "Failed to invalidate JWT from the cache.";
@@ -113,9 +113,9 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
     }
 }
 
-function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
+function addToAuthenticationCache(cache:Cache jwtCache, string jwt, int? exp, JwtPayload payload) {
     InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expTime : exp };
-    cache:Error? result = jwtCache.put(jwtToken, jwtCacheEntry);
+    cache:Error? result = jwtCache.put(jwt, jwtCacheEntry);
     if (result is cache:Error) {
         log:printDebug(function() returns string {
             return "Failed to add JWT to the cache";
