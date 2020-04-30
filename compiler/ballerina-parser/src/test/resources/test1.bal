@@ -1,2 +1,3 @@
-public function foo hello ()
+function foo() {
+    io:println();
 }
