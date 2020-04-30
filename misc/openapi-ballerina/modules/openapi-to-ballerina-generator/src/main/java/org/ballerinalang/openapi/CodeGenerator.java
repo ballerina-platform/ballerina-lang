@@ -292,10 +292,10 @@ public class CodeGenerator {
 
             return result;
         });
-        
+
         return handlebars.compile(templateName);
     }
-
+    
     private void writeGeneratedSources(List<GenSrcFile> sources, Path srcPath, Path implPath, GenType type)
             throws IOException {
         // Remove old generated files - if any - before regenerate
