@@ -25,6 +25,8 @@ public class Patten {
     public static final Part LATEST_VERSION_DIR = new Part();
     public static final Part WILDCARD_SOURCE = new Part();
     public static final Part WILDCARD_SOURCE_WITH_TEST = new Part();
+    public static final Part WILDCARD_ROOT_SOURCE = new Part();
+    public static final Part WILDCARD_ROOT_SOURCE_WITH_TEST = new Part();
     public static final Patten NULL = new Patten() {
         @Override
         public <T> Stream<T> convert(Converter<T> converter, PackageID packageID) {
@@ -43,7 +45,8 @@ public class Patten {
     public Patten sibling(Part siblingPart) {
         Part last = parts[parts.length - 1];
         Part[] newParts;
-        if (last == LATEST_VERSION_DIR || last == WILDCARD_SOURCE || last == WILDCARD_SOURCE_WITH_TEST) {
+        if (last == LATEST_VERSION_DIR || last == WILDCARD_SOURCE || last == WILDCARD_SOURCE_WITH_TEST
+                || last == WILDCARD_ROOT_SOURCE || last == WILDCARD_ROOT_SOURCE_WITH_TEST) {
             newParts = Arrays.copyOf(parts, parts.length);
             newParts[newParts.length - 1] = siblingPart;
         } else {
@@ -69,6 +72,11 @@ public class Patten {
             } else if (part == WILDCARD_SOURCE_WITH_TEST) {
                 //TODO: add test patten converter
                 aggregate = aggregate.flatMap(converter::expandBalWithTest);
+            } else if (part == WILDCARD_ROOT_SOURCE) {
+                aggregate = aggregate.flatMap(converter::expandRootBal);
+            } else if (part == WILDCARD_ROOT_SOURCE_WITH_TEST) {
+                //TODO: add test patten converter
+                aggregate = aggregate.flatMap(converter::expandRootBalWithTest);
             } else {
                 aggregate = aggregate.map(t -> callReduceForEach(t, part.values, converter));
             }

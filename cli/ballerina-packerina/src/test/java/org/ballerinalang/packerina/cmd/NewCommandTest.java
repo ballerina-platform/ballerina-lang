@@ -34,14 +34,26 @@ import java.nio.file.Path;
  */
 public class NewCommandTest extends CommandTest {
 
-    @Test(description = "Initialize a new empty project")
-    public void testNewCommand() throws IOException {
+    String projectName = "projectName";
+
+    @Test(description = "Test invalid name for a project")
+    public void testNewCommandInvalidName() throws IOException {
         String[] args = {"project-name"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("Invalid project name"));
+    }
+
+    @Test(description = "Initialize a new empty project")
+    public void testNewCommand() throws IOException {
+        String[] args = {projectName};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
         // Check with spec
-        // project-name/
+        // projectName/
         // - Ballerina.toml
         // - src/
         // - tests/
@@ -49,7 +61,7 @@ public class NewCommandTest extends CommandTest {
         // -- resources/      <- integration test resources
         // - .gitignore       <- git ignore file
 
-        Path projectPath = tmpDir.resolve("project-name");
+        Path projectPath = tmpDir.resolve(projectName);
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("src")));
@@ -94,7 +106,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina project at <project-path>"));
+        Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina project"));
     }
 
     @Test(description = "Test new command with help flag")
@@ -105,7 +117,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina project at <project-path>"));
+        Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina project"));
     }
 
     @Test(description = "Test if directory already exists")

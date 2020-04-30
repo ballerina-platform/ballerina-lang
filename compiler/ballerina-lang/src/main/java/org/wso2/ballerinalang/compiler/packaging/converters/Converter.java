@@ -24,6 +24,10 @@ public interface Converter<T> {
 
     Stream<T> expandBal(T t);
 
+    Stream<T> expandRootBalWithTest(T t);
+
+    Stream<T> expandRootBal(T t);
+
     T start();
 
     Stream<CompilerInput> finalize(T t, PackageID id);

@@ -51,6 +51,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -196,21 +197,28 @@ public class BuildCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-    
-        // If -a or --all is not given, then it is mandatory to give a module name or a Ballerina file as the arg.
-        if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
-            CommandUtil.printError(this.errStream,
-                    "'build' command requires a module name or a Ballerina file to build/compile. Use '-a' or " +
-                    "'--all' to build/compile all the modules of the project.",
-                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        
+
         // Validate and decide the source root and the full path of the source.
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
+    
+        // If -a or --all is not given, then it is mandatory to give a module name or a Ballerina file as the arg.
+        if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
+            if (RepoUtils.hasValidRootPackage(this.sourceRootPath)) {
+                this.argList = new ArrayList<String>();
+                this.argList.add(ProjectDirConstants.ROOT_PKG_ID);
+            } else {
+                CommandUtil.printError(this.errStream,
+                        "'build' command requires a module name or a Ballerina file to build/compile. Use '-a' or " +
+                                "'--all' to build/compile all the modules of the project.",
+                        "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+        
+
         Path sourcePath = null;
         Path targetPath;
         
@@ -240,7 +248,6 @@ public class BuildCommand implements BLauncherCmd {
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
-                
                 this.sourceRootPath = findRoot;
             }
         
@@ -294,11 +301,7 @@ public class BuildCommand implements BLauncherCmd {
                     throw LauncherUtils.createLauncherException("Error occurred when creating the executable.");
                 }
             }
-        } else if (Files.exists(
-                this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
-                Files.isDirectory(
-                        this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                                .resolve(this.argList.get(0)))) {
+        } else if (isValidModule(this.argList.get(0))) {
 
             // when building a ballerina module
             //// the output flag cannot be set for projects
@@ -343,7 +346,7 @@ public class BuildCommand implements BLauncherCmd {
             sourcePath = Paths.get(moduleName);
             
             //// check if module exists.
-            if (Files.notExists(this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(sourcePath))) {
+            if (!isValidModule(moduleName)) {
                 CommandUtil.printError(this.errStream,
                         "'" + sourcePath + "' module does not exist.",
                         "ballerina build [-c] <module-name>",
@@ -448,5 +451,15 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private boolean isValidModule(String module) {
+        // we treat the root package specially
+        if (RepoUtils.hasValidRootPackage(this.sourceRootPath) && module.equals(ProjectDirConstants.ROOT_PKG_ID)) {
+            return true;
+        }
+        // check if module exists in source directory
+        return Files.exists(this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(module)) &&
+               Files.isDirectory(this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(module));
     }
 }

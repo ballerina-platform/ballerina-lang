@@ -42,14 +42,16 @@ public class AddCommandTest extends CommandTest {
     private Path srcPath;
     private Path homeCache;
 
+    String projectName = "projectName";
+
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        String[] args = {"project-name"};
+        String[] args = {projectName};
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
-        projectPath = tmpDir.resolve("project-name");
+        projectPath = tmpDir.resolve(projectName);
         srcPath = projectPath.resolve("src");
 
 

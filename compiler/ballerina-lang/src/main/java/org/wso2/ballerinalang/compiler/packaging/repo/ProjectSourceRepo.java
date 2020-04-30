@@ -50,6 +50,13 @@ public class ProjectSourceRepo extends NonSysRepo<Path> {
         if (null != this.manifest && !moduleID.orgName.value.equals(this.manifest.getProject().getOrgName())) {
             return Patten.NULL;
         }
+
+        if (moduleID.getName().value.equals(ProjectDirConstants.ROOT_PKG_ID)) {
+            if (testEnabled) {
+                return new Patten(Patten.WILDCARD_ROOT_SOURCE_WITH_TEST);
+            }
+            return new Patten(Patten.WILDCARD_ROOT_SOURCE);
+        }
         
         if (testEnabled) {
             return new Patten(Patten.path(ProjectDirConstants.SOURCE_DIR_NAME), Patten.path(moduleID.getName().value),

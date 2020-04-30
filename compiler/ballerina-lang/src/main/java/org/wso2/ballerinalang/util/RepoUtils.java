@@ -26,15 +26,18 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Home repository util methods.
@@ -274,5 +277,49 @@ public class RepoUtils {
         throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in balo file: " +
                                          baloPath + "");
     }
-    
+
+    /**
+     * Check if the project has a root package.
+     *
+     * @param projectDirPath Project Dir path.
+     * @return true if valid root project.
+     */
+    public static boolean hasValidRootPackage(Path projectDirPath) {
+        // Check if the source root is a valid module
+        // has one or more bal files
+        PathMatcher matcher =
+                FileSystems.getDefault().getPathMatcher("glob:**/*.bal");
+
+        // root path should be a valid module name
+        // this is done to make it back-word compatible
+        if (!RepoUtils.validatePkg(projectDirPath.getFileName().toString())) {
+            return false;
+        }
+
+        // check if a module exist from project name
+        // this is also a to preserve back-word compatibility
+        // TODO
+
+        // Now check if it has bal files
+        if (Files.isDirectory(projectDirPath)) {
+            Stream<Path> list = null;
+            try {
+                list = Files.list(projectDirPath);
+            } catch (IOException e) {
+                // If an exception we will return false.
+                return false;
+            }
+            long count = list.filter(p -> {
+                if (matcher.matches(p)) {
+                    return true;
+                }
+                return false;
+            }).count();
+
+            if (count > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

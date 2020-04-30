@@ -21,6 +21,7 @@ package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -83,6 +84,19 @@ public class NewCommand implements BLauncherCmd {
                     "too many arguments.",
                     "ballerina new <project-name>",
                     true);
+            return;
+        }
+
+        // Check if the provided arg a valid module name
+        String moduleName = argList.get(0);
+        boolean matches = RepoUtils.validatePkg(moduleName);
+        if (!matches) {
+            CommandUtil.printError(errStream,
+                    "Invalid project name : '" + moduleName + "' :\n" +
+                            "Project name can only contain alphanumerics, underscores and periods " +
+                            "and the maximum length is 256 characters",
+                    null,
+                    false);
             return;
         }
 

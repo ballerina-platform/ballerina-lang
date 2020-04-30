@@ -96,6 +96,12 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                         .map(Path::toString)
                         .collect(Collectors.toList());
             }
+
+            // check if the program root is valid package
+            if (RepoUtils.hasValidRootPackage(this.projectDirPath)) {
+                this.packageNames.add(ProjectDirConstants.ROOT_PKG_ID);
+            }
+
         } catch (SecurityException | AccessDeniedException e) {
             throw new BLangCompilerException("permission denied: " + projectDirPath.toString());
         } catch (IOException e) {

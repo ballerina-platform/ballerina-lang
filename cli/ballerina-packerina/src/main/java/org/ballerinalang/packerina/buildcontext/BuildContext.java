@@ -227,20 +227,21 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             this.put(BuildContextField.SOURCE_CONTEXT, new MultiModuleContext());
             this.srcType = SourceType.ALL_MODULES;
         } else {
+            Path moduleNamePath = source.getFileName();
             Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
             Path absoluteSourcePath = RepoUtils.isBallerinaProject(sourceRootPath) ?
-                                      sourceRootPath.toAbsolutePath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                                              .resolve(source) :
-                                      sourceRootPath.toAbsolutePath().resolve(source);
-            
+                    sourceRootPath.toAbsolutePath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                            .resolve(source) :
+                    sourceRootPath.toAbsolutePath().resolve(source);
+
             if (Files.isRegularFile(absoluteSourcePath) &&
-                source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-                
+                    source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+
                 this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
                 this.srcType = SourceType.SINGLE_BAL_FILE;
-            } else if (Files.isDirectory(absoluteSourcePath) &&
-                       !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-                
+            } else if ((Files.isDirectory(absoluteSourcePath) &&
+                    !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX))) {
+
                 // this 'if' is to avoid spotbugs
                 Path moduleNameAsPath = source.getFileName();
                 if (null != moduleNameAsPath) {
@@ -248,6 +249,10 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                     this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(moduleName));
                     this.srcType = SourceType.SINGLE_MODULE;
                 }
+            } else if (moduleNamePath != null && moduleNamePath.toString().equals(ProjectDirConstants.ROOT_PKG_ID)) {
+                // this 'if' is to avoid spotbugs
+                this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(ProjectDirConstants.ROOT_PKG_ID));
+                this.srcType = SourceType.SINGLE_MODULE;
             } else {
                 throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
             }

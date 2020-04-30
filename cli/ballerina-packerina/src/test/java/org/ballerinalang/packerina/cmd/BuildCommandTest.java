@@ -459,6 +459,27 @@ public class BuildCommandTest extends CommandTest {
         readOutput(true);
     }
 
+    @Test(description = "Test Build Command in a Project with a root package")
+    public void testBuildCommandRootPackageTest() throws IOException {
+        String projectName = "validRootProject";
+        // Build the project
+        String[] compileArgs = {"--all", "--skip-tests"};
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve(projectName), printStream,
+                printStream, false, true);
+        new CommandLine(buildCommand).parse(compileArgs);
+        buildCommand.execute();
+
+        Path target = this.testResources.resolve(projectName).resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+
+        String jarName = ProjectDirConstants.ROOT_PKG_ID + ".jar";
+        Path jarPath = target.resolve("bin").resolve(jarName);
+        Assert.assertTrue(Files.exists(jarPath),
+                "Check if root executable jar got created.");
+
+        readOutput();
+    }
+
     @Test(description = "Build a valid ballerina file with relative path")
     public void testBuildWithRelativePath() throws IOException {
         String buildPath = "relative" + File.separator + "testDir" + File.separator + ".." + File.separator + "testBal"

@@ -1,8 +1,8 @@
 NAME
-       ballerina-new - Create a new Ballerina project at <project-path>
+       ballerina-new - Create a new Ballerina project
 
 SYNOPSIS
-       ballerina new <project-path>
+       ballerina new <project-name>
 
 
 DESCRIPTION

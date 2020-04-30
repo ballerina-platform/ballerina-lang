@@ -31,6 +31,16 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
+    public Stream<String> expandRootBalWithTest(String t) {
+        return Stream.of(t + "/*~test~resources.bal");
+    }
+
+    @Override
+    public Stream<String> expandRootBal(String s) {
+        return Stream.of(s + "/*.bal");
+    }
+
+    @Override
     public String start() {
         return "$";
     }

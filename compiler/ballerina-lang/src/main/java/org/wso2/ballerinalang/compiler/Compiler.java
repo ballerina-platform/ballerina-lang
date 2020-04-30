@@ -23,6 +23,7 @@ import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Lists;
@@ -80,7 +81,8 @@ public class Compiler {
     }
 
     public BLangPackage compile(String sourcePackage, boolean isBuild) {
-        if (!isBuild && !this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
+        if (!isBuild && !this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)
+                && !sourcePackage.equals(ProjectDirConstants.ROOT_PKG_ID)) {
             throw new BLangCompilerException("no ballerina source files found in module '" + sourcePackage + "'");
         }
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
@@ -92,7 +94,8 @@ public class Compiler {
     }
 
     public BLangPackage build(String sourcePackage) {
-        if (!this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
+        if (!this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)
+                && !sourcePackage.equals(ProjectDirConstants.ROOT_PKG_ID)) {
             throw new BLangCompilerException("no ballerina source files found in module '" + sourcePackage + "'");
         }
         this.outStream.println("Compiling source");

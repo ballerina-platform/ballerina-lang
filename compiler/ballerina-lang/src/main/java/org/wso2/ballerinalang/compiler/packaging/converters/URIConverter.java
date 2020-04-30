@@ -168,4 +168,14 @@ public class URIConverter implements Converter<URI> {
         return base.toString();
     }
 
+
+    @Override
+    public Stream<URI> expandRootBalWithTest(URI t) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Stream<URI> expandRootBal(URI s) {
+        throw new UnsupportedOperationException();
+    }
 }
