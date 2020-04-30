@@ -270,11 +270,10 @@ public class ErrorTest {
                 "error reason is mandatory for direct error constructor", 112, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++,
+        BAssertUtil.validateError(negativeCompileResult, i,
                 "incompatible types: expected 'error<string, " +
                         "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
     }
-
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
         return new Object[][] {

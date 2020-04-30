@@ -113,8 +113,8 @@ type LError error<L_ERROR, Detail>;
 type CLError CError|LError;
 
 function nonAssingableErrorTypeArrayAssign() {
-    CLError? [] err = [];
-    error? [] errs = err;
+    CLError?[] err = [];
+    error?[] errs = err;
     ProcessErrors(errs);
     err = errs;
 }

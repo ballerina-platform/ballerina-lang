@@ -87,27 +87,29 @@ public function restActionResultAssignment() returns [int, int, string, string, 
     return [a, b, d, r, r2, <int>failedAttempts];
 }
 
-function testAssignErrorArrayToAnyArray() {
-    string errorMessage = "Test Error";
-    error testError = error("Test Error");
+function testAssignErrorArrayToAny() {
+    string errorReason = "TestError";
+    error testError = error(errorReason);
     error[] errorArray = [testError];
-    any anyArray = errorArray;
-    error[] errorArrayBack = <error[]>anyArray;
-    assertEquality(errorMessage, errorArrayBack[0].reason());
+    any anyVal = errorArray;
+    error[] errorArrayBack = <error[]>anyVal;
+    assertEquality(errorReason, errorArrayBack[0].reason());
 }
 
 function testAssignIntArrayToJson() {
     int[*] intArray = [1, 2];
-    json jsonObjectOfIntArray = intArray;
-    json jsonToJson = jsonObjectOfIntArray;
-    assertEquality("1 2", jsonToJson.toString());
+    json jsonVar = intArray;
+    assertTrue(jsonVar is int[2]);
+    int[2] arr = <int[2]> jsonVar;
+    assertEquality(1, arr[0]);
+    assertEquality(2, arr[1]);
 }
 
 function testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
-    int[]|string[] intOrStringArray = <int[]>[1, 2];
-    (int|float)[]|string[] intOrFloatArray = intOrStringArray;
-    assertEquality(1, intOrFloatArray[0]);
-    assertEquality(2, intOrFloatArray[1]);
+    int[]|string[] arr1 = <int[]>[1, 2];
+    (int|float)[]|string[] arr2 = arr1;
+    assertEquality(1, arr2[0]);
+    assertEquality(2, arr2[1]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -123,4 +125,8 @@ function assertEquality(any|error expected, any|error actual) {
     }
 
     panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
 }
