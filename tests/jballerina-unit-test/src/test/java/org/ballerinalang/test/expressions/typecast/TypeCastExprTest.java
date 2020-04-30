@@ -490,8 +490,8 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a null stored as any to xml",
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to " +
-                  "'xml\\<\\(lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                  "lang\\.xml:Text\\)\\>'.*")
+                  "'xml\\<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                  "lang\\.xml:Text\\>'.*")
     public void testAnyNullToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToXml");
         Assert.assertNull(returns[0]);

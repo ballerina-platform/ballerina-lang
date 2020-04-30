@@ -111,7 +111,7 @@ public class BUnionType extends BType {
     @Override
     public String toString() {
         if (cachedToString == null) {
-            StringBuilder sb = new StringBuilder("(");
+            StringBuilder sb = new StringBuilder();
             int size = memberTypes.size();
             int i = 0;
             while (i < size) {
@@ -120,7 +120,7 @@ public class BUnionType extends BType {
                     sb.append(PIPE);
                 }
             }
-            cachedToString = sb.append(")").toString();
+            cachedToString = sb.toString();
 
         }
         return cachedToString;

@@ -188,7 +188,7 @@ public class ArgumentParserNegativeTest {
             BCompileUtil.runMain(compileResult, new String[]{argument});
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument + "' specified"
-                                                               + " for union type: (int[]|float[]|boolean[]|json[])"),
+                                                               + " for union type: int[]|float[]|boolean[]|json[]"),
                               "invalid error message, error message for invalid value for array union not found");
             return;
         }
