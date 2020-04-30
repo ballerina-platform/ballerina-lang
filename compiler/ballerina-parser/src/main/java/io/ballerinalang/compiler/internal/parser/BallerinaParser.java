@@ -334,8 +334,6 @@ public class BallerinaParser {
                 return parseHexFloatingPointLiteral();
             case TRAP_KEYWORD:
                 return parseTrapKeyword();
-            case UNION_TYPE_DESCRIPTOR:
-                return parseUnionTypeDescriptor((STNode) args[0]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -2850,21 +2848,6 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
-                STToken nextToken = peek(2);
-                // if the next token is question-mark then it is an optional type descriptor with user defined type
-                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-                    finalKeyword = STNodeFactory.createEmptyNode();
-                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-                }
-                //If the nex token is pipe token then it can be unary type or compound assignment statement.
-                if (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
-                    STToken nextNextToken = peek(3);
-                    // if the nextNextToken is not an equal token then it is a unary type with user defined type
-                    if (nextNextToken.kind != SyntaxKind.EQUAL_TOKEN) {
-                        finalKeyword = STNodeFactory.createEmptyNode();
-                        return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-                    }
-                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             case LOCK_KEYWORD:
                 return parseLockStatement();
@@ -5576,9 +5559,23 @@ public class BallerinaParser {
      */
     private STNode parseStatementStartsWithIdentifier(STNode annots) {
         startContext(ParserRuleContext.STMT_START_WITH_IDENTIFIER);
-        STNode identifier = parseStatementStartIdentifier();
-        STToken nextToken = peek();
-        STNode stmt = parseStatementStartsWithIdentifier(nextToken.kind, annots, identifier);
+
+        STNode finalKeyword = STNodeFactory.createEmptyNode();
+        STNode stmt;
+        STToken nextToken = peek(2);
+        STToken nextNextToken = peek(3);
+        // if the next token is question-mark then it is an optional type descriptor with user defined type
+        if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+            stmt = parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+        } else if (nextToken.kind == SyntaxKind.PIPE_TOKEN && nextNextToken.kind != SyntaxKind.EQUAL_TOKEN) {
+            //If the nex token is pipe token then it can be unary type or compound assignment statement.
+            // if the nextNextToken is not an equal token then it is a unary type with user defined type.
+            stmt = parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+        } else {
+            STNode identifier = parseStatementStartIdentifier();
+            nextToken = peek();
+            stmt = parseStatementStartsWithIdentifier(nextToken.kind, annots, identifier);
+        }
         endContext();
         return stmt;
     }
@@ -6676,11 +6673,9 @@ public class BallerinaParser {
      * @return parsed union type desc node
      */
     private STNode parseUnionTypeDescriptor(STNode leftTypeDesc) {
-        startContext(ParserRuleContext.UNION_TYPE_DESCRIPTOR);
         STNode pipeToken = parsePipeToken();
         STNode rightTypeDesc = parseTypeDescriptor();
 
-        endContext();
         return STNodeFactory.createUnionTypeDescriptorNode(leftTypeDesc, pipeToken, rightTypeDesc);
     }
 
