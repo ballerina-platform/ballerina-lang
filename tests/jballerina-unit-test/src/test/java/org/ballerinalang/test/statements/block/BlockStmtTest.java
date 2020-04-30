@@ -64,10 +64,26 @@ public class BlockStmtTest {
         Assert.assertEquals(returns[0].stringValue(), "K25");
     }
 
+    @Test
+    public void testScopeOfBlock() {
+        BRunUtil.invoke(result, "testScopeOfBlock");
+    }
+
+    @Test
+    public void testStmtInBlock() {
+        BRunUtil.invoke(result, "testStmtInBlock");
+    }
+
+    @Test
+    public void testReturnStmtLocationInBlock() {
+        BRunUtil.invoke(result, "testReturnStmtLocationInBlock");
+    }
+
     @Test(description = "Test block statement with errors")
     public void testBlockStmtSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultSemanticsNegative, 0, "redeclared symbol 'value'", 8, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, 1, "redeclared symbol 'value'", 19, 13);
     }
 
     @Test(description = "Test block statement with errors")
