@@ -889,6 +889,10 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+onConflictClause
+    :    ON CONFLICT expression
+    ;
+
 selectClause
     :   SELECT expression
     ;
@@ -914,7 +918,7 @@ queryPipeline
     ;
 
 queryExpr
-    :   TYPE_STREAM? queryPipeline selectClause
+    :   TYPE_STREAM? queryPipeline selectClause onConflictClause?
     ;
 
 queryAction
