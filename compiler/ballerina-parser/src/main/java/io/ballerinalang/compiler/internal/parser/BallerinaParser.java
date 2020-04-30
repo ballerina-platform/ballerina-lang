@@ -17,8 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
-import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
+import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
@@ -40,18 +40,15 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class BallerinaParser {
+public class BallerinaParser extends AbstractParser {
 
     private static final OperatorPrecedence DEFAULT_OP_PRECEDENCE = OperatorPrecedence.ACTION;
-    private final BallerinaParserErrorHandler errorHandler;
-    private final AbstractTokenReader tokenReader;
 
     // TODO: Remove this.
     private ParserRuleContext currentParamKind = ParserRuleContext.REQUIRED_PARAM;
 
     protected BallerinaParser(AbstractTokenReader tokenReader) {
-        this.tokenReader = tokenReader;
-        this.errorHandler = new BallerinaParserErrorHandler(tokenReader, this);
+        super(tokenReader, new BallerinaParserErrorHandler(tokenReader));
     }
 
     /**
@@ -59,6 +56,7 @@ public class BallerinaParser {
      *
      * @return Parsed node
      */
+    @Override
     public STNode parse() {
         return parseCompUnit();
     }
@@ -105,6 +103,7 @@ public class BallerinaParser {
      * @param args Arguments that requires to continue parsing from the given parser context
      * @return Parsed node
      */
+    @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
         switch (context) {
             case COMP_UNIT:
@@ -324,47 +323,13 @@ public class BallerinaParser {
             case WORKER_NAME:
                 return parseWorkerName();
             default:
-                throw new IllegalStateException("Cannot re-parse rule: " + context);
+                throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
     }
 
     /*
-     * Protected methods
+     * Private methods
      */
-
-    private STToken peek() {
-        return this.tokenReader.peek();
-    }
-
-    private STToken peek(int k) {
-        return this.tokenReader.peek(k);
-    }
-
-    private STToken consume() {
-        return this.tokenReader.read();
-    }
-
-    private Solution recover(STToken token, ParserRuleContext currentCtx, Object... parsedNodes) {
-        return this.errorHandler.recover(currentCtx, token, parsedNodes);
-    }
-
-    private void startContext(ParserRuleContext context) {
-        this.errorHandler.startContext(context);
-    }
-
-    private void endContext() {
-        this.errorHandler.endContext();
-    }
-
-    /**
-     * Switch the current context to the provided one. This will replace the
-     * existing context.
-     *
-     * @param context Context to switch to.
-     */
-    private void switchContext(ParserRuleContext context) {
-        this.errorHandler.switchContext(context);
-    }
 
     /*
      * Private methods.
@@ -2860,10 +2825,6 @@ public class BallerinaParser {
 
                 return parseStatement(solution.tokenKind, annots);
         }
-    }
-
-    private STToken getNextNextToken(SyntaxKind tokenKind) {
-        return peek(1).kind == tokenKind ? peek(2) : peek(1);
     }
 
     /**
@@ -6739,8 +6700,8 @@ public class BallerinaParser {
         }
 
         TextDocument textDocument = TextDocuments.from(xmlStringBuilder.toString());
-        AbstractTokenReader tokenReader = new TokenReader(new BallerinaXMLLexer(textDocument.getCharacterReader()));
-        BallerinaXMLParser xmlParser = new BallerinaXMLParser(tokenReader, expressions);
+        AbstractTokenReader tokenReader = new TokenReader(new XMLLexer(textDocument.getCharacterReader()));
+        XMLParser xmlParser = new XMLParser(tokenReader, expressions);
         return xmlParser.parse();
     }
 

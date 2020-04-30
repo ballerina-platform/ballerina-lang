@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser;
  * This class defines the basic set of utility methods to validate XML.
  * XML are validated against the W3C XML recommendation defined at "https://www.w3.org/TR/xml/".
  * 
- * @since 0.995.0
+ * @since 2.0.0
  */
 public class XMLValidator {
 

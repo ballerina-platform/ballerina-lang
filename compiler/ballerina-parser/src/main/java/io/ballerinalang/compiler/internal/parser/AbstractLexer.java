@@ -17,12 +17,30 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
+import java.util.ArrayDeque;
+import java.util.List;
+
 /**
+ * An abstract lexer to be extended by all ballerina lexer implementations.
+ * 
  * @since 2.0.0
  */
 public abstract class AbstractLexer {
+
+    protected List<STNode> leadingTriviaList;
+    protected CharReader reader;
+    protected ParserMode mode;
+    protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
+    protected final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
+
+    public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
+        this.reader = charReader;
+        startMode(initialParserMode);
+    }
+
     /**
      * Get the next lexical token.
      * 
@@ -36,17 +54,26 @@ public abstract class AbstractLexer {
      * 
      * @param offset Offset
      */
-    public abstract void reset(int offset);
+    public void reset(int offset) {
+        reader.reset(offset);
+    }
 
     /**
      * Start the given operation mode of the lexer.
      * 
      * @param mode Mode to switch on to
      */
-    public abstract void startMode(ParserMode mode);
+    public void startMode(ParserMode mode) {
+        this.mode = mode;
+        this.modeStack.push(mode);
+    }
 
     /**
      * End the current mode the mode of the lexer and fall back the previous mode.
      */
-    public abstract void endMode();
+    public void endMode() {
+        this.modeStack.pop();
+        this.mode = this.modeStack.peek();
+    }
+
 }

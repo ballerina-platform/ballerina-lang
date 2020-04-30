@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -32,41 +32,26 @@ import java.util.Queue;
  * 
  * @since 2.0.0
  */
-public class BallerinaXMLParser {
+public class XMLParser extends AbstractParser {
 
-    private final BallerinaParserErrorHandler errorHandler;
-    private final AbstractTokenReader tokenReader;
     private final Queue<STNode> intepolationExprs;
 
-    protected BallerinaXMLParser(AbstractTokenReader tokenReader, Queue<STNode> intepolationExprs) {
-        this.tokenReader = tokenReader;
-        // TODO: introduce a separate error handler
-        this.errorHandler = new BallerinaParserErrorHandler(tokenReader, null);
+    protected XMLParser(AbstractTokenReader tokenReader, Queue<STNode> intepolationExprs) {
+        super(tokenReader, new XMLParserErrorHandler(tokenReader));
         this.intepolationExprs = intepolationExprs;
     }
 
+    @Override
     public STNode parse() {
         return parseXMLContent();
     }
 
-    protected STToken peek() {
-        return this.tokenReader.peek();
-    }
-
-    protected STToken peek(int k) {
-        return this.tokenReader.peek(k);
-    }
-
-    protected STToken consume() {
-        return this.tokenReader.read();
-    }
-
-    protected STToken getNextNextToken(SyntaxKind tokenKind) {
-        return peek(1).kind == tokenKind ? peek(2) : peek(1);
-    }
-
-    protected Solution recover(STToken token, ParserRuleContext currentCtx, Object... parsedNodes) {
-        return this.errorHandler.recover(currentCtx, token, parsedNodes);
+    @Override
+    public STNode resumeParsing(ParserRuleContext context, Object... args) {
+        switch(context) {
+            default:
+                throw new IllegalStateException("cannot resume parsing the rule: " + context);
+        }
     }
 
     /**

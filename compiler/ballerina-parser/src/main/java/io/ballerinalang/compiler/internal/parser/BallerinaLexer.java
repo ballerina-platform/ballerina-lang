@@ -22,7 +22,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +32,8 @@ import java.util.List;
  */
 public class BallerinaLexer extends AbstractLexer {
 
-    private CharReader reader;
-    private List<STNode> leadingTriviaList;
-    private ParserMode mode;
-    private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
-    private final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
-
     public BallerinaLexer(CharReader charReader) {
-        this.reader = charReader;
-        startMode(ParserMode.DEFAULT);
+        super(charReader, ParserMode.DEFAULT);
     }
 
     /**
@@ -66,28 +58,6 @@ public class BallerinaLexer extends AbstractLexer {
                 processLeadingTrivia();
                 return readToken();
         }
-    }
-
-    public void reset(int offset) {
-        reader.reset(offset);
-    }
-
-    /**
-     * Start the given operation mode of the lexer.
-     * 
-     * @param mode Mode to switch on to
-     */
-    public void startMode(ParserMode mode) {
-        this.mode = mode;
-        this.modeStack.push(mode);
-    }
-
-    /**
-     * End the current mode the mode of the lexer and fall back the previous mode.
-     */
-    public void endMode() {
-        this.modeStack.pop();
-        this.mode = this.modeStack.peek();
     }
 
     /*

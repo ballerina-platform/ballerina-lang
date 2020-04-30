@@ -22,26 +22,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A LL(k) lexer for XML in ballerina.
  * 
- * @since 1.2.0
+ * @since 2.0.0
  */
-public class BallerinaXMLLexer extends AbstractLexer {
+public class XMLLexer extends AbstractLexer {
 
-    private CharReader reader;
-    private List<STNode> leadingTriviaList;
-    private ParserMode mode;
-    private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
-    private final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
-
-    public BallerinaXMLLexer(CharReader charReader) {
-        this.reader = charReader;
-        startMode(ParserMode.XML_CONTENT);
+    public XMLLexer(CharReader charReader) {
+        super(charReader, ParserMode.XML_CONTENT);
     }
 
     /**
@@ -49,6 +41,7 @@ public class BallerinaXMLLexer extends AbstractLexer {
      * 
      * @return Next lexical token.
      */
+    @Override
     public STToken nextToken() {
         switch (this.mode) {
             case XML_CONTENT:
@@ -73,28 +66,6 @@ public class BallerinaXMLLexer extends AbstractLexer {
                 // should never reach here.
                 return null;
         }
-    }
-
-    public void reset(int offset) {
-        reader.reset(offset);
-    }
-
-    /**
-     * Start the given operation mode of the lexer.
-     * 
-     * @param mode Mode to switch on to
-     */
-    public void startMode(ParserMode mode) {
-        this.mode = mode;
-        this.modeStack.push(mode);
-    }
-
-    /**
-     * End the current mode the mode of the lexer and fall back the previous mode.
-     */
-    public void endMode() {
-        this.modeStack.pop();
-        this.mode = this.modeStack.peek();
     }
 
     /*
