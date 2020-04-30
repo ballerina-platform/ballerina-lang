@@ -193,7 +193,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
-<!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
+            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
         </classes>
     </test>
 
@@ -355,13 +355,6 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
-        </classes>
-    </test>
-
-    <test name="ballerina-launch-listener-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true" />
-        <classes>
-            <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
         </classes>
     </test>
 <!--    <test name="ballerina-kafka-tests" parallel="false">-->
