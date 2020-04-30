@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -130,6 +131,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -1053,8 +1056,14 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.MAP) {
             loadMapType(mv, (BMapType) bType);
             return;
+        } else if (bType.tag == TypeTags.TABLE) {
+            loadTableType(mv, (BTableType) bType);
+            return;
         } else if (bType.tag == TypeTags.STREAM) {
             loadStreamType(mv, (BStreamType) bType);
+            return;
+        } else if (bType.tag == TypeTags.TABLE) {
+            loadTableType(mv, (BTableType) bType);
             return;
         } else if (bType.tag == TypeTags.ERROR) {
             loadErrorType(mv, (BErrorType) bType);
@@ -1204,6 +1213,42 @@ class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, XML_TYPE), false);
+    }
+
+    /**
+     * Generate code to load an instance of the given table type
+     * to the top of the stack.
+     *
+     * @param mv    method visitor
+     * @param bType table type to load
+     */
+    private static void loadTableType(MethodVisitor mv, BTableType bType) {
+        // Create an new table type
+        mv.visitTypeInsn(NEW, TABLE_TYPE);
+        mv.visitInsn(DUP);
+
+        loadType(mv, bType.constraint);
+        if (bType.fieldNameList != null) {
+            // Create the field names array
+            List<String> fieldNames = bType.fieldNameList;
+            mv.visitLdcInsn((long) fieldNames.size());
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+            int i = 0;
+            for (String fieldName : fieldNames) {
+
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn((long) i);
+                mv.visitInsn(L2I);
+                mv.visitLdcInsn(fieldName);
+                mv.visitInsn(AASTORE);
+                i += 1;
+            }
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V",
+                    BTYPE, STRING_VALUE), false);
+        } else {
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        }
     }
 
     private static void loadStreamType(MethodVisitor mv, BStreamType bType) {
@@ -1439,6 +1484,8 @@ class JvmTypeGen {
             return String.format("L%s;", TYPEDESC_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            return String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {

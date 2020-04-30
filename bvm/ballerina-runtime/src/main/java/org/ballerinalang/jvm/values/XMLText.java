@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -134,6 +135,11 @@ public class XMLText extends XMLNonElementItem {
 
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data);
     }
 
     @Override

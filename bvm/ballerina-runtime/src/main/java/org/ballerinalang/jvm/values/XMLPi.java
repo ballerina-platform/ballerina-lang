@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * XML nodes containing processing instructions.
@@ -103,6 +104,11 @@ public class XMLPi extends XMLNonElementItem {
             return data.equals(that.data) && target.equals(that.target);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data, target);
     }
 
     @Override

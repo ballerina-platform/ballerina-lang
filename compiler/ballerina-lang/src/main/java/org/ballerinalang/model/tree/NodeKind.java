@@ -44,8 +44,6 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     TYPE_DEFINITION,
-    TABLE,
-    TABLE_COLUMN,
     VARIABLE,
     LET_VARIABLE,
     TUPLE_VARIABLE,
@@ -55,6 +53,9 @@ public enum NodeKind {
     XMLNS,
     CHANNEL,
     WAIT_LITERAL_KEY_VALUE,
+    TABLE_KEY_SPECIFIER,
+    TABLE_KEY_TYPE_CONSTRAINT,
+    TABLE_MULTI_KEY,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -120,6 +121,7 @@ public enum NodeKind {
     DOCUMENTATION_DEPRECATED_PARAMETERS,
     SERVICE_CONSTRUCTOR,
     LET_EXPR,
+    TABLE_CONSTRUCTOR_EXPR,
 
     /* Statements */
     ABORT,
@@ -185,5 +187,6 @@ public enum NodeKind {
     OBJECT_TYPE,
     ERROR_TYPE,
     STREAM_TYPE,
+    TABLE_TYPE
 
 }

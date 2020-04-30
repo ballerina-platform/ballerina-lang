@@ -36,6 +36,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -64,6 +65,30 @@ public class TupleValueImpl extends AbstractArrayValue {
     public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
     public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
     // ------------------------ Constructors -------------------------------------------------------------------
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TupleValueImpl that = (TupleValueImpl) o;
+        return minSize == that.minSize &&
+                hasRestElement == that.hasRestElement &&
+                tupleType.equals(that.tupleType) &&
+                Arrays.equals(refValues, that.refValues);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(tupleType, minSize, hasRestElement);
+        result = 31 * result + Arrays.hashCode(refValues);
+        return result;
+    }
 
     @Deprecated
     public TupleValueImpl(Object[] values, BTupleType type) {

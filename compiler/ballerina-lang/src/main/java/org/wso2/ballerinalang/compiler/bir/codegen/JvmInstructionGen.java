@@ -144,6 +144,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -179,6 +183,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -286,6 +291,7 @@ public class JvmInstructionGen {
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -370,6 +376,7 @@ public class JvmInstructionGen {
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
@@ -1290,6 +1297,50 @@ public class JvmInstructionGen {
                 }
             }
             this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        void generateTableNewIns(NewTable inst) {
+            this.mv.visitTypeInsn(NEW, TABLE_VALUE_IMPL);
+            this.mv.visitInsn(DUP);
+            loadType(this.mv, inst.type);
+            this.loadVar(inst.dataOp.variableDcl);
+            this.loadVar(inst.keyColOp.variableDcl);
+            this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, "<init>",
+                    String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
+
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        void generateTableLoadIns(FieldAccess inst) {
+
+            this.loadVar(inst.rhsOp.variableDcl);
+            this.mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
+            this.loadVar(inst.keyOp.variableDcl);
+            addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
+            BType bType = inst.lhsOp.variableDcl.type;
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "getOrThrow",
+                    String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
+
+            @Nilable String targetTypeClass = getTargetClass(bType);
+            if (targetTypeClass != null) {
+                this.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            } else {
+                addUnboxInsn(this.mv, bType);
+            }
+
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        public void generateTableStoreIns(FieldAccess inst) {
+            this.loadVar(inst.lhsOp.variableDcl);
+            this.loadVar(inst.keyOp.variableDcl);
+
+            BType valueType = inst.rhsOp.variableDcl.type;
+            this.loadVar(inst.rhsOp.variableDcl);
+            addBoxInsn(this.mv, valueType);
+
+            this.mv.visitMethodInsn(INVOKESTATIC, TABLE_UTILS, "handleTableStore",
+                    String.format("(L%s;L%s;L%s;)V", TABLE_VALUE, OBJECT, OBJECT), false);
         }
 
         void generateNewErrorIns(NewError newErrorIns) {

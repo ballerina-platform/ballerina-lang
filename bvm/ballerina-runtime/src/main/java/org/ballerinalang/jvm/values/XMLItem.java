@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -652,5 +653,10 @@ public final class XMLItem extends XMLValue {
             return other.children.size() == 1 && this.equals(other.children.get(0));
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, children, attributes, probableParents);
     }
 }
