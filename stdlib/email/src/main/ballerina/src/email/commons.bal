@@ -23,6 +23,7 @@ import ballerina/mime;
 # + bcc - BCC address list
 # + subject - Subject of email
 # + body - Body of the email message
+# + contentType - Content Type of the Body
 # + from - From address
 # + sender - Sender's address
 # + replyTo - Reply To addresses
@@ -33,6 +34,7 @@ public type Email record {|
     string[] bcc?;
     string subject;
     string body;
+    string contentType = "text/plain";
     string 'from;
     string sender?;
     string[] replyTo?;
