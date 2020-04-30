@@ -48,6 +48,16 @@ public class PattenTest {
             }
 
             @Override
+            public Stream<I> expandRootBalWithTest(I i) {
+                return expandBalWithTest.apply(i);
+            }
+
+            @Override
+            public Stream<I> expandRootBal(I i) {
+                return expandBal.apply(i);
+            }
+
+            @Override
             public I start() {
                 return start;
             }
