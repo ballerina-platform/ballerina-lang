@@ -360,6 +360,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(listConstructorExpressionNode);
     }
 
+    public T transform(TypeCastExpressionNode typeCastExpressionNode) {
+        return transformSyntaxNode(typeCastExpressionNode);
+    }
+
+    public T transform(TypeCastParamNode typeCastParamNode) {
+        return transformSyntaxNode(typeCastParamNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

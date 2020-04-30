@@ -1412,5 +1412,35 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBracket.internalNode());
         return stListConstructorExpressionNode.createUnlinkedFacade();
     }
+
+    public static TypeCastExpressionNode createTypeCastExpressionNode(
+            Token ltToken,
+            TypeCastParamNode typeCastParam,
+            Token gtToken,
+            ExpressionNode expression) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(typeCastParam, "typeCastParam must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stTypeCastExpressionNode = STNodeFactory.createTypeCastExpressionNode(
+                ltToken.internalNode(),
+                typeCastParam.internalNode(),
+                gtToken.internalNode(),
+                expression.internalNode());
+        return stTypeCastExpressionNode.createUnlinkedFacade();
+    }
+
+    public static TypeCastParamNode createTypeCastParamNode(
+            NodeList<AnnotationNode> annotations,
+            Node type) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
+        STNode stTypeCastParamNode = STNodeFactory.createTypeCastParamNode(
+                annotations.underlyingListNode().internalNode(),
+                type.internalNode());
+        return stTypeCastParamNode.createUnlinkedFacade();
+    }
 }
 

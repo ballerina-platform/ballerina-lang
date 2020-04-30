@@ -359,6 +359,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(listConstructorExpressionNode);
     }
 
+    public void visit(TypeCastExpressionNode typeCastExpressionNode) {
+        visitSyntaxNode(typeCastExpressionNode);
+    }
+
+    public void visit(TypeCastParamNode typeCastParamNode) {
+        visitSyntaxNode(typeCastParamNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

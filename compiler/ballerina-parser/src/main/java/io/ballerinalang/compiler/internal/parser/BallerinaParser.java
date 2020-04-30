@@ -3157,6 +3157,8 @@ public class BallerinaParser {
                 return parseTrapExpression(isRhsExpr);
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
+            case LT_TOKEN:
+                return parseTypeCastExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3169,6 +3171,9 @@ public class BallerinaParser {
                 }
                 if (solution.recoveredNode.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
                     return parseListConstructorExpr();
+                }
+                if (solution.recoveredNode.kind == SyntaxKind.LT_TOKEN) {
+                    return parseTypeCastExpr();
                 }
 
                 return solution.recoveredNode;
@@ -6915,8 +6920,7 @@ public class BallerinaParser {
 
     /**
      * Parse foreach statement.
-     * <code>foreach-stmt :=
-            foreach typed-binding-pattern in action-or-expr block-stmt</code>
+     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt</code>
      *
      * @return foreach statement
      */
@@ -6965,5 +6969,50 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.IN_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse type cast expression.
+     * <p>
+     * <code>
+     * type-cast-expr := < type-cast-param > expression
+     * <br/>
+     * type-cast-param := [annots] type-descriptor | annots
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseTypeCastExpr() {
+        startContext(ParserRuleContext.TYPE_CAST_EXPRESSION);
+        STNode ltToken = parseLTToken();
+        STNode typeCastParam = parseTypeCastParam();
+        STNode gtToken = parseGTToken();
+        STNode expression = parseExpression();
+        endContext();
+        return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
+    }
+
+    private STNode parseTypeCastParam() {
+        STNode annot;
+        STNode type;
+        STToken token = peek();
+
+        switch (token.kind) {
+            case AT_TOKEN:
+                annot = parseAnnotations();
+                token = peek();
+                if (isTypeStartingToken(token.kind)) {
+                    type = parseTypeDescriptor();
+                } else {
+                    type = STNodeFactory.createEmptyNode();
+                }
+                break;
+            default:
+                annot = STNodeFactory.createEmptyNode();
+                type = parseTypeDescriptor();
+                break;
+        }
+
+        return STNodeFactory.createTypeCastParamNode(annot, type);
     }
 }

@@ -1051,5 +1051,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expressions,
                 closeBracket);
     }
+
+    public static STNode createTypeCastExpressionNode(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression) {
+
+        return new STTypeCastExpressionNode(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
+    public static STNode createTypeCastParamNode(
+            STNode annotations,
+            STNode type) {
+
+        return new STTypeCastParamNode(
+                annotations,
+                type);
+    }
 }
 
