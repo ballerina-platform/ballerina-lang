@@ -191,6 +191,8 @@ public enum ParserRuleContext {
     TRAP_KEYWORD("trap"),
     IN_KEYWORD("in"),
     FOREACH_KEYWORD("foreach"),
+    TABLE_KEYWORD("table"),
+    KEY_KEYWORD("key"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

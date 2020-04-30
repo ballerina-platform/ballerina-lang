@@ -367,6 +367,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeCastParamNode);
     }
 
+    public void visit(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        visitSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public void visit(KeySpecifierNode keySpecifierNode) {
+        visitSyntaxNode(keySpecifierNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

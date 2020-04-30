@@ -69,6 +69,8 @@ public class LexerTerminals {
     public static final String TRAP = "trap";
     public static final String IN = "in";
     public static final String FOREACH = "foreach";
+    public static final String TABLE = "table";
+    public static final String KEY = "key";
 
     // Types
     public static final String INT = "int";

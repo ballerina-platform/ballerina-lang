@@ -368,6 +368,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeCastParamNode);
     }
 
+    public T transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        return transformSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public T transform(KeySpecifierNode keySpecifierNode) {
+        return transformSyntaxNode(keySpecifierNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

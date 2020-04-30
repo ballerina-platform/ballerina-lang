@@ -1063,6 +1063,34 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 type);
     }
 
+    @Override
+    public Node transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        Token tableKeyword = modifyToken(tableConstructorExpressionNode.tableKeyword());
+        KeySpecifierNode KeySpecifier = modifyNode(tableConstructorExpressionNode.KeySpecifier());
+        Token openBracket = modifyToken(tableConstructorExpressionNode.openBracket());
+        SeparatedNodeList<Node> mappingConstructors = modifySeparatedNodeList(tableConstructorExpressionNode.mappingConstructors());
+        Token closeBracket = modifyToken(tableConstructorExpressionNode.closeBracket());
+        return tableConstructorExpressionNode.modify(
+                tableKeyword,
+                KeySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket);
+    }
+
+    @Override
+    public Node transform(KeySpecifierNode keySpecifierNode) {
+        Token keyKeyword = modifyToken(keySpecifierNode.keyKeyword());
+        Token openParenToken = modifyToken(keySpecifierNode.openParenToken());
+        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(keySpecifierNode.fieldNames());
+        Token closeParenToken = modifyToken(keySpecifierNode.closeParenToken());
+        return keySpecifierNode.modify(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
+
     // Tokens
 
     @Override

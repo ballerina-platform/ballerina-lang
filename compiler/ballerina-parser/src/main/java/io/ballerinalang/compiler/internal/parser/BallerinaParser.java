@@ -338,6 +338,10 @@ public class BallerinaParser {
                 return parseInKeyword();
             case FOREACH_KEYWORD:
                 return parseForEachKeyword();
+            case TABLE_KEYWORD:
+                return parseTableKeyword();
+            case KEY_KEYWORD:
+                return parseKeyKeyword();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3159,6 +3163,8 @@ public class BallerinaParser {
                 return parseListConstructorExpr();
             case LT_TOKEN:
                 return parseTypeCastExpr();
+            case TABLE_KEYWORD:
+                return parseTableConstructorExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -7014,5 +7020,169 @@ public class BallerinaParser {
         }
 
         return STNodeFactory.createTypeCastParamNode(annot, type);
+    }
+
+    /**
+     * Parse table constructor expression.
+     * <p>
+     * <code>
+     * table-constructor-expr := table [key-specifier] [ [row-list] ]
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseTableConstructorExpr() {
+        STNode tableKeyword = parseTableKeyword();
+        STToken nextToken = peek();
+
+        STNode keySpecifier;
+        if (nextToken.kind == SyntaxKind.KEY_KEYWORD) {
+            keySpecifier = parseKeySpecifier();
+        } else {
+            keySpecifier = STNodeFactory.createEmptyNode();
+        }
+
+        STNode openBracket = parseOpenBracket();
+        STNode rowList = parseMappingConstructors();
+        STNode closeBracket = parseCloseBracket();
+
+        return STNodeFactory.createTableConstructorExpressionNode(tableKeyword,
+                                                                  keySpecifier,
+                                                                  openBracket,
+                                                                  rowList,
+                                                                  closeBracket);
+    }
+
+    /**
+     * Parse table-keyword.
+     *
+     * @return Table-keyword node
+     */
+    private STNode parseTableKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TABLE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TABLE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse table rows.
+     * <p>
+     * <code>row-list := [ mapping-constructor-expr (, mapping-constructor-expr)* ]</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseMappingConstructors() {
+        List<STNode> mappings = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list if list is empty
+        if (isEndOfMappingConstructorsList(nextToken.kind)) {
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first mapping constructor, that has no leading comma
+        STNode mapExpr = parseMappingConstructorExpr();
+        mappings.add(mapExpr);
+
+        // Parse the remaining mapping constructors
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfMappingConstructorsList(nextToken.kind)) {
+            leadingComma = parseComma();
+            mappings.add(leadingComma);
+            mapExpr = parseMappingConstructorExpr();
+            mappings.add(mapExpr);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(mappings);
+    }
+
+    private boolean isEndOfMappingConstructorsList(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+            case OPEN_BRACE_TOKEN:
+                return false;
+            default:
+                return isEndOfMappingConstructor(tokenKind);
+        }
+    }
+
+    /**
+     * Parse key specifier.
+     * <p>
+     * <code>key-specifier := key ( [ field-name (, field-name)* ] )</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseKeySpecifier() {
+        STNode keyKeyword = parseKeyKeyword();
+        STNode openParen = parseOpenParenthesis();
+        STNode fieldNames = parseFieldNames();
+        STNode closeParen = parseCloseParenthesis();
+        return STNodeFactory.createKeySpecifierNode(keyKeyword, openParen, fieldNames, closeParen);
+    }
+
+    /**
+     * Parse key-keyword.
+     *
+     * @return Key-keyword node
+     */
+    private STNode parseKeyKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.KEY_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.KEY_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse table rows.
+     * <p>
+     * <code>field-name-list := [ field-name (, field-name)* ]</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseFieldNames() {
+        List<STNode> fieldNames = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list if list is empty
+        if (isEndOfFieldNamesList(nextToken.kind)) {
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first field name, that has no leading comma
+        STNode fieldName = parseVariableName();
+        fieldNames.add(fieldName);
+
+        // Parse the remaining field names
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfFieldNamesList(nextToken.kind)) {
+            leadingComma = parseComma();
+            fieldNames.add(leadingComma);
+            fieldName = parseVariableName();
+            fieldNames.add(fieldName);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(fieldNames);
+    }
+
+    private boolean isEndOfFieldNamesList(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+            case IDENTIFIER_TOKEN:
+                return false;
+            default:
+                return true;
+        }
     }
 }

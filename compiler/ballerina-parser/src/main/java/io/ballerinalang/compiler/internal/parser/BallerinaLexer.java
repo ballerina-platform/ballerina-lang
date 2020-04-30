@@ -886,6 +886,10 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.IN_KEYWORD);
             case LexerTerminals.FOREACH:
                 return getSyntaxToken(SyntaxKind.FOREACH_KEYWORD);
+            case LexerTerminals.TABLE:
+                return getSyntaxToken(SyntaxKind.TABLE_KEYWORD);
+            case LexerTerminals.KEY:
+                return getSyntaxToken(SyntaxKind.KEY_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
