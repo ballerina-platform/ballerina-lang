@@ -1,2 +1,2 @@
-io.ballerina.test.compiler.plugins.ABCCompilerPlugin
-io.ballerina.test.compiler.plugins.XYZCompilerPlugin
+io.ballerina.test.compiler.plugins.TestCompilerPlugin
+io.ballerina.test.compiler.plugins.FunctionsTestCompilerPlugin

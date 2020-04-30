@@ -50,12 +50,13 @@ public class BLockStore {
     }
 
     public void panicIfInLock(String lockName, Strand strand) {
-        BLock lock = getLockFromMap(lockName);
-        if (lock.isLockFree()) {
-            return;
-        }
-        if (lock.lockedBySameContext(strand)) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+        for (BLock lock : globalLockMap.values()) {
+            if (lock.isLockFree()) {
+                continue;
+            }
+            if (lock.lockedBySameContext(strand)) {
+                throw BallerinaErrors.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+            }
         }
     }
 }

@@ -63,7 +63,7 @@ import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMinorVersion;
  */
 public class LSPUtils {
 
-    private static BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
+    private static final BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
     private static final Logger LOG = Logger.getInstance(LSPUtils.class);
 
     /**

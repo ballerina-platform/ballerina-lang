@@ -1,0 +1,3 @@
+[project]
+org-name = "same-module-different-org-import"
+version = "1.0.0"

@@ -46,7 +46,23 @@ public function serialize(BType bType) returns string {
     } else if (bType is BMapType) {
         return "map<"+ serialize(bType.constraint) +">";
     } else if (bType is BTableType) {
-        return "table<"+ serialize(bType.tConstraint) +">";
+        string tableKeyConstraint = " key";
+        if(bType.isTableKeySpecifier) {
+            string fieldNames = "";
+            foreach var fieldName in fieldNames {
+                if(fieldNames != "") {
+                    fieldNames = fieldNames + ", ";
+                }
+                fieldNames = fieldNames + fieldName;
+            }
+            tableKeyConstraint = tableKeyConstraint + "(" + fieldNames + ")";
+        } else {
+            BType? keyTypeConstraint = bType.tKeyTypeConstraint;
+            if (keyTypeConstraint is BType) {
+                tableKeyConstraint = tableKeyConstraint + "<" + serialize(keyTypeConstraint) + ">";
+            }
+        }
+        return "table<"+ serialize(bType.tConstraint) +">" + tableKeyConstraint;
     } else if (bType is BStreamType) {
         return "stream<"+ serialize(bType.sConstraint) +">";
     } else if (bType is BTypeAnyData) {

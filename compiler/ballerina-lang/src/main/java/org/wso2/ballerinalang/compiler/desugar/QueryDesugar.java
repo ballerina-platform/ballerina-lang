@@ -392,29 +392,33 @@ public class QueryDesugar extends BLangNodeVisitor {
         // Frame $streamElement1$ = {};
         body.stmts.add(0, newFrameDef);
         // addToFrame($streamElement1$, elements);
-        BLangRecordLiteral selectRecord = (BLangRecordLiteral) selectClause.expression;
-        for (RecordLiteralNode.RecordField field : selectRecord.fields) {
-            BLangExpressionStmt addToFrameStmt;
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordKeyValueField keyValField = (BLangRecordKeyValueField) field;
-                // TODO: assuming key will only be a literal (no-other expr types).
-                BLangLiteral key = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                        ((BLangSimpleVarRef) keyValField.key.expr).variableName.value);
-                addToFrameStmt = addToFrameFunctionStmt(pos, newFrameRef, key, keyValField.valueExpr);
-            } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                BLangRecordSpreadOperatorField spreadField = (BLangRecordSpreadOperatorField) field;
-                addToFrameStmt = spreadToFrameFunctionStmt(pos, newFrameRef, spreadField.expr);
-            } else if (field.getKind() == NodeKind.CONSTANT_REF) {
-                BLangConstRef constField = (BLangConstRef) field;
-                BLangLiteral key = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                        constField.variableName.value);
-                BLangLiteral value = ASTBuilderUtil.createLiteral(pos, constField.type, constField.value);
-                addToFrameStmt = addToFrameFunctionStmt(pos, newFrameRef, key, value);
-            } else {
-                BLangRecordVarNameField nameField = (BLangRecordVarNameField) field;
-                addToFrameStmt = addToFrameFunctionStmt(pos, newFrameSymbol, (BVarSymbol) nameField.varSymbol);
+        if (selectClause.expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            BLangRecordLiteral selectRecord = (BLangRecordLiteral) selectClause.expression;
+            for (RecordLiteralNode.RecordField field : selectRecord.fields) {
+                BLangExpressionStmt addToFrameStmt;
+                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                    BLangRecordKeyValueField keyValField = (BLangRecordKeyValueField) field;
+                    // TODO: assuming key will only be a literal (no-other expr types).
+                    BLangLiteral key = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
+                            ((BLangSimpleVarRef) keyValField.key.expr).variableName.value);
+                    addToFrameStmt = addToFrameFunctionStmt(pos, newFrameRef, key, keyValField.valueExpr);
+                } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                    BLangRecordSpreadOperatorField spreadField = (BLangRecordSpreadOperatorField) field;
+                    addToFrameStmt = spreadToFrameFunctionStmt(pos, newFrameRef, spreadField.expr);
+                } else if (field.getKind() == NodeKind.CONSTANT_REF) {
+                    BLangConstRef constField = (BLangConstRef) field;
+                    BLangLiteral key = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
+                            constField.variableName.value);
+                    BLangLiteral value = ASTBuilderUtil.createLiteral(pos, constField.type, constField.value);
+                    addToFrameStmt = addToFrameFunctionStmt(pos, newFrameRef, key, value);
+                } else {
+                    BLangRecordVarNameField nameField = (BLangRecordVarNameField) field;
+                    addToFrameStmt = addToFrameFunctionStmt(pos, newFrameSymbol, (BVarSymbol) nameField.varSymbol);
+                }
+                body.stmts.add(body.stmts.size() - 1, addToFrameStmt);
             }
-            body.stmts.add(body.stmts.size() - 1, addToFrameStmt);
+        } else {
+
         }
         // frame = $streamElement1$ <- swap
         body.stmts.add(body.stmts.size() - 1, ASTBuilderUtil.createAssignmentStmt(pos, oldFrameRef, newFrameRef));

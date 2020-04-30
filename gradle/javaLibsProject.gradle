@@ -89,6 +89,7 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
+    dist 'commons-codec:commons-codec:1.9'
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
@@ -151,6 +152,7 @@ dependencies {
     dist project(':ballerina-lang:map')
     dist project(':ballerina-lang:object')
     dist project(':ballerina-lang:stream')
+    dist project(':ballerina-lang:table')
     dist project(':ballerina-lang:string')
     dist project(':ballerina-lang:typedesc')
     dist project(':ballerina-lang:value')

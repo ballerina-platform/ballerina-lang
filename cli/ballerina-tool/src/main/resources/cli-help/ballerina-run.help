@@ -40,6 +40,9 @@ OPTIONS
        --experimental
            Enable experimental language features.
 
+       --debug
+           Run in remote debugging mode.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.

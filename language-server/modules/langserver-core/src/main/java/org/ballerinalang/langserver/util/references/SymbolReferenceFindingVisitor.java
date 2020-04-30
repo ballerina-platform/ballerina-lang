@@ -945,6 +945,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(streamType.error);
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        if (actionInvocationExpr.name.getValue().equals(this.tokenName)) {
+            DiagnosticPos pos = actionInvocationExpr.name.getPosition();
+            this.addSymbol(actionInvocationExpr, actionInvocationExpr.symbol, false, pos);
+        }
+        this.acceptNode(actionInvocationExpr.expr);
+        actionInvocationExpr.argExprs.forEach(this::acceptNode);
+    }
+
     protected void acceptNode(BLangNode node) {
         if (node == null) {
             return;

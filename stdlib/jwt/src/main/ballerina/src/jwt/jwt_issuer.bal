@@ -19,9 +19,9 @@ import ballerina/encoding;
 
 # Represents JWT validator configurations.
 #
-# + username - JWT token username
-# + issuer - JWT token issuer
-# + audience - JWT token audience
+# + username - JWT username
+# + issuer - JWT issuer
+# + audience - JWT audience
 # + customClaims - Map of custom claims
 # + expTimeInSeconds - Expiry time in seconds
 # + keyStoreConfig - JWT key store configurations
@@ -50,7 +50,7 @@ public type JwtKeyStoreConfig record {|
 # Issues a JWT based on the provided header and payload. JWT will be signed (JWS) if `crypto:KeyStore` information is
 # provided in the `jwt:JwtKeyStoreConfig` and the `alg` field of the `jwt:JwtHeader` is not `jwt:NONE`.
 # ```ballerina
-# string|jwt:error jwt = jwt:issueJwt(header, payload, keyStoreConfig);
+# string|jwt:Error jwt = jwt:issueJwt(header, payload, keyStoreConfig);
 # ```
 #
 # + header - JwtHeader object
