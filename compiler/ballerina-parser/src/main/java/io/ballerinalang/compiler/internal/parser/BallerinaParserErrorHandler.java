@@ -258,9 +258,10 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
-
+    // ParserRuleContext.PIPE is to detect union type descriptor
     private static final ParserRuleContext[] TYPEDESC_RHS = {ParserRuleContext.NON_RECURSIVE_TYPE,
-            ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR };
+            ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR,
+            ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
@@ -1124,6 +1125,9 @@ public class BallerinaParserErrorHandler {
                 case TYPE_CAST_PARAM_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_CAST_PARAM_RHS,
                             isEntryPoint);
+                case PIPE:
+                    hasMatch = nextToken.kind == SyntaxKind.PIPE_TOKEN;
+                    break;
                 case TABLE_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TABLE_KEYWORD;
                     break;
@@ -1233,7 +1237,7 @@ public class BallerinaParserErrorHandler {
                 if (isEntryPoint) {
                     fixedPathResult.solution = fixedPathResult.fixes.peek();
                 } else {
-                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx),
+                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE,
                             currentCtx.toString());
                 }
                 return getFinalResult(matchingRulesCount, fixedPathResult);
@@ -1252,7 +1256,7 @@ public class BallerinaParserErrorHandler {
 
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
         result.solution =
-                new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
+                new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
     }
 
@@ -1698,7 +1702,7 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.EXPRESSION_RHS;
                 }
                 if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
-                    endContext(); // key-specifier
+                    endContext(); // end key-specifier
                     // For now key-specifier ctx is only referred inside table-constructor ctx
                     return ParserRuleContext.OPEN_BRACKET;
                 }
@@ -2091,6 +2095,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case TYPE_CAST_EXPRESSION:
                 return ParserRuleContext.LT;
+            case PIPE:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             case TABLE_CONSTRUCTOR:
                 return ParserRuleContext.TABLE_KEYWORD;
             case TABLE_KEYWORD:
@@ -3064,6 +3070,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.FOREACH_KEYWORD;
             case IN_KEYWORD:
                 return SyntaxKind.IN_KEYWORD;
+            case PIPE:
+                return SyntaxKind.PIPE_TOKEN;
             case TABLE_KEYWORD:
                 return SyntaxKind.TABLE_KEYWORD;
             case KEY_KEYWORD:

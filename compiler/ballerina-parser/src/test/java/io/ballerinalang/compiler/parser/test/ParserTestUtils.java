@@ -718,6 +718,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_LINE;
             case "TYPE_CAST_PARAM":
                 return SyntaxKind.TYPE_CAST_PARAM;
+            case "UNION_TYPE_DESC":
+                return SyntaxKind.UNION_TYPE_DESC;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
 

@@ -1064,31 +1064,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
-        Token tableKeyword = modifyToken(tableConstructorExpressionNode.tableKeyword());
-        KeySpecifierNode KeySpecifier = modifyNode(tableConstructorExpressionNode.KeySpecifier());
-        Token openBracket = modifyToken(tableConstructorExpressionNode.openBracket());
-        SeparatedNodeList<Node> mappingConstructors = modifySeparatedNodeList(tableConstructorExpressionNode.mappingConstructors());
-        Token closeBracket = modifyToken(tableConstructorExpressionNode.closeBracket());
-        return tableConstructorExpressionNode.modify(
-                tableKeyword,
-                KeySpecifier,
-                openBracket,
-                mappingConstructors,
-                closeBracket);
-    }
-
-    @Override
-    public Node transform(KeySpecifierNode keySpecifierNode) {
-        Token keyKeyword = modifyToken(keySpecifierNode.keyKeyword());
-        Token openParenToken = modifyToken(keySpecifierNode.openParenToken());
-        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(keySpecifierNode.fieldNames());
-        Token closeParenToken = modifyToken(keySpecifierNode.closeParenToken());
-        return keySpecifierNode.modify(
-                keyKeyword,
-                openParenToken,
-                fieldNames,
-                closeParenToken);
+    public Node transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
+        Token pipeToken = modifyToken(unionTypeDescriptorNode.pipeToken());
+        Node rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
+        return unionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
     }
 
     // Tokens

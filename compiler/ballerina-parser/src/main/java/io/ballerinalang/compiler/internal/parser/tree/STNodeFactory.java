@@ -1074,32 +1074,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 type);
     }
 
-    public static STNode createTableConstructorExpressionNode(
-            STNode tableKeyword,
-            STNode KeySpecifier,
-            STNode openBracket,
-            STNode mappingConstructors,
-            STNode closeBracket) {
+    public static STNode createUnionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
 
-        return new STTableConstructorExpressionNode(
-                tableKeyword,
-                KeySpecifier,
-                openBracket,
-                mappingConstructors,
-                closeBracket);
-    }
-
-    public static STNode createKeySpecifierNode(
-            STNode keyKeyword,
-            STNode openParenToken,
-            STNode fieldNames,
-            STNode closeParenToken) {
-
-        return new STKeySpecifierNode(
-                keyKeyword,
-                openParenToken,
-                fieldNames,
-                closeParenToken);
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
     }
 }
 
