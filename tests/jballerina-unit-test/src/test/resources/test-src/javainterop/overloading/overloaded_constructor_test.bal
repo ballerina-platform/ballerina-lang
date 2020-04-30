@@ -40,14 +40,14 @@ public function testOverloadedMethodsWithByteArrayParams(string strValue) return
     return java:toString(sortedStr);
 }
 
-const STRING_RESULT = "BALLERINA";
-const OBJECT_RESULT = "5";
+public function testOverloadedMethodsWithDifferentParametersOne(int intValue) {
+    string intResult = getIntString(intValue).toString();
+    assertEquality("5", intResult);
+}
 
-public function testOverloadedMethodsWithDifferentParameters(handle strValue, any anyValue) {
+public function testOverloadedMethodsWithDifferentParametersTwo(string strValue) {
     string strResult = getString(strValue).toString();
-    string objResult = getObjectString(anyValue).toString();
-    assertEquality(STRING_RESULT, strResult);
-    assertEquality(OBJECT_RESULT, objResult);
+    assertEquality("BALLERINA", strResult);
 }
 
 function getBytes(handle receiver) returns handle = @java:Method {
@@ -65,16 +65,16 @@ function newString(handle bytes) returns handle = @java:Constructor {
     paramTypes: [{class: "byte", dimensions:1}]
 } external;
 
-function getString(handle str) returns handle = @java:Method {
-    name: "foo",
+function getString(string str) returns handle = @java:Method {
+    name: "moveTo",
     class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
-    paramTypes: ["java.lang.String"]
+    paramTypes: ["org.ballerinalang.jvm.values.api.BString"]
 } external;
 
-function getObjectString(any val) returns handle = @java:Method {
-    name: "foo",
+function getIntString(int val) returns handle = @java:Method {
+    name: "moveTo",
     class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
-    paramTypes: ["java.lang.Object"]
+    paramTypes: ["java.lang.Long"]
 } external;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

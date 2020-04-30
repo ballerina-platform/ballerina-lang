@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.overloading.pkg;
 
+import org.ballerinalang.jvm.values.api.BString;
+
 /**
  * A test class.
  */
@@ -39,11 +41,11 @@ public class Vehicle {
         return prefix + this.name;
     }
 
-    public static String foo(String fooString) {
-        return fooString;
+    public static String moveTo(BString location) {
+        return location.toString();
     }
 
-    public static String foo(Object obj) {
-        return obj.toString();
+    public static String moveTo(Long locationNumber) {
+        return Long.toString(locationNumber);
     }
 }

@@ -68,12 +68,16 @@ public class OverloadedMethodTests {
     }
 
     @Test(description = "Test invoking multiple overloaded java methods")
-    public void testOverloadedMethodsWithDifferentParameters() {
-        BValue[] args = new BValue[2];
-        String strValue = "BALLERINA";
-        int intValue = 5;
-        args[0] = new BHandleValue(strValue);
-        args[1] = new BInteger(intValue);
-        BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParameters", args);
+    public void testOverloadedMethodsWithDifferentParametersOne() {
+        BValue[] args = new BValue[1];
+        args[0] = new BInteger(5);
+        BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersOne", args);
+    }
+
+    @Test(description = "Test invoking multiple overloaded java methods")
+    public void testOverloadedMethodsWithDifferentParametersTwo() {
+        BValue[] args = new BValue[1];
+        args[0] = new BString("BALLERINA");
+        BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersTwo", args);
     }
 }
