@@ -171,7 +171,9 @@ public class ImmutableTypeCloner {
                 immutableRecordType = defineImmutableRecordType(pos, origRecordType, env, symTable,
                                                                 anonymousModelHelper, names, types, unresolvedTypes);
                 return immutableRecordType;
-            // TODO: 4/24/20 Table
+            case TypeTags.TABLE:
+                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
+                return type;
             case TypeTags.ANY:
                 BAnyType origAnyType = (BAnyType) type;
                 BAnyType immutableAnyType = origAnyType.immutableType;

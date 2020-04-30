@@ -146,7 +146,9 @@ class ReadOnlyUtils {
                 }
 
                 return immutableRecordType;
-            // TODO: 4/24/28 Table
+            case TypeTags.TABLE_TAG:
+                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
+                return type;
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:

@@ -1231,7 +1231,9 @@ public class TypeChecker {
                 BType constraintType = ((BMapType) type).getConstrainedType();
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
-            // TODO: 4/28/20 Table
+            case TypeTags.TABLE_TAG:
+                // TODO: see https://github.com/ballerina-platform/ballerina-lang/issues/23006
+                return true;
             case TypeTags.UNION_TAG:
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {

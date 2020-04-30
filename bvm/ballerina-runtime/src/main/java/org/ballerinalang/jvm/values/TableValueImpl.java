@@ -30,9 +30,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.api.BIterator;
 import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -63,7 +60,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_
 public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private BTableType type;
-    private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType iteratorNextReturnType;
     private LinkedHashMap<Integer, Map.Entry<K, V>> entries;
     private LinkedHashMap<Integer, V> values;
@@ -209,29 +205,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public boolean isFrozen() {
-        return freezeStatus.isFrozen();
-    }
-
-    @Override
-    public void attemptFreeze(Status freezeStatus) {
-        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-            this.values().forEach(val -> {
-                if (val instanceof RefValue) {
-                    ((RefValue) val).attemptFreeze(freezeStatus);
-                }
-            });
-        }
-    }
-
-    @Override
     public void freezeDirect() {
         if (isFrozen()) {
             return;
         }
 
-        this.freezeStatus.setFrozen();
+        this.type = (BTableType) ReadOnlyUtils.setImmutableType(this.type);
         this.values().forEach(val -> {
             if (val instanceof RefValue) {
                 ((RefValue) val).freezeDirect();
