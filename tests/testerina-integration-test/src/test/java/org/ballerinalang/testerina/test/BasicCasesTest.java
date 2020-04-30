@@ -20,8 +20,15 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.reporters.Files;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test class to test positive scenarios of testerina using a ballerina project.
@@ -66,5 +73,17 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher3.waitForText(400000);
         clientLeecher4.waitForText(400000);
         clientLeecher5.waitForText(400000);
+    }
+
+    @AfterMethod
+    public void printError() throws IOException {
+        Path errorLog = Paths.get(projectPath).resolve("ballerina-internal.log");
+        if (errorLog.toFile().exists()) {
+            PrintStream out = System.out;
+            out.println(Files.readFile(errorLog.toFile()));
+        } else {
+            PrintStream out = System.out;
+            out.println("No ballerina-internal.log found in " + errorLog.toAbsolutePath());
+        }
     }
 }
