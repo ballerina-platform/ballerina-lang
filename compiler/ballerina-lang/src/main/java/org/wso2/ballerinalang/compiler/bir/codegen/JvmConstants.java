@@ -48,6 +48,7 @@ public class JvmConstants {
     public static final String XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
     public static final String XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
     public static final String FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
+    public static final String TYPEDESC_VALUE_IMPL = "org/ballerinalang/jvm/values/TypedescValueImpl";
     public static final String TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
     public static final String HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
     public static final String LOCK_VALUE = "org/ballerinalang/jvm/BLock";
@@ -166,6 +167,8 @@ public class JvmConstants {
     public static final String UNIX_PATH_SEPERATOR = "/";
     public static final String JAVA_PACKAGE_SEPERATOR = "/";
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
+    public static final String VALUE_CLASS_PREFIX = "$value$";
+    public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
 

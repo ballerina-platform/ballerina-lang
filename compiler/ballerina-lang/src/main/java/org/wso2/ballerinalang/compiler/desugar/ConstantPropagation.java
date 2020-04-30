@@ -275,6 +275,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInv) {
+        actionInv.expr = rewrite(actionInv.expr);
+        rewrite(actionInv.requiredArgs);
+        rewrite(actionInv.restArgs);
+        result = actionInv;
+    }
+
+    @Override
     public void visit(BLangNamedArgsExpression namedArgsExpression) {
         namedArgsExpression.expr = rewrite(namedArgsExpression.expr);
         result = namedArgsExpression;

@@ -672,7 +672,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param expr expression to be validated.
      */
     private void validateWorkerAnnAttachments(BLangExpression expr) {
-        if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
+        if (expr != null && expr instanceof BLangInvocation.BLangActionInvocation &&
+                ((BLangInvocation.BLangActionInvocation) expr).async) {
             ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
                 annotationAttachment.accept(this);
@@ -2653,6 +2654,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    // TODO: remove unused method
     private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
         if (transactionHanlder != null) {
             BSymbol handlerSymbol = ((BLangSimpleVarRef) transactionHanlder).symbol;
