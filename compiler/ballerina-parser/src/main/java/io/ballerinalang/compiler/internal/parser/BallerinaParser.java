@@ -3181,6 +3181,9 @@ public class BallerinaParser {
                 if (solution.recoveredNode.kind == SyntaxKind.LT_TOKEN) {
                     return parseTypeCastExpr();
                 }
+                if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD) {
+                    return parseTableConstructorExpr();
+                }
 
                 return solution.recoveredNode;
         }
@@ -7032,6 +7035,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseTableConstructorExpr() {
+        startContext(ParserRuleContext.TABLE_CONSTRUCTOR);
         STNode tableKeyword = parseTableKeyword();
         STToken nextToken = peek();
 
@@ -7045,7 +7049,7 @@ public class BallerinaParser {
         STNode openBracket = parseOpenBracket();
         STNode rowList = parseMappingConstructors();
         STNode closeBracket = parseCloseBracket();
-
+        endContext();
         return STNodeFactory.createTableConstructorExpressionNode(tableKeyword,
                                                                   keySpecifier,
                                                                   openBracket,
@@ -7120,10 +7124,12 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseKeySpecifier() {
+        startContext(ParserRuleContext.KEY_SPECIFIER);
         STNode keyKeyword = parseKeyKeyword();
         STNode openParen = parseOpenParenthesis();
         STNode fieldNames = parseFieldNames();
         STNode closeParen = parseCloseParenthesis();
+        endContext();
         return STNodeFactory.createKeySpecifierNode(keyKeyword, openParen, fieldNames, closeParen);
     }
 
