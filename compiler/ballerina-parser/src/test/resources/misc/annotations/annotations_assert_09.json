@@ -39,8 +39,30 @@
                             "kind": "LIST",
                             "children": [
                                 {
+                                    "kind": "REQUIRED_PARAM",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "x"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "isMissing": true
+                                        }
+                                    ]
+                                },
+                                {
                                     "kind": "DEFAULTABLE_PARAM",
                                     "children": [
+                                        {
+                                            "kind": "COMMA_TOKEN",
+                                            "isMissing": true
+                                        },
                                         {
                                             "kind": "LIST",
                                             "children": [
