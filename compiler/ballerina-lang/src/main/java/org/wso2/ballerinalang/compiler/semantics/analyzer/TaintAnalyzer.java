@@ -90,6 +90,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -935,6 +937,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        if (tableConstructorExpr.recordLiteralList.size() == 0) {
+            // Empty arrays are untainted.
+            getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+        } else {
+            TaintedStatus isTainted = TaintedStatus.UNTAINTED;
+            for (BLangExpression expression : tableConstructorExpr.recordLiteralList) {
+                expression.accept(this);
+                // Used to update the variable this literal is getting assigned to.
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    isTainted = TaintedStatus.TAINTED;
+                }
+            }
+            getCurrentAnalysisState().taintedStatus = isTainted;
+        }
+    }
+
+    @Override
     public void visit(BLangGroupExpr groupExpr) {
         groupExpr.expression.accept(this);
     }
@@ -1011,6 +1031,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         indexAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        analyzeExprList(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
     @Override
@@ -1524,6 +1549,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr arrayIndexAccessExpr) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
         /* ignore */
     }
 
