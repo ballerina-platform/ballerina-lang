@@ -63,6 +63,8 @@ import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
@@ -86,6 +88,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -100,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -115,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -149,6 +154,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -353,6 +359,106 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                         false, false, objFieldNode.visibilityQualifier());
         simpleVar.pos = getPosition(objFieldNode);
         return simpleVar;
+    }
+
+    @Override
+    public BLangNode transform(ServiceDeclarationNode serviceDeclrNode) {
+        return createService(serviceDeclrNode, serviceDeclrNode.serviceName(), false);
+    }
+
+    private BLangNode createService(ServiceDeclarationNode serviceDeclrNode, IdentifierToken serviceNameNode,
+                                    boolean isAnonServiceValue) {
+        // Any Service can be represented in two major components.
+        //  1) A anonymous type node (Object)
+        //  2) Variable assignment with "serviceName".
+        //      This is a global variable if the service is defined in module level.
+        //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
+        BLangService bLService = (BLangService) TreeBuilder.createServiceNode();
+        //TODO handle service.expression
+        // TODO: Look for generify this into sepearte method for type as well
+        bLService.isAnonymousServiceValue = isAnonServiceValue;
+
+        DiagnosticPos pos = getPosition(serviceDeclrNode);
+        String serviceName;
+        DiagnosticPos identifierPos;
+        if (isAnonServiceValue) {
+            serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
+            identifierPos = pos;
+        } else {
+            serviceName = serviceNameNode.text();
+            identifierPos = getPosition(serviceNameNode);
+        }
+        String serviceTypeName = this.anonymousModelHelper.getNextAnonymousServiceTypeKey(diagnosticSource.pkgID,
+                                                                                          serviceName);
+        BLangIdentifier serviceVar = createIdentifier(identifierPos, serviceName);
+        serviceVar.pos = identifierPos;
+        bLService.setName(serviceVar);
+        if (!isAnonServiceValue) {
+            // TODO: Enable this one CCE error fixed
+//            for (io.ballerinalang.compiler.syntax.tree.ExpressionNode expr : serviceDeclrNode.expressions()) {
+//                bLService.attachedExprs.add((BLangExpression) expr.apply(this));
+//            }
+        }
+        // We add all service nodes to top level, only for future reference.
+        this.otherTopLevelNodes.add(bLService);
+
+        // 1) Define type nodeDefinition for service type.
+        BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        BLangIdentifier serviceTypeID = createIdentifier(identifierPos, serviceTypeName);
+        serviceTypeID.pos = pos;
+        bLTypeDef.setName(serviceTypeID);
+        bLTypeDef.flagSet.add(Flag.SERVICE);
+        bLTypeDef.typeNode = (BLangType) serviceDeclrNode.serviceBody().apply(this);
+        bLTypeDef.pos = pos;
+        bLService.serviceTypeDefinition = bLTypeDef;
+
+        // 2) Create service constructor.
+        final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
+                .createServiceConstructorNode();
+        serviceConstNode.serviceNode = bLService;
+        serviceConstNode.pos = pos;
+
+        // Crate Global variable for service.
+        bLService.pos = pos;
+        if (!isAnonServiceValue) {
+            BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
+                                                                                          Collections.emptySet(),
+                                                                                          serviceName, identifierPos,
+                                                                                          serviceConstNode);
+            var.flagSet.add(Flag.FINAL);
+            var.flagSet.add(Flag.SERVICE);
+
+            BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+            bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            bLUserDefinedType.typeName = bLTypeDef.name;
+            bLUserDefinedType.pos = pos;
+
+            var.typeNode = bLUserDefinedType;
+            bLService.variableNode = var;
+            this.otherTopLevelNodes.add(bLTypeDef);
+            return var;
+        } else {
+            return bLTypeDef;
+        }
+    }
+
+    @Override
+    public BLangNode transform(ServiceBodyNode serviceBodyNode) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        // TODO: Look when to false isFieldAnalyseRequired
+        objectTypeNode.isFieldAnalyseRequired = true;
+        objectTypeNode.flagSet.add(Flag.SERVICE);
+        for (Node resourceNode : serviceBodyNode.resources()) {
+            BLangNode bLangNode = resourceNode.apply(this);
+            if (bLangNode.getKind() == NodeKind.FUNCTION) {
+                BLangFunction bLangFunction = (BLangFunction) bLangNode;
+                bLangFunction.attachedFunction = true;
+                objectTypeNode.addFunction(bLangFunction);
+            }
+        }
+        objectTypeNode.isAnonymous = false;
+        objectTypeNode.pos = getPosition(serviceBodyNode);
+        return objectTypeNode;
     }
 
     @Override
@@ -1040,6 +1146,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
         bLValueType.pos = getPosition(type);
         return bLValueType;
+    }
+
+    private VariableNode createBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                       DiagnosticPos identifierPos, ExpressionNode expr) {
+        BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        bLSimpleVar.pos = pos;
+        IdentifierNode name = this.createIdentifier(identifierPos, identifier, ws);
+        ((BLangIdentifier) name).pos = identifierPos;
+        bLSimpleVar.setName(name);
+        bLSimpleVar.addWS(ws);
+        if (expr != null) {
+            bLSimpleVar.setInitialExpression(expr);
+        }
+        return bLSimpleVar;
     }
 
     private BLangNameReference getBLangNameReference(Node node) {
