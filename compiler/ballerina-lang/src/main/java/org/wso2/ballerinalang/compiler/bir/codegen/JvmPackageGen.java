@@ -394,11 +394,13 @@ public class JvmPackageGen {
         PackageID langMapModule = new PackageID(ballerinaOrgName, new Name("lang.map"), builtInVersion);
         PackageID langObjectModule = new PackageID(ballerinaOrgName, new Name("lang.object"), builtInVersion);
         PackageID langStreamModule = new PackageID(ballerinaOrgName, new Name("lang.stream"), builtInVersion);
+        PackageID langTableModule = new PackageID(ballerinaOrgName, new Name("lang.table"), builtInVersion);
         PackageID langStringModule = new PackageID(ballerinaOrgName, new Name("lang.string"), builtInVersion);
         PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
         PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
         PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"), builtInVersion);
         PackageID langBooleanModule = new PackageID(ballerinaOrgName, new Name("lang.boolean"), builtInVersion);
+        PackageID langQueryModule = new PackageID(ballerinaOrgName, new Name("lang.query"), builtInVersion);
 
         dependentModuleArray.add(langArrayModule);
         dependentModuleArray.add(langDecimalModule);
@@ -409,11 +411,13 @@ public class JvmPackageGen {
         dependentModuleArray.add(langMapModule);
         dependentModuleArray.add(langObjectModule);
         dependentModuleArray.add(langStreamModule);
+        dependentModuleArray.add(langTableModule);
         dependentModuleArray.add(langStringModule);
         dependentModuleArray.add(langValueModule);
         dependentModuleArray.add(langXmlModule);
         dependentModuleArray.add(langTypedescModule);
         dependentModuleArray.add(langBooleanModule);
+        dependentModuleArray.add(langQueryModule);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {

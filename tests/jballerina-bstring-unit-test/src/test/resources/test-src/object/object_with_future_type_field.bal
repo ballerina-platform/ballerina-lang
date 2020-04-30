@@ -15,7 +15,7 @@
 // under the License.
 
 public type Foo object {
-    public future<int> intFuture = start getIntValue();
+    public future<int> intFuture = doAsyncCall();
 };
 
 Foo globalFoo = new;
@@ -25,6 +25,10 @@ public function getIntFromFutureField() returns int {
     int a = wait foo.intFuture;
     int b = wait globalFoo.intFuture;
     return a + b;
+}
+
+public function doAsyncCall() returns future<int> {
+    return start getIntValue();
 }
 
 public function getIntValue() returns int {

@@ -23,6 +23,7 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.QueryActionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@code BLangQueryAction} represents the do action  in Ballerina.
@@ -42,6 +44,7 @@ public class BLangQueryAction extends BLangExpression implements QueryActionNode
     public List<BLangFromClause> fromClauseList = new ArrayList<>();
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
     public List<BLangLetClause> letClauseList = new ArrayList<>();
+    public List<BLangNode> queryClauseList = new ArrayList<>();
     public BLangDoClause doClause;
 
     @Override
@@ -85,6 +88,16 @@ public class BLangQueryAction extends BLangExpression implements QueryActionNode
     }
 
     @Override
+    public List<BLangNode> getQueryClauses() {
+        return queryClauseList;
+    }
+
+    @Override
+    public void addQueryClause(BLangNode queryClause) {
+        this.queryClauseList.add(queryClause);
+    }
+
+    @Override
     public DoClauseNode getDoClauseNode() {
         return doClause;
     }
@@ -92,5 +105,10 @@ public class BLangQueryAction extends BLangExpression implements QueryActionNode
     @Override
     public void setDoClauseNode(DoClauseNode doClauseNode) {
         this.doClause = (BLangDoClause) doClauseNode;
+    }
+
+    @Override
+    public String toString() {
+        return queryClauseList.stream().map(BLangNode::toString).collect(Collectors.joining("\n"));
     }
 }

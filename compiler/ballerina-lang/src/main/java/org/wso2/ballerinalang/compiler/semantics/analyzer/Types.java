@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
@@ -546,6 +547,10 @@ public class Types {
                     unresolvedTypes);
         }
 
+        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
+            return isAssignableTableType((BTableType) source, (BTableType) target);
+        }
+
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
@@ -651,6 +656,53 @@ public class Types {
         }
 
         return true;
+    }
+
+    private boolean isAssignableTableType(BTableType sourceTableType, BTableType targetTableType) {
+        if (!isAssignable(sourceTableType.constraint, targetTableType.constraint)) {
+            return false;
+        }
+
+        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+            return true;
+        }
+
+        if (targetTableType.keyTypeConstraint != null) {
+            if (sourceTableType.keyTypeConstraint != null &&
+                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint))) {
+                return true;
+            }
+
+            if (sourceTableType.fieldNameList == null) {
+                return false;
+            }
+
+            List<BType> fieldTypes = new ArrayList<>();
+            sourceTableType.fieldNameList.forEach(field -> fieldTypes
+                    .add(getTableConstraintField(sourceTableType.constraint, field).type));
+
+            if (fieldTypes.size() == 1) {
+                return isAssignable(fieldTypes.get(0), targetTableType.keyTypeConstraint);
+            }
+
+            BTupleType tupleType = new BTupleType(fieldTypes);
+            return isAssignable(tupleType, targetTableType.keyTypeConstraint);
+        }
+
+        return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
+    }
+
+
+    BField getTableConstraintField(BType constraintType, String fieldName) {
+        List<BField> fieldList = ((BRecordType) constraintType).getFields();
+
+        for (BField field : fieldList) {
+            if (field.name.toString().equals(fieldName)) {
+                return field;
+            }
+        }
+
+        return null;
     }
 
     private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
@@ -1886,6 +1938,11 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BTableType t, BType s) {
             return t == s;
         }
 

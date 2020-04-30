@@ -102,11 +102,13 @@ dependencies {
     distBal project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
@@ -155,11 +157,13 @@ dependencies {
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:object', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:stream', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:table', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:string', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:typedesc', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:value', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:bool', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
 
     // ballerinax modules
     balSource project(path: ':ballerina-java', configuration: 'balSource')

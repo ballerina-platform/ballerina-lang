@@ -80,6 +80,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -688,6 +690,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        rewriteExprs(tableConstructorExpr.recordLiteralList);
+        result = tableConstructorExpr;
+    }
+
+    @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
         jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
         result = jsonArrayLiteral;
@@ -738,6 +746,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
         result = iExpr;
+    }
+
+    @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        List<BLangExpression> exprList = new ArrayList<>();
+        tableMultiKeyExpr.multiKeyIndexExprs.forEach(expression -> exprList.add(rewriteExpr(expression)));
+        tableMultiKeyExpr.multiKeyIndexExprs = exprList;
+        result = tableMultiKeyExpr;
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
@@ -1154,6 +1170,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
+        tableKeyAccessExpr.indexExpr = rewriteExpr(tableKeyAccessExpr.indexExpr);
+        tableKeyAccessExpr.expr = rewriteExpr(tableKeyAccessExpr.expr);
+        result = tableKeyAccessExpr;
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
         arrayIndexAccessExpr.indexExpr = rewriteExpr(arrayIndexAccessExpr.indexExpr);
         arrayIndexAccessExpr.expr = rewriteExpr(arrayIndexAccessExpr.expr);
@@ -1312,6 +1335,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation aIExpr) {
+        aIExpr.expr = rewriteExpr(aIExpr.expr);
+        aIExpr.requiredArgs = rewriteExprs(aIExpr.requiredArgs);
+        aIExpr.restArgs = rewriteExprs(aIExpr.restArgs);
         result = aIExpr;
     }
 
