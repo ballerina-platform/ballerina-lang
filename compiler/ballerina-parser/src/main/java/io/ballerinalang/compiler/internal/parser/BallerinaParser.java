@@ -1351,16 +1351,9 @@ public class BallerinaParser {
                 nextTokenKind = peek().kind;
                 break;
             case PUBLIC_KEYWORD:
+            case IDENTIFIER_TOKEN:
                 annots = STNodeFactory.createNodeList(new ArrayList<>());
                 break;
-            case IDENTIFIER_TOKEN:
-                // This is a early exit
-                if (isParamWithoutAnnotStart(nextTokenOffset)) {
-                    annots = STNodeFactory.createNodeList(new ArrayList<>());
-                    STNode qualifier = STNodeFactory.createEmptyNode();
-                    return parseParamGivenAnnotsAndQualifier(leadingComma, annots, qualifier);
-                }
-                // else fall through
             default:
                 if (nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN && isTypeStartingToken(nextTokenKind)) {
                     annots = STNodeFactory.createNodeList(new ArrayList<>());
@@ -1405,12 +1398,8 @@ public class BallerinaParser {
                 qualifier = parseQualifier();
                 break;
             case IDENTIFIER_TOKEN:
-                // This is a early exit
-                if (isParamWithoutAnnotStart(nextTokenOffset)) {
-                    qualifier = STNodeFactory.createEmptyNode();
-                    break;
-                }
-                // fall through
+                qualifier = STNodeFactory.createEmptyNode();
+                break;
             case AT_TOKEN: // Annotations can't reach here
             default:
                 if (isTypeStartingToken(nextTokenKind) && nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
@@ -1450,29 +1439,6 @@ public class BallerinaParser {
         STNode param = parseAfterParamType(leadingComma, annots, qualifier, type);
         endContext();
         return param;
-    }
-
-    /**
-     * Check whether the cursor is at the start of a parameter that doesn't have annotations.
-     *
-     * @param tokenOffset Offset of the token to check
-     * @return <code>true</code> if the cursor is at the start of a parameter. <code>false</code> otherwise.
-     */
-    private boolean isParamWithoutAnnotStart(int tokenOffset) {
-        // Assumes that we reach here after a peek()
-        STToken nextToken = peek(tokenOffset + 1);
-        switch (nextToken.kind) {
-            case PUBLIC_KEYWORD:
-                return isParamWithoutAnnotStart(tokenOffset + 1);
-            case ELLIPSIS_TOKEN:
-                // scenario: foo...
-                return true;
-            case IDENTIFIER_TOKEN:
-                // scenario: foo bar [comma | equal | close-parenthesis]
-                return true;
-            default:
-                return false;
-        }
     }
 
     private STNode parseAfterParamType(STNode leadingComma, STNode annots, STNode qualifier, STNode type) {
