@@ -154,7 +154,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the module names.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
+    @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1",
+            enabled = false)
     public void testBuildTestProject2() throws IOException, BallerinaTestException, InterruptedException {
         // Replace module names in source file
         Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
@@ -292,7 +293,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      */
     @Test(description = "Test rebuilding and running TestProject2 with offline flag and lock file removed",
-          dependsOnMethods = "testRebuildTestProj2")
+          dependsOnMethods = "testRebuildTestProj2", enabled = false)
     public void testRebuildTestProj2WithLockRemovedAndOffline() throws IOException, BallerinaTestException {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
