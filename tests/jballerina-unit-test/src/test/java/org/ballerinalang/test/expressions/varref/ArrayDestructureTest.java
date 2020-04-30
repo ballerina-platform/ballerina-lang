@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.types.lists;
+package org.ballerinalang.test.expressions.varref;
 
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -37,7 +37,7 @@ public class ArrayDestructureTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/lists/array_destructure_test.bal");
+        compileResult = BCompileUtil.compile("test-src/expressions/varref/array_destructure_test.bal");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ArrayDestructureTest {
     @Test
     public void testSimpleArrayDestructureNegative() {
         CompileResult negativeTestCompile = BCompileUtil
-                .compile("test-src/types/lists/array_destructure_negative.bal");
+                .compile("test-src/expressions/varref/array_destructure_negative.bal");
         Assert.assertEquals(negativeTestCompile.getErrorCount(), 5);
 
         int index = 0;
