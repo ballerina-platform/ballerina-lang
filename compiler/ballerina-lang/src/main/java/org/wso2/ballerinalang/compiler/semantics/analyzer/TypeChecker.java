@@ -165,6 +165,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -719,17 +720,26 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            if (tableConstructorExpr.tableKeySpecifier != null &&
-                    !(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
-                            tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
+            BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr.tableKeySpecifier);
+            BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
+            for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+                recordLiteral.type = inherentMemberType;
+            }
+
+            if (!validateTableConstructorExpr(tableConstructorExpr, tableType)) {
                 resultType = symTable.semanticError;
                 return;
             }
 
-            BTableType tableType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
             if (tableConstructorExpr.tableKeySpecifier != null) {
+                if (!(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
+                        tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
+                    resultType = symTable.semanticError;
+                    return;
+                }
                 tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
             }
+
             resultType = tableType;
         } else if (expType.tag == TypeTags.TABLE) {
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
@@ -740,8 +750,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            if (!(validateTableType((BTableType) expType, tableConstructorExpr.pos,
-                    tableConstructorExpr.recordLiteralList) && validateTableConstructorExpr(tableConstructorExpr))) {
+            if (!(validateTableType((BTableType) expType,
+                    tableConstructorExpr.recordLiteralList) &&
+                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) expType))) {
                 resultType = symTable.semanticError;
                 return;
             }
@@ -758,8 +769,49 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean validateTableType(BTableType tableType, DiagnosticPos pos,
-                                      List<BLangRecordLiteral> recordLiterals) {
+    private BType inferTableMemberType(List<BType> memTypes, BLangTableKeySpecifier keySpecifier) {
+        Set<BField> allFieldSet = new LinkedHashSet<>();
+        for (BType memType : memTypes) {
+            List<BField> fields = ((BRecordType) memType).fields;
+            allFieldSet.addAll(fields);
+        }
+
+        Set<BField> commonFieldSet = new LinkedHashSet<>(allFieldSet);
+        for (BType memType : memTypes) {
+            List<BField> fields = ((BRecordType) memType).fields;
+            commonFieldSet.retainAll(fields);
+        }
+
+        List<String> requiredFieldNames = new ArrayList<>();
+        if (keySpecifier != null) {
+            for (BLangIdentifier identifier : keySpecifier.fieldNameIdentifierList) {
+                requiredFieldNames.add(identifier.value);
+            }
+        }
+
+        for (BField field : allFieldSet) {
+            String fieldName = field.name.value;
+            boolean isOptional = true;
+            for (BField commonField : commonFieldSet) {
+                if (commonField.name.value.equals(fieldName)) {
+                    isOptional = false;
+                    requiredFieldNames.add(commonField.name.value);
+                }
+            }
+
+            if (isOptional) {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+            } else if (requiredFieldNames.contains(fieldName)) {
+                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
+            }
+        }
+
+        BType memberType = memTypes.get(0);
+        ((BRecordType) memberType).fields = new ArrayList<>(allFieldSet);
+        return memberType;
+    }
+
+    private boolean validateTableType(BTableType tableType, List<BLangRecordLiteral> recordLiterals) {
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
         memTypes.add(symTable.anyType);
         memTypes.add(symTable.errorType);
@@ -820,6 +872,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
                                          DiagnosticPos pos) {
+        if(constraint.tag != TypeTags.RECORD) {
+            return true;
+        }
+
         for (String fieldName : fieldNameList) {
             BField field = types.getTableConstraintField(constraint, fieldName);
             if (field == null) {
@@ -831,14 +887,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
                 dlog.error(pos,
-                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_READONLY, fieldName, constraint);
+                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_READONLY, fieldName);
                 resultType = symTable.semanticError;
                 return false;
             }
 
             if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos,
-                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED, fieldName, constraint);
+                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED, fieldName);
                 resultType = symTable.semanticError;
                 return false;
             }
@@ -853,8 +909,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr) {
-        BTableType tableType = (BTableType) expType;
+    private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr,
+                                                 BTableType tableType) {
         BType constraintType = tableType.constraint;
 
         if (tableConstructorExpr.tableKeySpecifier != null) {

@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 14);
+        Assert.assertEquals(compileResult.getErrorCount(), 16);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -66,5 +66,10 @@ public class TableNegativeTest {
                 "literal value", 90, 33);
         validateError(compileResult, index++, "incompatible types: expected 'table<Customer> " +
                 "key<string>', found 'table<Customer> key(id)'", 95, 56);
+        validateError(compileResult, index++, "field name 'no' used in key specifier is not " +
+                "found in table constraint type 'record {| int id; string name; string lname?; " +
+                "string address?; |}'", 98, 21);
+        validateError(compileResult, index++, "field 'address' used in key specifier must be a " +
+                "readonly field", 104, 21);
     }
 }

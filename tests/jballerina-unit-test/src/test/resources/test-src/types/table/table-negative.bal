@@ -94,3 +94,14 @@ table<Customer> key<int> intKeyConstraintTable = table key(id)[{ id: 13 , firstN
 
 table<Customer> key<string> stringKeyConstraintTable = intKeyConstraintTable;
 
+function testInvalidKeyForInferTypeTable() {
+    var tab = table key(no) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" },
+                                       { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
+}
+
+function testRequiredFieldForInferTypeTable() {
+    var tab = table key(address) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" },
+                                       { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
+}
