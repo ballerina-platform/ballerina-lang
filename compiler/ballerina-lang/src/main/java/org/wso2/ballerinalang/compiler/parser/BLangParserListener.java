@@ -870,14 +870,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         // Validate type AB "A"| record { string f; };
         if (!isAnonymous) {
-                isAnonymous = checkIfAnonymousInTypeDef(ctx);
+            isAnonymous = checkIfAnonymousInTypeDef(ctx);
         }
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isAnonymous, false, false);
     }
 
     /**
-     * Validate if this is a anonymous record type describe in union with a type descriptor
+     * Validate if this is a anonymous record type describe in union with a type descriptor.
      *
      * @param ctx the current context to be validated. can be InclusiveRecordTypeDescriptor or ExclusiveRecordTypeDes.
      * @return true if is part of a union type descriptor with on the fly definition
