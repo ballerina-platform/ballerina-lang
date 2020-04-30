@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
+import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
@@ -45,6 +47,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public BLangSelectClause selectClause;
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
     public List<BLangLetClause> letClausesList = new ArrayList<>();
+    public BLangOnConflictClause onConflictClause;
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public boolean isStream = false;
 
@@ -66,6 +69,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void setSelectClauseNode(SelectClauseNode selectClauseNode) {
         this.selectClause = (BLangSelectClause) selectClauseNode;
+    }
+
+    @Override
+    public OnConflictClauseNode getOnConflictClauseNode() {
+        return onConflictClause;
+    }
+
+    @Override
+    public void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode) {
+        this.onConflictClause = (BLangOnConflictClause) onConflictClauseNode;
     }
 
     @Override

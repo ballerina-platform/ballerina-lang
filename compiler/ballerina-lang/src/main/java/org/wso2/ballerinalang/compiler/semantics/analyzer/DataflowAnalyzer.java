@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -823,6 +824,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(queryExpr.selectClause, env);
+        analyzeNode(queryExpr.onConflictClause, env);
     }
 
     @Override
@@ -838,6 +840,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        analyzeNode(onConflictClause.expression, env);
     }
 
     @Override

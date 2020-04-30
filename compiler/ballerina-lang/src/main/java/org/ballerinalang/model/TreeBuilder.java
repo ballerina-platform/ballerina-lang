@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
+import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -165,6 +166,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -737,6 +739,10 @@ public class TreeBuilder {
 
     public static SelectClauseNode createSelectClauseNode() {
         return new BLangSelectClause();
+    }
+
+    public static OnConflictClauseNode createOnConflictClauseNode() {
+        return new BLangOnConflictClause();
     }
 
     public static DoClauseNode createDoClauseNode() {
