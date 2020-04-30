@@ -127,6 +127,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(forkStatementNode);
     }
 
+    public void visit(ForEachStatementNode forEachStatementNode) {
+        visitSyntaxNode(forEachStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }
@@ -353,6 +357,14 @@ public abstract class NodeVisitor {
 
     public void visit(ListConstructorExpressionNode listConstructorExpressionNode) {
         visitSyntaxNode(listConstructorExpressionNode);
+    }
+
+    public void visit(TypeCastExpressionNode typeCastExpressionNode) {
+        visitSyntaxNode(typeCastExpressionNode);
+    }
+
+    public void visit(TypeCastParamNode typeCastParamNode) {
+        visitSyntaxNode(typeCastParamNode);
     }
 
     public void visit(UnionTypeDescriptorNode unionTypeDescriptorNode) {

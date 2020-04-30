@@ -128,6 +128,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(forkStatementNode);
     }
 
+    public T transform(ForEachStatementNode forEachStatementNode) {
+        return transformSyntaxNode(forEachStatementNode);
+    }
+
     public T transform(BinaryExpressionNode binaryExpressionNode) {
         return transformSyntaxNode(binaryExpressionNode);
     }
@@ -354,6 +358,14 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ListConstructorExpressionNode listConstructorExpressionNode) {
         return transformSyntaxNode(listConstructorExpressionNode);
+    }
+
+    public T transform(TypeCastExpressionNode typeCastExpressionNode) {
+        return transformSyntaxNode(typeCastExpressionNode);
+    }
+
+    public T transform(TypeCastParamNode typeCastParamNode) {
+        return transformSyntaxNode(typeCastParamNode);
     }
 
     public T transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {

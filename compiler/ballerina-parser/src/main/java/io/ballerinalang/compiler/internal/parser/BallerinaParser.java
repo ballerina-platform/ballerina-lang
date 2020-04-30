@@ -334,6 +334,10 @@ public class BallerinaParser {
                 return parseHexFloatingPointLiteral();
             case TRAP_KEYWORD:
                 return parseTrapKeyword();
+            case IN_KEYWORD:
+                return parseInKeyword();
+            case FOREACH_KEYWORD:
+                return parseForEachKeyword();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -2762,6 +2766,7 @@ public class BallerinaParser {
             case LOCK_KEYWORD:
             case OPEN_BRACE_TOKEN:
             case FORK_KEYWORD:
+            case FOREACH_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -2860,6 +2865,8 @@ public class BallerinaParser {
                 return parseNamedWorkerDeclaration(getAnnotations(annots));
             case FORK_KEYWORD:
                 return parseForkStatement();
+            case FOREACH_KEYWORD:
+                return parseForEachStatement();
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
@@ -3156,6 +3163,8 @@ public class BallerinaParser {
                 return parseTrapExpression(isRhsExpr);
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
+            case LT_TOKEN:
+                return parseTypeCastExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3168,6 +3177,9 @@ public class BallerinaParser {
                 }
                 if (solution.recoveredNode.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
                     return parseListConstructorExpr();
+                }
+                if (solution.recoveredNode.kind == SyntaxKind.LT_TOKEN) {
+                    return parseTypeCastExpr();
                 }
 
                 return solution.recoveredNode;
@@ -6952,5 +6964,103 @@ public class BallerinaParser {
         }
 
         return STNodeFactory.createNodeList(expressions);
+    }
+
+    /**
+     * Parse foreach statement.
+     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt</code>
+     *
+     * @return foreach statement
+     */
+    private STNode parseForEachStatement() {
+        startContext(ParserRuleContext.FOREACH_STMT);
+        STNode forEachKeyword = parseForEachKeyword();
+        STNode type = parseTypeDescriptor();
+        STNode varName = parseVariableName();
+        STNode inKeyword = parseInKeyword();
+        STNode actionOrExpr = parseActionOrExpression();
+        STNode blockStatement = parseBlockNode();
+        endContext();
+        return STNodeFactory.createForEachStatementNode(forEachKeyword,
+                                                        type,
+                                                        varName,
+                                                        inKeyword,
+                                                        actionOrExpr,
+                                                        blockStatement);
+    }
+
+    /**
+     * Parse foreach-keyword.
+     *
+     * @return ForEach-keyword node
+     */
+    private STNode parseForEachKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FOREACH_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FOREACH_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse in-keyword.
+     *
+     * @return In-keyword node
+     */
+    private STNode parseInKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IN_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.IN_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse type cast expression.
+     * <p>
+     * <code>
+     * type-cast-expr := < type-cast-param > expression
+     * <br/>
+     * type-cast-param := [annots] type-descriptor | annots
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseTypeCastExpr() {
+        startContext(ParserRuleContext.TYPE_CAST_EXPRESSION);
+        STNode ltToken = parseLTToken();
+        STNode typeCastParam = parseTypeCastParam();
+        STNode gtToken = parseGTToken();
+        STNode expression = parseExpression();
+        endContext();
+        return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
+    }
+
+    private STNode parseTypeCastParam() {
+        STNode annot;
+        STNode type;
+        STToken token = peek();
+
+        switch (token.kind) {
+            case AT_TOKEN:
+                annot = parseAnnotations();
+                token = peek();
+                if (isTypeStartingToken(token.kind)) {
+                    type = parseTypeDescriptor();
+                } else {
+                    type = STNodeFactory.createEmptyNode();
+                }
+                break;
+            default:
+                annot = STNodeFactory.createEmptyNode();
+                type = parseTypeDescriptor();
+                break;
+        }
+
+        return STNodeFactory.createTypeCastParamNode(annot, type);
     }
 }

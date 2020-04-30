@@ -146,6 +146,7 @@ public enum ParserRuleContext {
     LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
     FORK_STMT("fork-stmt"),
+    FOREACH_STMT("foreach-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -188,6 +189,8 @@ public enum ParserRuleContext {
     WORKER_KEYWORD("worker"),
     FORK_KEYWORD("fork"),
     TRAP_KEYWORD("trap"),
+    IN_KEYWORD("in"),
+    FOREACH_KEYWORD("foreach"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -263,6 +266,9 @@ public enum ParserRuleContext {
     TRAP_EXPRESSION("trap-expr"),
     LIST_CONSTRUCTOR("list-constructor"),
     LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
+    TYPE_CAST_EXPRESSION("type-cast-expr"),
+    TYPE_CAST_PARAM("type-cast-param"),
+    TYPE_CAST_PARAM_RHS("type-cast-param-rhs"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

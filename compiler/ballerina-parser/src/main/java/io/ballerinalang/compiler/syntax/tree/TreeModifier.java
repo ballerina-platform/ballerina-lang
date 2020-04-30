@@ -329,6 +329,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(ForEachStatementNode forEachStatementNode) {
+        Token forEachKeyword = modifyToken(forEachStatementNode.forEachKeyword());
+        Node typeDescriptor = modifyNode(forEachStatementNode.typeDescriptor());
+        Token variableName = modifyToken(forEachStatementNode.variableName());
+        Token inKeyword = modifyToken(forEachStatementNode.inKeyword());
+        Node ActionOrExpressionNode = modifyNode(forEachStatementNode.ActionOrExpressionNode());
+        StatementNode blockStatement = modifyNode(forEachStatementNode.blockStatement());
+        return forEachStatementNode.modify(
+                forEachKeyword,
+                typeDescriptor,
+                variableName,
+                inKeyword,
+                ActionOrExpressionNode,
+                blockStatement);
+    }
+
+    @Override
     public Node transform(BinaryExpressionNode binaryExpressionNode) {
         Node lhsExpr = modifyNode(binaryExpressionNode.lhsExpr());
         Token operator = modifyToken(binaryExpressionNode.operator());
@@ -1022,6 +1039,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBracket,
                 expressions,
                 closeBracket);
+    }
+
+    @Override
+    public Node transform(TypeCastExpressionNode typeCastExpressionNode) {
+        Token ltToken = modifyToken(typeCastExpressionNode.ltToken());
+        TypeCastParamNode typeCastParam = modifyNode(typeCastExpressionNode.typeCastParam());
+        Token gtToken = modifyToken(typeCastExpressionNode.gtToken());
+        ExpressionNode expression = modifyNode(typeCastExpressionNode.expression());
+        return typeCastExpressionNode.modify(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
+    @Override
+    public Node transform(TypeCastParamNode typeCastParamNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(typeCastParamNode.annotations());
+        Node type = modifyNode(typeCastParamNode.type());
+        return typeCastParamNode.modify(
+                annotations,
+                type);
     }
 
     @Override

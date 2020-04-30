@@ -436,6 +436,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stForkStatementNode.createUnlinkedFacade();
     }
 
+    public static ForEachStatementNode createForEachStatementNode(
+            Token forEachKeyword,
+            Node typeDescriptor,
+            Token variableName,
+            Token inKeyword,
+            Node ActionOrExpressionNode,
+            StatementNode blockStatement) {
+        Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+        Objects.requireNonNull(ActionOrExpressionNode, "ActionOrExpressionNode must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stForEachStatementNode = STNodeFactory.createForEachStatementNode(
+                forEachKeyword.internalNode(),
+                typeDescriptor.internalNode(),
+                variableName.internalNode(),
+                inKeyword.internalNode(),
+                ActionOrExpressionNode.internalNode(),
+                blockStatement.internalNode());
+        return stForEachStatementNode.createUnlinkedFacade();
+    }
+
     public static BinaryExpressionNode createBinaryExpressionNode(
             SyntaxKind kind,
             Node lhsExpr,
@@ -1387,6 +1411,36 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expressions.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
         return stListConstructorExpressionNode.createUnlinkedFacade();
+    }
+
+    public static TypeCastExpressionNode createTypeCastExpressionNode(
+            Token ltToken,
+            TypeCastParamNode typeCastParam,
+            Token gtToken,
+            ExpressionNode expression) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(typeCastParam, "typeCastParam must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stTypeCastExpressionNode = STNodeFactory.createTypeCastExpressionNode(
+                ltToken.internalNode(),
+                typeCastParam.internalNode(),
+                gtToken.internalNode(),
+                expression.internalNode());
+        return stTypeCastExpressionNode.createUnlinkedFacade();
+    }
+
+    public static TypeCastParamNode createTypeCastParamNode(
+            NodeList<AnnotationNode> annotations,
+            Node type) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+
+        STNode stTypeCastParamNode = STNodeFactory.createTypeCastParamNode(
+                annotations.underlyingListNode().internalNode(),
+                type.internalNode());
+        return stTypeCastParamNode.createUnlinkedFacade();
     }
 
     public static UnionTypeDescriptorNode createUnionTypeDescriptorNode(

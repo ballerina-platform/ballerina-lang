@@ -334,6 +334,23 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBraceToken);
     }
 
+    public static STNode createForEachStatementNode(
+            STNode forEachKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode inKeyword,
+            STNode ActionOrExpressionNode,
+            STNode blockStatement) {
+
+        return new STForEachStatementNode(
+                forEachKeyword,
+                typeDescriptor,
+                variableName,
+                inKeyword,
+                ActionOrExpressionNode,
+                blockStatement);
+    }
+
     public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,
@@ -1033,6 +1050,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBracket,
                 expressions,
                 closeBracket);
+    }
+
+    public static STNode createTypeCastExpressionNode(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression) {
+
+        return new STTypeCastExpressionNode(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
+    public static STNode createTypeCastParamNode(
+            STNode annotations,
+            STNode type) {
+
+        return new STTypeCastParamNode(
+                annotations,
+                type);
     }
 
     public static STNode createUnionTypeDescriptorNode(
