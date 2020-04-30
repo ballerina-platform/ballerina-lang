@@ -57,7 +57,8 @@ import ballerina/java;
 # + connectionsMaxIdleTimeInMillis - Close the idle connections after this number of milliseconds
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled
-# + secureSocket - Configurations related to SSL/TLS
+# + secureSocket - Configurations related to SSL/TLS encryption
+# + authenticationConfiguration - Authentication related configurations for the Kafka producer
 public type ProducerConfiguration record {|
     string bootstrapServers;
     ProducerAcks acks = ACKS_SINGLE;
@@ -97,6 +98,7 @@ public type ProducerConfiguration record {|
     boolean enableIdempotence = false;
 
     SecureSocket secureSocket?;
+    AuthenticationConfiguration authenticationConfiguration?;
 |};
 
 # Defines a records to send data using Avro serialization.
