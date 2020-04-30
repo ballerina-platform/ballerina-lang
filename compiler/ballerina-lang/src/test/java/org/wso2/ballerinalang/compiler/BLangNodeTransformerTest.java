@@ -103,7 +103,6 @@ public class BLangNodeTransformerTest {
         BLangPackage bLangPackage = this.packageLoader.loadEntryPackage(packageID, null, new EmptyPrintStream());
         Set<Class<?>> skipList = new HashSet<>();
         String jsonStr = generateFieldJson(bLangPackage.getClass(), bLangPackage, skipList, bLangPackage);
-//        System.out.println(jsonStr);
         JsonObject actualJsonObj = jsonParser.parse(jsonStr).getAsJsonObject();
 
         // Fix test cases replacing expected using responses
