@@ -1,6 +1,7 @@
 package org.ballerinalang.moduleloader;
 
 import org.ballerinalang.moduleloader.model.ModuleId;
+import org.ballerinalang.moduleloader.model.ModuleResolution;
 
 public interface ModuleLoader {
 

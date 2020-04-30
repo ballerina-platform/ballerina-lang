@@ -4,6 +4,7 @@ import org.ballerinalang.moduleloader.model.ModuleId;
 import org.ballerinalang.moduleloader.model.Project;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
@@ -11,6 +12,21 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class ModuleLoaderTests {
+
+    private Project tomlProject = new Project();
+    private ModuleLoaderImpl tomlModuleLoader;
+
+    @BeforeClass()
+    public void setUp() throws TomlException {
+        tomlProject.parseBallerinaToml("[project] \n" +
+                "org-name = \"doe\" \n" +
+                "version = \"1.0.0\"\n\n" +
+                "[dependencies]\n" +
+                "\"foo/firstMod\" = \"2.0.0\"\n" +
+                "\"foo/secondMod\" = \"\"");
+
+        tomlModuleLoader = new ModuleLoaderImpl(tomlProject);
+    }
 
     @Test(description = "Get module version from module ID")
     public void testGetModuleVersionFromModuleId() {
@@ -55,41 +71,22 @@ public class ModuleLoaderTests {
     }
 
     @Test(description = "Get module version from Ballerina Toml when specific version is given")
-    public void testGetModuleVersionFromSpecificVersionInBallerinaToml() throws TomlException {
-        // try to create one project => use multiple dependencies
-        Project project = new Project();
-        project.parseBallerinaToml("[project] \n" +
-                "org-name = \"foo\" \n" +
-                "version = \"1.0.0\"\n\n" +
-                "[dependencies]\n" +
-                "\"bar/firstMod\" = \"2.0.0\"");
-
-        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project);
-
+    public void testGetModuleVersionFromSpecificVersionInBallerinaToml() {
         ModuleId moduleId = new ModuleId();
-        moduleId.orgName = "bar";
+        moduleId.orgName = "foo";
         moduleId.moduleName = "firstMod";
 
-        ModuleId versionResolvedModuleId = moduleLoader.resolveVersion(moduleId, new ModuleId());
+        ModuleId versionResolvedModuleId = tomlModuleLoader.resolveVersion(moduleId, new ModuleId());
         Assert.assertEquals(versionResolvedModuleId.version, "2.0.0");
     }
 
     @Test(description = "Get module version from Ballerina Toml when range of version is given")
-    public void testGetModuleVersionFromRangeOfVersionsInBallerinaToml() throws TomlException { // => ask from Hemika
-        Project project = new Project();
-        project.parseBallerinaToml("[project] \n" +
-                "org-name = \"foo\" \n" +
-                "version = \"1.0.0\"\n\n" +
-                "[dependencies.\"bar/firstMod\"] \n" +
-                "version = \"2.0.0\"");
-
-        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project);
-
+    public void testGetModuleVersionFromRangeOfVersionsInBallerinaToml() { // => ask from Hemika
         ModuleId moduleId = new ModuleId();
-        moduleId.orgName = "bar";
-        moduleId.moduleName = "firstMod";
+        moduleId.orgName = "foo";
+        moduleId.moduleName = "secondMod";
 
-        ModuleId versionResolvedModuleId = moduleLoader.resolveVersion(moduleId, new ModuleId());
+        ModuleId versionResolvedModuleId = tomlModuleLoader.resolveVersion(moduleId, new ModuleId());
         Assert.assertEquals(versionResolvedModuleId.version, "2.0.0");
     }
 }
