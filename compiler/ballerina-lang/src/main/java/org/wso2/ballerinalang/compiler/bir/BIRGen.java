@@ -1780,7 +1780,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create xml element
         BIRNonTerminator.NewXMLElement newXMLElement = new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos,
-                toVarRef, startTagNameIndex, defaultNsURIVarRef);
+                toVarRef, startTagNameIndex, defaultNsURIVarRef, xmlElementLiteral.type);
         emit(newXMLElement);
 
         // Populate the XML by adding namespace declarations, attributes and children
@@ -1828,7 +1828,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand xmlCommentIndex = this.env.targetOperand;
 
         BIRNonTerminator.NewXMLComment newXMLComment =
-                new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex);
+                new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex,
+                                                   xmlCommentLiteral.type);
         emit(newXMLComment);
         this.env.targetOperand = toVarRef;
     }
@@ -1847,7 +1848,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand targetIndex = this.env.targetOperand;
 
         BIRNonTerminator.NewXMLProcIns newXMLProcIns =
-                new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex);
+                new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex,
+                                                   xmlProcInsLiteral.type);
         emit(newXMLProcIns);
         this.env.targetOperand = toVarRef;
     }

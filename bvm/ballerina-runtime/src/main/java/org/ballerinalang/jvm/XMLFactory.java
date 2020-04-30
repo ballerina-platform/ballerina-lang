@@ -254,6 +254,24 @@ public class XMLFactory {
      */
     @Deprecated
     public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri) {
+        return createXMLElement(startTagName, defaultNsUri, BTypes.typeElement);
+    }
+
+    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal) {
+        return createXMLElement(startTagName,
+                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
+    }
+
+    /**
+     * Create an element type XMLValue, specifying the type which will indicate mutability.
+     *
+     * @param startTagName  Name of the start tag of the element
+     * @param defaultNsUri  Default namespace URI
+     * @param type          The type for element comment
+     * @return XMLValue Element type XMLValue
+     */
+    @Deprecated
+    public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri, BType type) {
         // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
         XMLValidator.validateXMLQName(startTagName);
 
@@ -265,9 +283,9 @@ public class XMLFactory {
         String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
 
         if (nsUri == null) {
-            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix));
+            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix), type);
         } else {
-            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix));
+            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix), type);
             if (defaultNsUri != null && !defaultNsUri.isEmpty()) {
                 xmlItem.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
             }
@@ -275,9 +293,9 @@ public class XMLFactory {
         }
     }
 
-    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal) {
+    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal, BType type) {
         return createXMLElement(startTagName,
-                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
+                                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue(), type);
     }
 
     /**
@@ -299,6 +317,29 @@ public class XMLFactory {
      */
     public static XMLValue createXMLComment(BString content) {
         return createXMLComment(content.getValue());
+    }
+
+    /**
+     * Create a comment type XMLValue, specifying the type which will indicate mutability.
+     *
+     * @param content   Comment content
+     * @param type      The type for the comment
+     * @return XMLValue Comment type XMLValue
+     */
+    @Deprecated
+    public static XMLValue createXMLComment(String content, BType type) {
+        return new XMLComment(content, type);
+    }
+
+    /**
+     * Create a comment type XMLValue, specifying the type which will indicate mutability.
+     *
+     * @param content   Comment content
+     * @param type      The type for the comment
+     * @return XMLValue Comment type XMLValue
+     */
+    public static XMLValue createXMLComment(BString content, BType type) {
+        return createXMLComment(content.getValue(), type);
     }
 
     /**
@@ -343,6 +384,31 @@ public class XMLFactory {
      */
     public static XMLValue createXMLProcessingInstruction(BString tartget, BString data) {
         return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
+    }
+
+    /**
+     * Create a processing instruction type XMLValue, specifying the type which will indicate mutability.
+     *
+     * @param target    PI target
+     * @param data      PI data
+     * @param type      The type for the PI
+     * @return XMLValue Processing instruction type XMLValue
+     */
+    @Deprecated
+    public static XMLValue createXMLProcessingInstruction(String target, String data, BType type) {
+        return new XMLPi(data, target, type);
+    }
+
+    /**
+     * Create a processing instruction type XMLValue, specifying the type which will indicate mutability.
+     *
+     * @param target    PI target
+     * @param data      PI data
+     * @param type      The type for the PI
+     * @return XMLValue Processing instruction type XMLValue
+     */
+    public static XMLValue createXMLProcessingInstruction(BString target, BString data, BType type) {
+        return createXMLProcessingInstruction(target.getValue(), data.getValue(), type);
     }
 
     /**

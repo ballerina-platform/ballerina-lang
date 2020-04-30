@@ -2950,6 +2950,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
         if (expType == symTable.noType) {
             resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
+            return;
         }
         resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLProcInsLiteral.pos, symTable.xmlPIType, this.expType);
     }
@@ -5734,17 +5735,29 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkXmlSubTypeLiteralCompatibility(DiagnosticPos pos, BType mutableXmlSubType, BType expType) {
+        if (expType == symTable.semanticError) {
+            return expType;
+        }
+
         boolean unionExpType = expType.tag == TypeTags.UNION;
 
-        if (expType == mutableXmlSubType || (!unionExpType && types.isAssignable(mutableXmlSubType, expType))) {
+        if (expType == mutableXmlSubType) {
             return expType;
+        }
+
+        if (!unionExpType && types.isAssignable(mutableXmlSubType, expType)) {
+            return mutableXmlSubType;
         }
 
         BXMLSubType immutableXmlSubType =
                 (BXMLSubType) ImmutableTypeCloner.setImmutableType(pos, types, mutableXmlSubType, env, symTable,
                                                                    anonymousModelHelper, names);
-        if (expType == immutableXmlSubType || (!unionExpType && types.isAssignable(immutableXmlSubType, expType))) {
+        if (expType == immutableXmlSubType) {
             return expType;
+        }
+
+        if (!unionExpType && types.isAssignable(immutableXmlSubType, expType)) {
+            return immutableXmlSubType;
         }
 
         if (!unionExpType) {
@@ -5758,11 +5771,18 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (memberType == mutableXmlSubType ||
-                    memberType == immutableXmlSubType ||
-                    types.isAssignable(mutableXmlSubType, memberType) ||
-                    types.isAssignable(immutableXmlSubType, memberType)) {
+            if (memberType == mutableXmlSubType || memberType == immutableXmlSubType) {
                 compatibleTypes.add(memberType);
+                continue;
+            }
+
+            if (types.isAssignable(mutableXmlSubType, memberType) && !compatibleTypes.contains(mutableXmlSubType)) {
+                compatibleTypes.add(mutableXmlSubType);
+                continue;
+            }
+
+            if (types.isAssignable(immutableXmlSubType, memberType) && !compatibleTypes.contains(immutableXmlSubType)) {
+                compatibleTypes.add(immutableXmlSubType);
             }
         }
 

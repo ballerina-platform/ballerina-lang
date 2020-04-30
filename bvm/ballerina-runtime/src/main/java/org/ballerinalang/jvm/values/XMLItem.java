@@ -77,6 +77,7 @@ public final class XMLItem extends XMLValue {
         attributes = new AttributeMapValueImpl();
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
+        this.type = BTypes.typeElement;
     }
 
     /**
@@ -86,6 +87,12 @@ public final class XMLItem extends XMLValue {
      */
     public XMLItem(QName name) {
         this(name, new XMLSequence(new ArrayList<>()));
+        this.type = BTypes.typeElement;
+    }
+
+    public XMLItem(QName name, BType type) {
+        this(name, new XMLSequence(new ArrayList<>()));
+        this.type = type;
     }
 
     private void addDefaultNamespaceAttribute(QName name, MapValue<String, String> attributes) {
@@ -310,12 +317,6 @@ public final class XMLItem extends XMLValue {
     @Override
     @Deprecated
     public void addChildren(BXML seq) {
-        synchronized (this) {
-            if (this.type.isReadOnly() || children.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
-        }
-
         if (seq == null) {
             return;
         }
@@ -651,10 +652,5 @@ public final class XMLItem extends XMLValue {
             return other.children.size() == 1 && this.equals(other.children.get(0));
         }
         return false;
-    }
-
-    @Override
-    public BType getType() {
-        return this.type.isReadOnly() ? BTypes.typeReadonlyElement : BTypes.typeElement;
     }
 }

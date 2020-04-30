@@ -281,12 +281,6 @@ public final class XMLSequence extends XMLValue {
     @Override
     @Deprecated
     public void addChildren(BXML seq) {
-        synchronized (this) {
-            if (this.type.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
-        }
-
         if (children.size() != 1) {
             throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }

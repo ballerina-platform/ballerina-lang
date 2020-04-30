@@ -1438,9 +1438,11 @@ public class JvmInstructionGen {
             this.loadVar(newXMLElement.startTagOp.variableDcl);
             this.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
             this.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
+            loadType(this.mv, newXMLElement.type);
+
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                    String.format("(L%s;L%s;)L%s;", XML_QNAME,
-                                                  isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
+                                    String.format("(L%s;L%s;L%s;)L%s;", XML_QNAME,
+                                                  isBString ? B_STRING_VALUE : STRING_VALUE, BTYPE, XML_VALUE), false);
             this.storeToVar(newXMLElement.lhsOp.variableDcl);
         }
 
@@ -1479,9 +1481,12 @@ public class JvmInstructionGen {
         void generateNewXMLCommentIns(NewXMLComment newXMLComment) {
 
             this.loadVar(newXMLComment.textOp.variableDcl);
+
+            loadType(this.mv, newXMLComment.type);
+
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
-                                    false);
+                                    String.format("(L%s;L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE,
+                                                  BTYPE, XML_VALUE), false);
             this.storeToVar(newXMLComment.lhsOp.variableDcl);
         }
 
@@ -1489,9 +1494,11 @@ public class JvmInstructionGen {
 
             this.loadVar(newXMLPI.targetOp.variableDcl);
             this.loadVar(newXMLPI.dataOp.variableDcl);
+            loadType(this.mv, newXMLPI.type);
+
             String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                                    String.format("(L%s;L%s;)L%s;", consVal, consVal, XML_VALUE), false);
+                                    String.format("(L%s;L%s;L%s;)L%s;", consVal, consVal, BTYPE, XML_VALUE), false);
             this.storeToVar(newXMLPI.lhsOp.variableDcl);
         }
 

@@ -38,6 +38,13 @@ public class XMLPi extends XMLNonElementItem {
     public XMLPi(String data, String target) {
         this.data = data;
         this.target = target;
+        this.type = BTypes.typeProcessingInstruction;
+    }
+
+    public XMLPi(String data, String target, BType type) {
+        this.data = data;
+        this.target = target;
+        this.type = type;
     }
 
     @Override
@@ -101,10 +108,5 @@ public class XMLPi extends XMLNonElementItem {
     @Override
     public String stringValue() {
         return "<?" + target + " " + data + "?>";
-    }
-
-    @Override
-    public BType getType() {
-        return this.type.isReadOnly() ? BTypes.typeReadonlyProcessingInstruction : BTypes.typeProcessingInstruction;
     }
 }

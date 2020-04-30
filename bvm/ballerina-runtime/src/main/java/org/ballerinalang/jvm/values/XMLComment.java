@@ -36,6 +36,12 @@ public class XMLComment extends XMLNonElementItem {
 
     public XMLComment(String data) {
         this.data = data;
+        this.type = BTypes.typeComment;
+    }
+
+    public XMLComment(String data, BType type) {
+        this.data = data;
+        this.type = type;
     }
 
     @Override
@@ -85,10 +91,5 @@ public class XMLComment extends XMLNonElementItem {
 
         }
         return false;
-    }
-
-    @Override
-    public BType getType() {
-        return this.type.isReadOnly() ? BTypes.typeReadonlyComment : BTypes.typeComment;
     }
 }
