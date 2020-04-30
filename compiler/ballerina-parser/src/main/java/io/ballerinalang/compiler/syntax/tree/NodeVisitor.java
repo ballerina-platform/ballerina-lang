@@ -371,6 +371,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(unionTypeDescriptorNode);
     }
 
+    public void visit(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        visitSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public void visit(KeySpecifierNode keySpecifierNode) {
+        visitSyntaxNode(keySpecifierNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
