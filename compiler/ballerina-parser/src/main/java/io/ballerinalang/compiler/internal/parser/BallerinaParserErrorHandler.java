@@ -418,8 +418,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         boolean skipRule;
         int matchingRulesCount = 0;
 
-        // boolean isEntryPoint = true;
-
         while (currentDepth < lookaheadLimit) {
             hasMatch = true;
             skipRule = false;

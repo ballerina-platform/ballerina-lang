@@ -48,7 +48,19 @@ public class XMLParser extends AbstractParser {
 
     @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
-        switch(context) {
+        switch (context) {
+            case SLASH:
+                return parseSlashToken();
+            case LT_TOKEN:
+                return parseLTToken();
+            case GT_TOKEN:
+                return parseGTToken();
+            case XML_NAME:
+                return parseXMLNCName();
+            case ASSIGN_OP:
+                return parseAssignOp();
+            case XML_QUOTED_STRING:
+                return parseXMLQuotedString();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -87,7 +99,7 @@ public class XMLParser extends AbstractParser {
                 return true;
             case LT_TOKEN:
                 STToken nextNextToken = getNextNextToken(kind);
-                if (nextNextToken.kind == SyntaxKind.SLASH_TOKEN) {
+                if (nextNextToken.kind == SyntaxKind.SLASH_TOKEN || nextNextToken.kind == SyntaxKind.LT_TOKEN) {
                     return true;
                 }
                 return false;
@@ -151,6 +163,10 @@ public class XMLParser extends AbstractParser {
      */
     private STNode parseXMLElement() {
         STNode startTag = parseXMLElementStartOrEmptyTag();
+        if (startTag.kind == SyntaxKind.XML_EMPTY_ELEMENT) {
+            return startTag;
+        }
+
         STNode content = parseXMLContent();
         STNode endTag = parseXMLElementEndTag();
         return STNodeFactory.createXMLElementNode(startTag, content, endTag);
@@ -169,6 +185,7 @@ public class XMLParser extends AbstractParser {
      * @return XML element start tag
      */
     private STNode parseXMLElementStartOrEmptyTag() {
+        startContext(ParserRuleContext.XML_START_OR_EMPTY_TAG);
         STNode tagOpen = parseLTToken();
         STNode name = parseXMLNCName();
         STNode attributes = parseXMLAttributes();
@@ -176,11 +193,12 @@ public class XMLParser extends AbstractParser {
         if (peek().kind == SyntaxKind.SLASH_TOKEN) {
             STNode slash = parseSlashToken();
             STNode tagClose = parseGTToken();
-            return STNodeFactory.createXMLEmptyElementNode(tagOpen, attributes, slash, tagClose);
-
+            endContext();
+            return STNodeFactory.createXMLEmptyElementNode(tagOpen, name, attributes, slash, tagClose);
         }
 
         STNode tagClose = parseGTToken();
+        endContext();
         return STNodeFactory.createXMLStartTagNode(tagOpen, name, attributes, tagClose);
     }
 
@@ -209,10 +227,12 @@ public class XMLParser extends AbstractParser {
      * @return XML element end tag
      */
     private STNode parseXMLElementEndTag() {
+        startContext(ParserRuleContext.XML_END_TAG);
         STNode tagOpen = parseLTToken();
         STNode slash = parseSlashToken();
         STNode name = parseXMLNCName();
         STNode tagClose = parseGTToken();
+        endContext();
         return STNodeFactory.createXMLEndTagNode(tagOpen, slash, name, tagClose);
     }
 
@@ -290,6 +310,7 @@ public class XMLParser extends AbstractParser {
      * @return XML attributes
      */
     private STNode parseXMLAttributes() {
+        startContext(ParserRuleContext.XML_ATTRIBUTES);
         List<STNode> attributes = new ArrayList<>();
         STToken nextToken = peek();
         while (!isEndOfXMLAttributes(nextToken.kind)) {
@@ -297,6 +318,7 @@ public class XMLParser extends AbstractParser {
             attributes.add(attribute);
             nextToken = peek();
         }
+        endContext();
         return STNodeFactory.createNodeList(attributes);
     }
 
@@ -312,6 +334,7 @@ public class XMLParser extends AbstractParser {
             case BACKTICK_TOKEN:
             case GT_TOKEN:
             case LT_TOKEN:
+            case SLASH_TOKEN:
                 return true;
             default:
                 return false;

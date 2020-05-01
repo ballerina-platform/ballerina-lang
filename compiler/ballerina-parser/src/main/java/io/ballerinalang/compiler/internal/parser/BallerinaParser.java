@@ -3013,7 +3013,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isValidLVExpr(STNode expression) {
         switch (expression.kind) {
-            case IDENTIFIER_TOKEN:
+            case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:

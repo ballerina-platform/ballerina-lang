@@ -1423,16 +1423,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static XMLEmptyElementNode createXMLEmptyElementNode(
             Token ltToken,
+            XMLNameNode name,
             NodeList<XMLAttributeNode> attributes,
             Token slashToken,
             Token getToken) {
         Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(attributes, "attributes must not be null");
         Objects.requireNonNull(slashToken, "slashToken must not be null");
         Objects.requireNonNull(getToken, "getToken must not be null");
 
         STNode stXMLEmptyElementNode = STNodeFactory.createXMLEmptyElementNode(
                 ltToken.internalNode(),
+                name.internalNode(),
                 attributes.underlyingListNode().internalNode(),
                 slashToken.internalNode(),
                 getToken.internalNode());

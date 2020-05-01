@@ -256,6 +256,12 @@ public class XMLLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
+    private STToken getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
+        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+    }
+
     private STToken getLiteral(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
@@ -312,9 +318,6 @@ public class XMLLexer extends AbstractLexer {
                     return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
                 break;
-            case LexerTerminals.GT:
-                reportLexerError("invalid token: " + String.valueOf(nextChar));
-                break;
             default:
                 break;
         }
@@ -357,7 +360,7 @@ public class XMLLexer extends AbstractLexer {
                 }
 
                 reader.advance();
-                return getXMLSyntaxToken(SyntaxKind.GT_TOKEN, true, true);
+                return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.GT_TOKEN);
             case LexerTerminals.SLASH:
                 reader.advance();
                 return getXMLSyntaxToken(SyntaxKind.SLASH_TOKEN, false, false);
@@ -644,7 +647,7 @@ public class XMLLexer extends AbstractLexer {
                     continue;
                 case LexerTerminals.BITWISE_AND:
                     // The ampersand character is not allowed in text. Report error, but continue.
-                    reportLexerError("invalid token in xml text: " + nextChar);
+                    reportLexerError("invalid token in xml text: " + String.valueOf((char) nextChar));
                     reader.advance();
                     continue;
                 case LexerTerminals.BACKTICK:
@@ -684,7 +687,7 @@ public class XMLLexer extends AbstractLexer {
                 // then end of the interpolation.
                 endMode();
                 reader.advance();
-                return getXMLSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN, true, true);
+                return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.CLOSE_BRACE_TOKEN);
             default:
                 // We should never reach here. Interpolation must be empty since
                 // this is something we are injecting. This is just a fail-safe.

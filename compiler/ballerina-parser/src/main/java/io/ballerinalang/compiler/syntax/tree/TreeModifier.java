@@ -1050,11 +1050,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(XMLEmptyElementNode xMLEmptyElementNode) {
         Token ltToken = modifyToken(xMLEmptyElementNode.ltToken());
+        XMLNameNode name = modifyNode(xMLEmptyElementNode.name());
         NodeList<XMLAttributeNode> attributes = modifyNodeList(xMLEmptyElementNode.attributes());
         Token slashToken = modifyToken(xMLEmptyElementNode.slashToken());
         Token getToken = modifyToken(xMLEmptyElementNode.getToken());
         return xMLEmptyElementNode.modify(
                 ltToken,
+                name,
                 attributes,
                 slashToken,
                 getToken);

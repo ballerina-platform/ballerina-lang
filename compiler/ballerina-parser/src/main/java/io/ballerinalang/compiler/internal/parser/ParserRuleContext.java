@@ -253,8 +253,17 @@ public enum ParserRuleContext {
     CONSTANT_EXPRESSION_START("constant-expr-start"),
 
     // XML 
+    XML_CONTENT("xml-content"),
+    XML_TAG("xml-tag"),
+    XML_START_OR_EMPTY_TAG("xml-start-or-empty-tag"),
+    XML_START_OR_EMPTY_TAG_END("xml-start-or-empty-tag-end"),
+    XML_END_TAG("xml-end-tag"),
     XML_NAME("xml-name"),
     XML_QUOTED_STRING("xml-quoted-string"),
+    XML_PI("xml-pi"),
+    XML_TEXT("xml-text"),
+    XML_ATTRIBUTES("xml-attributes"),
+    XML_ATTRIBUTE("xml-attribute"),
     INTERPOLATION_START_TOKEN("interpolation-start-token"),
     ;
 

@@ -1009,6 +1009,7 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private STToken readTemplateToken() {
+        reader.mark();
         char nextChar = this.reader.peek();
         switch (nextChar) {
             case LexerTerminals.BACKTICK:
@@ -1062,8 +1063,9 @@ public class BallerinaLexer extends AbstractLexer {
      */
 
     private STToken readTokenInInterpolation() {
-        int nextToken = peek();
-        switch (nextToken) {
+        reader.mark();
+        int nextChar = peek();
+        switch (nextChar) {
             case LexerTerminals.OPEN_BRACE:
                 // Start braced-content mode. This is to keep track of the
                 // open-brace and the corresponding close-brace. This way,
@@ -1100,8 +1102,9 @@ public class BallerinaLexer extends AbstractLexer {
      */
 
     private STToken readTokenInBracedContentInInterpolation() {
-        int nextToken = peek();
-        switch (nextToken) {
+        reader.mark();
+        int nextChar = peek();
+        switch (nextChar) {
             case LexerTerminals.OPEN_BRACE:
                 startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
                 break;

@@ -29,23 +29,27 @@ import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
  */
 public class STXMLEmptyElementNode extends STXMLItemNode {
     public final STNode ltToken;
+    public final STNode name;
     public final STNode attributes;
     public final STNode slashToken;
     public final STNode getToken;
 
     STXMLEmptyElementNode(
             STNode ltToken,
+            STNode name,
             STNode attributes,
             STNode slashToken,
             STNode getToken) {
         super(SyntaxKind.XML_EMPTY_ELEMENT);
         this.ltToken = ltToken;
+        this.name = name;
         this.attributes = attributes;
         this.slashToken = slashToken;
         this.getToken = getToken;
 
         addChildren(
                 ltToken,
+                name,
                 attributes,
                 slashToken,
                 getToken);

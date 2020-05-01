@@ -1061,12 +1061,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createXMLEmptyElementNode(
             STNode ltToken,
+            STNode name,
             STNode attributes,
             STNode slashToken,
             STNode getToken) {
 
         return new STXMLEmptyElementNode(
                 ltToken,
+                name,
                 attributes,
                 slashToken,
                 getToken);

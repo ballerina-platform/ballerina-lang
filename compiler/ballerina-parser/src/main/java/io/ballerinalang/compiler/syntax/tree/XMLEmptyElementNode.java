@@ -34,16 +34,20 @@ public class XMLEmptyElementNode extends XMLItemNode {
         return childInBucket(0);
     }
 
+    public XMLNameNode name() {
+        return childInBucket(1);
+    }
+
     public NodeList<XMLAttributeNode> attributes() {
-        return new NodeList<>(childInBucket(1));
+        return new NodeList<>(childInBucket(2));
     }
 
     public Token slashToken() {
-        return childInBucket(2);
+        return childInBucket(3);
     }
 
     public Token getToken() {
-        return childInBucket(3);
+        return childInBucket(4);
     }
 
     @Override
@@ -60,6 +64,7 @@ public class XMLEmptyElementNode extends XMLItemNode {
     protected String[] childNames() {
         return new String[]{
                 "ltToken",
+                "name",
                 "attributes",
                 "slashToken",
                 "getToken"};
@@ -67,11 +72,13 @@ public class XMLEmptyElementNode extends XMLItemNode {
 
     public XMLEmptyElementNode modify(
             Token ltToken,
+            XMLNameNode name,
             NodeList<XMLAttributeNode> attributes,
             Token slashToken,
             Token getToken) {
         if (checkForReferenceEquality(
                 ltToken,
+                name,
                 attributes.underlyingListNode(),
                 slashToken,
                 getToken)) {
@@ -80,6 +87,7 @@ public class XMLEmptyElementNode extends XMLItemNode {
 
         return NodeFactory.createXMLEmptyElementNode(
                 ltToken,
+                name,
                 attributes,
                 slashToken,
                 getToken);

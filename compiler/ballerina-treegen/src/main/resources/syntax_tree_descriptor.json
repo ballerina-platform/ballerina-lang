@@ -1905,6 +1905,10 @@
                     "type": "Token"
                 },
                 {
+                    "name": "name",
+                    "type": "XMLNameNode"
+                },
+                {
                     "name": "attributes",
                     "type": "XMLAttributeNode",
                     "occurrences": "MULTIPLE"
