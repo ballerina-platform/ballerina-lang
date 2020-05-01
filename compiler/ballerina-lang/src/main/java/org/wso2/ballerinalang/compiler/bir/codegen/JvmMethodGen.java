@@ -178,8 +178,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.em
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.getFullQualifiedRemoteFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFunctionWrapper;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
@@ -2090,7 +2088,7 @@ public class JvmMethodGen {
         } else {
             String jvmClass;
             String lookupKey = getPackageName(orgName, moduleName) + funcName;
-            BIRFunctionWrapper functionWrapper = jvmPackageGen.birFunctionMap.get(lookupKey);
+            BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
@@ -2180,12 +2178,8 @@ public class JvmMethodGen {
 
         String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
 
-        if (jvmPackageGen.birFunctionMap.containsKey(key)) {
-            BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(jvmPackageGen.birFunctionMap.get(key));
-            return isExternFunc(functionWrapper.func);
-        }
-
-        return false;
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
+        return functionWrapper != null && isExternFunc(functionWrapper.func);
     }
 
     private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
@@ -2737,13 +2731,6 @@ public class JvmMethodGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        //Adding this java method to the function map because this is getting called from a bir instruction.
-        BIRFunction func = new BIRFunction(null, new Name(CURRENT_MODULE_INIT),
-                0, new BInvokableType(Collections.emptyList(), null, new BNilType(), null)
-                , new Name(""), 0, null);
-        jvmPackageGen.birFunctionMap.put(pkgName + CURRENT_MODULE_INIT, getFunctionWrapper(func, orgName, moduleName,
-                version, typeOwnerClass));
     }
 
     void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
@@ -2794,12 +2781,6 @@ public class JvmMethodGen {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        //Adding this java method to the function map because this is getting called from a bir instruction.
-        BIRFunction func = new BIRFunction(null, new Name(MODULE_STOP), 0, new BInvokableType(Collections.emptyList(),
-                null, new BNilType(), null), new Name(""), 0, null);
-        jvmPackageGen.birFunctionMap.put(pkgName + MODULE_STOP, getFunctionWrapper(func, orgName, moduleName,
-                version, typeOwnerClass));
     }
 
 }

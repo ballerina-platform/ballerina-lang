@@ -129,7 +129,7 @@ public class CodeGenerator {
                     int firstQuote = line.indexOf('"', 1);
                     String key = line.substring(1, firstQuote);
                     String value = line.substring(line.indexOf('"', firstQuote + 1) + 1, line.lastIndexOf('"'));
-                    jvmPackageGen.externalMapCache.put(key, value);
+                    jvmPackageGen.addExternClassMapping(key, value);
                 }
             }
         } catch (IOException e) {

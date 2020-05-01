@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -61,6 +62,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -68,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -85,6 +86,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
@@ -131,12 +133,12 @@ public class JvmPackageGen {
         IS_BSTRING = (bStringProp != null && !"".equals(bStringProp));
     }
 
-    public final Map<String, BIRFunctionWrapper> birFunctionMap;
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     public final BUnionType errorOrNilType;
-    final Map<String, String> externalMapCache;
     private final JvmMethodGen jvmMethodGen;
+    private Map<String, BIRFunctionWrapper> birFunctionMap;
+    private Map<String, String> externalMapCache;
     private Map<String, String> globalVarClassNames;
     private Map<String, PackageID> dependentModules;
     private BLangDiagnosticLogHelper dlog;
@@ -145,9 +147,9 @@ public class JvmPackageGen {
 
         compilerContext.put(JVM_PACKAGE_GEN_CHECKER_KEY, this);
 
-        birFunctionMap = new ConcurrentHashMap<>();
-        globalVarClassNames = new ConcurrentHashMap<>();
-        externalMapCache = new ConcurrentHashMap<>();
+        birFunctionMap = new HashMap<>();
+        globalVarClassNames = new HashMap<>();
+        externalMapCache = new HashMap<>();
         dependentModules = new LinkedHashMap<>();
         symbolTable = SymbolTable.getInstance(compilerContext);
         packageCache = PackageCache.getInstance(compilerContext);
@@ -167,15 +169,6 @@ public class JvmPackageGen {
         }
 
         return jvmPackageGen;
-    }
-
-    static BIRFunctionWrapper getBIRFunctionWrapper(BIRFunctionWrapper wrapper) {
-
-        if (wrapper == null) {
-            throw new BLangCompilerException("invalid bir function linking");
-        }
-
-        return wrapper;
     }
 
     private static String getBvmAlias(String orgName, String moduleName) {
@@ -749,6 +742,18 @@ public class JvmPackageGen {
             }
         }
 
+        // link module init function that will be generated
+        BIRFunction moduleInitFunction = new BIRFunction(null, new Name(CURRENT_MODULE_INIT), 0,
+                new BInvokableType(Collections.emptyList(), null, new BNilType(), null), new Name(""), 0, null);
+        birFunctionMap.put(pkgName + CURRENT_MODULE_INIT, getFunctionWrapper(moduleInitFunction, orgName, moduleName,
+                version, initClass));
+
+        // link module stop function that will be generated
+        BIRFunction moduleStopFunction = new BIRFunction(null, new Name(MODULE_STOP), 0,
+                new BInvokableType(Collections.emptyList(), null, new BNilType(), null), new Name(""), 0, null);
+        birFunctionMap.put(pkgName + MODULE_STOP, getFunctionWrapper(moduleStopFunction, orgName, moduleName,
+                version, initClass));
+
         // link typedef - object attached native functions
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
@@ -826,4 +831,13 @@ public class JvmPackageGen {
         dependentModules.clear();
     }
 
+    public BIRFunctionWrapper lookupBIRFunctionWrapper(String lookupKey) {
+
+        return this.birFunctionMap.get(lookupKey);
+    }
+
+    void addExternClassMapping(String key, String value) {
+
+        this.externalMapCache.put(key, value);
+    }
 }
