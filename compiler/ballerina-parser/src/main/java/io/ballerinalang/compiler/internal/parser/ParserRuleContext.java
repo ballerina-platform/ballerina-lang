@@ -117,7 +117,7 @@ public enum ParserRuleContext {
     DEFAULT_WORKER("default-worker-init"),
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
-    KEY_SPECIFIER_END("key-specifier-end"),
+    TABLE_KEY_RHS("table-key-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -276,8 +276,8 @@ public enum ParserRuleContext {
     TYPE_CAST_PARAM_RHS("type-cast-param-rhs"),
     TABLE_CONSTRUCTOR("table-constructor"),
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
-    TABLE_CONSTRUCTOR_RHS("table-constructor-rhs"),
-    TABLE_CONSTRUCTOR_END("table-constructor-end"),
+    ROW_LIST_RHS("row-list-rhs"),
+    TABLE_ROW_END("table-row-end"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

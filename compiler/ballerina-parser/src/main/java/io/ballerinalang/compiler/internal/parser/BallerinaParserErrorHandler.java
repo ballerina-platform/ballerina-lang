@@ -275,16 +275,16 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TABLE_KEYWORD_RHS =
             { ParserRuleContext.KEY_SPECIFIER, ParserRuleContext.OPEN_BRACKET };
 
-    private static final ParserRuleContext[] TABLE_CONSTRUCTOR_RHS =
+    private static final ParserRuleContext[] ROW_LIST_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.MAPPING_CONSTRUCTOR };
 
-    private static final ParserRuleContext[] TABLE_CONSTRUCTOR_END =
+    private static final ParserRuleContext[] TABLE_ROW_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
 
     private static final ParserRuleContext[] KEY_SPECIFIER_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.VARIABLE_NAME };
 
-    private static final ParserRuleContext[] KEY_SPECIFIER_END =
+    private static final ParserRuleContext[] TABLE_KEY_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
     /**
@@ -468,10 +468,10 @@ public class BallerinaParserErrorHandler {
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
             case TABLE_KEYWORD_RHS:
-            case TABLE_CONSTRUCTOR_RHS:
-            case TABLE_CONSTRUCTOR_END:
+            case ROW_LIST_RHS:
+            case TABLE_ROW_END:
             case KEY_SPECIFIER_RHS:
-            case KEY_SPECIFIER_END:
+            case TABLE_KEY_RHS:
                 return true;
             default:
                 return false;
@@ -1137,17 +1137,17 @@ public class BallerinaParserErrorHandler {
                 case TABLE_KEYWORD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEYWORD_RHS,
                             isEntryPoint);
-                case TABLE_CONSTRUCTOR_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_CONSTRUCTOR_RHS,
+                case ROW_LIST_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ROW_LIST_RHS,
                             isEntryPoint);
-                case TABLE_CONSTRUCTOR_END:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_CONSTRUCTOR_END,
+                case TABLE_ROW_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_ROW_END,
                             isEntryPoint);
                 case KEY_SPECIFIER_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, KEY_SPECIFIER_RHS,
                             isEntryPoint);
-                case KEY_SPECIFIER_END:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, KEY_SPECIFIER_END,
+                case TABLE_KEY_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEY_RHS,
                             isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
@@ -2186,10 +2186,10 @@ public class BallerinaParserErrorHandler {
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
             case TABLE_KEYWORD_RHS:
-            case TABLE_CONSTRUCTOR_RHS:
-            case TABLE_CONSTRUCTOR_END:
+            case ROW_LIST_RHS:
+            case TABLE_ROW_END:
             case KEY_SPECIFIER_RHS:
-            case KEY_SPECIFIER_END:
+            case TABLE_KEY_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2405,7 +2405,7 @@ public class BallerinaParserErrorHandler {
                 endContext(); // end mapping constructor
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.TABLE_CONSTRUCTOR) {
-                    return ParserRuleContext.TABLE_CONSTRUCTOR_END;
+                    return ParserRuleContext.TABLE_ROW_END;
                 }
 
                 if (parentCtx != ParserRuleContext.ANNOTATIONS) {
@@ -2494,7 +2494,7 @@ public class BallerinaParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
-            return ParserRuleContext.KEY_SPECIFIER_END;
+            return ParserRuleContext.TABLE_KEY_RHS;
         } else {
             throw new IllegalStateException();
         }
@@ -2634,7 +2634,7 @@ public class BallerinaParserErrorHandler {
             case LIST_CONSTRUCTOR:
                 return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
             case TABLE_CONSTRUCTOR:
-                return ParserRuleContext.TABLE_CONSTRUCTOR_RHS;
+                return ParserRuleContext.ROW_LIST_RHS;
             default:
                 return ParserRuleContext.EXPRESSION;
         }

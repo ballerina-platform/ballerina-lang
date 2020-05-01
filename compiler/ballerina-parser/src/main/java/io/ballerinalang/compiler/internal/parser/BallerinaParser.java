@@ -342,6 +342,8 @@ public class BallerinaParser {
                 return parseTableKeyword();
             case KEY_KEYWORD:
                 return parseKeyKeyword();
+            case TABLE_KEYWORD_RHS:
+                return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -7083,19 +7085,44 @@ public class BallerinaParser {
     private STNode parseTableConstructorExpr() {
         startContext(ParserRuleContext.TABLE_CONSTRUCTOR);
         STNode tableKeyword = parseTableKeyword();
-        STToken nextToken = peek();
+        STNode keySpecifier = STNodeFactory.createEmptyNode();
+        return parseTableConstructorExpr(tableKeyword, keySpecifier);
+    }
 
-        STNode keySpecifier;
-        if (nextToken.kind == SyntaxKind.KEY_KEYWORD) {
+    private STNode parseTableConstructorExpr(STNode tableKeyword, STNode keySpecifier) {
+        return parseTableConstructorExpr(peek().kind, tableKeyword, keySpecifier);
+    }
+
+    private STNode parseTableConstructorExpr(SyntaxKind nextTokenKind, STNode tableKeyword, STNode keySpecifier) {
+        STNode openBracket;
+        STNode rowList;
+        STNode closeBracket;
+
+        // Parse optional key specifier
+        if (nextTokenKind == SyntaxKind.KEY_KEYWORD) {
             keySpecifier = parseKeySpecifier();
-        } else {
-            keySpecifier = STNodeFactory.createEmptyNode();
+            nextTokenKind = peek().kind;
         }
 
-        STNode openBracket = parseOpenBracket();
-        STNode rowList = parseMappingConstructors();
-        STNode closeBracket = parseCloseBracket();
-        endContext();
+        switch (nextTokenKind) {
+            case OPEN_BRACKET_TOKEN:
+                openBracket = parseOpenBracket();
+                rowList = parseRowList();
+                closeBracket = parseCloseBracket();
+                endContext();
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_KEYWORD_RHS, tableKeyword, keySpecifier);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    endContext();
+                    return solution.recoveredNode;
+                }
+                return parseTableConstructorExpr(solution.tokenKind, tableKeyword, keySpecifier);
+        }
         return STNodeFactory.createTableConstructorExpressionNode(tableKeyword,
                                                                   keySpecifier,
                                                                   openBracket,
@@ -7125,7 +7152,7 @@ public class BallerinaParser {
      *
      * @return Parsed node
      */
-    private STNode parseMappingConstructors() {
+    private STNode parseRowList() {
         List<STNode> mappings = new ArrayList<>();
         STToken nextToken = peek();
 
@@ -7195,7 +7222,7 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse table rows.
+     * Parse field names.
      * <p>
      * <code>field-name-list := [ field-name (, field-name)* ]</code>
      *

@@ -107,4 +107,14 @@ public class TableConstructorTest extends AbstractExpressionsTest {
     public void testTableWithMissingTableKeyword() {
         test("key() [{a:b}]", "table-constructor/table_constructor_assert_22.json");
     }
+
+    @Test
+    public void testTableWithMissingKeyKeyword() {
+        test("table () [{k1:v1}]", "table-constructor/table_constructor_assert_23.json");
+    }
+    @Test
+    public void testTableWithExtraToken() {
+        test("table foo key() [{k1:v1}]", "table-constructor/table_constructor_assert_24.json");
+        test("table foo [{k1:v1}]", "table-constructor/table_constructor_assert_25.json");
+    }
 }
