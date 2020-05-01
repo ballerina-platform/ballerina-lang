@@ -2650,9 +2650,9 @@ public class JvmMethodGen {
 
     void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
 
-        for (BIRFunction func : pkg.functions) {
+        pkg.functions.parallelStream().forEach(func -> {
             generateFrameClassForFunction(pkg, func, pkgEntries, null);
-        }
+        });
 
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
@@ -2665,9 +2665,9 @@ public class JvmMethodGen {
                 } else {
                     attachedType = typeDef.type;
                 }
-                for (BIRFunction func : attachedFuncs) {
+                attachedFuncs.parallelStream().forEach(func -> {
                     generateFrameClassForFunction(pkg, func, pkgEntries, attachedType);
-                }
+                });
             }
         }
     }

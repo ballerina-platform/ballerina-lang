@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -144,9 +145,9 @@ public class JvmPackageGen {
 
         compilerContext.put(JVM_PACKAGE_GEN_CHECKER_KEY, this);
 
-        birFunctionMap = new HashMap<>();
-        globalVarClassNames = new HashMap<>();
-        externalMapCache = new HashMap<>();
+        birFunctionMap = new ConcurrentHashMap<>();
+        globalVarClassNames = new ConcurrentHashMap<>();
+        externalMapCache = new ConcurrentHashMap<>();
         dependentModules = new LinkedHashMap<>();
         symbolTable = SymbolTable.getInstance(compilerContext);
         packageCache = PackageCache.getInstance(compilerContext);
@@ -547,15 +548,21 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, jvmMethodGen);
-        valueGen.generate(jarFile.pkgEntries);
+        valueGen.generateValueClasses(jarFile.pkgEntries);
 
         // generate frame classes
         jvmMethodGen.generateFrameClasses(module, jarFile.pkgEntries);
 
-        boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
-
         // generate module classes
-        for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
+        generateModuleClasses(module, jarFile, orgName, moduleName, typeOwnerClass, jvmClassMap, dependentModuleArray);
+
+    }
+
+    private void generateModuleClasses(BIRPackage module, JarFile jarFile, String orgName, String moduleName,
+                                       String typeOwnerClass, Map<String, JavaClass> jvmClassMap,
+                                       List<PackageID> dependentModuleArray) {
+
+        jvmClassMap.entrySet().parallelStream().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -579,6 +586,8 @@ public class JvmPackageGen {
                     mainClass = getModuleLevelClassName(orgName, moduleName,
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
+
+                boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
                 jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
                 if (mainFunc != null) {
@@ -613,7 +622,7 @@ public class JvmPackageGen {
 
             byte[] bytes = getBytes(cw, module);
             jarFile.pkgEntries.put(moduleClass + ".class", bytes);
-        }
+        });
     }
 
     private void createDependantModuleFlatArray(Set<PackageID> dependentModuleArray) {
