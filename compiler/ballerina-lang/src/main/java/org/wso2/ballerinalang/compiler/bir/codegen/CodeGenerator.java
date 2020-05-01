@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -144,7 +145,8 @@ public class CodeGenerator {
         entries.manifestEntries.forEach((key, value) ->
                 manifest.getMainAttributes().put(new Attributes.Name(key), value));
 
-        try (JarOutputStream target = new JarOutputStream(new FileOutputStream(targetPath.toString()), manifest)) {
+        try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
+                new FileOutputStream(targetPath.toString())), manifest)) {
             Map<String, byte[]> jarEntries = entries.pkgEntries;
             for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
                 byte[] entryContent = keyVal.getValue();
