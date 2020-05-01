@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.awaitility.Awaitility;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
@@ -142,14 +141,15 @@ public class FailoverClientTest extends WebSocketTestCommons {
         WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(port);
         remoteServer.run();
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(20, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         return remoteServer;
     }
 
     private WebSocketTestClient initiateClient(String url) throws InterruptedException, URISyntaxException {
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
-        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> client.isOpen());
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         return client;
     }
 
