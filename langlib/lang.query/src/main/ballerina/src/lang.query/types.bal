@@ -19,7 +19,7 @@ import ballerina/lang.'map as lang_map;
 import ballerina/lang.'string as lang_string;
 import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
-// TODO: import ballerina/lang.'table as lang_table;
+import ballerina/lang.'table as lang_table;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -51,7 +51,8 @@ public type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|stream collection, typedesc<Type> resType) {
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection,
+            typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
     }
@@ -101,10 +102,9 @@ public type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (any|error)[]|map<any|error>|record{}|string|xml|stream collection;
+    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|stream collection) {
-        // TODO: allow table type
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -129,8 +129,8 @@ public type _InitFunction object {
         }
     }
 
-    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|stream collection) returns _Iterator {
-        // TODO: allow table type
+    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection)
+            returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
         } else if (collection is record{}) {
@@ -141,6 +141,8 @@ public type _InitFunction object {
             return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
+        }  else if (collection is table<any|error>) {
+            return lang_table:iterator(collection);
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;

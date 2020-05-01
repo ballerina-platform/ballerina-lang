@@ -28,8 +28,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    // TODO: baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     implementation 'org.slf4j:slf4j-api'
 }
 
