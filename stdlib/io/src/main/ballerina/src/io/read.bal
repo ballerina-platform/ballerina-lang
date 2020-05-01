@@ -16,10 +16,13 @@
 
 import ballerina/java;
 
-# Returns the input read from STDIN.
+# Retrieves the input read from the STDIN.
+# ```ballerina
+# string choice = io:readln("Enter choice 1 - 5: ");
+# ```
 #
 # + a - Any value to be printed
-# + return - Input read from STDIN
+# + return - Input read from the STDIN
 public function readln(any a) returns @tainted string {
     return <string>java:toString(readlnExtern(a));
 }

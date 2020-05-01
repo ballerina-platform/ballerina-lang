@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,10 +77,10 @@ public class ObserveUtils {
      * @param resourceName name of the resource being invoked.
      * @param tags tags to be used in the observation
      */
-    public static void startResourceObservation(StringValue serviceName, StringValue resourceName,
-                                                MapValue<StringValue, StringValue> tags) {
+    public static void startResourceObservation(BString serviceName, BString resourceName,
+                                                MapValue<BString, BString> tags) {
         MapValue<String, String> stringTags = new MapValueImpl<>();
-        for (Map.Entry<StringValue, StringValue> tagEntry : tags.entrySet()) {
+        for (Map.Entry<BString, BString> tagEntry : tags.entrySet()) {
             stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
         }
         startResourceObservation(serviceName.getValue(), resourceName.getValue(), stringTags);
@@ -165,10 +165,10 @@ public class ObserveUtils {
      * @param resourceName name of the resource being invoked.
      * @param tags tags to be used in the observation
      */
-    public static void startCallableObservation(StringValue serviceName, StringValue resourceName,
-                                                MapValue<StringValue, StringValue> tags) {
+    public static void startCallableObservation(BString serviceName, BString resourceName,
+                                                MapValue<BString, BString> tags) {
         MapValue<String, String> stringTags = new MapValueImpl<>();
-        for (Map.Entry<StringValue, StringValue> tagEntry : tags.entrySet()) {
+        for (Map.Entry<BString, BString> tagEntry : tags.entrySet()) {
             stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
         }
         startCallableObservation(serviceName.getValue(), resourceName.getValue(), stringTags);

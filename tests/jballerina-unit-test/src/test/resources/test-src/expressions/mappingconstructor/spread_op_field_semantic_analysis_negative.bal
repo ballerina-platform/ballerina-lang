@@ -82,3 +82,17 @@ function testJsonSpreadOpFieldOfIncorrectType() {
     json j = {...r, c: 2, ...m};
     map<json> mj = {a: 1, ...r, ...m};
 }
+
+type Baz record {|
+    int...;
+|};
+
+function testMapSpreadOpFieldOfIncorrectTypeForRecord() {
+    map<string> strMap = {
+        a: "abc",
+        b: "bcd"
+    };
+
+    Baz bz = {...strMap};
+    Bar br = {s: 1, i: 2.0, ...strMap};
+}

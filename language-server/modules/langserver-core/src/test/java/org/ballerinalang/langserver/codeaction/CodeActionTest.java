@@ -152,6 +152,47 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
+    @Test(dataProvider = "openApi-codeaction-diagnostics-data-provider")
+    public void testOpenApiCodeActionWithDiagnostics(String config, Path source)
+            throws IOException, CompilationFailedException {
+        String configJsonPath = "codeaction" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.DESUGAR);
+        List<Diagnostic> lsDiagnostics = new ArrayList<>();
+        ballerinaFile.getDiagnostics().ifPresent(
+                diagnostics -> lsDiagnostics.addAll(CodeActionUtil.toDiagnostics(diagnostics)));
+        CodeActionContext codeActionContext = new CodeActionContext(lsDiagnostics);
+        Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        String title = expected.get("title").toString();
+        String command = expected.get("command").toString();
+        JsonArray args = expected.get("arguments").getAsJsonArray();
+
+        boolean codeActionFound = false;
+        JsonObject responseJson = this.getResponseJson(res);
+        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+            JsonObject leftItem = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
+            if (leftItem.get("command") == null) {
+                continue;
+            }
+            JsonObject cmd = leftItem.get("command").getAsJsonObject();
+            if (leftItem.get("title").toString().equals(title) &&
+                    cmd.get("command").toString().equals(command)
+                    && TestUtil.isArgumentsSubArray(cmd.get("arguments").getAsJsonArray(), args)) {
+                codeActionFound = true;
+                break;
+            }
+        }
+
+        Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
+    }
+
     @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
     public void testCodeActionWithTestGen(String config, Path source) throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
@@ -245,7 +286,7 @@ public class CodeActionTest {
 //                {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
                 {"variableAssignmentRequiredCodeAction1.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
-//                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction5.json", "createVariable2.bal"},
                 {"variableAssignmentRequiredCodeAction6.json", "createVariable2.bal"},
@@ -288,7 +329,9 @@ public class CodeActionTest {
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
 //                {"typeGuardCodeAction4.json", "typeGuard.bal"},
                 {"implementFuncObj.json", "implementFuncObj.bal"},
-                {"optimizeImports.json", "optimizeImports.bal"}
+                {"optimizeImports.json", "optimizeImports.bal"},
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };
     }
 
@@ -317,8 +360,20 @@ public class CodeActionTest {
                 {"packagePull2.json", "packagePull.bal"},
                 {"packagePull3.json", "packagePull2.bal"},
                 {"packagePull4.json", "packagePull2.bal"},
-                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
-                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
+        };
+    }
+
+    @DataProvider(name = "openApi-codeaction-diagnostics-data-provider")
+    public Object[][] openApicodeActionWithDiagnosticDataProvider() {
+        log.info("Test textDocument/codeAction with diagnostics");
+        return new Object[][]{
+                {"openApiMissingResourceMethod.json", Paths.get("openApi", "src", "module-giga", "gigaclient.bal")},
+                {"openApiMissingResource.json", Paths.get("openApi", "src", "module-giga", "gigaclient2.bal")},
+                {"openApiAddMissingParameter.json", Paths.get("openApi", "src", "module-giga", "gigaclient3.bal")},
+                {"openApiCreateBallerinaServiceResource.json",
+                        Paths.get("openApi", "src", "module-giga", "gigaclient4.bal")},
+                {"openApiCreateBallerinaServiceResourceMethod.json",
+                        Paths.get("openApi", "src", "module-giga", "gigaclient4.bal")}
         };
     }
 

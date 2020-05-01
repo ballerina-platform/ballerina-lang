@@ -26,8 +26,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -38,6 +40,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol restParam;
     public BType retType;
     public Map<Integer, TaintRecord> taintTable;
+    public List<BLangAnnotationAttachment> annAttachments;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
@@ -48,7 +51,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public String source;
     public SchedulerPolicy schedulerPolicy = SchedulerPolicy.PARENT;
 
-    public List<BLangAnnotationAttachment> annAttachments;
+
+    public Set<BVarSymbol> dependentGlobalVars;
 
     public BInvokableSymbol(int tag,
                             int flags,
@@ -60,6 +64,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.tag = tag;
         this.params = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
+        this.dependentGlobalVars = new HashSet<>();
     }
 
     @Override

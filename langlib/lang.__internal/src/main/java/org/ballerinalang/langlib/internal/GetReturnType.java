@@ -45,4 +45,7 @@ public class GetReturnType {
         BFunctionType functionType = (BFunctionType) fpValue.getType();
         return (TypedescValue) BValueCreator.createTypedescValue(functionType.retType);
     }
+    public static TypedescValue getReturnType_bstring(Strand strand, Object obj) {
+        return getReturnType(strand, obj);
+    }
 }

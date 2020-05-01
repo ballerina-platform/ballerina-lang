@@ -137,7 +137,8 @@ public function main() returns error? {
      crypto:PublicKey rsaPublicKey = check crypto:decodePublicKey(keyStore, "ballerina");
 
      // Private key used for RSA decryption.
-     crypto:PrivateKey rsaPrivateKey = check crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
+     crypto:PrivateKey rsaPrivateKey = check crypto:decodePrivateKey(keyStore, "ballerina",
+                                                                    "ballerina");
 
      // Encrypt and decrypt an input value using RSA ECB PKCS1 padding.
      output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey);
@@ -145,7 +146,10 @@ public function main() returns error? {
      io:println("RSA ECB PKCS1 decrypted value: " + check 'string:fromBytes(output));
 
      // Encrypt and decrypt an input value using RSA ECB OAEPwithSHA512andMGF1 padding.
-     output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey, crypto:OAEPwithSHA512andMGF1);
-     output = check crypto:decryptRsaEcb(output, rsaPrivateKey, crypto:OAEPwithSHA512andMGF1);
-     io:println("RSA ECB OAEPwithSHA512andMGF1 decrypted value: " + check 'string:fromBytes(output));
+     output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey,
+                                         crypto:OAEPwithSHA512andMGF1);
+     output = check crypto:decryptRsaEcb(output, rsaPrivateKey,
+                                         crypto:OAEPwithSHA512andMGF1);
+     io:println("RSA ECB OAEPwithSHA512andMGF1 decrypted value: " +
+                check 'string:fromBytes(output));
 }

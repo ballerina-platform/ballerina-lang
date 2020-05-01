@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -64,14 +65,12 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         this.type = type;
     }
 
-    @Deprecated
-    public R apply(T t) {
-        return this.function.apply(t);
+    public FutureValue asyncCall(Object[] args) {
+        return this.asyncCall(args, o -> o);
     }
 
-    @Deprecated
-    public void accept(T t) {
-        this.function.apply(t);
+    public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction) {
+        return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, args, resultHandleFunction);
     }
 
     public Function<T, R> getFunction() {

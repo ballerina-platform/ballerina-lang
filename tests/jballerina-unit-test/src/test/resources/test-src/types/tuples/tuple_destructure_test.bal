@@ -59,7 +59,7 @@ function tupleDestructureTest4() returns int[] {
 }
 
 function tupleDestructureTest5() returns [int, int[]] {
-    [int...] x = [1, 2, 3, 4];
+    [int, int, int...] x = [1, 2, 3, 4];
     int a;
     int[] b;
     [a, ...b] = x;
@@ -83,7 +83,7 @@ function tupleDestructureTest7() returns [int, string[]] {
 }
 
 function tupleDestructureTest8() returns [int, string, string[]] {
-    [int, string...] x = [1, "a", "b"];
+    [int, string, string, string...] x = [1, "a", "b"];
     int a;
     string b;
     string[] c;

@@ -92,7 +92,7 @@ public class BMapType extends BType {
             return super.toString();
         }
 
-        return "map" + "<" + constraint.getName() + ">";
+        return "map" + "<" + constraint.toString() + ">";
     }
 
     @Override
