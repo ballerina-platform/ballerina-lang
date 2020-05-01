@@ -125,7 +125,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
 public class JvmPackageGen {
 
     static final boolean IS_BSTRING;
-    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_CHECKER_KEY = new CompilerContext.Key<>();
+    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_KEY = new CompilerContext.Key<>();
 
     static {
         String bStringProp = System.getProperty("ballerina.bstring");
@@ -143,7 +143,7 @@ public class JvmPackageGen {
 
     private JvmPackageGen(CompilerContext compilerContext) {
 
-        compilerContext.put(JVM_PACKAGE_GEN_CHECKER_KEY, this);
+        compilerContext.put(JVM_PACKAGE_GEN_KEY, this);
 
         birFunctionMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
@@ -160,7 +160,7 @@ public class JvmPackageGen {
 
     public static JvmPackageGen getInstance(CompilerContext compilerContext) {
 
-        JvmPackageGen jvmPackageGen = compilerContext.get(JVM_PACKAGE_GEN_CHECKER_KEY);
+        JvmPackageGen jvmPackageGen = compilerContext.get(JVM_PACKAGE_GEN_KEY);
         if (jvmPackageGen == null) {
             jvmPackageGen = new JvmPackageGen(compilerContext);
         }
