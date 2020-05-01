@@ -115,6 +115,9 @@ public enum ParserRuleContext {
     DEFAULT_WORKER_INIT("default-worker-init"),
     NAMED_WORKERS("named-workers"),
     DEFAULT_WORKER("default-worker-init"),
+    KEY_SPECIFIER("key-specifier"),
+    KEY_SPECIFIER_RHS("key-specifier-rhs"),
+    TABLE_KEY_RHS("table-key-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -191,6 +194,8 @@ public enum ParserRuleContext {
     TRAP_KEYWORD("trap"),
     IN_KEYWORD("in"),
     FOREACH_KEYWORD("foreach"),
+    TABLE_KEYWORD("table"),
+    KEY_KEYWORD("key"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -269,6 +274,10 @@ public enum ParserRuleContext {
     TYPE_CAST_EXPRESSION("type-cast-expr"),
     TYPE_CAST_PARAM("type-cast-param"),
     TYPE_CAST_PARAM_RHS("type-cast-param-rhs"),
+    TABLE_CONSTRUCTOR("table-constructor"),
+    TABLE_KEYWORD_RHS("table-keyword-rhs"),
+    ROW_LIST_RHS("row-list-rhs"),
+    TABLE_ROW_END("table-row-end"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

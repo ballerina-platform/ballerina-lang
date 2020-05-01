@@ -1925,6 +1925,58 @@
                     "type": "Node"
                 }
             ]
+        },
+        {
+            "name": "TableConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TABLE_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "tableKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "KeySpecifier",
+                    "type": "KeySpecifierNode"
+                },
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "mappingConstructors",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "KeySpecifierNode",
+            "base": "Node",
+            "kind": "KEY_SPECIFIER",
+            "attributes": [
+                {
+                    "name": "keyKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldNames",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

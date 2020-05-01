@@ -196,7 +196,7 @@ public class BallerinaParserErrorHandler {
                     ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
                     ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
                     ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
-                    ParserRuleContext.OPEN_PARENTHESIS };
+                    ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -271,6 +271,21 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TYPE_CAST_PARAM_RHS =
             { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.GT };
+
+    private static final ParserRuleContext[] TABLE_KEYWORD_RHS =
+            { ParserRuleContext.KEY_SPECIFIER, ParserRuleContext.OPEN_BRACKET };
+
+    private static final ParserRuleContext[] ROW_LIST_RHS =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.MAPPING_CONSTRUCTOR };
+
+    private static final ParserRuleContext[] TABLE_ROW_END =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
+    private static final ParserRuleContext[] KEY_SPECIFIER_RHS =
+            { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.VARIABLE_NAME };
+
+    private static final ParserRuleContext[] TABLE_KEY_RHS =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -452,6 +467,11 @@ public class BallerinaParserErrorHandler {
             case LIST_CONSTRUCTOR_RHS:
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
+            case TABLE_KEYWORD_RHS:
+            case ROW_LIST_RHS:
+            case TABLE_ROW_END:
+            case KEY_SPECIFIER_RHS:
+            case TABLE_KEY_RHS:
                 return true;
             default:
                 return false;
@@ -1108,6 +1128,27 @@ public class BallerinaParserErrorHandler {
                 case PIPE:
                     hasMatch = nextToken.kind == SyntaxKind.PIPE_TOKEN;
                     break;
+                case TABLE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TABLE_KEYWORD;
+                    break;
+                case KEY_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.KEY_KEYWORD;
+                    break;
+                case TABLE_KEYWORD_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEYWORD_RHS,
+                            isEntryPoint);
+                case ROW_LIST_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ROW_LIST_RHS,
+                            isEntryPoint);
+                case TABLE_ROW_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_ROW_END,
+                            isEntryPoint);
+                case KEY_SPECIFIER_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, KEY_SPECIFIER_RHS,
+                            isEntryPoint);
+                case TABLE_KEY_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEY_RHS,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1179,6 +1220,8 @@ public class BallerinaParserErrorHandler {
                 case LIST_CONSTRUCTOR:
                 case FOREACH_STMT:
                 case TYPE_CAST_EXPRESSION:
+                case TABLE_CONSTRUCTOR:
+                case KEY_SPECIFIER:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1599,6 +1642,8 @@ public class BallerinaParserErrorHandler {
             case PARAMETERIZED_TYPE_DESCRIPTOR:
             case LIST_CONSTRUCTOR:
             case TYPE_CAST_EXPRESSION:
+            case TABLE_CONSTRUCTOR:
+            case KEY_SPECIFIER:
                 startContext(currentCtx);
                 break;
             default:
@@ -1656,6 +1701,11 @@ public class BallerinaParserErrorHandler {
                     endContext();
                     return ParserRuleContext.EXPRESSION_RHS;
                 }
+                if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+                    endContext(); // end key-specifier
+                    // For now key-specifier ctx is only referred inside table-constructor ctx
+                    return ParserRuleContext.OPEN_BRACKET;
+                }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
@@ -1704,6 +1754,8 @@ public class BallerinaParserErrorHandler {
                 } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR ||
                         parentCtx == ParserRuleContext.NIL_LITERAL) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
+                } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+                    return ParserRuleContext.KEY_SPECIFIER_RHS;
                 }
                 return ParserRuleContext.ARG;
             case RETURNS_KEYWORD:
@@ -2045,6 +2097,14 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.LT;
             case PIPE:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case TABLE_CONSTRUCTOR:
+                return ParserRuleContext.TABLE_KEYWORD;
+            case TABLE_KEYWORD:
+                return ParserRuleContext.TABLE_KEYWORD_RHS;
+            case KEY_SPECIFIER:
+                return ParserRuleContext.KEY_KEYWORD;
+            case KEY_KEYWORD:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2125,6 +2185,11 @@ public class BallerinaParserErrorHandler {
             case LIST_CONSTRUCTOR_RHS:
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
+            case TABLE_KEYWORD_RHS:
+            case ROW_LIST_RHS:
+            case TABLE_ROW_END:
+            case KEY_SPECIFIER_RHS:
+            case TABLE_KEY_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2182,6 +2247,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_ATTACH_POINTS_LIST:
                 return ParserRuleContext.ATTACH_POINT;
+            case TABLE_CONSTRUCTOR:
+                return ParserRuleContext.MAPPING_CONSTRUCTOR;
+            case KEY_SPECIFIER:
+                return ParserRuleContext.VARIABLE_NAME;
             default:
                 throw new IllegalStateException();
         }
@@ -2335,6 +2404,10 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
                 endContext(); // end mapping constructor
                 parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.TABLE_CONSTRUCTOR) {
+                    return ParserRuleContext.TABLE_ROW_END;
+                }
+
                 if (parentCtx != ParserRuleContext.ANNOTATIONS) {
                     return getNextRuleForExpr();
                 }
@@ -2420,6 +2493,8 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+            return ParserRuleContext.TABLE_KEY_RHS;
         } else {
             throw new IllegalStateException();
         }
@@ -2558,6 +2633,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.ARRAY_LENGTH;
             case LIST_CONSTRUCTOR:
                 return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
+            case TABLE_CONSTRUCTOR:
+                return ParserRuleContext.ROW_LIST_RHS;
             default:
                 return ParserRuleContext.EXPRESSION;
         }
@@ -2575,9 +2652,10 @@ public class BallerinaParserErrorHandler {
                 endContext(); // End array type descriptor context
                 return ParserRuleContext.TYPEDESC_RHS;
             case LIST_CONSTRUCTOR:
+            case TABLE_CONSTRUCTOR:
             case COMPUTED_FIELD_NAME:
             default:
-                endContext(); // end computed-field-name or list-constructor
+                endContext(); // end computed-field-name, list-constructor or table-constructor
                 return getNextRuleForExpr();
         }
     }
@@ -2994,6 +3072,10 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IN_KEYWORD;
             case PIPE:
                 return SyntaxKind.PIPE_TOKEN;
+            case TABLE_KEYWORD:
+                return SyntaxKind.TABLE_KEYWORD;
+            case KEY_KEYWORD:
+                return SyntaxKind.KEY_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -3070,6 +3152,8 @@ public class BallerinaParserErrorHandler {
             case LIST_CONSTRUCTOR:
             case FOREACH_STMT:
             case TYPE_CAST_EXPRESSION:
+            case TABLE_CONSTRUCTOR:
+            case KEY_SPECIFIER:
             default:
                 break;
         }

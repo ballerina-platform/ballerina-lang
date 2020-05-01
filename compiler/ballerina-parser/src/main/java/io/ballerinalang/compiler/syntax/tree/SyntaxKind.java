@@ -67,6 +67,8 @@ public enum SyntaxKind {
     TRAP_KEYWORD(218,"trap"),
     IN_KEYWORD(219,"in"),
     FOREACH_KEYWORD(220,"foreach"),
+    TABLE_KEYWORD(221, "table"),
+    KEY_KEYWORD(222, "key"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -191,6 +193,7 @@ public enum SyntaxKind {
     TRAP_EXPRESSION(1314),
     LIST_CONSTRUCTOR(1315),
     TYPE_CAST_EXPRESSION(1316),
+    TABLE_CONSTRUCTOR(1317),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -256,6 +259,7 @@ public enum SyntaxKind {
     EXPRESSION_FUNCTION_BODY(3030),
     DOCUMENTATION_STRING(3031),
     TYPE_CAST_PARAM(3032),
+    KEY_SPECIFIER(3033),
 
     INVALID(4),
     MODULE_PART(3),

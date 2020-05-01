@@ -1084,5 +1084,33 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 pipeToken,
                 rightTypeDesc);
     }
+
+    public static STNode createTableConstructorExpressionNode(
+            STNode tableKeyword,
+            STNode KeySpecifier,
+            STNode openBracket,
+            STNode mappingConstructors,
+            STNode closeBracket) {
+
+        return new STTableConstructorExpressionNode(
+                tableKeyword,
+                KeySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket);
+    }
+
+    public static STNode createKeySpecifierNode(
+            STNode keyKeyword,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken) {
+
+        return new STKeySpecifierNode(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
 }
 

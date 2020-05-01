@@ -428,6 +428,10 @@ public class ParserTestUtils {
                 return SyntaxKind.FOREACH_KEYWORD;
             case "IN_KEYWORD":
                 return SyntaxKind.IN_KEYWORD;
+            case "TABLE_KEYWORD":
+                return SyntaxKind.TABLE_KEYWORD;
+            case "KEY_KEYWORD":
+                return SyntaxKind.KEY_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -562,6 +566,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LIST_CONSTRUCTOR;
             case "TYPE_CAST_EXPRESSION":
                 return SyntaxKind.TYPE_CAST_EXPRESSION;
+            case "TABLE_CONSTRUCTOR":
+                return SyntaxKind.TABLE_CONSTRUCTOR;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -714,6 +720,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "UNION_TYPE_DESC":
                 return SyntaxKind.UNION_TYPE_DESC;
+            case "KEY_SPECIFIER":
+                return SyntaxKind.KEY_SPECIFIER;
 
             // Trivia
             case "EOF_TOKEN":

@@ -1457,5 +1457,44 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 rightTypeDesc.internalNode());
         return stUnionTypeDescriptorNode.createUnlinkedFacade();
     }
+
+    public static TableConstructorExpressionNode createTableConstructorExpressionNode(
+            Token tableKeyword,
+            KeySpecifierNode KeySpecifier,
+            Token openBracket,
+            SeparatedNodeList<Node> mappingConstructors,
+            Token closeBracket) {
+        Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
+        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(mappingConstructors, "mappingConstructors must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stTableConstructorExpressionNode = STNodeFactory.createTableConstructorExpressionNode(
+                tableKeyword.internalNode(),
+                KeySpecifier.internalNode(),
+                openBracket.internalNode(),
+                mappingConstructors.underlyingListNode().internalNode(),
+                closeBracket.internalNode());
+        return stTableConstructorExpressionNode.createUnlinkedFacade();
+    }
+
+    public static KeySpecifierNode createKeySpecifierNode(
+            Token keyKeyword,
+            Token openParenToken,
+            SeparatedNodeList<Node> fieldNames,
+            Token closeParenToken) {
+        Objects.requireNonNull(keyKeyword, "keyKeyword must not be null");
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(fieldNames, "fieldNames must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stKeySpecifierNode = STNodeFactory.createKeySpecifierNode(
+                keyKeyword.internalNode(),
+                openParenToken.internalNode(),
+                fieldNames.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stKeySpecifierNode.createUnlinkedFacade();
+    }
 }
 
