@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -135,7 +134,6 @@ public class JvmPackageGen {
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
-    public final BUnionType errorOrNilType;
     private final JvmMethodGen jvmMethodGen;
     private Map<String, BIRFunctionWrapper> birFunctionMap;
     private Map<String, String> externalMapCache;
@@ -154,7 +152,6 @@ public class JvmPackageGen {
         symbolTable = SymbolTable.getInstance(compilerContext);
         packageCache = PackageCache.getInstance(compilerContext);
         dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
-        errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         jvmMethodGen = new JvmMethodGen(this);
 
         JvmCastGen.symbolTable = symbolTable;

@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -230,11 +231,13 @@ public class JvmMethodGen {
     private int nextVarId = -1;
     private JvmPackageGen jvmPackageGen;
     private SymbolTable symbolTable;
+    private BUnionType errorOrNilType;
 
     public JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
+        this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
     }
 
     private static int[] toIntArray(List<Integer> states) {
@@ -2475,7 +2478,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        JvmInstructionGen.addBoxInsn(mv, jvmPackageGen.errorOrNilType);
+        JvmInstructionGen.addBoxInsn(mv, errorOrNilType);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -2528,12 +2531,12 @@ public class JvmMethodGen {
         nextId = -1;
         nextVarId = -1;
 
-        BIRVariableDcl retVar = new BIRVariableDcl(null, jvmPackageGen.errorOrNilType, new Name("%ret"),
+        BIRVariableDcl retVar = new BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                 VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
 
         BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
-                new BInvokableType(Collections.emptyList(), null, jvmPackageGen.errorOrNilType, null), null, 0, null);
+                new BInvokableType(Collections.emptyList(), null, errorOrNilType, null), null, 0, null);
         modInitFunc.localVars.add(retVar);
         BIRBasicBlock ignoreNextBB = addAndGetNextBasicBlock(modInitFunc);
 
