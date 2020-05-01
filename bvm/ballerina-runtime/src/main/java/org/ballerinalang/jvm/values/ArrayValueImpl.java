@@ -357,6 +357,119 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, Object value) {
         handleImmutableArrayValue();
+        addRefValue(index, value);
+    }
+
+    /**
+     * Add int value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, long value) {
+        handleImmutableArrayValue();
+        addInt(index, value);
+    }
+
+    /**
+     * Add boolean value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, boolean value) {
+        handleImmutableArrayValue();
+        addBoolean(index, value);
+    }
+
+    /**
+     * Add byte value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, byte value) {
+        handleImmutableArrayValue();
+        addByte(index, value);
+    }
+
+    /**
+     * Add double value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, double value) {
+        handleImmutableArrayValue();
+        addFloat(index, value);
+    }
+
+    /**
+     * Add string value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Deprecated
+    @Override
+    public void add(long index, String value) {
+        handleImmutableArrayValue();
+        addString(index, value);
+    }
+
+    /**
+     * Add string value to the given array index.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, BString value) {
+        handleImmutableArrayValue();
+        addBString(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, Object value) {
+        addRefValue(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, long value) {
+        addInt(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, boolean value) {
+        addBoolean(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, byte value) {
+        addByte(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, double value) {
+        addFloat(index, value);
+    }
+
+    @Deprecated
+    @Override
+    public void addOnInitialization(long index, String value) {
+        addString(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, BString value) {
+        addBString(index, value);
+    }
+
+    public void addRefValue(long index, Object value) {
         BType type = TypeChecker.getType(value);
         switch (this.elementType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
@@ -397,16 +510,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    /**
-     * Add int value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, long value) {
-        handleImmutableArrayValue();
-
+    public void addInt(long index, long value) {
         if (intValues != null) {
             prepareForAdd(index, value, BTypes.typeInt, intValues.length);
             intValues[(int) index] = value;
@@ -417,72 +521,32 @@ public class ArrayValueImpl extends AbstractArrayValue {
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
-    /**
-     * Add boolean value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, boolean value) {
-        handleImmutableArrayValue();
+    private void addBoolean(long index, boolean value) {
         prepareForAdd(index, value, BTypes.typeBoolean, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
-    /**
-     * Add byte value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, byte value) {
-        handleImmutableArrayValue();
+    private void addByte(long index, byte value) {
         prepareForAdd(index, value, BTypes.typeByte, byteValues.length);
         byteValues[(int) index] = value;
     }
 
-    /**
-     * Add double value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, double value) {
-        handleImmutableArrayValue();
+    private void addFloat(long index, double value) {
         prepareForAdd(index, value, BTypes.typeFloat, floatValues.length);
         floatValues[(int) index] = value;
     }
 
-    /**
-     * Add string value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
     @Deprecated
-    @Override
-    public void add(long index, String value) {
+    private void addString(long index, String value) {
         if (USE_BSTRING) {
-            add(index, org.ballerinalang.jvm.StringUtils.fromString(value));
+            addBString(index, org.ballerinalang.jvm.StringUtils.fromString(value));
             return;
         }
-        handleImmutableArrayValue();
         prepareForAdd(index, value, BTypes.typeString, stringValues.length);
         stringValues[(int) index] = value;
     }
 
-    /**
-     * Add string value to the given array index.
-     *
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, BString value) {
-        handleImmutableArrayValue();
+    private void addBString(long index, BString value) {
         prepareForAdd(index, value, BTypes.typeString, bStringValues.length);
         bStringValues[(int) index] = value;
     }

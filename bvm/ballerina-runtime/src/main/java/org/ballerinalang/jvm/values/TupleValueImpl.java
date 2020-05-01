@@ -288,6 +288,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, Object value) {
         handleImmutableArrayValue();
+        addRefValue(index, value);
+    }
+
+    private void addRefValue(long index, Object value) {
         prepareForAdd(index, value, refValues.length);
         refValues[(int) index] = value;
     }
@@ -357,6 +361,42 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, BString value) {
         add(index, (Object) value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, Object value) {
+        addRefValue(index, value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, long value) {
+        addRefValue(index, Long.valueOf(value));
+    }
+
+    @Override
+    public void addOnInitialization(long index, boolean value) {
+        addRefValue(index, Boolean.valueOf(value));
+    }
+
+    @Override
+    public void addOnInitialization(long index, byte value) {
+        addRefValue(index, Byte.valueOf(value));
+    }
+
+    @Override
+    public void addOnInitialization(long index, double value) {
+        addRefValue(index, Double.valueOf(value));
+    }
+
+    @Override
+    @Deprecated
+    public void addOnInitialization(long index, String value) {
+        addRefValue(index, (Object) value);
+    }
+
+    @Override
+    public void addOnInitialization(long index, BString value) {
+        addRefValue(index, (Object) value);
     }
 
     // -------------------------------------------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * <p>
@@ -33,4 +34,62 @@ public interface ArrayValue extends RefValue, BArray, CollectionValue {
     Object shift(long index);
 
     void setLength(long length);
+
+    /**
+     * Add ref value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    void addOnInitialization(long index, Object value);
+
+    /**
+     * Add int value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    void addOnInitialization(long index, long value);
+
+    /**
+     * Add boolean value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    void addOnInitialization(long index, boolean value);
+
+    /**
+     * Add byte value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    void addOnInitialization(long index, byte value);
+
+
+    /**
+     * Add double value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    void addOnInitialization(long index, double value);
+
+    /**
+     * Add string value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Deprecated
+    void addOnInitialization(long index, String value);
+
+    /**
+     * Add string value to the given array index on initialization of the list.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    void addOnInitialization(long index, BString value);
 }

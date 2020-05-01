@@ -48,7 +48,7 @@ function testReadonlyType() {
 
 function testSimpleAssignmentForSelectivelyImmutableTypes() {
     testSimpleAssignmentForSelectivelyImmutableXmlTypes();
-    //testSimpleAssignmentForSelectivelyImmutableListTypes();
+    testSimpleAssignmentForSelectivelyImmutableListTypes();
 }
 
 function testSimpleAssignmentForSelectivelyImmutableXmlTypes() {
@@ -100,7 +100,7 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
 
     Employee[] & readonly b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
     readonly r2 = b;
-    assertTrue(r2 is int[] & readonly);
+    assertTrue(r2 is Employee[] & readonly);
 
     Employee[] & readonly empArr = <Employee[] & readonly> r2;
     assertEquality(2, empArr.length());

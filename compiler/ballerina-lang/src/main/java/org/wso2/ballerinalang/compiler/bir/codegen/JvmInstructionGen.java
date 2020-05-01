@@ -1228,22 +1228,23 @@ public class JvmInstructionGen {
             this.loadVar(inst.rhsOp.variableDcl);
 
             BType valueType = inst.rhsOp.variableDcl.type;
-            BType varRefType = inst.lhsOp.variableDcl.type;
+
+            String method = inst.isStoreOnCreation ? "addOnInitialization" : "add";
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JJ)V", true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JJ)V", true);
             } else if (valueType.tag == TypeTags.FLOAT) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JD)V", true);
             } else if (TypeTags.isStringTypeTag(valueType.tag)) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add",
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method,
                                         String.format("(JL%s;)V", isBString ? B_STRING_VALUE : STRING_VALUE), true);
             } else if (valueType.tag == TypeTags.BOOLEAN) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JZ)V", true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JZ)V", true);
             } else if (valueType.tag == TypeTags.BYTE) {
                 this.mv.visitInsn(I2B);
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JB)V", true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JB)V", true);
             } else {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", String.format("(JL%s;)V", OBJECT), true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, String.format("(JL%s;)V", OBJECT), true);
             }
         }
 
