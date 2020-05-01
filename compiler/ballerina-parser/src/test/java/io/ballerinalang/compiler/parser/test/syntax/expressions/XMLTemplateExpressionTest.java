@@ -48,6 +48,11 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
         testFile("xml-template/xml_template_source_07.bal", "xml-template/xml_template_assert_07.json");
     }
 
+    @Test
+    public void testEntityRefAndCharRefInAttributeValues() {
+        testFile("xml-template/xml_template_source_11.bal", "xml-template/xml_template_assert_11.json");
+    }
+
     // Recovery test
 
     @Test
@@ -66,7 +71,42 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testRecoveryInsideNextedInterpolation() {
+    public void testRecoveryInsideNextedXMLTemplate() {
         testFile("xml-template/xml_template_source_08.bal", "xml-template/xml_template_assert_08.json");
+    }
+
+    @Test
+    public void testInterpolationInsideElementTag() {
+        testFile("xml-template/xml_template_source_09.bal", "xml-template/xml_template_assert_09.json");
+    }
+
+    @Test
+    public void testInterpolatingTagName() {
+        testFile("xml-template/xml_template_source_10.bal", "xml-template/xml_template_assert_10.json");
+    }
+
+    @Test
+    public void testInvalidEntityRefAndCharRefInAttributeValues() {
+        testFile("xml-template/xml_template_source_12.bal", "xml-template/xml_template_assert_12.json");
+    }
+
+    @Test
+    public void testErrorsInAttributes() {
+        testFile("xml-template/xml_template_source_13.bal", "xml-template/xml_template_assert_13.json");
+    }
+
+    @Test
+    public void testRecoveryInsideInterpolation() {
+        testFile("xml-template/xml_template_source_13.bal", "xml-template/xml_template_assert_13.json");
+    }
+
+    @Test
+    public void testInvalidReferenceInAttributeValue() {
+        testFile("xml-template/xml_template_source_14.bal", "xml-template/xml_template_assert_14.json");
+    }
+
+    @Test
+    public void testInvalidReferenceInText() {
+        testFile("xml-template/xml_template_source_15.bal", "xml-template/xml_template_assert_15.json");
     }
 }

@@ -17,9 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
-import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
-import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Result;
-import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;

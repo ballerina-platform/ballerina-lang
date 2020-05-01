@@ -5449,10 +5449,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Is expression node
      */
     private STNode parseTypeTestExpression(STNode lhsExpr) {
-        startContext(ParserRuleContext.TYPE_TEST_EXPRESSION);
         STNode isKeyword = parseIsKeyword();
         STNode typeDescriptor = parseTypeDescriptor();
-        endContext();
         return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
     }
 
@@ -6619,10 +6617,12 @@ public class BallerinaParser extends AbstractParser {
      * @return
      */
     private STNode parseTemplateExpression() {
+        startContext(ParserRuleContext.TEMPLATE_EXPR);
         STNode type = STNodeFactory.createEmptyNode();
         STNode startingBackTick = parseBacktickToken();
         STNode content = parseTemplateContent();
         STNode endingBackTick = parseBacktickToken();
+        endContext();
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, type, startingBackTick,
                 content, endingBackTick);
     }
@@ -6715,9 +6715,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Interpolation node
      */
     private STNode parseInterpolation() {
+        startContext(ParserRuleContext.INTERPOLATION);
         STNode interpolStart = parseInterpolationStart();
         STNode expr = parseExpression();
         STNode closeBrace = parseCloseBrace();
+        endContext();
         return STNodeFactory.createInterpolationNode(interpolStart, expr, closeBrace);
     }
 

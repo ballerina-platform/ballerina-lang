@@ -247,7 +247,6 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
-    TYPE_TEST_EXPRESSION("type-test-expr"),
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
@@ -265,6 +264,12 @@ public enum ParserRuleContext {
     XML_ATTRIBUTES("xml-attributes"),
     XML_ATTRIBUTE("xml-attribute"),
     INTERPOLATION_START_TOKEN("interpolation-start-token"),
+    INTERPOLATION("interoplation"),
+    TEMPLATE_EXPR("template-expr"),
+    TEMPLATE_BODY("template-body"),
+    TEMPLATE_MEMBER("template-member"),
+    TEMPLATE_STRING("template-string"),
+    TEMPLATE_STRING_RHS("template-string-rhs"),
     ;
 
     private String value;

@@ -62,6 +62,9 @@ public class XMLLexer extends AbstractLexer {
             case INTERPOLATION:
                 this.leadingTriviaList = new ArrayList<>(0);
                 return readTokenInInterpolation();
+            case XML_ATTRIBUTES:
+                processLeadingXMLTrivia();
+                return readTokenInXMLAttributes(true);
             default:
                 // should never reach here.
                 return null;
@@ -352,7 +355,7 @@ public class XMLLexer extends AbstractLexer {
         switch (c) {
             case LexerTerminals.LT:
                 reader.advance();
-                return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
+                return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, true, false);
             case LexerTerminals.GT:
                 endMode();
                 if (isStartTag) {
@@ -369,8 +372,8 @@ public class XMLLexer extends AbstractLexer {
                 return getXMLSyntaxToken(SyntaxKind.COLON_TOKEN, false, false);
             case LexerTerminals.DOLLAR:
                 // This is possible only in quoted-literals
-                if (peek() == LexerTerminals.OPEN_BRACE) {
-                    reader.advance();
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    reader.advance(2);
                     startMode(ParserMode.INTERPOLATION);
 
                     // Trailing trivia should be captured similar to DEFAULT mode.
@@ -379,12 +382,6 @@ public class XMLLexer extends AbstractLexer {
                 }
                 reader.advance();
                 break;
-            case LexerTerminals.EQUAL:
-                reader.advance();
-                return getXMLSyntaxToken(SyntaxKind.EQUAL_TOKEN, true, true);
-            case LexerTerminals.DOUBLE_QUOTE:
-            case LexerTerminals.SINGLE_QUOTE:
-                return processXMLQuotedString();
             case LexerTerminals.BACKTICK:
                 // Back tick means the end of currently processing element as well as
                 // the end of entire XML literal. Hence end the context, and start
@@ -395,7 +392,9 @@ public class XMLLexer extends AbstractLexer {
                 break;
         }
 
-        return processXMLName(c);
+        STToken tagName = processXMLName(c, false);
+        startMode(ParserMode.XML_ATTRIBUTES);
+        return tagName;
     }
 
     /**
@@ -418,9 +417,10 @@ public class XMLLexer extends AbstractLexer {
      * 
      * 
      * @param startChar Starting character of the XML name
+     * @param allowLeadingWS Flag indicating whether to allow whitespace before the name
      * @return XML name token
      */
-    private STToken processXMLName(int startChar) {
+    private STToken processXMLName(int startChar, boolean allowLeadingWS) {
         boolean isValid = true;
         if (!XMLValidator.isNCNameStart(startChar)) {
             isValid = false;
@@ -435,20 +435,66 @@ public class XMLLexer extends AbstractLexer {
             reportLexerError("invalid xml name: " + text);
         }
 
-        return getXMLNameToken(text);
+        return getXMLNameToken(text, allowLeadingWS);
     }
 
-    private STToken getXMLNameToken(String tokenText) {
+    private STToken getXMLNameToken(String tokenText, boolean allowLeadingWS) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-
-        // TODO: some names can have whitespaces
-        if (leadingTrivia.bucketCount() != 0) {
+        if (!allowLeadingWS && leadingTrivia.bucketCount() != 0) {
             reportLexerError("invalid whitespace before: " + tokenText);
         }
 
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingXMLTrivia();
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_ATTRIBUTES Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readTokenInXMLAttributes(boolean isStartTag) {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        int c = reader.peek();
+        switch (c) {
+            case LexerTerminals.LT:
+            case LexerTerminals.GT:
+            case LexerTerminals.SLASH:
+            case LexerTerminals.BACKTICK:
+                endMode(); // end attributes
+                // Delegate the next token reading task to parent element
+                return readTokenInXMLElement(isStartTag);
+            case LexerTerminals.COLON:
+                reader.advance();
+                return getXMLSyntaxToken(SyntaxKind.COLON_TOKEN, false, false);
+            case LexerTerminals.DOLLAR:
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    reader.advance(2);
+                    startMode(ParserMode.INTERPOLATION);
+                    // Trailing trivia should be captured similar to DEFAULT mode.
+                    // Hence using the 'getSyntaxToken()' method.
+                    return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                reader.advance();
+                break;
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                return getXMLSyntaxToken(SyntaxKind.EQUAL_TOKEN, true, true);
+            case LexerTerminals.DOUBLE_QUOTE:
+            case LexerTerminals.SINGLE_QUOTE:
+                return processXMLQuotedString();
+            default:
+                break;
+        }
+
+        STToken attributeName = processXMLName(c, true);
+        return attributeName;
     }
 
     private STToken processXMLQuotedString() {
@@ -467,7 +513,7 @@ public class XMLLexer extends AbstractLexer {
                     }
                     continue;
                 case LexerTerminals.BITWISE_AND:
-                    processXMLReference(startingQuote);
+                    processXMLReferenceInQuotedString(startingQuote);
                     continue;
                 case LexerTerminals.LT:
                     reader.advance();
@@ -487,6 +533,22 @@ public class XMLLexer extends AbstractLexer {
         return getLiteral(SyntaxKind.STRING_LITERAL);
     }
 
+    private void processXMLReferenceInQuotedString(int startingQuote) {
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.DOUBLE_QUOTE:
+            case LexerTerminals.SINGLE_QUOTE:
+                if (nextChar == startingQuote) {
+                    break;
+                }
+                // fall through
+            default:
+                // Process the name component
+                processXMLReference();
+                break;
+        }
+    }
+
     /**
      * Process XML references.
      * <p>
@@ -496,7 +558,7 @@ public class XMLLexer extends AbstractLexer {
      * 
      * @param startingQuote Starting quote
      */
-    private void processXMLReference(int startingQuote) {
+    private void processXMLReference() {
         this.reader.advance();
         int nextChar = peek();
         switch (nextChar) {
@@ -505,17 +567,11 @@ public class XMLLexer extends AbstractLexer {
                 reader.advance();
                 return;
             case LexerTerminals.HASH:
-                processXMLCharRef(startingQuote);
+                processXMLCharRef();
                 break;
-            case LexerTerminals.DOUBLE_QUOTE:
-            case LexerTerminals.SINGLE_QUOTE:
-                if (nextChar == startingQuote) {
-                    break;
-                }
-                // fall through
             default:
                 // Process the name component
-                processXMLEntityRef(startingQuote);
+                processXMLEntityRef();
                 break;
         }
 
@@ -533,15 +589,14 @@ public class XMLLexer extends AbstractLexer {
      * <code>
      * CharRef := ('&#' [0-9]+ ';') | ('&#x' [0-9a-fA-F]+ ';')
      * </code>
-     * 
-     * @param startingQuote Starting quote
      */
-    private void processXMLCharRef(int startingQuote) {
+    private void processXMLCharRef() {
         // We reach here after consuming '&', and verifying the following '#'.
         // Hence consume the hash token.
         reader.advance();
         int nextChar = peek();
         if (nextChar == 'x') {
+            reader.advance();
             processHexDigits();
         } else {
             processDigits();
@@ -549,40 +604,14 @@ public class XMLLexer extends AbstractLexer {
     }
 
     private void processHexDigits() {
-        int nextChar;
-        while (!reader.isEOF()) {
-            nextChar = peek();
-            switch (nextChar) {
-                case LexerTerminals.DOUBLE_QUOTE:
-                case LexerTerminals.SINGLE_QUOTE:
-                case LexerTerminals.SEMICOLON:
-                    return;
-                default:
-                    if (!isHexDigit(nextChar)) {
-                        reportLexerError("invalid hex digit in char ref");
-                    }
-                    reader.advance();
-                    break;
-            }
+        while (isHexDigit(peek())) {
+            reader.advance();
         }
     }
 
     private void processDigits() {
-        int nextChar;
-        while (!reader.isEOF()) {
-            nextChar = peek();
-            switch (nextChar) {
-                case LexerTerminals.DOUBLE_QUOTE:
-                case LexerTerminals.SINGLE_QUOTE:
-                case LexerTerminals.SEMICOLON:
-                    return;
-                default:
-                    if (!isDigit(nextChar)) {
-                        reportLexerError("invalid digit in char ref");
-                    }
-                    reader.advance();
-                    break;
-            }
+        while (isDigit(peek())) {
+            reader.advance();
         }
     }
 
@@ -592,10 +621,8 @@ public class XMLLexer extends AbstractLexer {
      * 
      * <p>
      * <code>EntityRef := '&' Name ';'</code>
-     * 
-     * @param startingQuote Starting quote
      */
-    private void processXMLEntityRef(int startingQuote) {
+    private void processXMLEntityRef() {
         // We reach here after consuming '&'
 
         // Process the name component
@@ -646,9 +673,9 @@ public class XMLLexer extends AbstractLexer {
                     reader.advance();
                     continue;
                 case LexerTerminals.BITWISE_AND:
-                    // The ampersand character is not allowed in text. Report error, but continue.
-                    reportLexerError("invalid token in xml text: " + String.valueOf((char) nextChar));
-                    reader.advance();
+                    // The ampersand character denotes an XML reference. Validate it as reference,
+                    // but treat that as part of the text.
+                    processXMLReference();
                     continue;
                 case LexerTerminals.BACKTICK:
                     break;

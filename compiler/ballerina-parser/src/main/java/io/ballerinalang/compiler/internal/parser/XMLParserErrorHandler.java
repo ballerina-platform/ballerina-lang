@@ -58,6 +58,11 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             skipRule = false;
             STToken nextToken = this.tokenReader.peek(lookahead);
 
+            if (nextToken.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+                lookahead += 2;
+                nextToken = this.tokenReader.peek(lookahead);
+            }
+
             switch (currentCtx) {
                 case EOF:
                     hasMatch = nextToken.kind == SyntaxKind.EOF_TOKEN;

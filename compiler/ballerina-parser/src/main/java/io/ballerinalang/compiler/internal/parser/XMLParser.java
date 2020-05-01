@@ -275,6 +275,13 @@ public class XMLParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return parseQualifiedIdentifier(consume());
+        } else if (token.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+            // If there's an interpolation parse it and report an error.
+            parseInterpolation();
+            this.errorHandler.reportInvalidNode(null, "interpolation is not allowed for tag names");
+
+            // Then try to re-parse the same rule.
+            return parseXMLNCName();
         } else {
             Solution sol = recover(token, ParserRuleContext.XML_NAME);
             return sol.recoveredNode;
@@ -315,7 +322,11 @@ public class XMLParser extends AbstractParser {
         STToken nextToken = peek();
         while (!isEndOfXMLAttributes(nextToken.kind)) {
             STNode attribute = parseXMLAttribute();
-            attributes.add(attribute);
+            if (attribute.kind == SyntaxKind.INTERPOLATION) {
+                this.errorHandler.reportInvalidNode(null, "interpolation is not allowed within element-tags");
+            } else {
+                attributes.add(attribute);
+            }
             nextToken = peek();
         }
         endContext();
@@ -349,6 +360,10 @@ public class XMLParser extends AbstractParser {
      * @return XML attribute node
      */
     private STNode parseXMLAttribute() {
+        if (peek().kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+            return parseInterpolation();
+        }
+
         STNode attributeName = parseXMLNCName();
         STNode equalToken = parseAssignOp();
         STNode value = parseXMLQuotedString();
