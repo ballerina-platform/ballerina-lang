@@ -757,6 +757,24 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
 
+            if (((BTableType) expType).constraint.tag == TypeTags.MAP) {
+                if (((BTableType) expType).fieldNameList != null || ((BTableType) expType).keyTypeConstraint != null) {
+                    dlog.error(((BTableType) expType).keyPos,
+                            DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+
+                if (tableConstructorExpr.tableKeySpecifier != null) {
+                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                            DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                resultType = expType;
+                return;
+            }
+
             BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
             BTableType actualTableType = (BTableType) actualType;
             BTableType expectedTableType = (BTableType) expType;
@@ -872,10 +890,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
                                          DiagnosticPos pos) {
-        if(constraint.tag != TypeTags.RECORD) {
-            return true;
-        }
-
         for (String fieldName : fieldNameList) {
             BField field = types.getTableConstraintField(constraint, fieldName);
             if (field == null) {
@@ -2044,6 +2058,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
                     indexBasedAccessExpr.expr.type);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (indexBasedAccessExpr.expr.type.tag == TypeTags.TABLE
+                && ((BTableType) indexBasedAccessExpr.expr.type).constraint.tag != TypeTags.RECORD) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORTED_FOR_NON_RECORD_CONSTRAINT,
+                    ((BTableType) indexBasedAccessExpr.expr.type).constraint);
             resultType = symTable.semanticError;
             return;
         }
