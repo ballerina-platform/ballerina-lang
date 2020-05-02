@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.wso2.ballerinalang.compiler.packaging.Patten.NULL;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 /**

@@ -252,7 +252,7 @@ public class PackageLoader {
     private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
         updateModuleIDVersion(pkgId, enclPackageId);
-        Resolution resolution = resolveModuleByPath(pkgId, enclPackageId);
+        Resolution resolution = resolveModuleByPath(pkgId);
         // if a resolution is found by dependency path
         if (resolution != Resolution.NOT_FOUND) {
             // update repo hierarchy of the resolution back to normal.
@@ -283,19 +283,15 @@ public class PackageLoader {
             return new GenericPackageSource(pkgId, resolution.inputs, resolution.resolvedBy);
         }
     }
-    
+
     /**
      * Resolve a module by path if given.
      *
      * @param moduleID The module's ID
      * @return The resolution.
      */
-    private Resolution resolveModuleByPath(PackageID moduleID, PackageID enclPackageId) {
-        Manifest moduleManifest = this.dependencyManifests.get(enclPackageId);
-        if (moduleManifest == null) {
-            moduleManifest = this.manifest;
-        }
-        Repo pathBaloRepo = new PathBaloRepo(moduleManifest, this.dependencyManifests);
+    private Resolution resolveModuleByPath(PackageID moduleID) {
+        Repo pathBaloRepo = new PathBaloRepo(this.manifest, this.dependencyManifests);
         RepoHierarchy pathRepoHierarchy = RepoHierarchyBuilder.build(node(pathBaloRepo));
         return pathRepoHierarchy.resolve(moduleID);
     }
@@ -310,9 +306,6 @@ public class PackageLoader {
      * @param enclPackageId The ID of the parent module.
      */
     private void updateModuleIDVersion(PackageID moduleID, PackageID enclPackageId) {
-        if (!moduleID.version.value.equals(Names.EMPTY.value)) {
-            return;
-        }
         String orgName = moduleID.orgName.value;
         String moduleName = moduleID.name.value;
 
