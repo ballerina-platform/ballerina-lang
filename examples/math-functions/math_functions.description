@@ -1,1 +1,3 @@
-//The Ballerina Math API contains methods to perform various numerical operations.
+//The Ballerina Math API contains methods to perform various numerical operations.<br/><br/>
+// For more information on the underlying module, 
+// see the [Math module](https://ballerina.io/learn/api-docs/ballerina/math/index.html).

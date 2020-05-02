@@ -304,4 +304,35 @@ public class ComplexTypesQueryTest {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
     }
+
+    @Test(description = "Get rowId with select query")
+    public void testQueryRowId() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testQueryRowId", args);
+        Assert.assertEquals(returns.length, 1);
+        SQLDBUtils.assertNotError(returns[0]);
+        BValueArray rowSet = ((BValueArray) returns[0]);
+        Assert.assertEquals(rowSet.size(), 4);
+        LinkedHashMap resultRow1 = ((BMap) rowSet.getBValue(0)).getMap();
+        LinkedHashMap resultRow2 = ((BMap) rowSet.getBValue(1)).getMap();
+        LinkedHashMap resultRow3 = ((BMap) rowSet.getBValue(2)).getMap();
+        LinkedHashMap resultRow4 = ((BMap) rowSet.getBValue(3)).getMap();
+
+        BValueArray row1IntArray = (BValueArray) resultRow1.get("INT_ARRAY");
+        Assert.assertEquals(((BInteger) row1IntArray.getBValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) row1IntArray.getBValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) row1IntArray.getBValue(2)).intValue(), 3);
+
+        BValueArray row2IntArray = (BValueArray) resultRow2.get("INT_ARRAY");
+        Assert.assertNull(row2IntArray.getBValue(0));
+        Assert.assertEquals((row2IntArray.getBValue(1)).stringValue(), "2");
+        Assert.assertEquals((row2IntArray.getBValue(2)).stringValue(), "3");
+
+        BValueArray row3IntArray = (BValueArray) resultRow3.get("INT_ARRAY");
+        Assert.assertNull(row3IntArray);
+
+        BValueArray row4IntArray = (BValueArray) resultRow4.get("INT_ARRAY");
+        Assert.assertNull(row4IntArray.getBValue(0));
+        Assert.assertNull(row4IntArray.getBValue(1));
+        Assert.assertNull(row4IntArray.getBValue(2));
+    }
 }

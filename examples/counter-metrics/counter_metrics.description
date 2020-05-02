@@ -2,4 +2,5 @@
 // Observability. To observe Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service.
 // The developers can define and use metrics to measure their own logic. A counter is one type of metric that is
 // supported by default in Ballerina, and it is a cumulative metric that represents a single monotonically increasing
-// counter whose value can only increase or be reset to zero.
+// counter whose value can only increase or be reset to zero.<br/><br/>
+// For more information, see [How to Observe Ballerina Services](https://ballerina.io/learn/how-to-observe-ballerina-code/).

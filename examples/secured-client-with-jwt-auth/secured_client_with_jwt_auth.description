@@ -11,4 +11,8 @@
 // added to the HTTP client endpoint initialization in order to secure the
 // simple HTTP client endpoint.
 // The `authHandler` field is defined inside the `auth` field with the value
-// of it being the reference of the created `http:BearerAuthHandler`.
+// of it being the reference of the created `http:BearerAuthHandler`.<br/><br/>
+// For more information on the underlying module, 
+// see the [JWT module](https://ballerina.io/learn/api-docs/ballerina/jwt/index.html).
+
+

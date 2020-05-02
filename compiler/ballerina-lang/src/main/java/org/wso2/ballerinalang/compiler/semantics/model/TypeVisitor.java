@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -46,10 +47,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
 /**
  * Visit ballerina types and maps them to instances T.
- * 
+ *
  * @since 0.995.0
  */
 public interface TypeVisitor {
+
     void visit(BAnnotationType bAnnotationType);
 
     void visit(BArrayType bArrayType);
@@ -89,6 +91,8 @@ public interface TypeVisitor {
     void visit(BUnionType bUnionType);
 
     void visit(BXMLType bxmlType);
+
+    void visit(BTableType bTableType);
 
     void visit(BRecordType bRecordType);
 

@@ -1,1 +1,3 @@
-// The HTTP retry client tries sending over the same request to the backend service when there is a network level failure.
+// The HTTP retry client tries sending over the same request to the backend service when there is a network level failure.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

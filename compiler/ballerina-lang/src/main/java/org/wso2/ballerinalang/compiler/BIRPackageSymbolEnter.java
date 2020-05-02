@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -877,6 +878,30 @@ public class BIRPackageSymbolEnter {
                         bStreamType.error = readTypeFromCp();
                     }
                     return bStreamType;
+                case TypeTags.TABLE:
+                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol);
+                    bTableType.constraint = readTypeFromCp();
+                    boolean hasFieldNameList = inputStream.readByte() == 1;
+                    boolean hasKeyConstraint = inputStream.readByte() == 1;
+
+                    if (hasFieldNameList) {
+                        bTableType.fieldNameList = new ArrayList<>();
+                        int fieldNameListSize = inputStream.readInt();
+                        for (int i = 0; i < fieldNameListSize; i++) {
+                            String fieldName = getStringCPEntryValue(inputStream);
+                            bTableType.fieldNameList.add(fieldName);
+                        }
+                    }
+
+                    if (hasKeyConstraint) {
+                        bTableType.keyTypeConstraint = readTypeFromCp();
+                        if (bTableType.keyTypeConstraint.tsymbol == null) {
+                            bTableType.keyTypeConstraint.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE,
+                                    Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID,
+                                    bTableType.keyTypeConstraint, env.pkgSymbol.owner);
+                        }
+                    }
+                    return bTableType;
                 case TypeTags.MAP:
                     BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
                     bMapType.constraint = readTypeFromCp();

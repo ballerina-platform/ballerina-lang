@@ -38,7 +38,7 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "redeclared symbol 'c'", 1, 73);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
-        BAssertUtil.validateError(result, i++, "invalid rest arguments", 29, 23);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'float'", 29, 20);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 61);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
                 "'functionWithOnlyPositionalParams'()", 57, 9);
@@ -67,6 +67,8 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "required parameter not allowed after defaultable parameters", 75, 60);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean[]'", 85, 33);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'float', found 'boolean[]'", 87, 28);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '[float,boolean...]', found " +
+                                          "'boolean[]'", 88, 31);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean[]'", 89, 45);
         BAssertUtil.validateError(result, i++, "positional argument not allowed after named arguments", 89, 45);
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
