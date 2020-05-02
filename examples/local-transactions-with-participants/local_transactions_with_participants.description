@@ -4,4 +4,6 @@
 // transactions with local participants. If the participant panics even when it
 // is trapped and if the initiator completes, the transaction is considered as a failure.
 // Ballerina transactions are at the experimental stage.
-// Hence, use the --experimental flag to enable them.
+// Hence, use the --experimental flag to enable them.<br/><br/>
+// For more information on the underlying module, 
+// see the [Transactions module](https://ballerina.io/learn/api-docs/ballerina/transactions/index.html).
