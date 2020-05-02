@@ -104,7 +104,6 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
     private void generateNativeMap(List<NativeElementCodeDef> nativeDefs) {
         Writer writer = null;
-        System.out.println("*****************************");
         try {
             Filer filer = this.processingEnv.getFiler();
             String mappingPathInJar = "META-INF/this.map.json";

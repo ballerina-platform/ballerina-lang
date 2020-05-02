@@ -1037,9 +1037,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BSymbol trxModSym = env.enclPkg.imports
                 .stream()
-                .filter(importPackage -> importPackage.symbol.
-                        pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names.ORG_NAME_SEPARATOR.value
-                                                        + Names.TRANSACTION_PACKAGE.value))
+                .filter(importPackage -> importPackage.symbol.pkgID.orgName.value.equals(Names.TRANSACTION_ORG.value) &&
+                        importPackage.symbol.pkgID.name.value.equals(Names.TRANSACTION_PACKAGE.value))
                 .findAny().get().symbol;
         // Retrieve the symbol from main symbol space assuming at this level symbols are resolved properly
         BInvokableSymbol invokableSymbol =
@@ -3042,7 +3041,8 @@ public class Desugar extends BLangNodeVisitor {
         trxAbortedFunc.capturedClosureEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
-        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
+        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE,
+                                            Names.TRANSACTION_PACKAGE_VERSION);
         BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionPkgSymbol),
