@@ -96,7 +96,7 @@ public class ListenerUtils {
         for (ObjectValue service : services) {
             if (startedServices == null || !startedServices.contains(service)) {
                 MapValue serviceConfig =
-                        (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+                        (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FULL_QUALIFIED_NAME,
                                 RabbitMQConstants.SERVICE_CONFIG);
                 @SuppressWarnings(RabbitMQConstants.UNCHECKED)
                 MapValue<String, Object> queueConfig =
@@ -159,7 +159,7 @@ public class ListenerUtils {
     }
 
     private static void declareQueueIfNotExists(ObjectValue service, Channel channel) throws IOException {
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FULL_QUALIFIED_NAME,
                 RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =
@@ -232,7 +232,7 @@ public class ListenerUtils {
 
     private static boolean getAckMode(ObjectValue service) {
         boolean autoAck;
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FULL_QUALIFIED_NAME,
                 RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE);

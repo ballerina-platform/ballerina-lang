@@ -30,7 +30,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
 public class EmailConstants {
 
     // Common constants
-    public static final BPackage EMAIL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "email");
+    public static final BPackage EMAIL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "email", "0.6.0");
 
     public static final String PROPS_PORT = "port";
     public static final String PROPS_USERNAME = "username";

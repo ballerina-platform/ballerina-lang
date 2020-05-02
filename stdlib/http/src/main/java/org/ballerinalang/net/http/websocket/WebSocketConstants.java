@@ -21,6 +21,8 @@ package org.ballerinalang.net.http.websocket;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
+
 /**
  * Constants of WebSocket.
  */
@@ -38,12 +40,13 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
     public static final String WSS_SCHEME = "wss";
     public static final String WS_SCHEME = "ws";
-    public static final String WEBSOCKET_CALLER_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CALLER;
+    public static final String WEBSOCKET_CALLER_NAME =
+            PACKAGE_HTTP +":" + HTTP_MODULE_VERSION + SEPARATOR + WEBSOCKET_CALLER;
     public static final String FULL_WEBSOCKET_CALLER_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
             WEBSOCKET_CALLER_NAME;
     public static final String WEBSOCKET_CLIENT_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CLIENT;
     public static final String FULL_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
-            WEBSOCKET_CLIENT_NAME;
+            WEBSOCKET_CLIENT_NAME + ":" + HTTP_MODULE_VERSION;
 
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "WebSocketServiceConfig";
@@ -115,7 +118,7 @@ public class WebSocketConstants {
 
     public static final int DEFAULT_MAX_FRAME_SIZE = 65536;
     public static final BPackage PROTOCOL_HTTP_PKG_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX,
-            "http");
+            "http", HTTP_MODULE_VERSION);
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";

@@ -36,12 +36,12 @@ public class KafkaConstants {
     public static final String BLOCK_SEPARATOR = ":";
     public static final String ARRAY_INDICATOR = "[]";
     public static final String KAFKA_PACKAGE_NAME = "kafka";
-    private static final String VERSION = "1.1.0";
+    private static final String VERSION = "2.0.0";
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
     public static final BPackage KAFKA_PROTOCOL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                          KAFKA_PACKAGE_NAME);
+                                                                          KAFKA_PACKAGE_NAME, VERSION);
 
     // Kafka log messages
     public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener ";

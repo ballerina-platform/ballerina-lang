@@ -1708,7 +1708,8 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
-        BType detailType = BValueCreator.createRecordValue(new BPackage(PACKAGE, MODULE), HTTP_ERROR_DETAIL_RECORD)
+        BType detailType = BValueCreator.createRecordValue(new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION),
+                                                           HTTP_ERROR_DETAIL_RECORD)
                 .getType();
         int mask = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         Set<Object> valueSpace = new HashSet<>();
