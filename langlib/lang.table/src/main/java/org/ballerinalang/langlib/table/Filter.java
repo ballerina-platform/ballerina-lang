@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "filter",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
         returnType = {@ReturnType(type = TypeKind.TABLE)},
         isPublic = true

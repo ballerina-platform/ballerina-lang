@@ -37,7 +37,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0",
         functionName = "keys",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},

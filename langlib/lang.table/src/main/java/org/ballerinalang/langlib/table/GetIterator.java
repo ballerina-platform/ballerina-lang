@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "iterator",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "iterator",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true

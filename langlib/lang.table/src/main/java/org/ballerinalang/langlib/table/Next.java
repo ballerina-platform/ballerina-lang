@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "next",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
                 structPackage = "ballerina/lang.table"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},

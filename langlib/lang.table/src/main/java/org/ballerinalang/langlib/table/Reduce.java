@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "reduce",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "reduce",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION),
                 @Argument(name = "initial", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.ANY)},

@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "removeAll",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "removeAll",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         isPublic = true
 )
