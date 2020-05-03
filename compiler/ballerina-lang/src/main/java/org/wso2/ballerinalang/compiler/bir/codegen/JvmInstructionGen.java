@@ -46,8 +46,11 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -125,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
@@ -135,6 +139,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_KEY_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
@@ -1180,9 +1186,61 @@ public class JvmInstructionGen {
 
         this.loadVar(mapNewIns.rhsOp.variableDcl);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
+
+        List<BIRNode.BIRMappingConstructorEntry> initialValues = mapNewIns.initialValues;
+        mv.visitLdcInsn((long) initialValues.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, BINITIAL_VALUE_ENTRY);
+
+        int i = 0;
+        for (BIRNode.BIRMappingConstructorEntry initialValue : initialValues) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            i += 1;
+
+            if (initialValue.isKeyValuePair()) {
+                createKeyValueEntry(mv, (BIRNode.BIRMappingConstructorKeyValueEntry) initialValue);
+            } else {
+                createSpreadFieldEntry(mv, (BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue);
+            }
+
+            mv.visitInsn(AASTORE);
+        }
+
         this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate",
-                String.format("(L%s;)L%s;", STRAND, OBJECT), true);
+                String.format("(L%s;[L%s;)L%s;", STRAND, BINITIAL_VALUE_ENTRY, OBJECT), true);
         this.storeToVar(mapNewIns.lhsOp.variableDcl);
+    }
+
+    private void createKeyValueEntry(MethodVisitor mv, BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry) {
+
+        mv.visitTypeInsn(NEW, MAPPING_INITIAL_KEY_VALUE_ENTRY);
+        mv.visitInsn(DUP);
+
+        BIRNode.BIRVariableDcl keyOpVarDecl = keyValueEntry.keyOp.variableDcl;
+        this.loadVar(keyOpVarDecl);
+        addBoxInsn(this.mv, keyOpVarDecl.type);
+
+        BIRNode.BIRVariableDcl valueOpVarDecl = keyValueEntry.valueOp.variableDcl;
+        this.loadVar(valueOpVarDecl);
+        addBoxInsn(this.mv, valueOpVarDecl.type);
+
+        mv.visitMethodInsn(INVOKESPECIAL, MAPPING_INITIAL_KEY_VALUE_ENTRY, "<init>",
+                           String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
+    }
+
+    private void createSpreadFieldEntry(MethodVisitor mv,
+                                        BIRNode.BIRMappingConstructorSpreadFieldEntry spreadFieldEntry) {
+
+        mv.visitTypeInsn(NEW, MAPPING_INITIAL_SPREAD_FIELD_ENTRY);
+        mv.visitInsn(DUP);
+
+        BIRNode.BIRVariableDcl variableDcl = spreadFieldEntry.exprOp.variableDcl;
+        this.loadVar(variableDcl);
+
+        mv.visitMethodInsn(INVOKESPECIAL, MAPPING_INITIAL_SPREAD_FIELD_ENTRY, "<init>",
+                           String.format("(L%s;)V", OBJECT), false);
     }
 
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
@@ -1204,15 +1262,8 @@ public class JvmInstructionGen {
                             JvmConstants.B_STRING_VALUE : STRING_VALUE, OBJECT),
                     false);
         } else {
-            String signature = String.format("(L%s;L%s;L%s;Z)V",
+            String signature = String.format("(L%s;L%s;L%s;)V",
                     MAP_VALUE, JvmPackageGen.IS_BSTRING ? JvmConstants.B_STRING_VALUE : STRING_VALUE, OBJECT);
-
-            if (mapStoreIns.isStoreOnCreation) {
-                this.mv.visitInsn(ICONST_1);
-            } else {
-                this.mv.visitInsn(ICONST_0);
-            }
-
             this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", signature, false);
         }
     }

@@ -401,6 +401,16 @@ public class BIROptimizer {
         @Override
         public void visit(BIRNonTerminator.NewStructure birNewStructure) {
             this.optimizeNode(birNewStructure.lhsOp, this.env);
+            for (BIRNode.BIRMappingConstructorEntry initialValue : birNewStructure.initialValues) {
+                if (initialValue.isKeyValuePair()) {
+                    BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry =
+                            (BIRNode.BIRMappingConstructorKeyValueEntry) initialValue;
+                    this.optimizeNode(keyValueEntry.keyOp, this.env);
+                    this.optimizeNode(keyValueEntry.valueOp, this.env);
+                    continue;
+                }
+                this.optimizeNode(((BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue).exprOp, this.env);
+            }
         }
 
         @Override

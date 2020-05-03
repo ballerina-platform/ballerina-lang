@@ -1360,7 +1360,9 @@ public class BIRGen extends BLangNodeVisitor {
                                                        VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, toVarRef, this.env.targetOperand));
+
+        emit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, toVarRef, this.env.targetOperand,
+                                               generateMappingConstructorEntries(astMapLiteralExpr.fields)));
         this.env.targetOperand = toVarRef;
     }
 
@@ -1390,7 +1392,8 @@ public class BIRGen extends BLangNodeVisitor {
 
 
         BIRNonTerminator.NewStructure instruction =
-                new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, toVarRef, this.env.targetOperand);
+                new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, toVarRef, this.env.targetOperand,
+                                                  generateMappingConstructorEntries(astStructLiteralExpr.fields));
         emit(instruction);
 
         this.env.targetOperand = toVarRef;
@@ -2502,5 +2505,30 @@ public class BIRGen extends BLangNodeVisitor {
         //reset function annotations
         currentEnv.enclAnnotAttachments = functionAnnotAttachments;
         return statementAnnots;
+    }
+
+    private List<BIRNode.BIRMappingConstructorEntry> generateMappingConstructorEntries(
+            List<RecordLiteralNode.RecordField> fields) {
+
+        List<BIRNode.BIRMappingConstructorEntry> initialValues = new ArrayList<>(fields.size());
+
+        for (RecordLiteralNode.RecordField field : fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
+                keyValueField.key.expr.accept(this);
+                BIROperand keyOperand = this.env.targetOperand;
+
+                keyValueField.valueExpr.accept(this);
+                BIROperand valueOperand = this.env.targetOperand;
+                initialValues.add(new BIRNode.BIRMappingConstructorKeyValueEntry(keyOperand, valueOperand));
+                continue;
+            }
+
+            BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField =
+                    (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+            spreadField.expr.accept(this);
+            initialValues.add(new BIRNode.BIRMappingConstructorSpreadFieldEntry(this.env.targetOperand));
+        }
+        return initialValues;
     }
 }

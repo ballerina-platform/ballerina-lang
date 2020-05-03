@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -169,11 +170,21 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewStructure extends BIRNonTerminator {
         public BIROperand rhsOp;
+        public List<BIRMappingConstructorEntry> initialValues;
 
         public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
+            this.initialValues = new ArrayList<>();
+        }
+
+        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp,
+                            List<BIRMappingConstructorEntry> initialValues) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+            this.initialValues = initialValues;
         }
 
         @Override

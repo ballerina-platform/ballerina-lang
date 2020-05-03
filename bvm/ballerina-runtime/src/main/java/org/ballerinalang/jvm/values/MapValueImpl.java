@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
@@ -32,6 +33,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BInitialValueEntry;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -85,6 +87,53 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public MapValueImpl(BType type) {
         super();
         this.type = type;
+    }
+
+    public MapValueImpl(BType type, BInitialValueEntry[] initialValues) {
+        super();
+        this.type = type;
+
+        boolean isMap = type.getTag() == TypeTags.MAP_TAG;
+
+        String bStringProp = System.getProperty("ballerina.bstring");
+        boolean isBString = (bStringProp != null && !"".equals(bStringProp));
+
+        for (BInitialValueEntry initialValue : initialValues) {
+            MappingInitialValueEntry mappingInitialValueEntry = (MappingInitialValueEntry) initialValue;
+
+            if (mappingInitialValueEntry.isKeyValueEntry()) {
+                MappingInitialValueEntry.KeyValueEntry keyValueEntry =
+                        (MappingInitialValueEntry.KeyValueEntry) mappingInitialValueEntry;
+                Object key = keyValueEntry.key;
+                Object value = keyValueEntry.value;
+                if (isMap) {
+                    MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type, isBString);
+                } else {
+                    String fieldName = isBString ? ((BString) key).getValue() :
+                            (String) key;
+                    MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value,
+                                                                     (BRecordType) type, isBString);
+                }
+                putOnInitialization((K) key, (V) value);
+                continue;
+            }
+
+            MapValueImpl<K, V> values =
+                    (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) mappingInitialValueEntry).values;
+            for (Map.Entry<K, V> entry : values.entrySet()) {
+                K key = entry.getKey();
+                V value = entry.getValue();
+
+                if (isMap) {
+                    MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type, isBString);
+                } else {
+                    String fieldName = isBString ? ((BString) key).getValue() : (String) key;
+                    MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value,
+                                                                     (BRecordType) type, isBString);
+                }
+                putOnInitialization(key, value);
+            }
+        }
     }
 
     public MapValueImpl() {
@@ -232,8 +281,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                                   INVALID_READONLY_VALUE_UPDATE));
     }
 
-    @Override
-    public void putOnInitialization(K key, V value) {
+    protected void putOnInitialization(K key, V value) {
         putValue(key, value);
     }
 

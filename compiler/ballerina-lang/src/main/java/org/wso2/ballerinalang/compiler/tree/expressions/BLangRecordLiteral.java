@@ -231,10 +231,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     public static class BLangStructLiteral extends BLangRecordLiteral {
         public BAttachedFunction initializer;
 
-        public BLangStructLiteral(DiagnosticPos pos, BType structType) {
+        public BLangStructLiteral(DiagnosticPos pos, BType structType, List<RecordField> fields) {
             super(pos);
             this.type = structType;
             this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
+            this.fields = fields;
         }
 
         @Override
@@ -250,9 +251,10 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangMapLiteral extends BLangRecordLiteral {
 
-        public BLangMapLiteral(DiagnosticPos pos, BType mapType) {
+        public BLangMapLiteral(DiagnosticPos pos, BType mapType, List<RecordField> fields) {
             super(pos);
             this.type = mapType;
+            this.fields = fields;
         }
 
         @Override
