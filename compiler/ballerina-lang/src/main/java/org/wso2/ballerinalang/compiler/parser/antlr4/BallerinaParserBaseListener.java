@@ -1,4 +1,4 @@
-// Generated from C:\Users\Dell\Desktop\StreamDesugar\ballerina-lang\compiler\ballerina-lang\src\main\resources\grammar\BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /Users/wso2/Desktop/StreamDesugar/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -2927,6 +2927,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOnClause(BallerinaParser.OnClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOnClause(BallerinaParser.OnClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
