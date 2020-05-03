@@ -897,6 +897,10 @@ selectClause
     :   SELECT expression
     ;
 
+onClause
+    : ON expression
+    ;
+
 whereClause
     :   WHERE expression
     ;
@@ -918,7 +922,7 @@ queryPipeline
     ;
 
 queryExpr
-    :   queryPipeline selectClause onConflictClause?
+    :   queryPipeline onClause? selectClause onConflictClause?
     ;
 
 queryAction
