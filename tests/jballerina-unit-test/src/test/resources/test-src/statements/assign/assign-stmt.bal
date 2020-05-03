@@ -112,6 +112,12 @@ function testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
     assertEquality(2, arr2[1]);
 }
 
+function assignAnyToUnionWithErrorAndAny() {
+    any x = 4;
+    any|error y = x;
+    assertEquality(4, y);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 type AssertionError error<ASSERTION_ERROR_REASON>;
 

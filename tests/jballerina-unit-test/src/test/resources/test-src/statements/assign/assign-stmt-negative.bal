@@ -127,7 +127,11 @@ function assignErrorArrayToUnionWithError() {
     error|int[] y = x;
 }
 
-function assignErrorArrayToUnionWithErrorArray() {
+function assignErrorToUnionWithErrorArray() {
     error e1 = error("E1");
     int|error[] y = e1;
+}
+
+function assignFunctionParameterAnyToParameterUnionWithErrorAndAny() {
+    function (any|error...) returns () func = function (any... y) {};
 }
