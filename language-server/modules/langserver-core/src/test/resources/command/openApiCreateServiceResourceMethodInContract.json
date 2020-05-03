@@ -1,0 +1,8 @@
+{
+  "arguments": {
+    "node.line": 20,
+    "node.column": 8,
+    "node.method": "post",
+    "resource.path": "/pets"
+  }
+}

@@ -123,19 +123,19 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 public const COMPRESSION_NEVER = "NEVER";
 
 # Constant for telemetry tag http.url
-public const HTTP_URL = "http.url";
+const HTTP_URL = "http.url";
 
 # Constant for telemetry tag http.method
-public const HTTP_METHOD = "http.method";
+const HTTP_METHOD = "http.method";
 
 # Constant for telemetry tag http.status_code_group
-public const HTTP_STATUS_CODE_GROUP = "http.status_code_group";
+const HTTP_STATUS_CODE_GROUP = "http.status_code_group";
 
 # Constant for telemetry tag http.base_url
-public const HTTP_BASE_URL = "http.base_url";
+const HTTP_BASE_URL = "http.base_url";
 
 # Constant for status code range suffix
-public const STATUS_CODE_RANGE_SUFFIX = "xx";
+const STATUS_CODE_GROUP_SUFFIX = "xx";
 
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
 public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
@@ -243,7 +243,7 @@ public type CommonClientConfiguration record {|
 # Parses the given header value to extract its value and parameter map.
 #
 # + headerValue - The header value
-# + return - Returns a tuple containing the value and its parameter map
+# + return - A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails
 //TODO: Make the error nillable
 public function parseHeader(string headerValue) returns [string, map<any>]|ClientError {
     return externParseHeader(java:fromString(headerValue));
@@ -455,7 +455,7 @@ function createErrorForNoPayload(mime:Error err) returns GenericClientError {
 }
 
 function getStatusCodeRange(int statusCode) returns string {
-    return statusCode.toString().substring(0,1) + STATUS_CODE_RANGE_SUFFIX;
+    return statusCode.toString().substring(0,1) + STATUS_CODE_GROUP_SUFFIX;
 }
 
 # Add observability information as tags

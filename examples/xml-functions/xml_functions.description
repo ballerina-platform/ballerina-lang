@@ -1,1 +1,3 @@
-// Ballerina supports various built-in functions to manipulate XML content.
+// Ballerina supports various built-in functions to manipulate XML content.<br/><br/>
+// For more information on the underlying module, 
+// see [the lang.xml module](https://ballerina.io/learn/api-docs/ballerina/lang.xml/index.html).

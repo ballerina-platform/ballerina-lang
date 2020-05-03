@@ -168,28 +168,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.980.0
      */
     public static class NewStructure extends BIRNonTerminator {
-        public BType type;
-        public final boolean isExternalDef;
-        public final PackageID externalPackageId;
-        public final String recordName;
+        public BIROperand rhsOp;
 
-        public NewStructure(DiagnosticPos pos, BType type, BIROperand lhsOp) {
+        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
-            this.type = type;
             this.lhsOp = lhsOp;
-            this.recordName = null;
-            this.externalPackageId = null;
-            this.isExternalDef = false;
-        }
-
-        public NewStructure(DiagnosticPos pos, PackageID externalPackageId, String recordName, BType type,
-                            BIROperand lhsOp) {
-            super(pos, InstructionKind.NEW_STRUCTURE);
-            this.recordName = recordName;
-            this.type = type;
-            this.lhsOp = lhsOp;
-            this.externalPackageId = externalPackageId;
-            this.isExternalDef = true;
+            this.rhsOp = rhsOp;
         }
 
         @Override
@@ -273,6 +257,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public boolean optionalFieldAccess = false;
         public boolean fillingRead = false;
+        public boolean isStoreOnCreation = false;
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
@@ -280,6 +265,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
+        }
+
+        public FieldAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand keyOp,
+                           BIROperand rhsOp, boolean isStoreOnCreation) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+            this.isStoreOnCreation = isStoreOnCreation;
         }
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
@@ -585,6 +579,29 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.params = params;
             this.closureMaps = closureMaps;
             this.retType = retType;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * The new table instruction.
+     */
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand keyColOp;
+        public BIROperand dataOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyColOp,
+                        BIROperand dataOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.keyColOp = keyColOp;
+            this.dataOp = dataOp;
         }
 
         @Override

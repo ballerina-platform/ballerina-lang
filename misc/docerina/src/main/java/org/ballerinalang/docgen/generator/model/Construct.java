@@ -21,9 +21,11 @@ package org.ballerinalang.docgen.generator.model;
 public class Construct {
     public String name;
     public String description;
+    public boolean isDeprecated;
 
-    public Construct(String name, String description) {
+    public Construct(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.isDeprecated = isDeprecated;
     }
 }

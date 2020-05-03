@@ -22,7 +22,7 @@
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "**Parameter**  \n**`(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])`message?**: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
+                  "value": "**Parameter**  \n**`(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])`message?**: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel`, or `mime:Entity[]`"
                 }
               }
             }

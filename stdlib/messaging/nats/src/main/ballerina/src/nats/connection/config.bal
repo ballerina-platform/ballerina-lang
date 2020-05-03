@@ -16,26 +16,26 @@
 
 import ballerina/crypto;
 
-# The parameters used to create a NATS streaming subscription.
+# Configurations related to creating a NATS streaming subscription.
 #
-# + connectionName - Name of the connection. This is optional.
-# + maxReconnect - Maximum number of reconnect attempts. Use 0 to turn off auto reconnect.
-# Use -1 to turn on infinite reconnects. The reconnect state is entered when the connection is connected and when
-# that connection is lost. During the initial connection attempt, the client will cycle over
-# its server list one time regardless of the maxReconnects value that is set.
-# + reconnectWaitInSeconds - The time to wait between reconnect attempts to reconnect to the same server.
-# This is measured in seconds.
-# + connectionTimeoutInSeconds - The timeout for connection attempts measured in seconds.
-# + pingIntervalInMinutes - The interval between the attempts of pinging the server. This is measured in minutes.
-# + maxPingsOut - The maximum number of pings the client can have in flight. The default value will be a small number.
-# + username - The username for basic authentication.
-# + password - The password for basic authentication.
-# + token - The token for token-based authentication.
-# + inboxPrefix - The connection's inbox prefix. All inboxes will start with this string.
-# + noEcho - Turns off echo. This prevents the server from echoing messages back to the connection if it
-# has subscriptions on the subject being published to.
-# + enableErrorListener - Enables Connection Error listener.
-# + secureSocket - Configurations related to SSL/TLS.
+# + connectionName - Name of the connection (this is optional)
+# + maxReconnect - Maximum number of reconnect attempts. The reconnect state is triggered when an already established
+#                  connection is lost. During the initial connection attempt, the client will cycle
+#                  over its server list one time regardless of the `maxReconnects` value that is set.
+#                  Use 0 to turn off auto reconnecting.
+#                  Use -1 to turn on infinite reconnects.
+# + reconnectWaitInSeconds - The time(in seconds) to wait between the reconnect attempts to reconnect to the same server
+# + connectionTimeoutInSeconds - The timeout (in seconds) for the connection attempts
+# + pingIntervalInMinutes - The interval (in minutes) between the attempts of pinging the server
+# + maxPingsOut - The maximum number of pings the client can have in flight. The default value is two
+# + username - The username for basic authentication
+# + password - The password for basic authentication
+# + token - The token for token-based authentication
+# + inboxPrefix - The connection's inbox prefix, which all inboxes will start with
+# + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
+#            has subscriptions on the subject being published to
+# + enableErrorListener - Enables the connection to the error listener
+# + secureSocket - Configurations related to SSL/TLS
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
   int maxReconnect = 60;
@@ -52,11 +52,11 @@ public type ConnectionConfig record {|
   SecureSocket? secureSocket = ();
 |};
 
-# Provides configurations for facilitating secure communication with a remote HTTP endpoint.
+# Configurations related to facilitating a secure communication with a remote HTTP endpoint.
 #
-# + trustStore - Configurations associated with the TrustStore.
-# + keyStore - Configurations associated with the KeyStore.
-# + protocol - The standard name of the requested protocol.
+# + trustStore - Configurations associated with the TrustStore
+# + keyStore - Configurations associated with the KeyStore
+# + protocol - The standard name of the requested protocol
 public type SecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();

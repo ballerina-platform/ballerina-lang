@@ -46,10 +46,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
@@ -522,6 +524,10 @@ public class Types {
             return true;
         }
 
+        if (targetTag == TypeTags.READONLY &&  isReadonlyType(source)) {
+            return true;
+        }
+
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
             return isAssignableRecordType(recordType, target);
@@ -539,6 +545,10 @@ public class Types {
         if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
             return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
                     unresolvedTypes);
+        }
+
+        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
+            return isAssignableTableType((BTableType) source, (BTableType) target);
         }
 
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
@@ -648,6 +658,53 @@ public class Types {
         return true;
     }
 
+    private boolean isAssignableTableType(BTableType sourceTableType, BTableType targetTableType) {
+        if (!isAssignable(sourceTableType.constraint, targetTableType.constraint)) {
+            return false;
+        }
+
+        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+            return true;
+        }
+
+        if (targetTableType.keyTypeConstraint != null) {
+            if (sourceTableType.keyTypeConstraint != null &&
+                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint))) {
+                return true;
+            }
+
+            if (sourceTableType.fieldNameList == null) {
+                return false;
+            }
+
+            List<BType> fieldTypes = new ArrayList<>();
+            sourceTableType.fieldNameList.forEach(field -> fieldTypes
+                    .add(getTableConstraintField(sourceTableType.constraint, field).type));
+
+            if (fieldTypes.size() == 1) {
+                return isAssignable(fieldTypes.get(0), targetTableType.keyTypeConstraint);
+            }
+
+            BTupleType tupleType = new BTupleType(fieldTypes);
+            return isAssignable(tupleType, targetTableType.keyTypeConstraint);
+        }
+
+        return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
+    }
+
+
+    BField getTableConstraintField(BType constraintType, String fieldName) {
+        List<BField> fieldList = ((BRecordType) constraintType).getFields();
+
+        for (BField field : fieldList) {
+            if (field.name.toString().equals(fieldName)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
+
     private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
         if (targetRecType.sealed) {
             return false;
@@ -715,6 +772,10 @@ public class Types {
             if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
                 return false;
             }
+        }
+
+        if (lhsTupleType.tupleTypes.size() > rhsTupleType.tupleTypes.size()) {
+            return false;
         }
 
         for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
@@ -854,6 +915,23 @@ public class Types {
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean isReadonlyType(BType sourceType) {
+        if (isValueType(sourceType)) {
+            return true;
+        }
+
+        switch (sourceType.tag) {
+            case TypeTags.NIL:
+            case TypeTags.ERROR:
+            case TypeTags.INVOKABLE:
+            case TypeTags.SERVICE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.HANDLE:
+                return true;
+        }
+        return false;
     }
 
     private boolean containsTypeParams(BInvokableType type) {
@@ -1412,7 +1490,8 @@ public class Types {
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
             case TypeTags.CHAR_STRING:
-                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY) {
+                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY ||
+                        targetTag == TypeTags.READONLY) {
                     return TypeTestResult.TRUE;
                 }
                 break;
@@ -1859,6 +1938,11 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BTableType t, BType s) {
             return t == s;
         }
 
@@ -2624,7 +2708,7 @@ public class Types {
         }
 
         if (remainingTypes.isEmpty()) {
-            return symTable.semanticError;
+            return symTable.nullSet;
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
@@ -2672,6 +2756,8 @@ public class Types {
                 return new BAnyType(type.tag, type.tsymbol, false);
             case TypeTags.ANYDATA:
                 return new BAnydataType(type.tag, type.tsymbol, false);
+            case TypeTags.READONLY:
+                return new BReadonlyType(type.tag, type.tsymbol, false);
         }
 
         if (type.tag != TypeTags.UNION) {
@@ -2860,6 +2946,10 @@ public class Types {
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             default:
+                // filler value is 0
+                if (TypeTags.isIntegerTypeTag(type.tag)) {
+                    return true;
+                }
                 return false;
         }
     }
@@ -2907,7 +2997,7 @@ public class Types {
 
         while (iterator.hasNext()) {
             BLangExpression value = (BLangExpression) iterator.next();
-            if (!isSameType(value.type, firstElement.type)) {
+            if (!isSameBasicType(value.type, firstElement.type)) {
                 return false;
             }
             if (!defaultFillValuePresent && isImplicitDefaultValue(value)) {
@@ -2918,18 +3008,73 @@ public class Types {
         return defaultFillValuePresent;
     }
 
+    private boolean hasImplicitDefaultValue(Set<BLangExpression> valueSpace) {
+        for (BLangExpression expression : valueSpace) {
+            if (isImplicitDefaultValue(expression)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean checkFillerValue(BUnionType type) {
         if (type.isNullable()) {
             return true;
         }
-        Iterator<BType> iterator = type.getMemberTypes().iterator();
+
+        Set<BType> memberTypes = new HashSet<>();
+        boolean hasFillerValue = false;
+        boolean defaultValuePresent = false;
+        boolean finiteTypePresent = false;
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.FINITE) {
+                Set<BType> uniqueValues = getValueTypes(((BFiniteType) member).getValueSpace());
+                memberTypes.addAll(uniqueValues);
+                if (!defaultValuePresent && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
+                    defaultValuePresent = true;
+                }
+                finiteTypePresent = true;
+            } else {
+                memberTypes.add(member);
+            }
+            if (!hasFillerValue && hasFillerValue(member)) {
+                hasFillerValue = true;
+            }
+        }
+        if (!hasFillerValue) {
+            return false;
+        }
+
+        Iterator<BType> iterator = memberTypes.iterator();
         BType firstMember = iterator.next();
         while (iterator.hasNext()) {
-            if (!isSameType(firstMember, iterator.next())) {
+            if (!isSameBasicType(firstMember, iterator.next())) {
                 return false;
             }
         }
-        return isValueType(firstMember) && hasFillerValue(firstMember);
+
+        if (finiteTypePresent) {
+            return defaultValuePresent;
+        }
+        return true;
+    }
+
+    private boolean isSameBasicType(BType source, BType target) {
+        if (isSameType(source, target)) {
+            return true;
+        }
+        if (TypeTags.isIntegerTypeTag(source.tag) && TypeTags.isIntegerTypeTag(target.tag)) {
+            return true;
+        }
+        return false;
+    }
+
+    private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
+        Set<BType> uniqueType = new HashSet<>();
+        for (BLangExpression expression : valueSpace) {
+            uniqueType.add(expression.type);
+        }
+        return uniqueType;
     }
 
     private boolean isImplicitDefaultValue(BLangExpression expression) {

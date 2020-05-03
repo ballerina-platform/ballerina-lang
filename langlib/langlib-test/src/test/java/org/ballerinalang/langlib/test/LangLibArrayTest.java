@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -169,6 +169,11 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(0), 4);
         assertEquals(arr.getInt(1), 5);
         assertEquals(arr.getInt(2), 88);
+    }
+
+    @Test
+    public void testSliceOnTupleWithRestDesc() {
+        BRunUtil.invokeFunction(compileResult, "testSliceOnTupleWithRestDesc");
     }
 
     @Test
@@ -388,11 +393,92 @@ public class LangLibArrayTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                            "message=cannot change the length of a tuple with '2' mandatory member\\(s\\) to '1'.*")
+          expectedExceptionsMessageRegExp =
+                  "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+                          "message=cannot change the length of a tuple with '2' mandatory member\\(s\\) to '1'.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
+    }
+
+    @Test
+    public void testAsyncFpArgsWithArrays() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
+        assertTrue(results[0] instanceof BInteger);
+        assertTrue(results[1] instanceof BValueArray);
+        assertEquals(((BInteger) results[0]).intValue(), 19);
+        BValueArray bValueArray = (BValueArray) results[1];
+        assertEquals(bValueArray.getInt(0), 4);
+        assertEquals(bValueArray.getInt(1), 6);
+        assertEquals(bValueArray.getInt(2), 3);
+
+    }
+
+    public void callingLengthModificationFunctionsOnFixedLengthLists() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
+        int errorIndex = 0;
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
+                                          "'int[1]'",
+                                  19, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
+                                          "'[int,int]'",
+                                  24, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
+                                          "'int[1]'",
+                                  29, 35);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
+                                          "'[int,int]'",
+                                  34, 35);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
+                                          "'int[1]'",
+                                  45, 30);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'unshift' on fixed length list(s) of " +
+                                          "type 'int[1]'",
+                                  50, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
+                                          "'[int,int]'",
+                                  55, 35);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'unshift' on fixed length list(s) of type '[int,int]'",
+                                  60, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
+                                          "'int[2]'",
+                                  66, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
+                                          "'int[2]'",
+                                  67, 30);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
+                                          "'int[2]'",
+                                  68, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'unshift' on fixed length list(s) of " +
+                                          "type 'int[2]'",
+                                  69, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'push' on fixed length list(s) of type '(int[1]|float[1])'",
+                                  74, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'push' on fixed length list(s) of type '([int,int][1]|[float," +
+                                          "float][1])'",
+                                  79, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'shift' on tuple(s) of type '[int,string...]': cannot violate inherent" +
+                                          " type",
+                                  84, 24);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'shift' on tuple(s) of type '[int,string,int...]': cannot violate " +
+                                          "inherent type",
+                                  89, 24);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'push' on fixed length list(s) of type '([int,int]|[float,float])'",
+                                  100, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'shift' on fixed length list(s) of type '[string,int]'",
+                                  118, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+    }
+
+    @Test
+    public void testShiftOperation() {
+        BRunUtil.invoke(compileResult, "testShiftOperation");
     }
 }

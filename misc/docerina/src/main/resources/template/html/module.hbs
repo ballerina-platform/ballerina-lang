@@ -52,9 +52,14 @@
                     {{#each module.records}}
                         <tr>
                             <td class="module-title truncate records" id="{{name}}" title="{{name}}">
-                                <a class="records"
-                                   href="records/{{name}}.html">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                                <a class="records {{#if isDeprecated}}strike{{/if}}" href="records/{{name}}.html">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{#if isAnonymous}}Anonymous record{{else}}{{{ description }}}{{/if}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -73,12 +78,14 @@
                     {{#each module.objects}}
                         <tr>
                             <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
-                                <a class="objects"
-                                   href="objects/{{name}}.html">
-                                    {{name}}
-                                </a>
+                                <a class="objects {{#if isDeprecated}}strike{{/if}}" href="objects/{{name}}.html">{{name}}</a>
                             </td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -97,9 +104,14 @@
                     {{#each module.clients}}
                         <tr>
                             <td class="module-title truncate clients" id="{{name}}" title="{{name}}">
-                                <a class="clients"
-                                   href="clients/{{name}}.html">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                                <a class="clients {{#if isDeprecated}}strike{{/if}}" href="clients/{{name}}.html">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -118,9 +130,14 @@
                     {{#each module.listeners}}
                         <tr>
                             <td class="module-title truncate listeners" id="{{name}}" title="{{name}}">
-                                <a class="listeners"
-                                   href="listeners/{{name}}.html">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                                <a class="listeners {{#if isDeprecated}}strike{{/if}}" href="listeners/{{name}}.html">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -139,9 +156,15 @@
                 <table>
                     {{#each module.functions}}
                         <tr>
-                            <td class="module-title truncate functions" id="{{name}}" title="{{name}}"><a
-                                    class="functions" href="functions.html#{{name}}">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-title truncate functions" id="{{name}}" title="{{name}}">
+                                <a class="functions {{#if isDeprecated}}strike{{/if}}" href="functions.html#{{name}}">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -160,9 +183,15 @@
                 <table>
                     {{#each module.constants}}
                         <tr>
-                            <td class="module-title truncate constant" id="{{name}}" title="{{name}}"><a
-                                    class="constant" href="constants.html#{{name}}">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-title truncate constant" id="{{name}}" title="{{name}}">
+                                <a class="constant {{#if isDeprecated}}strike{{/if}}" href="constants.html#{{name}}">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -181,9 +210,16 @@
                 <table>
                     {{#each module.annotations}}
                         <tr>
-                            <td class="module-title truncate annotations" id="{{name}}" title="{{name}}"><a
-                                    class="annotations" href="annotations.html#{{name}}">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-title truncate annotations" id="{{name}}" title="{{name}}">
+                                <a class="annotations {{#if isDeprecated}}strike{{/if}}"
+                                   href="annotations.html#{{name}}">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -202,9 +238,14 @@
                     {{#each module.unionTypes}}
                         <tr>
                             <td class="module-title truncate types" id="{{name}}" title="{{name}}">
-                                <a class="types" href="types.html#{{name}}">{{name}}</a>
+                                <a class="types {{#if isDeprecated}}strike{{/if}}" href="types.html#{{name}}">{{name}}</a>
                             </td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
@@ -223,9 +264,14 @@
                     {{#each module.errors}}
                         <tr>
                             <td class="module-title truncate errors" id="{{name}}" title="{{name}}">
-                                <a class="errors" href="errors.html#{{name}}">{{name}}</a>
+                                <a class="errors {{#if isDeprecated}}strike{{/if}}" href="errors.html#{{name}}">{{name}}</a>
                             </td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>

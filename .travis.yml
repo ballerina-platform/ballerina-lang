@@ -127,5 +127,6 @@ branches:
     - observability-improvements
     - next-release
     - release-stage
+    - new-table-impl
     - stage
     - /^ballerina-\d*[.]\d*[.]x$/

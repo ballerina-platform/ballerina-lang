@@ -1,0 +1,26 @@
+{
+  "range": {
+    "start": {
+      "line": 19,
+      "character": 9
+    },
+    "end": {
+      "line": 19,
+      "character": 20
+    }
+  },
+  "expected": {
+    "title":"Create missing http method 'post' for the path '/pets'",
+    "command":"CREATE_HTTP_METHOD_FOR_THE_PATH_IN_OPENAPI",
+    "arguments":[
+      {
+        "argumentK":"node.line",
+        "argumentV":"18"
+      },
+      {
+        "argumentK":"node.column",
+        "argumentV":"8"
+      }
+    ]
+  }
+}

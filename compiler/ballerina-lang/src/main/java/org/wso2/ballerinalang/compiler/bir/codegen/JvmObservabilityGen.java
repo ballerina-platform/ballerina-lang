@@ -22,7 +22,8 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIMethodCall;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -50,6 +52,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -57,12 +60,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -77,6 +78,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
@@ -86,12 +88,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 
 /**
  * BIR desugar to inject observations class.
@@ -117,15 +116,24 @@ class JvmObservabilityGen {
     private static final String INVOCATION_POSITION_TAG_KEY = SRC_TAG_KEYS_PREFIX + "position";
     private static final String TAG_VALUE_TRUE = "true";
 
-    // Index for making the the lambda names unique
-    private static int obsLambdaIndex = 0;
+    private final PackageCache packageCache;
+    private final SymbolTable symbolTable;
+    private int obsLambdaIndex;
+    private int desugaredBBIndex;
+
+    public JvmObservabilityGen(JvmPackageGen pkgGen) {
+        packageCache = pkgGen.packageCache;
+        symbolTable = pkgGen.symbolTable;
+        obsLambdaIndex = 0;
+        desugaredBBIndex = 0;
+    }
 
     /**
      * Rewrite all observable functions in a package.
      *
      * @param pkg The package to instrument
      */
-    public static void rewriteObservableFunctions(BIRPackage pkg) {
+    public void rewriteObservableFunctions(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
             rewriteAsyncInvocations(func, null, pkg);
@@ -166,7 +174,7 @@ class JvmObservabilityGen {
      * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
      */
-    public static void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
+    public void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
         List<BIRFunction> scopeFunctionsList = attachedTypeDef == null ? pkg.functions : attachedTypeDef.attachedFuncs;
         for (BIRBasicBlock currentBB : func.basicBlocks) {
             if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
@@ -196,7 +204,7 @@ class JvmObservabilityGen {
 
                 // Creating and adding invokable symbol to the package symbol
                 PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-                BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(pkg.org + "/" + pkg.name);
+                BPackageSymbol pkgSymbol = packageCache.getSymbol(currentPkgId);
                 BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
                         currentPkgId, bInvokableType, pkgSymbol);
                 invokableSymbol.retType = funcReturnVariableDcl.type;
@@ -264,9 +272,9 @@ class JvmObservabilityGen {
      * @param resourceOrAction The name of the resource or action which will be observed
      * @param additionalTags The map of additional tags to be added to the observation
      */
-    private static void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResourceObservation,
-                                                      String serviceName, String resourceOrAction,
-                                                      Map<String, String> additionalTags) {
+    private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResourceObservation,
+                                               String serviceName, String resourceOrAction,
+                                               Map<String, String> additionalTags) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);
@@ -375,7 +383,7 @@ class JvmObservabilityGen {
      * @param func The function of which the instructions in the body should be instrumented
      * @param pkg The package which contains the instruction which will be observed
      */
-    private static void rewriteObservableFunctionInvocations(BIRFunction func, BIRPackage pkg) {
+    private void rewriteObservableFunctionInvocations(BIRFunction func, BIRPackage pkg) {
         int i = 0;
         while (i < func.basicBlocks.size()) {
             int insertedBBs = 0;
@@ -524,10 +532,10 @@ class JvmObservabilityGen {
      * @param tags The map of tags to be added to the observation
      * @param uniqueId A unique ID to identify the observe start call
      */
-    private static void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
-                                               DiagnosticPos desugaredInsPos, boolean isResourceObservation,
-                                               String serviceOrConnector, String resourceOrAction,
-                                               Map<String, String> tags, String uniqueId) {
+    private void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
+                                        DiagnosticPos desugaredInsPos, boolean isResourceObservation,
+                                        String serviceOrConnector, String resourceOrAction, Map<String, String> tags,
+                                        String uniqueId) {
         BIROperand tagsMapOperand = generateMapOperand(String.format("%s$%s$tags", uniqueId, observeStartBB.id.value),
                 tags, scopeVarList, observeStartBB, desugaredInsPos);
         injectObserveStartCall(observeStartBB, scopeVarList, desugaredInsPos, isResourceObservation, serviceOrConnector,
@@ -546,21 +554,22 @@ class JvmObservabilityGen {
      * @param tags The operand for passing tags to the observe start call
      * @param uniqueId A unique ID to identify the observe start call
      */
-    private static void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
-                                               DiagnosticPos desugaredInsPos, boolean isResourceObservation,
-                                               String serviceOrConnector, String resourceOrAction,
-                                               BIROperand tags, String uniqueId) {
+    private void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
+                                        DiagnosticPos desugaredInsPos, boolean isResourceObservation,
+                                        String serviceOrConnector, String resourceOrAction, BIROperand tags,
+                                        String uniqueId) {
         BIROperand connectorNameOperand = generateConstantOperand(
                 String.format("%s$%s$serviceOrConnector", uniqueId, observeStartBB.id.value), serviceOrConnector,
                 scopeVarList, observeStartBB, desugaredInsPos);
         BIROperand actionNameOperand = generateConstantOperand(String.format("%s$%s$resourceOrAction", uniqueId,
                 observeStartBB.id.value), resourceOrAction, scopeVarList, observeStartBB, desugaredInsPos);
 
-        String stringType = isBString ? I_STRING_VALUE : STRING_VALUE;
+        String stringType = IS_BSTRING ? B_STRING_VALUE : STRING_VALUE;
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", stringType, stringType, MAP_VALUE);
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", stringType, stringType,
+                MAP_VALUE);
         observeStartCallTerminator.name = isResourceObservation
                 ? START_RESOURCE_OBSERVATION_METHOD : START_CALLABLE_OBSERVATION_METHOD;
         observeStartCallTerminator.args = Arrays.asList(connectorNameOperand, actionNameOperand, tags);
@@ -578,9 +587,9 @@ class JvmObservabilityGen {
      * @param valueOperand Operand for passing the value which should be checked if it is an error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private static void injectCheckErrorCalls(BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
-                                              BIRBasicBlock noErrorBB, List<BIRVariableDcl> scopeVarList,
-                                              DiagnosticPos pos, BIROperand valueOperand, String uniqueId) {
+    private void injectCheckErrorCalls(BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB, BIRBasicBlock noErrorBB,
+                                       List<BIRVariableDcl> scopeVarList, DiagnosticPos pos, BIROperand valueOperand,
+                                       String uniqueId) {
         BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
                 new Name(String.format("$%s$%s$isError", uniqueId, errorCheckBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
@@ -600,8 +609,8 @@ class JvmObservabilityGen {
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private static void injectReportErrorCall(BIRBasicBlock errorReportBB, List<BIRVariableDcl> scopeVarList,
-                                              DiagnosticPos pos, BIROperand errorOperand, String uniqueId) {
+    private void injectReportErrorCall(BIRBasicBlock errorReportBB, List<BIRVariableDcl> scopeVarList,
+                                       DiagnosticPos pos, BIROperand errorOperand, String uniqueId) {
         BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
                 new Name(String.format("$%s$%s$castedError", uniqueId, errorReportBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
@@ -626,7 +635,7 @@ class JvmObservabilityGen {
      * @param observeEndBB The basic block to which the stop observation call should be injected
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      */
-    private static void injectObserveEndCall(BIRBasicBlock observeEndBB, DiagnosticPos pos) {
+    private void injectObserveEndCall(BIRBasicBlock observeEndBB, DiagnosticPos pos) {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
@@ -646,15 +655,14 @@ class JvmObservabilityGen {
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @return The generated operand which will pass the constant
      */
-    private static BIROperand generateConstantOperand(String uniqueId, String constantValue,
-                                                      List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
-                                                      DiagnosticPos pos) {
-        BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.stringType,
+    private BIROperand generateConstantOperand(String uniqueId, String constantValue, List<BIRVariableDcl> scopeVarList,
+                                               BIRBasicBlock basicBlock, DiagnosticPos pos) {
+        BIRVariableDcl constLoadVariableDcl = new BIRVariableDcl(symbolTable.stringType,
                 new Name(String.format("$%s$const", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
-        scopeVarList.add(variableDcl);
-        BIROperand operand = new BIROperand(variableDcl);
-        ConstantLoad instruction = new ConstantLoad(pos, constantValue, symbolTable.stringType, operand);
-        basicBlock.instructions.add(instruction);
+        scopeVarList.add(constLoadVariableDcl);
+        BIROperand operand = new BIROperand(constLoadVariableDcl);
+        ConstantLoad constLoadIns = new ConstantLoad(pos, constantValue, symbolTable.stringType, operand);
+        basicBlock.instructions.add(constLoadIns);
         return operand;
     }
 
@@ -668,17 +676,21 @@ class JvmObservabilityGen {
      * @param pos The position of all instructions, variables declarations, etc.
      * @return The generated operand which will pass the map
      */
-    private static BIROperand generateMapOperand(String uniqueId, Map<String, String> map,
-                                                 List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
-                                                 DiagnosticPos pos) {
-        BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.mapType,
-                new Name(String.format("$%s$map", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
-        scopeVarList.add(variableDcl);
-        BIROperand tagsMapOperand = new BIROperand(variableDcl);
+    private BIROperand generateMapOperand(String uniqueId, Map<String, String> map, List<BIRVariableDcl> scopeVarList,
+                                          BIRBasicBlock basicBlock, DiagnosticPos pos) {
+        BIRVariableDcl tagsMapTypeDescVariableDcl = new BIRVariableDcl(symbolTable.typeDesc,
+                new Name(String.format("$%s$mapTypeDesc", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
+        scopeVarList.add(tagsMapTypeDescVariableDcl);
+        BIROperand tagsMapTypeDescOperand = new BIROperand(tagsMapTypeDescVariableDcl);
+        NewTypeDesc mapNewTypeDescIns = new NewTypeDesc(pos, tagsMapTypeDescOperand, symbolTable.mapStringType);
+        basicBlock.instructions.add(mapNewTypeDescIns);
 
-        NewStructure bMapNewInstruction = new NewStructure(pos, new BMapType(TypeTags.MAP, symbolTable.stringType,
-                null), tagsMapOperand);
-        basicBlock.instructions.add(bMapNewInstruction);
+        BIRVariableDcl tagsMapVariableDcl = new BIRVariableDcl(symbolTable.mapStringType,
+                new Name(String.format("$%s$map", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
+        scopeVarList.add(tagsMapVariableDcl);
+        BIROperand tagsMapOperand = new BIROperand(tagsMapVariableDcl);
+        NewStructure mapNewStructureIns = new NewStructure(pos, tagsMapOperand, tagsMapTypeDescOperand);
+        basicBlock.instructions.add(mapNewStructureIns);
 
         int entryIndex = 0;
         for (Map.Entry<String, String> tagEntry: map.entrySet()) {
@@ -701,7 +713,7 @@ class JvmObservabilityGen {
      * @param pos The position in the source which should be included in the tags
      * @return The position based tags map
      */
-    private static Map<String, String> generatePositionTags(BIRPackage pkg, DiagnosticPos pos) {
+    private Map<String, String> generatePositionTags(BIRPackage pkg, DiagnosticPos pos) {
         Map<String, String> tags = new HashMap<>();
         tags.put(MODULE_TAG_KEY, String.format("%s/%s:%s", pkg.org.value, pkg.name.value, pkg.version.value));
         tags.put(INVOCATION_POSITION_TAG_KEY, String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine, pos.sCol));
@@ -715,8 +727,10 @@ class JvmObservabilityGen {
      * @param insertIndex The index at which the basic block should be injected
      * @return The injected new BB
      */
-    private static BIRBasicBlock insertBasicBlock(BIRFunction func, int insertIndex) {
-        return insertAndGetNextBasicBlock(func.basicBlocks, insertIndex, NEW_BB_PREFIX);
+    private BIRBasicBlock insertBasicBlock(BIRFunction func, int insertIndex) {
+        BIRBasicBlock newBB = new BIRBasicBlock(new Name(NEW_BB_PREFIX + desugaredBBIndex++));
+        func.basicBlocks.add(insertIndex, newBB);
+        return newBB;
     }
 
     /**
@@ -725,7 +739,7 @@ class JvmObservabilityGen {
      * @param firstBB The first BB of which content should end up in second BB
      * @param secondBB The second BB of which content should end up in first BB
      */
-    private static void swapBasicBlockContent(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
+    private void swapBasicBlockContent(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
         List<BIRNonTerminator> firstBBInstructions = firstBB.instructions;
         firstBB.instructions = secondBB.instructions;
         secondBB.instructions = firstBBInstructions;
@@ -738,7 +752,7 @@ class JvmObservabilityGen {
      * @param firstBB The first BB of which terminator should end up in second BB
      * @param secondBB The second BB of which terminator should end up in first BB
      */
-    private static void swapBasicBlockTerminator(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
+    private void swapBasicBlockTerminator(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
         BIRTerminator firstBBTerminator = firstBB.terminator;
         firstBB.terminator = secondBB.terminator;
         secondBB.terminator = firstBBTerminator;
@@ -755,7 +769,7 @@ class JvmObservabilityGen {
      * @param oldBB The old ending BB of error entries to be fixed
      * @param newBB The new ending BB which should be updated to in the error entries to be fixed
      */
-    private static void fixErrorTable(BIRFunction func, BIRBasicBlock oldBB, BIRBasicBlock newBB) {
+    private void fixErrorTable(BIRFunction func, BIRBasicBlock oldBB, BIRBasicBlock newBB) {
         for (BIRErrorEntry errorEntry : func.errorTable) {
             if (errorEntry.endBB == oldBB) {
                 errorEntry.endBB = newBB;
@@ -769,7 +783,7 @@ class JvmObservabilityGen {
      * @param callIns The call instruction to check
      * @return True if the call instruction is observable
      */
-    private static boolean isObservable(Call callIns) {
+    private boolean isObservable(Call callIns) {
         boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
@@ -788,7 +802,7 @@ class JvmObservabilityGen {
      * @param variableDcl The variable declaration which should be checked.
      * @return True if an error can be assigned and false otherwise
      */
-    private static boolean isErrorAssignable(BIRVariableDcl variableDcl) {
+    private boolean isErrorAssignable(BIRVariableDcl variableDcl) {
         boolean isErrorAssignable = false;
         if (variableDcl.type instanceof BUnionType) {
             BUnionType returnUnionType = (BUnionType) variableDcl.type;
@@ -807,7 +821,7 @@ class JvmObservabilityGen {
      * @param basicBlock The basic block which should be checked for
      * @return True if the basic block is covered in the error entry
      */
-    private static boolean isBBCoveredInErrorEntry(BIRErrorEntry errorEntry, BIRBasicBlock basicBlock) {
+    private boolean isBBCoveredInErrorEntry(BIRErrorEntry errorEntry, BIRBasicBlock basicBlock) {
         boolean isCovered = Objects.equals(basicBlock, errorEntry.trapBB)
                 || Objects.equals(basicBlock, errorEntry.endBB);
         if (!isCovered) {
@@ -830,7 +844,7 @@ class JvmObservabilityGen {
      * @param serviceName The service name to be cleaned up
      * @return The cleaned up service name which should be equal to the name given by the developer
      */
-    private static String cleanUpServiceName(String serviceName) {
+    private String cleanUpServiceName(String serviceName) {
         if (serviceName.contains(SERVICE_IDENTIFIER)) {
             if (serviceName.contains(ANONYMOUS_SERVICE_IDENTIFIER)) {
                 return serviceName.replace(SERVICE_IDENTIFIER, "_");

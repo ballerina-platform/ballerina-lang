@@ -42,10 +42,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -126,10 +128,13 @@ public class SymbolTable {
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BType typeDesc = new BTypedescType(this.anyType, null);
+    public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
+    public final BType nullSet = new BType(TypeTags.NULL_SET, null);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
+    public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
     public BErrorType errorType;
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
@@ -139,6 +144,7 @@ public class SymbolTable {
     public BFiniteType trueType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
+    public BArrayType arrayAllType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
@@ -213,6 +219,7 @@ public class SymbolTable {
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(streamType, TypeKind.STREAM.typeName());
+        initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(mapStringType, TypeKind.MAP.typeName());
         initializeType(mapAnydataType, TypeKind.MAP.typeName());
@@ -223,6 +230,7 @@ public class SymbolTable {
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
         initializeType(handleType, TypeKind.HANDLE.typeName());
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
+        initializeType(readonlyType, TypeKind.READONLY.typeName());
 
         // Define subtypes
         initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);
@@ -277,6 +285,8 @@ public class SymbolTable {
                 return xmlTextType;
             case TypeTags.STREAM:
                 return streamType;
+            case TypeTags.TABLE:
+                return tableType;
             case TypeTags.NIL:
                 return nilType;
             case TypeTags.ERROR:

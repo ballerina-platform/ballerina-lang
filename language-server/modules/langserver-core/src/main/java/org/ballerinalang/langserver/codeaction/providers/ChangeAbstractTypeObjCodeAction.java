@@ -16,24 +16,27 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 /**
@@ -57,7 +60,7 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
 
         for (Diagnostic diagnostic : diagnosticsOfRange) {
             if (diagnostic.getMessage().contains(ABSTRACT_OBJECT)) {
-                CodeAction codeAction = getChangeAbstractTypeCommand(diagnostic, lsContext);
+                CodeAction codeAction = getMakeAbstractCodeAction(diagnostic, lsContext);
                 if (codeAction != null) {
                     actions.add(codeAction);
                 }
@@ -71,7 +74,7 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
                 .forEach(diagnostic -> rangeToDiagnostics.put(diagnostic.getRange(), diagnostic));
 
         rangeToDiagnostics.values().forEach(diagnostic -> {
-            CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, lsContext);
+            CodeAction codeAction = getMakeNonAbstractCodeAction(diagnostic, lsContext);
             if (codeAction != null) {
                 actions.add(codeAction);
             }
@@ -89,59 +92,138 @@ public class ChangeAbstractTypeObjCodeAction extends AbstractCodeActionProvider 
         throw new UnsupportedOperationException("Not supported");
     }
 
-    private static CodeAction getChangeAbstractTypeCommand(Diagnostic diagnostic, LSContext context) {
+    private static CodeAction getMakeAbstractCodeAction(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
-        int line = position.getLine();
-        int column = position.getCharacter();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
-        CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
-        List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.FUNC_IN_ABSTRACT_OBJ_PATTERN.matcher(diagnosticMessage);
-        if (matcher.find() && matcher.groupCount() > 1) {
-            String objectName = matcher.group(2);
-            int colonIndex = objectName.lastIndexOf(":");
-            String simpleObjName = (colonIndex > -1) ? objectName.substring(colonIndex + 1) : objectName;
-            List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
-            String commandTitle = String.format(CommandConstants.MAKE_OBJ_NON_ABSTRACT_TITLE, simpleObjName);
-
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(commandTitle, ChangeAbstractTypeObjExecutor.COMMAND, args));
-            action.setDiagnostics(diagnostics);
-            return action;
+        Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
+                                                                        position.getCharacter());
+        if (!objType.isPresent()) {
+            return null;
         }
-        return null;
+
+        String simpleObjName = getObjectName(diagnosticMessage);
+        if (simpleObjName.isEmpty()) {
+            return null;
+        }
+
+        Set<Whitespace> whitespaces = objType.get().getWS();
+        whitespaces.addAll(objType.get().typeNode.getWS());
+        Iterator<Whitespace> iterator = whitespaces.iterator();
+
+        String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
+        int colBeforeObjKeyword = objType.get().pos.sCol;
+        boolean isFirst = true;
+        StringBuilder str = new StringBuilder();
+        while (iterator.hasNext()) {
+            Whitespace next = iterator.next();
+            if ("object".equals(next.getPrevious())) {
+                break;
+            }
+            String ws = next.getWs();
+            if (!isFirst && !";".equals(ws)) {
+                str.append(ws);
+            }
+            str.append(next.getPrevious());
+            isFirst = false;
+        }
+        colBeforeObjKeyword += str.toString().length();
+
+        String editText = " abstract";
+        Position pos = new Position(objType.get().pos.sLine - 1, colBeforeObjKeyword - 1);
+
+        List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(pos, pos), editText));
+        return createQuickFixCodeAction(commandTitle, edits, uri);
     }
 
-    private static CodeAction getNoImplementationFoundCommand(Diagnostic diagnostic, LSContext context) {
+    private static CodeAction getMakeNonAbstractCodeAction(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
-        int line = position.getLine();
-        int column = position.getCharacter();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
-        CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
-        List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnosticMessage);
+        Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
+                                                                        position.getCharacter());
+        if (!objType.isPresent()) {
+            return null;
+        }
+
+        String simpleObjName = getObjectName(diagnosticMessage);
+        if (simpleObjName.isEmpty()) {
+            return null;
+        }
+
+        Set<Whitespace> whitespaces = objType.get().getWS();
+        whitespaces.addAll(objType.get().typeNode.getWS());
+        Iterator<Whitespace> iterator = whitespaces.iterator();
+
+        String commandTitle = String.format(CommandConstants.MAKE_OBJ_NON_ABSTRACT_TITLE, simpleObjName);
+        int colBeforeLeftBrace = objType.get().pos.sCol;
+        boolean isFirst = true;
+        StringBuilder str = new StringBuilder();
+        boolean skipNextWS = false;
+        boolean loop = true;
+        while (iterator.hasNext() && loop) {
+            Whitespace next = iterator.next();
+            String prev = next.getPrevious();
+            if ("{".equals(prev)) {
+                loop = false;
+            }
+            if (!isFirst) {
+                String ws = next.getWs();
+                if (!skipNextWS && !";".equals(ws)) {
+                    str.append(ws);
+                } else {
+                    skipNextWS = false;
+                }
+                colBeforeLeftBrace += ws.length();
+            }
+            if (!"abstract".equals(prev)) {
+                str.append(prev);
+            } else {
+                skipNextWS = true;
+            }
+            colBeforeLeftBrace += prev.length();
+            isFirst = false;
+        }
+        colBeforeLeftBrace += str.toString().length();
+
+        String editText = str.toString();
+        Position start = new Position(objType.get().pos.sLine - 1, objType.get().pos.sCol - 1);
+        Position end = new Position(objType.get().pos.sLine - 1, colBeforeLeftBrace - 1);
+
+        List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(start, end), editText));
+        return createQuickFixCodeAction(commandTitle, edits, uri);
+    }
+
+    private static String getObjectName(String diagnosticMessage) {
+        Matcher matcher = CommandConstants.FUNC_IN_ABSTRACT_OBJ_PATTERN.matcher(diagnosticMessage);
+        Matcher matcher2 = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnosticMessage);
+        String simpleObjName = "";
         if (matcher.find() && matcher.groupCount() > 1) {
             String objectName = matcher.group(2);
             int colonIndex = objectName.lastIndexOf(":");
-            String simpleObjName = (colonIndex > -1) ? objectName.substring(colonIndex + 1) : objectName;
-            List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
-            String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
-
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(commandTitle, ChangeAbstractTypeObjExecutor.COMMAND, args));
-            action.setDiagnostics(diagnostics);
-            return action;
+            simpleObjName = (colonIndex > -1) ? objectName.substring(colonIndex + 1) : objectName;
+        } else if (matcher2.find() && matcher2.groupCount() > 1) {
+            String objectName = matcher2.group(2);
+            int colonIndex = objectName.lastIndexOf(":");
+            simpleObjName = (colonIndex > -1) ? objectName.substring(colonIndex + 1) : objectName;
         }
-        return null;
+        return simpleObjName;
+    }
+
+    private static Optional<BLangTypeDefinition> getObjectTypeDefinition(LSContext context, int line, int column) {
+        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        return bLangPackage.topLevelNodes.stream()
+                .filter(topLevelNode -> {
+                    if (topLevelNode instanceof BLangTypeDefinition) {
+                        org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition pos =
+                                topLevelNode.getPosition();
+                        return ((pos.getStartLine() == line || pos.getEndLine() == line ||
+                                (pos.getStartLine() < line && pos.getEndLine() > line)) &&
+                                (pos.getStartColumn() <= column && pos.getEndColumn() <= column));
+                    }
+                    return false;
+                }).findAny().map(t -> (BLangTypeDefinition) t);
     }
 }

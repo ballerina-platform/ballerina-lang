@@ -1,0 +1,10 @@
+{{#operationsList}}
+    @http:ResourceConfig {
+        methods:["{{opMethod}}"],
+        path:"{{path}}"{{#requestBody}}{{#contentType}},
+        body:"body"{{/contentType}}{{/requestBody}}
+    }
+    resource function {{{opName}}} (http:Caller caller, http:Request req{{#parameterList}}{{#isPathParam}}, {{#refType}}{{{refType}}}{{/refType}}{{^refType}}{{#paramType}}{{#schemaType}}{{this}}{{/schemaType}}{{/paramType}}{{/refType}} {{paramName}}{{/isPathParam}}{{/parameterList}}{{#requestBody}}, {{#contentType}}{{> inlineSchema}}{{/contentType}} body{{/requestBody}}) returns error? {{=<% %>=}}{<%={{ }}=%>
+
+    }
+{{/operationsList}}
