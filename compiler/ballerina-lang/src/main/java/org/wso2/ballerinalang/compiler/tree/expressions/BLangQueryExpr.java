@@ -128,6 +128,8 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
                 + "\n" +
                 whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n"))
                 + "\n" +
+                onClause.toString()
+                + "\n" +
                 selectClause.toString()
                 + "\n" +
                 onConflictClause.toString();
