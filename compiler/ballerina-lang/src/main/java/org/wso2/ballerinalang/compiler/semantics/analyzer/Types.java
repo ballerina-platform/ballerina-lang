@@ -710,14 +710,8 @@ public class Types {
 
         switch (constraintType.tag) {
             case TypeTags.RECORD:
-                List<BField> fieldList = ((BRecordType) constraintType).getFields();
-
-                for (BField field : fieldList) {
-                    if (field.name.toString().equals(fieldName)) {
-                        return field;
-                    }
-                }
-                break;
+                Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
+                return fieldList.get(fieldName);
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) constraintType;
                 Set<BType> memTypes = unionType.getMemberTypes();
