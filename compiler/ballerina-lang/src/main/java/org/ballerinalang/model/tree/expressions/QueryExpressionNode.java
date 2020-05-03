@@ -38,7 +38,7 @@ public interface QueryExpressionNode extends ExpressionNode {
 
     OnClauseNode getOnClauseNode();
 
-    void setOnClauseNode(OnClauseNode onClauseNodegit);
+    void setOnClauseNode(OnClauseNode onClauseNode);
 
     SelectClauseNode getSelectClauseNode();
 
