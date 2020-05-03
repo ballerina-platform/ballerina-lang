@@ -123,8 +123,8 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+//    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
+//    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
 
     balSource project(path: ':jballerina', configuration: 'source')
 

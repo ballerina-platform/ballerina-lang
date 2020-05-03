@@ -26,3 +26,15 @@ checkstyleMain {
 }
 
 description = 'Ballerina - Toml Parser'
+
+ext.moduleName = 'ballerina.toml.parser'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

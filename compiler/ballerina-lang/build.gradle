@@ -47,3 +47,15 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+ext.moduleName = 'ballerina.lang'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

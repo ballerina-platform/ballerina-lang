@@ -37,3 +37,16 @@ createJavadoc {
 }
 
 description = 'Ballerina - Debug Adapter - Debug Adaptor Core'
+
+ext.moduleName = 'ballerina.debug.adapter.core'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED'
+        ]
+        classpath = files()
+    }
+}
