@@ -2512,14 +2512,14 @@ public class JvmMethodGen {
     }
 
     void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                   BIRPackage pkg, List<PackageID> depModArray) {
+                                   BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(depModArray, pkg, MODULE_INIT, "<init>");
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, "<init>");
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
-        BIRFunction startFunc = generateDepModInit(depModArray, pkg, MODULE_START, "<start>");
+        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, "<start>");
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
 
