@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
+import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
@@ -28,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -44,6 +46,7 @@ import java.util.stream.Collectors;
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
 
     public List<BLangFromClause> fromClauseList = new ArrayList<>();
+    public BLangOnClause onClause;
     public BLangSelectClause selectClause;
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
     public List<BLangLetClause> letClausesList = new ArrayList<>();
@@ -59,6 +62,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void addFromClauseNode(FromClauseNode fromClauseNode) {
         fromClauseList.add((BLangFromClause) fromClauseNode);
+    }
+
+    @Override
+    public OnClauseNode getOnClauseNode() {
+        return onClause;
+    }
+
+    @Override
+    public void setOnClauseNode(OnClauseNode onClauseNode) {
+        this.onClause = (BLangOnClause) onClauseNode;
     }
 
     @Override

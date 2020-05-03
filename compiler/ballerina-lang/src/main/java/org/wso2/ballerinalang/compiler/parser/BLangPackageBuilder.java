@@ -88,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -282,6 +283,8 @@ public class BLangPackageBuilder {
     private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
 
     private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
+
+    private Stack<BLangOnClause> onClauseNodeStack = new Stack<>();
 
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
 
@@ -1953,6 +1956,9 @@ public class BLangPackageBuilder {
         while (letClauseNodeStack.size() > 0) {
             queryExpr.addLetClause(letClauseNodeStack.pop());
         }
+        if (onClauseNodeStack.size() > 0) {
+            queryExpr.setOnClauseNode(onClauseNodeStack.pop());
+        }
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
@@ -2039,6 +2045,14 @@ public class BLangPackageBuilder {
         fromClause.isDeclaredWithVar = isDeclaredWithVar;
         fromClauseNodeStack.push(fromClause);
         queryClauseStack.push(fromClause);
+    }
+
+    void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
+        onClause.addWS(ws);
+        onClause.pos = pos;
+        onClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onClauseNodeStack.push(onClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

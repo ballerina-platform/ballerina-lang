@@ -18,6 +18,7 @@ package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
+import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
@@ -35,6 +36,10 @@ public interface QueryExpressionNode extends ExpressionNode {
     List<? extends FromClauseNode> getFromClauseNodes();
 
     void addFromClauseNode(FromClauseNode fromClauseNode);
+
+    OnClauseNode getOnClauseNode();
+
+    void setOnClauseNode(OnClauseNode onClauseNode);
 
     SelectClauseNode getSelectClauseNode();
 
