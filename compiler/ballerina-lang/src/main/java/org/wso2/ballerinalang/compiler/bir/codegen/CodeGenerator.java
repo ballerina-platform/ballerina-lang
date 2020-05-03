@@ -78,19 +78,17 @@ public class CodeGenerator {
 
     public void generate(BIRNode.BIRPackage entryMod, Path target, Set<Path> moduleDependencies) {
 
-        jvmPackageGen.clearPackageGenInfoMaps();
-
         if (compiledPkgCache.containsValue(entryMod)) {
             return;
         }
 
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
-        JarFile jarFile = new JarFile();
+
         populateExternalMap();
 
         ClassLoader classLoader = makeClassLoader(moduleDependencies);
         InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
-        jvmPackageGen.generatePackage(entryMod, jarFile, interopValidator, true);
+        JarFile jarFile = jvmPackageGen.generate(entryMod, interopValidator, true);
         writeJarFile(jarFile, target);
     }
 
@@ -137,17 +135,17 @@ public class CodeGenerator {
         }
     }
 
-    private void writeJarFile(JarFile entries, Path targetPath) {
+    private void writeJarFile(JarFile jarFile, Path targetPath) {
 
         Manifest manifest = new Manifest();
-        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-
-        entries.manifestEntries.forEach((key, value) ->
-                manifest.getMainAttributes().put(new Attributes.Name(key), value));
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        jarFile.getMainClassName().ifPresent(mainClassName ->
+                mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName));
 
         try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
                 new FileOutputStream(targetPath.toString())), manifest)) {
-            Map<String, byte[]> jarEntries = entries.pkgEntries;
+            Map<String, byte[]> jarEntries = jarFile.getJarEntries();
             for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
                 byte[] entryContent = keyVal.getValue();
                 JarEntry entry = new JarEntry(keyVal.getKey());

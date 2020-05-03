@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
 /**
  * A wrapper class for keeping metadata of jar file.
@@ -27,6 +27,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class JarFile {
 
-    public final Map<String, String> manifestEntries = new ConcurrentHashMap<>();
-    public final Map<String, byte[]> pkgEntries = new ConcurrentHashMap<>();
+    private String mainClassName;
+    private Map<String, byte[]> jarEntries;
+
+    public JarFile(Map<String, byte[]> jarEntries) {
+
+        this.jarEntries = jarEntries;
+    }
+
+    public JarFile(String mainClassName, Map<String, byte[]> jarEntries) {
+
+        this.mainClassName = mainClassName;
+        this.jarEntries = jarEntries;
+    }
+
+    public Map<String, byte[]> getJarEntries() {
+
+        return jarEntries;
+    }
+
+    public Optional<String> getMainClassName() {
+
+        return Optional.ofNullable(mainClassName);
+    }
 }

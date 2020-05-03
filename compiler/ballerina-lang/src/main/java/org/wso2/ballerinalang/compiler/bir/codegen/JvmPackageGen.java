@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -470,17 +471,16 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol, JarFile jarFile,
-                                        InteropValidator interopValidator) {
+    private void generateDependencyList(BPackageSymbol packageSymbol, InteropValidator interopValidator) {
 
         if (packageSymbol.bir != null) {
-            generatePackage(packageSymbol.bir, jarFile, interopValidator, false);
+            generate(packageSymbol.bir, interopValidator, false);
         } else {
             for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
                 if (importPkgSymbol == null) {
                     continue;
                 }
-                generateDependencyList(importPkgSymbol, jarFile, interopValidator);
+                generateDependencyList(importPkgSymbol, interopValidator);
             }
         }
 
@@ -492,8 +492,7 @@ public class JvmPackageGen {
         }
     }
 
-    void generatePackage(BIRNode.BIRPackage module, JarFile jarFile, InteropValidator interopValidator,
-                         boolean isEntry) {
+    JarFile generate(BIRNode.BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -506,18 +505,21 @@ public class JvmPackageGen {
         for (BIRNode.BIRImportModule importModule : module.importModules) {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
                     importModule.name.value));
-            generateDependencyList(pkgSymbol, jarFile, interopValidator);
+            generateDependencyList(pkgSymbol, interopValidator);
             if (dlog.getErrorCount() > 0) {
-                return;
+                return new JarFile(Collections.emptyMap());
             }
         }
 
-        String typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
-        Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
+        String moduleInitClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
+        Map<String, JavaClass> jvmClassMapping = generateClassNameMapping(module, pkgName, moduleInitClass,
                 interopValidator, isEntry);
         if (!isEntry || dlog.getErrorCount() > 0) {
-            return;
+            return new JarFile(Collections.emptyMap());
         }
+
+        // using a concurrent hash map to store class byte values, which are generated in parallel
+        final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
 
         // desugar parameter initialization
         injectDefaultParamInits(module, jvmMethodGen, this);
@@ -528,41 +530,44 @@ public class JvmPackageGen {
         List<PackageID> dependentModuleArray = new ArrayList<>(dependentModuleSet);
 
         // enrich current package with package initializers
-        jvmMethodGen.enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
+        jvmMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, dependentModuleArray);
 
         // generate the shutdown listener class.
-        generateShutdownSignalListener(typeOwnerClass, jarFile.pkgEntries);
+        generateShutdownSignalListener(moduleInitClass, jarEntries);
 
         // desugar the record init function
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, jvmMethodGen);
-        valueGen.generateValueClasses(jarFile.pkgEntries);
+        valueGen.generateValueClasses(jarEntries);
 
         // generate frame classes
-        jvmMethodGen.generateFrameClasses(module, jarFile.pkgEntries);
+        jvmMethodGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarFile, orgName, moduleName, typeOwnerClass, jvmClassMap, dependentModuleArray);
+        generateModuleClasses(module, jarEntries, moduleInitClass, jvmClassMapping, dependentModuleArray);
 
+        // clear class name mappings
+        clearPackageGenInfo();
+
+        return new JarFile(moduleInitClass, jarEntries);
     }
 
-    private void generateModuleClasses(BIRPackage module, JarFile jarFile, String orgName, String moduleName,
-                                       String typeOwnerClass, Map<String, JavaClass> jvmClassMap,
-                                       List<PackageID> dependentModuleArray) {
+    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
+                                       Map<String, JavaClass> jvmClassMapping, List<PackageID> dependentModules) {
 
-        jvmClassMap.entrySet().parallelStream().forEach(entry -> {
+        jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             LambdaMetadata lambdaMetadata = new LambdaMetadata(moduleClass);
 
-            if (Objects.equals(moduleClass, typeOwnerClass)) {
+            if (Objects.equals(moduleClass, moduleInitClass)) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
-                generateValueCreatorMethods(cw, module.typeDefs, module, typeOwnerClass, symbolTable);
+                generateValueCreatorMethods(cw, module.typeDefs, module, moduleInitClass, symbolTable);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -573,7 +578,7 @@ public class JvmPackageGen {
                 BIRFunction mainFunc = getMainFunc(module.functions);
                 String mainClass = "";
                 if (mainFunc != null) {
-                    mainClass = getModuleLevelClassName(orgName, moduleName,
+                    mainClass = getModuleLevelClassName(module.org.value, module.name.value,
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
 
@@ -583,15 +588,14 @@ public class JvmPackageGen {
                 if (mainFunc != null) {
                     jvmMethodGen.generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
-                jvmMethodGen.generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
-                jarFile.manifestEntries.put("Main-Class", moduleClass);
+                jvmMethodGen.generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModules);
 
                 generateLockForVariable(cw);
                 generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
-                generateCreateTypesMethod(cw, module.typeDefs, typeOwnerClass, symbolTable);
-                jvmMethodGen.generateModuleInitializer(cw, module, typeOwnerClass);
-                jvmMethodGen.generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray,
-                        typeOwnerClass);
+                generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
+                jvmMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
+                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, dependentModules,
+                        moduleInitClass);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 generateDefaultConstructor(cw, OBJECT);
@@ -611,7 +615,7 @@ public class JvmPackageGen {
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
-            jarFile.pkgEntries.put(moduleClass + ".class", bytes);
+            jarEntries.put(moduleClass + ".class", bytes);
         });
     }
 
@@ -634,9 +638,9 @@ public class JvmPackageGen {
      * @param isEntry          is entry module flag
      * @return The map of javaClass records on given source file name
      */
-    private Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
-                                                             InteropValidator interopValidator,
-                                                             boolean isEntry) {
+    private Map<String, JavaClass> generateClassNameMapping(BIRPackage module, String pkgName, String initClass,
+                                                            InteropValidator interopValidator,
+                                                            boolean isEntry) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -820,7 +824,7 @@ public class JvmPackageGen {
         return result;
     }
 
-    void clearPackageGenInfoMaps() {
+    private void clearPackageGenInfo() {
 
         birFunctionMap.clear();
         globalVarClassNames.clear();
