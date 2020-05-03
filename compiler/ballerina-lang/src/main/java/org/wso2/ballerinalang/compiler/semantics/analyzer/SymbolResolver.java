@@ -571,9 +571,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_PI:
+                bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                break;
             case TypeTags.XML_TEXT:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
-                if (bSymbol == symTable.notFoundSymbol && type.tag == TypeTags.XML_TEXT) {
+                if (bSymbol == symTable.notFoundSymbol) {
                     bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
                 }
                 break;
