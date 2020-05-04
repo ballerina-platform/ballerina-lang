@@ -42,6 +42,7 @@ import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
@@ -98,16 +99,16 @@ public class TopicPauseResumeTest {
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertNotNull(returnBValues[0]);
         Assert.assertTrue(returnBValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnBValues[0]).getDetails()).get("message").stringValue(),
-                "Failed to pause topic partitions for the consumer: " +
+        Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]),
+                            "Failed to pause topic partitions for the consumer: " +
                         "No current assignment for partition test_negative-1000");
 
         returnBValues = BRunUtil.invoke(result, "funcKafkaResumeInvalidTopicPartitions");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertNotNull(returnBValues[0]);
         Assert.assertTrue(returnBValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnBValues[0]).getDetails()).get("message").stringValue(),
-                "Failed to resume topic partitions for the consumer: " +
+        Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]),
+                            "Failed to resume topic partitions for the consumer: " +
                         "No current assignment for partition test_negative-1000");
     }
 

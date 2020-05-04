@@ -14,3 +14,40 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/kafka;
+
+kafka:AuthenticationConfiguration authConfigValid = {
+    authenticationMechanism: kafka:AUTH_SASL_PLAIN,
+    username: "ballerina",
+    password: "ballerina-secret"
+};
+
+kafka:AuthenticationConfiguration authConfigInvalidUsername = {
+    authenticationMechanism: kafka:AUTH_SASL_PLAIN,
+    username: "nonexisting",
+    password: "ballerina-secret"
+};
+
+kafka:ProducerConfiguration producerConfigsValid = {
+    bootstrapServers: "localhost:14115",
+    valueSerializerType: kafka:SER_STRING,
+    maxBlock: 10000,
+    authenticationConfiguration: authConfigValid
+};
+
+kafka:ProducerConfiguration producerConfigsInvalidUsername = {
+    bootstrapServers: "localhost:14115",
+    valueSerializerType: kafka:SER_STRING,
+    maxBlock: 10000,
+    authenticationConfiguration: authConfigInvalidUsername
+};
+
+public function sendFromValidProducer() returns kafka:ProducerError? {
+    kafka:Producer kafkaProducer = new (producerConfigsValid);
+    return kafkaProducer->send("Hello", "test-1");
+}
+
+public function sendFromInvalidUsernameProducer() returns kafka:ProducerError? {
+    kafka:Producer kafkaProducer = new (producerConfigsInvalidUsername);
+    return kafkaProducer->send("Hello", "test-1");
+}

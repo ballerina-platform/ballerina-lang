@@ -176,12 +176,12 @@ public type Producer client object {
 
     public string connectorId = system:uuid();
 
-# Closes the producer connection to the external Kafka broker.
-# ```ballerina
-# kafka:ProducerError? result = producer->close();
-# ```
-#
-# + return - A `kafka:ProducerError` if closing the producer is failed or else ()
+    # Closes the producer connection to the external Kafka broker.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->close();
+    # ```
+    #
+    # + return - A `kafka:ProducerError` if closing the producer is failed or else ()
     public remote function close() returns ProducerError? {
         return producerClose(self);
     }
