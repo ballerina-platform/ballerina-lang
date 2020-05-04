@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 18);
+        Assert.assertEquals(compileResult.getErrorCount(), 19);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -75,5 +75,7 @@ public class TableNegativeTest {
                 "specifier or key type constraint", 110, 21);
         validateError(compileResult, index++, "table with constraint of type map cannot have key " +
                 "specifier or key type constraint", 116, 21);
+        validateError(compileResult, index++, "cannot infer the member type from table constructor. " +
+                "field 'id' type is ambiguous", 125, 14);
     }
 }

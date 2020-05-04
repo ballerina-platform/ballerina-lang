@@ -720,7 +720,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr.tableKeySpecifier);
+            BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr);
             BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 recordLiteral.type = inherentMemberType;
@@ -774,7 +774,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BType inferTableMemberType(List<BType> memTypes, BLangTableKeySpecifier keySpecifier) {
+    private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
+        BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         Set<BField> allFieldSet = new LinkedHashSet<>();
         for (BType memType : memTypes) {
             List<BField> fields = ((BRecordType) memType).fields;
@@ -794,8 +795,17 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
+        List<String> fieldNames = new ArrayList<>();
         for (BField field : allFieldSet) {
             String fieldName = field.name.value;
+
+            if (fieldNames.contains(fieldName)) {
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE,
+                        fieldName);
+                return symTable.semanticError;
+            }
+            fieldNames.add(fieldName);
+
             boolean isOptional = true;
             for (BField commonField : commonFieldSet) {
                 if (commonField.name.value.equals(fieldName)) {

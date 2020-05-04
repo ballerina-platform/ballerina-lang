@@ -420,6 +420,7 @@ public enum DiagnosticCode {
     KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("key.specifier.field.value.must.be.constant"),
     KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT
             ("key.constraint.not.supported.for.table.with.map.constraint"),
+    CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("cannot.infer.member.type.for.table"),
 
 
     // Taint checking related codes

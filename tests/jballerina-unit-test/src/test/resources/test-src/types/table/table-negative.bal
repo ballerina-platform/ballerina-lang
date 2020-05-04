@@ -119,3 +119,9 @@ function testMemberAccessMapConstraintTable() {
 
     map<any> mapObject = tab[13];
 }
+
+function testInferMemberType() {
+
+   var arr = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
+                            { id: "Hello" , name: "James" , address: "Clark" }];
+}
