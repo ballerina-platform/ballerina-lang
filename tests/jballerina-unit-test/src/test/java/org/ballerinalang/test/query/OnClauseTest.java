@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test on clause in query expression.
  *
- *
  * @since 1.3.0
  */
 public class OnClauseTest {
