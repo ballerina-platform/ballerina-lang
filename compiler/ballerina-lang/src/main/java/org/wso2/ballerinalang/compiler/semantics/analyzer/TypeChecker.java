@@ -761,13 +761,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateTableType(BTableType tableType, DiagnosticPos pos,
                                       List<BLangRecordLiteral> recordLiterals) {
-        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
-        memTypes.add(symTable.anyType);
-        memTypes.add(symTable.errorType);
-        BUnionType unionType = BUnionType.create(null, memTypes);
-        BMapType anyErrorMapType = new BMapType(TypeTags.MAP, unionType, null);
 
-        if (!types.isAssignable(tableType.constraint, anyErrorMapType)) {
+        if (!types.isAssignable(tableType.constraint, symTable.mapAllType)) {
             dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
             return false;
@@ -933,7 +928,13 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> memTypes = new ArrayList<>();
         for (String fieldName : fieldNames) {
             //null is not possible for field
-            BType fieldType = types.getTableConstraintField(constraintType, fieldName).type;
+            BField tableConstraintField = types.getTableConstraintField(constraintType, fieldName);
+
+            if (tableConstraintField == null) {
+                return symTable.semanticError;
+            }
+
+            BType fieldType = tableConstraintField.type;
             memTypes.add(fieldType);
         }
 
@@ -1365,7 +1366,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
                 if (name.equals(getKeyValueFieldName(keyValueField))) {
-                    return new FieldTypePosPair(keyValueField.type, keyValueField.pos);
+                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
@@ -2971,8 +2972,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // it's merely a annotation on contextually expected type.
         BLangExpression expr = conversionExpr.expr;
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(expr, env, this.expType);
-            resultType = expType;
+            resultType = checkExpr(expr, env, this.expType);
             return;
         }
 

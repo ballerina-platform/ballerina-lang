@@ -37,8 +37,14 @@ public class TableCastTest {
     }
 
     @Test
-    public void testKeyConstraintCastToString() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString");
+    public void testKeyConstraintCastToString1() {
+        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString1");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
+
+    @Test
+    public void testKeyConstraintCastToString2() {
+        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
         Assert.assertTrue(((BBoolean) results[0]).booleanValue());
     }
 }
