@@ -68,7 +68,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
         // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
         if (resources.size() > 0 &&
                 resources.get(0).getParameters().size() > 0 &&
-                WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
+                WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(
                         resources.get(0).getParameters().get(0).type.toString())) {
             return;
         }
