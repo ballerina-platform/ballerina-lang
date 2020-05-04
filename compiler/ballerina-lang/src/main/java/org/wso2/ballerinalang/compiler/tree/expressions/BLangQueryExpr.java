@@ -38,13 +38,6 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
-
-    public List<BLangFromClause> fromClauseList = new ArrayList<>();
-    public BLangOnClause onClause;
-    public BLangSelectClause selectClause;
-    public List<BLangWhereClause> whereClauseList = new ArrayList<>();
-    public List<BLangLetClause> letClausesList = new ArrayList<>();
-    public BLangOnConflictClause onConflictClause;
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public boolean isStream = false;
 
