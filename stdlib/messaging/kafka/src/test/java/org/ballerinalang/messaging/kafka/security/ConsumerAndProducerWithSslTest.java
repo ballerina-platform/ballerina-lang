@@ -22,7 +22,6 @@ import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -49,6 +48,7 @@ import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
 
 /**
  * Test cases for ballerina.kafka consumer and producer with SSL.
@@ -106,8 +106,7 @@ public class ConsumerAndProducerWithSslTest {
         Assert.assertTrue(returnBValues[0] instanceof BError);
         String errorMessage =
                 "Failed to send data to Kafka server: Topic test-topic-ssl not present in metadata after 1000 ms.";
-        Assert.assertEquals(((BMap) ((BError) returnBValues[0]).getDetails()).get("message").stringValue(),
-                            errorMessage);
+        Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]), errorMessage);
     }
 
     @AfterClass

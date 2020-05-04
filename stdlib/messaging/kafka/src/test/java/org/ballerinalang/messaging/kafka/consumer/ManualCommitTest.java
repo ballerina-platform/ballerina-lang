@@ -41,6 +41,7 @@ import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
@@ -99,8 +100,8 @@ public class ManualCommitTest {
         returnBValues = BRunUtil.invoke(result, "funcKafkaGetPositionOffsetForNonExistingTopic");
         Assert.assertNotNull(returnBValues);
         Assert.assertTrue(returnBValues[0] instanceof BError);
-        Assert.assertEquals(((BMap) ((BError) returnBValues[0]).getDetails()).get("message").stringValue(),
-                "Failed to retrieve position offset: " +
+        Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]),
+                            "Failed to retrieve position offset: " +
                         "You can only check the position for partitions assigned to this consumer.");
     }
 

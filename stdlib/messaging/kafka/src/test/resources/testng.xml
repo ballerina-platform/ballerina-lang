@@ -59,6 +59,8 @@
     </test>
     <test name="ballerina-kafka-security-tests">
         <classes>
+            <!-- SASL Based Authentication Tests-->
+            <class name="org.ballerinalang.messaging.kafka.security.SaslProducerTest"></class>
             <!-- SSL-Based Consumer/Producer-Related tests -->
             <class name="org.ballerinalang.messaging.kafka.security.ConsumerAndProducerWithSslTest" />
         </classes>
