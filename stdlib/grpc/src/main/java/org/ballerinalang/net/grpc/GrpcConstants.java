@@ -51,9 +51,11 @@ public class GrpcConstants {
     public static final String CONNECTOR_STARTED = "CONNECTOR_STARTED";
     public static final String LISTENER = "Listener";
     public static final String CALLER = "Caller";
+    public static final String CALLER_ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + CALLER;
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final String CALLER_ID = "instanceId";
+
 
     // Service Descriptor Annotation
     public static final String DESCRIPTOR_MAP = "getDescriptorMap";
@@ -62,6 +64,7 @@ public class GrpcConstants {
     public static final String ANN_RECORD_DESCRIPTOR_DATA = "ServiceDescriptorData";
     public static final String ANN_FIELD_DESCRIPTOR = "descriptor";
     public static final String ANN_FIELD_DESC_MAP = "descMap";
+    public static final String ANN_SERVICE_DESCRIPTOR_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + ANN_SERVICE_DESCRIPTOR;
     
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";

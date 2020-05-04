@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_SERVICE_DESCRIPTOR_FQN;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.grpc.GrpcUtil.getListenerConfig;
@@ -98,7 +99,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(
                         BRuntime.getCurrentRuntime(), service,
-                        service.getType().getAnnotation("ballerina/grpc:ServiceDescriptor")));
+                        service.getType().getAnnotation(ANN_SERVICE_DESCRIPTOR_FQN)));
                 return null;
             }
         } catch (GrpcServerException e) {

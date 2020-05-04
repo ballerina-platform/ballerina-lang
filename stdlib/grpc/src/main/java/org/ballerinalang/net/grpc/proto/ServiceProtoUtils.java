@@ -77,6 +77,7 @@ import java.util.List;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.BYTE;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
@@ -453,7 +454,7 @@ public class ServiceProtoUtils {
                     throw new GrpcServerException("Invalid message type. Message type doesn't have type symbol");
                 }
 
-                if ("ballerina/grpc:Caller".equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
+                if (CALLER_ENDPOINT_TYPE.equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
                 }
