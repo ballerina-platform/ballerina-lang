@@ -285,7 +285,7 @@ public enum ParserRuleContext {
     PARAMETERIZED_TYPE("parameterized-type"),
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
-    EXPLICIT_ERROR_TYPE_PARAMS("explicit-error-type-params")
+    ERROR_TYPE_PARAMS("error-type-params"),
     ;
 
     private String value;

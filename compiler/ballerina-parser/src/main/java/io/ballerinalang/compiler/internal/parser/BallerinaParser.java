@@ -348,8 +348,6 @@ public class BallerinaParser {
                 return parseErrorKeyWord();
             case ERROR_TYPE_DESCRIPTOR:
                 return parseErrorTypeDescriptor();
-            case EXPLICIT_ERROR_TYPE_PARAMS:
-                return parseExplicitErrorTypeParams();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -7292,11 +7290,9 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseExplicitErrorTypeParams() {
-        startContext(ParserRuleContext.EXPLICIT_ERROR_TYPE_PARAMS);
         STNode leftTypeDescNode = parseTypeDescriptor();
         STNode commaToken = parseComma();
         STNode rightTypeDescNode = parseTypeDescriptor();
-        endContext();
         return STNodeFactory.createExplicitErrorTypeParamsNode(leftTypeDescNode, commaToken, rightTypeDescNode);
     }
 }
