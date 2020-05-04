@@ -133,6 +133,7 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
+            <class name="org.ballerinalang.test.auth.JwkSignatureValidationTest"/>
         </classes>
     </test>
 
@@ -355,6 +356,13 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+        </classes>
+    </test>
+
+    <test name="ballerina-launch-listener-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
         </classes>
     </test>
 <!--    <test name="ballerina-kafka-tests" parallel="false">-->

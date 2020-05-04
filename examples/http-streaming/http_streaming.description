@@ -1,1 +1,3 @@
-//Ballerina supports HTTP input and output streaming capability through io:ReadableByteChannel.
+//Ballerina supports HTTP input and output streaming capability through io:ReadableByteChannel.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

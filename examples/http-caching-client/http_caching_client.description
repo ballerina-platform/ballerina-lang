@@ -1,2 +1,4 @@
 // HTTP caching is disabled by default in HTTP client endpoints.
-// Users can configure caching using the `cache` field in the endpoint configurations.
+// Users can configure caching using the `cache` field in the endpoint configurations.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

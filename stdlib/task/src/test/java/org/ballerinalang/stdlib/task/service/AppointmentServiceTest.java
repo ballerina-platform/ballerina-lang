@@ -70,7 +70,7 @@ public class AppointmentServiceTest {
         BCompileUtil.compileOffline(getFilePath(path));
     }
 
-    @Test(description = "Test invalid appointmentData crecord type")
+    @Test(description = "Test invalid appointmentData record type")
     public void testInvalidAppointmentDataRecordType() {
         Path path = getTestPath("invalid_appointment_data_record.bal");
         CompileResult compileResult = BCompileUtil.compile(true, getFilePath(path));

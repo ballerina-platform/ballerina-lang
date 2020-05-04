@@ -190,6 +190,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "Readonly",
+      "sortText": "230",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "xml",
       "kind": "Unit",
       "detail": "Xml",
@@ -306,6 +314,14 @@
       "detail": "Map",
       "sortText": "230",
       "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "Table",
+      "sortText": "230",
+      "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1220,6 +1236,29 @@
             }
           },
           "newText": "import ballerina/task;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.table",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "'table",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'table;\n"
         }
       ]
     },

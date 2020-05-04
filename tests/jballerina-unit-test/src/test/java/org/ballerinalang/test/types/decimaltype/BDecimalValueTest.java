@@ -197,36 +197,6 @@ public class BDecimalValueTest {
                 "Invalid decimal value returned.");
     }
 
-    @Test(description = "Test assigning positive hexadecimal literal without power and floating point")
-    public void testHexAssignment1() {
-        BValue[] returns = BRunUtil.invoke(result, "testHexAssignment1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDecimal.class);
-        BDecimal value = (BDecimal) returns[0];
-        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("74736", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
-    }
-
-    @Test(description = "Test assigning negative hexadecimal literal without power and floating point")
-    public void testHexAssignment7() {
-        BValue[] returns = BRunUtil.invoke(result, "testHexAssignment7");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDecimal.class);
-        BDecimal value = (BDecimal) returns[0];
-        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("-74736", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
-    }
-
-    @Test(description = "Test a complex expression including hexadecimal literals")
-    public void testHexComplexExpression() {
-        BValue[] returns = BRunUtil.invoke(result, "testHexComplexExpression");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDecimal.class);
-        BDecimal value = (BDecimal) returns[0];
-        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("381.1061220240414588528678304239401",
-                        MathContext.DECIMAL128)) == 0, "Invalid decimal value returned.");
-    }
-
     @Test(description = "Test positively signed literal assignment")
     public void testPositivelySignedLiteralAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testPositivelySignedLiteralAssignment");

@@ -23,7 +23,7 @@ http:Client httpEndpoint = new ("https://localhost:9090", {
     secureSocket: {
         trustStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

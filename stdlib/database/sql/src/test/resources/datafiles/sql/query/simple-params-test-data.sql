@@ -102,3 +102,13 @@ INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array
   VALUES (5, ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL],
   ARRAY[NULL, NULL, NULL], ARRAY[NULL , NULL, NULL], ARRAY[NULL , NULL, NULL], ARRAY[NULL, NULL], ARRAY[NULL, NULL]);
 /
+CREATE TYPE MASK_ROW_TYPE AS INTEGER;
+/
+CREATE TABLE IF NOT EXISTS MaskTable(
+  row_id       MASK_ROW_TYPE,
+  int_type     INTEGER,
+  PRIMARY KEY (row_id)
+);
+/
+INSERT INTO MaskTable (row_id, int_type) VALUES(1, 1);
+/

@@ -54,4 +54,17 @@ public class ServerStreamingTestCase extends GrpcBaseTest {
         BInteger responseCount = (BInteger) responses[0];
         Assert.assertEquals(responseCount.intValue(), 3);
     }
+
+    @Test(description = "Test server streaming scenario with record types")
+    public void testServerStreamingWithRecordType() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "23_server_streaming_with_record_client.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+
+        BValue[] responses = BRunUtil.invoke(result, "testServerStreamingWithRecord", new Object[]{"WSO2"});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BInteger);
+        BInteger responseCount = (BInteger) responses[0];
+        Assert.assertEquals(responseCount.intValue(), 3);
+    }
 }

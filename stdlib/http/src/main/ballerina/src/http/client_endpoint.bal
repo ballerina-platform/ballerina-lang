@@ -160,14 +160,14 @@ public type Client client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `Client.submit()` function does not give out a `Response` as the result,
-    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+    # The `Client->submit()` function does not give out a `http:Response` as the result.
+    # Rather it returns an `http:HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission fails
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission fails
     public remote function submit(@untainted string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->submit(httpVerb, path, req);
@@ -176,32 +176,32 @@ public type Client client object {
 
     # This just pass the request to actual network call.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP response message, or an error if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - An `http:Response` message or else an `http: ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
 
     # This just pass the request to actual network call.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - A `boolean` that represents whether a `PushPromise` exists
+    # + httpFuture - The `http:HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean`, which represents whether an `http:PushPromise` exists
     public remote function hasPromise(HttpFuture httpFuture) returns boolean {
         return self.httpClient->hasPromise(httpFuture);
     }
 
     # This just pass the request to actual network call.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an error if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
 
-    # This just pass the request to actual network call.
+    # Passes the request to an actual network call.
     #
-    # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an error if the invocation fails
+    # + promise - The related `http:PushPromise`
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
@@ -231,20 +231,24 @@ public type TargetService record {|
 |};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
+# Following fields are inherited from the other configuration records in addition to the Client specific
+# configs.
 #
-# httpVersion - Copied from CommonClientConfiguration
-# http1Settings - Copied from CommonClientConfiguration
-# http2Settings - Copied from CommonClientConfiguration
-# timeoutInMillis - Copied from CommonClientConfiguration
-# forwarded - Copied from CommonClientConfiguration
-# followRedirects - Copied from CommonClientConfiguration
-# poolConfig - Copied from CommonClientConfiguration
-# cache - Copied from CommonClientConfiguration
-# compression - Copied from CommonClientConfiguration
-# auth - Copied from CommonClientConfiguration
-# circuitBreaker - Copied from CommonClientConfiguration
-# retryConfig - Copied from CommonClientConfiguration
-# cookieConfig - Copied from CommonClientConfiguration
+# |                                                         |
+# |:------------------------------------------------------- |
+# | httpVersion - Copied from CommonClientConfiguration     |
+# | http1Settings - Copied from CommonClientConfiguration   |
+# | http2Settings - Copied from CommonClientConfiguration   |
+# | timeoutInMillis - Copied from CommonClientConfiguration |
+# | forwarded - Copied from CommonClientConfiguration       |
+# | followRedirects - Copied from CommonClientConfiguration |
+# | poolConfig - Copied from CommonClientConfiguration      |
+# | cache - Copied from CommonClientConfiguration           |
+# | compression - Copied from CommonClientConfiguration     |
+# | auth - Copied from CommonClientConfiguration            |
+# | circuitBreaker - Copied from CommonClientConfiguration  |
+# | retryConfig - Copied from CommonClientConfiguration     |
+# | cookieConfig - Copied from CommonClientConfiguration    |
 # + secureSocket - SSL/TLS related options
 public type ClientConfiguration record {|
     *CommonClientConfiguration;

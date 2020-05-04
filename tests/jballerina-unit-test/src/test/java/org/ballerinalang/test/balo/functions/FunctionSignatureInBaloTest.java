@@ -326,6 +326,11 @@ public class FunctionSignatureInBaloTest {
     }
 
     @Test
+    public void testInvocationWithArgVarargMix() {
+        BRunUtil.invoke(result, "testInvocationWithArgVarargMix");
+    }
+
+    @Test
     public void testNegativeFunctionInvocations() {
         int i = 0;
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()",
@@ -346,6 +351,46 @@ public class FunctionSignatureInBaloTest {
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 13, 78);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 53);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 61);
+        
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 24, 16);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean[]', found '[int,boolean," +
+                "boolean]'", 24, 30);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 26, 28);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'int'", 28, 31);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 28, 34);
+        validateError(resultNegative, i++, "variable assignment is required", 30, 5);
+        validateError(resultNegative, i++, "incompatible types: expected '[int,boolean...]', found '[float," +
+                "string...]'", 30, 16);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 33, 13);
+        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
+                "boolean,boolean]'", 33, 19);
+        validateError(resultNegative, i++, "incompatible types: expected '[string,float,boolean...]', found " +
+                "'[float,string...]'", 35, 16);
+        validateError(resultNegative, i++, "rest argument not allowed after named arguments", 41, 24);
+        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
+                "'boolean[]'", 43, 27);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'float'", 49, 24);
+
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 58, 16);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean[]', found '[int,boolean," +
+                "boolean]'", 58, 28);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 60, 26);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'int'", 62, 29);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 62, 32);
+        validateError(resultNegative, i++, "variable assignment is required", 64, 5);
+        validateError(resultNegative, i++, "incompatible types: expected '[int,boolean...]', found '[float," +
+                "string...]'", 64, 14);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 67, 12);
+        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
+                "boolean,boolean]'", 67, 18);
+        validateError(resultNegative, i++, "incompatible types: expected '[string,float,boolean...]', found " +
+                "'[float,string...]'", 69, 15);
+        validateError(resultNegative, i++, "rest argument not allowed after named arguments", 77, 22);
+        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
+                "'boolean[]'", 79, 26);
+        validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'float'", 85, 22);
+        
+        Assert.assertEquals(i,  resultNegative.getErrorCount());
     }
 
     @AfterClass

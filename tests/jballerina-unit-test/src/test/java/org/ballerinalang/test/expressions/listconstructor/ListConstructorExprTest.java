@@ -58,6 +58,15 @@ public class ListConstructorExprTest {
                 22, 31);
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
                 23, 56);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[record {| int id; string name;" +
+                                          " int city; |},record {| anydata...; |},boolean,string]', found '[record {|" +
+                                          " int id; string name; string city; |},record {| int id; string name; " +
+                                          "int age; |},int,string]'", 42, 40);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'record {| int id; string name; " +
+                                          "string age; |}', found 'record {| int id; string name; int age; |}'",
+                                  48, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'float', found 'int'",
+                                  49, 16);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -78,5 +87,7 @@ public class ListConstructorExprTest {
         BRunUtil.invoke(resultInferType, "inferSimpleTuple");
         BRunUtil.invoke(resultInferType, "inferStructuredTuple");
         BRunUtil.invoke(resultInferType, "inferNestedTuple");
+        BRunUtil.invoke(resultInferType, "testInferSameRecordsInTuple");
+        BRunUtil.invoke(resultInferType, "testInferDifferentRecordsInTuple");
     }
 }

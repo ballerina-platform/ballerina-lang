@@ -75,7 +75,7 @@ public class StringUtils {
             for (AttachedFunction func : objectType.getAttachedFunctions()) {
                 if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
                     func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                    return (String) objectValue.call(Scheduler.getStrand(), "toString");
+                    return objectValue.call(Scheduler.getStrand(), "toString").toString();
                 }
             }
         }

@@ -67,7 +67,7 @@ public const string S_MAX_AGE = "s-maxage";
 # Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
 public const int MAX_STALE_ANY_AGE = 9223372036854775807;
 
-# Configures cache control directives for a `Request`.
+# Configures the cache control directives for an `http:Request`.
 #
 # + noCache - Sets the `no-cache` directive
 # + noStore - Sets the `no-store` directive
@@ -86,7 +86,7 @@ public type RequestCacheControl object {
     public int maxStale = -1;
     public int minFresh = -1;
 
-    # Builds the cache control directives string from the current `RequestCacheControl` configurations.
+    # Builds the cache control directives string from the current `http:RequestCacheControl` configurations.
     #
     # + return - The cache control directives string to be used in the `cache-control` header
     public function buildCacheControlDirectives () returns string {
@@ -135,7 +135,7 @@ public type RequestCacheControl object {
     }
 };
 
-# Configures cache control directives for a `Response`.
+# Configures cache control directives for an `http:Response`.
 #
 # + mustRevalidate - Sets the `must-revalidate` directive
 # + noCache - Sets the `no-cache` directive
@@ -162,7 +162,7 @@ public type ResponseCacheControl object {
     public string[] noCacheFields = [];
     public string[] privateFields = [];
 
-    # Builds the cache control directives string from the current `ResponseCacheControl` configurations.
+    # Builds the cache control directives string from the current `http:ResponseCacheControl` configurations.
     #
     # + return - The cache control directives string to be used in the `cache-control` header
     public function buildCacheControlDirectives () returns string {

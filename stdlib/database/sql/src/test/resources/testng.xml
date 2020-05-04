@@ -25,6 +25,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.sql.connection.ConnectorInitTest"/>
             <class name="org.ballerinalang.sql.execute.ExecuteTest"/>
+            <class name="org.ballerinalang.sql.execute.ParamsExecuteTest"/>
             <class name="org.ballerinalang.sql.pool.ConnectionPoolTest"/>
             <class name="org.ballerinalang.sql.query.NumericTypesQueryTest"/>
             <class name="org.ballerinalang.sql.query.ComplexTypesQueryTest"/>

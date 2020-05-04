@@ -60,7 +60,7 @@ public class JwtIssuerAndValidatorTest {
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-issuer-and-validator-test.bal").toString());
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token with valid data")
+    @Test(priority = 1, description = "Test case for issuing JWT with valid data")
     public void testIssueJwt() {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwt", inputBValues);
@@ -74,7 +74,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\", \"ballerinaSamples\"]}"));
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token with valid data and a single audience")
+    @Test(priority = 1, description = "Test case for issuing JWT with valid data and a single audience")
     public void testIssueJwtWithSingleAud() {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithSingleAud", inputBValues);
@@ -88,7 +88,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\", \"aud\":\"ballerina\"}"));
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token with valid data and a single audience, " +
+    @Test(priority = 1, description = "Test case for issuing JWT with valid data and a single audience, " +
             "but with audienceAsArray enabled")
     public void testIssueJwtWithSingleAudAndAudAsArray() {
         BValue[] inputBValues = {new BString(keyStorePath)};
@@ -103,7 +103,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\"]}"));
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token without issuer or subject")
+    @Test(priority = 1, description = "Test case for issuing JWT without issuer or subject")
     public void testIssueJwtWithNoIssOrSub() {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithNoIssOrSub", inputBValues);
@@ -117,7 +117,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\", \"ballerinaSamples\"]}"));
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token without issuer or audience")
+    @Test(priority = 1, description = "Test case for issuing JWT without issuer or audience")
     public void testIssueJwtWithNoAudOrSub() {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithNoAudOrSub", inputBValues);
@@ -131,7 +131,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\"}"));
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token with custom claims")
+    @Test(priority = 1, description = "Test case for issuing JWT with custom claims")
     public void testIssueJwtWithCustomClaims() {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithCustomClaims", inputBValues);
@@ -145,28 +145,28 @@ public class JwtIssuerAndValidatorTest {
                 "\"scope\":\"test-scope\"}"));
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token")
+    @Test(priority = 2, description = "Test case for validating JWT")
     public void testCompleteValidator() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token with single audience")
+    @Test(priority = 2, description = "Test case for validating JWT with single audience")
     public void testCompleteValidatorWithSingleAud() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithSingleAud", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token with single audience as array")
+    @Test(priority = 2, description = "Test case for validating JWT with single audience as array")
     public void testCompleteValidatorWithSingleAudAndAudAsArray() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithSingleAudAndAudAsArray", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+    @Test(priority = 2, description = "Test case for validating JWT without issuer or subject information, " +
             "using a validator configured to validate issuer and subject")
     public void testCompleteValidatorWithNoIssOrSubNegative() {
         BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
@@ -176,7 +176,7 @@ public class JwtIssuerAndValidatorTest {
                 "JWT must contain a valid issuer name.");
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+    @Test(priority = 2, description = "Test case for validating JWT without issuer or subject information, " +
             "using a validator configured to validate audience and subject")
     public void testCompleteValidatorWithNoAudOrSubNegative() {
         BValue[] inputBValues = {new BString(jwtTokenWithoutAudAndSub), new BString(trustStorePath)};
@@ -186,7 +186,7 @@ public class JwtIssuerAndValidatorTest {
                 "JWT must contain a valid audience.");
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+    @Test(priority = 2, description = "Test case for validating JWT without issuer or subject information, " +
             "using a validator configured not to validate issuer and subject")
     public void testPartialValidatorWithNoIssOrSub() {
         BValue[] inputBValues = {new BString(jwtTokenWithoutIssAndSub), new BString(trustStorePath)};
@@ -194,7 +194,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
-    @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
+    @Test(priority = 2, description = "Test case for validating JWT without issuer or subject information, " +
             "using a validator configured to validate issuer and subject")
     public void testPartialValidatorWithIssAndSub() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
@@ -202,7 +202,7 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
-    @Test(priority = 1, description = "Test case for validating JWT token using a validator configured to different " +
+    @Test(priority = 1, description = "Test case for validating JWT using a validator configured to different " +
             "truststore which is not used to issue JWT")
     public void testPartialValidatorWithInvalidSignature() {
         String jwtToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwi" +

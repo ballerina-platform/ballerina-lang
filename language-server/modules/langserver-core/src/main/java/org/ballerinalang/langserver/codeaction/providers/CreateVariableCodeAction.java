@@ -39,15 +39,10 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -184,24 +179,13 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                         // Add type guard code action
                         commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
                         List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
-                        CodeAction action = new CodeAction(commandTitle);
-                        action.setKind(CodeActionKind.QuickFix);
-                        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), tEdits)))));
-                        action.setDiagnostics(diagnostics);
-                        actions.add(action);
+                        actions.add(createQuickFixCodeAction(commandTitle, tEdits, uri));
                     }
                 }
                 // Add ignore return value code action
                 if (!hasError) {
-                    List<TextEdit> iEdits = getIgnoreCodeActionEdits(position);
                     commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-                    CodeAction action = new CodeAction(commandTitle);
-                    action.setKind(CodeActionKind.QuickFix);
-                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), iEdits)))));
-                    action.setDiagnostics(diagnostics);
-                    actions.add(action);
+                    actions.add(createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(position), uri));
                 }
             }
         } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) {
@@ -222,11 +206,11 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
 
-        List<TextEdit> importTextEdit = new ArrayList<>();
+        List<TextEdit> importEdits = new ArrayList<>();
         Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, referenceAtCursor,
                                                                                   hasDefaultInitFunction,
                                                                                   hasCustomInitFunction, bLangNode,
-                                                                                  importTextEdit, compilerContext);
+                                                                                  importEdits, compilerContext);
 
         List<String> types = typesAndNames.getLeft();
         List<String> names = typesAndNames.getRight();
@@ -234,21 +218,16 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         for (int i = 0; i < types.size(); i++) {
             String type = types.get(i);
             String name = names.get(i);
-            String title = CommandConstants.CREATE_VARIABLE_TITLE;
+            String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             if (types.size() > 1) {
                 String typeLabel = (type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]") &&
                         type.length() > 10) ? "Tuple" : type;
-                title = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
+                commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            CodeAction action = new CodeAction(title);
             Position insertPos = new Position(position.getLine(), position.getCharacter());
-            List<TextEdit> edits = new ArrayList<>(importTextEdit);
-            edits.add(new TextEdit(new Range(insertPos, insertPos), type + " " + name + " = "));
-            action.setKind(CodeActionKind.QuickFix);
-            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-            action.setDiagnostics(diagnostics);
-            actions.add(action);
+            String edit = type + " " + name + " = ";
+            List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), edit));
+            actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;
     }

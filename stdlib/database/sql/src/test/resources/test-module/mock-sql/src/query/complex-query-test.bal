@@ -174,3 +174,20 @@ function testColumnAlias(string url, string user, string password) returns @tain
     check dbClient.close();
     return recordMap;
 }
+
+function testQueryRowId(string url, string user, string password)
+returns @tainted record{}[]|error? {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
+    sql:ExecuteResult? result = check dbClient->execute("SET DATABASE SQL SYNTAX ORA TRUE");
+    stream<record{}, error> streamData = dbClient->query("SELECT ROWNUM, int_array, long_array, float_array, boolean_array," +
+        "string_array from ArrayTypes");
+    record{}[] recordMap = [];
+    error? e = streamData.forEach(function (record {} value) {
+        recordMap[recordMap.length()] = value;
+    });
+    if (e is error) {
+        return e;
+    }
+    check dbClient.close();
+    return recordMap;
+}

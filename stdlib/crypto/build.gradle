@@ -26,6 +26,8 @@ dependencies {
 
     interopImports project(':ballerina-time')
 
+    implementation 'commons-codec:commons-codec'
+
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')

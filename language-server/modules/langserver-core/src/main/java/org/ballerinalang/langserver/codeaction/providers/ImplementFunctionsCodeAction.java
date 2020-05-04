@@ -25,15 +25,10 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -47,7 +42,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,15 +127,8 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         }
 
         if (!edits.isEmpty()) {
-            List<Diagnostic> diagnostics = new ArrayList<>();
-            diagnostics.add(diagnostic);
             String commandTitle = CommandConstants.IMPLEMENT_FUNCS_TITLE;
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-            action.setDiagnostics(diagnostics);
-            return action;
+            return createQuickFixCodeAction(commandTitle, edits, uri);
         }
         return null;
     }

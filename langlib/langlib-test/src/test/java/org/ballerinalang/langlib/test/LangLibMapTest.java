@@ -210,6 +210,16 @@ public class LangLibMapTest {
         BRunUtil.invoke(compileResult, "testRecordWithSameTypeFieldsToArray");
     }
 
+    @Test
+    public void testAsyncFpArgsWithMaps() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
+        assertTrue(results[0] instanceof BInteger);
+        assertTrue(results[1] instanceof BMap);
+        assertEquals(((BInteger) results[0]).intValue(), 118);
+        assertEquals(((BInteger) ((BMap) results[1]).get("b")).intValue(), 36);
+        assertEquals(((BInteger) ((BMap) results[1]).get("c")).intValue(), 78);
+    }
+
     @DataProvider(name = "mapKeyProvider")
     public Object[][] getMapKeys() {
         return new Object[][]{

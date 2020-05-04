@@ -16,35 +16,35 @@
 
 # Record type to hold the details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;
 };
 
-# Represents the error code for invalid operations
+# Represents the error code for invalid operations.
 public const INVALID_OPERATION_ERROR = "{ballerina/system}InvalidOperationError";
 
 # Represents an `InvalidOperationError` with a detailed message.
 public type InvalidOperationError error<INVALID_OPERATION_ERROR, Detail>;
 
-# Represents the error code for permission errors
+# Represents the error code for permission errors.
 public const PERMISSION_ERROR = "{ballerina/system}PermissionError";
 
-# Represents an `PermissionError` with a detailed message.
+# Represents a `PermissionError` with a detailed message.
 public type PermissionError error<PERMISSION_ERROR, Detail>;
 
-# Represents the error code for file system errors
+# Represents the error code for file system errors.
 public const FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
 
-# Represents an `FileSystemError` with a detailed message.
+# Represents a `FileSystemError` with a detailed message.
 public type FileSystemError error<FILE_SYSTEM_ERROR, Detail>;
 
-# Represents the error code for file not found
+# Represents the error code for file not found.
 public const FILE_NOT_FOUND_ERROR = "{ballerina/system}FileNotFoundError";
 
-# Represents an `FileNotFoundError` with a detailed message.
+# Represents a `FileNotFoundError` with a detailed message.
 public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
 
 # Represents the error code for process execute error.

@@ -221,4 +221,11 @@ public class MapAccessExprTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative2");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
+
+    @Test(description = "Test to check toString for map of maps.")
+    public void testMapToString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToString");
+        BString value = (BString) returns[0];
+        Assert.assertEquals(value.stringValue(), "typedesc map<map<json>>");
+    }
 }

@@ -19,7 +19,22 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
-# Represents outbound JWT authenticator.
+# Represents the outbound JWT auth provider, which is used to authenticate with an external endpoint by generating a JWT.
+# The `jwt:OutboundJwtAuthProvider` is another implementation of the `auth:OutboundAuthProvider` interface.
+# ```ballerina
+# jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
+#     issuer: "example",
+#     audience: ["ballerina"],
+#     keyStoreConfig: {
+#         keyAlias: "ballerina",
+#         keyPassword: "ballerina",
+#         keyStore: {
+#             path: "/path/to/keystore.p12",
+#             password: "ballerina"
+#         }
+#     }
+# });
+# ```
 #
 # + jwtIssuerConfig - JWT issuer configurations
 public type OutboundJwtAuthProvider object {
@@ -35,9 +50,12 @@ public type OutboundJwtAuthProvider object {
         self.jwtIssuerConfig = jwtIssuerConfig;
     }
 
-    # Generate token for JWT authentication.
-    #
-    # + return - Generated token or `auth:Error` if an error occurred during the JWT issuing or validation
+# Generates the token for JWT authentication.
+# ```ballerina
+# string|auth:Error token = outboundJwtAuthProvider.generateToken();
+# ```
+#
+# + return - Generated token or else an `auth:Error` if token can't be generated
     public function generateToken() returns string|auth:Error {
         string authToken = "";
         JwtIssuerConfig? jwtIssuerConfig = self.jwtIssuerConfig;
@@ -59,19 +77,19 @@ public type OutboundJwtAuthProvider object {
         return authToken;
     }
 
-    # Inspect the incoming data and generate the token for JWT authentication.
-    #
-    # + data - Map of data which is extracted from the HTTP response
-    # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
+# Inspects the incoming data and generates the token for JWT authentication.
+#
+# + data - Map of data, which is extracted from the HTTP response
+# + return - JWT as `string`, `()` if nothing to be returned or else an `auth:Error` if token can't be generated
     public function inspect(map<anydata> data) returns string|auth:Error? {
         return ();
     }
 };
 
-# Process auth token for JWT auth.
+# Processes the auth token for JWT auth.
 #
 # + jwtIssuerConfig - JWT issuer configurations
-# + return - Auth token or `Error` if an error occurred during the JWT issuing or validation
+# + return - JWT or else a `jwt:Error` if an error occurred while issuing JWT
 function getJwtAuthToken(JwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
     string username;

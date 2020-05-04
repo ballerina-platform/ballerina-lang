@@ -1,3 +1,4 @@
 // The Ballerina to OpenApi tool is used to generate an OpenAPI Specification(OAS) v3 definition of a Ballerina service.
 // This tool's command structure is as below.
-// `ballerina openapi gen-contract [<module>:]<service-name> [-i <ballerina-file>] [-o <contract-file>] [-s|--skip-bind] [-h|--help]`
+// `ballerina openapi gen-contract [<module>:]<service-name> [-i <ballerina-file>] [-o <contract-file>] [-s|--skip-bind] [-h|--help]`<br/><br/>
+// For more information, see [Ballerina OpenAPI Tools](https://ballerina.io/learn/how-to-use-openapi-tools/).

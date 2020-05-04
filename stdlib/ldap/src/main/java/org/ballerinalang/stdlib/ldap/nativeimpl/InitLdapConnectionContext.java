@@ -110,6 +110,9 @@ public class InitLdapConnectionContext {
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException | IllegalArgumentException e) {
+            if (e.getCause() == null) {
+                return LdapUtils.createError(e.getMessage());
+            }
             return LdapUtils.createError(e.getCause().getMessage());
         } finally {
             if (sslConfig != null) {

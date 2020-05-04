@@ -30,6 +30,7 @@ under the License.
             <class name="org.ballerinalang.mysql.query.ComplexTypesQueryTest"/>
             <class name="org.ballerinalang.mysql.query.ParamsQueryTest"/>
             <class name="org.ballerinalang.mysql.execute.ExecuteTest"/>
+            <class name="org.ballerinalang.mysql.execute.ParamsExecuteTest"/>
             <class name="org.ballerinalang.mysql.pool.ConnectionPoolTest"/>
         </classes>
     </test>
