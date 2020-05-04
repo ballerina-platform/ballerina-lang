@@ -8,4 +8,6 @@
 // up a hub.
 //
 // In this example, a WebSub Publisher brings up an internal hub and publishes updates to it, and a WebSub Subscriber
-// subscribes at the publisher's hub to receive notifications of the updates sent to the topic.
+// subscribes at the publisher's hub to receive notifications of the updates sent to the topic.<br/><br/>
+// For more information on the underlying module, 
+// see the [WebSub module](https://ballerina.io/learn/api-docs/ballerina/websub/index.html).

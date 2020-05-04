@@ -29,6 +29,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.internal" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>

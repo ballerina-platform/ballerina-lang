@@ -1,2 +1,4 @@
 // An HTTP load balancing endpoint is used when the request load needs to be load balanced across a given 
-// set of target endpoints.
+// set of target endpoints.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

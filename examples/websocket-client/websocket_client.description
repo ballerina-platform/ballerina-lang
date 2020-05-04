@@ -1,1 +1,3 @@
-// The WebSocket client can be used to connect to and interact with a WebSocket server.
+// The WebSocket client can be used to connect to and interact with a WebSocket server.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

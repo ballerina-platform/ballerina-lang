@@ -1,1 +1,3 @@
-//This demonstrates how characters could be read and written through I/O APIs.
+//This demonstrates how characters could be read and written through I/O APIs.<br/><br/>
+// For more information on the underlying module, 
+// see the [IO module](https://ballerina.io/learn/api-docs/ballerina/io/index.html).
