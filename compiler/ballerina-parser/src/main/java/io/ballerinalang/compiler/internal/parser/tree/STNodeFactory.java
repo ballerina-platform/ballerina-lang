@@ -321,6 +321,36 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 blockStatement);
     }
 
+    public static STNode createForkStatementNode(
+            STNode forkKeyword,
+            STNode openBraceToken,
+            STNode namedWorkerDeclarations,
+            STNode closeBraceToken) {
+
+        return new STForkStatementNode(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken);
+    }
+
+    public static STNode createForEachStatementNode(
+            STNode forEachKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode inKeyword,
+            STNode ActionOrExpressionNode,
+            STNode blockStatement) {
+
+        return new STForEachStatementNode(
+                forEachKeyword,
+                typeDescriptor,
+                variableName,
+                inKeyword,
+                ActionOrExpressionNode,
+                blockStatement);
+    }
+
     public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,
@@ -760,17 +790,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createQualifiedIdentifierNode(
-            STNode modulePrefix,
-            STNode colon,
-            STNode identifier) {
-
-        return new STQualifiedIdentifierNode(
-                modulePrefix,
-                colon,
-                identifier);
-    }
-
     public static STNode createServiceBodyNode(
             STNode openBraceToken,
             STNode resources,
@@ -860,6 +879,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public static STNode createParameterizedTypeDescriptorNode(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+
+        return new STParameterizedTypeDescriptorNode(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken);
     }
 
     public static STNode createNilLiteralNode(
@@ -962,6 +994,123 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STDocumentationStringNode(
                 documentationLines);
+    }
+
+    public static STNode createBasicLiteralNode(
+            SyntaxKind kind,
+            STNode literalToken) {
+
+        return new STBasicLiteralNode(
+                kind,
+                literalToken);
+    }
+
+    public static STNode createSimpleNameReferenceNode(
+            STNode name) {
+
+        return new STSimpleNameReferenceNode(
+                name);
+    }
+
+    public static STNode createQualifiedNameReferenceNode(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier) {
+
+        return new STQualifiedNameReferenceNode(
+                modulePrefix,
+                colon,
+                identifier);
+    }
+
+    public static STNode createBuiltinSimpleNameReferenceNode(
+            SyntaxKind kind,
+            STNode name) {
+
+        return new STBuiltinSimpleNameReferenceNode(
+                kind,
+                name);
+    }
+
+    public static STNode createTrapExpressionNode(
+            STNode trapKeyword,
+            STNode expression) {
+
+        return new STTrapExpressionNode(
+                trapKeyword,
+                expression);
+    }
+
+    public static STNode createListConstructorExpressionNode(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket) {
+
+        return new STListConstructorExpressionNode(
+                openBracket,
+                expressions,
+                closeBracket);
+    }
+
+    public static STNode createTypeCastExpressionNode(
+            STNode ltToken,
+            STNode typeCastParam,
+            STNode gtToken,
+            STNode expression) {
+
+        return new STTypeCastExpressionNode(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
+    public static STNode createTypeCastParamNode(
+            STNode annotations,
+            STNode type) {
+
+        return new STTypeCastParamNode(
+                annotations,
+                type);
+    }
+
+    public static STNode createUnionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
+
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
+    }
+
+    public static STNode createTableConstructorExpressionNode(
+            STNode tableKeyword,
+            STNode KeySpecifier,
+            STNode openBracket,
+            STNode mappingConstructors,
+            STNode closeBracket) {
+
+        return new STTableConstructorExpressionNode(
+                tableKeyword,
+                KeySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket);
+    }
+
+    public static STNode createKeySpecifierNode(
+            STNode keyKeyword,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken) {
+
+        return new STKeySpecifierNode(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
     }
 }
 

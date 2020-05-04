@@ -18,6 +18,9 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextRange;
 
 /**
  * This class represents a node in the syntax tree.
@@ -25,24 +28,24 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  * @since 1.3.0
  */
 public abstract class Node {
-
     protected final STNode internalNode;
     protected final int position;
     protected final NonTerminalNode parent;
 
-    // Span - starting startOffset and width
-    protected final Span span;
-    // SpanWithMinutiae - starting startOffset and widthWithMinutiae
-    protected final Span spanWithMinutiae;
+    /**
+     * A reference to the syntaxTree to which this node belongs.
+     */
+    private SyntaxTree syntaxTree;
+    private LineRange lineRange;
+
+    // TextRange - starting startOffset and width
+    private TextRange textRange;
+    private TextRange textRangeWithMinutiae;
 
     public Node(STNode internalNode, int position, NonTerminalNode parent) {
         this.internalNode = internalNode;
         this.position = position;
         this.parent = parent;
-
-        // TODO Set the width excluding the minutiae.
-        this.span = new Span(position, internalNode.width());
-        this.spanWithMinutiae = new Span(position, internalNode.width());
     }
 
     public int position() {
@@ -53,16 +56,46 @@ public abstract class Node {
         return parent;
     }
 
-    public Span span() {
-        return span;
+    public TextRange textRange() {
+        if (textRange != null) {
+            return textRange;
+        }
+        int leadingMinutiaeDelta = internalNode.widthWithLeadingMinutiae() - internalNode.width();
+        int positionWithoutLeadingMinutiae = this.position + leadingMinutiaeDelta;
+        textRange = new TextRange(positionWithoutLeadingMinutiae, internalNode.width());
+        return textRange;
     }
 
-    public Span spanWithMinutiae() {
-        return spanWithMinutiae;
+    public TextRange textRangeWithMinutiae() {
+        if (textRangeWithMinutiae != null) {
+            return textRangeWithMinutiae;
+        }
+        textRangeWithMinutiae = new TextRange(position, internalNode.widthWithMinutiae());
+        return textRangeWithMinutiae;
     }
 
     public SyntaxKind kind() {
         return internalNode.kind;
+    }
+
+    public NodeLocation location() {
+        return new NodeLocation(this);
+    }
+
+    public SyntaxTree syntaxTree() {
+        return populateSyntaxTree();
+    }
+
+    public LineRange lineRange() {
+        if (lineRange != null) {
+            return lineRange;
+        }
+
+        SyntaxTree syntaxTree = syntaxTree();
+        TextDocument textDocument = syntaxTree.textDocument();
+        lineRange = new LineRange(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+                textDocument.linePositionFrom(textRange().endOffset()));
+        return lineRange;
     }
 
     /**
@@ -83,7 +116,6 @@ public abstract class Node {
      */
     public abstract <T> T apply(NodeTransformer<T> transformer);
 
-    // TODO Temp method. We need to find a way to get the green node from a red node.
     public STNode internalNode() {
         return internalNode;
     }
@@ -91,5 +123,22 @@ public abstract class Node {
     @Override
     public String toString() {
         return internalNode.toString();
+    }
+
+    private SyntaxTree populateSyntaxTree() {
+        if (syntaxTree != null) {
+            return syntaxTree;
+        }
+
+        Node parent = this.parent;
+        if (parent == null) {
+            throw new IllegalStateException("SyntaxTree instance cannot be null");
+        }
+        setSyntaxTree(parent.populateSyntaxTree());
+        return syntaxTree;
+    }
+
+    void setSyntaxTree(SyntaxTree syntaxTree) {
+        this.syntaxTree = syntaxTree;
     }
 }

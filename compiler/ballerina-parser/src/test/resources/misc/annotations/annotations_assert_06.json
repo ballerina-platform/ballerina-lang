@@ -25,7 +25,7 @@
                                                     "kind": "AT_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "QUALIFIED_IDENTIFIER",
+                                                    "kind": "QUALIFIED_NAME_REFERENCE",
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",

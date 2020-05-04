@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -25,7 +26,8 @@
         },
         {
             "kind": "LIST",
-            "children": []
+            "children": [
+            ]
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -44,7 +46,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "TYPE_KEYWORD"
@@ -54,11 +57,12 @@
                                     "value": "Student"
                                 },
                                 {
-                                    "kind": "OBJECT_TYPE_DESCRIPTOR",
+                                    "kind": "OBJECT_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "LIST",
-                                            "children": []
+                                            "children": [
+                                            ]
                                         },
                                         {
                                             "kind": "OBJECT_KEYWORD"
@@ -92,13 +96,13 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": []
+                                                                    "children": [
+                                                                    ]
                                                                 }
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "int"
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -117,7 +121,8 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": []
+                                                                    "children": [
+                                                                    ]
                                                                 }
                                                             ]
                                                         },
@@ -142,11 +147,11 @@
                                                                     "children": [
                                                                         {
                                                                             "kind": "LIST",
-                                                                            "children": []
+                                                                            "children": [
+                                                                            ]
                                                                         },
                                                                         {
-                                                                            "kind": "SIMPLE_TYPE",
-                                                                            "value": "int"
+                                                                            "kind": "INT_KEYWORD"
                                                                         },
                                                                         {
                                                                             "kind": "IDENTIFIER_TOKEN",
@@ -162,11 +167,11 @@
                                                                         },
                                                                         {
                                                                             "kind": "LIST",
-                                                                            "children": []
+                                                                            "children": [
+                                                                            ]
                                                                         },
                                                                         {
-                                                                            "kind": "SIMPLE_TYPE",
-                                                                            "value": "int"
+                                                                            "kind": "INT_KEYWORD"
                                                                         },
                                                                         {
                                                                             "kind": "IDENTIFIER_TOKEN",
@@ -187,7 +192,8 @@
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": []
+                                                                    "children": [
+                                                                    ]
                                                                 },
                                                                 {
                                                                     "kind": "CLOSE_BRACE_TOKEN"
@@ -204,13 +210,13 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": []
+                                                                    "children": [
+                                                                    ]
                                                                 }
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "int"
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",

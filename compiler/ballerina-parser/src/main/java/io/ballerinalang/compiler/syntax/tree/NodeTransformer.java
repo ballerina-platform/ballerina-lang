@@ -124,6 +124,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(lockStatementNode);
     }
 
+    public T transform(ForkStatementNode forkStatementNode) {
+        return transformSyntaxNode(forkStatementNode);
+    }
+
+    public T transform(ForEachStatementNode forEachStatementNode) {
+        return transformSyntaxNode(forEachStatementNode);
+    }
+
     public T transform(BinaryExpressionNode binaryExpressionNode) {
         return transformSyntaxNode(binaryExpressionNode);
     }
@@ -264,10 +272,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeReferenceNode);
     }
 
-    public T transform(QualifiedIdentifierNode qualifiedIdentifierNode) {
-        return transformSyntaxNode(qualifiedIdentifierNode);
-    }
-
     public T transform(ServiceBodyNode serviceBodyNode) {
         return transformSyntaxNode(serviceBodyNode);
     }
@@ -294,6 +298,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         return transformSyntaxNode(remoteMethodCallActionNode);
+    }
+
+    public T transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        return transformSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     public T transform(NilLiteralNode nilLiteralNode) {
@@ -326,6 +334,50 @@ public abstract class NodeTransformer<T> {
 
     public T transform(DocumentationStringNode documentationStringNode) {
         return transformSyntaxNode(documentationStringNode);
+    }
+
+    public T transform(BasicLiteralNode basicLiteralNode) {
+        return transformSyntaxNode(basicLiteralNode);
+    }
+
+    public T transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        return transformSyntaxNode(simpleNameReferenceNode);
+    }
+
+    public T transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        return transformSyntaxNode(qualifiedNameReferenceNode);
+    }
+
+    public T transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        return transformSyntaxNode(builtinSimpleNameReferenceNode);
+    }
+
+    public T transform(TrapExpressionNode trapExpressionNode) {
+        return transformSyntaxNode(trapExpressionNode);
+    }
+
+    public T transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        return transformSyntaxNode(listConstructorExpressionNode);
+    }
+
+    public T transform(TypeCastExpressionNode typeCastExpressionNode) {
+        return transformSyntaxNode(typeCastExpressionNode);
+    }
+
+    public T transform(TypeCastParamNode typeCastParamNode) {
+        return transformSyntaxNode(typeCastParamNode);
+    }
+
+    public T transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        return transformSyntaxNode(unionTypeDescriptorNode);
+    }
+
+    public T transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        return transformSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public T transform(KeySpecifierNode keySpecifierNode) {
+        return transformSyntaxNode(keySpecifierNode);
     }
 
     // Tokens

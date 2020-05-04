@@ -1,5 +1,6 @@
 {
-    "imports": [],
+    "imports": [
+    ],
     "members": [
         {
             "kind": "FUNCTION_DEFINITION",
@@ -7,7 +8,8 @@
                 "metadata": {
                     "kind": "METADATA",
                     "value": {
-                        "annotations": []
+                        "annotations": [
+                        ]
                     }
                 },
                 "functionKeyword": {
@@ -22,7 +24,8 @@
                     "kind": "OPEN_PAREN_TOKEN",
                     "value": "("
                 },
-                "parameters": [],
+                "parameters": [
+                ],
                 "closeParenToken": {
                     "kind": "CLOSE_PAREN_TOKEN",
                     "value": ")"
@@ -34,10 +37,16 @@
                             "kind": "RETURNS_KEYWORD",
                             "value": "returns"
                         },
-                        "annotations": [],
+                        "annotations": [
+                        ],
                         "type": {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "string"
+                            "kind": "STRING_TYPE_DESC",
+                            "value": {
+                                "name": {
+                                    "kind": "STRING_KEYWORD",
+                                    "value": "string"
+                                }
+                            }
                         }
                     }
                 },
@@ -52,10 +61,16 @@
                             {
                                 "kind": "LOCAL_VAR_DECL",
                                 "value": {
-                                    "annotations": [],
+                                    "annotations": [
+                                    ],
                                     "typeName": {
-                                        "kind": "SIMPLE_TYPE",
-                                        "value": "int"
+                                        "kind": "INT_TYPE_DESC",
+                                        "value": {
+                                            "name": {
+                                                "kind": "INT_KEYWORD",
+                                                "value": "int"
+                                            }
+                                        }
                                     },
                                     "variableName": {
                                         "kind": "IDENTIFIER_TOKEN",
@@ -67,7 +82,12 @@
                                     },
                                     "initializer": {
                                         "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "5"
+                                        "value": {
+                                            "literalToken": {
+                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "value": "5"
+                                            }
+                                        }
                                     },
                                     "semicolonToken": {
                                         "kind": "SEMICOLON_TOKEN",
@@ -79,8 +99,13 @@
                                 "kind": "ASSIGNMENT_STATEMENT",
                                 "value": {
                                     "varRef": {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "a"
+                                        "kind": "SIMPLE_NAME_REFERENCE",
+                                        "value": {
+                                            "name": {
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "a"
+                                            }
+                                        }
                                     },
                                     "equalsToken": {
                                         "kind": "EQUAL_TOKEN",
@@ -88,7 +113,12 @@
                                     },
                                     "expression": {
                                         "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "10"
+                                        "value": {
+                                            "literalToken": {
+                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "value": "10"
+                                            }
+                                        }
                                     },
                                     "semicolonToken": {
                                         "kind": "SEMICOLON_TOKEN",
@@ -105,7 +135,12 @@
                                     },
                                     "expression": {
                                         "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "10"
+                                        "value": {
+                                            "literalToken": {
+                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "value": "10"
+                                            }
+                                        }
                                     },
                                     "semicolonToken": {
                                         "kind": "SEMICOLON_TOKEN",

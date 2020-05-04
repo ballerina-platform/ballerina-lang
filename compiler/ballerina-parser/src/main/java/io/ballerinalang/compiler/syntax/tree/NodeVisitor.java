@@ -123,6 +123,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(lockStatementNode);
     }
 
+    public void visit(ForkStatementNode forkStatementNode) {
+        visitSyntaxNode(forkStatementNode);
+    }
+
+    public void visit(ForEachStatementNode forEachStatementNode) {
+        visitSyntaxNode(forEachStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }
@@ -263,10 +271,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
-    public void visit(QualifiedIdentifierNode qualifiedIdentifierNode) {
-        visitSyntaxNode(qualifiedIdentifierNode);
-    }
-
     public void visit(ServiceBodyNode serviceBodyNode) {
         visitSyntaxNode(serviceBodyNode);
     }
@@ -293,6 +297,10 @@ public abstract class NodeVisitor {
 
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         visitSyntaxNode(remoteMethodCallActionNode);
+    }
+
+    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     public void visit(NilLiteralNode nilLiteralNode) {
@@ -325,6 +333,50 @@ public abstract class NodeVisitor {
 
     public void visit(DocumentationStringNode documentationStringNode) {
         visitSyntaxNode(documentationStringNode);
+    }
+
+    public void visit(BasicLiteralNode basicLiteralNode) {
+        visitSyntaxNode(basicLiteralNode);
+    }
+
+    public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+        visitSyntaxNode(simpleNameReferenceNode);
+    }
+
+    public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        visitSyntaxNode(qualifiedNameReferenceNode);
+    }
+
+    public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        visitSyntaxNode(builtinSimpleNameReferenceNode);
+    }
+
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        visitSyntaxNode(trapExpressionNode);
+    }
+
+    public void visit(ListConstructorExpressionNode listConstructorExpressionNode) {
+        visitSyntaxNode(listConstructorExpressionNode);
+    }
+
+    public void visit(TypeCastExpressionNode typeCastExpressionNode) {
+        visitSyntaxNode(typeCastExpressionNode);
+    }
+
+    public void visit(TypeCastParamNode typeCastParamNode) {
+        visitSyntaxNode(typeCastParamNode);
+    }
+
+    public void visit(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        visitSyntaxNode(unionTypeDescriptorNode);
+    }
+
+    public void visit(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        visitSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public void visit(KeySpecifierNode keySpecifierNode) {
+        visitSyntaxNode(keySpecifierNode);
     }
 
     // Tokens

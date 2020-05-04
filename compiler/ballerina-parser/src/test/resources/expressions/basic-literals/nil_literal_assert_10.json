@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -28,11 +29,11 @@
                     "children": [
                         {
                             "kind": "LIST",
-                            "children": []
+                            "children": [
+                            ]
                         },
                         {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "int"
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -74,11 +75,11 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "int"
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

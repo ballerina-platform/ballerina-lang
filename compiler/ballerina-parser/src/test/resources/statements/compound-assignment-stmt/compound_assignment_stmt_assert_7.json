@@ -2,7 +2,7 @@
     "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
     "children": [
         {
-            "kind": "QUALIFIED_IDENTIFIER",
+            "kind": "QUALIFIED_NAME_REFERENCE",
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",
@@ -18,10 +18,10 @@
             ]
         },
         {
-            "kind":"PLUS_TOKEN"
+            "kind": "PLUS_TOKEN"
         },
         {
-            "kind":"EQUAL_TOKEN"
+            "kind": "EQUAL_TOKEN"
         },
         {
             "kind": "IDENTIFIER_TOKEN",

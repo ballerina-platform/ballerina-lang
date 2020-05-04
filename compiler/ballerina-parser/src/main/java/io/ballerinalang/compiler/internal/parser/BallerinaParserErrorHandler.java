@@ -76,7 +76,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
-            ParserRuleContext.NAMED_WORKER_DECL };
+            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -85,8 +85,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.DOC_STRING,
             ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEFINITION,
-            ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL,
-            ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.VAR_DECL_STMT,
+            ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.LISTENER_DECL,
+            ParserRuleContext.CONSTANT_DECL, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.SERVICE_DECL,
             ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = new ParserRuleContext[] {
@@ -101,7 +101,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
-            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
+            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] ASSIGNMENT_OR_VAR_DECL_SECOND_TOKEN =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME };
@@ -119,10 +119,11 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.CLOSED_RECORD_BODY_END, ParserRuleContext.CLOSE_BRACE };
 
     // Give object the higher priority over records, since record body is a subset of object body.
-    // TODO: add other type descriptors
+    // Array, optional and union type descriptors are not added to the list since they are left recursive.
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
-                    ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR };
+                    ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
+                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_FIELD, ParserRuleContext.RECORD_BODY_END };
@@ -192,8 +193,10 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] EXPRESSION_START =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF,
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
-                    ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.TYPE_TEST_EXPRESSION,
-                    ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
+                    ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
+                    ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
+                    ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
+                    ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -255,6 +258,34 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
+    // ParserRuleContext.PIPE is to detect union type descriptor
+    private static final ParserRuleContext[] TYPEDESC_RHS = {ParserRuleContext.NON_RECURSIVE_TYPE,
+            ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR,
+            ParserRuleContext.PIPE };
+
+    private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
+
+    private static final ParserRuleContext[] TYPE_CAST_PARAM =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.ANNOTATIONS };
+
+    private static final ParserRuleContext[] TYPE_CAST_PARAM_RHS =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.GT };
+
+    private static final ParserRuleContext[] TABLE_KEYWORD_RHS =
+            { ParserRuleContext.KEY_SPECIFIER, ParserRuleContext.OPEN_BRACKET };
+
+    private static final ParserRuleContext[] ROW_LIST_RHS =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.MAPPING_CONSTRUCTOR };
+
+    private static final ParserRuleContext[] TABLE_ROW_END =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
+    private static final ParserRuleContext[] KEY_SPECIFIER_RHS =
+            { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.VARIABLE_NAME };
+
+    private static final ParserRuleContext[] TABLE_KEY_RHS =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -433,6 +464,14 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_PREFIX_DECL:
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
+            case LIST_CONSTRUCTOR_RHS:
+            case TYPE_CAST_PARAM:
+            case TYPE_CAST_PARAM_RHS:
+            case TABLE_KEYWORD_RHS:
+            case ROW_LIST_RHS:
+            case TABLE_ROW_END:
+            case KEY_SPECIFIER_RHS:
+            case TABLE_KEY_RHS:
                 return true;
             default:
                 return false;
@@ -653,7 +692,8 @@ public class BallerinaParserErrorHandler {
                     }
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
-                    hasMatch = isTypeToken(nextToken.kind);
+                    hasMatch = BallerinaParser.isSimpleType(nextToken.kind) ||
+                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount, isEntryPoint);
@@ -754,8 +794,8 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_BODY_START,
                             isEntryPoint);
                 case TYPE_DESCRIPTOR:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_DESCRIPTORS,
-                            isEntryPoint);
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            TYPE_DESCRIPTORS, isEntryPoint);
                 case RECORD_FIELD_OR_RECORD_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             RECORD_FIELD_OR_RECORD_END, isEntryPoint);
@@ -985,6 +1025,15 @@ public class BallerinaParserErrorHandler {
                 case EXPRESSION_STATEMENT_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             EXPRESSION_STATEMENT_START, isEntryPoint);
+                case PARAMETERIZED_TYPE:
+                    hasMatch = isParameterizedTypeToken(nextToken.kind);
+                    break;
+                case LT:
+                    hasMatch = nextToken.kind == SyntaxKind.LT_TOKEN;
+                    break;
+                case GT:
+                    hasMatch = nextToken.kind == SyntaxKind.GT_TOKEN;
+                    break;
                 case NULL_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.NULL_KEYWORD;
                     break;
@@ -1046,6 +1095,60 @@ public class BallerinaParserErrorHandler {
                 case WORKER_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
                     break;
+                case FORK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FORK_KEYWORD;
+                    break;
+                case DECIMAL_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+                    break;
+                case HEX_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+                    break;
+                case TYPEDESC_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
+                            isEntryPoint);
+                case TRAP_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
+                    break;
+                case LIST_CONSTRUCTOR_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LIST_CONSTRUCTOR_RHS,
+                            isEntryPoint);
+                case FOREACH_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FOREACH_KEYWORD;
+                    break;
+                case IN_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.IN_KEYWORD;
+                    break;
+                case TYPE_CAST_PARAM:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_CAST_PARAM,
+                            isEntryPoint);
+                case TYPE_CAST_PARAM_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_CAST_PARAM_RHS,
+                            isEntryPoint);
+                case PIPE:
+                    hasMatch = nextToken.kind == SyntaxKind.PIPE_TOKEN;
+                    break;
+                case TABLE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TABLE_KEYWORD;
+                    break;
+                case KEY_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.KEY_KEYWORD;
+                    break;
+                case TABLE_KEYWORD_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEYWORD_RHS,
+                            isEntryPoint);
+                case ROW_LIST_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ROW_LIST_RHS,
+                            isEntryPoint);
+                case TABLE_ROW_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_ROW_END,
+                            isEntryPoint);
+                case KEY_SPECIFIER_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, KEY_SPECIFIER_RHS,
+                            isEntryPoint);
+                case TABLE_KEY_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEY_RHS,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1103,7 +1206,8 @@ public class BallerinaParserErrorHandler {
                 case DEFAULT_WORKER:
                 case NAMED_WORKERS:
                 case NAMED_WORKER_DECL:
-
+                case PARAMETERIZED_TYPE_DESCRIPTOR:
+                case NON_RECURSIVE_TYPE:
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
@@ -1111,6 +1215,13 @@ public class BallerinaParserErrorHandler {
                 case ANNOT_REFERENCE:
                 case NIL_LITERAL:
                 case LOCK_STMT:
+                case FORK_STMT:
+                case TRAP_EXPRESSION:
+                case LIST_CONSTRUCTOR:
+                case FOREACH_STMT:
+                case TYPE_CAST_EXPRESSION:
+                case TABLE_CONSTRUCTOR:
+                case KEY_SPECIFIER:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1126,7 +1237,7 @@ public class BallerinaParserErrorHandler {
                 if (isEntryPoint) {
                     fixedPathResult.solution = fixedPathResult.fixes.peek();
                 } else {
-                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx),
+                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE,
                             currentCtx.toString());
                 }
                 return getFinalResult(matchingRulesCount, fixedPathResult);
@@ -1145,20 +1256,8 @@ public class BallerinaParserErrorHandler {
 
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
         result.solution =
-                new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
+                new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
-    }
-
-    private boolean isTypeToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case SIMPLE_TYPE:
-            case SERVICE_KEYWORD:
-            case IDENTIFIER_TOKEN:
-            case VAR_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**
@@ -1285,8 +1384,15 @@ public class BallerinaParserErrorHandler {
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
         }
 
+        if (parentCtx == ParserRuleContext.LIST_CONSTRUCTOR) {
+            ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.CLOSE_BRACKET };
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+        }
+
         ParserRuleContext nextContext;
-        if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
+        if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ||
+                parentCtx == ParserRuleContext.FOREACH_STMT) {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                 parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
@@ -1531,6 +1637,13 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
             case CONSTANT_EXPRESSION:
             case NAMED_WORKER_DECL:
+            case FORK_STMT:
+            case FOREACH_STMT:
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
+            case LIST_CONSTRUCTOR:
+            case TYPE_CAST_EXPRESSION:
+            case TABLE_CONSTRUCTOR:
+            case KEY_SPECIFIER:
                 startContext(currentCtx);
                 break;
             default:
@@ -1582,11 +1695,16 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
                     endContext();
                     // After parsing nil type descriptor all the other parsing is same as next rule of simple type
-                    return getNextRuleForTypeDescriptor();
+                    return ParserRuleContext.TYPEDESC_RHS;
                 }
                 if (parentCtx == ParserRuleContext.NIL_LITERAL) {
                     endContext();
                     return ParserRuleContext.EXPRESSION_RHS;
+                }
+                if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+                    endContext(); // end key-specifier
+                    // For now key-specifier ctx is only referred inside table-constructor ctx
+                    return ParserRuleContext.OPEN_BRACKET;
                 }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
@@ -1620,6 +1738,10 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.MAPPING_FIELD;
                 }
 
+                if (parentCtx == ParserRuleContext.FORK_STMT) {
+                    return ParserRuleContext.NAMED_WORKER_DECL;
+                }
+
                 return ParserRuleContext.STATEMENT;
             case OPEN_PARENTHESIS:
                 parentCtx = getParentContext();
@@ -1632,6 +1754,8 @@ public class BallerinaParserErrorHandler {
                 } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR ||
                         parentCtx == ParserRuleContext.NIL_LITERAL) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
+                } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+                    return ParserRuleContext.KEY_SPECIFIER_RHS;
                 }
                 return ParserRuleContext.ARG;
             case RETURNS_KEYWORD:
@@ -1640,11 +1764,11 @@ public class BallerinaParserErrorHandler {
                     // next immediate rule without changing the state
                     return ParserRuleContext.FUNC_BODY;
                 }
-                return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             case SEMICOLON:
                 return getNextRuleForSemicolon(nextLookahead);
             case SIMPLE_TYPE_DESCRIPTOR:
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             case VARIABLE_NAME:
             case PARAMETER_RHS:
                 return getNextRuleForVarName(nextLookahead);
@@ -1660,13 +1784,13 @@ public class BallerinaParserErrorHandler {
                     endContext();
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
-                return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             case ASSIGNMENT_STMT:
                 return ParserRuleContext.VARIABLE_NAME;
             case COMPOUND_ASSIGNMENT_STMT:
                 return ParserRuleContext.VARIABLE_NAME;
             case VAR_DECL_STMT:
-                return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             case EXPRESSION_RHS:
                 return ParserRuleContext.BINARY_OPERATOR;
             case BINARY_OPERATOR:
@@ -1683,7 +1807,7 @@ public class BallerinaParserErrorHandler {
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
                 }
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             case CLOSED_RECORD_BODY_START:
                 return ParserRuleContext.RECORD_FIELD_OR_RECORD_END;
             case ELLIPSIS:
@@ -1723,7 +1847,7 @@ public class BallerinaParserErrorHandler {
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
-                return getNextRuleForCloseBracket(nextLookahead);
+                return getNextRuleForCloseBracket();
             case FIELD_OR_FUNC_NAME:
                 return ParserRuleContext.EXPRESSION_RHS;
             case DOT:
@@ -1845,13 +1969,13 @@ public class BallerinaParserErrorHandler {
             case TYPEOF_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case OPTIONAL_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.QUESTION_MARK;
             case UNARY_EXPRESSION:
                 return ParserRuleContext.UNARY_OPERATOR;
             case UNARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
             case ARRAY_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.OPEN_BRACKET;
             case ARRAY_LENGTH:
                 return ParserRuleContext.CLOSE_BRACKET;
             case AT:
@@ -1907,6 +2031,8 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
                 return ParserRuleContext.EXPRESSION_STATEMENT_START;
+            case MAP_KEYWORD:
+            case FUTURE_KEYWORD:
             case LOCK_STMT:
                 return ParserRuleContext.LOCK_KEYWORD;
             case LOCK_KEYWORD:
@@ -1951,6 +2077,58 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME;
             case WORKER_NAME:
                 return ParserRuleContext.RETURN_TYPE_DESCRIPTOR;
+            case FORK_STMT:
+                return ParserRuleContext.FORK_KEYWORD;
+            case FORK_KEYWORD:
+                return ParserRuleContext.OPEN_BRACE;
+            case TRAP_EXPRESSION:
+                return ParserRuleContext.TRAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.OPEN_BRACKET;
+            case FOREACH_STMT:
+                return ParserRuleContext.FOREACH_KEYWORD;
+            case FOREACH_KEYWORD:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case IN_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+            case TYPE_CAST_EXPRESSION:
+                return ParserRuleContext.LT;
+            case PIPE:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case TABLE_CONSTRUCTOR:
+                return ParserRuleContext.TABLE_KEYWORD;
+            case TABLE_KEYWORD:
+                return ParserRuleContext.TABLE_KEYWORD_RHS;
+            case KEY_SPECIFIER:
+                return ParserRuleContext.KEY_KEYWORD;
+            case KEY_KEYWORD:
+                return ParserRuleContext.OPEN_PARENTHESIS;
+            case NON_RECURSIVE_TYPE:
+                return getNextRuleForTypeDescriptor();
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
+                return ParserRuleContext.PARAMETERIZED_TYPE;
+            case PARAMETERIZED_TYPE:
+                endContext();
+                return ParserRuleContext.LT;
+            case LT:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
+                    return ParserRuleContext.TYPE_CAST_PARAM;
+                }
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case GT:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
+                    endContext();
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
+                if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
+                    endContext();
+                    return ParserRuleContext.EXPRESSION;
+                }
+                // fall through
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -1998,13 +2176,20 @@ public class BallerinaParserErrorHandler {
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
-
             case ATTACH_POINT_IDENT:
             case ATTACH_POINT_END:
             case CONSTANT_EXPRESSION_START:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
             case NAMED_WORKERS:
+            case LIST_CONSTRUCTOR_RHS:
+            case TYPE_CAST_PARAM:
+            case TYPE_CAST_PARAM_RHS:
+            case TABLE_KEYWORD_RHS:
+            case ROW_LIST_RHS:
+            case TABLE_ROW_END:
+            case KEY_SPECIFIER_RHS:
+            case TABLE_KEY_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2015,6 +2200,7 @@ public class BallerinaParserErrorHandler {
             case LISTENERS_LIST:
             case MAPPING_CONSTRUCTOR:
             case COMPUTED_FIELD_NAME:
+            case LIST_CONSTRUCTOR:
                 return true;
             default:
                 return isStatement(ctx);
@@ -2057,9 +2243,14 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_FIELD;
             case LISTENERS_LIST:
+            case LIST_CONSTRUCTOR:
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_ATTACH_POINTS_LIST:
                 return ParserRuleContext.ATTACH_POINT;
+            case TABLE_CONSTRUCTOR:
+                return ParserRuleContext.MAPPING_CONSTRUCTOR;
+            case KEY_SPECIFIER:
+                return ParserRuleContext.VARIABLE_NAME;
             default:
                 throw new IllegalStateException();
         }
@@ -2098,12 +2289,15 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForExpr();
             case ANNOTATION_DECL:
                 return ParserRuleContext.IDENTIFIER;
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
+            case TYPE_CAST_EXPRESSION:
+                return ParserRuleContext.GT;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
         }
-        throw new IllegalStateException();
+        throw new IllegalStateException(parentCtx.toString());
     }
 
     /**
@@ -2175,7 +2369,7 @@ public class BallerinaParserErrorHandler {
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
                 endContext(); // end record/object type def
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             case BLOCK_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
@@ -2187,7 +2381,22 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.STATEMENT;
                 } else if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
                     endContext(); // end named-worker
+                    parentCtx = getParentContext();
+                    if (parentCtx == ParserRuleContext.FORK_STMT) {
+                        nextToken = this.tokenReader.peek(nextLookahead);
+                        switch (nextToken.kind) {
+                            case CLOSE_BRACE_TOKEN:
+                                return ParserRuleContext.CLOSE_BRACE;
+                            default:
+                                return ParserRuleContext.STATEMENT;
+                        }
+                    } else {
+                        return ParserRuleContext.STATEMENT;
+                    }
                 } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
+                    endContext();
+                    return ParserRuleContext.STATEMENT;
+                } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
                     endContext();
                     return ParserRuleContext.STATEMENT;
                 }
@@ -2195,6 +2404,10 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
                 endContext(); // end mapping constructor
                 parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.TABLE_CONSTRUCTOR) {
+                    return ParserRuleContext.TABLE_ROW_END;
+                }
+
                 if (parentCtx != ParserRuleContext.ANNOTATIONS) {
                     return getNextRuleForExpr();
                 }
@@ -2221,12 +2434,17 @@ public class BallerinaParserErrorHandler {
                         return ParserRuleContext.STATEMENT_WITHOUT_ANNOTS;
                     case EXTERNAL_FUNC_BODY:
                         return ParserRuleContext.EXTERNAL_KEYWORD;
+                    case TYPE_CAST_EXPRESSION:
+                        return ParserRuleContext.TYPE_CAST_PARAM_RHS;
                     default:
                         if (isParameter(parentCtx)) {
                             return ParserRuleContext.REQUIRED_PARAM;
                         }
                         throw new IllegalStateException("annotation is ending inside a " + parentCtx);
                 }
+            case FORK_STMT:
+                endContext(); // end fork-statement
+                return ParserRuleContext.STATEMENT;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -2262,6 +2480,8 @@ public class BallerinaParserErrorHandler {
             } else {
                 return ParserRuleContext.ASSIGN_OP;
             }
+        } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
+            return ParserRuleContext.IN_KEYWORD;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
                 parentCtx == ParserRuleContext.CONSTANT_DECL) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
@@ -2273,6 +2493,8 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+            return ParserRuleContext.TABLE_KEY_RHS;
         } else {
             throw new IllegalStateException();
         }
@@ -2393,16 +2615,7 @@ public class BallerinaParserErrorHandler {
         switch (parentCtx) {
             case OPTIONAL_TYPE_DESCRIPTOR:
                 endContext();
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case MODULE_TYPE_DEFINITION:
-                        return ParserRuleContext.SEMICOLON;
-                    case RETURN_TYPE_DESCRIPTOR:
-                        return ParserRuleContext.FUNC_BODY;
-                    default:
-                        return ParserRuleContext.VARIABLE_NAME;
-                }
-
+                return ParserRuleContext.TYPEDESC_RHS;
             default:
                 return ParserRuleContext.SEMICOLON;
         }
@@ -2418,6 +2631,10 @@ public class BallerinaParserErrorHandler {
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
                 return ParserRuleContext.ARRAY_LENGTH;
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
+            case TABLE_CONSTRUCTOR:
+                return ParserRuleContext.ROW_LIST_RHS;
             default:
                 return ParserRuleContext.EXPRESSION;
         }
@@ -2428,22 +2645,19 @@ public class BallerinaParserErrorHandler {
      *
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForCloseBracket(int nextLookahead) {
+    private ParserRuleContext getNextRuleForCloseBracket() {
         ParserRuleContext parentCtx = getParentContext();
-        STToken nextToken = this.tokenReader.peek(nextLookahead);
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
-                if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                    return ParserRuleContext.OPEN_BRACKET;
-                } else if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-                    return ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR;
-                } else {
-                    endContext(); // End array type descriptor context
-                    return getNextRuleForTypeDescriptor();
-                }
+                endContext(); // End array type descriptor context
+                return ParserRuleContext.TYPEDESC_RHS;
             case COMPUTED_FIELD_NAME:
                 endContext(); // end computed-field-name
                 return ParserRuleContext.COLON;
+            case LIST_CONSTRUCTOR:
+            case TABLE_CONSTRUCTOR:
+                endContext();
+                // fall through
             default:
                 return getNextRuleForExpr();
         }
@@ -2509,6 +2723,8 @@ public class BallerinaParserErrorHandler {
             case STMT_START_WITH_IDENTIFIER:
             case EXPRESSION_STATEMENT:
             case LOCK_STMT:
+            case FORK_STMT:
+            case FOREACH_STMT:
                 return true;
             default:
                 return false;
@@ -2612,10 +2828,6 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC_KEYWORD:
                 return SyntaxKind.PUBLIC_KEYWORD;
-            case SIMPLE_TYPE_DESCRIPTOR:
-                // TODO: return type token
-                // return SyntaxKind.IDENTIFIER_TOKEN;
-                return SyntaxKind.SIMPLE_TYPE;
             case ASSIGNMENT_STMT:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case EXPRESSION_RHS:
@@ -2630,18 +2842,15 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEFINITION:
                 return SyntaxKind.FUNCTION_KEYWORD;
-            case REQUIRED_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
-            case VAR_DECL_STMT:
-                return SyntaxKind.SIMPLE_TYPE;
             case VAR_DECL_STMT_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
+            case SIMPLE_TYPE_DESCRIPTOR:
+            case REQUIRED_PARAM:
+            case VAR_DECL_STMT:
             case ASSIGNMENT_OR_VAR_DECL_STMT:
-                return SyntaxKind.SIMPLE_TYPE;
             case DEFAULTABLE_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
             case REST_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
+                return SyntaxKind.TYPE_DESC;
             case ASTERISK:
                 return SyntaxKind.ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
@@ -2755,15 +2964,15 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_TYPE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_TYPE_DESCRIPTOR:
-                return SyntaxKind.NIL_TYPE;
+                return SyntaxKind.NIL_TYPE_DESC;
             case TYPEOF_KEYWORD:
                 return SyntaxKind.TYPEOF_KEYWORD;
             case OPTIONAL_TYPE_DESCRIPTOR:
-                return SyntaxKind.OPTIONAL_TYPE;
+                return SyntaxKind.OPTIONAL_TYPE_DESC;
             case UNARY_OPERATOR:
                 return SyntaxKind.PLUS_TOKEN;
             case ARRAY_TYPE_DESCRIPTOR:
-                return SyntaxKind.ARRAY_TYPE;
+                return SyntaxKind.ARRAY_TYPE_DESC;
             case AT:
                 return SyntaxKind.AT_TOKEN;
             case FIELD_DESCRIPTOR_RHS:
@@ -2774,12 +2983,11 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case IS_KEYWORD:
                 return SyntaxKind.IS_KEYWORD;
-            case TYPE_DESCRIPTOR:
-                return SyntaxKind.SIMPLE_TYPE;
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
             case PARAMETER_WITHOUT_ANNOTS:
-                return SyntaxKind.SIMPLE_TYPE;
+            case TYPE_DESCRIPTOR:
+                return SyntaxKind.TYPE_DESC;
             case TYPEOF_EXPRESSION:
                 return SyntaxKind.TYPEOF_KEYWORD;
             case RIGHT_ARROW:
@@ -2790,6 +2998,16 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case UNARY_EXPRESSION:
                 return SyntaxKind.PLUS_TOKEN;
+            case MAP_KEYWORD:
+                return SyntaxKind.MAP_KEYWORD;
+            case FUTURE_KEYWORD:
+                return SyntaxKind.FUTURE_KEYWORD;
+            case TYPEDESC_KEYWORD:
+                return SyntaxKind.TYPEDESC_KEYWORD;
+            case GT:
+                return SyntaxKind.GT_TOKEN;
+            case LT:
+                return SyntaxKind.LT_TOKEN;
             case NULL_KEYWORD:
                 return SyntaxKind.NULL_KEYWORD;
             case LOCK_KEYWORD:
@@ -2841,6 +3059,26 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
+            case FORK_KEYWORD:
+                return SyntaxKind.FORK_KEYWORD;
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+            case HEX_FLOATING_POINT_LITERAL:
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+            case PARAMETERIZED_TYPE:
+                return SyntaxKind.MAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return SyntaxKind.TRAP_KEYWORD;
+            case FOREACH_KEYWORD:
+                return SyntaxKind.FOREACH_KEYWORD;
+            case IN_KEYWORD:
+                return SyntaxKind.IN_KEYWORD;
+            case PIPE:
+                return SyntaxKind.PIPE_TOKEN;
+            case TABLE_KEYWORD:
+                return SyntaxKind.TABLE_KEYWORD;
+            case KEY_KEYWORD:
+                return SyntaxKind.KEY_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -2903,6 +3141,7 @@ public class BallerinaParserErrorHandler {
             case TYPE_TEST_EXPRESSION:
             case LOCAL_TYPE_DEFINITION_STMT:
             case LOCK_STMT:
+            case FORK_STMT:
             case ANNOTATION_DECL:
             case ANNOT_ATTACH_POINTS_LIST:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
@@ -2912,6 +3151,12 @@ public class BallerinaParserErrorHandler {
             case ATTACH_POINT:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
+            case TRAP_EXPRESSION:
+            case LIST_CONSTRUCTOR:
+            case FOREACH_STMT:
+            case TYPE_CAST_EXPRESSION:
+            case TABLE_CONSTRUCTOR:
+            case KEY_SPECIFIER:
             default:
                 break;
         }
@@ -3015,6 +3260,23 @@ public class BallerinaParserErrorHandler {
         Result result = seekMatch(nextContext, lookahead, currentDepth, isEntryPoint);
         result.ctx = currentCtx;
         return getFinalResult(currentMatches, result);
+    }
+
+    /**
+     * Check whether the given token is a parameterized type keyword.
+     *
+     * @param tokenKind Token to check
+     * @return <code>true</code> if the given token is a parameterized type keyword. <code>false</code> otherwise
+     */
+    public boolean isParameterizedTypeToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case MAP_KEYWORD:
+            case FUTURE_KEYWORD:
+            case TYPEDESC_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public ParserRuleContext findBestPath(ParserRuleContext context) {
