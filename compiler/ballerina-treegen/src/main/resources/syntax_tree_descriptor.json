@@ -1977,6 +1977,39 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "NewExpression",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "ExplicitNewOperation",
+            "base": "NewExpression",
+            "kind": "EXPLICIT_NEW",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "TypeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldNames",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

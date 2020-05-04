@@ -1102,6 +1102,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public Node transform(ExplicitNewOperation explicitNewOperation) {
+        Token NewKeyword = modifyToken(explicitNewOperation.NewKeyword());
+        Node TypeDescriptor = modifyNode(explicitNewOperation.TypeDescriptor());
+        Token openParenToken = modifyToken(explicitNewOperation.openParenToken());
+        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(explicitNewOperation.fieldNames());
+        Token closeParenToken = modifyToken(explicitNewOperation.closeParenToken());
+        return explicitNewOperation.modify(
+                NewKeyword,
+                TypeDescriptor,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
+
     // Tokens
 
     @Override

@@ -1112,5 +1112,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 fieldNames,
                 closeParenToken);
     }
+
+    public static STNode createExplicitNewOperation(
+            STNode NewKeyword,
+            STNode TypeDescriptor,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken) {
+
+        return new STExplicitNewOperation(
+                NewKeyword,
+                TypeDescriptor,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
 }
 

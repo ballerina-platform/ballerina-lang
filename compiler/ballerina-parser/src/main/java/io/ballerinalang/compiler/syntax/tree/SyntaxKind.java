@@ -69,6 +69,7 @@ public enum SyntaxKind {
     FOREACH_KEYWORD(220,"foreach"),
     TABLE_KEYWORD(221, "table"),
     KEY_KEYWORD(222, "key"),
+    NEW_KEYWORD(223, "new"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),

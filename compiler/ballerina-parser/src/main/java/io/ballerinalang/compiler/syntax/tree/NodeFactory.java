@@ -1496,5 +1496,26 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stKeySpecifierNode.createUnlinkedFacade();
     }
+
+    public static ExplicitNewOperation createExplicitNewOperation(
+            Token NewKeyword,
+            Node TypeDescriptor,
+            Token openParenToken,
+            SeparatedNodeList<Node> fieldNames,
+            Token closeParenToken) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+        Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(fieldNames, "fieldNames must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stExplicitNewOperation = STNodeFactory.createExplicitNewOperation(
+                NewKeyword.internalNode(),
+                TypeDescriptor.internalNode(),
+                openParenToken.internalNode(),
+                fieldNames.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stExplicitNewOperation.createUnlinkedFacade();
+    }
 }
 
