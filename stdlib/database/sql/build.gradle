@@ -72,7 +72,7 @@ createBalo {
 }
 
 description = 'Ballerina - sql'
-ext.moduleName = 'ballerina.sql'
+ext.moduleName = 'sql'
 
 compileJava {
     inputs.property("moduleName", moduleName)

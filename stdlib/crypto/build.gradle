@@ -64,7 +64,7 @@ createBalo {
 
 description = 'Ballerina - Crypto'
 
-ext.moduleName = 'ballerina.crypto'
+ext.moduleName = 'crypto'
 
 compileJava {
     inputs.property("moduleName", moduleName)
