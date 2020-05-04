@@ -108,6 +108,12 @@ public class Writer {
                 return newDescription;
             });
 
+            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+                //remove anything with <pre> tagparagraph tags
+                String newString = string.replaceAll("<\\/?p>", "");
+                return newString;
+            });
+
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
                 Object param0 = options.param(0);
@@ -167,7 +173,7 @@ public class Writer {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
-                || !type.generateUserDefinedTypeLink) {
+                || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);

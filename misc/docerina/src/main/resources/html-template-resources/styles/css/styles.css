@@ -40,6 +40,9 @@ body .content-wrapper pre.ballerina-snippet {
   padding: 20px;
   overflow-x: auto;
 }
+body .content-wrapper table pre.ballerina-snippet {
+  width: 540px;
+}
 body .content-wrapper pre.ballerina-snippet code.language-ballerina {
   background: none;
 }
@@ -554,6 +557,7 @@ body .content-wrapper .module-desc {
 }
 body .content-wrapper .function-desc p {
   display: block;
+  white-space: pre-line;
   color: #333;
 }
 body .content-wrapper .stab {
