@@ -866,12 +866,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
-
         // Validate type AB "A"| record { string f; };
-        if (!isAnonymous) {
-            isAnonymous = checkIfAnonymousInTypeDef(ctx);
-        }
+        boolean isAnonymous = checkIfAnonymousInTypeDef(ctx);
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isAnonymous, false, false);
     }
@@ -883,12 +879,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * @return true if is part of a union type descriptor with on the fly definition
      */
     private boolean checkIfAnonymousInTypeDef(ParserRuleContext ctx) {
-        if (!(ctx instanceof BallerinaParser.InclusiveRecordTypeDescriptorContext ||
-            ctx instanceof BallerinaParser.ExclusiveRecordTypeDescriptorContext)) {
-            return false;
-        }
-
-        return (ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext &&
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        return isAnonymous ? isAnonymous : (ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext &&
             ctx.parent.parent.parent.getChildCount() > 1);
     }
 
@@ -907,12 +899,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
-
         // Validate type AB "A"| record {| string f; |};
-        if (!isAnonymous) {
-            isAnonymous = checkIfAnonymousInTypeDef(ctx);
-        }
+        boolean isAnonymous = checkIfAnonymousInTypeDef(ctx);
 
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
