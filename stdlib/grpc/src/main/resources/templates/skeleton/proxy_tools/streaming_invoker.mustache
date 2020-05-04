@@ -6,10 +6,10 @@
     if (parameterAttachement is {{inputType}}) {
         {{#not_equal httpBody "*"}}gatewayRequestMessage = parameterAttachement;
         {{/not_equal}}{{>proxy_tools/body_parameter methodType=methodType}}
-        {{#equals httpBody "*"}}{{#paramSet}}{{#equals paramSource "path"}}gatewayRequestMessage.{{fieldName}} = parameterAttachement.{{fieldName}};
+        {{~#equals httpBody "*"}}{{#paramSet}}{{#equals paramSource "path"}}gatewayRequestMessage.{{fieldName}} = parameterAttachement.{{fieldName}};
         {{/equals}}{{/paramSet}}{{/equals}}
     }
-    if (paramReadErrors.length()>0) {
+    if (paramReadErrors.length() > 0) {
         error paramError = error("Parameter error", message = paramReadErrors);
         sendSocketResponse(caller, paramError{{#if (checkStreamingType methodType "SERVER_STREAMING")}}, true{{/if}});
         return;
