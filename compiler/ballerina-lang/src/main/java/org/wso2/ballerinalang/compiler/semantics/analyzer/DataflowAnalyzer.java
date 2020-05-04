@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -828,6 +829,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhereClause whereClause) {
         analyzeNode(whereClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        analyzeNode(onClause.expression, env);
     }
 
     @Override

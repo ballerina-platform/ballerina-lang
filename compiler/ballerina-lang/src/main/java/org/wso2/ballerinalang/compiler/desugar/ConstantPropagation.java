@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -827,6 +828,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangWhereClause whereClause) {
         whereClause.expression = rewrite(whereClause.expression);
         result = whereClause;
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        onConflictClause.expression = rewrite(onConflictClause.expression);
+        result = onConflictClause;
     }
 
     @Override

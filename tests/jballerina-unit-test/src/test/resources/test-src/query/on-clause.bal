@@ -26,6 +26,7 @@ function testSimpleOnClause() returns Person[] {
     return outputPersonList;
 }
 
-function printHello() {
+function printHello() returns boolean{
     io:println("Hello");
+    return true;
 }
