@@ -7239,12 +7239,10 @@ public class BallerinaParser {
     /**
      * Parse error type descriptor.
      * <p>
-     * error-type-descriptor := error [error-type-params]
-     * error-type-params := < (explicit-error-type-params | inferred-error-type-param) >
-     * explicit-error-type-params := reason-type-descriptor [, detail-type-descriptor]
-     * reason-type-descriptor := type-descriptor
+     * error-type-descriptor := error [error-type-param]
+     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
      * detail-type-descriptor := type-descriptor
-     * inferred-error-type-param := *
+     * inferred-type-descriptor := *
      * </p>
      * @return Parsed node
      */
@@ -7252,19 +7250,24 @@ public class BallerinaParser {
         startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
 
         STNode errorKeywordToken = parseErrorKeyWord();
-        STNode ltToken = parseLTToken();
-        STNode errorTypeParamsNode;
+        STNode errorTypeParamsNode, ltToken, gtToken;
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-            errorTypeParamsNode = consume();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            ltToken = parseLTToken();
+            nextToken = peek();
+            if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+                errorTypeParamsNode = consume();
+            } else {
+                errorTypeParamsNode = parseTypeDescriptor();
+            }
+            gtToken = parseGTToken();
         } else {
-            errorTypeParamsNode = parseExplicitErrorTypeParams();
+            ltToken = STNodeFactory.createEmptyNode();
+            errorTypeParamsNode = STNodeFactory.createEmptyNode();
+            gtToken = STNodeFactory.createEmptyNode();
         }
-        STNode gtToken = parseGTToken();
-
         endContext();
         return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, ltToken, errorTypeParamsNode, gtToken);
-
     }
 
     /**
@@ -7280,19 +7283,5 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
             return sol.recoveredNode;
         }
-    }
-
-    /**
-     * Parse explicity error type params.
-     * <p>
-     *     explicit-error-type-params := reason-type-descriptor [, detail-type-descriptor]
-     * </p>
-     * @return Parsed node
-     */
-    private STNode parseExplicitErrorTypeParams() {
-        STNode leftTypeDescNode = parseTypeDescriptor();
-        STNode commaToken = parseComma();
-        STNode rightTypeDescNode = parseTypeDescriptor();
-        return STNodeFactory.createExplicitErrorTypeParamsNode(leftTypeDescNode, commaToken, rightTypeDescNode);
     }
 }
