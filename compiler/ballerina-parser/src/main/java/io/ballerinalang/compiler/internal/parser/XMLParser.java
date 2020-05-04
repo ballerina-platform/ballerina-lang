@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -61,6 +62,8 @@ public class XMLParser extends AbstractParser {
                 return parseAssignOp();
             case XML_QUOTED_STRING:
                 return parseXMLQuotedString();
+            case XML_START_OR_EMPTY_TAG_END:
+                return parseXMLElementTagEnd((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -126,7 +129,7 @@ public class XMLParser extends AbstractParser {
             case LT_TOKEN:
                 return parseXMLElement();
             case XML_COMMENT_START_TOKEN:
-                return null;
+                return parseXMLComment();
             case XML_PI_START_TOKEN:
                 return null;
             case INTERPOLATION_START_TOKEN:
@@ -189,17 +192,39 @@ public class XMLParser extends AbstractParser {
         STNode tagOpen = parseLTToken();
         STNode name = parseXMLNCName();
         STNode attributes = parseXMLAttributes();
+        return parseXMLElementTagEnd(tagOpen, name, attributes);
+    }
 
-        if (peek().kind == SyntaxKind.SLASH_TOKEN) {
-            STNode slash = parseSlashToken();
-            STNode tagClose = parseGTToken();
-            endContext();
-            return STNodeFactory.createXMLEmptyElementNode(tagOpen, name, attributes, slash, tagClose);
+    private STNode parseXMLElementTagEnd(STNode tagOpen, STNode name, STNode attributes) {
+        STToken nextToken = peek();
+        return parseXMLElementTagEnd(nextToken.kind, tagOpen, name, attributes);
+    }
+
+    private STNode parseXMLElementTagEnd(SyntaxKind nextTokenKind, STNode tagOpen, STNode name, STNode attributes) {
+        switch (nextTokenKind) {
+            case SLASH_TOKEN:
+                STNode slash = parseSlashToken();
+                STNode tagClose = parseGTToken();
+                endContext();
+                return STNodeFactory.createXMLEmptyElementNode(tagOpen, name, attributes, slash, tagClose);
+            case GT_TOKEN:
+                tagClose = parseGTToken();
+                endContext();
+                return STNodeFactory.createXMLStartTagNode(tagOpen, name, attributes, tagClose);
+            default:
+                STToken token = peek();
+                Solution solution =
+                        recover(token, ParserRuleContext.XML_START_OR_EMPTY_TAG_END, tagOpen, name, attributes);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseXMLElementTagEnd(solution.tokenKind, tagOpen, name, attributes);
         }
-
-        STNode tagClose = parseGTToken();
-        endContext();
-        return STNodeFactory.createXMLStartTagNode(tagOpen, name, attributes, tagClose);
     }
 
     /**
@@ -432,5 +457,47 @@ public class XMLParser extends AbstractParser {
      */
     private STNode parseCharData() {
         return consume();
+    }
+
+    private STNode parseXMLComment() {
+        STNode commentStart = parseXMLCommentStart();
+        STNode content;
+        if (peek().kind == SyntaxKind.XML_COMMENT_END_TOKEN) {
+            content = STNodeFactory.createEmptyNode();
+        } else {
+            content = parseXMLCommentContent();
+        }
+        STNode commentEnd = parseXMLCommentEnd();
+        return STNodeFactory.createXMLElementNode(commentStart, content, commentEnd);
+    }
+
+    private STNode parseXMLCommentStart() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_COMMENT_START_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_COMMENT_START);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLCommentEnd() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_COMMENT_END_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_COMMENT_END);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLCommentContent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_TEXT_CONTENT) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_COMMENT_CONTENT);
+            return sol.recoveredNode;
+        }
     }
 }

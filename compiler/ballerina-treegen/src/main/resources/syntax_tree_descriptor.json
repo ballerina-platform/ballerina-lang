@@ -1971,6 +1971,25 @@
                     "type": "Node"
                 }
             ]
+        },
+        {
+            "name": "XMLComment",
+            "base": "XMLItemNode",
+            "kind": "XML_COMMENT",
+            "attributes": [
+                {
+                    "name": "commentStart",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token"
+                },
+                {
+                    "name": "commentEnd",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

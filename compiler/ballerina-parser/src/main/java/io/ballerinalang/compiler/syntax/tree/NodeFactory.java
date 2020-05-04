@@ -1480,5 +1480,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 value.internalNode());
         return stXMLAttributeNode.createUnlinkedFacade();
     }
+
+    public static XMLComment createXMLComment(
+            Token commentStart,
+            Token content,
+            Token commentEnd) {
+        Objects.requireNonNull(commentStart, "commentStart must not be null");
+        Objects.requireNonNull(content, "content must not be null");
+        Objects.requireNonNull(commentEnd, "commentEnd must not be null");
+
+        STNode stXMLComment = STNodeFactory.createXMLComment(
+                commentStart.internalNode(),
+                content.internalNode(),
+                commentEnd.internalNode());
+        return stXMLComment.createUnlinkedFacade();
+    }
 }
 

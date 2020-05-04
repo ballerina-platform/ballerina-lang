@@ -53,6 +53,11 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
         testFile("xml-template/xml_template_source_11.bal", "xml-template/xml_template_assert_11.json");
     }
 
+    @Test
+    public void testXMLComment() {
+        testFile("xml-template/xml_template_source_16.bal", "xml-template/xml_template_assert_16.json");
+    }
+
     // Recovery test
 
     @Test
@@ -97,16 +102,31 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testRecoveryInsideInterpolation() {
-        testFile("xml-template/xml_template_source_13.bal", "xml-template/xml_template_assert_13.json");
-    }
-
-    @Test
-    public void testInvalidReferenceInAttributeValue() {
         testFile("xml-template/xml_template_source_14.bal", "xml-template/xml_template_assert_14.json");
     }
 
     @Test
     public void testInvalidReferenceInText() {
         testFile("xml-template/xml_template_source_15.bal", "xml-template/xml_template_assert_15.json");
+    }
+
+    @Test
+    public void testMissingTokenBeforeComment() {
+        testFile("xml-template/xml_template_source_17.bal", "xml-template/xml_template_assert_17.json");
+    }
+
+    @Test
+    public void testMissingCommentEnd() {
+        testFile("xml-template/xml_template_source_18.bal", "xml-template/xml_template_assert_18.json");
+    }
+
+    @Test
+    public void testDoubleHyphenInComments() {
+        testFile("xml-template/xml_template_source_19.bal", "xml-template/xml_template_assert_19.json");
+    }
+
+    @Test
+    public void testMissingOneHyphenInCommentStart() {
+        testFile("xml-template/xml_template_source_20.bal", "xml-template/xml_template_assert_20.json");
     }
 }

@@ -380,6 +380,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLAttributeNode);
     }
 
+    public T transform(XMLComment xMLComment) {
+        return transformSyntaxNode(xMLComment);
+    }
+
     // Tokens
 
     public T transform(Token token) {

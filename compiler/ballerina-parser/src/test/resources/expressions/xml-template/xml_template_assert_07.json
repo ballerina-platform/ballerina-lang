@@ -69,7 +69,7 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
-                                                    "kind": "XML_TEXT",
+                                                    "kind": "XML_TEXT_CONTENT",
                                                     "value": "some "
                                                 },
                                                 {
@@ -88,7 +88,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "XML_TEXT",
+                                                    "kind": "XML_TEXT_CONTENT",
                                                     "value": " text\n                 "
                                                 },
                                                 {
@@ -130,7 +130,7 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": " \n                    hello "
                                                                 },
                                                                 {
@@ -179,7 +179,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": " world  "
                                                                 },
                                                                 {
@@ -288,7 +288,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": "\n                    "
                                                                 },
                                                                 {
@@ -318,7 +318,7 @@
                                                                             "kind": "LIST",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "XML_TEXT",
+                                                                                    "kind": "XML_TEXT_CONTENT",
                                                                                     "value": "\n                        "
                                                                                 },
                                                                                 {
@@ -348,7 +348,7 @@
                                                                                             "kind": "LIST",
                                                                                             "children": [
                                                                                                 {
-                                                                                                    "kind": "XML_TEXT",
+                                                                                                    "kind": "XML_TEXT_CONTENT",
                                                                                                     "value": "\n                            Colombo\n                        "
                                                                                                 }
                                                                                             ]
@@ -374,7 +374,7 @@
                                                                                     ]
                                                                                 },
                                                                                 {
-                                                                                    "kind": "XML_TEXT",
+                                                                                    "kind": "XML_TEXT_CONTENT",
                                                                                     "value": "\n                    "
                                                                                 }
                                                                             ]
@@ -400,7 +400,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": "\n                 "
                                                                 }
                                                             ]
@@ -438,7 +438,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "XML_TEXT",
+                                                    "kind": "XML_TEXT_CONTENT",
                                                     "value": " "
                                                 }
                                             ]

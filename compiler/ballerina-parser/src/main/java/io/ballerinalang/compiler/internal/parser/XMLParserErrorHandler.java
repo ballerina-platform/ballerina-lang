@@ -29,14 +29,15 @@ import java.util.ArrayDeque;
  */
 public class XMLParserErrorHandler extends AbstractParserErrorHandler {
 
-    private static final ParserRuleContext[] XML_CONTENT = { ParserRuleContext.XML_START_OR_EMPTY_TAG,
-            ParserRuleContext.XML_TEXT, ParserRuleContext.XML_END_TAG /* ParserRuleContext.XML_PI, */ };
+    private static final ParserRuleContext[] XML_CONTENT =
+            { ParserRuleContext.XML_START_OR_EMPTY_TAG, ParserRuleContext.XML_TEXT, ParserRuleContext.XML_END_TAG,
+                    ParserRuleContext.XML_COMMENT_START /* ParserRuleContext.XML_PI, */ };
 
     private static final ParserRuleContext[] XML_ATTRIBUTES =
             { ParserRuleContext.XML_ATTRIBUTE, ParserRuleContext.XML_START_OR_EMPTY_TAG_END };
 
     private static final ParserRuleContext[] XML_START_OR_EMPTY_TAG_END =
-            { ParserRuleContext.GT_TOKEN, ParserRuleContext.SLASH };
+            { ParserRuleContext.SLASH, ParserRuleContext.GT_TOKEN };
 
     public XMLParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -97,6 +98,15 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_START_OR_EMPTY_TAG_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             XML_START_OR_EMPTY_TAG_END, isEntryPoint);
+                case XML_COMMENT_START:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_COMMENT_START_TOKEN;
+                    break;
+                case XML_COMMENT_CONTENT:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
+                    break;
+                case XML_COMMENT_END:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_COMMENT_END_TOKEN;
+                    break;
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -183,8 +193,13 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_NAME;
             case XML_QUOTED_STRING:
                 return ParserRuleContext.XML_ATTRIBUTES;
+            case XML_COMMENT_START:
+                return ParserRuleContext.XML_COMMENT_CONTENT;
+            case XML_COMMENT_CONTENT:
+                return ParserRuleContext.XML_COMMENT_END;
             case XML_TEXT:
             case XML_PI:
+            case XML_COMMENT_END:
                 return ParserRuleContext.XML_CONTENT;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
@@ -214,6 +229,14 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_CONTENT:
             case XML_TEXT:
                 return SyntaxKind.BACKTICK_TOKEN;
+            case XML_COMMENT_START:
+                return SyntaxKind.XML_COMMENT_START_TOKEN;
+            case XML_COMMENT_CONTENT:
+                return SyntaxKind.XML_COMMENT_END_TOKEN;
+            case XML_COMMENT_END:
+                return SyntaxKind.XML_TEXT_CONTENT;
+            case XML_PI:
+                return SyntaxKind.XML_PI_START_TOKEN;
             default:
                 return SyntaxKind.NONE;
         }

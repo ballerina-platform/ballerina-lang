@@ -111,7 +111,7 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": " "
                                                                 }
                                                             ]
@@ -137,7 +137,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "XML_TEXT",
+                                                    "kind": "XML_TEXT_CONTENT",
                                                     "value": " "
                                                 }
                                             ]

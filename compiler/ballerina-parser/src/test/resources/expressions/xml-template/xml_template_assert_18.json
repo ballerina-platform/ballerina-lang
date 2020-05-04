@@ -47,7 +47,65 @@
                                     ]
                                 },
                                 {
-                                    "kind": "INT_KEYWORD"
+                                    "kind": "VAR_KEYWORD"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "x"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "XML_TEMPLATE_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "XML_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "BACKTICK_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "XML_ELEMENT",
+                                                    "children": [
+                                                        {
+                                                            "kind": "XML_COMMENT_START_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "XML_TEXT_CONTENT",
+                                                            "value": "hello"
+                                                        },
+                                                        {
+                                                            "kind": "XML_TEXT_CONTENT",
+                                                            "isMissing": true
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "BACKTICK_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "VAR_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -95,8 +153,20 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " hello &#56; world! &#5a6; &#x5a6\""
+                                                                    "kind": "XML_ELEMENT",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "XML_COMMENT_START_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                            "value": "hello</foo>"
+                                                                        },
+                                                                        {
+                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                            "isMissing": true
+                                                                        }
+                                                                    ]
                                                                 }
                                                             ]
                                                         },
@@ -104,17 +174,20 @@
                                                             "kind": "XML_ELEMENT_END_TAG",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LT_TOKEN"
+                                                                    "kind": "LT_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
-                                                                    "kind": "SLASH_TOKEN"
+                                                                    "kind": "SLASH_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
+                                                                    "isMissing": true
                                                                 },
                                                                 {
-                                                                    "kind": "GT_TOKEN"
+                                                                    "kind": "GT_TOKEN",
+                                                                    "isMissing": true
                                                                 }
                                                             ]
                                                         }

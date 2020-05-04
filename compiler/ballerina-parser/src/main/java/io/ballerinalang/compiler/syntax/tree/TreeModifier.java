@@ -1091,6 +1091,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 value);
     }
 
+    @Override
+    public Node transform(XMLComment xMLComment) {
+        Token commentStart = modifyToken(xMLComment.commentStart());
+        Token content = modifyToken(xMLComment.content());
+        Token commentEnd = modifyToken(xMLComment.commentEnd());
+        return xMLComment.modify(
+                commentStart,
+                content,
+                commentEnd);
+    }
+
     // Tokens
 
     @Override

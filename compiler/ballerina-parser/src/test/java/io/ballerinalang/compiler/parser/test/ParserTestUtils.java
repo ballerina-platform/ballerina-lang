@@ -281,6 +281,8 @@ public class ParserTestUtils {
                 return ((STDocumentationLineToken) token).text;
             case XML_TEXT:
                 return ((STLiteralValueToken) token).text;
+            case XML_TEXT_CONTENT:
+                return ((STLiteralValueToken) token).text;
             default:
                 return token.kind.toString();
 
@@ -719,6 +721,14 @@ public class ParserTestUtils {
                 return SyntaxKind.INTERPOLATION;
             case "INTERPOLATION_START_TOKEN":
                 return SyntaxKind.INTERPOLATION_START_TOKEN;
+            case "XML_COMMENT":
+                return SyntaxKind.XML_COMMENT;
+            case "XML_COMMENT_START_TOKEN":
+                return SyntaxKind.XML_COMMENT_START_TOKEN;
+            case "XML_COMMENT_END_TOKEN":
+                return SyntaxKind.XML_COMMENT_END_TOKEN;
+            case "XML_TEXT_CONTENT":
+                return SyntaxKind.XML_TEXT_CONTENT;
 
             // Trivia
             case "EOF_TOKEN":

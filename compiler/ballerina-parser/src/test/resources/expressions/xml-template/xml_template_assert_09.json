@@ -118,7 +118,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "XML_TEXT",
+                                                    "kind": "XML_TEXT_CONTENT",
                                                     "value": " "
                                                 }
                                             ]

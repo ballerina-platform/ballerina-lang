@@ -65,6 +65,9 @@ public class XMLLexer extends AbstractLexer {
             case XML_ATTRIBUTES:
                 processLeadingXMLTrivia();
                 return readTokenInXMLAttributes(true);
+            case XML_COMMENT:
+                this.leadingTriviaList = new ArrayList<>(0);
+                return readTokenInXMLComment();
             default:
                 // should never reach here.
                 return null;
@@ -179,6 +182,29 @@ public class XMLLexer extends AbstractLexer {
 
     private void reportLexerError(String message) {
         this.errorListener.reportInvalidNodeError(null, message);
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * INTERPOLATION Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readTokenInInterpolation() {
+        int nextToken = peek();
+        switch (nextToken) {
+            case LexerTerminals.CLOSE_BRACE:
+                // Close-brace in the interpolation mode definitely means its
+                // then end of the interpolation.
+                endMode();
+                reader.advance();
+                return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.CLOSE_BRACE_TOKEN);
+            default:
+                // We should never reach here. Interpolation must be empty since
+                // this is something we are injecting. This is just a fail-safe.
+                endMode();
+                return nextToken();
+        }
     }
 
     /*
@@ -300,8 +326,13 @@ public class XMLLexer extends AbstractLexer {
                 nextChar = reader.peek();
                 switch (nextChar) {
                     case LexerTerminals.EXCLAMATION_MARK:
-                        // TODO: xml-comment
-                        return null;
+                        // '<!--' is the comment start.
+                        if (reader.peek(1) == LexerTerminals.MINUS && reader.peek(2) == LexerTerminals.MINUS) {
+                            reader.advance(3);
+                            startMode(ParserMode.XML_COMMENT);
+                            return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_COMMENT_START_TOKEN);
+                        }
+                        break;
                     case LexerTerminals.QUESTION_MARK:
                         // TODO: XML-PI
                         return null;
@@ -310,9 +341,11 @@ public class XMLLexer extends AbstractLexer {
                         startMode(ParserMode.XML_ELEMENT_END_TAG);
                         return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
                     default:
-                        startMode(ParserMode.XML_ELEMENT_START_TAG);
-                        return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
+                        break;
                 }
+                // Treat everything else as element start tag
+                startMode(ParserMode.XML_ELEMENT_START_TAG);
+                return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
             case LexerTerminals.DOLLAR:
                 if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                     // Switch to interpolation mode. Then the next token will be read in that mode.
@@ -354,8 +387,12 @@ public class XMLLexer extends AbstractLexer {
         int c = reader.peek();
         switch (c) {
             case LexerTerminals.LT:
-                reader.advance();
-                return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, true, false);
+                // '<' token means the start of a new tag, where the closing '>'
+                // is missing for the current element.
+                if (isStartTag) {
+                    startMode(ParserMode.XML_CONTENT);
+                }
+                return nextToken();
             case LexerTerminals.GT:
                 endMode();
                 if (isStartTag) {
@@ -389,6 +426,7 @@ public class XMLLexer extends AbstractLexer {
                 endMode();
                 return nextToken();
             default:
+                reader.advance();
                 break;
         }
 
@@ -690,7 +728,7 @@ public class XMLLexer extends AbstractLexer {
 
         // End of charData also means the end of XML_TEXT mode
         endMode();
-        return getXMLText(SyntaxKind.XML_TEXT);
+        return getXMLText(SyntaxKind.XML_TEXT_CONTENT);
     }
 
     private STToken getXMLText(SyntaxKind kind) {
@@ -706,20 +744,60 @@ public class XMLLexer extends AbstractLexer {
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readTokenInInterpolation() {
-        int nextToken = peek();
-        switch (nextToken) {
-            case LexerTerminals.CLOSE_BRACE:
-                // Close-brace in the interpolation mode definitely means its
-                // then end of the interpolation.
-                endMode();
-                reader.advance();
-                return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.CLOSE_BRACE_TOKEN);
-            default:
-                // We should never reach here. Interpolation must be empty since
-                // this is something we are injecting. This is just a fail-safe.
-                endMode();
-                return nextToken();
+    private STToken readTokenInXMLComment() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
+
+        /*
+         * This block handles the case where very next token is the end of comment.
+         * This is possible in two cases:
+         * 1) No comment body is available.
+         * 2) Comment body was processed during previous readToken(). And the next readToken()
+         * will bring us here as we are still inside the xml-comment-mode.
+         */
+        if (reader.peek() == LexerTerminals.MINUS && reader.peek(1) == LexerTerminals.MINUS) {
+            // '-->' marks the end of comment
+            if (reader.peek(2) == LexerTerminals.GT) {
+                reader.advance(3);
+                endMode();
+                return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_COMMENT_END_TOKEN);
+            }
+
+            // Double-hyphen is not allowed. So log an error, but continue.
+            reader.advance(1);
+            reportLexerError("double-hypen is not allowed within xml comment");
+        }
+
+        /*
+         * This block handles the comment body.
+         */
+        while (!reader.isEOF()) {
+            switch (reader.peek()) {
+                case LexerTerminals.MINUS:
+                    if (reader.peek(1) == LexerTerminals.MINUS) {
+                        // '-->' marks the end of comment
+                        if (reader.peek(2) == LexerTerminals.GT) {
+                            break;
+                        }
+
+                        // otherwise, double-hyphen is not allowed
+                        reader.advance(2);
+                        reportLexerError("double-hypen is not allowed within xml comment");
+                    } else {
+                        reader.advance();
+                    }
+                    continue;
+                case LexerTerminals.BACKTICK:
+                    break;
+                default:
+                    reader.advance();
+                    continue;
+            }
+            break;
+        }
+
+        return getXMLText(SyntaxKind.XML_TEXT_CONTENT);
     }
 }

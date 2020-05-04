@@ -1102,5 +1102,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 equalToken,
                 value);
     }
+
+    public static STNode createXMLComment(
+            STNode commentStart,
+            STNode content,
+            STNode commentEnd) {
+
+        return new STXMLComment(
+                commentStart,
+                content,
+                commentEnd);
+    }
 }
 

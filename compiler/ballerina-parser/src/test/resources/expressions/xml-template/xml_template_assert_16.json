@@ -12,9 +12,6 @@
             ]
         },
         {
-            "kind": "PUBLIC_KEYWORD"
-        },
-        {
             "kind": "FUNCTION_KEYWORD"
         },
         {
@@ -42,65 +39,16 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "ASSIGNMENT_STATEMENT",
+                            "kind": "LOCAL_VAR_DECL",
                             "children": [
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "XML_TEMPLATE_EXPRESSION",
+                                    "kind": "LIST",
                                     "children": [
-                                        {
-                                            "kind": "XML_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "BACKTICK_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "XML_EMPTY_ELEMENT",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LT_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "foo"
-                                                        },
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "SLASH_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "GT_TOKEN"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "BACKTICK_TOKEN"
-                                        }
                                     ]
                                 },
                                 {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
+                                    "kind": "VAR_KEYWORD"
+                                },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
                                     "value": "x"
@@ -124,47 +72,10 @@
                                                     "kind": "XML_ELEMENT",
                                                     "children": [
                                                         {
-                                                            "kind": "XML_ELEMENT_START_TAG",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "GT_TOKEN"
-                                                                }
-                                                            ]
+                                                            "kind": "XML_COMMENT_START_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "XML_ELEMENT_END_TAG",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "SLASH_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
-                                                                },
-                                                                {
-                                                                    "kind": "GT_TOKEN"
-                                                                }
-                                                            ]
+                                                            "kind": "XML_COMMENT_END_TOKEN"
                                                         }
                                                     ]
                                                 }
@@ -181,8 +92,16 @@
                             ]
                         },
                         {
-                            "kind": "ASSIGNMENT_STATEMENT",
+                            "kind": "LOCAL_VAR_DECL",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "VAR_KEYWORD"
+                                },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
                                     "value": "x"
@@ -206,51 +125,14 @@
                                                     "kind": "XML_ELEMENT",
                                                     "children": [
                                                         {
-                                                            "kind": "XML_ELEMENT_START_TAG",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "GT_TOKEN"
-                                                                }
-                                                            ]
+                                                            "kind": "XML_COMMENT_START_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " hello "
-                                                                }
-                                                            ]
+                                                            "kind": "XML_TEXT_CONTENT",
+                                                            "value": " hello "
                                                         },
                                                         {
-                                                            "kind": "XML_ELEMENT_END_TAG",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "LT_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "SLASH_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
-                                                                },
-                                                                {
-                                                                    "kind": "GT_TOKEN"
-                                                                }
-                                                            ]
+                                                            "kind": "XML_COMMENT_END_TOKEN"
                                                         }
                                                     ]
                                                 }
@@ -267,8 +149,16 @@
                             ]
                         },
                         {
-                            "kind": "ASSIGNMENT_STATEMENT",
+                            "kind": "LOCAL_VAR_DECL",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "VAR_KEYWORD"
+                                },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
                                     "value": "x"
@@ -315,35 +205,19 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " hello "
-                                                                },
-                                                                {
-                                                                    "kind": "XML_EMPTY_ELEMENT",
+                                                                    "kind": "XML_ELEMENT",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "LT_TOKEN"
+                                                                            "kind": "XML_COMMENT_START_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "bar"
+                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                            "value": "hello"
                                                                         },
                                                                         {
-                                                                            "kind": "LIST",
-                                                                            "children": [
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "SLASH_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "GT_TOKEN"
+                                                                            "kind": "XML_COMMENT_END_TOKEN"
                                                                         }
                                                                     ]
-                                                                },
-                                                                {
-                                                                    "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " "
                                                                 }
                                                             ]
                                                         },
@@ -380,8 +254,16 @@
                             ]
                         },
                         {
-                            "kind": "ASSIGNMENT_STATEMENT",
+                            "kind": "LOCAL_VAR_DECL",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "VAR_KEYWORD"
+                                },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
                                     "value": "x"
@@ -411,20 +293,8 @@
                                                                     "kind": "LT_TOKEN"
                                                                 },
                                                                 {
-                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "ns0"
-                                                                        },
-                                                                        {
-                                                                            "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "foo"
-                                                                        }
-                                                                    ]
+                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                    "value": "foo"
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
@@ -441,34 +311,26 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " hello "
+                                                                    "value": " bar "
                                                                 },
                                                                 {
-                                                                    "kind": "XML_EMPTY_ELEMENT",
+                                                                    "kind": "XML_ELEMENT",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "LT_TOKEN"
+                                                                            "kind": "XML_COMMENT_START_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "bar"
+                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                            "value": " hello "
                                                                         },
                                                                         {
-                                                                            "kind": "LIST",
-                                                                            "children": [
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "SLASH_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "GT_TOKEN"
+                                                                            "kind": "XML_COMMENT_END_TOKEN"
                                                                         }
                                                                     ]
                                                                 },
                                                                 {
                                                                     "kind": "XML_TEXT_CONTENT",
-                                                                    "value": " "
+                                                                    "value": " baz"
                                                                 }
                                                             ]
                                                         },
@@ -482,20 +344,8 @@
                                                                     "kind": "SLASH_TOKEN"
                                                                 },
                                                                 {
-                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "ns0"
-                                                                        },
-                                                                        {
-                                                                            "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "foo"
-                                                                        }
-                                                                    ]
+                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                    "value": "foo"
                                                                 },
                                                                 {
                                                                     "kind": "GT_TOKEN"

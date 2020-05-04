@@ -95,7 +95,7 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": " \n                    "
                                                                 },
                                                                 {
@@ -178,7 +178,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "XML_TEXT",
+                                                                    "kind": "XML_TEXT_CONTENT",
                                                                     "value": "\n                 "
                                                                 }
                                                             ]
@@ -204,7 +204,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "XML_TEXT",
+                                                    "kind": "XML_TEXT_CONTENT",
                                                     "value": " "
                                                 }
                                             ]

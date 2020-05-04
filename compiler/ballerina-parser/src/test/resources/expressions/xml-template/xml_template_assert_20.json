@@ -47,7 +47,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "INT_KEYWORD"
+                                    "kind": "VAR_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -79,7 +79,7 @@
                                                                 },
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
+                                                                    "value": "!-"
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
@@ -89,62 +89,15 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "a"
+                                                                                    "value": "hello--"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "EQUAL_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "&#56;"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_ATTRIBUTE",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "b"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "EQUAL_TOKEN"
+                                                                                    "kind": "EQUAL_TOKEN",
+                                                                                    "isMissing": true
                                                                                 },
                                                                                 {
                                                                                     "kind": "STRING_LITERAL",
-                                                                                    "value": "&#5a6;"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_ATTRIBUTE",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "c"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "EQUAL_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "&#x5a6"
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "XML_ATTRIBUTE",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "d"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "EQUAL_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "&hello"
+                                                                                    "isMissing": true
                                                                                 }
                                                                             ]
                                                                         }
@@ -164,25 +117,24 @@
                                                             "kind": "XML_ELEMENT_END_TAG",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LT_TOKEN"
+                                                                    "kind": "LT_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
-                                                                    "kind": "SLASH_TOKEN"
+                                                                    "kind": "SLASH_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "foo"
+                                                                    "isMissing": true
                                                                 },
                                                                 {
-                                                                    "kind": "GT_TOKEN"
+                                                                    "kind": "GT_TOKEN",
+                                                                    "isMissing": true
                                                                 }
                                                             ]
                                                         }
                                                     ]
-                                                },
-                                                {
-                                                    "kind": "XML_TEXT_CONTENT",
-                                                    "value": " "
                                                 }
                                             ]
                                         },
