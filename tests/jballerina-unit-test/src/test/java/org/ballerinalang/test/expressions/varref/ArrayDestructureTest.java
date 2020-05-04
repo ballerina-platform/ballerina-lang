@@ -83,25 +83,20 @@ public class ArrayDestructureTest {
         Assert.assertEquals(negativeTestCompile.getErrorCount(), 5);
 
         int index = 0;
-        BAssertUtil.validateError(negativeTestCompile, index++
-                , "incompatible types: expected '[int,int,int,int,int]', found 'int[4]'"
-                , 27, 23);
+        BAssertUtil.validateError(negativeTestCompile, index++,
+                "incompatible types: expected '[int,int,int,int,int]', found 'int[4]'", 27, 23);
 
-        BAssertUtil.validateError(negativeTestCompile, index++
-                , "incompatible types: expected '[int,int,int,boolean]', found 'int[4]'"
-                , 30, 20);
+        BAssertUtil.validateError(negativeTestCompile, index++,
+                "incompatible types: expected '[int,int,int,boolean]', found 'int[4]'", 30, 20);
 
-        BAssertUtil.validateError(negativeTestCompile, index++
-                , "incompatible types: expected '[int,int...]', found 'int[]'",
-                33, 17);
+        BAssertUtil.validateError(negativeTestCompile, index++,
+                "incompatible types: expected '[int,int...]', found 'int[]'", 33, 17);
 
-        BAssertUtil.validateError(negativeTestCompile, index++
-                , "incompatible types: expected '[Foo]', found 'Foo[2]'",
-                36, 11);
+        BAssertUtil.validateError(negativeTestCompile, index++,
+                "incompatible types: expected '[Foo]', found 'Foo[2]'", 36, 11);
 
-        BAssertUtil.validateError(negativeTestCompile, index++
-                , "incompatible types: expected '[Bar,Bar]', found 'Foo[2]'",
-                39, 14);
+        BAssertUtil.validateError(negativeTestCompile, index++,
+                "incompatible types: expected '[Bar,Bar]', found 'Foo[2]'", 39, 14);
     }
 
 }
