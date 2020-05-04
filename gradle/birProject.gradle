@@ -145,7 +145,8 @@ test {
     dependsOn copySelfToBirCache
     dependsOn createBalo
 
-    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + ".jar")
+    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + "." + project.ext
+            .version + ".jar")
 }
 
 artifacts {
