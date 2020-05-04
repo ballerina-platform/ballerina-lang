@@ -125,13 +125,7 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            if (((JType.JRefType) targetType).typeValue.equals(STRING_VALUE)) {
-                throw new BLangCompilerException(
-                        "Casting is not supported from handle to 'java String'. " +
-                                "Use Ballerina string value instead");
-            } else {
-                generateCheckCastBToJRef(mv, sourceType, targetType);
-            }
+            generateCheckCastBToJRef(mv, sourceType, targetType);
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
@@ -468,11 +462,6 @@ public class JvmCastGen {
     }
 
     private static void generateJCastToBHandle(MethodVisitor mv, JType sourceType) {
-        String typeValue = ((JType.JRefType) sourceType).typeValue;
-        if (typeValue.equals(STRING_VALUE)) {
-            throw new BLangCompilerException(
-                    "Casting is not supported from 'handle' to 'string', use ballerina string instead");
-        }
         //  TODO do we need to support below? - rajith
         //if (sourceType is jvm:JByte) {
         //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(B)L%s;", HANDLE_VALUE), false);

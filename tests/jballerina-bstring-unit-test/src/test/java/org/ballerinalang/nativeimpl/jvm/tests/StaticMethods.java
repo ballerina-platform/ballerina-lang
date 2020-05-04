@@ -116,7 +116,7 @@ public class StaticMethods {
         return TypeTags.SERVICE_TAG == serviceObject.getType().getTag();
     }
 
-    public static ErrorValue acceptStringErrorReturn(String msg) {
+    public static ErrorValue acceptStringErrorReturn(BString msg) {
         return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
@@ -231,7 +231,7 @@ public class StaticMethods {
         return mapValue;
     }
 
-    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(String msg)
+    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
         return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
@@ -252,7 +252,7 @@ public class StaticMethods {
 
     public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
             throws JavaInteropTestCheckedException {
-        p.set("age", newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 

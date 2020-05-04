@@ -49,7 +49,6 @@ import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 
 /**
@@ -261,8 +260,8 @@ public class RefTypeTests {
     @Test
     public void testUseTypeDesc() {
         BValue[] returns = BRunUtil.invoke(result, "testUseTypeDesc");
-        Assert.assertTrue(returns[0] instanceof BHandleValue);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "typedesc json");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "typedesc json");
     }
 
     @Test
@@ -328,8 +327,8 @@ public class RefTypeTests {
         return new XMLItem(new QName("hello"));
     }
 
-    public static String getStringFromXML(XMLValue x) {
-        return x.toString();
+    public static org.ballerinalang.jvm.values.api.BString getStringFromXML(XMLValue x) {
+        return StringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -368,8 +367,8 @@ public class RefTypeTests {
         return (FPValue) fp;
     }
 
-    public static String useTypeDesc(TypedescValue type) {
-        return type.stringValue();
+    public static org.ballerinalang.jvm.values.api.BString useTypeDesc(TypedescValue type) {
+        return StringUtils.fromString(type.stringValue());
     }
 
     public static TypedescValue getTypeDesc() {

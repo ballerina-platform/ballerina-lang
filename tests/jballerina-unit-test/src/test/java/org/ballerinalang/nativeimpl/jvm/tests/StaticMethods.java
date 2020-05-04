@@ -92,10 +92,10 @@ public class StaticMethods {
     }
 
     // This scenario is for map value to be passed to interop and return array value.
-    public static ArrayValue getArrayValueFromMap(String key, MapValue mapValue) {
+    public static ArrayValue getArrayValueFromMap(BString key, MapValue mapValue) {
         ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
-        long fromMap = (long) mapValue.get(StringUtils.fromString(key));
+        long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
         return arrayValue;
     }
@@ -117,7 +117,7 @@ public class StaticMethods {
         return TypeTags.SERVICE_TAG == serviceObject.getType().getTag();
     }
 
-    public static ErrorValue acceptStringErrorReturn(String msg) {
+    public static ErrorValue acceptStringErrorReturn(BString msg) {
         return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
@@ -139,8 +139,8 @@ public class StaticMethods {
         return p;
     }
 
-    public static MapValue acceptRecordAndRecordReturn(MapValue e, String newVal) {
-        e.put(StringUtils.fromString("name"), StringUtils.fromString(newVal));
+    public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -232,7 +232,7 @@ public class StaticMethods {
         return mapValue;
     }
 
-    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(String msg)
+    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
         return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
@@ -257,13 +257,13 @@ public class StaticMethods {
         return p;
     }
 
-    public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(MapValue e, String newVal)
+    public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(MapValue e, BString newVal)
             throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
     }
 
-    public static MapValue getMapOrError(String swaggerFilePath, MapValue apiDef)
+    public static MapValue getMapOrError(BString swaggerFilePath, MapValue apiDef)
             throws JavaInteropTestCheckedException {
         BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
