@@ -7252,7 +7252,8 @@ public class BallerinaParser {
         STNode errorKeywordToken = parseErrorKeyWord();
         STNode errorTypeParamsNode, ltToken, gtToken;
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+        STToken nextNextToken = peek(2);
+        if (nextToken.kind == SyntaxKind.LT_TOKEN || nextNextToken.kind == SyntaxKind.GT_TOKEN) {
             ltToken = parseLTToken();
             nextToken = peek();
             if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
