@@ -623,7 +623,7 @@ public class JvmTerminatorGen {
     }
 
     private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName,
-                                                String version, String moduleName, int localVarOffset) {
+                                                String moduleName,  String version, int localVarOffset) {
 
         String methodLookupName = callIns.name.value;
         int optionalIndex = methodLookupName.indexOf(".");

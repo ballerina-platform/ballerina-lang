@@ -2224,10 +2224,10 @@ public class JvmMethodGen {
         registerShutdownListener(mv, initClass);
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-
         // add main string[] args param first
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
                 VarKind.ARG);
+        int ignoreArgsVarIndex = indexMap.getIndex(argsVar);
         boolean isVoidFunction = userMainFunc != null && userMainFunc.type.retType.tag == TypeTags.NIL;
 
         mv.visitTypeInsn(NEW, SCHEDULER);
