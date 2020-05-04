@@ -432,6 +432,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TABLE_KEYWORD;
             case "KEY_KEYWORD":
                 return SyntaxKind.KEY_KEYWORD;
+            case "LET_KEYWORD":
+                return SyntaxKind.LET_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -568,6 +570,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_CAST_EXPRESSION;
             case "TABLE_CONSTRUCTOR":
                 return SyntaxKind.TABLE_CONSTRUCTOR;
+            case "LET_EXPRESSION":
+                return SyntaxKind.LET_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -722,6 +726,8 @@ public class ParserTestUtils {
                 return SyntaxKind.UNION_TYPE_DESC;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
+            case "LET_VAR_DECL":
+                return SyntaxKind.LET_VAR_DECL;
 
             // Trivia
             case "EOF_TOKEN":
