@@ -20,9 +20,9 @@ package org.ballerinalang.messaging.kafka.services;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

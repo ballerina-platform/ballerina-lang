@@ -18,16 +18,16 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.core.model.types.BArrayType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

@@ -48,40 +48,40 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BField;
-import org.ballerinalang.model.types.BFiniteType;
-import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BObjectType;
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BServiceType;
-import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypeDesc;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.core.model.types.BArrayType;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.types.BField;
+import org.ballerinalang.core.model.types.BFiniteType;
+import org.ballerinalang.core.model.types.BFunctionType;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BObjectType;
+import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BServiceType;
+import org.ballerinalang.core.model.types.BStreamType;
+import org.ballerinalang.core.model.types.BTupleType;
+import org.ballerinalang.core.model.types.BType;
+import org.ballerinalang.core.model.types.BTypeDesc;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.types.BUnionType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BFunctionPointer;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BRefType;
+import org.ballerinalang.core.model.values.BStream;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BTypeDescValue;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BValueType;
+import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.core.model.values.BXMLSequence;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -643,11 +643,11 @@ public class BRunUtil {
                 }
                 return jvmObject;
             case TypeTags.XML_TAG:
-                org.ballerinalang.model.values.BXML xml = (org.ballerinalang.model.values.BXML) value;
-                if (xml.getNodeType() == org.ballerinalang.model.util.XMLNodeType.TEXT) {
+                org.ballerinalang.core.model.values.BXML xml = (org.ballerinalang.core.model.values.BXML) value;
+                if (xml.getNodeType() == org.ballerinalang.core.model.util.XMLNodeType.TEXT) {
                     return XMLFactory.createXMLText(xml.stringValue());
                 }
-                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                if (xml.getNodeType() != org.ballerinalang.core.model.util.XMLNodeType.SEQUENCE) {
                     return XMLFactory.parse(xml.stringValue());
                 } else {
                     BValueArray elements = ((BXMLSequence) xml).value();
@@ -765,11 +765,11 @@ public class BRunUtil {
                 }
                 return jvmObject;
             case TypeTags.XML_TAG:
-                org.ballerinalang.model.values.BXML xml = (org.ballerinalang.model.values.BXML) value;
-                if (xml.getNodeType() == org.ballerinalang.model.util.XMLNodeType.TEXT) {
+                org.ballerinalang.core.model.values.BXML xml = (org.ballerinalang.core.model.values.BXML) value;
+                if (xml.getNodeType() == org.ballerinalang.core.model.util.XMLNodeType.TEXT) {
                     return XMLFactory.createXMLText(xml.stringValue());
                 }
-                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                if (xml.getNodeType() != org.ballerinalang.core.model.util.XMLNodeType.SEQUENCE) {
                     return XMLFactory.parse(xml.stringValue());
                 } else {
                     BValueArray elements = ((BXMLSequence) xml).value();
@@ -897,8 +897,8 @@ public class BRunUtil {
                 }
                 return jvmObject;
             case TypeTags.XML_TAG:
-                org.ballerinalang.model.values.BXML xml = (org.ballerinalang.model.values.BXML) value;
-                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                org.ballerinalang.core.model.values.BXML xml = (org.ballerinalang.core.model.values.BXML) value;
+                if (xml.getNodeType() != org.ballerinalang.core.model.util.XMLNodeType.SEQUENCE) {
                     return XMLFactory.parse(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
@@ -1098,7 +1098,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),
-                                        org.ballerinalang.model.util.DecimalValueKind
+                                        org.ballerinalang.core.model.util.DecimalValueKind
                                                 .valueOf(decimalValue.valueKind.name()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:

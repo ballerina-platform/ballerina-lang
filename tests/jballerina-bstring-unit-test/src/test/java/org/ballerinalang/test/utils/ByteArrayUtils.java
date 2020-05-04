@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.utils;
 
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.testng.Assert;
 
 import java.nio.charset.StandardCharsets;

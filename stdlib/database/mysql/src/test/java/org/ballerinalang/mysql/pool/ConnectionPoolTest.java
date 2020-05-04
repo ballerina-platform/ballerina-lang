@@ -18,10 +18,10 @@
 package org.ballerinalang.mysql.pool;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.mysql.BaseTest;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;

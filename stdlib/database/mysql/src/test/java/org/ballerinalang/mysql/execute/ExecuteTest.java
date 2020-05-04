@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.mysql.execute;
 
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BRefType;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.mysql.BaseTest;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.sql.Constants;

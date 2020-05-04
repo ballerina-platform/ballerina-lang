@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

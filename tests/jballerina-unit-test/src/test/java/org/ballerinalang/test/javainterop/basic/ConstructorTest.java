@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithTwoParamConstructor;

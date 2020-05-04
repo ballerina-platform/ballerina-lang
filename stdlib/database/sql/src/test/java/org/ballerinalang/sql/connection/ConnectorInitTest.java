@@ -16,10 +16,10 @@
  */
 package org.ballerinalang.sql.connection;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;

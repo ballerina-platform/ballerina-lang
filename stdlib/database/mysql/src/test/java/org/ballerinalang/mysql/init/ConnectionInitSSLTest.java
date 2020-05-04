@@ -17,9 +17,9 @@
 
 package org.ballerinalang.mysql.init;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.mysql.BaseTest;
 import org.ballerinalang.mysql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
