@@ -1514,20 +1514,5 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 gtToken.internalNode());
         return stErrorTypeDescriptorNode.createUnlinkedFacade();
     }
-
-    public static ExplicitErrorTypeParamsNode createExplicitErrorTypeParamsNode(
-            Node leftTypeDescNode,
-            Token commaToken,
-            Node rightTypeDescNode) {
-        Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
-        Objects.requireNonNull(commaToken, "commaToken must not be null");
-        Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
-
-        STNode stExplicitErrorTypeParamsNode = STNodeFactory.createExplicitErrorTypeParamsNode(
-                leftTypeDescNode.internalNode(),
-                commaToken.internalNode(),
-                rightTypeDescNode.internalNode());
-        return stExplicitErrorTypeParamsNode.createUnlinkedFacade();
-    }
 }
 

@@ -1115,17 +1115,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 gtToken);
     }
 
-    @Override
-    public Node transform(ExplicitErrorTypeParamsNode explicitErrorTypeParamsNode) {
-        Node leftTypeDescNode = modifyNode(explicitErrorTypeParamsNode.leftTypeDescNode());
-        Token commaToken = modifyToken(explicitErrorTypeParamsNode.commaToken());
-        Node rightTypeDescNode = modifyNode(explicitErrorTypeParamsNode.rightTypeDescNode());
-        return explicitErrorTypeParamsNode.modify(
-                leftTypeDescNode,
-                commaToken,
-                rightTypeDescNode);
-    }
-
     // Tokens
 
     @Override

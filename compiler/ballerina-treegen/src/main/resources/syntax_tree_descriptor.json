@@ -2000,25 +2000,6 @@
                     "type": "Token"
                 }
             ]
-        },
-        {
-            "name": "ExplicitErrorTypeParamsNode",
-            "base": "Node",
-            "kind": "EXPLICIT_TYPE_PARAMS",
-            "attributes": [
-                {
-                    "name": "leftTypeDescNode",
-                    "type": "Node"
-                },
-                {
-                    "name": "commaToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "rightTypeDescNode",
-                    "type": "Node"
-                }
-            ]
         }
     ]
 }

@@ -1125,16 +1125,5 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 errorTypeParamsNode,
                 gtToken);
     }
-
-    public static STNode createExplicitErrorTypeParamsNode(
-            STNode leftTypeDescNode,
-            STNode commaToken,
-            STNode rightTypeDescNode) {
-
-        return new STExplicitErrorTypeParamsNode(
-                leftTypeDescNode,
-                commaToken,
-                rightTypeDescNode);
-    }
 }
 
