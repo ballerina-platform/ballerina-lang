@@ -18,10 +18,12 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
