@@ -86,8 +86,8 @@ public class BTableType extends BType {
             return super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
         }
 
-        return super.toString() + "<" + constraint.getName() + "> " +
-                ((keyType != null) ? ("key<" + keyType + ">") : "");
+        return super.toString() + "<" + constraint.getName() + ">" +
+                ((keyType != null) ? (" key<" + keyType + ">") : "");
     }
 
     @Override

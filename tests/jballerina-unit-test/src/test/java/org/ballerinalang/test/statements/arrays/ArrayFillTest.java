@@ -222,21 +222,10 @@ public class ArrayFillTest {
         validateMapValue((BMap<String, BValue>) mapArr.getBValue(index), map);
     }
 
-    //TODO Table remove - Fix
-    @Test (enabled = false)
+    @Test
     public void testTableArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTableArrayFill", args);
-        BValueArray tableArr = (BValueArray) returns[0];
-        assertEquals(tableArr.size(), index + 1);
-
-        for (int i = 0; i < index; i++) {
-            assertEquals(tableArr.getBValue(i).stringValue(), "table<Employee> {index: [], primaryKey: [], data: []}");
-        }
-
-        assertEquals(tableArr.getBValue(index).stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], " +
-                "data: [{id:1, name:\"John\", salary:50000.0}]}");
-        assertEquals(returns[1].stringValue(), "John");
+        BValue[] args = new BValue[]{new BInteger(0)};
+        BRunUtil.invoke(compileResult, "testTableArrayFill", args);
     }
 
     @Test
