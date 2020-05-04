@@ -1496,5 +1496,44 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stKeySpecifierNode.createUnlinkedFacade();
     }
+
+    public static LetExpressionNode createLetExpressionNode(
+            Token letKeyword,
+            SeparatedNodeList<Node> letVarDeclarations,
+            Token inKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(letKeyword, "letKeyword must not be null");
+        Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
+        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stLetExpressionNode = STNodeFactory.createLetExpressionNode(
+                letKeyword.internalNode(),
+                letVarDeclarations.underlyingListNode().internalNode(),
+                inKeyword.internalNode(),
+                expression.internalNode());
+        return stLetExpressionNode.createUnlinkedFacade();
+    }
+
+    public static LetVariableDeclarationNode createLetVariableDeclarationNode(
+            NodeList<AnnotationNode> annotations,
+            Node typeName,
+            Token variableName,
+            Token equalsToken,
+            ExpressionNode expression) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(typeName, "typeName must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stLetVariableDeclarationNode = STNodeFactory.createLetVariableDeclarationNode(
+                annotations.underlyingListNode().internalNode(),
+                typeName.internalNode(),
+                variableName.internalNode(),
+                equalsToken.internalNode(),
+                expression.internalNode());
+        return stLetVariableDeclarationNode.createUnlinkedFacade();
+    }
 }
 

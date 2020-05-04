@@ -71,6 +71,7 @@ public class LexerTerminals {
     public static final String FOREACH = "foreach";
     public static final String TABLE = "table";
     public static final String KEY = "key";
+    public static final String LET = "let";
 
     // Types
     public static final String INT = "int";

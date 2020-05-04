@@ -196,6 +196,7 @@ public enum ParserRuleContext {
     FOREACH_KEYWORD("foreach"),
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
+    LET_KEYWORD("let"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
