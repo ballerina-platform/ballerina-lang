@@ -195,6 +195,8 @@ public enum SyntaxKind {
     LIST_CONSTRUCTOR(1315),
     TYPE_CAST_EXPRESSION(1316),
     TABLE_CONSTRUCTOR(1317),
+    IMPLICIT_NEW(1318),
+    EXPLICIT_NEW(1319),
 
     // Type descriptors
     TYPE_DESC(2000),
