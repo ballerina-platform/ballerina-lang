@@ -118,6 +118,8 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
+    LET_VAR_DECL("let-var-decl"),
+    LET_VAR_DECL_START("let-var-decl-start"),
 
     // Statements
     STATEMENT("statement"),
@@ -279,6 +281,7 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    LET_EXPRESSION("trap-expr"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

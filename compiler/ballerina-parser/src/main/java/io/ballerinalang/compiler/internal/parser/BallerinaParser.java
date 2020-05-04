@@ -3162,6 +3162,9 @@ public class BallerinaParser {
                 if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD) {
                     return parseTableConstructorExpr();
                 }
+                if (solution.recoveredNode.kind == SyntaxKind.LET_KEYWORD) {
+                    return parseLetExpression();
+                }
 
                 return solution.recoveredNode;
         }
@@ -7245,7 +7248,7 @@ public class BallerinaParser {
      */
     private STNode parseLetExpression() {
         STNode letKeyword = parseLetKeyword();
-        STNode letVarDeclarations= parseLetVarDeclarations();
+        STNode letVarDeclarations = parseLetVarDeclarations();
         STNode inKeyword = parseInKeyword();
         STNode expression = parseExpression();
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
@@ -7274,6 +7277,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseLetVarDeclarations() {
+        startContext(ParserRuleContext.LET_VAR_DECL);
         List<STNode> varDecls = new ArrayList<>();
         STToken nextToken = peek();
 
@@ -7298,6 +7302,7 @@ public class BallerinaParser {
             nextToken = peek();
         }
 
+        endContext();
         return STNodeFactory.createNodeList(varDecls);
     }
 

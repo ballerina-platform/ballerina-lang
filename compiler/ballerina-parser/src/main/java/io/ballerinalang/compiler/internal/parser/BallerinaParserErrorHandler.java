@@ -196,7 +196,8 @@ public class BallerinaParserErrorHandler {
                     ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
                     ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
                     ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
-                    ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR };
+                    ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR,
+                    ParserRuleContext.LET_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -286,6 +287,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TABLE_KEY_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
+
+    private static final ParserRuleContext[] LET_VAR_DECL_START =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.ANNOTATIONS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -472,6 +476,7 @@ public class BallerinaParserErrorHandler {
             case TABLE_ROW_END:
             case KEY_SPECIFIER_RHS:
             case TABLE_KEY_RHS:
+            case LET_VAR_DECL_START:
                 return true;
             default:
                 return false;
@@ -1149,6 +1154,12 @@ public class BallerinaParserErrorHandler {
                 case TABLE_KEY_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEY_RHS,
                             isEntryPoint);
+                case LET_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.LET_KEYWORD;
+                    break;
+                case LET_VAR_DECL_START:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LET_VAR_DECL_START,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1222,6 +1233,8 @@ public class BallerinaParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
+                case LET_VAR_DECL:
+                case LET_EXPRESSION:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1387,6 +1400,12 @@ public class BallerinaParserErrorHandler {
         if (parentCtx == ParserRuleContext.LIST_CONSTRUCTOR) {
             ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                     ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.CLOSE_BRACKET };
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+        }
+
+        if (parentCtx == ParserRuleContext.LET_VAR_DECL) {
+            ParserRuleContext[] next = {  ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.IN_KEYWORD };
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
         }
 
@@ -1644,6 +1663,7 @@ public class BallerinaParserErrorHandler {
             case TYPE_CAST_EXPRESSION:
             case TABLE_CONSTRUCTOR:
             case KEY_SPECIFIER:
+            case LET_VAR_DECL:
                 startContext(currentCtx);
                 break;
             default:
@@ -2092,6 +2112,10 @@ public class BallerinaParserErrorHandler {
             case FOREACH_KEYWORD:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case IN_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.LET_VAR_DECL) {
+                    endContext(); // end let-var-decl
+                }
                 return ParserRuleContext.EXPRESSION;
             case TYPE_CAST_EXPRESSION:
                 return ParserRuleContext.LT;
@@ -2105,6 +2129,12 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.KEY_KEYWORD;
             case KEY_KEYWORD:
                 return ParserRuleContext.OPEN_PARENTHESIS;
+            case LET_EXPRESSION:
+                return ParserRuleContext.LET_KEYWORD;
+            case LET_KEYWORD:
+                return ParserRuleContext.LET_VAR_DECL;
+            case LET_VAR_DECL:
+                return ParserRuleContext.LET_VAR_DECL_START;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2190,6 +2220,7 @@ public class BallerinaParserErrorHandler {
             case TABLE_ROW_END:
             case KEY_SPECIFIER_RHS:
             case TABLE_KEY_RHS:
+            case LET_VAR_DECL_START:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2251,6 +2282,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.MAPPING_CONSTRUCTOR;
             case KEY_SPECIFIER:
                 return ParserRuleContext.VARIABLE_NAME;
+            case LET_VAR_DECL:
+                return ParserRuleContext.LET_VAR_DECL_START;
             default:
                 throw new IllegalStateException();
         }
@@ -2268,6 +2301,7 @@ public class BallerinaParserErrorHandler {
             case OBJECT_MEMBER:
             case LISTENER_DECL:
             case CONSTANT_DECL:
+            case LET_VAR_DECL:
                 return ParserRuleContext.VARIABLE_NAME;
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.SEMICOLON;
@@ -2317,6 +2351,7 @@ public class BallerinaParserErrorHandler {
             case OBJECT_MEMBER:
             case LISTENER_DECL:
             case CONSTANT_DECL:
+            case LET_VAR_DECL:
                 return ParserRuleContext.EXPRESSION;
             default:
                 if (parentCtx == ParserRuleContext.STMT_START_WITH_IDENTIFIER) {
@@ -2423,6 +2458,7 @@ public class BallerinaParserErrorHandler {
                     case COMP_UNIT:
                         return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA;
                     case RETURN_TYPE_DESCRIPTOR:
+                    case LET_VAR_DECL:
                         return ParserRuleContext.TYPE_DESCRIPTOR;
                     case RECORD_FIELD:
                         return ParserRuleContext.RECORD_FIELD_WITHOUT_METADATA;
@@ -2495,6 +2531,8 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
             return ParserRuleContext.TABLE_KEY_RHS;
+        } else if (parentCtx == ParserRuleContext.LET_VAR_DECL) {
+            return ParserRuleContext.ASSIGN_OP;
         } else {
             throw new IllegalStateException();
         }
@@ -3076,6 +3114,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.TABLE_KEYWORD;
             case KEY_KEYWORD:
                 return SyntaxKind.KEY_KEYWORD;
+            case LET_KEYWORD:
+                return SyntaxKind.LET_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -3154,6 +3194,8 @@ public class BallerinaParserErrorHandler {
             case TYPE_CAST_EXPRESSION:
             case TABLE_CONSTRUCTOR:
             case KEY_SPECIFIER:
+            case LET_VAR_DECL:
+            case LET_EXPRESSION:
             default:
                 break;
         }
