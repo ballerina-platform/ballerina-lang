@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.openapi.OpenApiMesseges.BAL_KEYWORDS;
+import static org.ballerinalang.openapi.OpenApiMesseges.BAL_TYPES;
 
 /**
  * This class will extract an intermediate context object from a give OpenApi Definition object, which
@@ -379,26 +380,44 @@ public class TypeExtractorUtil {
      * @return - escaped string
      */
     public static String escapeIdentifier(String identifier) {
-        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
-            identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
-            identifier = "'" + identifier;
+        if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+            // TODO: Temporary fix(es) as identifier literals only support alphanumerics when writing this.
+            //  Refer - https://github.com/ballerina-platform/ballerina-lang/issues/18720
+            identifier = identifier.replace("-", "");
+            identifier = identifier.replace("$", "");
+    
+            // TODO: Remove this `if`. Refer - https://github.com/ballerina-platform/ballerina-lang/issues/23045
+            if (identifier.equals("error")) {
+                identifier = "_error";
+            } else {
+                identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
+                identifier = "'" + identifier;
+            }
+            
         }
+        
         return identifier;
     }
-
+    
     /**
      * This method will escape special characters used in method names and identifiers.
      *
-     * @param identifier - identifier or method name
+     * @param type - type or method name
      * @return - escaped string
      */
-    public static String escapeIdentifierInFunctionName(String identifier) {
-        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
-            identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "_");
+    public static String escapeType(String type) {
+        if (!type.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b") ||
+            (BAL_KEYWORDS.stream().anyMatch(type::equals) && BAL_TYPES.stream().noneMatch(type::equals))) {
+            // TODO: Temporary fix(es) as identifier literals only support alphanumerics when writing this.
+            //  Refer - https://github.com/ballerina-platform/ballerina-lang/issues/18720
+            type = type.replace("-", "");
+            type = type.replace("$", "");
+            
+            type = type.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
+            type = "'" + type;
         }
-        return identifier;
+        return type;
     }
-
 
     /**
      * This method will extract reference type by splitting the reference string.
