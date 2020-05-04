@@ -109,9 +109,13 @@ public class Writer {
             });
 
             handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
-                //remove anything with <pre> tagparagraph tags
-                String newString = string.replaceAll("<\\/?p>", "");
-                return newString;
+                //remove paragraph tags
+                if (string != null) {
+                    String newString = string.replaceAll("<\\/?p>", "");
+                    return newString;
+                } else {
+                    return "";
+                }
             });
 
             handlebars.registerHelper("equals", (arg1, options) -> {
