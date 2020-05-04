@@ -54,6 +54,7 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -77,7 +78,6 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -688,7 +688,7 @@ class JvmValueGen {
                         toNameString(typeRef));
                 mv.visitInsn(DUP2);
 
-                mv.visitLdcInsn(ICONST_0);
+                mv.visitInsn(ICONST_0);
                 mv.visitTypeInsn(ANEWARRAY, BINITIAL_VALUE_ENTRY);
 
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
@@ -717,12 +717,19 @@ class JvmValueGen {
                 String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
         mv.visitInsn(POP);
 
+        // Workaround to avoid calling `populateInitialValues` for referenced types' `$init`s.
+        Label emptyArrayLabel = new Label();
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitInsn(ARRAYLENGTH);
+        mv.visitJumpInsn(IFEQ, emptyArrayLabel);
+
         mv.visitVarInsn(ALOAD, 1);
         mv.visitTypeInsn(CHECKCAST, valueClassName);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValues",
                            String.format("([L%s;)V", BINITIAL_VALUE_ENTRY), false);
 
+        mv.visitLabel(emptyArrayLabel);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
