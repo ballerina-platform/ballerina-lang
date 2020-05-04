@@ -77,12 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -3298,7 +3293,9 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (kind == NodeKind.ON_CONFLICT) {
                 typeCheckOnConflictClause((BLangOnConflictClause) clause, parentEnv);
             } else if (kind == NodeKind.WHERE) {
-                whereEnv = typeCheckWhereClause((BLangWhereClause) clause, select, parentEnv);
+                whereEnv = typeCheckWhereClause(((BLangWhereClause) clause).expression, select, parentEnv);
+            }else if (kind == NodeKind.ON) {
+                whereEnv = typeCheckWhereClause(((BLangOnClause) clause).expression, select, parentEnv);
             }
         }
         whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
@@ -3407,7 +3404,9 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (kind == NodeKind.LET_CLAUSE) {
                 parentEnv = typeCheckLetClause((BLangLetClause) clause, parentEnv);
             } else if (kind == NodeKind.WHERE) {
-                whereEnv = typeCheckWhereClause((BLangWhereClause) clause, doClause, parentEnv);
+                whereEnv = typeCheckWhereClause(((BLangWhereClause) clause).expression, doClause, parentEnv);
+            }else if (kind == NodeKind.ON) {
+                whereEnv = typeCheckWhereClause(((BLangOnClause) clause).expression, doClause, parentEnv);
             }
         }
         whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
@@ -3439,15 +3438,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return letClauseEnv;
     }
 
-    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangNode bLangNode,
+    private SymbolEnv typeCheckWhereClause(BLangExpression filterExpression, BLangNode bLangNode,
                                    SymbolEnv parentEnv) {
-        checkExpr(whereClause.expression, parentEnv, symTable.booleanType);
-        BType actualType = whereClause.expression.type;
+        checkExpr(filterExpression, parentEnv, symTable.booleanType);
+        BType actualType = filterExpression.type;
         if (TypeTags.TUPLE == actualType.tag) {
-            dlog.error(whereClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+            dlog.error(filterExpression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                        symTable.booleanType, actualType);
         }
-        return typeNarrower.evaluateTruth(whereClause.expression, bLangNode, parentEnv);
+        return typeNarrower.evaluateTruth(filterExpression, bLangNode, parentEnv);
     }
 
     private void typeCheckOnConflictClause(BLangOnConflictClause onConflictClause, SymbolEnv parentEnv) {
