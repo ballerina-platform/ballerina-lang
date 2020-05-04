@@ -184,6 +184,7 @@ function runTableTestcasesWithVarType() {
     testTableWithKeySpecifier();
     testTableWithMultiKeySpecifier1();
     testTableWithMultiKeySpecifier2();
+    testInferTableType();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -209,7 +210,6 @@ function testInferTableType() {
 
     assertEquality(cutomerListString, tab.toString());
 }
-
 
 function testTableWithMultiKeySpecifier1() {
     var customerTable1 = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: {name: "Weerawarana"}, address: xml `<city>COL</city>` },

@@ -66,13 +66,10 @@ public class BField implements Field, NamedNode {
 
         BField field = (BField) o;
         return name.equals(field.name) && type.tag == field.type.tag;
-
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name, type.tag);
-        result = 31 * result;
-        return result;
+        return Objects.hash(name, type.tag);
     }
 }
