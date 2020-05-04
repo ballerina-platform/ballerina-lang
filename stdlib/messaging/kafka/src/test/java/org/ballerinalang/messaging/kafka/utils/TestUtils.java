@@ -21,6 +21,9 @@ package org.ballerinalang.messaging.kafka.utils;
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Collect;
 import kafka.server.KafkaConfig;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -57,6 +60,10 @@ public class TestUtils {
         } catch (Exception ex) {
             //Ignore
         }
+    }
+
+    public static String getErrorMessageFromReturnValue(BValue value) {
+        return ((BMap) ((BError) value).getDetails()).get("message").stringValue();
     }
 
     public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
