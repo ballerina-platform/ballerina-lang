@@ -375,12 +375,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(returnKeyword, "returnKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stReturnStatementNode = STNodeFactory.createReturnStatementNode(
                 returnKeyword.internalNode(),
-                expression.internalNode(),
+                getOptionalSTNode(expression),
                 semicolonToken.internalNode());
         return stReturnStatementNode.createUnlinkedFacade();
     }
