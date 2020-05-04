@@ -45,8 +45,9 @@ import java.util.Map;
 /**
  * Test cases to check default value initialization for objects in docs.
  */
-public class DefaultValueInitializationObjects {
+public class ObjectFieldDefaultValueTest {
     private Module testModule;
+    List<Object> objects;
 
     @BeforeClass
     public void setup() throws IOException {
@@ -64,12 +65,11 @@ public class DefaultValueInitializationObjects {
 
         Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList, resources);
         testModule = project.modules.get(0);
+        objects = testModule.objects;
     }
 
-    @Test(description = "Test default value init")
-    public void testDefValInit() {
-        List<Object> objects = testModule.objects;
-        Object foo, bar, student;
+    @Test(description = "Test default value initialization for int")
+    public void testDefValInitInt() {
         for (Object object : objects) {
             for (DefaultableVariable variable : object.fields) {
                 if (object.name.equals("Foo")) {
@@ -79,13 +79,41 @@ public class DefaultValueInitializationObjects {
                 } else if (object.name.equals("Bar")) {
                     if (variable.name.equals("i")) {
                         Assert.assertEquals(variable.defaultValue, "1");
-                    } else if (variable.name.equals("s")) {
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(description = "Test default value initialization for string")
+    public void testDefValInitString() {
+        for (Object object : objects) {
+            for (DefaultableVariable variable : object.fields) {
+                if (object.name.equals("Bar")) {
+                    if (variable.name.equals("s")) {
                         Assert.assertEquals(variable.defaultValue, "str");
-                    } else {
+                    }
+                } else if (object.name.equals("Student")) {
+                    if (variable.name.equals("name")) {
+                        Assert.assertEquals(variable.defaultValue, "John");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(description = "Test default value initialization for Objects")
+    public void testDefValInitObject() {
+        for (Object object : objects) {
+            for (DefaultableVariable variable : object.fields) {
+                if (object.name.equals("Bar")) {
+                    if (variable.name.equals("foos")) {
                         Assert.assertEquals(variable.defaultValue, "Foo");
                     }
-                } else {
-                    Assert.assertEquals(variable.defaultValue, "Bar");
+                } else if (object.name.equals("Student")) {
+                    if (variable.name.equals("f")) {
+                        Assert.assertEquals(variable.defaultValue, "Bar");
+                    }
                 }
             }
         }

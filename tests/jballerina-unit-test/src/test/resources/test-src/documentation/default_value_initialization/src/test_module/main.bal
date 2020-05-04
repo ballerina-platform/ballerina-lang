@@ -19,6 +19,8 @@ public type Bar object {
 # Represents student object
 # 
 # + f - Bar type object cast inside student
+# + name - Name of the student
 public type Student object {
     public Foo f = new Bar();
+    public string name = "John";
 };
