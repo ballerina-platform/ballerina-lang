@@ -280,20 +280,6 @@ public class BLangPackageBuilder {
 
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
-    private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
-
-    private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
-
-    private Stack<BLangOnClause> onClauseNodeStack = new Stack<>();
-
-    private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
-
-    private Stack<BLangOnConflictClause> onConflictNodeStack = new Stack<>();
-
-    private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
-
-    private Stack<BLangDoClause> doClauseNodeStack = new Stack<>();
-
     private Stack<BLangNode> queryClauseStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
@@ -1624,7 +1610,6 @@ public class BLangPackageBuilder {
         letClause.addWS(ws);
         letClause.pos = pos;
         letClause.letVarDeclarations = letVarListStack.pop();
-        letClauseNodeStack.push(letClause);
         queryClauseStack.push(letClause);
     }
 
@@ -1947,26 +1932,6 @@ public class BLangPackageBuilder {
         queryExpr.pos = pos;
         queryExpr.addWS(ws);
         queryExpr.setIsStream(isStream);
-
-        Collections.reverse(fromClauseNodeStack);
-        while (fromClauseNodeStack.size() > 0) {
-            queryExpr.addFromClauseNode(fromClauseNodeStack.pop());
-        }
-        Collections.reverse(letClauseNodeStack);
-        while (letClauseNodeStack.size() > 0) {
-            queryExpr.addLetClause(letClauseNodeStack.pop());
-        }
-        if (onClauseNodeStack.size() > 0) {
-            queryExpr.setOnClauseNode(onClauseNodeStack.pop());
-        }
-        queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
-        Collections.reverse(whereClauseNodeStack);
-        while (whereClauseNodeStack.size() > 0) {
-            queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
-        }
-        if (onConflictNodeStack.size() > 0) {
-            queryExpr.setOnConflictClauseNode(onConflictNodeStack.pop());
-        }
         Collections.reverse(queryClauseStack);
         while (queryClauseStack.size() > 0) {
             queryExpr.addQueryClause(queryClauseStack.pop());
@@ -2043,7 +2008,6 @@ public class BLangPackageBuilder {
         fromClause.setVariableDefinitionNode(variableDefinitionNode);
         fromClause.setCollection(this.exprNodeStack.pop());
         fromClause.isDeclaredWithVar = isDeclaredWithVar;
-        fromClauseNodeStack.push(fromClause);
         queryClauseStack.push(fromClause);
     }
 
@@ -2052,7 +2016,7 @@ public class BLangPackageBuilder {
         onClause.addWS(ws);
         onClause.pos = pos;
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        onClauseNodeStack.push(onClause);
+        queryClauseStack.push(onClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2060,7 +2024,6 @@ public class BLangPackageBuilder {
         selectClause.addWS(ws);
         selectClause.pos = pos;
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        selectClauseNodeStack.push(selectClause);
         queryClauseStack.push(selectClause);
     }
 
@@ -2069,7 +2032,7 @@ public class BLangPackageBuilder {
         onConflictClause.addWS(ws);
         onConflictClause.pos = pos;
         onConflictClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        onConflictNodeStack.push(onConflictClause);
+        queryClauseStack.push(onConflictClause);
     }
 
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2077,7 +2040,6 @@ public class BLangPackageBuilder {
         whereClause.addWS(ws);
         whereClause.pos = pos;
         whereClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        whereClauseNodeStack.push(whereClause);
         queryClauseStack.push(whereClause);
     }
 
@@ -2093,7 +2055,6 @@ public class BLangPackageBuilder {
         blockNode.pos = pos;
         doClause.setBody(blockNode);
         doClause.addWS(ws);
-        doClauseNodeStack.push(doClause);
         queryClauseStack.push(doClause);
     }
 
@@ -2101,25 +2062,10 @@ public class BLangPackageBuilder {
         BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionNode();
         queryAction.pos = pos;
         queryAction.addWS(ws);
-
-        Collections.reverse(fromClauseNodeStack);
-        while (fromClauseNodeStack.size() > 0) {
-            queryAction.addFromClauseNode(fromClauseNodeStack.pop());
-        }
-        Collections.reverse(letClauseNodeStack);
-        while (letClauseNodeStack.size() > 0) {
-            queryAction.addLetClauseNode(letClauseNodeStack.pop());
-        }
-        Collections.reverse(whereClauseNodeStack);
-        while (whereClauseNodeStack.size() > 0) {
-            queryAction.addWhereClauseNode(whereClauseNodeStack.pop());
-        }
         Collections.reverse(queryClauseStack);
         while (queryClauseStack.size() > 0) {
             queryAction.addQueryClause(queryClauseStack.pop());
         }
-
-        queryAction.setDoClauseNode(doClauseNodeStack.pop());
         addExpressionNode(queryAction);
     }
 

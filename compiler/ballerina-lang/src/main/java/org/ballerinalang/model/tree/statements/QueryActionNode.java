@@ -35,23 +35,10 @@ import java.util.List;
  */
 public interface QueryActionNode extends ExpressionNode, ActionNode {
 
-    List<? extends FromClauseNode> getFromClauseNodes();
-
-    void addFromClauseNode(FromClauseNode fromClauseNode);
-
-    List<? extends BLangLetClause> getLetClauseNode();
-
-    void addLetClauseNode(LetClauseNode letClauseNode);
-
-    List<? extends WhereClauseNode> getWhereClauseNode();
-
-    void addWhereClauseNode(WhereClauseNode whereClauseNode);
-
     List<? extends BLangNode> getQueryClauses();
 
     void addQueryClause(BLangNode queryClause);
 
-    DoClauseNode getDoClauseNode();
+    DoClauseNode getDoClause();
 
-    void setDoClauseNode(DoClauseNode doClauseNode);
 }

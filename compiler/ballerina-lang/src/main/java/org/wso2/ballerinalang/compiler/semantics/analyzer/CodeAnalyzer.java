@@ -19,8 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
@@ -80,6 +78,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -2513,43 +2513,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         int fromCount = 0;
-        for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
-            fromCount++;
-            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
-            if (fromCount > 1) {
-                if (TypeTags.STREAM == collection.type.tag) {
-                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+        for (BLangNode clause : queryExpr.getQueryClauses()) {
+            if (clause.getKind() == NodeKind.FROM) {
+                fromCount++;
+                BLangFromClause fromClause = (BLangFromClause) clause;
+                BLangExpression collection = (BLangExpression) fromClause.getCollection();
+                if (fromCount > 1) {
+                    if (TypeTags.STREAM == collection.type.tag) {
+                        this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                    }
                 }
             }
-            analyzeNode((BLangFromClause) fromClauseNode, env);
+            analyzeNode(clause, env);
         }
-
-        for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-
-        analyzeNode(queryExpr.selectClause, env);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
         int fromCount = 0;
-        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            fromCount++;
-            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
-            if (fromCount > 1) {
-                if (TypeTags.STREAM == collection.type.tag) {
-                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+        for (BLangNode clause : queryAction.getQueryClauses()) {
+            if (clause.getKind() == NodeKind.FROM) {
+                fromCount++;
+                BLangFromClause fromClause = (BLangFromClause) clause;
+                BLangExpression collection = (BLangExpression) fromClause.getCollection();
+                if (fromCount > 1) {
+                    if (TypeTags.STREAM == collection.type.tag) {
+                        this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                    }
                 }
             }
-            analyzeNode((BLangFromClause) fromClauseNode, env);
+            analyzeNode(clause, env);
         }
-
-        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-
-        analyzeNode(queryAction.doClause, env);
         validateActionParentNode(queryAction.pos, queryAction);
     }
 
@@ -2559,8 +2553,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, env);
+        }
+    }
+
+    @Override
     public void visit(BLangWhereClause whereClause) {
         analyzeExpr(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        analyzeExpr(onClause.expression);
     }
 
     @Override

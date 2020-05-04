@@ -81,7 +81,7 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'string\\|int\\|\\(\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
+                    "types: '\\(string\\|int\\|\\(\\)\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }

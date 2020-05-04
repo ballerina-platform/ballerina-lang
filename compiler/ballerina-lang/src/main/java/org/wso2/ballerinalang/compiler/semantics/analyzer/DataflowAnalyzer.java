@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -64,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -506,15 +505,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            analyzeNode((BLangFromClause) fromClauseNode, env);
+        for (BLangNode clause : queryAction.getQueryClauses()) {
+            analyzeNode(clause, env);
         }
-
-        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-
-        analyzeNode(queryAction.doClause, env);
     }
 
     @Override
@@ -815,21 +808,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
-            analyzeNode((BLangFromClause) fromClauseNode, env);
+        for (BLangNode clause : queryExpr.getQueryClauses()) {
+            analyzeNode(clause, env);
         }
-
-        for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-
-        analyzeNode(queryExpr.selectClause, env);
-        analyzeNode(queryExpr.onConflictClause, env);
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
         analyzeNode(fromClause.collection, env);
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            analyzeNode((BLangNode) letVariable.definitionNode, env);
+        }
     }
 
     @Override

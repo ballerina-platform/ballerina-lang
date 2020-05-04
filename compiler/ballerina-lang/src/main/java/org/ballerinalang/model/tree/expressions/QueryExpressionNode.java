@@ -16,12 +16,7 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.OnClauseNode;
-import org.ballerinalang.model.clauses.OnConflictClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -33,29 +28,7 @@ import java.util.List;
  */
 public interface QueryExpressionNode extends ExpressionNode {
 
-    List<? extends FromClauseNode> getFromClauseNodes();
-
-    void addFromClauseNode(FromClauseNode fromClauseNode);
-
-    OnClauseNode getOnClauseNode();
-
-    void setOnClauseNode(OnClauseNode onClauseNode);
-
-    SelectClauseNode getSelectClauseNode();
-
-    void setSelectClauseNode(SelectClauseNode selectClauseNode);
-
-    OnConflictClauseNode getOnConflictClauseNode();
-
-    void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode);
-
-    List<? extends WhereClauseNode> getWhereClauseNode();
-
-    void addWhereClauseNode(WhereClauseNode whereClauseNode);
-
-    List<? extends LetClauseNode> getLetClauseList();
-
-    void addLetClause(LetClauseNode letClauseNode);
+    SelectClauseNode getSelectClause();
 
     List<? extends BLangNode> getQueryClauses();
 

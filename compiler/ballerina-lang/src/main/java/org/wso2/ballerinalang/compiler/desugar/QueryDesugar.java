@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -49,10 +50,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -63,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -108,8 +108,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
-    private static final Name QUERY_ADD_TO_FRAME_FUNCTION = new Name("addToFrame");
-    private static final Name QUERY_SPREAD_TO_FRAME_FUNCTION = new Name("spreadToFrame");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
@@ -199,8 +197,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, letFunc);
                     break;
                 case WHERE:
-                    BLangVariableReference filterFunc = addFilterFunction(block, (BLangWhereClause) clause);
-                    addStreamFunction(block, initPipeline, filterFunc);
+                    BLangVariableReference whereFunc = addFilterFunction(block, (BLangWhereClause) clause);
+                    addStreamFunction(block, initPipeline, whereFunc);
+                    break;
+                case ON:
+                    BLangVariableReference onFunc = addFilterFunction(block, (BLangOnClause) clause);
+                    addStreamFunction(block, initPipeline, onFunc);
                     break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause);
@@ -269,12 +271,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // frame["x"] = x;, note: stmts will get added in reverse order.
         List<BVarSymbol> symbols = getIntroducedSymbols((BLangVariable)
                 fromClause.variableDefinitionNode.getVariable());
-        Collections.reverse(symbols);
-        for (BVarSymbol symbol : symbols) {
-            // since the var decl is now within lambda, remove scope entry from encl env.
-            env.scope.entries.remove(symbol.name);
-            body.stmts.add(0, addToFrameFunctionStmt(pos, frameSymbol, symbol));
-        }
+        shadowSymbolScope(pos, body, ASTBuilderUtil.createVariableRef(pos, frameSymbol), symbols);
 
         // int x = <int> frame["value"];, note: stmts will get added in reverse order.
         BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos,
@@ -330,12 +327,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
         List<BVarSymbol> symbols = getIntroducedSymbols(letClause);
-        Collections.reverse(symbols);
-        for (BVarSymbol symbol : symbols) {
-            // since the var decl is now within lambda, remove scope entry from encl env.
-            env.scope.entries.remove(symbol.name);
-            body.stmts.add(0, addToFrameFunctionStmt(pos, frameSymbol, symbol));
-        }
+        shadowSymbolScope(pos, body, ASTBuilderUtil.createVariableRef(pos, frameSymbol), symbols);
 
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             // add at 0, otherwise, this goes under existing stmts.
@@ -356,12 +348,39 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created filter _StreamFunction.
      */
     BLangVariableReference addFilterFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause) {
-        DiagnosticPos pos = whereClause.pos;
+        return addFilterFunction(whereClause.pos, whereClause.expression, blockStmt);
+    }
+
+    /**
+     * Desugar onClause to below and return a reference to created filter _StreamFunction.
+     * _StreamFunction xsFilter = createFilterFunction(function(_Frame frame) returns boolean {
+     * return <int>frame["x"] > 0;
+     * });
+     *
+     * @param blockStmt parent block to write to.
+     * @param onClause  to be desugared.
+     * @return variableReference to created filter _StreamFunction.
+     */
+    BLangVariableReference addFilterFunction(BLangBlockStmt blockStmt, BLangOnClause onClause) {
+        return addFilterFunction(onClause.pos, onClause.expression, blockStmt);
+    }
+
+    /**
+     * Desugar where/on clauses and return a reference to created filter _StreamFunction.
+     *
+     * @param pos              diagnostic position.
+     * @param filterExpression filter expression.
+     * @param blockStmt        parent block to write to.
+     * @return variableReference to created filter _StreamFunction.
+     */
+    private BLangVariableReference addFilterFunction(DiagnosticPos pos,
+                                                     BLangExpression filterExpression,
+                                                     BLangBlockStmt blockStmt) {
         BLangLambdaFunction lambda = createFilterLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
-        returnNode.setExpression(whereClause.expression);
+        returnNode.setExpression(filterExpression);
         body.addStatement(returnNode);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
@@ -385,49 +404,24 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
-        BLangSimpleVarRef oldFrameRef = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
+        BLangSimpleVarRef oldFrame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
         BLangSimpleVariableDef newFrameDef = getNewFrameDef(pos);
         BVarSymbol newFrameSymbol = newFrameDef.getVariable().symbol;
-        BLangSimpleVarRef newFrameRef = ASTBuilderUtil.createVariableRef(pos, newFrameSymbol);
+        BLangSimpleVarRef newFrame = ASTBuilderUtil.createVariableRef(pos, newFrameSymbol);
         // Frame $streamElement1$ = {};
         body.stmts.add(0, newFrameDef);
-        // addToFrame($streamElement1$, elements);
-        if (selectClause.expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            BLangRecordLiteral selectRecord = (BLangRecordLiteral) selectClause.expression;
-            for (RecordLiteralNode.RecordField field : selectRecord.fields) {
-                BLangExpressionStmt addToFrameStmt;
-                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    BLangRecordKeyValueField keyValField = (BLangRecordKeyValueField) field;
-                    // TODO: assuming key will only be a literal (no-other expr types).
-                    BLangLiteral key = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                            ((BLangSimpleVarRef) keyValField.key.expr).variableName.value);
-                    addToFrameStmt = addToFrameFunctionStmt(pos, newFrameRef, key, keyValField.valueExpr);
-                } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                    BLangRecordSpreadOperatorField spreadField = (BLangRecordSpreadOperatorField) field;
-                    addToFrameStmt = spreadToFrameFunctionStmt(pos, newFrameRef, spreadField.expr);
-                } else if (field.getKind() == NodeKind.CONSTANT_REF) {
-                    BLangConstRef constField = (BLangConstRef) field;
-                    BLangLiteral key = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                            constField.variableName.value);
-                    BLangLiteral value = ASTBuilderUtil.createLiteral(pos, constField.type, constField.value);
-                    addToFrameStmt = addToFrameFunctionStmt(pos, newFrameRef, key, value);
-                } else {
-                    BLangRecordVarNameField nameField = (BLangRecordVarNameField) field;
-                    addToFrameStmt = addToFrameFunctionStmt(pos, newFrameSymbol, (BVarSymbol) nameField.varSymbol);
-                }
-                body.stmts.add(body.stmts.size() - 1, addToFrameStmt);
-            }
-        } else {
+        // $streamElement1$["$value$"] = select-expr;
+        BLangStatement assignment = getAddToFrameStmt(pos, newFrame, "$value$", selectClause.expression);
+        body.stmts.add(body.stmts.size() - 1, assignment);
 
-        }
         // frame = $streamElement1$ <- swap
-        body.stmts.add(body.stmts.size() - 1, ASTBuilderUtil.createAssignmentStmt(pos, oldFrameRef, newFrameRef));
+        body.stmts.add(body.stmts.size() - 1, ASTBuilderUtil.createAssignmentStmt(pos, oldFrame, newFrame));
         // return frame; <- this comes from createPassthroughLambda()
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_SELECT_FUNCTION, Lists.of(lambda), pos);
     }
 
-    BLangSimpleVariableDef getNewFrameDef(DiagnosticPos pos) {
+    private BLangSimpleVariableDef getNewFrameDef(DiagnosticPos pos) {
         // Frame $streamElement1$ = {};
         String name = getNewVarName();
         BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langQueryModuleSymbol.scope
@@ -803,47 +797,30 @@ public class QueryDesugar extends BLangNodeVisitor {
         return getQueryLibInvokableSymbol(names.fromString("lambdaTemplate"));
     }
 
-    private BLangExpressionStmt spreadToFrameFunctionStmt(DiagnosticPos pos,
-                                                          BLangExpression frameExpr,
-                                                          BLangExpression valueExpr) {
-        return addToFrameFunctionStmt(pos, frameExpr, null, valueExpr, true);
+    private BLangStatement getAddToFrameStmt(DiagnosticPos pos,
+                                             BLangVariableReference frame,
+                                             String key,
+                                             BLangExpression value) {
+        BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(pos, key);
+        BLangFieldBasedAccess valueAccess = ASTBuilderUtil.createFieldAccessExpr(frame, valueIdentifier);
+        valueAccess.pos = pos;
+        valueAccess.type = symTable.anyOrErrorType;
+        valueAccess.originalType = valueAccess.type;
+        return ASTBuilderUtil.createAssignmentStmt(pos, valueAccess, value);
     }
 
-    private BLangExpressionStmt addToFrameFunctionStmt(DiagnosticPos pos,
-                                                       BLangExpression frameExpr,
-                                                       BLangExpression keyExpr,
-                                                       BLangExpression valueExpr) {
-        return addToFrameFunctionStmt(pos, frameExpr, keyExpr, valueExpr, false);
-    }
-
-    private BLangExpressionStmt addToFrameFunctionStmt(DiagnosticPos pos,
-                                                       BVarSymbol frameSymbol,
-                                                       BVarSymbol valueSymbol) {
-        BLangLiteral keyLiteral = ASTBuilderUtil.createLiteral(pos, symTable.stringType, valueSymbol.name.value);
-        BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
-        BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, valueSymbol);
-        return addToFrameFunctionStmt(pos, frameVarRef, keyLiteral, valueVarRef, false);
-    }
-
-    private BLangExpressionStmt addToFrameFunctionStmt(DiagnosticPos pos,
-                                                       BLangExpression frameExpr,
-                                                       BLangExpression keyExpr,
-                                                       BLangExpression valueExpr,
-                                                       boolean isSpread) {
-        List<BLangExpression> requiredArgs;
-        Name functionName;
-        if (isSpread) {
-            requiredArgs = Lists.of(frameExpr, valueExpr);
-            functionName = QUERY_SPREAD_TO_FRAME_FUNCTION;
-        } else {
-            requiredArgs = Lists.of(frameExpr, keyExpr, valueExpr);
-            functionName = QUERY_ADD_TO_FRAME_FUNCTION;
+    private void shadowSymbolScope(DiagnosticPos pos,
+                                   BLangBlockFunctionBody lambdaBody,
+                                   BLangSimpleVarRef frameRef,
+                                   List<BVarSymbol> symbols) {
+        Collections.reverse(symbols);
+        for (BVarSymbol symbol : symbols) {
+            // since the var decl is now within lambda, remove scope entry from encl env.
+            env.scope.entries.remove(symbol.name);
+            BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameRef,
+                    symbol.name.value, ASTBuilderUtil.createVariableRef(pos, symbol));
+            lambdaBody.stmts.add(0, addToFrameStmt);
         }
-        BLangInvocation invocation = createQueryLibInvocation(functionName, requiredArgs, pos);
-        final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        exprStmt.expr = invocation;
-        exprStmt.pos = pos;
-        return exprStmt;
     }
 
     private List<BVarSymbol> getIntroducedSymbols(BLangLetClause letClause) {
