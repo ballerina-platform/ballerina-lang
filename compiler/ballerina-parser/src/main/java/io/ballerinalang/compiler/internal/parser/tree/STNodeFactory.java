@@ -1113,16 +1113,38 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createExplicitNewOperation(
+    public static STNode createExplicitNewExpression(
             STNode NewKeyword,
             STNode TypeDescriptor,
             STNode openParenToken,
             STNode fieldNames,
             STNode closeParenToken) {
 
-        return new STExplicitNewOperation(
+        return new STExplicitNewExpression(
                 NewKeyword,
                 TypeDescriptor,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
+
+    public static STNode createImplicitNewExpression(
+            STNode NewKeyword,
+            STNode ImplicitNewArgList) {
+
+        return new STImplicitNewExpression(
+                NewKeyword,
+                ImplicitNewArgList);
+    }
+
+    public static STNode createImplicitNewArgList(
+            SyntaxKind kind,
+            STNode openParenToken,
+            STNode fieldNames,
+            STNode closeParenToken) {
+
+        return new STImplicitNewArgList(
+                kind,
                 openParenToken,
                 fieldNames,
                 closeParenToken);

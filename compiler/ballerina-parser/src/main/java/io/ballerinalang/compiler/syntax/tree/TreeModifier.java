@@ -1103,15 +1103,36 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ExplicitNewOperation explicitNewOperation) {
-        Token NewKeyword = modifyToken(explicitNewOperation.NewKeyword());
-        Node TypeDescriptor = modifyNode(explicitNewOperation.TypeDescriptor());
-        Token openParenToken = modifyToken(explicitNewOperation.openParenToken());
-        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(explicitNewOperation.fieldNames());
-        Token closeParenToken = modifyToken(explicitNewOperation.closeParenToken());
-        return explicitNewOperation.modify(
+    public Node transform(ExplicitNewExpression explicitNewExpression) {
+        Token NewKeyword = modifyToken(explicitNewExpression.NewKeyword());
+        Node TypeDescriptor = modifyNode(explicitNewExpression.TypeDescriptor());
+        Token openParenToken = modifyToken(explicitNewExpression.openParenToken());
+        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(explicitNewExpression.fieldNames());
+        Token closeParenToken = modifyToken(explicitNewExpression.closeParenToken());
+        return explicitNewExpression.modify(
                 NewKeyword,
                 TypeDescriptor,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
+
+    @Override
+    public Node transform(ImplicitNewExpression implicitNewExpression) {
+        Token NewKeyword = modifyToken(implicitNewExpression.NewKeyword());
+        Node ImplicitNewArgList = modifyNode(implicitNewExpression.ImplicitNewArgList().orElse(null));
+        return implicitNewExpression.modify(
+                NewKeyword,
+                ImplicitNewArgList);
+    }
+
+    @Override
+    public Node transform(ImplicitNewArgList implicitNewArgList) {
+        Token openParenToken = modifyToken(implicitNewArgList.openParenToken());
+        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(implicitNewArgList.fieldNames());
+        Token closeParenToken = modifyToken(implicitNewArgList.closeParenToken());
+        return implicitNewArgList.modify(
+                implicitNewArgList.kind(),
                 openParenToken,
                 fieldNames,
                 closeParenToken);

@@ -1984,7 +1984,7 @@
             "isAbstract": true
         },
         {
-            "name": "ExplicitNewOperation",
+            "name": "ExplicitNewExpression",
             "base": "NewExpression",
             "kind": "EXPLICIT_NEW",
             "attributes": [
@@ -1996,6 +1996,41 @@
                     "name": "TypeDescriptor",
                     "type": "Node"
                 },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldNames",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ImplicitNewExpression",
+            "base": "NewExpression",
+            "kind": "IMPLICIT_NEW",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "ImplicitNewArgList",
+                    "type": "Node",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ImplicitNewArgList",
+            "base": "Node",
+            "attributes": [
                 {
                     "name": "openParenToken",
                     "type": "Token"

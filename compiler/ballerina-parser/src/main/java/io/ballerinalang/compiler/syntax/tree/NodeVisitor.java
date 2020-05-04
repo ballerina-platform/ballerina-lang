@@ -379,8 +379,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(ExplicitNewOperation explicitNewOperation) {
-        visitSyntaxNode(explicitNewOperation);
+    public void visit(ExplicitNewExpression explicitNewExpression) {
+        visitSyntaxNode(explicitNewExpression);
+    }
+
+    public void visit(ImplicitNewExpression implicitNewExpression) {
+        visitSyntaxNode(implicitNewExpression);
+    }
+
+    public void visit(ImplicitNewArgList implicitNewArgList) {
+        visitSyntaxNode(implicitNewArgList);
     }
 
     // Tokens

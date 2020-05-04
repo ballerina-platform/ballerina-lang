@@ -196,6 +196,7 @@ public enum ParserRuleContext {
     FOREACH_KEYWORD("foreach"),
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
+    NEW_KEYWORD("new"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -278,6 +279,7 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    NEW_EXPRESSION("new-expr"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

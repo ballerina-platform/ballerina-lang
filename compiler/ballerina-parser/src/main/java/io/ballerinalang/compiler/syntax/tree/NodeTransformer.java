@@ -380,8 +380,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(keySpecifierNode);
     }
 
-    public T transform(ExplicitNewOperation explicitNewOperation) {
-        return transformSyntaxNode(explicitNewOperation);
+    public T transform(ExplicitNewExpression explicitNewExpression) {
+        return transformSyntaxNode(explicitNewExpression);
+    }
+
+    public T transform(ImplicitNewExpression implicitNewExpression) {
+        return transformSyntaxNode(implicitNewExpression);
+    }
+
+    public T transform(ImplicitNewArgList implicitNewArgList) {
+        return transformSyntaxNode(implicitNewArgList);
     }
 
     // Tokens
