@@ -1112,5 +1112,29 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 fieldNames,
                 closeParenToken);
     }
+
+    public static STNode createErrorTypeDescriptorNode(
+            STNode errorKeywordToken,
+            STNode ltToken,
+            STNode errorTypeParamsNode,
+            STNode gtToken) {
+
+        return new STErrorTypeDescriptorNode(
+                errorKeywordToken,
+                ltToken,
+                errorTypeParamsNode,
+                gtToken);
+    }
+
+    public static STNode createExplicitErrorTypeParamsNode(
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode) {
+
+        return new STExplicitErrorTypeParamsNode(
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode);
+    }
 }
 

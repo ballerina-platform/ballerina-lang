@@ -1977,6 +1977,48 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "ErrorTypeDescriptorNode",
+            "base": "Node",
+            "kind": "ERROR_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "errorKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "errorTypeParamsNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ExplicitErrorTypeParamsNode",
+            "base": "Node",
+            "kind": "EXPLICIT_TYPE_PARAMS",
+            "attributes": [
+                {
+                    "name": "leftTypeDescNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "commaToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rightTypeDescNode",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

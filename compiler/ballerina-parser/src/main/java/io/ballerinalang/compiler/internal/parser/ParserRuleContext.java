@@ -118,6 +118,7 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
+    ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
@@ -196,6 +197,7 @@ public enum ParserRuleContext {
     FOREACH_KEYWORD("foreach"),
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
+    ERROR_KEYWORD("error"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -283,6 +285,7 @@ public enum ParserRuleContext {
     PARAMETERIZED_TYPE("parameterized-type"),
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
+    EXPLICIT_ERROR_TYPE_PARAMS("explicit-error-type-params")
     ;
 
     private String value;

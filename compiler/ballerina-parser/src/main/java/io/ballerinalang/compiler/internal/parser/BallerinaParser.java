@@ -344,6 +344,12 @@ public class BallerinaParser {
                 return parseKeyKeyword();
             case TABLE_KEYWORD_RHS:
                 return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
+            case ERROR_KEYWORD:
+                return parseErrorKeyWord();
+            case ERROR_TYPE_DESCRIPTOR:
+                return parseErrorTypeDescriptor();
+            case EXPLICIT_ERROR_TYPE_PARAMS:
+                return parseExplicitErrorTypeParams();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -1734,6 +1740,8 @@ public class BallerinaParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
                 return parseParameterizedTypeDescriptor();
+            case ERROR_KEYWORD: // error type descriptor
+                return parseErrorTypeDescriptor();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -6693,6 +6701,7 @@ public class BallerinaParser {
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
+            case ERROR_KEYWORD: // error type desc
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -7227,5 +7236,67 @@ public class BallerinaParser {
             default:
                 return true;
         }
+    }
+
+    /**
+     * Parse error type descriptor.
+     * <p>
+     * error-type-descriptor := error [error-type-params]
+     * error-type-params := < (explicit-error-type-params | inferred-error-type-param) >
+     * explicit-error-type-params := reason-type-descriptor [, detail-type-descriptor]
+     * reason-type-descriptor := type-descriptor
+     * detail-type-descriptor := type-descriptor
+     * inferred-error-type-param := *
+     * </p>
+     * @return Parsed node
+     */
+    private STNode parseErrorTypeDescriptor() {
+        startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
+
+        STNode errorKeywordToken = parseErrorKeyWord();
+        STNode ltToken = parseLTToken();
+        STNode errorTypeParamsNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+            errorTypeParamsNode = consume();
+        } else {
+            errorTypeParamsNode = parseExplicitErrorTypeParams();
+        }
+        STNode gtToken = parseGTToken();
+
+        endContext();
+        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, ltToken, errorTypeParamsNode, gtToken);
+
+    }
+
+    /**
+     * Parse error-keyword.
+     *
+     * @return Parsed error-keyword node
+     */
+    private STNode parseErrorKeyWord() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ERROR_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse explicity error type params.
+     * <p>
+     *     explicit-error-type-params := reason-type-descriptor [, detail-type-descriptor]
+     * </p>
+     * @return Parsed node
+     */
+    private STNode parseExplicitErrorTypeParams() {
+        startContext(ParserRuleContext.EXPLICIT_ERROR_TYPE_PARAMS);
+        STNode leftTypeDescNode = parseTypeDescriptor();
+        STNode commaToken = parseComma();
+        STNode rightTypeDescNode = parseTypeDescriptor();
+        endContext();
+        return STNodeFactory.createExplicitErrorTypeParamsNode(leftTypeDescNode, commaToken, rightTypeDescNode);
     }
 }

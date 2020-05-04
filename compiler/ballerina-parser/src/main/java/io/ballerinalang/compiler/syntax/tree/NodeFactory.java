@@ -1496,5 +1496,38 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stKeySpecifierNode.createUnlinkedFacade();
     }
+
+    public static ErrorTypeDescriptorNode createErrorTypeDescriptorNode(
+            Token errorKeywordToken,
+            Token ltToken,
+            Node errorTypeParamsNode,
+            Token gtToken) {
+        Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(errorTypeParamsNode, "errorTypeParamsNode must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stErrorTypeDescriptorNode = STNodeFactory.createErrorTypeDescriptorNode(
+                errorKeywordToken.internalNode(),
+                ltToken.internalNode(),
+                errorTypeParamsNode.internalNode(),
+                gtToken.internalNode());
+        return stErrorTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ExplicitErrorTypeParamsNode createExplicitErrorTypeParamsNode(
+            Node leftTypeDescNode,
+            Token commaToken,
+            Node rightTypeDescNode) {
+        Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
+        Objects.requireNonNull(commaToken, "commaToken must not be null");
+        Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
+
+        STNode stExplicitErrorTypeParamsNode = STNodeFactory.createExplicitErrorTypeParamsNode(
+                leftTypeDescNode.internalNode(),
+                commaToken.internalNode(),
+                rightTypeDescNode.internalNode());
+        return stExplicitErrorTypeParamsNode.createUnlinkedFacade();
+    }
 }
 
