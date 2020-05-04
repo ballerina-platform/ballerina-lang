@@ -56,12 +56,15 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<a
     return pipeline.getStream();
 }
 
-public function toArray(stream<Type, error?> strm) returns Type[] {
+public function toArray(stream<Type, error?> strm) returns Type[]|error {
     Type[] arr = [];
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
         v = strm.next();
+    }
+    if (v is error) {
+        return v;
     }
     return arr;
 }
