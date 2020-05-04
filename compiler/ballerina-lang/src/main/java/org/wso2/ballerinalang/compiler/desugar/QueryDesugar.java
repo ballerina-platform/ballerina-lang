@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -196,8 +197,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, letFunc);
                     break;
                 case WHERE:
-                    BLangVariableReference filterFunc = addFilterFunction(block, (BLangWhereClause) clause);
-                    addStreamFunction(block, initPipeline, filterFunc);
+                    BLangVariableReference whereFunc = addFilterFunction(block, (BLangWhereClause) clause);
+                    addStreamFunction(block, initPipeline, whereFunc);
+                    break;
+                case ON:
+                    BLangVariableReference onFunc = addFilterFunction(block, (BLangOnClause) clause);
+                    addStreamFunction(block, initPipeline, onFunc);
                     break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause);
@@ -343,12 +348,39 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created filter _StreamFunction.
      */
     BLangVariableReference addFilterFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause) {
-        DiagnosticPos pos = whereClause.pos;
+        return addFilterFunction(whereClause.pos, whereClause.expression, blockStmt);
+    }
+
+    /**
+     * Desugar onClause to below and return a reference to created filter _StreamFunction.
+     * _StreamFunction xsFilter = createFilterFunction(function(_Frame frame) returns boolean {
+     * return <int>frame["x"] > 0;
+     * });
+     *
+     * @param blockStmt parent block to write to.
+     * @param onClause  to be desugared.
+     * @return variableReference to created filter _StreamFunction.
+     */
+    BLangVariableReference addFilterFunction(BLangBlockStmt blockStmt, BLangOnClause onClause) {
+        return addFilterFunction(onClause.pos, onClause.expression, blockStmt);
+    }
+
+    /**
+     * Desugar where/on clauses and return a reference to created filter _StreamFunction.
+     *
+     * @param pos              diagnostic position.
+     * @param filterExpression filter expression.
+     * @param blockStmt        parent block to write to.
+     * @return variableReference to created filter _StreamFunction.
+     */
+    private BLangVariableReference addFilterFunction(DiagnosticPos pos,
+                                                     BLangExpression filterExpression,
+                                                     BLangBlockStmt blockStmt) {
         BLangLambdaFunction lambda = createFilterLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
-        returnNode.setExpression(whereClause.expression);
+        returnNode.setExpression(filterExpression);
         body.addStatement(returnNode);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
