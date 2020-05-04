@@ -39,6 +39,7 @@ import java.util.zip.ZipFile;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MANIFEST_FILE_NAME;
 
@@ -147,6 +148,49 @@ public class DependencyScopeTestCase extends BaseTest {
                 new LogLeecher[]{utilsCompileLeecher}, projectResources.resolve("TestProject1").toString());
         utilsCompileLeecher.waitForText(5000);
 
+    }
+
+    /**
+     * Build TestProject1 which has a native module which needs an interop jar to compile. Dependency scope is
+     * 'compile' for that interop jar. Then Build TestProject3 which imports the native module of TestProject1.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Validate if all dependency jars of the balo dependency are added to the project toml")
+    public void testValidatingDependenciesFromBaloToml() throws BallerinaTestException {
+        copy(tempTestResources.resolve("validate-dependency").resolve("TestProject1").resolve(MANIFEST_FILE_NAME),
+                projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
+        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+        String moduleUtilsBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
+        LogLeecher moduleUtilsBuildLeecher = new LogLeecher(moduleUtilsBuildMsg);
+        balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleUtilsBuildLeecher},
+                projectResources.resolve("TestProject1").toString());
+        moduleUtilsBuildLeecher.waitForText(5000);
+
+        // Build TestProject3 without adding the compile scope jars to the toml
+        String warningMsg = "warning: wso2/utils:0.1.0 is missing a native library dependency - utils";
+        LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
+        moduleFooWarningLeecher.waitForText(5000);
+
+        // Add the compile scope jars to the toml
+        copy(tempTestResources.resolve("validate-dependency").resolve("TestProject3").resolve(MANIFEST_FILE_NAME),
+                projectResources.resolve("TestProject3").resolve(MANIFEST_FILE_NAME));
+
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
+
+        // Run and see output
+        String moduleFooJarFileName = "foo" + BLANG_COMPILED_JAR_EXT;
+        String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleFooJarFileName;
+        String msg = "This is a test string value !!!";
+        LogLeecher fooRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[] {executableFilePath}, envVariables, new String[0],
+                new LogLeecher[]{fooRunLeecher}, projectResources.resolve("TestProject3").toString());
+        fooRunLeecher.waitForText(10000);
     }
 
     /**
