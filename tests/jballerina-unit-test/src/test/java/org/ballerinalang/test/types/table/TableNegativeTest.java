@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 16);
+        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -71,5 +71,9 @@ public class TableNegativeTest {
                 "string address?; |}'", 98, 21);
         validateError(compileResult, index++, "field 'address' used in key specifier must be a " +
                 "readonly field", 104, 21);
+        validateError(compileResult, index++, "table with constraint of type map cannot have key " +
+                "specifier or key type constraint", 110, 21);
+        validateError(compileResult, index++, "table with constraint of type map cannot have key " +
+                "specifier or key type constraint", 116, 21);
     }
 }

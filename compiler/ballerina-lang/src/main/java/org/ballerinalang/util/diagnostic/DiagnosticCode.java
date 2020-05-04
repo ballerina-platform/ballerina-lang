@@ -418,7 +418,6 @@ public enum DiagnosticCode {
     KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED("key.specifier.field.must.be.required"),
     KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA("key.specifier.field.must.be.anydata"),
     KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("key.specifier.field.value.must.be.constant"),
-    MEMBER_ACCESS_NOT_SUPPORTED_FOR_NON_RECORD_CONSTRAINT("member.access.not.supported.for.non.record.constraint"),
     KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT
             ("key.constraint.not.supported.for.table.with.map.constraint"),
 

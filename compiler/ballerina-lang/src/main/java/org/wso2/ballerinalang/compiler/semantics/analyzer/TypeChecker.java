@@ -750,28 +750,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
+            if (((BTableType) expType).constraint.tag == TypeTags.MAP) {
+                validateMapConstraintTable(tableConstructorExpr);
+                return;
+            }
+
             if (!(validateTableType((BTableType) expType,
                     tableConstructorExpr.recordLiteralList) &&
                     validateTableConstructorExpr(tableConstructorExpr, (BTableType) expType))) {
                 resultType = symTable.semanticError;
-                return;
-            }
-
-            if (((BTableType) expType).constraint.tag == TypeTags.MAP) {
-                if (((BTableType) expType).fieldNameList != null || ((BTableType) expType).keyTypeConstraint != null) {
-                    dlog.error(((BTableType) expType).keyPos,
-                            DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-
-                if (tableConstructorExpr.tableKeySpecifier != null) {
-                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
-                            DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-                resultType = expType;
                 return;
             }
 
@@ -984,6 +971,28 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
+    private void validateMapConstraintTable(BLangTableConstructorExpr tableConstructorExpr) {
+        if (((BTableType) expType).fieldNameList != null || ((BTableType) expType).keyTypeConstraint != null) {
+            dlog.error(((BTableType) expType).keyPos,
+                    DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (tableConstructorExpr.tableKeySpecifier != null) {
+            dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                    DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!(validateTableType((BTableType) expType, tableConstructorExpr.recordLiteralList))) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = expType;
+    }
 
     private List<String> getTableKeyNameList(BLangTableKeySpecifier tableKeySpecifier) {
         List<String> fieldNamesList = new ArrayList<>();
@@ -2058,14 +2067,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
                     indexBasedAccessExpr.expr.type);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        if (indexBasedAccessExpr.expr.type.tag == TypeTags.TABLE
-                && ((BTableType) indexBasedAccessExpr.expr.type).constraint.tag != TypeTags.RECORD) {
-            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORTED_FOR_NON_RECORD_CONSTRAINT,
-                    ((BTableType) indexBasedAccessExpr.expr.type).constraint);
             resultType = symTable.semanticError;
             return;
         }

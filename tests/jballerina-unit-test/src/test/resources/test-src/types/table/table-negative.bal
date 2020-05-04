@@ -105,3 +105,17 @@ function testRequiredFieldForInferTypeTable() {
                                         { id: 23 , name: "James" },
                                        { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
 }
+
+function testMapConstraintTableWithKeySpecifier() {
+    table<map<any>> key(lname) tab = table key() [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                            { id: 23 , name: "James" },
+                                           { id: 133 , name: "Mohan", lname: "JJ" , address: "Colombo"} ];
+}
+
+function testMemberAccessMapConstraintTable() {
+    table<map<any>> key(id) tab = table key() [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                            { id: 23 , name: "James" },
+                                           { id: 133 , name: "Mohan", lname: "JJ" , address: "Colombo"} ];
+
+    map<any> mapObject = tab[13];
+}
