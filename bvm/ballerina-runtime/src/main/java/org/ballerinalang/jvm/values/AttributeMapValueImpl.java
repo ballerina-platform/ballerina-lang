@@ -50,7 +50,7 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
     }
 
     @Override
-    public void putOnInitialization(String key, String value) {
+    public void populateInitialValue(String key, String value) {
         insertValue(key, value);
     }
 
