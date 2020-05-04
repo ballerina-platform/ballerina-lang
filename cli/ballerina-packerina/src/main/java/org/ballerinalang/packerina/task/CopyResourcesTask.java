@@ -177,7 +177,10 @@ public class CopyResourcesTask implements Task {
                     .resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
             Path toTestableJar = testableJarFs.getRootDirectories().iterator().next()
                     .resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
-            Files.walkFileTree(fromUberJar, new Copy(fromUberJar, toTestableJar));
+
+            if (Files.exists(fromUberJar)) {
+                Files.walkFileTree(fromUberJar, new Copy(fromUberJar, toTestableJar));
+            }
         } catch (IOException e) {
             throw createLauncherException("error while adding resources to module testable jar :" + e.getMessage());
         }
