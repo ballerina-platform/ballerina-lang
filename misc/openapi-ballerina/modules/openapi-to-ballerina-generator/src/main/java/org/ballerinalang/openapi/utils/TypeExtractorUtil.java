@@ -134,7 +134,7 @@ public class TypeExtractorUtil {
                 outStream.println("warning : `" + resName + "` is used as the resource name since the " +
                         "operation id is missing for " + pathName + " " + nextOp.getKey());
             } else {
-                operation.setOpName(escapeIdentifierInFunctionName(
+                operation.setOpName(escapeIdentifier(
                         opObject.getOperationId().replace(" ", "_")));
             }
 
