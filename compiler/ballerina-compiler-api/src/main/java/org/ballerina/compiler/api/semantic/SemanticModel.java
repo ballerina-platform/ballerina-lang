@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -82,6 +83,17 @@ public class SemanticModel extends AbstractSemanticModel {
     @Override
     public BCompiledSymbol lookupSymbol(int position) {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BCompiledSymbol> getSymbolByName(TextPosition textPosition, String name) {
+        List<BCompiledSymbol> compiledSymbols = this.lookupSymbols(textPosition);
+        return compiledSymbols.parallelStream()
+                .filter(symbol -> name.equals(symbol.getName()))
+                .collect(Collectors.toList());
     }
 
     /**

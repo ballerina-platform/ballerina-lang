@@ -53,11 +53,10 @@ public class ArrayTypeDescriptor extends BallerinaTypeDesc {
         /**
          * Symbol Builder Constructor.
          *
-         * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
          */
-        public ArrayTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
+        public ArrayTypeBuilder(PackageID moduleID) {
+            super(TypeDescKind.ARRAY, moduleID);
         }
 
         /**

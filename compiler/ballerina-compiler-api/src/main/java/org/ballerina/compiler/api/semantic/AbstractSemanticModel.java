@@ -56,6 +56,15 @@ public abstract class AbstractSemanticModel {
     public abstract BCompiledSymbol lookupSymbol(int position);
 
     /**
+     * Get the list of symbols visible to the given location, with the given name.
+     * 
+     * @param textPosition text position
+     * @param name symbol name to match
+     * @return {@link List} of symbols visible to the position, with the name
+     */
+    public abstract List<BCompiledSymbol> getSymbolByName(TextPosition textPosition, String name);
+
+    /**
      * Get the diagnostics within the given text Span.
      * 
      * @param span Text span to filter the diagnostics

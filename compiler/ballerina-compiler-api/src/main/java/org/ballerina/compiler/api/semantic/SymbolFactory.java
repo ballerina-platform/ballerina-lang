@@ -22,6 +22,7 @@ import org.ballerina.compiler.api.model.BCompiledSymbol;
 import org.ballerina.compiler.api.model.BallerinaAnnotationSymbol;
 import org.ballerina.compiler.api.model.BallerinaConstantSymbol;
 import org.ballerina.compiler.api.model.BallerinaFunctionSymbol;
+import org.ballerina.compiler.api.model.BallerinaModule;
 import org.ballerina.compiler.api.model.BallerinaObjectVarSymbol;
 import org.ballerina.compiler.api.model.BallerinaParameter;
 import org.ballerina.compiler.api.model.BallerinaRecordVarSymbol;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -63,7 +65,7 @@ public class SymbolFactory {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 return createFunctionSymbol((BInvokableSymbol) symbol);
             }
-            if (symbol.kind == SymbolKind.CONSTANT) {
+            if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol);
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
@@ -82,6 +84,9 @@ public class SymbolFactory {
         if (symbol instanceof BTypeSymbol) {
             if (symbol.kind == SymbolKind.ANNOTATION) {
                 return createAnnotationSymbol((BAnnotationSymbol) symbol);
+            }
+            if (symbol instanceof BPackageSymbol) {
+                return createModuleSymbol((BPackageSymbol) symbol);
             }
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol);
@@ -113,9 +118,8 @@ public class SymbolFactory {
         if (objectTypeSymbol == null) {
             return null;
         }
-        return new BallerinaObjectVarSymbol.ObjectVarSymbolBuilder(name,
-                objectTypeSymbol.pkgID,
-                objectTypeSymbol).build();
+        return new BallerinaObjectVarSymbol.ObjectVarSymbolBuilder(name, objectTypeSymbol.pkgID, objectTypeSymbol)
+                .build();
 
     }
 
@@ -180,8 +184,7 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             accessModifiers.add(AccessModifier.PUBLIC);
         }
-        
-        return new BallerinaParameter(name, typeDescriptor, accessModifiers);
+        return new BallerinaParameter(name, typeDescriptor, accessModifiers, symbol.defaultableParam);
     }
 
     /**
@@ -213,7 +216,9 @@ public class SymbolFactory {
         String name = constantSymbol.name.getValue();
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
-        return symbolBuilder.withConstValue(constantSymbol.getConstValue()).build();
+        return symbolBuilder.withConstValue(constantSymbol.getConstValue())
+                .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType))
+                .build();
     }
 
     /**
@@ -224,6 +229,18 @@ public class SymbolFactory {
      */
     public static BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
         return new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol)
+                .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()))
                 .build();
+    }
+
+    /**
+     * Create a module symbol.
+     * 
+     * @param symbol Package Symbol to evaluate
+     * @return {@link BallerinaModule} symbol generated
+     */
+    public static BallerinaModule createModuleSymbol(BPackageSymbol symbol) {
+        String name = symbol.getName().getValue();
+        return new BallerinaModule.ModuleSymbolBuilder(name, symbol.pkgID, symbol).build();
     }
 }

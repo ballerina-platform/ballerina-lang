@@ -41,6 +41,9 @@ public class DocAttachment {
      * @return {@link Optional} description
      */
     public Optional<String> getDescription() {
+        if (markdownDocAttachment == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(markdownDocAttachment.description);
     }
 
@@ -51,8 +54,10 @@ public class DocAttachment {
      */
     public Map<String, String> getParameterMap() {
         HashMap<String, String> paramMap = new HashMap<>();
-        this.markdownDocAttachment.parameters
-                .forEach(parameter -> paramMap.put(parameter.name, parameter.description));
+        if (this.markdownDocAttachment != null) {
+            this.markdownDocAttachment.parameters
+                    .forEach(parameter -> paramMap.put(parameter.name, parameter.description));
+        }
         
         return paramMap;
     }
@@ -63,6 +68,9 @@ public class DocAttachment {
      * @return {@link Optional} return description
      */
     public Optional<String> getReturnDescription() {
+        if (this.markdownDocAttachment == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(this.markdownDocAttachment.returnValueDescription);
     }
 }

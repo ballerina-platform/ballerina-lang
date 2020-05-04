@@ -74,5 +74,11 @@ public class BallerinaConstantSymbol extends BallerinaVariable {
             this.constantValue = constValue;
             return this;
         }
+
+        @Override
+        public ConstantSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
+            super.withTypeDescriptor(typeDescriptor);
+            return this;
+        }
     }
 }

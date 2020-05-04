@@ -33,11 +33,12 @@ public enum BallerinaSymbolKind {
     FUNCTION_DEFINITION,
     EXTERNAL_FUNCTION,
     REMOTE_FUNCTION,
-    ACTION_INVOCATION,
     CONST,
     TYPE_DEF,
     VARIABLE,
     SERVICE,
     WORKER,
+    OBJECT,
+    RECORD,
     ANNOTATION
 }

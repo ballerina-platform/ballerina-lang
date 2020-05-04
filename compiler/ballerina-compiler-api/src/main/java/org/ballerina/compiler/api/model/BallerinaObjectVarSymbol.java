@@ -18,11 +18,13 @@
 package org.ballerina.compiler.api.model;
 
 import org.ballerina.compiler.api.semantic.SymbolFactory;
+import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +41,12 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
     
     private BallerinaObjectVarSymbol(String name,
                                      PackageID moduleID,
+                                     BallerinaSymbolKind symbolKind,
                                      ObjectTypeDescriptor typeDescriptor,
                                      BallerinaFunctionSymbol initFunction,
                                      List<BallerinaFunctionSymbol> methods,
                                      BSymbol symbol) {
-        super(name, moduleID, BallerinaSymbolKind.VARIABLE, new ArrayList<>(), typeDescriptor, symbol);
+        super(name, moduleID, symbolKind, new ArrayList<>(), typeDescriptor, symbol);
         this.initFunction = initFunction;
         this.methods = methods;
     }
@@ -67,6 +70,34 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
     }
 
     /**
+     * Whether the object is an abstract object.
+     *
+     * @return {@link Boolean} status
+     */
+    public boolean isAbstract() {
+        return ((ObjectTypeDescriptor) this.getTypeDescriptor()).getTypeQualifiers()
+                .contains(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
+    }
+
+    /**
+     * Get the client actions defined.
+     * 
+     * @return {@link List} of client actions
+     */
+    public List<BallerinaFunctionSymbol> getClientActions() {
+        List<BallerinaFunctionSymbol> list = new ArrayList<>();
+        if (this.getKind() == BallerinaSymbolKind.CLIENT) {
+            for (BallerinaFunctionSymbol functionSymbol : methods) {
+                if (functionSymbol.getKind() == BallerinaSymbolKind.REMOTE_FUNCTION) {
+                    list.add(functionSymbol);
+                }
+            }
+        }
+        
+        return list;
+    }
+
+    /**
      * Represents Object Type Builder.
      * 
      * @since 1.3.0
@@ -86,8 +117,17 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
             if (this.typeDescriptor == null) {
                 throw new AssertionError("Type Descriptor cannot be null");
             }
+            BallerinaSymbolKind symbolKind;
+            if (((this.bSymbol.flags & Flags.LISTENER) == Flags.LISTENER)) {
+                symbolKind = BallerinaSymbolKind.LISTENER;
+            } else if (((this.bSymbol.flags & Flags.CLIENT) == Flags.CLIENT)) {
+                symbolKind = BallerinaSymbolKind.CLIENT;
+            } else {
+                symbolKind = BallerinaSymbolKind.OBJECT;
+            }
             return new BallerinaObjectVarSymbol(this.name,
                     this.moduleID,
+                    symbolKind,
                     (ObjectTypeDescriptor) this.typeDescriptor,
                     this.initFunction,
                     this.methods,
@@ -102,6 +142,7 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
                 list.add(functionSymbol);
             }
             this.methods = list;
+            this.typeDescriptor = TypesFactory.getTypeDescriptor(objectTypeSymbol.getType());
         }
     }
 }

@@ -22,6 +22,7 @@ import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,10 +40,11 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
     
     private BallerinaFunctionSymbol(String name,
                                     PackageID moduleID,
+                                    BallerinaSymbolKind symbolKind,
                                     List<AccessModifier> accessModifiers,
                                     TypeDescriptor typeDescriptor,
                                     BInvokableSymbol invokableSymbol) {
-        super(name, moduleID, BallerinaSymbolKind.FUNCTION, accessModifiers, typeDescriptor, invokableSymbol);
+        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor, invokableSymbol);
         this.parameters = invokableSymbol.params.stream()
                 .map(SymbolFactory::createBallerinaParameter)
                 .collect(Collectors.toList());
@@ -87,8 +89,15 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
         }
 
         public BallerinaFunctionSymbol build() {
+            BallerinaSymbolKind symbolKind;
+            if ((this.bSymbol.flags & Flags.REMOTE) == Flags.REMOTE) {
+                symbolKind = BallerinaSymbolKind.REMOTE_FUNCTION;
+            } else {
+                symbolKind = BallerinaSymbolKind.FUNCTION;
+            }
             return new BallerinaFunctionSymbol(this.name,
                     this.moduleID,
+                    symbolKind,
                     this.accessModifiers,
                     this.typeDescriptor,
                     (BInvokableSymbol) this.bSymbol);

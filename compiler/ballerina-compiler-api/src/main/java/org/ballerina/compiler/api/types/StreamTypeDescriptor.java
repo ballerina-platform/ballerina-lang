@@ -59,17 +59,16 @@ public class StreamTypeDescriptor extends BallerinaTypeDesc {
     /**
      * Represents Future Type Descriptor Builder.
      */
-    public static class FutureTypeBuilder extends TypeBuilder<FutureTypeBuilder> {
+    public static class StreamTypeBuilder extends TypeBuilder<StreamTypeBuilder> {
         private List<TypeDescriptor> typeParameters = new ArrayList<>();
 
         /**
          * Symbol Builder Constructor.
          *
-         * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
          */
-        public FutureTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
+        public StreamTypeBuilder(PackageID moduleID) {
+            super(TypeDescKind.STREAM, moduleID);
         }
 
         /**
@@ -83,7 +82,7 @@ public class StreamTypeDescriptor extends BallerinaTypeDesc {
                     this.typeParameters);
         }
 
-        public FutureTypeBuilder withTypeParameter(TypeDescriptor memberType) {
+        public StreamTypeBuilder withTypeParameter(TypeDescriptor memberType) {
             this.typeParameters.add(memberType);
             return this;
         }

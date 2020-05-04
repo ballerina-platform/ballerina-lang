@@ -38,9 +38,8 @@ public class BallerinaModule extends BallerinaSymbol {
     
     protected BallerinaModule(String name,
                               PackageID moduleID,
-                              BallerinaSymbolKind ballerinaSymbolKind,
                               BPackageSymbol packageSymbol) {
-        super(name, moduleID, ballerinaSymbolKind, packageSymbol);
+        super(name, moduleID, BallerinaSymbolKind.MODULE, packageSymbol);
         this.packageSymbol = packageSymbol;
     }
 
@@ -95,6 +94,15 @@ public class BallerinaModule extends BallerinaSymbol {
     }
 
     /**
+     * Get the listeners in the Module.
+     *
+     * @return {@link List} of listeners
+     */
+    public List<BallerinaObjectVarSymbol> getListeners() {
+        return new ArrayList<>();
+    }
+
+    /**
      * Get all public the symbols within the module.
      *
      * @return {@link List} of type definitions
@@ -120,9 +128,8 @@ public class BallerinaModule extends BallerinaSymbol {
         
         public ModuleSymbolBuilder(String name,
                                    PackageID moduleID,
-                                   BallerinaSymbolKind symbolKind,
                                    BPackageSymbol packageSymbol) {
-            super(name, moduleID, symbolKind, packageSymbol);
+            super(name, moduleID, BallerinaSymbolKind.MODULE, packageSymbol);
         }
 
         /**
@@ -134,7 +141,6 @@ public class BallerinaModule extends BallerinaSymbol {
             }
             return new BallerinaModule(this.name,
                     this.moduleID,
-                    this.ballerinaSymbolKind,
                     (BPackageSymbol) this.bSymbol);
         }
     }

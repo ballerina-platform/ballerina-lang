@@ -26,10 +26,10 @@ import org.ballerinalang.model.elements.PackageID;
  * @since 1.3.0
  */
 public class MapTypeDescriptor extends BallerinaTypeDesc {
+    
     private TypeDescriptor memberTypeDesc;
     
-    private
-    MapTypeDescriptor(TypeDescKind typeDescKind,
+    private MapTypeDescriptor(TypeDescKind typeDescKind,
                              ModuleID moduleID,
                              TypeDescriptor memberTypeDesc) {
         super(typeDescKind, moduleID);
@@ -49,16 +49,16 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
      * Represents Tuple Type Descriptor.
      */
     public static class MapTypeBuilder extends TypeBuilder<MapTypeBuilder> {
+        
         private TypeDescriptor memberType;
 
         /**
          * Symbol Builder Constructor.
          *
-         * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
          */
-        public MapTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
+        public MapTypeBuilder(PackageID moduleID) {
+            super(TypeDescKind.MAP, moduleID);
         }
 
         /**

@@ -45,7 +45,7 @@ public class BallerinaRecordVarSymbol extends BallerinaVariable {
                                        List<BallerinaField> fields,
                                        TypeDescriptor restType,
                                        BSymbol symbol) {
-        super(name, moduleID, BallerinaSymbolKind.VARIABLE, accessModifiers, typeDescriptor, symbol);
+        super(name, moduleID, BallerinaSymbolKind.RECORD, accessModifiers, typeDescriptor, symbol);
         this.recordFields = fields;
         this.restType = restType;
     }

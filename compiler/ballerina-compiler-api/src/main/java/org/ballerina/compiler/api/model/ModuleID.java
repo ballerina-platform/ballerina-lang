@@ -18,6 +18,9 @@
 package org.ballerina.compiler.api.model;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.stream.Collectors;
 
 /**
  * Represents a module information in ballerina.
@@ -25,6 +28,11 @@ import org.ballerinalang.model.elements.PackageID;
  * @since 1.3.0
  */
 public class ModuleID {
+    
+    private static final String ANON_ORG = "$anon";
+    
+    
+    
     private PackageID moduleID;
 
     public ModuleID(PackageID moduleID) {
@@ -42,9 +50,21 @@ public class ModuleID {
     public String getModulePrefix() {
         return null;
     }
+    
+    public String getModuleName() {
+        return this.moduleID.getNameComps().stream().map(Name::getValue).collect(Collectors.joining("."));
+    } 
 
     public boolean isLangLib() {
         // todo: implement the logic 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        if (ANON_ORG.equals(this.getOrgName())) {
+            return ".";
+        }
+        return this.getOrgName() + "/" + this.getModuleName() + ":" + this.getVersion();
     }
 }

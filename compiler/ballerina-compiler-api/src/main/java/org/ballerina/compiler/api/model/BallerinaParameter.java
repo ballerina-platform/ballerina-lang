@@ -21,6 +21,7 @@ import org.ballerina.compiler.api.types.TypeDescriptor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represents a parameter with a name and type.
@@ -32,13 +33,15 @@ public class BallerinaParameter {
     private List<AccessModifier> accessModifiers;
     private String parameterName;
     private TypeDescriptor typeDescriptor;
+    private boolean defaultable;
 
     public BallerinaParameter(String parameterName, TypeDescriptor typeDescriptor,
-                              List<AccessModifier> accessModifiers) {
+                              List<AccessModifier> accessModifiers, boolean defaultable) {
         // TODO: Add the meta
         this.parameterName = parameterName;
         this.typeDescriptor = typeDescriptor;
         this.accessModifiers = accessModifiers;
+        this.defaultable = defaultable;
     }
 
     /**
@@ -46,7 +49,7 @@ public class BallerinaParameter {
      * 
      * @return {@link Optional} name of the field
      */
-    public Optional<String> getParameterName() {
+    public Optional<String> getName() {
         return Optional.ofNullable(parameterName);
     }
 
@@ -74,9 +77,22 @@ public class BallerinaParameter {
      * @return {}
      */
     public String getSignature() {
-        // TODO: Implementation required
-        StringBuilder signature = new StringBuilder();
+        StringJoiner joiner = new StringJoiner(" ");
+        this.getAccessModifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
+        joiner.add(this.getTypeDescriptor().getSignature());
+        if (this.getName().isPresent()) {
+            joiner.add(this.getName().get());
+        }
         
-        return signature.toString();
+        return joiner.toString();
+    }
+
+    /**
+     * Whether the parameter is defaultable or not.
+     * 
+     * @return {@link Boolean} defaultable status
+     */
+    public boolean isDefaultable() {
+        return defaultable;
     }
 }

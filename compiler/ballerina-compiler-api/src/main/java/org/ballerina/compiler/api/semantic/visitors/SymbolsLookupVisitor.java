@@ -18,8 +18,12 @@
 package org.ballerina.compiler.api.semantic.visitors;
 
 import io.ballerinalang.compiler.text.TextPosition;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -37,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -75,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -115,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -129,17 +130,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -154,6 +152,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+
+import java.util.List;
 
 /**
  * Visitor to lookup symbols based on the location.
@@ -232,6 +232,287 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        this.acceptNode(constant.typeNode, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        BSymbol recordSymbol = recordTypeNode.symbol;
+        SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, recordSymbol.scope, symbolEnv);
+        recordTypeNode.fields.forEach(field -> acceptNode(field, recordEnv));
+    }
+
+    @Override
+    public void visit(BLangSimpleVariable varNode) {
+        this.acceptNode(varNode.expr, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr binaryExpr) {
+        binaryExpr.getLeftExpression().accept(this);
+        binaryExpr.getRightExpression().accept(this);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.getExpressions().forEach(bLangExpression -> this.acceptNode(bLangExpression, symbolEnv));
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        conversionExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangBlockStmt blockNode) {
+//        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
+//        List<BLangStatement> statements = blockNode.stmts.stream()
+//                .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
+//                .sorted(new CommonUtil.BLangNodeComparator())
+//                .collect(Collectors.toList());
+//
+//        if (statements.isEmpty() && CompletionVisitorUtil
+//                .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
+//                        this.lsContext, this)) {
+//            return;
+//        }
+//
+//        for (int i = 0; i < statements.size(); i++) {
+//            this.blockStmtStack.push(blockNode);
+//            this.cursorPositionResolver = BlockStatementScopeResolver.class;
+//            this.acceptNode(statements.get(i), blockEnv);
+//            if (this.terminateVisitor && this.previousNode == null) {
+//                int nodeIndex = statements.size() > 1 && i > 0 ? (i - 1) : 0;
+//                this.previousNode = statements.get(nodeIndex);
+//                lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+//            }
+//            this.blockStmtStack.pop();
+//        }
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
+        for (BLangAnnotationAttachment annotation : body.annAttachments) {
+            this.acceptNode(annotation, symbolEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
+        this.acceptNode(exprFuncBody.expr, exprBodyEnv);
+    }
+
+    @Override
+    public void visit(BLangSimpleVariableDef varDefNode) {
+        boolean isFuture = varDefNode.getVariable().expr != null
+                && varDefNode.getVariable().expr.type instanceof BFutureType;
+        if (isFuture) {
+            return;
+        }
+
+        this.acceptNode(varDefNode.var, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangAssignment assignNode) {
+        this.acceptNode(assignNode.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        if (!(exprStmtNode.expr instanceof BLangInvocation)) {
+            return;
+        }
+        this.acceptNode(exprStmtNode.expr, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationNode) {
+//        invocationNode.getArgumentExpressions().forEach(expressionNode -> {
+//        });
+        // Specially check for the position of the cursor to support the completion for complete sources
+        // eg: string modifiedStr = sampleStr.replace("hello", "Hello").<cursor>toLower();
+    }
+
+    @Override
+    public void visit(BLangIf ifNode) {
+        this.acceptNode(ifNode.body, this.symbolEnv);
+
+        if (ifNode.elseStmt != null) {
+            acceptNode(ifNode.elseStmt, this.symbolEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangWhile whileNode) {
+        this.acceptNode(whileNode.body, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
+        this.acceptNode(transactionNode.transactionBody, transactionEnv);
+
+        if (transactionNode.onRetryBody != null) {
+            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
+        }
+        if (transactionNode.committedBody != null) {
+            this.acceptNode(transactionNode.committedBody, transactionEnv);
+        }
+        if (transactionNode.abortedBody != null) {
+            this.acceptNode(transactionNode.abortedBody, transactionEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+    }
+
+    @Override
+    public void visit(BLangForkJoin forkJoin) {
+        SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
+        forkJoin.workers.forEach(e -> {
+            this.acceptNode(e, folkJoinEnv);
+        });
+    }
+
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+    }
+
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        //Todo receive is an expression now and a statement
+        //CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+        //        .isCursorBeforeNode(workerReceiveNode.getPosition(), this, this.lsContext, workerReceiveNode, null);
+    }
+
+    @Override
+    public void visit(BLangReturn returnNode) {
+        this.acceptNode(returnNode.expr, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangContinue continueNode) {
+    }
+
+    @Override
+    public void visit(BLangBreak breakNode) {
+    }
+
+    @Override
+    public void visit(BLangPanic panicNode) {
+        this.acceptNode(panicNode.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangLock lockNode) {
+        this.acceptNode(lockNode.body, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        this.acceptNode(foreach.body, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        matchNode.patternClauses.forEach(patternClause -> {
+            acceptNode(patternClause, this.symbolEnv);
+        });
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
+        this.symbolEnv.copyTo(annotationAttachmentEnv);
+        if (annAttachmentNode.annotationSymbol == null) {
+            return;
+        }
+        PackageID packageID = annAttachmentNode.annotationSymbol.pkgID;
+        // TODO: Do we need this still?
+        if (packageID.getOrgName().getValue().equals("ballerina") && packageID.getName().getValue().equals("grpc")
+                && annAttachmentNode.annotationName.getValue().equals("ServiceDescriptor")) {
+            return;
+        }
+        this.acceptNode(annAttachmentNode.expr, annotationAttachmentEnv);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef simpleVarRef) {
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+        SymbolEnv recordLiteralEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
+        symbolEnv.copyTo(recordLiteralEnv);
+        List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        fields.forEach(keyValue -> {
+            this.acceptNode((BLangNode) keyValue, recordLiteralEnv);
+        });
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
+//        this.visitMatchPatternClause(patternClause, patternClause.body);
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
+//        this.visitMatchPatternClause(patternClause, patternClause.body);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
+        this.acceptNode(recordKeyValue.valueExpr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(bLangExpression -> this.acceptNode(bLangExpression, symbolEnv));
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        this.acceptNode(bLangNamedArgsExpression.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangAnnotation annotationNode) {
+        annotationNode.annAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment compoundAssignNode) {
+        this.acceptNode(compoundAssignNode.expr, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        this.acceptNode(queryAction.doClause, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        this.acceptNode(doClause.body, symbolEnv);
+    }
+    
+    @Override
     public void visit(BLangPackage pkgNode) {
     }
 
@@ -250,31 +531,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangExprFunctionBody exprFuncBody) {
-        
-    }
-
-    @Override
-    public void visit(BLangExternalFunctionBody externFuncBody) {
-        
-    }
-
-    @Override
-    public void visit(BLangResource resourceNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangConstant constant) {
-        
-    }
-
-    @Override
-    public void visit(BLangSimpleVariable varNode) {
-        this.acceptNode(varNode.expr, this.symbolEnv);
-    }
-
-    @Override
     public void visit(BLangWorker workerNode) {
         
     }
@@ -290,112 +546,12 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAnnotation annotationNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangBlockStmt blockNode) {
-        
-    }
-
-    @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
         
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangSimpleVariableDef varDefNode) {
-        this.acceptNode(varDefNode.var, this.symbolEnv);
-    }
-
-    @Override
-    public void visit(BLangAssignment assignNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangCompoundAssignment compoundAssignNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangAbort abortNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangRetry retryNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangContinue continueNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangBreak breakNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangReturn returnNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangThrow throwNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangPanic panicNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangExpressionStmt exprStmtNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangIf ifNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangQueryAction queryAction) {
-        
-    }
-
-    @Override
-    public void visit(BLangMatch matchNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangForeach foreach) {
         
     }
 
@@ -420,26 +576,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDoClause doClause) {
-        
-    }
-
-    @Override
-    public void visit(BLangWhile whileNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangLock lockNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangTransaction transactionNode) {
-        
-    }
-
-    @Override
     public void visit(BLangTryCatchFinally tryNode) {
         
     }
@@ -460,26 +596,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangCatch catchNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangForkJoin forkJoin) {
-        
-    }
-
-    @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangWorkerReceive workerReceiveNode) {
-        
-    }
-
-    @Override
     public void visit(BLangLiteral literalExpr) {
         
     }
@@ -491,11 +607,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
-        
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral recordLiteral) {
         
     }
 
@@ -515,27 +626,12 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef varRefExpr) {
-        
-    }
-
-    @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        
-    }
-
-    @Override
-    public void visit(BLangInvocation invocationExpr) {
-        
-    }
-
-    @Override
-    public void visit(BLangTypeInit connectorInitExpr) {
         
     }
 
@@ -560,17 +656,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBinaryExpr binaryExpr) {
-        
-    }
-
-    @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        
-    }
-
-    @Override
-    public void visit(BLangGroupExpr groupExpr) {
         
     }
 
@@ -581,11 +667,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetVariable letVariable) {
-        
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr listConstructorExpr) {
         
     }
 
@@ -606,11 +687,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
-        
-    }
-
-    @Override
-    public void visit(BLangTypeConversionExpr conversionExpr) {
         
     }
 
@@ -675,22 +751,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        
-    }
-
-    @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        
-    }
-
-    @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
         
     }
 
@@ -771,11 +832,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangRecordTypeNode recordTypeNode) {
         
     }
 
@@ -940,11 +996,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        
-    }
-
-    @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         
     }
@@ -956,22 +1007,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        
-    }
-
-    @Override
-    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause
-                                  bLangMatchStmtStructuredBindingPatternClause) {
         
     }
 
@@ -992,11 +1027,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
         
     }
 

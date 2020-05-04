@@ -57,6 +57,15 @@ public class BallerinaField {
     public boolean isOptional() {
         return (this.bField.type.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
+    
+    /**
+     * Whether required field or not.
+     * 
+     * @return {@link Boolean} required status
+     */
+    public boolean isRequired() {
+        return (this.bField.type.flags & Flags.REQUIRED) == Flags.REQUIRED;
+    }
 
     /**
      * Get the type descriptor of the field.

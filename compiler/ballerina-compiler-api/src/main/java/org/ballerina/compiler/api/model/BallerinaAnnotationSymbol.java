@@ -84,5 +84,10 @@ public class BallerinaAnnotationSymbol extends BallerinaTypeDefinition {
         private void withAnnotationSymbol(BAnnotationSymbol annotationSymbol) {
             this.attachPoints.addAll(AnnotationAttachPoint.getAttachPoints(annotationSymbol.maskedPoints));
         }
+
+        @Override
+        public AnnotationSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
+            return (AnnotationSymbolBuilder) super.withTypeDescriptor(typeDescriptor);
+        }
     }
 }

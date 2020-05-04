@@ -19,13 +19,17 @@ package org.ballerina.compiler.api.semantic;
 
 import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.types.BuiltinTypeDescriptor;
+import org.ballerina.compiler.api.types.ErrorTypeDescriptor;
 import org.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import org.ballerina.compiler.api.types.NilTypeDescriptor;
 import org.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import org.ballerina.compiler.api.types.RecordTypeDescriptor;
 import org.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -52,8 +56,15 @@ public class TypesFactory {
                 return createRecordTypeDescriptor((BRecordType) bType);
             case FUNCTION:
                 return createFunctionTypeDescriptor((BInvokableType) bType);
+            case ERROR:
+                if (bType.tsymbol != null && "error".equals(bType.tsymbol.name.getValue())) {
+                    return createBuiltinTypeDesc(bType);
+                }
+                return createErrorTypeDescriptor((BErrorType) bType);
             case ANNOTATION:
                 return null;
+            case NIL:
+                return createNilTypeDesc(bType);
             default:
                 return createBuiltinTypeDesc(bType);
         }
@@ -75,6 +86,9 @@ public class TypesFactory {
             objectTypeBuilder.withTypeQualifier(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
         }
         if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
+            objectTypeBuilder.withTypeQualifier(ObjectTypeDescriptor.TypeQualifier.CLIENT);
+        }
+        if ((objectType.flags & Flags.LISTENER) == Flags.LISTENER) {
             objectTypeBuilder.withTypeQualifier(ObjectTypeDescriptor.TypeQualifier.CLIENT);
         }
         objectTypeBuilder.withSymbol((BObjectTypeSymbol) objectType.tsymbol);
@@ -105,6 +119,13 @@ public class TypesFactory {
                 = new FunctionTypeDescriptor.FunctionTypeBuilder(TypeDescKind.FUNCTION, pkgID);
         return functionTypeBuilder.build();
     }
+    
+    public static ErrorTypeDescriptor createErrorTypeDescriptor(BErrorType errorType) {
+        PackageID pkgID = errorType.tsymbol.pkgID;
+        ErrorTypeDescriptor.ErrorTypeBuilder errorTypeBuilder
+                = new ErrorTypeDescriptor.ErrorTypeBuilder(pkgID, (BErrorTypeSymbol) errorType.tsymbol);
+        return errorTypeBuilder.build();
+    }
 
     /**
      * Create a builtin type descriptor.
@@ -117,7 +138,17 @@ public class TypesFactory {
             return null;
         }
         return new BuiltinTypeDescriptor
-                .BuiltinTypeBuilder(TypeDescKind.BUILTIN, bType.tsymbol.pkgID, bType.tsymbol)
+                .BuiltinTypeBuilder(bType.tsymbol.pkgID, bType.tsymbol)
                 .build();
+    }
+
+    /**
+     * Create a builtin type descriptor.
+     * 
+     * @param bType {@link BType} to convert
+     * @return {@link BuiltinTypeDescriptor} generated
+     */
+    public static NilTypeDescriptor createNilTypeDesc(BType bType) {
+        return new NilTypeDescriptor.NilTypeBuilder(bType.tsymbol.pkgID).build();
     }
 }

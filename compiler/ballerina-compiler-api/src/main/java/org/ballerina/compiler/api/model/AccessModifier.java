@@ -23,7 +23,17 @@ package org.ballerina.compiler.api.model;
  * @since 1.3.0
  */
 public enum AccessModifier {
-    PUBLIC,
-    PRIVATE,
-    FINAL
+    PUBLIC("public"),
+    PRIVATE("private"),
+    FINAL("final");
+    
+    private String value;
+
+    AccessModifier(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.model;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class BallerinaSymbol implements BCompiledSymbol {
     private PackageID moduleID;
     private BallerinaSymbolKind ballerinaSymbolKind;
     private DocAttachment docAttachment;
+    private boolean isLangLib;
 
     protected BallerinaSymbol(String name,
                               PackageID moduleID,
@@ -41,6 +43,7 @@ public class BallerinaSymbol implements BCompiledSymbol {
         this.moduleID = moduleID;
         this.ballerinaSymbolKind = ballerinaSymbolKind;
         this.docAttachment = getDocAttachment(symbol);
+        this.isLangLib = symbol != null && ((symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB);
     }
 
     /**
@@ -74,7 +77,16 @@ public class BallerinaSymbol implements BCompiledSymbol {
     public Optional<DocAttachment> getDocAttachment() {
         return Optional.ofNullable(this.docAttachment);
     }
-    
+
+    /**
+     * Whether the symbol is a langlib symbol.
+     * 
+     * @return {@link Boolean} whether langlib or not
+     */
+    public boolean isLangLib() {
+        return isLangLib;
+    }
+
     private DocAttachment getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new DocAttachment(symbol.markdownDocumentation);
     }

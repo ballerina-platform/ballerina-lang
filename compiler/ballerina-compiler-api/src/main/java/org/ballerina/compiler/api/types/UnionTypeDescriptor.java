@@ -39,14 +39,14 @@ public class UnionTypeDescriptor extends BallerinaTypeDesc {
         this.memberTypes = memberTypes;
     }
     
-    public List<TypeDescriptor> getMemberTypeParameters() {
+    public List<TypeDescriptor> getMemberTypes() {
         return this.memberTypes;
     }
 
     @Override
     public String getSignature() {
         StringJoiner joiner = new StringJoiner("|");
-        this.getMemberTypeParameters().forEach(typeDescriptor -> joiner.add(typeDescriptor.getSignature()));
+        this.getMemberTypes().forEach(typeDescriptor -> joiner.add(typeDescriptor.getSignature()));
         
         return joiner.toString(); 
     }

@@ -19,45 +19,35 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
- * Represents the builtin type descriptor.
+ * Represents the nil type descriptor.
  * 
  * @since 1.3.0
  */
-public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
+public class NilTypeDescriptor extends BallerinaTypeDesc {
     
-    private String typeName;
-    
-    private BuiltinTypeDescriptor(ModuleID moduleID,
-                                  String name) {
-        super(TypeDescKind.BUILTIN, moduleID);
-        this.typeName = name;
+    private NilTypeDescriptor(ModuleID moduleID) {
+        super(TypeDescKind.NIL, moduleID);
     }
 
     @Override
     public String getSignature() {
-        // For the builtin types, return the type kind as the type name
-        return this.typeName;
+        return "()";
     }
 
     /**
      * Represents the builder for Builtin Type Descriptor.
      */
-    public static class BuiltinTypeBuilder extends TypeBuilder<BuiltinTypeBuilder> {
-        
-        private BTypeSymbol typeSymbol;
+    public static class NilTypeBuilder extends TypeBuilder<NilTypeBuilder> {
 
         /**
          * Symbol Builder Constructor.
          *
          * @param moduleID     Module ID of the type descriptor
-         * @param typeSymbol type symbol
          */
-        public BuiltinTypeBuilder(PackageID moduleID, BTypeSymbol typeSymbol) {
-            super(TypeDescKind.BUILTIN, moduleID);
-            this.typeSymbol = typeSymbol;
+        public NilTypeBuilder(PackageID moduleID) {
+            super(TypeDescKind.NIL, moduleID);
         }
 
         /**
@@ -65,8 +55,8 @@ public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
          *
          * @return {@link TypeDescriptor} built
          */
-        public BuiltinTypeDescriptor build() {
-            return new BuiltinTypeDescriptor(this.moduleID, this.typeSymbol.getName().getValue());
+        public NilTypeDescriptor build() {
+            return new NilTypeDescriptor(this.moduleID);
         }
     }
 }

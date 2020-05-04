@@ -23,11 +23,17 @@ package org.ballerina.compiler.api.types;
  * @since 1.3.0
  */
 public enum TypeDescKind {
+    ARRAY,
     OBJECT,
     RECORD,
+    MAP,
     ERROR,
     SIMPLE,
     OTHER,
     FUNCTION,
-    BUILTIN
+    BUILTIN,
+    NIL,
+    TUPLE,
+    STREAM,
+    UNION
 }
