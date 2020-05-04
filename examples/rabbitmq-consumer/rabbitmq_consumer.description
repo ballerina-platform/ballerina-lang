@@ -3,4 +3,6 @@
 // The Ballerina RabbitMQ connection used here can be re-used to create
 // multiple channels.
 // Multiple services consuming messages from the same queue or from
-// different queues can be attached to the same Listener.
+// different queues can be attached to the same Listener.<br/><br/>
+// For more information on the underlying module, 
+// see the [RabbitMQ module](https://ballerina.io/learn/api-docs/ballerina/rabbitmq/index.html).

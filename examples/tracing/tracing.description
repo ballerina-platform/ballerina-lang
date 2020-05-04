@@ -1,4 +1,5 @@
 // Ballerina supports Observability out of the box, and Tracing is one of the three important aspect of the
 // Observability. To observe Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service.
 // The developers can trace their code blocks and measure the time incurred during the actual runtime execution.
-// They can choose the hook their measurement with the default trace created or can create a completely new trace.
+// They can choose the hook their measurement with the default trace created or can create a completely new trace.<br/><br/>
+// For more information, see [How to Observe Ballerina Services](https://ballerina.io/learn/how-to-observe-ballerina-code/).

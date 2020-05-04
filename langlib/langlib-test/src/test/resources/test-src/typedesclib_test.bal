@@ -152,7 +152,7 @@ function testConstructFromFailureWithAmbiguousNumericConversionTarget() returns 
     int[] i = [1, 2];
     (float|decimal|boolean)[]|error j = (float|decimal|boolean)[].constructFrom(i); // two possible conversion types
     return j is error && j.reason() == "{ballerina/lang.typedesc}ConversionError" &&
-            j.detail()?.message == "'int[]' value cannot be converted to 'float|decimal|boolean[]'";
+            j.detail()?.message == "'int[]' value cannot be converted to '(float|decimal|boolean)[]'";
 }
 
 type A record {

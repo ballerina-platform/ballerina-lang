@@ -50,6 +50,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -525,7 +526,7 @@ public class TypeChecker {
         if (type == null) {
             return null;
         }
-        return new TypedescValue(type);
+        return new TypedescValueImpl(type);
     }
 
     /**

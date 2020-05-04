@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
@@ -25,7 +26,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *
  * @since 0.94
  */
-public interface WorkerSendNode extends StatementNode {
+public interface WorkerSendNode extends StatementNode, ActionNode {
 
     ExpressionNode getExpression();
 

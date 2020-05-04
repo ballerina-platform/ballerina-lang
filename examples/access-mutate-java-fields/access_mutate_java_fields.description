@@ -1,4 +1,6 @@
 // Java fields (both static and instance) can be read and updated in Ballerina.
 // From the Ballerina side, they will appear as function calls. This example shows how to read a field value.
 // Similarly, the `@java:FieldSet` annotation can be used to create a Ballerina function with
-// an external function that acts as a field setter.
+// an external function that acts as a field setter.<br/><br/>
+// For more information on the underlying module, 
+// see the [Java module](https://ballerina.io/learn/api-docs/ballerina/java/index.html).

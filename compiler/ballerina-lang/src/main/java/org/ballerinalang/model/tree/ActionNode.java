@@ -15,16 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+package org.ballerinalang.model.tree;
 
 /**
- * An interface to track nillable objects at JVM codegen side.
+ * Interface used for marking nodes as actions.
  *
- * @since 1.2.0
+ * @since 1.3.0
  */
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
-public @interface Nilable {
+public interface ActionNode extends Node {
 }

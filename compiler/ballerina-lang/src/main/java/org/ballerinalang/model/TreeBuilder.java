@@ -502,6 +502,10 @@ public class TreeBuilder {
         return new BLangInvocation();
     }
 
+    public static InvocationNode createActionInvocation() {
+        return new BLangInvocation.BLangActionInvocation();
+    }
+
     public static FieldBasedAccessNode createFieldBasedAccessNode() {
         return new BLangFieldBasedAccess();
     }

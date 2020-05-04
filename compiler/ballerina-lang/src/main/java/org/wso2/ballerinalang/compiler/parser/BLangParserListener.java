@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -2122,8 +2123,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
         String invocation = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
-                getCurrentPos(identifierContext));
+                                             getCurrentPos(identifierContext), isAsync(ctx), annots);
     }
 
     @Override
@@ -2145,8 +2148,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = invocation.invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
         String invocationText = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation), invocationText,
-                argsAvailable, getCurrentPos(identifierContext));
+                                             argsAvailable, getCurrentPos(identifierContext), isAsync(ctx), annots);
         this.pkgBuilder.createGroupExpression(getCurrentPos(node), getWS(ctx));
     }
 
@@ -2158,7 +2163,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocationArgList() != null;
-        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        boolean actionInvocation = ctx.parent instanceof BallerinaParser.ActionInvocationContext || isAsync(ctx);
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable, actionInvocation);
+    }
+
+    private boolean isAsync(RuleContext ctx) {
+        BallerinaParser.VariableReferenceExpressionContext parent = getParentVarRefExprContext(ctx);
+        return parent != null && parent.START() != null;
+    }
+
+    private BallerinaParser.VariableReferenceExpressionContext getParentVarRefExprContext(RuleContext ctx) {
+        RuleContext parent = ctx.parent;
+        while (parent != null && !(parent instanceof BallerinaParser.VariableReferenceExpressionContext)) {
+            parent = parent.parent;
+        }
+        return (BallerinaParser.VariableReferenceExpressionContext) parent;
     }
 
     @Override
@@ -2251,8 +2270,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
         String invocation = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
-                getCurrentPos(identifierContext));
+                                             getCurrentPos(identifierContext), isAsync(ctx), annots);
     }
 
     @Override
@@ -2266,9 +2287,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = invocation.invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
         String invocationText = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
         this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation),
-                invocationText, argsAvailable, getCurrentPos(identifierContext));
+                                             invocationText, argsAvailable, getCurrentPos(identifierContext),
+                                             isAsync(ctx), annots);
     }
 
     @Override
@@ -2280,8 +2304,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
         String invocation = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
-                getCurrentPos(identifierContext));
+                                             getCurrentPos(identifierContext), isAsync(ctx), annots);
     }
 
     /**
@@ -2609,8 +2635,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         int numAnnotations = ctx.annotationAttachment().size();
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null,
-                numAnnotations);
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null, true,
+                                                   numAnnotations);
     }
 
     @Override

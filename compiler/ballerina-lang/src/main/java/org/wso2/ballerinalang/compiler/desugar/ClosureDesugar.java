@@ -1335,6 +1335,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation aIExpr) {
+        aIExpr.expr = rewriteExpr(aIExpr.expr);
+        aIExpr.requiredArgs = rewriteExprs(aIExpr.requiredArgs);
+        aIExpr.restArgs = rewriteExprs(aIExpr.restArgs);
         result = aIExpr;
     }
 
