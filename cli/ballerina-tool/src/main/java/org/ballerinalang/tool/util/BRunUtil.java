@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.tool.util;
 
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BType;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 
 /**
  * Utility methods for run Ballerina functions.

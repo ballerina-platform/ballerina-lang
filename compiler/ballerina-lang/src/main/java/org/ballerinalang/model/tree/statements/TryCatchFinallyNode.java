@@ -24,6 +24,7 @@ import java.util.List;
  *
  * @deprecated since 0.983.0, use trap instead.
  */
+@Deprecated
 public interface TryCatchFinallyNode extends StatementNode {
     BlockStatementNode getBody();
 

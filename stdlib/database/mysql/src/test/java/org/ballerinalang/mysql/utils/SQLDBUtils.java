@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.mysql.utils;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.testng.Assert;
 
 import java.nio.file.Path;

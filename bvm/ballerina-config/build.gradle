@@ -22,6 +22,19 @@ dependencies {
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-text'
 }
 
 description = 'Ballerina - Config API'
+
+ext.moduleName = 'ballerina.config'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

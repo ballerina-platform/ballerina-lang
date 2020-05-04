@@ -18,8 +18,8 @@
 package org.ballerinalang.stdlib.xmlutils;
 
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

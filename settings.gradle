@@ -125,8 +125,8 @@ include(':ballerina-jwt')
 include(':ballerina-ldap')
 include(':ballerina-oauth2')
 include(':build-config:checkstyle')
-include(':debug-adapter:debug-adapter-core')
-include(':debug-adapter:debug-adapter-cli')
+//include(':debug-adapter:debug-adapter-core')
+//include(':debug-adapter:debug-adapter-cli')
 include(':ballerina-libs')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-lang:internal').projectDir = file('langlib/lang.__internal')
@@ -248,8 +248,8 @@ project(':testerina:testerina-runtime').projectDir = file('misc/testerina/module
 project(':testerina:report-tools').projectDir = file('misc/testerina/modules/report-tools')
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 
-project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
-project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
+//project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
+//project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"

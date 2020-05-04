@@ -38,7 +38,7 @@ dependencies {
     implementation 'me.tongfei:progressbar:0.7.4'
     implementation 'org.jline:jline:3.11.0'
     implementation 'javax.ws.rs:javax.ws.rs-api'
-
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3'
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
 
@@ -81,3 +81,15 @@ test {
 
 description = 'Ballerina - CLI Module'
 
+
+ext.moduleName = 'ballerina.cli.module'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

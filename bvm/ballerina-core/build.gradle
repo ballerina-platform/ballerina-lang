@@ -62,7 +62,7 @@ configurations {
 }
 
 serviceLoaderBuild {
-    inputs.files(sourceSets.main.java);
+    inputs.files(sourceSets.main.java)
     outputs.dir("$buildDir/resources/main/META-INF/services/")
     outputs.cacheIf { true }
 }

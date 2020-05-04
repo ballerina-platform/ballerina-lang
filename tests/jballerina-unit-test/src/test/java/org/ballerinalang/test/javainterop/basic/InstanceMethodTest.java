@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BHandleType;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.types.BHandleType;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

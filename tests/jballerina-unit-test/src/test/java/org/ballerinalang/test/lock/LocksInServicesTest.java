@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.lock;
 
-import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.core.model.util.StringUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
