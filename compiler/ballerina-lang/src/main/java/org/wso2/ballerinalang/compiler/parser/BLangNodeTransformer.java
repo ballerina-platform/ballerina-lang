@@ -174,7 +174,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         this.emptyPos = new DiagnosticPos(diagnosticSource, 1, 1, 1, 1);
     }
 
-    public List<BLangNode> accept(Node node) {
+    public List<BLangNode> accept(ModulePartNode node) {
         BLangNode bLangNode = node.apply(this);
         List<BLangNode> nodes = new ArrayList<>();
         while (!otherTopLevelNodes.empty()) {
