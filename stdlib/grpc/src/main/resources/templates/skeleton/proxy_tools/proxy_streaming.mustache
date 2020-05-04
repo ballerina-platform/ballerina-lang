@@ -14,7 +14,7 @@
         map{{#literal "<string>"}}{{/literal}} headers = {};
         http:WebSocketCaller|http:WebSocketError webSocketEp = caller->acceptWebSocketUpgrade(headers);
         if (webSocketEp is http:WebSocketCaller) {
-            {{#isNotNull inputType}}if (paramReadErrors.length()>0) {
+            {{#isNotNull inputType}}if (paramReadErrors.length() > 0) {
                 error paramError = error("Parameter error", message = paramReadErrors);
                 sendSocketResponse(webSocketEp, paramError, true);
                 return;
