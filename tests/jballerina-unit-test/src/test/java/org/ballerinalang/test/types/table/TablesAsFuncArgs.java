@@ -27,6 +27,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This class contains tests for tables as function arguments.
+ *
+ * @since 1.3.0
+ */
 public class TablesAsFuncArgs {
     private CompileResult result, negativeResult;
 
