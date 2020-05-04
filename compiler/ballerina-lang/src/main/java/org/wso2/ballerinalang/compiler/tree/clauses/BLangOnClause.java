@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.OnClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
