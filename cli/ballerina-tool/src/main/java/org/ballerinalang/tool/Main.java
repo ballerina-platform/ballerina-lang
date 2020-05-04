@@ -69,7 +69,6 @@ public class Main {
             LauncherUtils.printLauncherException(e, errStream);
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
-            e.printStackTrace();
             errStream.println(getMessageForInternalErrors());
             RuntimeUtils.silentlyLogBadSad(e);
             Runtime.getRuntime().exit(1);
