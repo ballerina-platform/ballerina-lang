@@ -103,6 +103,7 @@ SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
 DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
+CONFLICT    : 'conflict' ;
 DEPRECATED  : 'Deprecated';
 KEY         : {inTableType}? 'key' { inTableType = false; };
 DEPRECATED_PARAMETERS  : 'Deprecated parameters';

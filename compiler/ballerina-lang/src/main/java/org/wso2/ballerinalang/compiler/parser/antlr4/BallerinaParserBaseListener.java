@@ -2908,6 +2908,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSelectClause(BallerinaParser.SelectClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2915,6 +2927,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOnClause(BallerinaParser.OnClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOnClause(BallerinaParser.OnClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

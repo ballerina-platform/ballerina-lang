@@ -88,6 +88,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -282,7 +284,11 @@ public class BLangPackageBuilder {
 
     private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
 
+    private Stack<BLangOnClause> onClauseNodeStack = new Stack<>();
+
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
+
+    private Stack<BLangOnConflictClause> onConflictNodeStack = new Stack<>();
 
     private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
@@ -1950,10 +1956,16 @@ public class BLangPackageBuilder {
         while (letClauseNodeStack.size() > 0) {
             queryExpr.addLetClause(letClauseNodeStack.pop());
         }
+        if (onClauseNodeStack.size() > 0) {
+            queryExpr.setOnClauseNode(onClauseNodeStack.pop());
+        }
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
             queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
+        }
+        if (onConflictNodeStack.size() > 0) {
+            queryExpr.setOnConflictClauseNode(onConflictNodeStack.pop());
         }
         Collections.reverse(queryClauseStack);
         while (queryClauseStack.size() > 0) {
@@ -2035,6 +2047,14 @@ public class BLangPackageBuilder {
         queryClauseStack.push(fromClause);
     }
 
+    void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
+        onClause.addWS(ws);
+        onClause.pos = pos;
+        onClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onClauseNodeStack.push(onClause);
+    }
+
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangSelectClause selectClause = (BLangSelectClause) TreeBuilder.createSelectClauseNode();
         selectClause.addWS(ws);
@@ -2042,6 +2062,14 @@ public class BLangPackageBuilder {
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
         selectClauseNodeStack.push(selectClause);
         queryClauseStack.push(selectClause);
+    }
+
+    void createOnConflictClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOnConflictClause onConflictClause = (BLangOnConflictClause) TreeBuilder.createOnConflictClauseNode();
+        onConflictClause.addWS(ws);
+        onConflictClause.pos = pos;
+        onConflictClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        onConflictNodeStack.push(onConflictClause);
     }
 
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {

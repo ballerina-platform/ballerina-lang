@@ -2834,12 +2834,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitOnClause(BallerinaParser.OnClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createOnClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) {
         if (isInErrorState) {
             return;
         }
 
         this.pkgBuilder.createSelectClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createOnConflictClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

@@ -2566,6 +2566,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitShiftExprPredicate(BallerinaParser.ShiftExprPredicateContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#onConflictClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnConflictClause(BallerinaParser.OnConflictClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#onConflictClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#selectClause}.
 	 * @param ctx the parse tree
 	 */
@@ -2575,6 +2585,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSelectClause(BallerinaParser.SelectClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#onClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnClause(BallerinaParser.OnClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#onClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnClause(BallerinaParser.OnClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#whereClause}.
 	 * @param ctx the parse tree
