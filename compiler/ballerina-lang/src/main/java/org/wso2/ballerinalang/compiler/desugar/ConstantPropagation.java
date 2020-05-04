@@ -836,8 +836,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
         result = onConflictClause;
     }
 
-
-
     @Override
     public void visit(BLangOnClause onClause) {
         onClause.expression = rewrite(onClause.expression);
