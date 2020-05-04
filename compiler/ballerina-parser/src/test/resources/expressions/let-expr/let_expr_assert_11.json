@@ -1,0 +1,20 @@
+{
+    "kind": "LET_EXPRESSION",
+    "children": [
+        {
+            "kind": "LET_KEYWORD"
+        },
+        {
+            "kind": "LET_VAR_DECL",
+            "isMissing": true
+        },
+        {
+            "kind": "IN_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "E2"
+        }
+    ]
+}
+

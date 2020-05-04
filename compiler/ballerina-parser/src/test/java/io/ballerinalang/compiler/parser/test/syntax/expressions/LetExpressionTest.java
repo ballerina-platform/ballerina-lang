@@ -45,4 +45,39 @@ public class LetExpressionTest extends AbstractExpressionsTest {
     }
 
     // Recovery tests
+
+    @Test
+    public void testLetExprWithMissingEndExpr() {
+        test("let T B = E1 in", "let-expr/let_expr_assert_06.json");
+    }
+
+    @Test
+    public void testLetExprWithMissingCommas() {
+        test("let int B = E1 int C = E2 @C1{} int D = E3 in E4", "let-expr/let_expr_assert_07.json");
+    }
+
+    @Test
+    public void testLetExprWithMissingVarName() {
+        test("let int = E1 in E2", "let-expr/let_expr_assert_08.json");
+    }
+
+    @Test
+    public void testLetExprWithMissingEqualOP() {
+        test("let int B E1 in E2", "let-expr/let_expr_assert_09.json");
+    }
+
+    @Test
+    public void testLetExprWithMissingLetKeyword() {
+        test("int B = E1 in E2", "let-expr/let_expr_assert_10.json");
+    }
+
+    @Test
+    public void testLetExprWithMissingLetVarDecl() {
+        test("let in E2", "let-expr/let_expr_assert_11.json");
+    }
+
+    @Test
+    public void testLetExprWithMissingExprInLetVarDecl() {
+        test("let int B = in E2", "let-expr/let_expr_assert_12.json");
+    }
 }
