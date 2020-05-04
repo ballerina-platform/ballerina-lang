@@ -406,6 +406,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
+    public static STNode createErrorConstructorExpressionNode(
+            STNode errorKeyword,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STErrorConstructorExpressionNode(
+                errorKeyword,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
     public static STNode createMethodCallExpressionNode(
             STNode expression,
             STNode dotToken,

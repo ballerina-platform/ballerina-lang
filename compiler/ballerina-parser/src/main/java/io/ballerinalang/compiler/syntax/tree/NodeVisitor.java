@@ -151,6 +151,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionCallExpressionNode);
     }
 
+    public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        visitSyntaxNode(errorConstructorExpressionNode);
+    }
+
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
         visitSyntaxNode(methodCallExpressionNode);
     }

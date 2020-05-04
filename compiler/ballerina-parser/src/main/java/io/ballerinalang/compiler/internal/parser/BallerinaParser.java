@@ -3417,6 +3417,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeCastExpr();
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
+            case ERROR_KEYWORD:
+                return parseErrorConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
             case BACKTICK_TOKEN:
@@ -3774,6 +3776,28 @@ public class BallerinaParser extends AbstractParser {
         STNode args = parseArgsList();
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
+    }
+
+    /**
+     * Parse error constructor expression.
+     *
+     * @return Error constructor expression
+     */
+    private STNode parseErrorConstructorExpr() {
+        STNode errorKeyword = parseErrorKeyword();
+        STNode openParen = parseOpenParenthesis();
+        STNode args = parseArgsList();
+        STNode closeParen = parseCloseParenthesis();
+        return STNodeFactory.createErrorConstructorExpressionNode(errorKeyword, openParen, args, closeParen);
+    }
+
+    /**
+     * Parse error keyword.
+     *
+     * @return Error keyword
+     */
+    private STNode parseErrorKeyword() {
+        return consume();
     }
 
     /**
@@ -5926,7 +5950,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse statement which is only consists of an action or expression.
-     * 
+     *
      * @param annots Annotations
      * @param nextTokenKind Next token kind
      * @return Parsed node
@@ -6994,7 +7018,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * i.e.: a member-access-expr, where its container is also a member-access.
      * <code>a[b][]</code>
-     * 
+     *
      * @param expression EXpression to check
      * @return <code>true</code> if the expression provided is a possible array-type desc. <code>false</code> otherwise
      */
@@ -7838,7 +7862,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse raw backtick string template expression.
      * <p>
      * <code>BacktickString := `expression`</code>
-     * 
+     *
      * @return Template expression node
      */
     private STNode parseTemplateExpression() {
@@ -7885,7 +7909,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse string template expression.
      * <p>
      * <code>string-template-expr := string ` expression `</code>
-     * 
+     *
      * @return String template expression node
      */
     private STNode parseStringTemplateExpression() {
@@ -7916,7 +7940,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse XML template expression.
      * <p>
      * <code>xml-template-expr := xml BacktickString</code>
-     * 
+     *
      * @return XML template expression
      */
     private STNode parseXMLTemplateExpression() {
@@ -7947,7 +7971,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse the content of the template string as XML. This method first read the
      * input in the same way as the raw-backtick-template (BacktickString). Then
      * it parses the content as XML.
-     * 
+     *
      * @return XML node
      */
     private STNode parseTemplateContentAsXML() {
@@ -7980,7 +8004,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * interpolation := ${ expression }
      * </code>
-     * 
+     *
      * @return Interpolation node
      */
     private STNode parseInterpolation() {
@@ -7997,7 +8021,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse interpolation start token.
      * <p>
      * <code>interpolation-start := ${</code>
-     * 
+     *
      * @return Interpolation start token
      */
     private STNode parseInterpolationStart() {

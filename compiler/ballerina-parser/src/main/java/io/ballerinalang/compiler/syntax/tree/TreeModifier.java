@@ -398,6 +398,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        Token errorKeyword = modifyToken(errorConstructorExpressionNode.errorKeyword());
+        Token openParenToken = modifyToken(errorConstructorExpressionNode.openParenToken());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(errorConstructorExpressionNode.arguments());
+        Token closeParenToken = modifyToken(errorConstructorExpressionNode.closeParenToken());
+        return errorConstructorExpressionNode.modify(
+                errorKeyword,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
+    @Override
     public Node transform(MethodCallExpressionNode methodCallExpressionNode) {
         ExpressionNode expression = modifyNode(methodCallExpressionNode.expression());
         Token dotToken = modifyToken(methodCallExpressionNode.dotToken());

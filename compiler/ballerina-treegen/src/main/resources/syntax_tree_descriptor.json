@@ -685,6 +685,30 @@
             ]
         },
         {
+            "name": "ErrorConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ERROR_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "errorKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "MethodCallExpressionNode",
             "base": "ExpressionNode",
             "kind": "METHOD_CALL",
