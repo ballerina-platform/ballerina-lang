@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
@@ -62,9 +63,9 @@ public class DataChannelUtils {
         }
     }
 
-    public static void initReadableDataChannel(ObjectValue dataChannelObj, ObjectValue byteChannelObj, Object order) {
+    public static void initReadableDataChannel(ObjectValue dataChannelObj, ObjectValue byteChannelObj, BString order) {
         try {
-            ByteOrder byteOrder = getByteOrder((String) order);
+            ByteOrder byteOrder = getByteOrder(order.getValue());
             Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
             dataChannelObj.addNativeData(DATA_CHANNEL_NAME, dataChannel);
@@ -135,7 +136,7 @@ public class DataChannelUtils {
         }
     }
 
-    public static Object readString(ObjectValue dataChannelObj, long nBytes, String encoding) {
+    public static Object readString(ObjectValue dataChannelObj, long nBytes, BString encoding) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         if (channel.hasReachedEnd()) {
             if (log.isDebugEnabled()) {
@@ -144,7 +145,7 @@ public class DataChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return channel.readString((int) nBytes, encoding);
+                return channel.readString((int) nBytes, encoding.getValue());
             } catch (IOException e) {
                 String msg = "Error occurred while reading string: " + e.getMessage();
                 log.error(msg, e);
@@ -175,9 +176,9 @@ public class DataChannelUtils {
         return null;
     }
 
-    public static void initWritableDataChannel(ObjectValue dataChannelObj, ObjectValue byteChannelObj, Object order) {
+    public static void initWritableDataChannel(ObjectValue dataChannelObj, ObjectValue byteChannelObj, BString order) {
         try {
-            ByteOrder byteOrder = getByteOrder((String) order);
+            ByteOrder byteOrder = getByteOrder(order.getValue());
             Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
             dataChannelObj.addNativeData(DATA_CHANNEL_NAME, dataChannel);
@@ -254,10 +255,10 @@ public class DataChannelUtils {
         return null;
     }
 
-    public static Object writeString(ObjectValue dataChannelObj, String value, String encoding) {
+    public static Object writeString(ObjectValue dataChannelObj, BString value, BString encoding) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
-            channel.writeString(value, encoding);
+            channel.writeString(value.getValue(), encoding.getValue());
         } catch (IOException e) {
             log.error("Error occurred while writing string.", e);
             return IOUtils.createError(e);
