@@ -1285,10 +1285,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangQueryAction clone = new BLangQueryAction();
         source.cloneRef = clone;
-        clone.fromClauseList = cloneList(source.fromClauseList);
-        clone.letClauseList = cloneList(source.letClauseList);
-        clone.doClause = clone(source.doClause);
-        clone.whereClauseList = cloneList(source.whereClauseList);
         clone.queryClauseList = cloneList(source.queryClauseList);
     }
 
@@ -1297,12 +1293,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangQueryExpr clone = new BLangQueryExpr();
         source.cloneRef = clone;
-        clone.fromClauseList = cloneList(source.fromClauseList);
-        clone.letClausesList = cloneList(source.letClausesList);
-        clone.onClause = clone(source.onClause);
-        clone.selectClause = clone(source.selectClause);
-        clone.whereClauseList = cloneList(source.whereClauseList);
-        clone.onConflictClause = clone(source.onConflictClause);
         clone.queryClauseList = cloneList(source.queryClauseList);
         clone.isStream = source.isStream;
     }

@@ -17,12 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.OnClauseNode;
-import org.ballerinalang.model.clauses.OnConflictClauseNode;
-import org.ballerinalang.model.clauses.SelectClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -55,63 +49,13 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public boolean isStream = false;
 
     @Override
-    public List<? extends FromClauseNode> getFromClauseNodes() {
-        return fromClauseList;
-    }
-
-    @Override
-    public void addFromClauseNode(FromClauseNode fromClauseNode) {
-        fromClauseList.add((BLangFromClause) fromClauseNode);
-    }
-
-    @Override
-    public OnClauseNode getOnClauseNode() {
-        return onClause;
-    }
-
-    @Override
-    public void setOnClauseNode(OnClauseNode onClauseNode) {
-        this.onClause = (BLangOnClause) onClauseNode;
-    }
-
-    @Override
-    public SelectClauseNode getSelectClauseNode() {
-        return selectClause;
-    }
-
-    @Override
-    public void setSelectClauseNode(SelectClauseNode selectClauseNode) {
-        this.selectClause = (BLangSelectClause) selectClauseNode;
-    }
-
-    @Override
-    public OnConflictClauseNode getOnConflictClauseNode() {
-        return onConflictClause;
-    }
-
-    @Override
-    public void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode) {
-        this.onConflictClause = (BLangOnConflictClause) onConflictClauseNode;
-    }
-
-    @Override
-    public List<? extends BLangWhereClause> getWhereClauseNode() {
-        return whereClauseList;
-    }
-
-    @Override
-    public void addWhereClauseNode(WhereClauseNode whereClauseNode) {
-        this.whereClauseList.add((BLangWhereClause) whereClauseNode);
-    }
-
-    @Override
-    public List<? extends LetClauseNode> getLetClauseList() {
-        return letClausesList;
-    }
-
-    @Override
-    public void addLetClause(LetClauseNode letClauseNode) {
-        letClausesList.add((BLangLetClause) letClauseNode);
+    public BLangSelectClause getSelectClause() {
+        for (BLangNode clause : queryClauseList) {
+            if (clause.getKind() == NodeKind.SELECT) {
+                return (BLangSelectClause) clause;
+            }
+        }
+        return null;
     }
 
     @Override

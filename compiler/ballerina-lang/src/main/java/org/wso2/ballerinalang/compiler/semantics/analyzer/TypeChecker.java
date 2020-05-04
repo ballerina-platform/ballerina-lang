@@ -18,9 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -175,7 +172,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -3288,29 +3284,26 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        List<? extends FromClauseNode> fromClauseList = queryExpr.fromClauseList;
-        List<? extends WhereClauseNode> whereClauseList = queryExpr.whereClauseList;
-        List<? extends LetClauseNode> letClauseList = queryExpr.letClausesList;
-        BLangExpression collectionNode = (BLangExpression) fromClauseList.get(0).getCollection();
+        BLangSelectClause select = queryExpr.getSelectClause();
+        List<BLangNode> clauses = queryExpr.getQueryClauses();
         SymbolEnv parentEnv = env;
-        for (FromClauseNode fromClause : fromClauseList) {
-            parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        SymbolEnv whereEnv = null;
+        BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
+        for (BLangNode clause : clauses) {
+            NodeKind kind = clause.getKind();
+            if (kind == NodeKind.FROM) {
+                parentEnv = typeCheckFromClause((BLangFromClause) clause, parentEnv);
+            } else if (kind == NodeKind.LET_CLAUSE) {
+                parentEnv = typeCheckLetClause((BLangLetClause) clause, parentEnv);
+            } else if (kind == NodeKind.ON_CONFLICT) {
+                typeCheckOnConflictClause((BLangOnConflictClause) clause, parentEnv);
+            } else if (kind == NodeKind.WHERE) {
+                whereEnv = typeCheckWhereClause((BLangWhereClause) clause, select, parentEnv);
+            }
         }
-        for (LetClauseNode letClauseNode : letClauseList) {
-            parentEnv = typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
-        }
-        BLangSelectClause selectClause = queryExpr.selectClause;
-        BLangOnConflictClause onConflictClause = queryExpr.onConflictClause;
-        if (onConflictClause != null) {
-            typeCheckOnConflictClause(onConflictClause, parentEnv);
-        }
-        SymbolEnv whereEnv = parentEnv;
-        for (WhereClauseNode whereClauseNode : whereClauseList) {
-            whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
-        }
-        BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType,
+        whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
+        BType actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
                 queryExpr.isStream);
-
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -3403,30 +3396,26 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
-        List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
-        List<? extends LetClauseNode> letClauseList = queryAction.letClauseList;
-        BLangDoClause doClauseNode = queryAction.doClause;
-
+        BLangDoClause doClause = queryAction.getDoClause();
+        List<BLangNode> clauses = queryAction.getQueryClauses();
         SymbolEnv parentEnv = env;
-        for (FromClauseNode fromClause : fromClauseList) {
-            parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        SymbolEnv whereEnv = null;
+        for (BLangNode clause : clauses) {
+            NodeKind kind = clause.getKind();
+            if (kind == NodeKind.FROM) {
+                parentEnv = typeCheckFromClause((BLangFromClause) clause, parentEnv);
+            } else if (kind == NodeKind.LET_CLAUSE) {
+                parentEnv = typeCheckLetClause((BLangLetClause) clause, parentEnv);
+            } else if (kind == NodeKind.WHERE) {
+                whereEnv = typeCheckWhereClause((BLangWhereClause) clause, doClause, parentEnv);
+            }
         }
-        for (LetClauseNode letClauseNode : letClauseList) {
-            parentEnv = typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
-        }
-
-        SymbolEnv whereEnv = parentEnv;
-        for (WhereClauseNode whereClauseNode : whereClauseList) {
-            whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, doClauseNode, parentEnv);
-        }
-
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
+        whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClause.body, whereEnv);
         // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeStmt(doClauseNode.body, blockEnv);
+        semanticAnalyzer.analyzeStmt(doClause.body, blockEnv);
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-
-        resultType = types.checkType(doClauseNode.pos, actualType, expType,
+        resultType = types.checkType(doClause.pos, actualType, expType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 

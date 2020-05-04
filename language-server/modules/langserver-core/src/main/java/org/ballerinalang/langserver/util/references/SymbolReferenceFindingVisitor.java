@@ -891,18 +891,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        queryExpr.fromClauseList.forEach(this::acceptNode);
-        queryExpr.letClausesList.forEach(this::acceptNode);
-        this.acceptNode(queryExpr.selectClause);
-        queryExpr.whereClauseList.forEach(this::acceptNode);
+        queryExpr.getQueryClauses().forEach(this::acceptNode);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        queryAction.fromClauseList.forEach(this::acceptNode);
-        queryAction.whereClauseList.forEach(this::acceptNode);
-        queryAction.getLetClauseNode().forEach(this::acceptNode);
-        this.acceptNode(queryAction.doClause);
+        queryAction.getQueryClauses().forEach(this::acceptNode);
     }
 
     @Override
