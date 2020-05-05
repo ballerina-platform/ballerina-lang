@@ -1735,8 +1735,8 @@ public class TypeChecker extends BLangNodeVisitor {
                             bVarSymbol.type, recordSymbol)));
         }
 
-        if (varRefExpr.restParam != null) {
-            BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        if (restParam != null) {
             checkExpr(restParam, env);
             unresolvedReference = !isValidVariableReference(restParam);
         }
@@ -1752,11 +1752,17 @@ public class TypeChecker extends BLangNodeVisitor {
         varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
                 env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
-        if (varRefExpr.restParam == null) {
+        if (restParam == null) {
             bRecordType.sealed = true;
             bRecordType.restFieldType = symTable.noType;
-        } else {
+        } else if (restParam.type == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
+        } else {
+            // Rest variable type of Record ref (record destructuring assignment) is a map where T is the broad type of
+            // all fields that are not specified in the destructuring pattern. Here we set the rest type of record type
+            // to T.
+            BMapType restParamType = (BMapType) restParam.type;
+            bRecordType.restFieldType = restParamType.constraint;
         }
 
         resultType = bRecordType;
