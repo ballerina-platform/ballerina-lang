@@ -19,8 +19,6 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.types.BPackage;
 
-import javax.lang.model.element.Name;
-
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
