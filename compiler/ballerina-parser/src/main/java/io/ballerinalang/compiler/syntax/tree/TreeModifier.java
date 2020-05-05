@@ -1105,13 +1105,20 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         Token errorKeywordToken = modifyToken(errorTypeDescriptorNode.errorKeywordToken());
-        Token ltToken = modifyToken(errorTypeDescriptorNode.ltToken());
         Node errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode());
-        Token gtToken = modifyToken(errorTypeDescriptorNode.gtToken());
         return errorTypeDescriptorNode.modify(
                 errorKeywordToken,
+                errorTypeParamsNode);
+    }
+
+    @Override
+    public Node transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        Token ltToken = modifyToken(errorTypeParamsNode.ltToken());
+        Node parameter = modifyNode(errorTypeParamsNode.parameter());
+        Token gtToken = modifyToken(errorTypeParamsNode.gtToken());
+        return errorTypeParamsNode.modify(
                 ltToken,
-                errorTypeParamsNode,
+                parameter,
                 gtToken);
     }
 

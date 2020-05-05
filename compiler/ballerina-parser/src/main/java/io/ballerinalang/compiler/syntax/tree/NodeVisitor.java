@@ -383,6 +383,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorTypeDescriptorNode);
     }
 
+    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
+        visitSyntaxNode(errorTypeParamsNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

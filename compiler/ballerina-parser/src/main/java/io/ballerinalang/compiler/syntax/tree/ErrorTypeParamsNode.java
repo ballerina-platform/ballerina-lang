@@ -24,18 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ErrorTypeDescriptorNode extends NonTerminalNode {
+public class ErrorTypeParamsNode extends NonTerminalNode {
 
-    public ErrorTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ErrorTypeParamsNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token errorKeywordToken() {
+    public Token ltToken() {
         return childInBucket(0);
     }
 
-    public Node errorTypeParamsNode() {
+    public Node parameter() {
         return childInBucket(1);
+    }
+
+    public Token gtToken() {
+        return childInBucket(2);
     }
 
     @Override
@@ -51,21 +55,25 @@ public class ErrorTypeDescriptorNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "errorKeywordToken",
-                "errorTypeParamsNode"};
+                "ltToken",
+                "parameter",
+                "gtToken"};
     }
 
-    public ErrorTypeDescriptorNode modify(
-            Token errorKeywordToken,
-            Node errorTypeParamsNode) {
+    public ErrorTypeParamsNode modify(
+            Token ltToken,
+            Node parameter,
+            Token gtToken) {
         if (checkForReferenceEquality(
-                errorKeywordToken,
-                errorTypeParamsNode)) {
+                ltToken,
+                parameter,
+                gtToken)) {
             return this;
         }
 
-        return NodeFactory.createErrorTypeDescriptorNode(
-                errorKeywordToken,
-                errorTypeParamsNode);
+        return NodeFactory.createErrorTypeParamsNode(
+                ltToken,
+                parameter,
+                gtToken);
     }
 }

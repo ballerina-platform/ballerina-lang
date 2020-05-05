@@ -290,9 +290,6 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] ERROR_TYPE_PARAMS =
             { ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] ERROR_TYPE_RHS =
-            { ParserRuleContext.LT, ParserRuleContext.TYPEDESC_RHS};
-
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -481,7 +478,6 @@ public class BallerinaParserErrorHandler {
             case ARRAY_LENGTH:
             case TYPEDESC_RHS:
             case ERROR_TYPE_PARAMS:
-            case ERROR_TYPE_RHS:
                 return true;
             default:
                 return false;
@@ -1164,9 +1160,6 @@ public class BallerinaParserErrorHandler {
                     break;
                 case ERROR_TYPE_PARAMS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ERROR_TYPE_PARAMS,
-                            isEntryPoint);
-                case ERROR_TYPE_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ERROR_TYPE_RHS,
                             isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
@@ -2132,7 +2125,7 @@ public class BallerinaParserErrorHandler {
             case ERROR_TYPE_DESCRIPTOR:
                 return ParserRuleContext.ERROR_KEYWORD;
             case ERROR_KEYWORD:
-                return ParserRuleContext.ERROR_TYPE_RHS;
+                return ParserRuleContext.LT;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2283,8 +2276,6 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.MAPPING_CONSTRUCTOR;
             case KEY_SPECIFIER:
                 return ParserRuleContext.VARIABLE_NAME;
-            case ERROR_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
             default:
                 throw new IllegalStateException();
         }

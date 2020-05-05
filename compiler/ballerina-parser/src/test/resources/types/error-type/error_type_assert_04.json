@@ -47,13 +47,18 @@
                             "kind": "ERROR_KEYWORD"
                         },
                         {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
+                            "kind": "ERROR_TYPE_PARAMS",
+                            "children": [
+                                {
+                                    "kind": "LT_TOKEN"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "GT_TOKEN"
+                                }
+                            ]
                         }
                     ]
                 }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STErrorTypeDescriptorNode extends STNode {
-    public final STNode errorKeywordToken;
-    public final STNode errorTypeParamsNode;
+public class STErrorTypeParamsNode extends STNode {
+    public final STNode ltToken;
+    public final STNode parameter;
+    public final STNode gtToken;
 
-    STErrorTypeDescriptorNode(
-            STNode errorKeywordToken,
-            STNode errorTypeParamsNode) {
-        super(SyntaxKind.ERROR_TYPE_DESC);
-        this.errorKeywordToken = errorKeywordToken;
-        this.errorTypeParamsNode = errorTypeParamsNode;
+    STErrorTypeParamsNode(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
+        super(SyntaxKind.ERROR_TYPE_PARAMS);
+        this.ltToken = ltToken;
+        this.parameter = parameter;
+        this.gtToken = gtToken;
 
         addChildren(
-                errorKeywordToken,
-                errorTypeParamsNode);
+                ltToken,
+                parameter,
+                gtToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ErrorTypeDescriptorNode(this, position, parent);
+        return new ErrorTypeParamsNode(this, position, parent);
     }
 }

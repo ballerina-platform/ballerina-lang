@@ -1988,11 +1988,22 @@
                     "type": "Token"
                 },
                 {
+                    "name": "errorTypeParamsNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ErrorTypeParamsNode",
+            "base": "Node",
+            "kind": "ERROR_TYPE_PARAMS",
+            "attributes": [
+                {
                     "name": "ltToken",
                     "type": "Token"
                 },
                 {
-                    "name": "errorTypeParamsNode",
+                    "name": "parameter",
                     "type": "Node"
                 },
                 {

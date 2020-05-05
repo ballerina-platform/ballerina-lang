@@ -119,7 +119,6 @@ public enum ParserRuleContext {
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
     ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
-    ERROR_TYPE_RHS("error-type-rhs"),
 
     // Statements
     STATEMENT("statement"),

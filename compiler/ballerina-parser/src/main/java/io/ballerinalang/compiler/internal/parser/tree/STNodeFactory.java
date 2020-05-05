@@ -1115,14 +1115,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createErrorTypeDescriptorNode(
             STNode errorKeywordToken,
-            STNode ltToken,
-            STNode errorTypeParamsNode,
-            STNode gtToken) {
+            STNode errorTypeParamsNode) {
 
         return new STErrorTypeDescriptorNode(
                 errorKeywordToken,
+                errorTypeParamsNode);
+    }
+
+    public static STNode createErrorTypeParamsNode(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
+
+        return new STErrorTypeParamsNode(
                 ltToken,
-                errorTypeParamsNode,
+                parameter,
                 gtToken);
     }
 }

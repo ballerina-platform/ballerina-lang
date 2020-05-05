@@ -91,8 +91,8 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
         test("map<%> a;", "parameterized-type/parameterized_type_assert_10.json");
     }
 
-//    @Test
-//    public void testInValidModuleLevelParameterizedTypeMissingType() {
-//        test("<int> a;", "parameterized-type/parameterized_type_assert_12.json");
-//    }
+    @Test
+    public void testInValidModuleLevelParameterizedTypeMissingType() {
+        test("<int> a;", "parameterized-type/parameterized_type_assert_12.json");
+    }
 }

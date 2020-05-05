@@ -6722,6 +6722,7 @@ public class BallerinaParser {
             case NEVER_KEYWORD:
             case SERVICE_KEYWORD:
             case VAR_KEYWORD:
+            case ERROR_KEYWORD: // This is for the recovery <code>error a;</code> scenario recovered here.
                 return true;
             case TYPE_DESC:
                 // This is a special case. TYPE_DESC is only return from
@@ -7251,25 +7252,39 @@ public class BallerinaParser {
         startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
 
         STNode errorKeywordToken = parseErrorKeyWord();
-        STNode errorTypeParamsNode, ltToken, gtToken;
+        STNode errorTypeParamsNode;
         STToken nextToken = peek();
         STToken nextNextToken = peek(2);
         if (nextToken.kind == SyntaxKind.LT_TOKEN || nextNextToken.kind == SyntaxKind.GT_TOKEN) {
-            ltToken = parseLTToken();
-            nextToken = peek();
-            if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-                errorTypeParamsNode = consume();
-            } else {
-                errorTypeParamsNode = parseTypeDescriptor();
-            }
-            gtToken = parseGTToken();
+            errorTypeParamsNode = parseErrorTypeParamsNode();
         } else {
-            ltToken = STNodeFactory.createEmptyNode();
             errorTypeParamsNode = STNodeFactory.createEmptyNode();
-            gtToken = STNodeFactory.createEmptyNode();
         }
         endContext();
-        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, ltToken, errorTypeParamsNode, gtToken);
+        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
+    }
+
+    /**
+     * Parse error type param node.
+     * <p>
+     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
+     * detail-type-descriptor := type-descriptor
+     * inferred-type-descriptor := *
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseErrorTypeParamsNode() {
+        STNode ltToken = parseLTToken();
+        STNode parameter;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+            parameter = consume();
+        } else {
+            parameter = parseTypeDescriptor();
+        }
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createErrorTypeParamsNode(ltToken, parameter, gtToken);
     }
 
     /**

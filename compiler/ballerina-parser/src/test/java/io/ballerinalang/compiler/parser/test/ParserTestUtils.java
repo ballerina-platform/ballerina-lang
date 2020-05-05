@@ -728,6 +728,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
+            case "ERROR_TYPE_PARAMS":
+                return SyntaxKind.ERROR_TYPE_PARAMS;
 
             // Trivia
             case "EOF_TOKEN":
