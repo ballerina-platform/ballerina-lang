@@ -2657,7 +2657,7 @@ public class BallerinaParserErrorHandler {
             case LIST_CONSTRUCTOR:
             case TABLE_CONSTRUCTOR:
                 endContext();
-                // fall through
+                return getNextRuleForExpr();
             default:
                 return getNextRuleForExpr();
         }
