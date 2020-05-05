@@ -184,6 +184,20 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
+    @Deprecated
+    public ArrayValueImpl(BArrayType type, long size, ListInitialValueEntry[] initialValues) {
+        this.arrayType = type;
+        this.elementType = type.getElementType();
+        initArrayValues(this.elementType);
+        if (size != -1) {
+            this.size = this.maxSize = (int) size;
+        }
+
+        for (int index = 0; index < initialValues.length; index++) {
+            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
+        }
+    }
+
     // ----------------------- get methods ----------------------------------------------------
 
     /**
@@ -430,42 +444,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, BString value) {
         handleImmutableArrayValue();
-        addBString(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, Object value) {
-        addRefValue(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, long value) {
-        addInt(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, boolean value) {
-        addBoolean(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, byte value) {
-        addByte(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, double value) {
-        addFloat(index, value);
-    }
-
-    @Deprecated
-    @Override
-    public void addOnInitialization(long index, String value) {
-        addString(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, BString value) {
         addBString(index, value);
     }
 

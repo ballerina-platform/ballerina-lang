@@ -1474,7 +1474,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp, astMapAccessExpr.isStoreOnCreation));
+                                                  keyRegIndex, rhsOp));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2195,11 +2195,12 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         long size = -1L;
+        List<BLangExpression> exprs = listConstructorExpr.exprs;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
             size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
-            size = listConstructorExpr.exprs.size();
+            size = exprs.size();
         }
 
         BLangLiteral literal = new BLangLiteral();
@@ -2209,24 +2210,15 @@ public class BIRGen extends BLangNodeVisitor {
         literal.accept(this);
         BIROperand sizeOp = this.env.targetOperand;
 
-        emit(new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExpr.type, toVarRef, sizeOp));
+        List<BIROperand> valueOperands = new ArrayList<>(exprs.size());
 
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-            BLangExpression argExpr = listConstructorExpr.exprs.get(i);
-            argExpr.accept(this);
-            BIROperand exprIndex = this.env.targetOperand;
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = listConstructorExpr.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            indexLiteral.accept(this);
-            BIROperand arrayIndex = this.env.targetOperand;
-
-            emit(new BIRNonTerminator.FieldAccess(listConstructorExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
-                                                  arrayIndex, exprIndex, true));
+        for (BLangExpression expr : exprs) {
+            expr.accept(this);
+            valueOperands.add(this.env.targetOperand);
         }
+
+        emit(new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExpr.type, toVarRef, sizeOp,
+                                           valueOperands));
         this.env.targetOperand = toVarRef;
     }
 
@@ -2244,7 +2236,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp, astArrayAccessExpr.isStoreOnCreation));
+                                                  keyRegIndex, rhsOp));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2286,7 +2278,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_STORE;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
-                                                  rhsOp, astIndexBasedAccessExpr.isStoreOnCreation));
+                                                  rhsOp));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);

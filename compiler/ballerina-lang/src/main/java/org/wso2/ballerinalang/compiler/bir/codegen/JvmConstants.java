@@ -68,6 +68,9 @@ public class JvmConstants {
             "org/ballerinalang/jvm/values/MappingInitialValueEntry$KeyValueEntry";
     public static final String MAPPING_INITIAL_SPREAD_FIELD_ENTRY =
             "org/ballerinalang/jvm/values/MappingInitialValueEntry$SpreadFieldEntry";
+    public static final String LIST_INITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/ListInitialValueEntry";
+    public static final String LIST_INITIAL_EXPRESSION_ENTRY =
+            "org/ballerinalang/jvm/values/ListInitialValueEntry$ExpressionEntry";
 
     // types related classes
     public static final String BTYPE = "org/ballerinalang/jvm/types/BType";

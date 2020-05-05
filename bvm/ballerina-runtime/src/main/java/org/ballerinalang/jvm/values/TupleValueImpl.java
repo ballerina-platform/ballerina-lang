@@ -140,7 +140,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public TupleValueImpl(BTupleType type, long size) {
+    public TupleValueImpl(BTupleType type, long size, ListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
         List<BType> memTypes = this.tupleType.getTupleTypes();
@@ -155,6 +155,10 @@ public class TupleValueImpl extends AbstractArrayValue {
             this.refValues = new Object[this.size];
         } else {
             this.refValues = new Object[DEFAULT_ARRAY_SIZE];
+        }
+
+        for (int index = 0; index < initialValues.length; index++) {
+            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
         }
 
         if (size >= memCount) {
@@ -361,42 +365,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, BString value) {
         add(index, (Object) value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, Object value) {
-        addRefValue(index, value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, long value) {
-        addRefValue(index, Long.valueOf(value));
-    }
-
-    @Override
-    public void addOnInitialization(long index, boolean value) {
-        addRefValue(index, Boolean.valueOf(value));
-    }
-
-    @Override
-    public void addOnInitialization(long index, byte value) {
-        addRefValue(index, Byte.valueOf(value));
-    }
-
-    @Override
-    public void addOnInitialization(long index, double value) {
-        addRefValue(index, Double.valueOf(value));
-    }
-
-    @Override
-    @Deprecated
-    public void addOnInitialization(long index, String value) {
-        addRefValue(index, (Object) value);
-    }
-
-    @Override
-    public void addOnInitialization(long index, BString value) {
-        addRefValue(index, (Object) value);
     }
 
     // -------------------------------------------------------------------------------------------------------------

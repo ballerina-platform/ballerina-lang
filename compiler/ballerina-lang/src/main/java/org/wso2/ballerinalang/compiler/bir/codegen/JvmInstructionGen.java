@@ -138,6 +138,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_EXPRESSION_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_KEY_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
@@ -1366,16 +1368,18 @@ public class JvmInstructionGen {
             this.mv.visitInsn(DUP);
             loadType(this.mv, inst.type);
             this.loadVar(inst.sizeOp.variableDcl);
+            loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>",
-                    String.format("(L%s;J)V", ARRAY_TYPE), false);
+                    String.format("(L%s;J[L%s;)V", ARRAY_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
             this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
             this.mv.visitInsn(DUP);
             loadType(this.mv, inst.type);
             this.loadVar(inst.sizeOp.variableDcl);
+            loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, "<init>",
-                    String.format("(L%s;J)V", TUPLE_TYPE), false);
+                    String.format("(L%s;J[L%s;)V", TUPLE_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
     }
@@ -1388,7 +1392,7 @@ public class JvmInstructionGen {
 
             BType valueType = inst.rhsOp.variableDcl.type;
 
-            String method = inst.isStoreOnCreation ? "addOnInitialization" : "add";
+            String method = "add";
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JJ)V", true);
@@ -1845,5 +1849,32 @@ public class JvmInstructionGen {
 
         loadConstantValue(loadIns.type, loadIns.value, this.mv);
         this.storeToVar(loadIns.lhsOp.variableDcl);
+    }
+
+    private void loadListInitialValues(BIRNonTerminator.NewArray arrayNewIns) {
+        List<BIROperand> initialValues = arrayNewIns.values;
+        mv.visitLdcInsn((long) initialValues.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, LIST_INITIAL_EXPRESSION_ENTRY);
+
+        int i = 0;
+        for (BIROperand initialValueOp : initialValues) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            i += 1;
+
+            mv.visitTypeInsn(NEW, LIST_INITIAL_EXPRESSION_ENTRY);
+            mv.visitInsn(DUP);
+
+            BIRNode.BIRVariableDcl varDecl = initialValueOp.variableDcl;
+            this.loadVar(varDecl);
+            addBoxInsn(this.mv, varDecl.type);
+
+            mv.visitMethodInsn(INVOKESPECIAL, LIST_INITIAL_EXPRESSION_ENTRY, "<init>",
+                               String.format("(L%s;)V", OBJECT), false);
+
+            mv.visitInsn(AASTORE);
+        }
     }
 }

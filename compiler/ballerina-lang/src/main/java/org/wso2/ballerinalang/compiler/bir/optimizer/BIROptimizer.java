@@ -417,6 +417,10 @@ public class BIROptimizer {
         public void visit(BIRNonTerminator.NewArray birNewArray) {
             this.optimizeNode(birNewArray.lhsOp, this.env);
             this.optimizeNode(birNewArray.sizeOp, this.env);
+
+            for (BIROperand value : birNewArray.values) {
+                this.optimizeNode(value, this.env);
+            }
         }
 
         @Override
