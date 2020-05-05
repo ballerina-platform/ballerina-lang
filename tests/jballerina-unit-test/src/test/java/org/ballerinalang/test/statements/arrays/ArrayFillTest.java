@@ -224,7 +224,7 @@ public class ArrayFillTest {
 
     @Test
     public void testTableArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(0)};
+        BValue[] args = new BValue[]{new BInteger(index)};
         BRunUtil.invoke(compileResult, "testTableArrayFill", args);
     }
 

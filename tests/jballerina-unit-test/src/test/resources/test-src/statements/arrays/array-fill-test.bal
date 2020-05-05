@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testNilArrayFill(int index, () value) returns ()[] {
     ()[] ar = [];
     ar[index] = value;
@@ -100,16 +98,14 @@ function testTableArrayFill(int index) {
     ar[index] = tbEmployee;
 
     string name = "";
-    foreach table<Employee> tab in ar {
-        io:println("Hell0XXXXXXX");
+    foreach var tab in ar {
         foreach var row in tab {
-            io:println("In");
             name += row.name;
         }
     }
 
     assertEquality("id=1 name=John salary=50000.0", ar[index].toString());
-    assertEquality("id=1 name=John salary=50000.0", name.trim());
+    assertEquality("John", name.trim());
 }
 
 function testXMLArrayFill(int index) returns xml[] {
