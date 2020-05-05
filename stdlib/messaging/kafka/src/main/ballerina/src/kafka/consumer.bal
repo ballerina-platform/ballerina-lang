@@ -67,7 +67,8 @@ import ballerina/java;
 #               performance is required
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer
 # + decoupleProcessing - Decouples processing
-# + secureSocket - Configurations related to SSL/TLS
+# + secureSocket - Configurations related to SSL/TLS encryption
+# + authenticationConfiguration - Authentication related configurations for the Kafka consumer
 public type ConsumerConfiguration record {|
     string bootstrapServers;
     string groupId?;
@@ -118,6 +119,7 @@ public type ConsumerConfiguration record {|
     boolean decoupleProcessing = false;
 
     SecureSocket secureSocket?;
+    AuthenticationConfiguration authenticationConfiguration?;
 |};
 
 # Type related to consumer record.
