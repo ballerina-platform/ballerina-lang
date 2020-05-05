@@ -1,4 +1,6 @@
-// This example shows you how to do transactional message producing by sending messages
-// to kafka brokers atomically using the `kafka:Producer` object.<br/><br/>
+// This example shows you how to do transactional message producing by sending
+// messages to kafka brokers atomically using the `kafka:Producer` object. For
+// this example to work properly, an active Kafka broker should be present.
+// <br/><br/>
 // For more information on the underlying module, 
 // see the [Kafka module](https://ballerina.io/learn/api-docs/ballerina/kafka/index.html).
