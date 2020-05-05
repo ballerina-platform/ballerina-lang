@@ -7244,6 +7244,7 @@ public class BallerinaParser {
      * detail-type-descriptor := type-descriptor
      * inferred-type-descriptor := *
      * </p>
+     *
      * @return Parsed node
      */
     private STNode parseErrorTypeDescriptor() {
