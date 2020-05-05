@@ -42,8 +42,8 @@ public class ExplicitNewExpression extends NewExpression {
         return childInBucket(2);
     }
 
-    public SeparatedNodeList<Node> fieldNames() {
-        return new SeparatedNodeList<>(childInBucket(3));
+    public NodeList<FunctionArgumentNode> arguments() {
+        return new NodeList<>(childInBucket(3));
     }
 
     public Token closeParenToken() {
@@ -66,7 +66,7 @@ public class ExplicitNewExpression extends NewExpression {
                 "NewKeyword",
                 "TypeDescriptor",
                 "openParenToken",
-                "fieldNames",
+                "arguments",
                 "closeParenToken"};
     }
 
@@ -74,13 +74,13 @@ public class ExplicitNewExpression extends NewExpression {
             Token NewKeyword,
             Node TypeDescriptor,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 NewKeyword,
                 TypeDescriptor,
                 openParenToken,
-                fieldNames.underlyingListNode(),
+                arguments.underlyingListNode(),
                 closeParenToken)) {
             return this;
         }
@@ -89,7 +89,7 @@ public class ExplicitNewExpression extends NewExpression {
                 NewKeyword,
                 TypeDescriptor,
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 }

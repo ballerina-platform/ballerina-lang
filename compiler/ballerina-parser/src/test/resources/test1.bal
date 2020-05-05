@@ -1,3 +1,3 @@
 function foo() {
-    int a = 10;
+    io:println();
 }

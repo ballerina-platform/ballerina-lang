@@ -2001,9 +2001,9 @@
                     "type": "Token"
                 },
                 {
-                    "name": "fieldNames",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeParenToken",
@@ -2036,9 +2036,9 @@
                     "type": "Token"
                 },
                 {
-                    "name": "fieldNames",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeParenToken",

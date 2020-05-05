@@ -1117,14 +1117,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode NewKeyword,
             STNode TypeDescriptor,
             STNode openParenToken,
-            STNode fieldNames,
+            STNode arguments,
             STNode closeParenToken) {
 
         return new STExplicitNewExpression(
                 NewKeyword,
                 TypeDescriptor,
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 
@@ -1140,13 +1140,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createImplicitNewArgList(
             SyntaxKind kind,
             STNode openParenToken,
-            STNode fieldNames,
+            STNode arguments,
             STNode closeParenToken) {
 
         return new STImplicitNewArgList(
                 kind,
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 }

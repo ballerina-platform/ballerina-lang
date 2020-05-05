@@ -29,22 +29,22 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STImplicitNewArgList extends STNode {
     public final STNode openParenToken;
-    public final STNode fieldNames;
+    public final STNode arguments;
     public final STNode closeParenToken;
 
     STImplicitNewArgList(
             SyntaxKind kind,
             STNode openParenToken,
-            STNode fieldNames,
+            STNode arguments,
             STNode closeParenToken) {
         super(kind);
         this.openParenToken = openParenToken;
-        this.fieldNames = fieldNames;
+        this.arguments = arguments;
         this.closeParenToken = closeParenToken;
 
         addChildren(
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 

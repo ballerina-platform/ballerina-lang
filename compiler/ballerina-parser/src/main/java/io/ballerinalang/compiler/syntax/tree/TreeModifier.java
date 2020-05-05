@@ -1107,13 +1107,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token NewKeyword = modifyToken(explicitNewExpression.NewKeyword());
         Node TypeDescriptor = modifyNode(explicitNewExpression.TypeDescriptor());
         Token openParenToken = modifyToken(explicitNewExpression.openParenToken());
-        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(explicitNewExpression.fieldNames());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(explicitNewExpression.arguments());
         Token closeParenToken = modifyToken(explicitNewExpression.closeParenToken());
         return explicitNewExpression.modify(
                 NewKeyword,
                 TypeDescriptor,
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 
@@ -1129,12 +1129,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ImplicitNewArgList implicitNewArgList) {
         Token openParenToken = modifyToken(implicitNewArgList.openParenToken());
-        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(implicitNewArgList.fieldNames());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(implicitNewArgList.arguments());
         Token closeParenToken = modifyToken(implicitNewArgList.closeParenToken());
         return implicitNewArgList.modify(
                 implicitNewArgList.kind(),
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 

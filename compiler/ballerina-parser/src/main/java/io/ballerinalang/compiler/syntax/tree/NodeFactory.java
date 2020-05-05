@@ -1501,19 +1501,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token NewKeyword,
             Node TypeDescriptor,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
         Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
-        Objects.requireNonNull(fieldNames, "fieldNames must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
         Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
         STNode stExplicitNewExpression = STNodeFactory.createExplicitNewExpression(
                 NewKeyword.internalNode(),
                 TypeDescriptor.internalNode(),
                 openParenToken.internalNode(),
-                fieldNames.underlyingListNode().internalNode(),
+                arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
         return stExplicitNewExpression.createUnlinkedFacade();
     }
@@ -1532,16 +1532,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ImplicitNewArgList createImplicitNewArgList(
             SyntaxKind kind,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
-        Objects.requireNonNull(fieldNames, "fieldNames must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
         Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
         STNode stImplicitNewArgList = STNodeFactory.createImplicitNewArgList(
                 kind,
                 openParenToken.internalNode(),
-                fieldNames.underlyingListNode().internalNode(),
+                arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
         return stImplicitNewArgList.createUnlinkedFacade();
     }

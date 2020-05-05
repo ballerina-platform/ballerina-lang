@@ -34,8 +34,8 @@ public class ImplicitNewArgList extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> fieldNames() {
-        return new SeparatedNodeList<>(childInBucket(1));
+    public NodeList<FunctionArgumentNode> arguments() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token closeParenToken() {
@@ -56,18 +56,18 @@ public class ImplicitNewArgList extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openParenToken",
-                "fieldNames",
+                "arguments",
                 "closeParenToken"};
     }
 
     public ImplicitNewArgList modify(
             SyntaxKind kind,
             Token openParenToken,
-            SeparatedNodeList<Node> fieldNames,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 openParenToken,
-                fieldNames.underlyingListNode(),
+                arguments.underlyingListNode(),
                 closeParenToken)) {
             return this;
         }
@@ -75,7 +75,7 @@ public class ImplicitNewArgList extends NonTerminalNode {
         return NodeFactory.createImplicitNewArgList(
                 kind,
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 }

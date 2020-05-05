@@ -344,6 +344,8 @@ public class BallerinaParser {
                 return parseKeyKeyword();
             case TABLE_KEYWORD_RHS:
                 return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
+            case NEW_EXPRESSION:
+                return parseNewExpression();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -502,7 +504,7 @@ public class BallerinaParser {
     /**
      * Parse top level node having an optional modifier preceding it, given the next token kind.
      *
-     * @param tokenKind Next token kind
+     * @param metadata Next token kind
      * @return Parsed node
      */
     private STNode parseTopLevelNode(STNode metadata) {
@@ -3139,6 +3141,8 @@ public class BallerinaParser {
                 return parseTypeCastExpr();
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
+            case NEW_KEYWORD:
+                return parseNewExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3161,6 +3165,84 @@ public class BallerinaParser {
 
                 return solution.recoveredNode;
         }
+    }
+
+    private STNode parseNewExpression() {
+        startContext(ParserRuleContext.NEW_EXPRESSION);
+        STNode newKeyword = parseNewKeyword();
+        return parseNewExpression(newKeyword);
+    }
+
+    private STNode parseNewKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.NEW_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.NEW_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseNewExpression(STNode newKeyword) {
+        STNode token = peek();
+        return parseNewExpression(token.kind, newKeyword);
+    }
+
+    private STNode parseNewExpression(SyntaxKind kind, STNode newKeyword) {
+        switch (kind) {
+            case OPEN_PAREN_TOKEN:
+            case SEMICOLON_TOKEN:
+                return parseImplicitNewExpression(newKeyword);
+            case IDENTIFIER_TOKEN:
+            default:
+                return null;
+        }
+    }
+
+    private STNode parseImplicitNewExpression(STNode newKeyword) {
+        STNode token = peek();
+        return parseImplicitNewExpression(token.kind, newKeyword);
+    }
+
+    private STNode parseImplicitNewExpression(SyntaxKind kind, STNode newKeyword) {
+        STNode implicitNewArgList;
+
+        switch (kind) {
+            case OPEN_PAREN_TOKEN:
+                break;
+            case SEMICOLON_TOKEN:
+                return STNodeFactory.createImplicitNewExpression(newKeyword, null);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW);
+        }
+
+        implicitNewArgList = parseImplicitNewArgList(newKeyword);
+
+        return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
+    }
+
+    private STNode parseImplicitNewArgList(STNode newKeyword) {
+        STNode token = peek();
+        return parseImplicitNewArgList(token.kind);
+    }
+
+    private STNode parseImplicitNewArgList(SyntaxKind kind) {
+        STNode openParan;
+        STNode arguments;
+        STNode closeParan;
+
+        switch (kind) {
+            case OPEN_PAREN_TOKEN:
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW_ARG);
+        }
+
+        openParan = parseOpenParenthesis();
+        arguments = parseArgsList();
+        closeParan = parseCloseParenthesis();
+
+        return STNodeFactory.createImplicitNewArgList(kind, openParan, arguments, closeParan);
     }
 
     private STNode parseActionOrExpressionInLhs(STNode lhsExpr) {

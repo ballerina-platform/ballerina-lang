@@ -31,27 +31,27 @@ public class STExplicitNewExpression extends STNewExpression {
     public final STNode NewKeyword;
     public final STNode TypeDescriptor;
     public final STNode openParenToken;
-    public final STNode fieldNames;
+    public final STNode arguments;
     public final STNode closeParenToken;
 
     STExplicitNewExpression(
             STNode NewKeyword,
             STNode TypeDescriptor,
             STNode openParenToken,
-            STNode fieldNames,
+            STNode arguments,
             STNode closeParenToken) {
         super(SyntaxKind.EXPLICIT_NEW);
         this.NewKeyword = NewKeyword;
         this.TypeDescriptor = TypeDescriptor;
         this.openParenToken = openParenToken;
-        this.fieldNames = fieldNames;
+        this.arguments = arguments;
         this.closeParenToken = closeParenToken;
 
         addChildren(
                 NewKeyword,
                 TypeDescriptor,
                 openParenToken,
-                fieldNames,
+                arguments,
                 closeParenToken);
     }
 
