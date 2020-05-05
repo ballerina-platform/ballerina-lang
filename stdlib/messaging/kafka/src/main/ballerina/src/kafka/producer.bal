@@ -56,9 +56,9 @@ import ballerina/java;
 # + maxInFlightRequestsPerConnection - Maximum number of unacknowledged requests on a single connection
 # + connectionsMaxIdleTimeInMillis - Close the idle connections after this number of milliseconds
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer
-# + enableIdempotence - Exactly one copy of each message is written in the stream when enabled
+# + enableIdempotence - Exactly one copy of each message is written to the stream when enabled
 # + secureSocket - Configurations related to SSL/TLS encryption
-# + authenticationConfiguration - Authentication related configurations for the Kafka producer
+# + authenticationConfiguration - Authentication-related configurations for the Kafka producer
 public type ProducerConfiguration record {|
     string bootstrapServers;
     ProducerAcks acks = ACKS_SINGLE;
@@ -101,7 +101,7 @@ public type ProducerConfiguration record {|
     AuthenticationConfiguration authenticationConfiguration?;
 |};
 
-# Defines a records to send data using Avro serialization.
+# Defines a record to send data using Avro serialization.
 #
 # + schemaString - The string, which defines the Avro schema
 # + dataRecord - Records, which should be serialized using Avro
@@ -181,7 +181,7 @@ public type Producer client object {
     # kafka:ProducerError? result = producer->close();
     # ```
     #
-    # + return - A `kafka:ProducerError` if closing the producer is failed or else ()
+    # + return - A `kafka:ProducerError` if closing the producer failed or else '()'
     public remote function close() returns ProducerError? {
         return producerClose(self);
     }
@@ -208,7 +208,7 @@ public type Producer client object {
     # kafka:ProducerError? result = producer->flushRecords();
     # ```
     #
-    # + return - A `kafka:ProducerError` if records couldn't be flushed or else ()
+    # + return - A `kafka:ProducerError` if records couldn't be flushed or else '()'
     public remote function flushRecords() returns ProducerError? {
         return producerFlushRecords(self);
     }
@@ -231,10 +231,10 @@ public type Producer client object {
     #
     # + value - Record contents
     # + topic - Topic to which the record will be appended
-    # + key - Key that will be included in the record
+    # + key - Key, which will be included in the record
     # + partition - Partition to which the record should be sent
     # + timestamp - Timestamp of the record in milliseconds since epoch
-    # + return -  A `kafka:ProducerError` if send action fails to send data or else ()
+    # + return -  A `kafka:ProducerError` if send action fails to send data or else '()'
     public remote function send(anydata value, string topic, public anydata? key = (), public int? partition = (),
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);
