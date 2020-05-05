@@ -138,10 +138,8 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
     private String getPropertyType(Schema prop) {
         String type;
         String check = prop.getType();
-        if (prop instanceof ComposedSchema) {
-            if (prop.getType() == null) {
-                check = "json";
-            }
+        if ((prop instanceof ComposedSchema) && (prop.getType() == null)) {
+            check = "json";
         } else {
             check = prop.getType();
         }
