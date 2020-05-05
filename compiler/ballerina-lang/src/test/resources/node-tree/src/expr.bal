@@ -24,7 +24,8 @@ function testExpressions() {
     io:println(myList2);
 
     //mapping-construct-expr
-    var myMap = {key : "value"};
+    //var myMap = {key : "value"}; //Temporary disable keyword as key
+    var myMap = {myKey : "value"};
     var myMap2 = {"key" : "value"};
     io:println(myMap);
     io:println(myMap2);
