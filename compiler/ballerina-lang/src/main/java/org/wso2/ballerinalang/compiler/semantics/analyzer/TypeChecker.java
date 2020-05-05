@@ -3361,16 +3361,15 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (collectionType.tag) {
             case TypeTags.STREAM:
                 BErrorType errorType = (BErrorType) ((BStreamType) collectionType).error;
-                if (!isStream && !isTable) {
+                if (isTable) {
+                    return new BTableType(TypeTags.TABLE, actualType, null);
+                } else if (isStream) {
+                    return new BStreamType(TypeTags.STREAM, actualType, errorType, null);
+                } else {
                     actualType = new BArrayType(actualType);
                     if (errorType != null) {
                         return BUnionType.create(null, actualType, errorType);
                     }
-                } else if (isTable) {
-                    return new BTableType(TypeTags.TABLE, actualType, null);
-                }
-                else {
-                    return new BStreamType(TypeTags.STREAM, actualType, errorType, null);
                 }
                 break;
             case TypeTags.OBJECT:

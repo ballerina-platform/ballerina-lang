@@ -2873,13 +2873,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
+
         boolean isTable = false;
         boolean isStream = false;
         if (ctx.queryConstructType() != null) {
             if (ctx.queryConstructType().TYPE_STREAM() != null) {
                 isStream = true;
-            }
-            else {
+            } else {
                 isTable = true;
             }
         }
