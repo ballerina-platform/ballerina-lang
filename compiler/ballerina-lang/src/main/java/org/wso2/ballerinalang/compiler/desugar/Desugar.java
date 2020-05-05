@@ -1017,11 +1017,23 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangSimpleVarRef trxIdOnAbortRef = ASTBuilderUtil.createVariableRef(funcNode.pos, onAbortTrxVar.symbol);
 
-        for (Map.Entry<String, BLangExpression> entry :
-                getKeyValuePairs((BLangStatementExpression) annotation.expr).entrySet()) {
-            switch (entry.getKey()) {
+        for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.expr).fields) {
+            if (!field.isKeyValueField()) {
+                continue;
+            }
+
+            BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKey key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key;
+
+            if (key.computedKey) {
+                continue;
+            }
+
+            switch ((String) ((BLangLiteral) key.expr).value) {
                 case Transactions.TRX_ONCOMMIT_FUNC:
-                    BInvokableSymbol commitSym = (BInvokableSymbol) ((BLangSimpleVarRef) entry.getValue()).symbol;
+                    BInvokableSymbol commitSym =
+                            (BInvokableSymbol) ((BLangSimpleVarRef) keyValueField.valueExpr).symbol;
                     BLangInvocation onCommit = ASTBuilderUtil
                             .createInvocationExprMethod(funcNode.pos, commitSym, Lists.of(trxIdOnCommitRef),
                                                         Collections.emptyList(), symResolver);
@@ -1029,7 +1041,7 @@ public class Desugar extends BLangNodeVisitor {
                     onCommitBody = ASTBuilderUtil.createBlockFunctionBody(funcNode.pos, Lists.of(onCommitStmt));
                     break;
                 case Transactions.TRX_ONABORT_FUNC:
-                    BInvokableSymbol abortSym = (BInvokableSymbol) ((BLangSimpleVarRef) entry.getValue()).symbol;
+                    BInvokableSymbol abortSym = (BInvokableSymbol) ((BLangSimpleVarRef) keyValueField.valueExpr).symbol;
                     BLangInvocation onAbort = ASTBuilderUtil
                             .createInvocationExprMethod(funcNode.pos, abortSym, Lists.of(trxIdOnAbortRef),
                                                         Collections.emptyList(), symResolver);
@@ -6681,23 +6693,5 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
-    }
-
-    private Map<String, BLangExpression> getKeyValuePairs(BLangStatementExpression desugaredMappingConst) {
-        List<BLangStatement> stmts = ((BLangBlockStmt) desugaredMappingConst.stmt).stmts;
-
-        Map<String, BLangExpression> keyValuePairs = new HashMap<>();
-
-        for (int i = 1; i < stmts.size(); i++) {
-            BLangAssignment assignmentStmt = (BLangAssignment) stmts.get(i);
-
-            BLangExpression indexExpr = ((BLangIndexBasedAccess) assignmentStmt.varRef).indexExpr;
-            if (indexExpr.getKind() != NodeKind.LITERAL) {
-                continue;
-            }
-
-            keyValuePairs.put((String) ((BLangLiteral) indexExpr).value, assignmentStmt.expr);
-        }
-        return keyValuePairs;
     }
 }
