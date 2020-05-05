@@ -1099,7 +1099,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 Arrays.equals(booleanValues, that.booleanValues) &&
                 Arrays.equals(byteValues, that.byteValues) &&
                 Arrays.equals(floatValues, that.floatValues) &&
-                Arrays.equals(stringValues, that.stringValues) &&
                 Arrays.equals(bStringValues, that.bStringValues);
     }
 
@@ -1111,7 +1110,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         result = 31 * result + Arrays.hashCode(booleanValues);
         result = 31 * result + Arrays.hashCode(byteValues);
         result = 31 * result + Arrays.hashCode(floatValues);
-        result = 31 * result + Arrays.hashCode(stringValues);
         result = 31 * result + Arrays.hashCode(bStringValues);
         return result;
     }

@@ -1043,7 +1043,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+            return String.format("L%s;", B_STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1098,7 +1098,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return ")D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format(")L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+            return String.format(")L%s;", B_STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format(")L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1213,7 +1213,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             typeSig = "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            typeSig = String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+            typeSig = String.format("L%s;", B_STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             typeSig = String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {

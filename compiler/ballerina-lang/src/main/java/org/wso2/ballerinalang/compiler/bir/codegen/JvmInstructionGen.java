@@ -924,7 +924,8 @@ public class JvmInstructionGen {
             this.mv.visitInsn(IADD);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, JvmConstants.B_STRING_VALUE, "concat",
-                                        String.format("(L%s;)L%s;", JvmConstants.B_STRING_VALUE, B_STRING_VALUE), true);
+                                        String.format("(L%s;)L%s;", JvmConstants.B_STRING_VALUE,
+                                                      JvmConstants.B_STRING_VALUE), true);
         } else if (bType.tag == TypeTags.DECIMAL) {
             this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
                     String.format("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE), false);
@@ -1223,9 +1224,10 @@ public class JvmInstructionGen {
         if (varRefType.tag == TypeTags.JSON) {
 
             if (mapLoadIns.optionalFieldAccess) {
-                    this.mv.visitTypeInsn(CHECKCAST, JvmConstants.B_STRING_VALUE);
+                this.mv.visitTypeInsn(CHECKCAST, JvmConstants.B_STRING_VALUE);
                 this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
-                                            String.format("(L%s;L%s;)L%s;", OBJECT, B_STRING_VALUE, OBJECT), false);
+                                        String.format("(L%s;L%s;)L%s;", OBJECT, JvmConstants.B_STRING_VALUE, OBJECT),
+                                        false);
             } else {
                     this.mv.visitTypeInsn(CHECKCAST, JvmConstants.B_STRING_VALUE);
                 this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
@@ -1290,7 +1292,8 @@ public class JvmInstructionGen {
 
         // invoke the `getStringAt()` method
         this.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
-                                    String.format("(L%s;J)L%s;", JvmConstants.B_STRING_VALUE, B_STRING_VALUE), false);
+                                String.format("(L%s;J)L%s;", JvmConstants.B_STRING_VALUE, JvmConstants.B_STRING_VALUE),
+                                false);
 
         // store in the target reg
         this.storeToVar(stringLoadIns.lhsOp.variableDcl);

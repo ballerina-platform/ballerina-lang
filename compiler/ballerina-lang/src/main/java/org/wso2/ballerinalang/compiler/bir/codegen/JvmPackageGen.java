@@ -376,8 +376,7 @@ public class JvmPackageGen {
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                 attachedType, false);
 
-        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
-                jvmMethodDescriptionBString);
+        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription);
     }
 
     static PackageID packageToModuleId(BIRPackage mod) {

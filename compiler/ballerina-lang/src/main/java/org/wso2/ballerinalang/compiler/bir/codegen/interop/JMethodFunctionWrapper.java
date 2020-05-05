@@ -29,8 +29,7 @@ class JMethodFunctionWrapper extends BIRFunctionWrapper implements ExternalFunct
     JMethodFunctionWrapper(BIRFunctionWrapper functionWrapper, JMethod jMethod) {
 
         super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
-                functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription,
-                functionWrapper.jvmMethodDescriptionBString);
+                functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription);
         this.jMethod = jMethod;
     }
 }
