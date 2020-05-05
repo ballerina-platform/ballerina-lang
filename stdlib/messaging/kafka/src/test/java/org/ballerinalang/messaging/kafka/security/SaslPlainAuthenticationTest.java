@@ -43,12 +43,16 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageF
 /**
  * This class contains tests for Ballerina Kafka producers with SASL authentication.
  */
-public class SaslProducerTest {
-    private CompileResult result;
+public class SaslPlainAuthenticationTest {
+    private CompileResult producerResult;
+    private CompileResult consumerResult;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
     private static final String resourceDir = Paths.get("src", "test", "resources").toString();
-    private static final String balFile = Paths.get(TEST_SRC, TEST_SECURITY, "sasl_plain_producer.bal").toString();
+    private static final String producerBalFile =
+            Paths.get(TEST_SRC, TEST_SECURITY, "sasl_plain_producer.bal").toString();
+    private static final String consumerBalFile =
+            Paths.get(TEST_SRC, TEST_SECURITY, "sasl_plain_consumer.bal").toString();
     private static final String jaasConfigs = Paths.get("data-files", "sasl_configs").toString();
 
     @BeforeSuite
@@ -65,22 +69,40 @@ public class SaslProducerTest {
         kafkaCluster = kafkaCluster(prop).deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic("test-1", 1, 1);
-        result = BCompileUtil.compile(Paths.get(resourceDir, balFile).toAbsolutePath().toString());
+        producerResult = BCompileUtil.compile(Paths.get(resourceDir, producerBalFile).toAbsolutePath().toString());
+        consumerResult = BCompileUtil.compile(Paths.get(resourceDir, consumerBalFile).toAbsolutePath().toString());
     }
 
     // TODO: Disabled since topic auto creation is not working. Check further and enable this.
-    @Test(description = "Test kafka consumer connect with SASL Plain authentication", enabled = false)
-    public void testSaslAuthentication() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "sendFromValidProducer");
+    @Test(description = "Test kafka producer with SASL PLAIN authentication", enabled = false)
+    public void testSaslAuthenticationProducer() {
+        BValue[] returnBValues = BRunUtil.invoke(producerResult, "sendFromValidProducer");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertFalse(returnBValues[0] instanceof BError, returnBValues[0].stringValue());
     }
 
-    @Test(description = "Test kafka consumer connect with SASL Plain authentication with invalid username")
-    public void testSaslAuthenticationWithInvalidUsername() {
-        String expectedError = "Failed to send data to Kafka server: Authentication failed: Invalid username " +
-                "or password";
-        BValue[] returnBValues = BRunUtil.invoke(result, "sendFromInvalidUsernameProducer");
+    @Test(description = "Test kafka producer with SASL PLAIN authentication providing invalid username")
+    public void testSaslAuthenticationProducerWithInvalidUsername() {
+        String expectedError =
+                "Failed to send data to Kafka server: Authentication failed: Invalid username or password";
+        BValue[] returnBValues = BRunUtil.invoke(producerResult, "sendFromInvalidUsernameProducer");
+        Assert.assertEquals(returnBValues.length, 1);
+        Assert.assertTrue(returnBValues[0] instanceof BError);
+        Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]), expectedError);
+    }
+
+    @Test(description = "Test kafka consumer with SASL PLAIN authentication")
+    public void testSaslAuthenticationConsumer() {
+        BValue[] returnBValues = BRunUtil.invoke(consumerResult, "getTopicsForValidConsumer");
+        Assert.assertEquals(returnBValues.length, 1);
+        Assert.assertFalse(returnBValues[0] instanceof BError, returnBValues[0].stringValue());
+    }
+
+    @Test(description = "Test kafka consumer with SASL PLAIN authentication providing invalid password")
+    public void testSaslAuthenticationConsumerWithInvalidPassword() {
+        String expectedError =
+                "Failed to retrieve available topics: Authentication failed: Invalid username or password";
+        BValue[] returnBValues = BRunUtil.invoke(consumerResult, "getTopicsForInvalidPasswordConsumer");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BError);
         Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]), expectedError);
