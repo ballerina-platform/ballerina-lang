@@ -516,6 +516,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LOGICAL_OR_TOKEN;
             case "NEGATION_TOKEN":
                 return SyntaxKind.NEGATION_TOKEN;
+            case "ERROR_KEYWORD":
+                return SyntaxKind.ERROR_KEYWORD;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -612,6 +614,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_CAST_EXPRESSION;
             case "TABLE_CONSTRUCTOR":
                 return SyntaxKind.TABLE_CONSTRUCTOR;
+            case "ERROR_CONSTRUCTOR":
+                return SyntaxKind.ERROR_CONSTRUCTOR;
             case "LET_EXPRESSION":
                 return SyntaxKind.LET_EXPRESSION;
             case "RAW_TEMPLATE_EXPRESSION":

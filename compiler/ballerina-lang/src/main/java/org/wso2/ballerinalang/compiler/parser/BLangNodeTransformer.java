@@ -1202,12 +1202,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangIdentifier pkgAlias = this.createIdentifier(getPosition(token), "");
             BLangIdentifier name = this.createIdentifier(getPosition(token), token.text());
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
-//        }
-//        else if (node.kind() == SyntaxKind.ERROR_KEYWORD) {
-//            DiagnosticPos pos = getPosition(node);
-//            BLangIdentifier pkgAlias = this.createIdentifier(pos, "");
-//            BLangIdentifier name = this.createIdentifier(pos, ((Token) node).text());
-//            return new BLangNameReference(pos, null, pkgAlias, name);
         } else {
             // Map name reference as a name
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) node;
