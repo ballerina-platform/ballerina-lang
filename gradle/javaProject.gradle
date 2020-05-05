@@ -105,7 +105,7 @@ dependencies {
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
         implementation 'io.ballerina.messaging:broker-core:0.970.5'
         implementation 'io.ballerina.messaging:broker-amqp:0.970.5'
-        implementation 'io.debezium:debezium-core:1.0.0.Final'
+        implementation 'io.debezium:debezium-core:1.1.1.Final'
         implementation 'io.dropwizard.metrics:metrics-core:3.1.0'
         implementation 'io.netty:netty-codec:4.1.39.Final'
         implementation 'io.netty:netty-buffer:4.1.39.Final'
