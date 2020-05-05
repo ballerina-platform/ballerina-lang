@@ -118,17 +118,7 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return reason string
      */
-    @Deprecated
-    public String getReason() {
-        return reason.getValue();
-    }
-
-    /**
-     * Returns error reason.
-     *
-     * @return reason string
-     */
-    public BString getErrorReason() {
+    public BString getReason() {
         return reason;
     }
 

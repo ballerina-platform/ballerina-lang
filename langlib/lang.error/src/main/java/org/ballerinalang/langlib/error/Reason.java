@@ -38,6 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Reason {
 
     public static BString reason(Strand strand, ErrorValue value) {
-        return value.getErrorReason();
+        return value.getReason();
     }
 }
