@@ -2046,12 +2046,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
 
                 if (actualType != symTable.semanticError &&
-                        (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) &&
-                        types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
-                    String name = fieldAccessExpr.field.value;
-                    if (allRecordsHaveRequiredReadonlyField(varRefType, name)) {
+                        (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
+                    if (isAllReadonlyTypes(varRefType)) {
+                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
+                                   varRefType);
+                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
+                            isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
-                                   name, varRefType);
+                                   fieldAccessExpr.field.value, varRefType);
                         types.checkType(fieldAccessExpr, actualType, this.expType);
                         resultType = symTable.semanticError;
                         return;
@@ -2063,7 +2065,20 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
-    private boolean allRecordsHaveRequiredReadonlyField(BType type, String fieldName) {
+    private boolean isAllReadonlyTypes(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return Symbols.isFlagOn(type.flags, Flags.READONLY);
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isAllReadonlyTypes(memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isInvalidReadonlyFieldUpdate(BType type, String fieldName) {
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
             for (BField field : recordType.fields) {
@@ -2071,23 +2086,26 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-                if (Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
-                        // allow updates at compile-time for optional fields since it could be the first update.
-                        Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
                     return true;
                 }
 
-                return false;
+                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
+                        // allow updates at compile-time for optional fields since it could be the first update.
+                        Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED);
             }
-            return false;
+            return recordType.sealed;
         }
 
+        // For unions, we consider this an invalid update only if it is invalid for all member types. If for at least
+        // one member this is valid, we allow this at compile time with the potential to fail at runtime.
+        boolean allInvalidUpdates = true;
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!allRecordsHaveRequiredReadonlyField(memberType, fieldName)) {
-                return false;
+            if (!isInvalidReadonlyFieldUpdate(memberType, fieldName)) {
+                allInvalidUpdates = false;
             }
         }
-        return true;
+        return allInvalidUpdates;
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
@@ -2126,14 +2144,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType exprType = indexBasedAccessExpr.expr.type;
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
+
         if (actualType != symTable.semanticError &&
-                types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) &&
-                (indexBasedAccessExpr.lhsVar || indexBasedAccessExpr.compoundAssignmentLhsVar) &&
-                (indexExpr.getKind() == NodeKind.LITERAL || isConst(indexExpr))) {
-            String name = getConstFieldName(indexExpr);
-            if (allRecordsHaveRequiredReadonlyField(exprType, name)) {
+                (indexBasedAccessExpr.lhsVar || indexBasedAccessExpr.compoundAssignmentLhsVar)) {
+            if (isAllReadonlyTypes(exprType)) {
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
+                           exprType);
+            } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) &&
+                    (indexExpr.getKind() == NodeKind.LITERAL || isConst(indexExpr)) &&
+                    isInvalidReadonlyFieldUpdate(exprType, getConstFieldName(indexExpr))) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
-                           name, exprType);
+                           getConstFieldName(indexExpr), exprType);
                 resultType = symTable.semanticError;
                 return;
             }
