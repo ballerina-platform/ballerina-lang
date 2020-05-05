@@ -209,7 +209,7 @@ public class PackagingTestCase extends BaseTest {
         }
     }
 
-    @Test(description = "Test push all packages in project to central")
+    @Test(description = "Test push all packages in project to central", enabled = false)
     public void testPushAllPackages() throws Exception {
         // Test ballerina init
         Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");

@@ -120,7 +120,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         moduleBuildLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test pushing a module to central without any content in Module.md")
+    @Test(description = "Test pushing a module to central without any content in Module.md", enabled = false)
     public void testPushWithoutModuleMDContent() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithoutModuleMDContent");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
