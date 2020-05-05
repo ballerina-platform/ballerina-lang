@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -178,8 +179,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.em
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.getFullQualifiedRemoteFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFunctionWrapper;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
@@ -232,11 +231,13 @@ public class JvmMethodGen {
     private int nextVarId = -1;
     private JvmPackageGen jvmPackageGen;
     private SymbolTable symbolTable;
+    private BUnionType errorOrNilType;
 
     public JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
+        this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
     }
 
     private static int[] toIntArray(List<Integer> states) {
@@ -2090,7 +2091,7 @@ public class JvmMethodGen {
         } else {
             String jvmClass;
             String lookupKey = getPackageName(orgName, moduleName) + funcName;
-            BIRFunctionWrapper functionWrapper = jvmPackageGen.birFunctionMap.get(lookupKey);
+            BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
@@ -2180,12 +2181,8 @@ public class JvmMethodGen {
 
         String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
 
-        if (jvmPackageGen.birFunctionMap.containsKey(key)) {
-            BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(jvmPackageGen.birFunctionMap.get(key));
-            return isExternFunc(functionWrapper.func);
-        }
-
-        return false;
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
+        return functionWrapper != null && isExternFunc(functionWrapper.func);
     }
 
     private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
@@ -2481,7 +2478,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        JvmInstructionGen.addBoxInsn(mv, jvmPackageGen.errorOrNilType);
+        JvmInstructionGen.addBoxInsn(mv, errorOrNilType);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -2515,14 +2512,14 @@ public class JvmMethodGen {
     }
 
     void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                   BIRPackage pkg, List<PackageID> depModArray) {
+                                   BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(depModArray, pkg, MODULE_INIT, "<init>");
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, "<init>");
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
-        BIRFunction startFunc = generateDepModInit(depModArray, pkg, MODULE_START, "<start>");
+        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, "<start>");
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
 
@@ -2534,12 +2531,12 @@ public class JvmMethodGen {
         nextId = -1;
         nextVarId = -1;
 
-        BIRVariableDcl retVar = new BIRVariableDcl(null, jvmPackageGen.errorOrNilType, new Name("%ret"),
+        BIRVariableDcl retVar = new BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                 VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
 
         BIRFunction modInitFunc = new BIRFunction(null, new Name(funcName), 0,
-                new BInvokableType(Collections.emptyList(), null, jvmPackageGen.errorOrNilType, null), null, 0, null);
+                new BInvokableType(Collections.emptyList(), null, errorOrNilType, null), null, 0, null);
         modInitFunc.localVars.add(retVar);
         BIRBasicBlock ignoreNextBB = addAndGetNextBasicBlock(modInitFunc);
 
@@ -2650,9 +2647,9 @@ public class JvmMethodGen {
 
     void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
 
-        for (BIRFunction func : pkg.functions) {
+        pkg.functions.parallelStream().forEach(func -> {
             generateFrameClassForFunction(pkg, func, pkgEntries, null);
-        }
+        });
 
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
@@ -2665,9 +2662,9 @@ public class JvmMethodGen {
                 } else {
                     attachedType = typeDef.type;
                 }
-                for (BIRFunction func : attachedFuncs) {
+                attachedFuncs.parallelStream().forEach(func -> {
                     generateFrameClassForFunction(pkg, func, pkgEntries, attachedType);
-                }
+                });
             }
         }
     }
@@ -2737,13 +2734,6 @@ public class JvmMethodGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        //Adding this java method to the function map because this is getting called from a bir instruction.
-        BIRFunction func = new BIRFunction(null, new Name(CURRENT_MODULE_INIT),
-                0, new BInvokableType(Collections.emptyList(), null, new BNilType(), null)
-                , new Name(""), 0, null);
-        jvmPackageGen.birFunctionMap.put(pkgName + CURRENT_MODULE_INIT, getFunctionWrapper(func, orgName, moduleName,
-                version, typeOwnerClass));
     }
 
     void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
@@ -2794,12 +2784,6 @@ public class JvmMethodGen {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        //Adding this java method to the function map because this is getting called from a bir instruction.
-        BIRFunction func = new BIRFunction(null, new Name(MODULE_STOP), 0, new BInvokableType(Collections.emptyList(),
-                null, new BNilType(), null), new Name(""), 0, null);
-        jvmPackageGen.birFunctionMap.put(pkgName + MODULE_STOP, getFunctionWrapper(func, orgName, moduleName,
-                version, typeOwnerClass));
     }
 
 }
