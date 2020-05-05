@@ -954,14 +954,6 @@ type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertTrue(any|error actual) {
-    assertEquality(true, actual);
-}
-
-function assertFalse(any|error actual) {
-    assertEquality(false, actual);
-}
-
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
