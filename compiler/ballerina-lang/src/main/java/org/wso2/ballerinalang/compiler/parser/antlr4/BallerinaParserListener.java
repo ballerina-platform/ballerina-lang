@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /Users/wso2/Desktop/StreamDesugar/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -2645,6 +2645,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitQueryPipeline(BallerinaParser.QueryPipelineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#queryConstructType}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#queryConstructType}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#queryExpr}.
 	 * @param ctx the parse tree

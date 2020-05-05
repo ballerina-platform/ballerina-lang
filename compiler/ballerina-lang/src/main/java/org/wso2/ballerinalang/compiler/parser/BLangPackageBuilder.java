@@ -61,6 +61,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -1927,10 +1928,11 @@ public class BLangPackageBuilder {
         addExpressionNode(trapExpr);
     }
 
-    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean isStream) {
+    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean isTable, boolean isStream) {
         BLangQueryExpr queryExpr = (BLangQueryExpr) TreeBuilder.createQueryExpressionNode();
         queryExpr.pos = pos;
         queryExpr.addWS(ws);
+        queryExpr.setIsTable(isTable);
         queryExpr.setIsStream(isStream);
         Collections.reverse(queryClauseStack);
         while (queryClauseStack.size() > 0) {

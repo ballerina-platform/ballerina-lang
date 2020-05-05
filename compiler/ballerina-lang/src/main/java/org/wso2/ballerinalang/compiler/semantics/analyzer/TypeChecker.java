@@ -3304,9 +3304,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 whereEnv = typeCheckWhereClause(((BLangOnClause) clause).expression, select, parentEnv);
             }
         }
+        BType actualType = symTable.semanticError;;
         whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
-        BType actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
-                queryExpr.isStream);
+        actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
+                queryExpr.isStream, queryExpr.isTable);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -3315,9 +3316,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
-                                     boolean isStream) {
+                                     boolean isStream, boolean isTable) {
         List<BType> assignableSelectTypes = new ArrayList<>();
-        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream) ? collectionType.tag : expType.tag;
+        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream && !isTable) ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
 
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
@@ -3330,6 +3331,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
                     enclosedTypeTag = TypeTags.ARRAY;
                     break;
+                case TypeTags.TABLE:
+                    selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
+                            true, true));
                 case TypeTags.STREAM:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
                             true, true));
@@ -3358,12 +3362,15 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (collectionType.tag) {
             case TypeTags.STREAM:
                 BErrorType errorType = (BErrorType) ((BStreamType) collectionType).error;
-                if (!isStream) {
+                if (!isStream && !isTable) {
                     actualType = new BArrayType(actualType);
                     if (errorType != null) {
                         return BUnionType.create(null, actualType, errorType);
                     }
-                } else {
+                } else if (isTable) {
+                    return new BTableType(TypeTags.TABLE, actualType, null);
+                }
+                else {
                     return new BStreamType(TypeTags.STREAM, actualType, errorType, null);
                 }
                 break;
@@ -3384,7 +3391,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (isStream) {
                     return new BStreamType(TypeTags.STREAM, actualType, collectionTypeMap.get(true).get(0),
                             symTable.streamType.tsymbol);
-                } else {
+                } else if (isTable) {
+                    return new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
+                }
+                else {
                     List<BType> collectionTypes = Lists.of(actualType);
                     collectionTypes.addAll(collectionTypeMap.get(true));
                     return BUnionType.create(null, collectionTypes.toArray(new BType[collectionTypes.size()]));
@@ -3393,6 +3403,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (isStream) {
             return new BStreamType(TypeTags.STREAM, actualType, null, null);
+        }
+        else if (isTable) {
+            return new BTableType(TypeTags.TABLE, actualType, null);
         }
         return actualType;
     }

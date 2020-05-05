@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public boolean isStream = false;
+    public boolean isTable = false;
 
     @Override
     public BLangSelectClause getSelectClause() {
@@ -69,6 +70,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void setIsStream(boolean isStream) {
         this.isStream = isStream;
+    }
+
+    @Override
+    public boolean isTable() {
+        return isTable;
+    }
+
+    @Override
+    public void setIsTable(boolean isTable) {
+        this.isTable = isTable;
     }
 
     @Override

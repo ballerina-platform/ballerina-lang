@@ -37,4 +37,9 @@ public interface QueryExpressionNode extends ExpressionNode {
     boolean isStream();
 
     void setIsStream(boolean isStream);
+
+    boolean isTable();
+
+    void setIsTable(boolean isTable);
+
 }

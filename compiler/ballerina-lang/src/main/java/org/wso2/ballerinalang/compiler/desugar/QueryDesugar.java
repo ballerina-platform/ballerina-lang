@@ -147,7 +147,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
-        } else {
+        }
+//        else if (queryExpr.isTable) {
+//            //TO DO
+//        }
+        else {
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
