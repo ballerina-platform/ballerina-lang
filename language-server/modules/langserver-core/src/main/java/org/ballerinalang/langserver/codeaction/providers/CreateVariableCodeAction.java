@@ -149,15 +149,17 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
             boolean hasDefaultInitFunction = false;
             boolean hasCustomInitFunction = false;
+            boolean isAsync = false;
             if (refAtCursor.getbLangNode() instanceof BLangInvocation) {
                 hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
                 hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
                         symbolAtCursor.name.value.endsWith("__init");
+                isAsync = ((BLangInvocation) refAtCursor.getbLangNode()).isAsync();
             }
             boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
 
             actions.addAll(getCreateVariableCodeActions(context, uri, diagnostics, position, refAtCursor,
-                                                        hasDefaultInitFunction, hasCustomInitFunction));
+                                                        hasDefaultInitFunction, hasCustomInitFunction, isAsync));
             String commandTitle;
 
             if (isInvocation || isInitInvocation) {
@@ -198,7 +200,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                                  List<Diagnostic> diagnostics, Position position,
                                                                  Reference referenceAtCursor,
                                                                  boolean hasDefaultInitFunction,
-                                                                 boolean hasCustomInitFunction) {
+                                                                 boolean hasCustomInitFunction, boolean isAsync) {
         List<CodeAction> actions = new ArrayList<>();
 
 
@@ -209,7 +211,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> importEdits = new ArrayList<>();
         Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, referenceAtCursor,
                                                                                   hasDefaultInitFunction,
-                                                                                  hasCustomInitFunction, bLangNode,
+                                                                                  hasCustomInitFunction, isAsync,
+                                                                                  bLangNode,
                                                                                   importEdits, compilerContext);
 
         List<String> types = typesAndNames.getLeft();
@@ -236,7 +239,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                                              Reference referenceAtCursor,
                                                                              boolean hasDefaultInitFunction,
                                                                              boolean hasCustomInitFunction,
-                                                                             BLangNode bLangNode, List<TextEdit> edits,
+                                                                             boolean isAsync, BLangNode bLangNode,
+                                                                             List<TextEdit> edits,
                                                                              CompilerContext compilerContext) {
         Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
@@ -244,7 +248,12 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         List<String> types = new ArrayList<>();
         List<String> names = new ArrayList<>();
-        if (hasDefaultInitFunction) {
+        if (isAsync) {
+            BType bType = referenceAtCursor.getSymbol().type;
+            String variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            types.add("var");
+            names.add(variableName);
+        } else if (hasDefaultInitFunction) {
             BType bType = referenceAtCursor.getSymbol().type;
             String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
                                                                            context);
@@ -398,7 +407,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 if (expression instanceof BLangRecordLiteral) {
                     BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                     return getPossibleTypesAndNames(context, referenceAtCursor, hasDefaultInitFunction,
-                                                    hasCustomInitFunction, recordLiteral, edits, compilerContext);
+                                                    hasCustomInitFunction, isAsync, recordLiteral, edits,
+                                                    compilerContext);
                 } else {
                     String variableName = CommonUtil.generateName(1, nameEntries);
                     types.add("var");
