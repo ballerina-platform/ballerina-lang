@@ -38,16 +38,8 @@ public class ExplicitNewExpression extends NewExpression {
         return childInBucket(1);
     }
 
-    public Token openParenToken() {
+    public Node ParenthesizedArgList() {
         return childInBucket(2);
-    }
-
-    public NodeList<FunctionArgumentNode> arguments() {
-        return new NodeList<>(childInBucket(3));
-    }
-
-    public Token closeParenToken() {
-        return childInBucket(4);
     }
 
     @Override
@@ -65,31 +57,23 @@ public class ExplicitNewExpression extends NewExpression {
         return new String[]{
                 "NewKeyword",
                 "TypeDescriptor",
-                "openParenToken",
-                "arguments",
-                "closeParenToken"};
+                "ParenthesizedArgList"};
     }
 
     public ExplicitNewExpression modify(
             Token NewKeyword,
             Node TypeDescriptor,
-            Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
-            Token closeParenToken) {
+            Node ParenthesizedArgList) {
         if (checkForReferenceEquality(
                 NewKeyword,
                 TypeDescriptor,
-                openParenToken,
-                arguments.underlyingListNode(),
-                closeParenToken)) {
+                ParenthesizedArgList)) {
             return this;
         }
 
         return NodeFactory.createExplicitNewExpression(
                 NewKeyword,
                 TypeDescriptor,
-                openParenToken,
-                arguments,
-                closeParenToken);
+                ParenthesizedArgList);
     }
 }

@@ -387,8 +387,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(implicitNewExpression);
     }
 
-    public void visit(ImplicitNewArgList implicitNewArgList) {
-        visitSyntaxNode(implicitNewArgList);
+    public void visit(ParenthesizedArgList parenthesizedArgList) {
+        visitSyntaxNode(parenthesizedArgList);
     }
 
     // Tokens

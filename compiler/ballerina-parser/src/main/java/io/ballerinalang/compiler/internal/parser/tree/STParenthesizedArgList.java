@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ImplicitNewArgList;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,17 +27,16 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STImplicitNewArgList extends STNode {
+public class STParenthesizedArgList extends STNode {
     public final STNode openParenToken;
     public final STNode arguments;
     public final STNode closeParenToken;
 
-    STImplicitNewArgList(
-            SyntaxKind kind,
+    STParenthesizedArgList(
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
-        super(kind);
+        super(SyntaxKind.PARENTHESIZED_ARG_LIST);
         this.openParenToken = openParenToken;
         this.arguments = arguments;
         this.closeParenToken = closeParenToken;
@@ -49,6 +48,6 @@ public class STImplicitNewArgList extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ImplicitNewArgList(this, position, parent);
+        return new ParenthesizedArgList(this, position, parent);
     }
 }

@@ -197,6 +197,7 @@ public enum SyntaxKind {
     TABLE_CONSTRUCTOR(1317),
     IMPLICIT_NEW(1318),
     EXPLICIT_NEW(1319),
+    PARENTHESIZED_ARG_LIST(1320),
 
     // Type descriptors
     TYPE_DESC(2000),

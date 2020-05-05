@@ -29,18 +29,18 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STImplicitNewExpression extends STNewExpression {
     public final STNode NewKeyword;
-    public final STNode ImplicitNewArgList;
+    public final STNode ParenthesizedArgList;
 
     STImplicitNewExpression(
             STNode NewKeyword,
-            STNode ImplicitNewArgList) {
+            STNode ParenthesizedArgList) {
         super(SyntaxKind.IMPLICIT_NEW);
         this.NewKeyword = NewKeyword;
-        this.ImplicitNewArgList = ImplicitNewArgList;
+        this.ParenthesizedArgList = ParenthesizedArgList;
 
         addChildren(
                 NewKeyword,
-                ImplicitNewArgList);
+                ParenthesizedArgList);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

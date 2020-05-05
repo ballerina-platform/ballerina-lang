@@ -345,7 +345,11 @@ public class BallerinaParser {
             case TABLE_KEYWORD_RHS:
                 return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
             case NEW_EXPRESSION:
-                return parseNewExpression();
+                return parseNewExpression((STNode) args[0]);
+            case NEW_KEYWORD:
+                return parseNewKeyword();
+            case IMPLICIT_NEW:
+                return parseImplicitNewExpression((STNode) args[0]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3167,10 +3171,24 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * <p>
+     * Parse a new expression.
+     * </p>
+     * <code>
+     *  new-expr := explicit-new-expr | implicit-new-expr
+     *  explicit-new-expr := new type-descriptor ( arg-list )
+     *  implicit-new-expr := new [( arg-list )]
+     * </code>
+     *
+     * @return Parsed NewExpression node.
+     */
     private STNode parseNewExpression() {
         startContext(ParserRuleContext.NEW_EXPRESSION);
         STNode newKeyword = parseNewKeyword();
-        return parseNewExpression(newKeyword);
+        STNode newExpressionNode = parseNewExpression(newKeyword);
+        endContext();
+        return newExpressionNode;
     }
 
     private STNode parseNewKeyword() {
@@ -3188,20 +3206,39 @@ public class BallerinaParser {
         return parseNewExpression(token.kind, newKeyword);
     }
 
+    /**
+     * <p>
+     * Parse an implicit or explicit expression.
+     * </p>
+     * @param kind next token kind.
+     * @param newKeyword parsed node for `new` keyword.
+     * @return Parsed new-expression node.
+     */
     private STNode parseNewExpression(SyntaxKind kind, STNode newKeyword) {
         switch (kind) {
             case OPEN_PAREN_TOKEN:
             case SEMICOLON_TOKEN:
                 return parseImplicitNewExpression(newKeyword);
             case IDENTIFIER_TOKEN:
+            case OBJECT_KEYWORD:
+                // TODO: Support `stream` keyword once introduced
+                return parseExplicitNewExpression(newKeyword);
             default:
-                return null;
+                Solution sol = recover(peek(), ParserRuleContext.NEW_EXPRESSION, newKeyword);
+                return sol.recoveredNode;
         }
     }
 
     private STNode parseImplicitNewExpression(STNode newKeyword) {
         STNode token = peek();
         return parseImplicitNewExpression(token.kind, newKeyword);
+    }
+
+    private STNode parseExplicitNewExpression(STNode newKeyword) {
+        STNode typeDescriptor = parseTypeDescriptor();
+        STNode parenthesizedArgsList = parseParenthesizedArgList();
+
+        return STNodeFactory.createExplicitNewExpression(newKeyword, typeDescriptor, parenthesizedArgsList);
     }
 
     private STNode parseImplicitNewExpression(SyntaxKind kind, STNode newKeyword) {
@@ -3213,36 +3250,26 @@ public class BallerinaParser {
             case SEMICOLON_TOKEN:
                 return STNodeFactory.createImplicitNewExpression(newKeyword, null);
             default:
-                Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW);
+                Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW, newKeyword);
+                return solution.recoveredNode;
         }
 
-        implicitNewArgList = parseImplicitNewArgList(newKeyword);
+        implicitNewArgList = parseParenthesizedArgList();
 
         return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
     }
 
-    private STNode parseImplicitNewArgList(STNode newKeyword) {
+    private STNode parseParenthesizedArgList() {
         STNode token = peek();
-        return parseImplicitNewArgList(token.kind);
+        return parseParenthesizedArgList(token.kind);
     }
 
-    private STNode parseImplicitNewArgList(SyntaxKind kind) {
-        STNode openParan;
-        STNode arguments;
-        STNode closeParan;
+    private STNode parseParenthesizedArgList(SyntaxKind kind) {
+        STNode openParan = parseOpenParenthesis();
+        STNode arguments = parseArgsList();
+        STNode closeParan = parseCloseParenthesis();
 
-        switch (kind) {
-            case OPEN_PAREN_TOKEN:
-                break;
-            default:
-                Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW_ARG);
-        }
-
-        openParan = parseOpenParenthesis();
-        arguments = parseArgsList();
-        closeParan = parseCloseParenthesis();
-
-        return STNodeFactory.createImplicitNewArgList(kind, openParan, arguments, closeParan);
+        return STNodeFactory.createParenthesizedArgList(openParan, arguments, closeParan);
     }
 
     private STNode parseActionOrExpressionInLhs(STNode lhsExpr) {

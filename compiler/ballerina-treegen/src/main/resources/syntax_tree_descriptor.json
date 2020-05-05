@@ -1997,17 +1997,8 @@
                     "type": "Node"
                 },
                 {
-                    "name": "openParenToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "arguments",
-                    "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeParenToken",
-                    "type": "Token"
+                    "name": "ParenthesizedArgList",
+                    "type": "Node"
                 }
             ]
         },
@@ -2021,15 +2012,16 @@
                     "type": "Token"
                 },
                 {
-                    "name": "ImplicitNewArgList",
+                    "name": "ParenthesizedArgList",
                     "type": "Node",
                     "isOptional": true
                 }
             ]
         },
         {
-            "name": "ImplicitNewArgList",
+            "name": "ParenthesizedArgList",
             "base": "Node",
+            "kind": "PARENTHESIZED_ARG_LIST",
             "attributes": [
                 {
                     "name": "openParenToken",

@@ -388,8 +388,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(implicitNewExpression);
     }
 
-    public T transform(ImplicitNewArgList implicitNewArgList) {
-        return transformSyntaxNode(implicitNewArgList);
+    public T transform(ParenthesizedArgList parenthesizedArgList) {
+        return transformSyntaxNode(parenthesizedArgList);
     }
 
     // Tokens

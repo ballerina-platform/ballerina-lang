@@ -1106,33 +1106,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ExplicitNewExpression explicitNewExpression) {
         Token NewKeyword = modifyToken(explicitNewExpression.NewKeyword());
         Node TypeDescriptor = modifyNode(explicitNewExpression.TypeDescriptor());
-        Token openParenToken = modifyToken(explicitNewExpression.openParenToken());
-        NodeList<FunctionArgumentNode> arguments = modifyNodeList(explicitNewExpression.arguments());
-        Token closeParenToken = modifyToken(explicitNewExpression.closeParenToken());
+        Node ParenthesizedArgList = modifyNode(explicitNewExpression.ParenthesizedArgList());
         return explicitNewExpression.modify(
                 NewKeyword,
                 TypeDescriptor,
-                openParenToken,
-                arguments,
-                closeParenToken);
+                ParenthesizedArgList);
     }
 
     @Override
     public Node transform(ImplicitNewExpression implicitNewExpression) {
         Token NewKeyword = modifyToken(implicitNewExpression.NewKeyword());
-        Node ImplicitNewArgList = modifyNode(implicitNewExpression.ImplicitNewArgList().orElse(null));
+        Node ParenthesizedArgList = modifyNode(implicitNewExpression.ParenthesizedArgList().orElse(null));
         return implicitNewExpression.modify(
                 NewKeyword,
-                ImplicitNewArgList);
+                ParenthesizedArgList);
     }
 
     @Override
-    public Node transform(ImplicitNewArgList implicitNewArgList) {
-        Token openParenToken = modifyToken(implicitNewArgList.openParenToken());
-        NodeList<FunctionArgumentNode> arguments = modifyNodeList(implicitNewArgList.arguments());
-        Token closeParenToken = modifyToken(implicitNewArgList.closeParenToken());
-        return implicitNewArgList.modify(
-                implicitNewArgList.kind(),
+    public Node transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = modifyToken(parenthesizedArgList.openParenToken());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(parenthesizedArgList.arguments());
+        Token closeParenToken = modifyToken(parenthesizedArgList.closeParenToken());
+        return parenthesizedArgList.modify(
                 openParenToken,
                 arguments,
                 closeParenToken);

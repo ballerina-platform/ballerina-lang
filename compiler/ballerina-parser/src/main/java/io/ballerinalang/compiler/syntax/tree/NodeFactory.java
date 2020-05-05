@@ -1500,37 +1500,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ExplicitNewExpression createExplicitNewExpression(
             Token NewKeyword,
             Node TypeDescriptor,
-            Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
-            Token closeParenToken) {
+            Node ParenthesizedArgList) {
         Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
         Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
-        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
-        Objects.requireNonNull(arguments, "arguments must not be null");
-        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+        Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
 
         STNode stExplicitNewExpression = STNodeFactory.createExplicitNewExpression(
                 NewKeyword.internalNode(),
                 TypeDescriptor.internalNode(),
-                openParenToken.internalNode(),
-                arguments.underlyingListNode().internalNode(),
-                closeParenToken.internalNode());
+                ParenthesizedArgList.internalNode());
         return stExplicitNewExpression.createUnlinkedFacade();
     }
 
     public static ImplicitNewExpression createImplicitNewExpression(
             Token NewKeyword,
-            Node ImplicitNewArgList) {
+            Node ParenthesizedArgList) {
         Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
 
         STNode stImplicitNewExpression = STNodeFactory.createImplicitNewExpression(
                 NewKeyword.internalNode(),
-                getOptionalSTNode(ImplicitNewArgList));
+                getOptionalSTNode(ParenthesizedArgList));
         return stImplicitNewExpression.createUnlinkedFacade();
     }
 
-    public static ImplicitNewArgList createImplicitNewArgList(
-            SyntaxKind kind,
+    public static ParenthesizedArgList createParenthesizedArgList(
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -1538,12 +1531,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(arguments, "arguments must not be null");
         Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
-        STNode stImplicitNewArgList = STNodeFactory.createImplicitNewArgList(
-                kind,
+        STNode stParenthesizedArgList = STNodeFactory.createParenthesizedArgList(
                 openParenToken.internalNode(),
                 arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
-        return stImplicitNewArgList.createUnlinkedFacade();
+        return stParenthesizedArgList.createUnlinkedFacade();
     }
 }
 

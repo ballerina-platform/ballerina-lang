@@ -36,7 +36,7 @@ public class ImplicitNewExpression extends NewExpression {
         return childInBucket(0);
     }
 
-    public Optional<Node> ImplicitNewArgList() {
+    public Optional<Node> ParenthesizedArgList() {
         return optionalChildInBucket(1);
     }
 
@@ -54,20 +54,20 @@ public class ImplicitNewExpression extends NewExpression {
     protected String[] childNames() {
         return new String[]{
                 "NewKeyword",
-                "ImplicitNewArgList"};
+                "ParenthesizedArgList"};
     }
 
     public ImplicitNewExpression modify(
             Token NewKeyword,
-            Node ImplicitNewArgList) {
+            Node ParenthesizedArgList) {
         if (checkForReferenceEquality(
                 NewKeyword,
-                ImplicitNewArgList)) {
+                ParenthesizedArgList)) {
             return this;
         }
 
         return NodeFactory.createImplicitNewExpression(
                 NewKeyword,
-                ImplicitNewArgList);
+                ParenthesizedArgList);
     }
 }
