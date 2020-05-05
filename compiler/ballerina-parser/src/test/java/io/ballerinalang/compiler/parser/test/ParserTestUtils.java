@@ -729,6 +729,10 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_COMMENT_END_TOKEN;
             case "XML_TEXT_CONTENT":
                 return SyntaxKind.XML_TEXT_CONTENT;
+            case "XML_PI_START_TOKEN":
+                return SyntaxKind.XML_PI_START_TOKEN;
+            case "XML_PI_END_TOKEN":
+                return SyntaxKind.XML_PI_END_TOKEN;
 
             // Trivia
             case "EOF_TOKEN":

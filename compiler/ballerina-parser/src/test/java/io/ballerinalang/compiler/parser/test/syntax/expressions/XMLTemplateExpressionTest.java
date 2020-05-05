@@ -58,6 +58,11 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
         testFile("xml-template/xml_template_source_16.bal", "xml-template/xml_template_assert_16.json");
     }
 
+    @Test
+    public void testXMLPI() {
+        testFile("xml-template/xml_template_source_21.bal", "xml-template/xml_template_assert_21.json");
+    }
+
     // Recovery test
 
     @Test
@@ -128,5 +133,10 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testMissingOneHyphenInCommentStart() {
         testFile("xml-template/xml_template_source_20.bal", "xml-template/xml_template_assert_20.json");
+    }
+
+    @Test
+    public void testErrorsInPI() {
+        testFile("xml-template/xml_template_source_22.bal", "xml-template/xml_template_assert_22.json");
     }
 }

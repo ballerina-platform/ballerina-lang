@@ -1495,5 +1495,23 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 commentEnd.internalNode());
         return stXMLComment.createUnlinkedFacade();
     }
+
+    public static XMLProcessingInstruction createXMLProcessingInstruction(
+            Token piStart,
+            XMLNameNode target,
+            Token data,
+            Token piEnd) {
+        Objects.requireNonNull(piStart, "piStart must not be null");
+        Objects.requireNonNull(target, "target must not be null");
+        Objects.requireNonNull(data, "data must not be null");
+        Objects.requireNonNull(piEnd, "piEnd must not be null");
+
+        STNode stXMLProcessingInstruction = STNodeFactory.createXMLProcessingInstruction(
+                piStart.internalNode(),
+                target.internalNode(),
+                data.internalNode(),
+                piEnd.internalNode());
+        return stXMLProcessingInstruction.createUnlinkedFacade();
+    }
 }
 

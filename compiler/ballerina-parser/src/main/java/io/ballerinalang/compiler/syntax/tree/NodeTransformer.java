@@ -384,6 +384,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLComment);
     }
 
+    public T transform(XMLProcessingInstruction xMLProcessingInstruction) {
+        return transformSyntaxNode(xMLProcessingInstruction);
+    }
+
     // Tokens
 
     public T transform(Token token) {

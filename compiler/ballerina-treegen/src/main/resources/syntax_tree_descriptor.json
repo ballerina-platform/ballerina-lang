@@ -1990,6 +1990,29 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "XMLProcessingInstruction",
+            "base": "XMLItemNode",
+            "kind": "XML_PI",
+            "attributes": [
+                {
+                    "name": "piStart",
+                    "type": "Token"
+                },
+                {
+                    "name": "target",
+                    "type": "XMLNameNode"
+                },
+                {
+                    "name": "data",
+                    "type": "Token"
+                },
+                {
+                    "name": "piEnd",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

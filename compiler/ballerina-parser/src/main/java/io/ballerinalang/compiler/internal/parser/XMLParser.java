@@ -131,7 +131,7 @@ public class XMLParser extends AbstractParser {
             case XML_COMMENT_START_TOKEN:
                 return parseXMLComment();
             case XML_PI_START_TOKEN:
-                return null;
+                return parseXMLPI();
             case INTERPOLATION_START_TOKEN:
                 return parseInterpolation();
             default:
@@ -497,6 +497,64 @@ public class XMLParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.XML_COMMENT_CONTENT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML processing instruction node.
+     * <p>
+     * <code>
+     * PI := '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
+     * <br/>
+     * PITarget := Name - (('X' | 'x') ('M' | 'm') ('L' | 'l'))
+     * </code>
+     * 
+     * @return XML processing instruction node
+     */
+    private STNode parseXMLPI() {
+        startContext(ParserRuleContext.XML_PI);
+        STNode piStart = parseXMLPIStart();
+        STNode target = parseXMLNCName();
+
+        STNode data;
+        if (peek().kind == SyntaxKind.XML_TEXT_CONTENT) {
+            data = parseXMLPIData();
+        } else {
+            data = STNodeFactory.createEmptyNode();
+        }
+
+        STNode piEnd = parseXMLPIEnd();
+        endContext();
+        return STNodeFactory.createXMLProcessingInstruction(piStart, target, data, piEnd);
+    }
+
+    private STNode parseXMLPIStart() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_PI_START_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_PI_START);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLPIEnd() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_PI_END_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_PI_END);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLPIData() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_TEXT_CONTENT) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_PI_DATA);
             return sol.recoveredNode;
         }
     }

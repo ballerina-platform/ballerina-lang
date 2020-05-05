@@ -1113,5 +1113,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 content,
                 commentEnd);
     }
+
+    public static STNode createXMLProcessingInstruction(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd) {
+
+        return new STXMLProcessingInstruction(
+                piStart,
+                target,
+                data,
+                piEnd);
+    }
 }
 

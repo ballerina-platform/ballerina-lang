@@ -31,7 +31,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] XML_CONTENT =
             { ParserRuleContext.XML_START_OR_EMPTY_TAG, ParserRuleContext.XML_TEXT, ParserRuleContext.XML_END_TAG,
-                    ParserRuleContext.XML_COMMENT_START /* ParserRuleContext.XML_PI, */ };
+                    ParserRuleContext.XML_COMMENT_START, ParserRuleContext.XML_PI };
 
     private static final ParserRuleContext[] XML_ATTRIBUTES =
             { ParserRuleContext.XML_ATTRIBUTE, ParserRuleContext.XML_START_OR_EMPTY_TAG_END };
@@ -107,6 +107,15 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_COMMENT_END:
                     hasMatch = nextToken.kind == SyntaxKind.XML_COMMENT_END_TOKEN;
                     break;
+                case XML_PI_START:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_PI_START_TOKEN;
+                    break;
+                case XML_PI_END:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_PI_END_TOKEN;
+                    break;
+                case XML_PI_DATA:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
+                    break;
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -140,6 +149,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_START_OR_EMPTY_TAG:
             case XML_END_TAG:
             case XML_ATTRIBUTES:
+            case XML_PI:
                 startContext(currentCtx);
             default:
                 break;
@@ -171,6 +181,8 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.GT_TOKEN;
                     case XML_ATTRIBUTES:
                         return ParserRuleContext.ASSIGN_OP;
+                    case XML_PI:
+                        return ParserRuleContext.XML_PI_DATA;
                     default:
                         throw new IllegalStateException("XML name cannot exist in: " + parentCtx);
                 }
@@ -198,9 +210,17 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_COMMENT_CONTENT:
                 return ParserRuleContext.XML_COMMENT_END;
             case XML_TEXT:
-            case XML_PI:
             case XML_COMMENT_END:
                 return ParserRuleContext.XML_CONTENT;
+            case XML_PI:
+                return ParserRuleContext.XML_PI_START;
+            case XML_PI_START:
+                return ParserRuleContext.XML_NAME;
+            case XML_PI_END:
+                endContext();
+                return ParserRuleContext.XML_CONTENT;
+            case XML_PI_DATA:
+                return ParserRuleContext.XML_PI_END;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -236,7 +256,12 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_COMMENT_END:
                 return SyntaxKind.XML_TEXT_CONTENT;
             case XML_PI:
+            case XML_PI_START:
                 return SyntaxKind.XML_PI_START_TOKEN;
+            case XML_PI_END:
+                return SyntaxKind.XML_PI_END_TOKEN;
+            case XML_PI_DATA:
+                return SyntaxKind.XML_TEXT_CONTENT;
             default:
                 return SyntaxKind.NONE;
         }

@@ -1102,6 +1102,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 commentEnd);
     }
 
+    @Override
+    public Node transform(XMLProcessingInstruction xMLProcessingInstruction) {
+        Token piStart = modifyToken(xMLProcessingInstruction.piStart());
+        XMLNameNode target = modifyNode(xMLProcessingInstruction.target());
+        Token data = modifyToken(xMLProcessingInstruction.data());
+        Token piEnd = modifyToken(xMLProcessingInstruction.piEnd());
+        return xMLProcessingInstruction.modify(
+                piStart,
+                target,
+                data,
+                piEnd);
+    }
+
     // Tokens
 
     @Override

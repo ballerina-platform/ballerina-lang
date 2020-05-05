@@ -68,6 +68,12 @@ public class XMLLexer extends AbstractLexer {
             case XML_COMMENT:
                 this.leadingTriviaList = new ArrayList<>(0);
                 return readTokenInXMLComment();
+            case XML_PI:
+                processLeadingXMLTrivia();
+                return readTokenInXMLPI();
+            case XML_PI_DATA:
+                processLeadingXMLTrivia();
+                return readTokenInXMLPIData();
             default:
                 // should never reach here.
                 return null;
@@ -334,8 +340,10 @@ public class XMLLexer extends AbstractLexer {
                         }
                         break;
                     case LexerTerminals.QUESTION_MARK:
-                        // TODO: XML-PI
-                        return null;
+                        // '<?' is the processing instruction start.
+                        reader.advance();
+                        startMode(ParserMode.XML_PI);
+                        return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_PI_START_TOKEN);
                     case LexerTerminals.SLASH:
                         endMode();
                         startMode(ParserMode.XML_ELEMENT_END_TAG);
@@ -417,7 +425,6 @@ public class XMLLexer extends AbstractLexer {
                     // Hence using the 'getSyntaxToken()' method.
                     return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
-                reader.advance();
                 break;
             case LexerTerminals.BACKTICK:
                 // Back tick means the end of currently processing element as well as
@@ -426,10 +433,10 @@ public class XMLLexer extends AbstractLexer {
                 endMode();
                 return nextToken();
             default:
-                reader.advance();
                 break;
         }
 
+        reader.advance();
         STToken tagName = processXMLName(c, false);
         startMode(ParserMode.XML_ATTRIBUTES);
         return tagName;
@@ -519,7 +526,6 @@ public class XMLLexer extends AbstractLexer {
                     // Hence using the 'getSyntaxToken()' method.
                     return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
-                reader.advance();
                 break;
             case LexerTerminals.EQUAL:
                 reader.advance();
@@ -531,6 +537,7 @@ public class XMLLexer extends AbstractLexer {
                 break;
         }
 
+        reader.advance();
         STToken attributeName = processXMLName(c, true);
         return attributeName;
     }
@@ -718,7 +725,7 @@ public class XMLLexer extends AbstractLexer {
                 case LexerTerminals.BACKTICK:
                     break;
                 default:
-                    // TODO: ']]>' should also terminate charData?
+                    // ']]>' should also terminate charData, since we treat CData as text
                     reader.advance();
                     continue;
             }
@@ -740,7 +747,7 @@ public class XMLLexer extends AbstractLexer {
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * INTERPOLATION Mode
+     * XML_COMMENT Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
@@ -800,4 +807,73 @@ public class XMLLexer extends AbstractLexer {
 
         return getXMLText(SyntaxKind.XML_TEXT_CONTENT);
     }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_PI Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readTokenInXMLPI() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        int nextChar = reader.peek();
+        switch (nextChar) {
+            case LexerTerminals.QUESTION_MARK:
+                if (this.reader.peek(1) == LexerTerminals.GT) {
+                    reader.advance(2);
+                    endMode();
+                    return getXMLSyntaxToken(SyntaxKind.XML_PI_END_TOKEN);
+                }
+                break;
+            case LexerTerminals.BACKTICK:
+                endMode();
+                return nextToken();
+            default:
+                break;
+        }
+
+        reader.advance();
+        STToken tagName = processXMLName(nextChar, false);
+        startMode(ParserMode.XML_PI_DATA);
+        return tagName;
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_PI_DATA Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readTokenInXMLPIData() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        while (!reader.isEOF()) {
+            switch (reader.peek()) {
+                case LexerTerminals.QUESTION_MARK:
+                    // '?>' marks the end of comment
+                    if (reader.peek(1) == LexerTerminals.GT) {
+                        break;
+                    }
+                    reader.advance();
+                    continue;
+                case LexerTerminals.BACKTICK:
+                    break;
+                default:
+                    reader.advance();
+                    continue;
+            }
+            break;
+        }
+
+        endMode();
+        return getXMLText(SyntaxKind.XML_TEXT_CONTENT);
+    }
+
 }
