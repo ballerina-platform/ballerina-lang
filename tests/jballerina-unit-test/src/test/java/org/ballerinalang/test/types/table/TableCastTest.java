@@ -27,6 +27,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This class contain tests for table casting.
+ *
+ * @since 1.3.0
+ */
 public class TableCastTest {
 
     private CompileResult result, negativeResult;

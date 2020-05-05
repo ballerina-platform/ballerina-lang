@@ -97,7 +97,3 @@ function getTable2() returns (table<Person> key(name)) {
     ];
     return  tab;
 }
-
-
-
-
