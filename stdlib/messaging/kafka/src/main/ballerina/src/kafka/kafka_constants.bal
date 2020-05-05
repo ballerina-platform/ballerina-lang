@@ -50,7 +50,7 @@ public const DES_AVRO = "AVRO";
 # Configures the consumer to read the committed messages only in the transactional mode when poll() is called.
 public const ISOLATION_COMMITTED = "read_committed";
 
-# Configures the consumer to read all the messages even the aborted ones.
+# Configures the consumer to read all the messages including the aborted ones.
 public const ISOLATION_UNCOMMITTED = "read_uncommitted";
 
 // ********************************************

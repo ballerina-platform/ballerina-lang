@@ -1,7 +1,7 @@
 import ballerina/kafka;
 import ballerina/log;
 
-// The `kafka:AuthenticationConfiguration` is used to provide authentication related details.
+// The `kafka:AuthenticationConfiguration` is used to provide authentication-related details.
 kafka:AuthenticationConfiguration authConfig = {
     // Provide the authentication mechanism used by the Kafka server.
     authenticationMechanism: kafka:AUTH_SASL_PLAIN,
