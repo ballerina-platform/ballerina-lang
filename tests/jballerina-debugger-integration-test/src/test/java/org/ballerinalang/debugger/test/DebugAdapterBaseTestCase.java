@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.debugger.test;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
+import org.ballerinalang.debugger.test.utils.DeubgHitListener;
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
@@ -202,6 +206,44 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         }
     }
 
+    /**
+     * Waits for a debug hit within a given time.
+     *
+     * @param timeoutMillis timeout.
+     * @return pair of the debug point and context details.
+     * @throws BallerinaTestException if a debug point is not found within the given time.
+     */
+    protected Pair<BallerinaTestDebugPoint, StoppedEventArguments> waitForDebugHit(long timeoutMillis) throws
+            BallerinaTestException {
+
+        DeubgHitListener listener = new DeubgHitListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(listener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        if (!listener.isDebugHitFound()) {
+            throw new BallerinaTestException("Timeout expired waiting for the debug hit");
+        }
+        return new ImmutablePair<>(listener.getDebugHitpoint(), listener.getDebugHitContext());
+    }
+
+    /**
+     * Terminates the debug session.
+     */
+    protected void terminateDebugSession() {
+        if (debugClientConnector != null && debugClientConnector.isConnected()) {
+            try {
+                debugClientConnector.disconnectFromServer();
+            } catch (Exception e) {
+                LOGGER.error("Error occurred when trying disconnect from the debug server.", e);
+            }
+        }
+    }
+
     private void attachToDebuggee() throws BallerinaTestException {
         try {
             // Sends "configuration done" notification to the debug server.
@@ -245,16 +287,6 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             } catch (Exception e) {
                 LOGGER.error("SetBreakpoints request failed.", e);
                 throw new BallerinaTestException("Breakpoints request failed.", e);
-            }
-        }
-    }
-
-    public void terminateDebugSession() {
-        if (debugClientConnector != null && debugClientConnector.isConnected()) {
-            try {
-                debugClientConnector.disconnectFromServer();
-            } catch (Exception e) {
-                LOGGER.error("Error occurred when trying disconnect from the debug server.", e);
             }
         }
     }
