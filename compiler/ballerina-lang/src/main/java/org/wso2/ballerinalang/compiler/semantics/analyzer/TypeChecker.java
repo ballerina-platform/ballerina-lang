@@ -167,6 +167,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -176,6 +177,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -836,13 +840,13 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         Set<BField> allFieldSet = new LinkedHashSet<>();
         for (BType memType : memTypes) {
-            List<BField> fields = ((BRecordType) memType).fields;
+            Collection<BField> fields = ((BRecordType) memType).fields.values();
             allFieldSet.addAll(fields);
         }
 
         Set<BField> commonFieldSet = new LinkedHashSet<>(allFieldSet);
         for (BType memType : memTypes) {
-            List<BField> fields = ((BRecordType) memType).fields;
+            Collection<BField> fields = ((BRecordType) memType).fields.values();
             commonFieldSet.retainAll(fields);
         }
 
@@ -880,8 +884,15 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType memberType = memTypes.get(0);
-        ((BRecordType) memberType).fields = new ArrayList<>(allFieldSet);
+        ((BRecordType) memberType).fields = allFieldSet.stream().collect(getFieldCollector());
         return memberType;
+    }
+
+    private Collector<BField, ?, LinkedHashMap<String, BField>> getFieldCollector() {
+        BinaryOperator<BField> mergeFunc = (u, v) -> {
+            throw new IllegalStateException(String.format("Duplicate key %s", u));
+        };
+        return Collectors.toMap(field -> field.name.value, Function.identity(), mergeFunc, LinkedHashMap::new);
     }
 
     private boolean validateTableType(BTableType tableType, List<BLangRecordLiteral> recordLiterals) {
