@@ -72,7 +72,7 @@ public class PackageID {
     public static final PackageID STRING = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.STRING), VERSION_1_1_0);
     public static final PackageID TABLE = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.TABLE), VERSION_0_1_0);
+            Lists.of(Names.LANG, Names.TABLE), VERSION_0_4_0);
     public static final PackageID TYPEDESC = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.TYPEDESC), VERSION_1_0_0);
     public static final PackageID VALUE = new PackageID(Names.BALLERINA_ORG,
