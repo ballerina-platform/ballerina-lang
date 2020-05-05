@@ -648,7 +648,7 @@ public class JvmTerminatorGen {
             i += 1;
         }
         String cleanMethodName = cleanupFunctionName(methodName);
-        BIRFunctionWrapper functionWrapper = jvmPackageGen.birFunctionMap.get(lookupKey);
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
         String methodDesc;
         String jvmClass;
         if (functionWrapper != null) {

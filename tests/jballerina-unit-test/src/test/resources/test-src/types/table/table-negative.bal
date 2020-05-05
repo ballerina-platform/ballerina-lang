@@ -94,3 +94,34 @@ table<Customer> key<int> intKeyConstraintTable = table key(id)[{ id: 13 , firstN
 
 table<Customer> key<string> stringKeyConstraintTable = intKeyConstraintTable;
 
+function testInvalidKeyForInferTypeTable() {
+    var tab = table key(no) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" },
+                                       { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
+}
+
+function testRequiredFieldForInferTypeTable() {
+    var tab = table key(address) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" },
+                                       { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
+}
+
+function testMapConstraintTableWithKeySpecifier() {
+    table<map<any>> key(lname) tab = table key() [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                            { id: 23 , name: "James" },
+                                           { id: 133 , name: "Mohan", lname: "JJ" , address: "Colombo"} ];
+}
+
+function testMemberAccessMapConstraintTable() {
+    table<map<any>> key(id) tab = table key() [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                            { id: 23 , name: "James" },
+                                           { id: 133 , name: "Mohan", lname: "JJ" , address: "Colombo"} ];
+
+    map<any> mapObject = tab[13];
+}
+
+function testInferMemberType() {
+
+   var arr = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
+                            { id: "Hello" , name: "James" , address: "Clark" }];
+}

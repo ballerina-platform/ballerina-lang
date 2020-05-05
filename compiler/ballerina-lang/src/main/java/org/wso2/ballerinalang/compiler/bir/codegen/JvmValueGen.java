@@ -1239,9 +1239,9 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generate(Map<String, byte[]> jarEntries) {
+    void generateValueClasses(Map<String, byte[]> jarEntries) {
 
-        for (BIRNode.BIRTypeDefinition optionalTypeDef : module.typeDefs) {
+        module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
             if (bType instanceof BServiceType) {
@@ -1265,7 +1265,7 @@ class JvmValueGen {
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, typeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }
-        }
+        });
     }
 
     private byte[] createObjectValueClass(BObjectType objectType, String className,

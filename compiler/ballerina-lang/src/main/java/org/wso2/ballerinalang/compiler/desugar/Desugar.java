@@ -277,8 +277,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
-    private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
-    private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
     private static final String BASE_64 = "base64";
     private static final String ERROR_REASON_FUNCTION_NAME = "reason";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
@@ -296,6 +294,7 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING = "getElementNameNilLifting";
     public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
+    public static final String XML_GET_CONTENT_OF_TEXT = "getContent";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -2235,13 +2234,14 @@ public class Desugar extends BLangNodeVisitor {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
                 createVarRefAssignmentStmts((BLangRecordVarRef) expression, parentBlockStmt, tupleVarSymbol,
-                        arrayAccessExpr);
+                                            arrayAccessExpr);
 
-                TypeDefBuilderHelper.addTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol,
-                                                       TypeDefBuilderHelper.createRecordTypeNode(
-                                                                  (BRecordType) recordVarRef.type,
-                                                                  env.enclPkg.packageID, symTable, recordVarRef.pos),
-                                                       env);
+                BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(
+                        (BRecordType) recordVarRef.type, env.enclPkg.packageID, symTable, recordVarRef.pos);
+                recordTypeNode.initFunction = TypeDefBuilderHelper
+                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+                TypeDefBuilderHelper
+                        .addTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol, recordTypeNode, env);
 
                 continue;
             }
@@ -4168,8 +4168,26 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
+        if (conversionExpr.type.tag == TypeTags.STRING && conversionExpr.expr.type.tag == TypeTags.XML_TEXT) {
+            result = convertXMLTextToString(conversionExpr);
+            return;
+        }
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
+    }
+
+    private BLangExpression convertXMLTextToString(BLangTypeConversionExpr conversionExpr) {
+        BLangInvocation invocationNode = createLanglibXMLInvocation(conversionExpr.pos, XML_GET_CONTENT_OF_TEXT,
+                conversionExpr.expr, new ArrayList<>(), new ArrayList<>());
+        BLangSimpleVariableDef tempVarDef = createVarDef("$$__xml_string__$$",
+                conversionExpr.targetType, invocationNode, conversionExpr.pos);
+        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(conversionExpr.pos, tempVarDef.var.symbol);
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(conversionExpr.pos);
+        blockStmt.addStatement(tempVarDef);
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
+        stmtExpr.type = conversionExpr.type;
+        return rewrite(stmtExpr, env);
     }
 
     @Override
@@ -5730,6 +5748,8 @@ public class Desugar extends BLangNodeVisitor {
                 detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
+                recordTypeNode.initFunction = TypeDefBuilderHelper
+                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
                 TypeDefBuilderHelper.addTypeDefinition(detailType, detailType.tsymbol, recordTypeNode, env);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol,

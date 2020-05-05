@@ -179,7 +179,7 @@ public class ExternalMethodGen {
                     "is not supported: ", attachedType));
         }
 
-        BIRFunctionWrapper birFuncWrapper = jvmPackageGen.birFunctionMap.get(lookupKey);
+        BIRFunctionWrapper birFuncWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
         if (birFuncWrapper != null) {
             return birFuncWrapper;
         } else {
