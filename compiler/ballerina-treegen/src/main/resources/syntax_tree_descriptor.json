@@ -2030,6 +2030,129 @@
                     "type": "ExpressionNode"
                 }
             ]
+        },
+        {
+            "name": "QueryConstructTypeNode",
+            "base": "Node",
+            "kind": "QUERY_CONSTRUCT_TYPE",
+            "attributes": [
+                {
+                    "name": "tableKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "KeySpecifier",
+                    "type": "KeySpecifierNode"
+                }
+            ]
+        },
+        {
+            "name": "FromClauseNode",
+            "base": "Node",
+            "kind": "FROM_CLAUSE",
+            "attributes": [
+                {
+                    "name": "fromKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeName",
+                    "type": "Node"
+                },
+                {
+                    "name": "variableName",
+                    "type": "Token"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "WhereClauseNode",
+            "base": "Node",
+            "kind": "WHERE_CLAUSE",
+            "attributes": [
+                {
+                    "name": "whereKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "LetClauseNode",
+            "base": "Node",
+            "kind": "LET_CLAUSE",
+            "attributes": [
+                {
+                    "name": "letKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "letVarDeclarations",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "QueryPipelineNode",
+            "base": "Node",
+            "kind": "QUERY_PIPELINE",
+            "attributes": [
+                {
+                    "name": "fromClause",
+                    "type": "FromClauseNode"
+                },
+                {
+                    "name": "intermediateClauses",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "SelectClauseNode",
+            "base": "Node",
+            "kind": "SELECT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "selectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "QueryExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "QUERY_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "queryConstructType",
+                    "type": "QueryConstructTypeNode"
+                },
+                {
+                    "name": "queryPipeline",
+                    "type": "QueryPipelineNode"
+                },
+                {
+                    "name": "selectClause",
+                    "type": "SelectClauseNode"
+                }
+            ]
         }
     ]
 }
