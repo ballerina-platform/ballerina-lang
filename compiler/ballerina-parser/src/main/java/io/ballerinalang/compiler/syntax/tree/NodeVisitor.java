@@ -383,6 +383,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorTypeDescriptorNode);
     }
 
+    public void visit(createStreamTypeDescriptorNode createStreamTypeDescriptorNode) {
+        visitSyntaxNode(createStreamTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

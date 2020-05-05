@@ -348,6 +348,8 @@ public class BallerinaParser {
                 return parseErrorKeyWord();
             case ERROR_TYPE_DESCRIPTOR:
                 return parseErrorTypeDescriptor();
+            case STREAM_TYPE_DESCRIPTOR:
+                return parseStreamTypeDescriptor();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -1740,6 +1742,8 @@ public class BallerinaParser {
                 return parseParameterizedTypeDescriptor();
             case ERROR_KEYWORD: // error type descriptor
                 return parseErrorTypeDescriptor();
+            case STREAM_KEYWORD: // stream type desc
+                return parseStreamTypeDescriptor();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -6700,6 +6704,7 @@ public class BallerinaParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
             case ERROR_KEYWORD: // error type desc
+            case STREAM_KEYWORD: // stream type desc
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -7282,6 +7287,60 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse stream type descriptor.
+     * <p>
+     * stream-type-descriptor := stream [stream-type-parameters]
+     * stream-type-parameters := < type-descriptor [, type-descriptor]>
+     * </p>
+     *
+     * @return Parsed stream type descriptor node
+     */
+    private STToken parseStreamTypeDescriptor(){
+        startContext(ParserRuleContext.STREAM_TYPE_DESCRIPTOR);
+
+        STNode streamKeywordToken = parseStreamKeyWord();
+        STNode leftTypeDescNode, rightTypeDescNode,ltToken, gtToken, commaToken;
+        STToken nextToken = peek();
+        if(nextToken.kind == SyntaxKind.LT_TOKEN) {
+            ltToken = parseLTToken();
+            leftTypeDescNode = parseTypeDescriptor();
+            if(nextToken.kind == SyntaxKind.COMMA_TOKEN) {
+                commaToken = parseComma();
+                rightTypeDescNode = parseTypeDescriptor();
+                gtToken = parseGTToken();
+            } else {
+                commaToken = STNodeFactory.createEmptyNode();
+                rightTypeDescNode = STNodeFactory.createEmptyNode();
+                gtToken = STNodeFactory.createEmptyNode();
+            }
+        } else {
+            leftTypeDescNode = STNodeFactory.createEmptyNode();
+            ltToken = STNodeFactory.createEmptyNode();
+            gtToken = STNodeFactory.createEmptyNode();
+            commaToken = STNodeFactory.createEmptyNode();
+            rightTypeDescNode = STNodeFactory.createEmptyNode();
+        }
+        endContext();
+        return STNodeFactory.createStreamTypeDescriptorNode(streamKeywordToken, ltToken, leftTypeDescNode, commaToken,
+                rightTypeDescNode, gtToken);
+    }
+
+    /**
+     * Parse stream-keyword.
+     *
+     * @return Parsed stream-keyword node
+     */
+    private STNode parseStreamKeyWord() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STREAM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STREAM_KEYWORD);
             return sol.recoveredNode;
         }
     }

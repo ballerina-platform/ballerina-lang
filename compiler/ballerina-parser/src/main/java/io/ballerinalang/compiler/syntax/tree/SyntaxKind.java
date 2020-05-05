@@ -88,6 +88,7 @@ public enum SyntaxKind {
     FUTURE_KEYWORD(264, "future"),
     TYPEDESC_KEYWORD(265, "typedesc"),
     ERROR_KEYWORD(266,"error"),
+    STREAM_KEYWORD(267,"stream"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -220,7 +221,7 @@ public enum SyntaxKind {
     PARAMETERIZED_TYPE_DESC(2020),
     UNION_TYPE_DESC(2021),
     ERROR_TYPE_DESC(2021),
-
+    STREAM_TYPE_DESC(2023),
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
     BRACED_ACTION(2501),

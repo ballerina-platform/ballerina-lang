@@ -120,6 +120,7 @@ public enum ParserRuleContext {
     TABLE_KEY_RHS("table-key-rhs"),
     ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
     ERROR_TYPE_RHS("error-type-rhs"),
+    STREAM_TYPE_DESCRIPTOR("stream-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
@@ -199,6 +200,7 @@ public enum ParserRuleContext {
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
     ERROR_KEYWORD("error"),
+    STREAM_KEYWORD("stream"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

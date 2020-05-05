@@ -2000,6 +2000,37 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "createStreamTypeDescriptorNode",
+            "base": "Node",
+            "kind": "STREAM_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "streamKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "leftTypeDescNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "commaToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rightTypeDescNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

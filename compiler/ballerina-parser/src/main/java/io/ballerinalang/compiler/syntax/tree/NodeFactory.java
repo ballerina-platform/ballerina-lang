@@ -1514,5 +1514,29 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 gtToken.internalNode());
         return stErrorTypeDescriptorNode.createUnlinkedFacade();
     }
+
+    public static createStreamTypeDescriptorNode createcreateStreamTypeDescriptorNode(
+            Token streamKeywordToken,
+            Token ltToken,
+            Node leftTypeDescNode,
+            Token commaToken,
+            Node rightTypeDescNode,
+            Token gtToken) {
+        Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
+        Objects.requireNonNull(commaToken, "commaToken must not be null");
+        Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stcreateStreamTypeDescriptorNode = STNodeFactory.createcreateStreamTypeDescriptorNode(
+                streamKeywordToken.internalNode(),
+                ltToken.internalNode(),
+                leftTypeDescNode.internalNode(),
+                commaToken.internalNode(),
+                rightTypeDescNode.internalNode(),
+                gtToken.internalNode());
+        return stcreateStreamTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 
