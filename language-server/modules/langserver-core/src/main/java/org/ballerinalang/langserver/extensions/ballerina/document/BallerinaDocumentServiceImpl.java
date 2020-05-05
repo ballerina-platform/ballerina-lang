@@ -17,11 +17,9 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.StringTextDocument;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -301,8 +299,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             TextDocument doc = new StringTextDocument(documentManager.getFileContent(compilationPath));
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
-            SyntaxTree syntaxTree = BLModules.parse(doc);
-            reply.setSyntaxTree(mapGenerator.transform(syntaxTree.getModulePart()));
+            SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
+            reply.setSyntaxTree(mapGenerator.transform(syntaxTree.modulePart()));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
@@ -327,7 +325,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
             TextDocument textDocument = TextDocuments.from(fileContent);
-            SyntaxTree oldTree = BLModules.parse(textDocument);
+            SyntaxTree oldTree = SyntaxTree.from(textDocument, compilationPath.toString());
 
             ArrayList<io.ballerinalang.compiler.text.TextEdit> edits =
                     new ArrayList<>(request.getAstModifications().length);
@@ -343,11 +341,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             }
             TextDocumentChange textDocumentChange = new TextDocumentChange(edits.toArray(
                     new io.ballerinalang.compiler.text.TextEdit[0]));
-            SyntaxTree updatedTree = BLModules.parse(oldTree, textDocumentChange);
+            SyntaxTree updatedTree = SyntaxTree.from(oldTree, textDocumentChange);
             documentManager.updateFile(compilationPath, updatedTree.toString());
 
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
-            reply.setSyntaxTree( mapGenerator.transform(updatedTree.getModulePart()));
+            reply.setSyntaxTree( mapGenerator.transform(updatedTree.modulePart()));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
