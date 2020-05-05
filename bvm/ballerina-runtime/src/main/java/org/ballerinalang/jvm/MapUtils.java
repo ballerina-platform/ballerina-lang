@@ -110,7 +110,8 @@ public class MapUtils {
             // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
             // `initialValue` is only true if this is an update for a field provided in the mapping constructor
             // expression.
-            if (!initialValue && mapValue.containsKey(fieldName) && Flags.isFlagOn(recField.flags, Flags.READONLY)) {
+            if (!initialValue && mapValue.containsKey(bString ? StringUtils.fromString(fieldName) : fieldName) &&
+                    Flags.isFlagOn(recField.flags, Flags.READONLY)) {
 
                 if (bString) {
                     throw BallerinaErrors.createError(
