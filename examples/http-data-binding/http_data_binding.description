@@ -1,3 +1,5 @@
 // HTTP data binding helps access payload through the last resource signature parameter. The parameter name should be
 // declared in the resource config under the `body` annotation. `string`, `json`, `xml`, `byte[]`, record, and record[] are
-// supported as parameter types.
+// supported as parameter types.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

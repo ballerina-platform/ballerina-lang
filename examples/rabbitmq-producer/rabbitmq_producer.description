@@ -1,2 +1,4 @@
 // In this example, messages are sent to two different queues,
-// to one queue using the same channel and to the other using two different channels.
+// to one queue using the same channel and to the other using two different channels.<br/><br/>
+// For more information on the underlying module, 
+// see the [RabbitMQ module](https://ballerina.io/learn/api-docs/ballerina/rabbitmq/index.html).

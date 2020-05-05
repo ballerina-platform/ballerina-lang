@@ -14,20 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function localVarRefTest() {
-    int x = 20;
+import ballerina/rabbitmq;
 
-    record {|
-        string name;
-        int age = x;
-    |} person = {name: "John Doe"};
+rabbitmq:Connection connection = new ({host: "localhost", port: 5672});
 
-    record {
-        string name;
-        int age = x;
-    } person2 = {name: "Jane Doe"};
+listener rabbitmq:Listener channelListener = new (connection);
 
-    record {
-        int marks = let int e = 3, int z = 5 in z * e + x;
-    } student = {};
+@rabbitmq:ServiceConfig {
+    queueConfig: {
+        queueName: "MyQueue"
+    }
+}
+service rabbitmqConsumer on channelListener {
+
+    resource function onMessage(rabbitmq:Message message) {
+    }
+
+    resource function onError(string message) {
+    }
 }

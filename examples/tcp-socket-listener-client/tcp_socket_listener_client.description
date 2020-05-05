@@ -1,3 +1,5 @@
 // The TCP Listener is used to expose TCP service over the TCP protocol.
 // The TCP Client is used to connect to a remote TCP server.
-// This sample demonstrates how the TCP socket listener service interacts with the TCP client.
+// This sample demonstrates how the TCP socket listener service interacts with the TCP client.<br/><br/>
+// For more information on the underlying module, 
+// see the [Socket module](https://ballerina.io/learn/api-docs/ballerina/socket/index.html).

@@ -7,4 +7,6 @@
 // the occurrence of particular events.
 //
 // Any of the Ballerina's WebSub components (Publisher, Hub, or Subscriber) could be used with non-Ballerina components, which
-// are WebSub-compliant.
+// are WebSub-compliant.<br/><br/>
+// For more information on the underlying module, 
+// see the [WebSub module](https://ballerina.io/learn/api-docs/ballerina/websub/index.html).

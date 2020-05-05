@@ -31,7 +31,8 @@ public class TypeTags {
     public static final int BOOLEAN_TAG = STRING_TAG + 1;
     public static final int JSON_TAG = BOOLEAN_TAG + 1;
     public static final int XML_TAG = JSON_TAG + 1;
-    public static final int NULL_TAG = XML_TAG + 1;
+    public static final int TABLE_TAG = XML_TAG + 1;
+    public static final int NULL_TAG = TABLE_TAG + 1;
     public static final int ANYDATA_TAG = NULL_TAG + 1;
     public static final int RECORD_TYPE_TAG = ANYDATA_TAG + 1;
     public static final int TYPEDESC_TAG = RECORD_TYPE_TAG + 1;

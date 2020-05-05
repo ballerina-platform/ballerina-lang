@@ -133,6 +133,7 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
+            <class name="org.ballerinalang.test.auth.JwkSignatureValidationTest"/>
         </classes>
     </test>
 
@@ -193,7 +194,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
-            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
+<!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
         </classes>
     </test>
 
