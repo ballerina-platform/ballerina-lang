@@ -8,8 +8,8 @@ int counter = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
-    foreach any sa in s {
+public function mockPrint(any|error... s) {
+    foreach any|error sa in s {
         anydata value = <anydata> sa;
         outputs[counter] = value.clone();
         counter += 1;

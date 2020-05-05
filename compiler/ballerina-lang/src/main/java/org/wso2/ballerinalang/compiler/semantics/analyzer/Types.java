@@ -505,6 +505,7 @@ public class Types {
         if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
             return true;
         }
+
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -569,12 +570,8 @@ public class Types {
         }
 
         if (targetTag == TypeTags.JSON) {
-            if (sourceTag == TypeTags.JSON) {
-                return true;
-            }
-
             if (sourceTag == TypeTags.ARRAY) {
-                return isArrayTypesAssignable(source, target, unresolvedTypes);
+                return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
             }
 
             if (sourceTag == TypeTags.MAP) {
@@ -626,7 +623,7 @@ public class Types {
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
-                isArrayTypesAssignable(source, target, unresolvedTypes);
+                isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type) {
@@ -850,49 +847,24 @@ public class Types {
                 .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
     }
 
-    public boolean isArrayTypesAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
-            // Both types are array types
-            BArrayType lhsArrayType = (BArrayType) target;
-            BArrayType rhsArrayType = (BArrayType) source;
-            if (lhsArrayType.state == BArrayState.UNSEALED) {
-                return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
-            }
-            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
-                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
-
-        } else if (source.tag == TypeTags.ARRAY) {
-            // Only the right-hand side is an array type
-
-            // If the target type is a JSON, then element type of the rhs array
-            // should only be a JSON supported type.
-            if (target.tag == TypeTags.JSON) {
-                return isAssignable(((BArrayType) source).getElementType(), target, unresolvedTypes);
+    private boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType sourceElementType = source.getElementType();
+        if (target.tag == TypeTags.ARRAY) {
+            BArrayType targetArrayType = (BArrayType) target;
+            BType targetElementType = targetArrayType.getElementType();
+            if (targetArrayType.state == BArrayState.UNSEALED) {
+                return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
 
-            if (target.tag == TypeTags.UNION) {
-                return isAssignable(source, target);
+            if (targetArrayType.size != source.size) {
+                return false;
             }
-
-            // Then lhs type should 'any' type
-            return target.tag == TypeTags.ANY;
-
-        } else if (target.tag == TypeTags.ARRAY) {
-            // Only the left-hand side is an array type
-            return false;
+            
+            return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
+        } else if (target.tag == TypeTags.JSON) {
+            return isAssignable(sourceElementType, target, unresolvedTypes);
         }
-
-        // Now both types are not array types and they have to be assignable
-        if (isAssignable(source, target, unresolvedTypes)) {
-            return true;
-        }
-
-        if (target.tag == TypeTags.UNION) {
-            return isAssignable(source, target, unresolvedTypes);
-        }
-
-        // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
-        return target.tag == TypeTags.ANY && !isValueType(source);
+        return false;
     }
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
@@ -1013,13 +985,12 @@ public class Types {
 
         BArrayType lhsArrayType = (BArrayType) target;
         BArrayType rhsArrayType = (BArrayType) source;
+        boolean hasSameTypeElements = isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
         if (lhsArrayType.state == BArrayState.UNSEALED) {
-            return rhsArrayType.state == BArrayState.UNSEALED &&
-                    isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
+            return (rhsArrayType.state == BArrayState.UNSEALED) && hasSameTypeElements;
         }
 
-        return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
-                && isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
+        return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
@@ -1609,7 +1580,8 @@ public class Types {
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
-
+        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
+            return true;
         }
         return false;
     }
