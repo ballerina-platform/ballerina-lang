@@ -3304,9 +3304,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 whereEnv = typeCheckWhereClause(((BLangOnClause) clause).expression, select, parentEnv);
             }
         }
-        BType actualType = symTable.semanticError;;
         whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
-        actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
+        BType actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
                 queryExpr.isStream, queryExpr.isTable);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
