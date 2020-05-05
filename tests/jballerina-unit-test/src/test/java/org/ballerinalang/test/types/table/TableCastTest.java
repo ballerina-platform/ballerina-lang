@@ -19,6 +19,7 @@ package org.ballerinalang.test.types.table;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -46,5 +47,30 @@ public class TableCastTest {
     public void testKeyConstraintCastToString2() {
         BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
         Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
+
+    @Test
+    public void testKeyConstraintCastToString3() {
+        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString3");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
+
+    @Test
+    public void testKeyConstraintCastToString4() {
+        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
+
+    @Test
+    public void testNegativeCases() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'table<(Person|Customer)> key<string>' " +
+                "cannot be cast to 'table<Person> key<int>'", 49, 34);
+        BAssertUtil.validateError(negativeResult, 1, "invalid key constraint provided for member access. " +
+                "key constraint expected with type 'int'", 50, 12);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'string'", 50, 16);
+        BAssertUtil.validateError(negativeResult, 3, "invalid key constraint provided for member access. " +
+                "key constraint expected with type 'string'", 60, 12);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string', found 'int'", 60, 16);
     }
 }

@@ -97,7 +97,7 @@ public class TablesAsFuncArgs {
                 "incompatible types: expected 'table<Person> key<string>', found 'table<Person> key(age)'",
                 54, 43);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'table<Person> key<string>', found 'table<Person> key(age)'",
+                "incompatible types: expected 'table<Person> key<string>', found 'table<Person> key<int>'",
                 63, 43);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'table<Person> key<int>', found 'table<Person>'",

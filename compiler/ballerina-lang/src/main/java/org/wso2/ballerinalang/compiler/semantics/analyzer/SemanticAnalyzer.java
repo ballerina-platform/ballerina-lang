@@ -627,14 +627,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-
-        // Table constructor is handled separately. When the user defines the keys in the constructor not in the table
-        // type descriptor, we have to set the type again in the variable symbol. That's because these keys are not
-        // captured in the lhsType.
-        if (rhsExpr.getKind() == NodeKind.TABLE_CONSTRUCTOR_EXPR) {
-            varNode.symbol.type = rhsExpr.type;
-            varNode.type = varNode.symbol.type;
-        }
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) &&
                 !types.checkListenerCompatibility(varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);

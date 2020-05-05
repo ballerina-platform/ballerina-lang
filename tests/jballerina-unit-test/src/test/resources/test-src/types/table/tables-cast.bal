@@ -22,6 +22,8 @@ type PersonTable1 table<Person|Customer> key<string>;
 
 type PersonTable2 table<Person|Teacher> key<string|int>;
 
+type PersonTable3 table<Teacher> key<int> | table<Person> key<int>;
+
 PersonTable1 tab1 = table key(name) [
     { name: "AAA", age: 31, country: "LK" },
     { name: "BBB", age: 34, country: "US" }
@@ -38,8 +40,13 @@ CustomerTable tab3 = table key(name) [
     { id: 13 , name: "Bar" , lname: "UYOR" }
     ];
 
+PersonTable3 tab4 = table key(age) [
+    { name: "AAA", age: 31, country: "LK" },
+    { name: "BBB", age: 34, country: "US" }
+    ];
+
 function testKeyConstraintCastToString1() returns boolean {
-    table<Person> key<string> tab =<table<Person> key<string>> tab1;
+    table<Person> key<string> tab = <table<Person> key<string>> tab1;
     return tab["AAA"]["name"] == "AAA";
 }
 
@@ -48,7 +55,12 @@ function testKeyConstraintCastToString2() returns boolean {
     return tab["Foo"]["name"] == "Foo";
 }
 
-//function testKeyConstraintCastToString2() returns boolean {
-//    table<Person> key<int> tab =<table<Person> key<int>> tab2;
-//    return tab[31]["name"] == "AAA";
-//}
+function testKeyConstraintCastToString3() returns boolean {
+    table<Person|Teacher> key<int> tab =<table<Person|Teacher> key<int>> tab2;
+    return tab[31]["name"] == "AAA";
+}
+
+function testKeyConstraintCastToString4() returns boolean {
+    table<Person> key<int> tab =<table<Person> key<int>> tab4;
+    return tab[31]["name"] == "AAA";
+}
