@@ -1122,150 +1122,7 @@
                                         "EMPTY": "",
                                         "sealed": false,
                                         "restFieldType": "<Duplicated>",
-                                        "fields": [
-                                            {
-                                                "name": "<Duplicated>",
-                                                "type": "<Duplicated>",
-                                                "symbol": {
-                                                    "defaultableParam": false,
-                                                    "taintabilityAllowance": "IGNORED",
-                                                    "tag": 52,
-                                                    "flags": 257,
-                                                    "name": "<Duplicated>",
-                                                    "pkgID": "<Duplicated>",
-                                                    "type": "<Duplicated>",
-                                                    "tainted": false,
-                                                    "closure": false,
-                                                    "markdownDocumentation": {
-                                                        "description": null,
-                                                        "parameters": [],
-                                                        "returnValueDescription": null
-                                                    },
-                                                    "scope": null
-                                                },
-                                                "pos": {
-                                                    "src": "<Duplicated>",
-                                                    "sLine": 29,
-                                                    "eLine": 29,
-                                                    "sCol": 9,
-                                                    "eCol": 21
-                                                }
-                                            },
-                                            {
-                                                "name": "<Duplicated>",
-                                                "type": "<Duplicated>",
-                                                "symbol": {
-                                                    "defaultableParam": false,
-                                                    "taintabilityAllowance": "IGNORED",
-                                                    "tag": 52,
-                                                    "flags": 257,
-                                                    "name": "<Duplicated>",
-                                                    "pkgID": "<Duplicated>",
-                                                    "type": "<Duplicated>",
-                                                    "tainted": false,
-                                                    "closure": false,
-                                                    "markdownDocumentation": {
-                                                        "description": null,
-                                                        "parameters": [],
-                                                        "returnValueDescription": null
-                                                    },
-                                                    "scope": null
-                                                },
-                                                "pos": {
-                                                    "src": "<Duplicated>",
-                                                    "sLine": 31,
-                                                    "eLine": 31,
-                                                    "sCol": 9,
-                                                    "eCol": 17
-                                                }
-                                            },
-                                            {
-                                                "name": {
-                                                    "value": "score"
-                                                },
-                                                "type": "<Duplicated>",
-                                                "symbol": {
-                                                    "defaultableParam": false,
-                                                    "taintabilityAllowance": "IGNORED",
-                                                    "tag": 52,
-                                                    "flags": 257,
-                                                    "name": "<Duplicated>",
-                                                    "pkgID": "<Duplicated>",
-                                                    "type": "<Duplicated>",
-                                                    "tainted": false,
-                                                    "closure": false,
-                                                    "markdownDocumentation": {
-                                                        "description": null,
-                                                        "parameters": [],
-                                                        "returnValueDescription": null
-                                                    },
-                                                    "scope": null
-                                                },
-                                                "pos": {
-                                                    "src": "<Duplicated>",
-                                                    "sLine": 32,
-                                                    "eLine": 32,
-                                                    "sCol": 9,
-                                                    "eCol": 19
-                                                }
-                                            },
-                                            {
-                                                "name": "<Duplicated>",
-                                                "type": "<Duplicated>",
-                                                "symbol": {
-                                                    "defaultableParam": false,
-                                                    "taintabilityAllowance": "IGNORED",
-                                                    "tag": 52,
-                                                    "flags": 257,
-                                                    "name": "<Duplicated>",
-                                                    "pkgID": "<Duplicated>",
-                                                    "type": "<Duplicated>",
-                                                    "tainted": false,
-                                                    "closure": false,
-                                                    "markdownDocumentation": {
-                                                        "description": null,
-                                                        "parameters": [],
-                                                        "returnValueDescription": null
-                                                    },
-                                                    "scope": null
-                                                },
-                                                "pos": {
-                                                    "src": "<Duplicated>",
-                                                    "sLine": 28,
-                                                    "eLine": 28,
-                                                    "sCol": 10,
-                                                    "eCol": 16
-                                                }
-                                            },
-                                            {
-                                                "name": "<Duplicated>",
-                                                "type": "<Duplicated>",
-                                                "symbol": {
-                                                    "defaultableParam": false,
-                                                    "taintabilityAllowance": "IGNORED",
-                                                    "tag": 52,
-                                                    "flags": 257,
-                                                    "name": "<Duplicated>",
-                                                    "pkgID": "<Duplicated>",
-                                                    "type": "<Duplicated>",
-                                                    "tainted": false,
-                                                    "closure": false,
-                                                    "markdownDocumentation": {
-                                                        "description": null,
-                                                        "parameters": [],
-                                                        "returnValueDescription": null
-                                                    },
-                                                    "scope": null
-                                                },
-                                                "pos": {
-                                                    "src": "<Duplicated>",
-                                                    "sLine": 30,
-                                                    "eLine": 30,
-                                                    "sCol": 10,
-                                                    "eCol": 15
-                                                }
-                                            }
-                                        ],
+                                        "fields": [],
                                         "tag": 11,
                                         "tsymbol": {
                                             "attachedFuncs": [],
@@ -1289,23 +1146,7 @@
                                             "scope": {
                                                 "NOT_FOUND_ENTRY": "<Duplicated>",
                                                 "owner": "<Duplicated>",
-                                                "entries": {
-                                                    "name": {
-                                                        "symbol": "<Duplicated>"
-                                                    },
-                                                    "age": {
-                                                        "symbol": "<Duplicated>"
-                                                    },
-                                                    "score": {
-                                                        "symbol": "<Duplicated>"
-                                                    },
-                                                    "profession": {
-                                                        "symbol": "<Duplicated>"
-                                                    },
-                                                    "height": {
-                                                        "symbol": "<Duplicated>"
-                                                    }
-                                                }
+                                                "entries": {}
                                             }
                                         },
                                         "name": "<Duplicated>",
@@ -1401,7 +1242,9 @@
                                     "taintabilityAllowance": "IGNORED",
                                     "tag": 52,
                                     "flags": 257,
-                                    "name": "<Duplicated>",
+                                    "name": {
+                                        "value": "score"
+                                    },
                                     "pkgID": "<Duplicated>",
                                     "type": "<Duplicated>",
                                     "tainted": false,
@@ -3454,11 +3297,38 @@
                                                 "annAttachments": [],
                                                 "markdownDocumentationAttachment": null,
                                                 "isDeclaredWithVar": false,
-                                                "symbol": "<Duplicated>",
+                                                "symbol": {
+                                                    "defaultableParam": false,
+                                                    "taintabilityAllowance": "IGNORED",
+                                                    "tag": 52,
+                                                    "flags": 257,
+                                                    "name": "<Duplicated>",
+                                                    "pkgID": "<Duplicated>",
+                                                    "type": {
+                                                        "tag": 25,
+                                                        "tsymbol": null,
+                                                        "name": "<Duplicated>",
+                                                        "flags": 0
+                                                    },
+                                                    "tainted": false,
+                                                    "closure": false,
+                                                    "markdownDocumentation": {
+                                                        "description": null,
+                                                        "parameters": [],
+                                                        "returnValueDescription": null
+                                                    },
+                                                    "scope": null
+                                                },
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
-                                                "pos": "<Duplicated>",
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 29,
+                                                    "eLine": 29,
+                                                    "sCol": 9,
+                                                    "eCol": 21
+                                                },
                                                 "cloneAttempt": 0
                                             },
                                             {
@@ -3487,11 +3357,33 @@
                                                 "annAttachments": [],
                                                 "markdownDocumentationAttachment": null,
                                                 "isDeclaredWithVar": false,
-                                                "symbol": "<Duplicated>",
+                                                "symbol": {
+                                                    "defaultableParam": false,
+                                                    "taintabilityAllowance": "IGNORED",
+                                                    "tag": 52,
+                                                    "flags": 257,
+                                                    "name": "<Duplicated>",
+                                                    "pkgID": "<Duplicated>",
+                                                    "type": "<Duplicated>",
+                                                    "tainted": false,
+                                                    "closure": false,
+                                                    "markdownDocumentation": {
+                                                        "description": null,
+                                                        "parameters": [],
+                                                        "returnValueDescription": null
+                                                    },
+                                                    "scope": null
+                                                },
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
-                                                "pos": "<Duplicated>",
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 31,
+                                                    "eLine": 31,
+                                                    "sCol": 9,
+                                                    "eCol": 17
+                                                },
                                                 "cloneAttempt": 0
                                             },
                                             {
@@ -3520,11 +3412,33 @@
                                                 "annAttachments": [],
                                                 "markdownDocumentationAttachment": null,
                                                 "isDeclaredWithVar": false,
-                                                "symbol": "<Duplicated>",
+                                                "symbol": {
+                                                    "defaultableParam": false,
+                                                    "taintabilityAllowance": "IGNORED",
+                                                    "tag": 52,
+                                                    "flags": 257,
+                                                    "name": "<Duplicated>",
+                                                    "pkgID": "<Duplicated>",
+                                                    "type": "<Duplicated>",
+                                                    "tainted": false,
+                                                    "closure": false,
+                                                    "markdownDocumentation": {
+                                                        "description": null,
+                                                        "parameters": [],
+                                                        "returnValueDescription": null
+                                                    },
+                                                    "scope": null
+                                                },
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
-                                                "pos": "<Duplicated>",
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 32,
+                                                    "eLine": 32,
+                                                    "sCol": 9,
+                                                    "eCol": 19
+                                                },
                                                 "cloneAttempt": 0
                                             }
                                         ],
@@ -3542,7 +3456,13 @@
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
-                                                "pos": "<Duplicated>",
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 28,
+                                                    "eLine": 28,
+                                                    "sCol": 10,
+                                                    "eCol": 16
+                                                },
                                                 "cloneAttempt": 0
                                             },
                                             {
@@ -3554,7 +3474,13 @@
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
-                                                "pos": "<Duplicated>",
+                                                "pos": {
+                                                    "src": "<Duplicated>",
+                                                    "sLine": 30,
+                                                    "eLine": 30,
+                                                    "sCol": 10,
+                                                    "eCol": 15
+                                                },
                                                 "cloneAttempt": 0
                                             }
                                         ],
@@ -3571,7 +3497,23 @@
                                                 "annAttachments": [],
                                                 "markdownDocumentationAttachment": null,
                                                 "isDeclaredWithVar": false,
-                                                "symbol": "<Duplicated>",
+                                                "symbol": {
+                                                    "defaultableParam": false,
+                                                    "taintabilityAllowance": "IGNORED",
+                                                    "tag": 52,
+                                                    "flags": 257,
+                                                    "name": "<Duplicated>",
+                                                    "pkgID": "<Duplicated>",
+                                                    "type": "<Duplicated>",
+                                                    "tainted": false,
+                                                    "closure": false,
+                                                    "markdownDocumentation": {
+                                                        "description": null,
+                                                        "parameters": [],
+                                                        "returnValueDescription": null
+                                                    },
+                                                    "scope": null
+                                                },
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
@@ -3589,7 +3531,23 @@
                                                 "annAttachments": [],
                                                 "markdownDocumentationAttachment": null,
                                                 "isDeclaredWithVar": false,
-                                                "symbol": "<Duplicated>",
+                                                "symbol": {
+                                                    "defaultableParam": false,
+                                                    "taintabilityAllowance": "IGNORED",
+                                                    "tag": 52,
+                                                    "flags": 257,
+                                                    "name": "<Duplicated>",
+                                                    "pkgID": "<Duplicated>",
+                                                    "type": "<Duplicated>",
+                                                    "tainted": false,
+                                                    "closure": false,
+                                                    "markdownDocumentation": {
+                                                        "description": null,
+                                                        "parameters": [],
+                                                        "returnValueDescription": null
+                                                    },
+                                                    "scope": null
+                                                },
                                                 "type": "<Duplicated>",
                                                 "desugared": false,
                                                 "constantPropagated": false,
@@ -3611,15 +3569,54 @@
                                         "<Duplicated>",
                                         {}
                                     ],
-                                    "precedence": 5,
+                                    "precedence": 6,
                                     "isBuiltinTypeDef": false,
-                                    "symbol": "<Duplicated>",
+                                    "symbol": {
+                                        "attachedFuncs": [],
+                                        "initializerFunc": null,
+                                        "isLabel": true,
+                                        "tag": 327772,
+                                        "flags": 2049,
+                                        "name": "<Duplicated>",
+                                        "pkgID": "<Duplicated>",
+                                        "kind": "RECORD",
+                                        "type": "<Duplicated>",
+                                        "tainted": false,
+                                        "closure": false,
+                                        "markdownDocumentation": {
+                                            "description": null,
+                                            "parameters": [],
+                                            "returnValueDescription": null
+                                        },
+                                        "scope": {
+                                            "NOT_FOUND_ENTRY": "<Duplicated>",
+                                            "owner": "<Duplicated>",
+                                            "entries": {
+                                                "name": {
+                                                    "symbol": "<Duplicated>"
+                                                },
+                                                "age": {
+                                                    "symbol": "<Duplicated>"
+                                                },
+                                                "score": {
+                                                    "symbol": "<Duplicated>"
+                                                },
+                                                "profession": {
+                                                    "symbol": "<Duplicated>"
+                                                },
+                                                "height": {
+                                                    "symbol": "<Duplicated>"
+                                                }
+                                            }
+                                        }
+                                    },
                                     "type": null,
                                     "desugared": false,
                                     "constantPropagated": false,
                                     "pos": "<Duplicated>",
                                     "cloneAttempt": 0
-                                }
+                                },
+                                "<Duplicated>"
                             ],
                             "annotations": [],
                             "initFunction": null,
@@ -3630,6 +3627,7 @@
                             ],
                             "objAttachedFunctions": [],
                             "topLevelNodes": [
+                                "<Duplicated>",
                                 "<Duplicated>",
                                 "<Duplicated>",
                                 "<Duplicated>",
@@ -3745,6 +3743,7 @@
                     "cloneAttempt": 0
                 },
                 "<Duplicated>",
+                "<Duplicated>",
                 "<Duplicated>"
             ],
             "type": null,
@@ -3772,6 +3771,7 @@
         "<Duplicated>",
         "<Duplicated>",
         "<Duplicated>",
+        "<Duplicated>",
         "<Duplicated>"
     ],
     "annotations": [],
@@ -3783,6 +3783,7 @@
     ],
     "objAttachedFunctions": [],
     "topLevelNodes": [
+        "<Duplicated>",
         "<Duplicated>",
         "<Duplicated>",
         "<Duplicated>",
