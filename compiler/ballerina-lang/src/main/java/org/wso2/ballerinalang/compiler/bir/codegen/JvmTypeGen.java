@@ -119,6 +119,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
@@ -387,7 +388,7 @@ class JvmTypeGen {
             mv.visitInsn(SWAP);
 
             mv.visitInsn(ICONST_0);
-            mv.visitTypeInsn(ANEWARRAY, BINITIAL_VALUE_ENTRY);
+            mv.visitTypeInsn(ANEWARRAY, MAPPING_INITIAL_VALUE_ENTRY);
 
             mv.visitMethodInsn(INVOKESTATIC, className, "$init",
                                String.format("(L%s;L%s;[L%s;)V", STRAND, MAP_VALUE, BINITIAL_VALUE_ENTRY), false);

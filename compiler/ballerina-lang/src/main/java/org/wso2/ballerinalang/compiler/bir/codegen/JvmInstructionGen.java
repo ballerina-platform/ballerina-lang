@@ -141,6 +141,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_KEY_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
@@ -1190,7 +1191,7 @@ public class JvmInstructionGen {
         List<BIRNode.BIRMappingConstructorEntry> initialValues = mapNewIns.initialValues;
         mv.visitLdcInsn((long) initialValues.size());
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, BINITIAL_VALUE_ENTRY);
+        mv.visitTypeInsn(ANEWARRAY, MAPPING_INITIAL_VALUE_ENTRY);
 
         int i = 0;
         for (BIRNode.BIRMappingConstructorEntry initialValue : initialValues) {

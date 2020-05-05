@@ -33,7 +33,6 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BInitialValueEntry;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -89,7 +88,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.type = type;
     }
 
-    public MapValueImpl(BType type, BInitialValueEntry[] initialValues) {
+    public MapValueImpl(BType type, MappingInitialValueEntry[] initialValues) {
         super();
         this.type = type;
         populateInitialValues(initialValues);
@@ -240,19 +239,17 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                                   INVALID_READONLY_VALUE_UPDATE));
     }
 
-    protected void populateInitialValues(BInitialValueEntry[] initialValues) {
-        for (BInitialValueEntry initialValue : initialValues) {
-            MappingInitialValueEntry mappingInitialValueEntry = (MappingInitialValueEntry) initialValue;
-
-            if (mappingInitialValueEntry.isKeyValueEntry()) {
+    protected void populateInitialValues(MappingInitialValueEntry[] initialValues) {
+        for (MappingInitialValueEntry initialValue : initialValues) {
+            if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
-                        (MappingInitialValueEntry.KeyValueEntry) mappingInitialValueEntry;
+                        (MappingInitialValueEntry.KeyValueEntry) initialValue;
                 populateInitialValue((K) keyValueEntry.key, (V) keyValueEntry.value);
                 continue;
             }
 
             MapValueImpl<K, V> values =
-                    (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) mappingInitialValueEntry).values;
+                    (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) initialValue).values;
             for (Map.Entry<K, V> entry : values.entrySet()) {
                 populateInitialValue(entry.getKey(), entry.getValue());
             }

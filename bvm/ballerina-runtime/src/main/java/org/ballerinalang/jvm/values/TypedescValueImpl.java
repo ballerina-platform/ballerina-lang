@@ -62,17 +62,13 @@ public class TypedescValueImpl implements  TypedescValue {
 
     @Override
     public Object instantiate(Strand s) {
-        if (describingType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl<>(describingType);
-        }
-        // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
-        throw new BallerinaException("Given type can't be instantiated at runtime : " + describingType);
+        return instantiate(s, new BInitialValueEntry[0]);
     }
 
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         if (describingType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl<>(describingType, initialValues);
+            return new MapValueImpl<>(describingType, (MappingInitialValueEntry[]) initialValues);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + describingType);
