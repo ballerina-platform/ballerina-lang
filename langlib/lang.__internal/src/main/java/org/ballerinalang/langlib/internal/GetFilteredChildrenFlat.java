@@ -54,7 +54,8 @@ public class GetFilteredChildrenFlat {
     public static XMLValue getFilteredChildrenFlat(Strand strand, XMLValue xmlVal, long index, ArrayValue elemNames) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             XMLItem element = (XMLItem) xmlVal;
-            return new XMLSequence(filterElementChildren(strand, index, elemNames, element));
+            XMLSequence xmlSeq = new XMLSequence(filterElementChildren(strand, index, elemNames, element));
+            return xmlSeq;
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
             XMLSequence sequence = (XMLSequence) xmlVal;
             ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();

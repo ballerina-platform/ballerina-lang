@@ -934,7 +934,7 @@ public class JvmCastGen {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "stringToChar",
-                    String.format("(L%s;)L%s;", OBJECT, STRING_VALUE), false);
+                    String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
@@ -945,7 +945,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.BOOLEAN ||
                 sourceType.tag == TypeTags.DECIMAL) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToChar",
-                    String.format("(L%s;)L%s;", OBJECT, STRING_VALUE), false);
+                    String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'char'",
                     sourceType));

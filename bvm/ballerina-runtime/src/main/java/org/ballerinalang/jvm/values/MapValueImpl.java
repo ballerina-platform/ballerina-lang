@@ -551,11 +551,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             }
         }
 
-        MapValue<String, Object> m1 = (MapValue<String, Object>) this;
-        MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
+        MapValue<BString, Object> m1 = (MapValue<BString, Object>) this;
+        MapValue<BString, Object> m2 = (MapValue<BString, Object>) v2;
 
-        for (Map.Entry<String, Object> entry : m2.entrySet()) {
-            String key = entry.getKey();
+        for (Map.Entry<BString, Object> entry : m2.entrySet()) {
+            BString key = entry.getKey();
 
             if (!m1.containsKey(key)) {
                 m1.put(key, entry.getValue());

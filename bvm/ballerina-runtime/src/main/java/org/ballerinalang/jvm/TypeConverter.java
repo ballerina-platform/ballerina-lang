@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -511,14 +512,14 @@ public class TypeConverter {
         return intToUnsigned8(floatToInt(sourceVal));
     }
 
-    public static String stringToChar(Object sourceVal) {
+    public static BString stringToChar(Object sourceVal) {
         if (!isCharLiteralValue(sourceVal)) {
             throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeStringChar);
         }
-        return Objects.toString(sourceVal);
+        return StringUtils.fromString(Objects.toString(sourceVal));
     }
 
-    public static String anyToChar(Object sourceVal) {
+    public static BString anyToChar(Object sourceVal) {
         String value = Objects.toString(sourceVal);
         return stringToChar(value);
     }

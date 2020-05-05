@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -41,6 +42,7 @@ import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -132,8 +134,10 @@ public class BRunUtil {
                 paramTypes[i] = ObjectValue.class;
             } else if (arg instanceof XMLValue) {
                 paramTypes[i] = XMLValue.class;
-            } else if (arg instanceof String) {
-                paramTypes[i] = String.class;
+            } else if (arg instanceof BmpStringValue) {
+                paramTypes[i] = BmpStringValue.class;
+            } else if (arg instanceof NonBmpStringValue) {
+                paramTypes[i] = NonBmpStringValue.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
             } else if (arg instanceof Integer) {
@@ -537,10 +541,9 @@ public class BRunUtil {
                     ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
 
                     List<BXML> list = new ArrayList<>();
-                    for (Object arrayValueValue : arrayValue.getValues()) {
-                        list.add((BXML) arrayValueValue);
+                    for (int i = 0; i < arrayValue.size(); i++) {
+                        list.add((BXML) arrayValue.getRefValue(i));
                     }
-
                     return new XMLSequence(list);
                 }
             case TypeTags.HANDLE_TAG:

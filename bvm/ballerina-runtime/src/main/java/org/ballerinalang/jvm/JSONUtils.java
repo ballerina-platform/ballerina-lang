@@ -542,11 +542,11 @@ public class JSONUtils {
         }
         visitedPairs.add(currentPair);
 
-        MapValue<String, Object> m1 = (MapValue<String, Object>) j1;
-        MapValue<String, Object> m2 = (MapValue<String, Object>) j2;
+        MapValue<BString, Object> m1 = (MapValue<BString, Object>) j1;
+        MapValue<BString, Object> m2 = (MapValue<BString, Object>) j2;
 
-        for (Map.Entry<String, Object> entry : m2.entrySet()) {
-            String key = entry.getKey();
+        for (Map.Entry<BString, Object> entry : m2.entrySet()) {
+            BString key = entry.getKey();
 
             if (!m1.containsKey(key)) {
                 continue;
@@ -558,8 +558,9 @@ public class JSONUtils {
                 continue;
             }
 
-            MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-            detailMap.put(TypeConstants.DETAIL_MESSAGE, "JSON Merge failed for key '" + key + "'");
+            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+            detailMap.put(TypeConstants.DETAIL_MESSAGE,
+                          StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
             return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
@@ -586,8 +587,8 @@ public class JSONUtils {
             }
         }
 
-        MapValue<String, Object> m1 = (MapValue<String, Object>) j1;
-        MapValue<String, Object> m2 = (MapValue<String, Object>) j2;
+        MapValue<BString, Object> m1 = (MapValue<BString, Object>) j1;
+        MapValue<BString, Object> m2 = (MapValue<BString, Object>) j2;
         return m1.merge(m2, true);
     }
 
