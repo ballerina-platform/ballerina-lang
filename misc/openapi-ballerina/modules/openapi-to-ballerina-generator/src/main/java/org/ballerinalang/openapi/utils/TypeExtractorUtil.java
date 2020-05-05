@@ -379,7 +379,7 @@ public class TypeExtractorUtil {
      * @return - escaped string
      */
     public static String escapeIdentifier(String identifier) {
-        if (!identifier.matches("[a-zA-Z]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+        if (!identifier.matches("[a-zA-Z0-9]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
             identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
             identifier = "'" + identifier;
         }
