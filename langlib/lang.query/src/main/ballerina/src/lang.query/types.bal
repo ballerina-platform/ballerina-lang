@@ -115,8 +115,8 @@ public type _InitFunction object {
         _Iterator i = <_Iterator> self.itr;
         record{|(any|error) value;|}|error? v = i.next();
         if (v is record{|(any|error) value;|}) {
-            record{|(any|error)...;|} frame = {...v};
-            return frame;
+            record{|(any|error)...;|} _frame = {...v};
+            return _frame;
         }
         return v;
     }
@@ -159,16 +159,16 @@ public type _FromFunction object {
     #   frame {nm1: firstName, nm2: lastName}
     # from var dept in deptList
     #   frame {dept: deptList[x]}
-    public function(_Frame frame) returns _Frame|error? fromFunc;
+    public function(_Frame _frame) returns _Frame|error? fromFunc;
 
-    public function __init(function(_Frame frame) returns _Frame|error? fromFunc) {
+    public function __init(function(_Frame _frame) returns _Frame|error? fromFunc) {
         self.fromFunc = fromFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns _Frame|error? f = self.fromFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.fromFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -191,16 +191,16 @@ public type _LetFunction object {
     # Desugared function to do;
     # let Company companyRecord = { name: "WSO2" }
     #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
-    public function(_Frame frame) returns _Frame|error? letFunc;
+    public function(_Frame _frame) returns _Frame|error? letFunc;
 
-    public function __init(function(_Frame frame) returns _Frame|error? letFunc) {
+    public function __init(function(_Frame _frame) returns _Frame|error? letFunc) {
         self.letFunc = letFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns _Frame|error? f = self.letFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.letFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -276,16 +276,16 @@ public type _FilterFunction object {
     #   1. on dn equals dept.deptName
     #   2. where person.age >= 70
     # emit the next frame which satisfies the condition
-    function(_Frame frame) returns boolean filterFunc;
+    function(_Frame _frame) returns boolean filterFunc;
 
-    public function __init(function(_Frame frame) returns boolean filterFunc) {
+    public function __init(function(_Frame _frame) returns boolean filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns boolean filterFunc = self.filterFunc;
+        function(_Frame _frame) returns boolean filterFunc = self.filterFunc;
         _Frame|error? pFrame = pf.process();
         while (pFrame is _Frame && !filterFunc(pFrame)) {
             pFrame = pf.process();
@@ -310,16 +310,16 @@ public type _SelectFunction object {
     #   lastName: person.lastName,
     #   dept : dept.name
     # };
-    public function(_Frame frame) returns _Frame|error? selectFunc;
+    public function(_Frame _frame) returns _Frame|error? selectFunc;
 
-    public function __init(function(_Frame frame) returns _Frame|error? selectFunc) {
+    public function __init(function(_Frame _frame) returns _Frame|error? selectFunc) {
         self.selectFunc = selectFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns _Frame|error? f = self.selectFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.selectFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -343,16 +343,16 @@ public type _DoFunction object {
     # do {
     #   count += value;
     # };
-    public function(_Frame frame) doFunc;
+    public function(_Frame _frame) doFunc;
 
-    public function __init(function(_Frame frame) doFunc) {
+    public function __init(function(_Frame _frame) doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) f = self.doFunc;
+        function(_Frame _frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
         while (pFrame is _Frame) {
             f(pFrame);

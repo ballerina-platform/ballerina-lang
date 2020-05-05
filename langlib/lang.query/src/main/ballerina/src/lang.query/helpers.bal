@@ -19,12 +19,12 @@ public function createPipeline((any|error)[]|map<any|error>|record{}|string|xml|
     return new _StreamPipeline(collection, resType);
 }
 
-public function createFromFunction(function(_Frame frame) returns _Frame|error? fromFunc)
+public function createFromFunction(function(_Frame _frame) returns _Frame|error? fromFunc)
         returns _StreamFunction {
     return new _FromFunction(fromFunc);
 }
 
-public function createLetFunction(function(_Frame frame) returns _Frame|error? letFunc)
+public function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc)
         returns _StreamFunction {
     return new _LetFunction(letFunc);
 }
@@ -34,17 +34,17 @@ public function createJoinFunction(_StreamPipeline joinedPipeline)
     return new _JoinFunction(joinedPipeline);
 }
 
-public function createFilterFunction(function(_Frame frame) returns boolean filterFunc)
+public function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
         returns _StreamFunction {
     return new _FilterFunction(filterFunc);
 }
 
-public function createSelectFunction(function(_Frame frame) returns _Frame|error? selectFunc)
+public function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
         returns _StreamFunction {
     return new _SelectFunction(selectFunc);
 }
 
-public function createDoFunction(function(_Frame frame) doFunc) returns _StreamFunction {
+public function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }
 
@@ -74,10 +74,6 @@ public function consumeStream(stream<any|error, error?> strm) returns error? {
     if (v is error) {
         return v;
     }
-}
-
-function lambdaTemplate(_Frame frame) returns _Frame|error? {
-    return frame;
 }
 
 // TODO: This for debugging purposes, remove once completed.

@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -111,14 +112,17 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
-    private static final String FRAME_PARAMETER_NAME = "frame";
+    private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
+    private BVarSymbol currentFrameSymbol;
+    private BLangBlockFunctionBody currentLambdaBody;
+    private Map<String, BSymbol> identifiers;
+    private int streamElementCount = 0;
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
     private final Types types;
-    private int streamElementCount = 0;
     private SymbolEnv env;
 
     private QueryDesugar(CompilerContext context) {
@@ -404,35 +408,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
-        BLangSimpleVarRef oldFrame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
-        BLangSimpleVariableDef newFrameDef = getNewFrameDef(pos);
-        BVarSymbol newFrameSymbol = newFrameDef.getVariable().symbol;
-        BLangSimpleVarRef newFrame = ASTBuilderUtil.createVariableRef(pos, newFrameSymbol);
-        // Frame $streamElement1$ = {};
-        body.stmts.add(0, newFrameDef);
-        // $streamElement1$["$value$"] = select-expr;
-        BLangStatement assignment = getAddToFrameStmt(pos, newFrame, "$value$", selectClause.expression);
+        BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
+        // $frame$["$value$"] = select-expr;
+        BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", selectClause.expression);
         body.stmts.add(body.stmts.size() - 1, assignment);
-
-        // frame = $streamElement1$ <- swap
-        body.stmts.add(body.stmts.size() - 1, ASTBuilderUtil.createAssignmentStmt(pos, oldFrame, newFrame));
-        // return frame; <- this comes from createPassthroughLambda()
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_SELECT_FUNCTION, Lists.of(lambda), pos);
-    }
-
-    private BLangSimpleVariableDef getNewFrameDef(DiagnosticPos pos) {
-        // Frame $streamElement1$ = {};
-        String name = getNewVarName();
-        BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langQueryModuleSymbol.scope
-                .lookup(names.fromString("_Frame")).symbol;
-        BRecordType frameType = (BRecordType) frameTypeSymbol.type;
-        BVarSymbol frameVarSymbol = new BVarSymbol(0, names.fromString(name),
-                env.scope.owner.pkgID, frameType, env.scope.owner);
-        BLangRecordLiteral emptyFrameExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, frameType);
-        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, name, frameType,
-                emptyFrameExpr, frameVarSymbol);
-        return ASTBuilderUtil.createVariableDef(pos, frameVariable);
     }
 
     /**
@@ -490,21 +471,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         return streamVarRef;
     }
 
-    private BVarSymbol currectFrameSymbol;
-    private BLangBlockFunctionBody currectLambdaBody;
-    private Map<String, BSymbol> identifiers;
-
     @Override
     public void visit(BLangLambdaFunction lambda) {
         BLangFunction function = lambda.function;
-        currectFrameSymbol = function.requiredParams.get(0).symbol;
+        currentFrameSymbol = function.requiredParams.get(0).symbol;
         identifiers = new HashMap<>();
-        currectLambdaBody = (BLangBlockFunctionBody) function.getBody();
-        List<BLangStatement> stmts = new ArrayList<>(currectLambdaBody.getStatements());
+        currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
+        List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
         stmts.forEach(stmt -> stmt.accept(this));
-        currectFrameSymbol = null;
+        currentFrameSymbol = null;
         identifiers = null;
-        currectLambdaBody = null;
+        currentLambdaBody = null;
     }
 
     @Override
@@ -594,20 +571,19 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
-        // TODO: check constants?
         BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol.name, SymTag.VARIABLE);
         if (resolvedSymbol == symTable.notFoundSymbol) {
             String identifier = bLangSimpleVarRef.variableName.getValue();
             if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
-                DiagnosticPos pos = currectLambdaBody.pos;
+                DiagnosticPos pos = currentLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
-                        symTable.anyOrErrorType, currectFrameSymbol);
+                        symTable.anyOrErrorType, currentFrameSymbol);
                 frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
                         types.getSafeType(frameAccessExpr.expr.type, true, false));
                 BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
                         desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                currectLambdaBody.stmts.add(0, variableDef);
+                currentLambdaBody.stmts.add(0, variableDef);
                 identifiers.put(identifier, symbol);
             }
         } else {
@@ -664,13 +640,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                      TypeNode returnType,
                                                      BLangReturn returnNode,
                                                      boolean isPassthrough) {
-        // load symbol for function query:lambdaTemplate
-        BInvokableSymbol templateSymbol = getLambdaTemplateSymbol();
-        BVarSymbol templateFrameSymbol = templateSymbol.getParameters().get(0);
-
         // function(_Frame frame) ... and ref to frame
-        BVarSymbol frameSymbol = new BVarSymbol(0, templateFrameSymbol.name,
-                this.env.scope.owner.pkgID, templateFrameSymbol.type, this.env.scope.owner);
+        BType frameType = getFrameTypeSymbol().type;
+        BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
+                this.env.scope.owner.pkgID, frameType, this.env.scope.owner);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
                 frameSymbol.type, null, frameSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
@@ -786,15 +759,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private BInvokableSymbol getQueryLibInvokableSymbol(Name functionName) {
         return (BInvokableSymbol) symTable.langQueryModuleSymbol.scope
                 .lookup(functionName).symbol;
-    }
-
-    /**
-     * Load and return symbol for function query:lambdaTemplate().
-     *
-     * @return symbol for above function.
-     */
-    private BInvokableSymbol getLambdaTemplateSymbol() {
-        return getQueryLibInvokableSymbol(names.fromString("lambdaTemplate"));
     }
 
     private BLangStatement getAddToFrameStmt(DiagnosticPos pos,
@@ -930,9 +894,10 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a union type node.
      */
     private BLangUnionTypeNode getUnionTypeNode() {
-        BInvokableSymbol templateSymbol = getLambdaTemplateSymbol();
+        BType frameType = getFrameTypeSymbol().type;
+        BUnionType unionType = BUnionType.create(null, frameType, symTable.errorType, symTable.nilType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-        unionTypeNode.type = templateSymbol.retType;
+        unionTypeNode.type = unionType;
         unionTypeNode.desugared = true;
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
@@ -946,8 +911,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a _Frame type node.
      */
     private BLangRecordTypeNode getFrameTypeNode() {
-        BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langQueryModuleSymbol.scope
-                .lookup(names.fromString("_Frame")).symbol;
+        BRecordTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
 
         BLangUnionTypeNode restFieldType = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
@@ -961,6 +925,16 @@ public class QueryDesugar extends BLangNodeVisitor {
         frameTypeNode.symbol = frameType.tsymbol;
         frameTypeNode.desugared = true;
         return frameTypeNode;
+    }
+
+    /**
+     * Load and return symbol for _Frame.
+     *
+     * @return _Frame type symbol.
+     */
+    private BRecordTypeSymbol getFrameTypeSymbol() {
+        return (BRecordTypeSymbol) symTable.langQueryModuleSymbol
+                .scope.lookup(names.fromString("_Frame")).symbol;
     }
 
 }
