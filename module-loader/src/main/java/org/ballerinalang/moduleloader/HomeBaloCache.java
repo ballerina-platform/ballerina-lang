@@ -27,7 +27,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 /**
  * Balo cache repository.
  */
-public class HomeBaloCache implements Cache {
+public class HomeBaloCache {
 
     private Path repositoryLocation;
     private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
@@ -40,17 +40,14 @@ public class HomeBaloCache implements Cache {
         this.dependencyManifests = dependencyManifests;
     }
 
-    @Override
-    public ModuleId getLatestVersion(ModuleId moduleId, ReleaseVersion releaseVersion) {
+    public ModuleId resolveVersion(ModuleId moduleId, ReleaseVersion releaseVersion) {
         return null;
     }
 
-    @Override
     public boolean isModuleExists(ModuleId moduleId) {
         return false;
     }
 
-    @Override
     public Module getModule(ModuleId moduleId) {
         try {
             // if path to balo is not given in the manifest file
