@@ -37,7 +37,7 @@ public class RabbitMQConstants {
     static final String RABBITMQ_VERSION = "1.0.0";
     public static final String PACKAGE_RABBITMQ =
             ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ + VERSION_SEPARATOR + RABBITMQ_VERSION;
-    public static final String PACKAGE_RABBITMQ_FULL_QUALIFIED_NAME =
+    public static final String PACKAGE_RABBITMQ_FQN =
             ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ + VERSION_SEPARATOR + RABBITMQ_VERSION;
     public static final BPackage PACKAGE_ID_RABBITMQ =
             new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "rabbitmq", RABBITMQ_VERSION);

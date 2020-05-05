@@ -39,7 +39,7 @@ public class KafkaConstants {
     private static final String VERSION = "2.0.0";
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
-    public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
+    public static final String KAFKA_PROTOCOL_PACKAGE_FQN = BALLERINA_PACKAGE_PREFIX + FULL_PACKAGE_NAME;
     public static final BPackage KAFKA_PROTOCOL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                           KAFKA_PACKAGE_NAME, VERSION);
 
@@ -75,11 +75,11 @@ public class KafkaConstants {
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
     public static final String PRODUCER_CONFIG_FIELD_NAME = "producerConfig";
 
-    public static final String PARAMETER_CONSUMER_NAME = KAFKA_PROTOCOL_PACKAGE + BLOCK_SEPARATOR
-            + CONSUMER_STRUCT_NAME;
-    public static final String PARAMETER_RECORD_ARRAY_NAME = KAFKA_PROTOCOL_PACKAGE + BLOCK_SEPARATOR
+    public static final String PARAMETER_CONSUMER_NAME =
+            KAFKA_PROTOCOL_PACKAGE_FQN + BLOCK_SEPARATOR + CONSUMER_STRUCT_NAME;
+    public static final String PARAMETER_RECORD_ARRAY_NAME = KAFKA_PROTOCOL_PACKAGE_FQN + BLOCK_SEPARATOR
             + CONSUMER_RECORD_STRUCT_NAME + ARRAY_INDICATOR;
-    public static final String PARAMETER_PARTITION_OFFSET_ARRAY_NAME = KAFKA_PROTOCOL_PACKAGE + BLOCK_SEPARATOR
+    public static final String PARAMETER_PARTITION_OFFSET_ARRAY_NAME = KAFKA_PROTOCOL_PACKAGE_FQN + BLOCK_SEPARATOR
             + OFFSET_STRUCT_NAME + ARRAY_INDICATOR;
 
     public static final String KAFKA_RESOURCE_ON_MESSAGE = "onMessage";

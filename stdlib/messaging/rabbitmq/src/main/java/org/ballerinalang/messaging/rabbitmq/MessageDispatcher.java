@@ -80,7 +80,7 @@ public class MessageDispatcher {
     }
 
     private String getQueueNameFromConfig(ObjectValue service) {
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FULL_QUALIFIED_NAME,
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN,
                                                                             RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =

@@ -53,8 +53,8 @@ public class KafkaServiceCompilerTest {
 
     @Test(description = "Test kafka service with an invalid input parameter type")
     public void testKafkaServiceInvalidParameterType() {
-        String msg = "Resource parameter ballerina/kafka:ConsumerConfiguration is invalid. " +
-                "Expected: ballerina/kafka:ConsumerRecord[].";
+        String msg = "Resource parameter ballerina/kafka:2.0.0:ConsumerConfiguration is invalid. " +
+                "Expected: ballerina/kafka:2.0.0:ConsumerRecord[].";
         compileResult = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_COMPILER, "kafka_service_invalid_parameter_type.bal")));
         validateCompilerErrors(compileResult, msg);
