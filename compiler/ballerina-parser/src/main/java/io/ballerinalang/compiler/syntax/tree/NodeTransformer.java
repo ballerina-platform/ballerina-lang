@@ -384,8 +384,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(errorTypeDescriptorNode);
     }
 
-    public T transform(createStreamTypeDescriptorNode createStreamTypeDescriptorNode) {
-        return transformSyntaxNode(createStreamTypeDescriptorNode);
+    public T transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        return transformSyntaxNode(streamTypeDescriptorNode);
     }
 
     // Tokens

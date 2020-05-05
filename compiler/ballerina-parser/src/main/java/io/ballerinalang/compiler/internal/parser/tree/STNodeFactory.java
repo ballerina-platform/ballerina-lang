@@ -1126,7 +1126,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 gtToken);
     }
 
-    public static STNode createcreateStreamTypeDescriptorNode(
+    public static STNode createStreamTypeDescriptorNode(
             STNode streamKeywordToken,
             STNode ltToken,
             STNode leftTypeDescNode,
@@ -1134,7 +1134,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode rightTypeDescNode,
             STNode gtToken) {
 
-        return new STcreateStreamTypeDescriptorNode(
+        return new STStreamTypeDescriptorNode(
                 streamKeywordToken,
                 ltToken,
                 leftTypeDescNode,

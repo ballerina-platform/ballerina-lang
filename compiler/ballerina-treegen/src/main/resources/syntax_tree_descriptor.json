@@ -2002,7 +2002,7 @@
             ]
         },
         {
-            "name": "createStreamTypeDescriptorNode",
+            "name": "StreamTypeDescriptorNode",
             "base": "Node",
             "kind": "STREAM_TYPE_DESC",
             "attributes": [
