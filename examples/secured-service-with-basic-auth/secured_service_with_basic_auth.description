@@ -22,4 +22,7 @@
 //      scopes="scope2,scope3"
 //
 // There are two users defined - Alice and Bob. Each user has a password and
-// assigned scopes.
+// assigned scopes.<br/><br/>
+// For more information on the underlying module, 
+// see the [Auth module](https://ballerina.io/learn/api-docs/ballerina/auth/index.html).
+

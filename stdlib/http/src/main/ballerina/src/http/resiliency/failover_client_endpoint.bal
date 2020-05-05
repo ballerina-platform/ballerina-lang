@@ -308,7 +308,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     Response inResponse = new;
     HttpFuture inFuture = new;
     Request failoverRequest = request;
-    error?[] failoverActionErrData = [];
+    ClientError?[] failoverActionErrData = [];
     mime:Entity requestEntity = new;
 
     if (isMultipartRequest(failoverRequest)) {
@@ -512,7 +512,7 @@ function getLastSuceededClientEP(FailoverClient failoverClient) returns Client {
 }
 
 function handleResponseWithErrorCode(Response response, int initialIndex, int noOfEndpoints, int index,
-                                                        error?[] failoverActionErrData) returns [int, ClientError?] {
+                                                        ClientError?[] failoverActionErrData) returns [int, ClientError?] {
 
     ClientError? resultError = ();
     int currentIndex = index;
@@ -555,7 +555,7 @@ function handleResponseWithErrorCode(Response response, int initialIndex, int no
     return [currentIndex, resultError];
 }
 
-function handleError(ClientError err, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
+function handleError(ClientError err, int initialIndex, int noOfEndpoints, int index, ClientError?[] failoverActionErrData)
                                                                                         returns [int, ClientError?] {
     ClientError? httpConnectorErr = ();
 

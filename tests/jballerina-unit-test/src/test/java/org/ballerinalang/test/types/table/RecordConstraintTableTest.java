@@ -28,17 +28,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test table type.
+ * Class to record constraint test table type.
  *
  * @since 1.3.0
  */
-public class BTableValueTest {
+public class RecordConstraintTableTest {
 
     private CompileResult result, negativeResult;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-value.bal");
+        result = BCompileUtil.compile("test-src/types/table/record-constraint-table-value.bal");
         negativeResult = BCompileUtil.compile("test-src/types/table/table-value-negative.bal");
     }
 

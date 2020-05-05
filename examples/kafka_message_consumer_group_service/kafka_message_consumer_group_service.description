@@ -1,4 +1,6 @@
 // Here, is an example of a kafka consumer used as a listener to listen to a
 // given topic/topics. The listener uses a group of concurrent consumers within
 // the service. This consumer uses the builtin `string` deserializer for the
-// values.
+// values.<br/><br/>
+// For more information on the underlying module, 
+// see the [Kafka module](https://ballerina.io/learn/api-docs/ballerina/kafka/index.html).

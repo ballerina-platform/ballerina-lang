@@ -1,2 +1,3 @@
 // The function specified with the `BeforeEach` annotation is executed before every test within the test suite.
-// This can be used for repeatedly initializing test level aspects before every test function.
+// This can be used for repeatedly initializing test level aspects before every test function.<br/><br/>
+// For more information, see [How to Test Ballerina Code](https://ballerina.io/learn/how-to-test-ballerina-code/).

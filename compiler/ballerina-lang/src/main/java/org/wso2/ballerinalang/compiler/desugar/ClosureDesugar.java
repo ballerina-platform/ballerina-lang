@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -215,6 +216,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Update function parameters.
         pkgNode.functions.forEach(this::updateFunctionParams);
+        pkgNode.typeDefinitions.stream()
+                .filter(typeDef -> typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE)
+                .forEach(this::updateRecordInitFunction);
 
         result = pkgNode;
     }
@@ -323,6 +327,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
             dupFuncType.paramTypes.add(i, mapSymbol.type);
             i++;
         }
+    }
+
+    private void updateRecordInitFunction(BLangTypeDefinition typeDef) {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+        BInvokableSymbol initFnSym = recordTypeNode.initFunction.symbol;
+        BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
+        recordTypeSymbol.initializerFunc.symbol = initFnSym;
+        recordTypeSymbol.initializerFunc.type = (BInvokableType) initFnSym.type;
     }
 
     /**
