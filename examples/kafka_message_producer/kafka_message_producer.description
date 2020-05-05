@@ -1,3 +1,4 @@
 // This is an example on how to send messages to a Kafka topic using a
 // `kafka:Producer` object. The producer is configured to send `string`
-// values and `int` keys.
+// values and `int` keys. For this example to work properly, an active Kafka
+// broker should be present.
