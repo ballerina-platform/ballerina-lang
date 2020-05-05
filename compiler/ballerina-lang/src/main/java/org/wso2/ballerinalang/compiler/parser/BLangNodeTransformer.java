@@ -27,8 +27,10 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
@@ -118,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -651,18 +654,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createExpression(brcExprOut.expression());
     }
 
+    @Override
     public BLangNode transform(FunctionCallExpressionNode functionCallNode) {
+        return createBLangInvocation(functionCallNode.arguments(),
+                getBLangNameReference(functionCallNode.functionName()),
+                getPosition(functionCallNode));
+    }
+
+    @Override
+    public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        return createBLangInvocation(errorConstructorExpressionNode.arguments(),
+                getBLangNameReference(errorConstructorExpressionNode.errorKeyword()),
+                getPosition(errorConstructorExpressionNode));
+    }
+
+    private BLangInvocation createBLangInvocation(NodeList<FunctionArgumentNode> arguments,
+                                                  BLangNameReference reference, DiagnosticPos pos) {
         BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        BLangNameReference reference = getBLangNameReference(functionCallNode.functionName());
         bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
         bLInvocation.name = (BLangIdentifier) reference.name;
 
         List<BLangExpression> args = new ArrayList<>();
-        functionCallNode.arguments().iterator().forEachRemaining(arg -> {
+        arguments.iterator().forEachRemaining(arg -> {
             args.add((BLangExpression) arg.apply(this));
         });
         bLInvocation.argExprs = args;
-        bLInvocation.pos = getPosition(functionCallNode);
+        bLInvocation.pos = pos;
 
         return bLInvocation;
     }
@@ -797,7 +814,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(NamedArgumentNode namedArgumentNode) {
-        return namedArgumentNode.expression().apply(this);
+        BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
+        namedArg.pos = getPosition(namedArgumentNode);
+        namedArg.name = this.createIdentifier(getPosition(namedArgumentNode.argumentName()),
+                namedArgumentNode.argumentName().name().text());
+        namedArg.expr = createExpression(namedArgumentNode.expression());
+        return namedArg;
     }
 
     @Override
@@ -1174,12 +1196,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangIdentifier pkgAlias = this.createIdentifier(getPosition(modulePrefix), modulePrefix.text());
             BLangIdentifier name = this.createIdentifier(getPosition(identifier), identifier.text());
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
-        } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+        } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN || node.kind() == SyntaxKind.ERROR_KEYWORD) {
             // simple identifier
-            IdentifierToken iToken = (IdentifierToken) node;
-            BLangIdentifier pkgAlias = this.createIdentifier(getPosition(iToken), "");
-            BLangIdentifier name = this.createIdentifier(getPosition(iToken), iToken.text());
+            Token token = (Token) node;
+            BLangIdentifier pkgAlias = this.createIdentifier(getPosition(token), "");
+            BLangIdentifier name = this.createIdentifier(getPosition(token), token.text());
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
+//        }
+//        else if (node.kind() == SyntaxKind.ERROR_KEYWORD) {
+//            DiagnosticPos pos = getPosition(node);
+//            BLangIdentifier pkgAlias = this.createIdentifier(pos, "");
+//            BLangIdentifier name = this.createIdentifier(pos, ((Token) node).text());
+//            return new BLangNameReference(pos, null, pkgAlias, name);
         } else {
             // Map name reference as a name
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) node;

@@ -628,7 +628,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(NamedArgumentNode namedArgumentNode) {
         Token leadingComma = modifyToken(namedArgumentNode.leadingComma());
-        Token argumentName = modifyToken(namedArgumentNode.argumentName());
+        SimpleNameReferenceNode argumentName = modifyNode(namedArgumentNode.argumentName());
         Token equalsToken = modifyToken(namedArgumentNode.equalsToken());
         ExpressionNode expression = modifyNode(namedArgumentNode.expression());
         return namedArgumentNode.modify(

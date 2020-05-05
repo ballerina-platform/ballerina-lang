@@ -847,7 +847,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NamedArgumentNode createNamedArgumentNode(
             Token leadingComma,
-            Token argumentName,
+            SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
