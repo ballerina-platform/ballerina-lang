@@ -1,3 +1,6 @@
 // Here, is an example of a kafka consumer using SASL/PLAIN authentication.
 // For this example to work properly, an active Kafka server must be present
 // and it should be configured to use the SASL/PLAIN authentication mechanism.
+// <br/><br/>
+// For more information on the underlying module,
+// see the [Kafka module](https://ballerina.io/learn/api-docs/ballerina/kafka/index.html).

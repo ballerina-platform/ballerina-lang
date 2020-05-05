@@ -1,5 +1,6 @@
 // This is an example on how to send messages to a Kafka topic using a
 // `kafka:Producer` object. The producer is configured to send `string`
-// values and `int` keys.<br/><br/>
+// values and `int` keys. For this example to work properly, an active Kafka
+// broker should be present.<br/><br/>
 // For more information on the underlying module, 
 // see the [Kafka module](https://ballerina.io/learn/api-docs/ballerina/kafka/index.html).
