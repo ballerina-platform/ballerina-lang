@@ -68,6 +68,7 @@ public class SaslProducerTest {
         result = BCompileUtil.compile(Paths.get(resourceDir, balFile).toAbsolutePath().toString());
     }
 
+    // TODO: Disabled since topic auto creation is not working. Check further and enable this.
     @Test(description = "Test kafka consumer connect with SASL Plain authentication", enabled = false)
     public void testSaslAuthentication() {
         BValue[] returnBValues = BRunUtil.invoke(result, "sendFromValidProducer");
