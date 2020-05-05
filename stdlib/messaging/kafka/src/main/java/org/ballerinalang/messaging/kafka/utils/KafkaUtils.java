@@ -223,6 +223,9 @@ public class KafkaUtils {
                 SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG))) {
             properties.put(KafkaConstants.SPECIFIC_AVRO_READER, false);
         }
+        if (Objects.nonNull(configurations.get(AUTHENTICATION_CONFIGURATION))) {
+            processSaslProperties(configurations, properties);
+        }
         return properties;
     }
 
