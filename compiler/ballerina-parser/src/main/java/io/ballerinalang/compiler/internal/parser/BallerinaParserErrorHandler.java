@@ -2651,11 +2651,14 @@ public class BallerinaParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
                 endContext(); // End array type descriptor context
                 return ParserRuleContext.TYPEDESC_RHS;
+            case COMPUTED_FIELD_NAME:
+                endContext(); // end computed-field-name
+                return ParserRuleContext.COLON;
             case LIST_CONSTRUCTOR:
             case TABLE_CONSTRUCTOR:
-            case COMPUTED_FIELD_NAME:
+                endContext();
+                // fall through
             default:
-                endContext(); // end computed-field-name, list-constructor or table-constructor
                 return getNextRuleForExpr();
         }
     }
