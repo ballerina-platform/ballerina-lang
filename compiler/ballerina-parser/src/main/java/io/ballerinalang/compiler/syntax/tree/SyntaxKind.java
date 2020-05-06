@@ -88,6 +88,7 @@ public enum SyntaxKind {
     MAP_KEYWORD(263,"map"),
     FUTURE_KEYWORD(264, "future"),
     TYPEDESC_KEYWORD(265, "typedesc"),
+    ERROR_KEYWORD(266,"error"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -220,6 +221,7 @@ public enum SyntaxKind {
     SERVICE_TYPE_DESC(2019),
     PARAMETERIZED_TYPE_DESC(2020),
     UNION_TYPE_DESC(2021),
+    ERROR_TYPE_DESC(2022),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
@@ -262,7 +264,9 @@ public enum SyntaxKind {
     DOCUMENTATION_STRING(3031),
     TYPE_CAST_PARAM(3032),
     KEY_SPECIFIER(3033),
-    LET_VAR_DECL(3034),
+    EXPLICIT_TYPE_PARAMS(3034),
+    ERROR_TYPE_PARAMS(3035),
+    LET_VAR_DECL(3036),
 
     INVALID(4),
     MODULE_PART(3),

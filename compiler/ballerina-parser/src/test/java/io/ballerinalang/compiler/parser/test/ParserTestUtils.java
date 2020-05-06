@@ -432,6 +432,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TABLE_KEYWORD;
             case "KEY_KEYWORD":
                 return SyntaxKind.KEY_KEYWORD;
+            case "ERROR_KEYWORD":
+                return SyntaxKind.ERROR_KEYWORD;
             case "LET_KEYWORD":
                 return SyntaxKind.LET_KEYWORD;
 
@@ -654,6 +656,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_TYPE_DESC;
             case "OBJECT_TYPE_DESC":
                 return SyntaxKind.OBJECT_TYPE_DESC;
+            case "UNION_TYPE_DESC":
+                return SyntaxKind.UNION_TYPE_DESC;
+            case "ERROR_TYPE_DESC":
+                return SyntaxKind.ERROR_TYPE_DESC;
+            case "EXPLICIT_TYPE_PARAMS":
+                return SyntaxKind.EXPLICIT_TYPE_PARAMS;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -722,10 +730,10 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_LINE;
             case "TYPE_CAST_PARAM":
                 return SyntaxKind.TYPE_CAST_PARAM;
-            case "UNION_TYPE_DESC":
-                return SyntaxKind.UNION_TYPE_DESC;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
+            case "ERROR_TYPE_PARAMS":
+                return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
 

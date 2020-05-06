@@ -1113,32 +1113,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createLetExpressionNode(
-            STNode letKeyword,
-            STNode letVarDeclarations,
-            STNode inKeyword,
-            STNode expression) {
+    public static STNode createErrorTypeDescriptorNode(
+            STNode errorKeywordToken,
+            STNode errorTypeParamsNode) {
 
-        return new STLetExpressionNode(
-                letKeyword,
-                letVarDeclarations,
-                inKeyword,
-                expression);
+        return new STErrorTypeDescriptorNode(
+                errorKeywordToken,
+                errorTypeParamsNode);
     }
 
-    public static STNode createLetVariableDeclarationNode(
-            STNode annotations,
-            STNode typeName,
-            STNode variableName,
-            STNode equalsToken,
-            STNode expression) {
+    public static STNode createErrorTypeParamsNode(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
 
-        return new STLetVariableDeclarationNode(
-                annotations,
-                typeName,
-                variableName,
-                equalsToken,
-                expression);
+        return new STErrorTypeParamsNode(
+                ltToken,
+                parameter,
+                gtToken);
     }
 }
 

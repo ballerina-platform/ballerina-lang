@@ -379,12 +379,12 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(LetExpressionNode letExpressionNode) {
-        visitSyntaxNode(letExpressionNode);
+    public void visit(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        visitSyntaxNode(errorTypeDescriptorNode);
     }
 
-    public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
-        visitSyntaxNode(letVariableDeclarationNode);
+    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
+        visitSyntaxNode(errorTypeParamsNode);
     }
 
     // Tokens

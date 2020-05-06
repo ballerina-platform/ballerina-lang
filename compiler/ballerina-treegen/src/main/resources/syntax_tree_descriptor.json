@@ -1980,6 +1980,40 @@
             ]
         },
         {
+            "name": "ErrorTypeDescriptorNode",
+            "base": "Node",
+            "kind": "ERROR_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "errorKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "errorTypeParamsNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ErrorTypeParamsNode",
+            "base": "Node",
+            "kind": "ERROR_TYPE_PARAMS",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameter",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",
