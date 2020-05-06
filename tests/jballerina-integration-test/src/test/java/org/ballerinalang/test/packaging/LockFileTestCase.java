@@ -338,7 +338,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      */
     @Test(description = "Test rebuilding and running TestProject2 without lock file.",
-            dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
+            dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline", enabled = false)
     public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException, InterruptedException {
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -381,7 +381,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws InterruptedException When thread sleep is interrupted.
      */
     @Test(description = "Test rebuilding and running TestProject2 with lock file.",
-          dependsOnMethods = "testRebuildTestProj2WithLockRemoved")
+          dependsOnMethods = "testRebuildTestProj2WithLockRemoved", enabled = false)
     public void testRebuildTestProj2WithUpdatedBallerinaToml() throws IOException, BallerinaTestException,
             InterruptedException {
         // Update the Ballerina.toml file
@@ -412,7 +412,7 @@ public class LockFileTestCase extends BaseTest {
      * @throws BallerinaTestException When running commands.
      */
     @Test(description = "Test rebuilding and running TestProject2 without lock file.",
-          dependsOnMethods = "testRebuildTestProj2WithUpdatedBallerinaToml")
+          dependsOnMethods = "testRebuildTestProj2WithUpdatedBallerinaToml", enabled = false)
     public void testRebuildTestProj2WithUpdatedBallerinaTomlAndLockRemoved() throws BallerinaTestException,
             IOException {
         // Delete Ballerina.lock
