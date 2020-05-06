@@ -3320,6 +3320,7 @@ public class TypeChecker extends BLangNodeVisitor {
         int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream) ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
 
+        //type checks select type against expected element type
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
                 .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
                         (types.isAssignable(memberType, symTable.nilType)))));
@@ -3344,8 +3345,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (enclosedTypeTag == TypeTags.ARRAY) {
-                actualType = new BArrayType(assignableSelectTypes.get(0));
+            if (!isStream) {
+                actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
@@ -3354,18 +3355,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
+        //checks whether iterable collection's next() method returns an error
         BType nextMethodReturnType = null;
+        BType errorType = null;
         switch (collectionType.tag) {
             case TypeTags.STREAM:
-                BErrorType errorType = (BErrorType) ((BStreamType) collectionType).error;
-                if (!isStream) {
-                    actualType = new BArrayType(actualType);
-                    if (errorType != null) {
-                        return BUnionType.create(null, actualType, errorType);
-                    }
-                } else {
-                    return new BStreamType(TypeTags.STREAM, actualType, errorType, null);
-                }
+                errorType = ((BStreamType) collectionType).error;
                 break;
             case TypeTags.OBJECT:
                 nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
@@ -3380,19 +3375,20 @@ public class TypeChecker extends BLangNodeVisitor {
         if (nextMethodReturnType != null) {
             Map<Boolean, List<BType>> collectionTypeMap = types.getAllTypes(nextMethodReturnType).stream()
                     .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
-            if (collectionTypeMap.get(true) != null && !collectionTypeMap.get(true).isEmpty()) {
-                if (isStream) {
-                    return new BStreamType(TypeTags.STREAM, actualType, collectionTypeMap.get(true).get(0),
-                            symTable.streamType.tsymbol);
+            List<BType> errorTypes = collectionTypeMap.get(true);
+            if (errorTypes != null && !errorTypes.isEmpty()) {
+                if (errorTypes.size() == 1) {
+                    errorType = errorTypes.get(0);
                 } else {
-                    List<BType> collectionTypes = Lists.of(actualType);
-                    collectionTypes.addAll(collectionTypeMap.get(true));
-                    return BUnionType.create(null, collectionTypes.toArray(new BType[collectionTypes.size()]));
+                    errorType = BUnionType.create(null, errorTypes.toArray(new BType[errorTypes.size()]));
                 }
             }
         }
+
         if (isStream) {
-            return new BStreamType(TypeTags.STREAM, actualType, null, null);
+            return new BStreamType(TypeTags.STREAM, actualType, errorType, symTable.streamType.tsymbol);
+        } else if (errorType != null) {
+            return BUnionType.create(null, actualType, errorType);
         }
         return actualType;
     }

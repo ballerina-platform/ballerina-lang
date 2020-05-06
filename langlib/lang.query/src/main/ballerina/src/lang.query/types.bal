@@ -51,7 +51,7 @@ public type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection,
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -106,9 +106,9 @@ public type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection;
+    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection) {
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -133,7 +133,7 @@ public type _InitFunction object {
         }
     }
 
-    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection)
+    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection)
             returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
@@ -147,6 +147,8 @@ public type _InitFunction object {
             return lang_xml:iterator(collection);
         }  else if (collection is table<any|error>) {
             return lang_table:iterator(collection);
+        } else if (collection is _Iterator) {
+            return collection;
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;
