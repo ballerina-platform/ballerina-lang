@@ -3143,6 +3143,9 @@ public class BallerinaParser {
                 return parseTableConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
+            case STREAM_KEYWORD:
+            case FROM_KEYWORD:
+                return parseQueryExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -7333,5 +7336,207 @@ public class BallerinaParser {
         STNode assign = parseAssignOp();
         STNode expression = parseExpression();
         return STNodeFactory.createLetVariableDeclarationNode(annot, type, varName, assign, expression);
+    }
+
+    /**
+     * Parse query expression.
+     * <code>query-expr := [query-construct-type] query-pipeline select-clause</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseQueryExpr() {
+        STToken nextToken = peek();
+        STNode queryConstructType = STNodeFactory.createEmptyNode();
+        STNode queryPipeline;
+        STNode selectClause;
+
+        switch (nextToken.kind) {
+            case TABLE_KEYWORD:
+            case STREAM_KEYWORD:
+                queryConstructType = parseQueryConstructType();
+                break;
+            case FROM_KEYWORD:
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.FROM_KEYWORD);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseQueryExpr();
+        }
+
+        queryPipeline = parseQueryPipeline();
+        selectClause = parseSelectClause();
+        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
+    }
+
+    /**
+     * Parse query construct type.
+     * <p>
+     * <code>query-construct-type := table key-specifier | stream</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseQueryConstructType() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case TABLE_KEYWORD:
+                STNode tableKeyword = parseTableKeyword();
+                STNode keySpecifier = parseKeySpecifier();
+                return STNodeFactory.createQueryConstructTypeNode(tableKeyword, keySpecifier);
+            default:
+                // stream keyword is already validated before coming here
+                return consume();
+        }
+    }
+
+    /**
+     * Parse query pipeline.
+     * <p>
+     * <code>
+     * query-pipeline := from-clause intermediate-clause*
+     * <br/>
+     * intermediate-clause := from-clause | where-clause | let-clause
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseQueryPipeline() {
+        STNode fromClause = parseFromClause();
+        STToken nextToken = peek();
+
+        List<STNode> clauses = new ArrayList<>();
+        STNode clause;
+        while (true) {
+            switch (nextToken.kind) {
+                case FROM_KEYWORD:
+                    clause = parseFromClause();
+                    clauses.add(clause);
+                    nextToken = peek();
+                    continue;
+                case WHERE_KEYWORD:
+                    clause = parseWhereClause();
+                    clauses.add(clause);
+                    nextToken = peek();
+                    continue;
+                case LET_KEYWORD:
+                    clause = parseLetClause();
+                    clauses.add(clause);
+                    nextToken = peek();
+                    continue;
+                default:
+                    break;
+            }
+            break;
+        }
+
+        STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+        return STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses );
+    }
+
+    /**
+     * Parse from clause.
+     * <p>
+     * <code>from-clause := from typed-binding-pattern in expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseFromClause() {
+        STNode fromKeyword = parseFromKeyword();
+        //TODO: Replace type and varName with typed-binding-pattern
+        STNode type = parseTypeDescriptor();
+        STNode varName = parseVariableName();
+        STNode inKeyword = parseInKeyword();
+        STNode expression = parseExpression();
+        return STNodeFactory.createFromClauseNode(fromKeyword, type, varName, inKeyword, expression);
+    }
+
+    /**
+     * Parse from-keyword.
+     *
+     * @return From-keyword node
+     */
+    private STNode parseFromKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FROM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FROM_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse where clause.
+     * <p>
+     * <code>where-clause := where expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseWhereClause() {
+        STNode whereKeyword = parseWhereKeyword();
+        STNode expression = parseExpression();
+        return STNodeFactory.createWhereClauseNode(whereKeyword, expression);
+    }
+
+    /**
+     * Parse where-keyword.
+     *
+     * @return Where-keyword node
+     */
+    private STNode parseWhereKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.WHERE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.WHERE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse let clause.
+     * <p>
+     * <code>let-clause := let let-var-decl [, let-var-decl]* </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetClause() {
+        STNode letKeyword = parseLetKeyword();
+        STNode letVarDeclarations = parseLetVarDeclarations();
+        return STNodeFactory.createLetClauseNode(letKeyword, letVarDeclarations);
+    }
+
+    /**
+     * Parse select clause.
+     * <p>
+     * <code>select-clause := select expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseSelectClause() {
+        STNode selectKeyword = parseSelectKeyword();
+        STNode expression = parseExpression();
+        return STNodeFactory.createSelectClauseNode(selectKeyword, expression);
+    }
+
+    /**
+     * Parse select-keyword.
+     *
+     * @return Select-keyword node
+     */
+    private STNode parseSelectKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.SELECT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.SELECT_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 }

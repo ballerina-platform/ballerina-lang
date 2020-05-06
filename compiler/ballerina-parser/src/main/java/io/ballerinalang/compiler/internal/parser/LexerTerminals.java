@@ -72,6 +72,10 @@ public class LexerTerminals {
     public static final String TABLE = "table";
     public static final String KEY = "key";
     public static final String LET = "let";
+    public static final String STREAM = "stream";
+    public static final String FROM = "from";
+    public static final String WHERE = "where";
+    public static final String SELECT = "select";
 
     // Types
     public static final String INT = "int";

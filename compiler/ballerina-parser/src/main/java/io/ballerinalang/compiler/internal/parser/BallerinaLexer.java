@@ -892,6 +892,14 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.KEY_KEYWORD);
             case LexerTerminals.LET:
                 return getSyntaxToken(SyntaxKind.LET_KEYWORD);
+            case LexerTerminals.STREAM:
+                return getSyntaxToken(SyntaxKind.STREAM_KEYWORD);
+            case LexerTerminals.FROM:
+                return getSyntaxToken(SyntaxKind.FROM_KEYWORD);
+            case LexerTerminals.WHERE:
+                return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
+            case LexerTerminals.SELECT:
+                return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

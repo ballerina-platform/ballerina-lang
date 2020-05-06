@@ -70,6 +70,10 @@ public enum SyntaxKind {
     TABLE_KEYWORD(221, "table"),
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
+    STREAM_KEYWORD(224, "stream"),
+    FROM_KEYWORD(225, "from"),
+    WHERE_KEYWORD(226, "where"),
+    SELECT_KEYWORD(227, "select"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -196,6 +200,7 @@ public enum SyntaxKind {
     TYPE_CAST_EXPRESSION(1316),
     TABLE_CONSTRUCTOR(1317),
     LET_EXPRESSION(1318),
+    QUERY_EXPRESSION(1319),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -263,6 +268,12 @@ public enum SyntaxKind {
     TYPE_CAST_PARAM(3032),
     KEY_SPECIFIER(3033),
     LET_VAR_DECL(3034),
+    QUERY_CONSTRUCT_TYPE(3035),
+    FROM_CLAUSE(3036),
+    WHERE_CLAUSE(3037),
+    LET_CLAUSE(3038),
+    QUERY_PIPELINE(3039),
+    SELECT_CLAUSE(3040),
 
     INVALID(4),
     MODULE_PART(3),

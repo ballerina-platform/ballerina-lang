@@ -199,6 +199,10 @@ public enum ParserRuleContext {
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
     LET_KEYWORD("let"),
+    STREAM_KEYWORD("stream"),
+    FROM_KEYWORD("from"),
+    WHERE_KEYWORD("where"),
+    SELECT_KEYWORD("select"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
