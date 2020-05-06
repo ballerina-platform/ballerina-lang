@@ -597,7 +597,7 @@ function testAnydataToMap() {
     }
 }
 
-function testAnydataToTable() returns table<Employee>? {
+function testAnydataToTable(){
     table<Employee> t = table key(id)[
                     { id: 1, name: "Mary", salary: 300.5 },
                     { id: 2, name: "John", salary: 200.5 },
