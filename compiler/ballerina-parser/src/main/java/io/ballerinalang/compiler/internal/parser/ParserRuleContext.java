@@ -226,7 +226,8 @@ public enum ParserRuleContext {
     GT(">"),
     LT("<"),
     PIPE("|"),
-    BACKTICK_TOKEN("`"),
+    TEMPLATE_START("`"),
+    TEMPLATE_END("`"),
     LT_TOKEN("<"),
     GT_TOKEN(">"),
 
@@ -310,7 +311,6 @@ public enum ParserRuleContext {
     XML_PI_DATA("xml-pi-data"),
     INTERPOLATION_START_TOKEN("interpolation-start-token"),
     INTERPOLATION("interoplation"),
-    TEMPLATE_EXPR("template-expr"),
     TEMPLATE_BODY("template-body"),
     TEMPLATE_MEMBER("template-member"),
     TEMPLATE_STRING("template-string"),

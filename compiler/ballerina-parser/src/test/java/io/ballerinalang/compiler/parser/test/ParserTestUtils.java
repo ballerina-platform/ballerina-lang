@@ -32,6 +32,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
+import io.ballerinalang.compiler.internal.parser.tree.STTemplateExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
@@ -281,8 +282,8 @@ public class ParserTestUtils {
             case DOCUMENTATION_LINE:
                 return ((STDocumentationLineToken) token).text;
             case XML_TEXT:
-                return ((STLiteralValueToken) token).text;
             case XML_TEXT_CONTENT:
+            case TEMPLATE_STRING:
                 return ((STLiteralValueToken) token).text;
             default:
                 return token.kind.toString();

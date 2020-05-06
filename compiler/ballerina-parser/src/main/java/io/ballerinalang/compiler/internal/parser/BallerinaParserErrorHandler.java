@@ -185,7 +185,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
             ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
             ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
-            ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION };
+            ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION,
+            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -283,10 +284,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] TEMPLATE_MEMBER = { ParserRuleContext.TEMPLATE_STRING,
-            ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.BACKTICK_TOKEN };
+            ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
     private static final ParserRuleContext[] TEMPLATE_STRING_RHS =
-            { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.BACKTICK_TOKEN };
+            { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1003,7 +1004,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case LET_VAR_DECL_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LET_VAR_DECL_START,
                             isEntryPoint);
-                case BACKTICK_TOKEN:
+                case TEMPLATE_START:
+                case TEMPLATE_END:
                     hasMatch = nextToken.kind == SyntaxKind.BACKTICK_TOKEN;
                     break;
                 case TEMPLATE_MEMBER:
@@ -1012,6 +1014,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TEMPLATE_STRING_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TEMPLATE_STRING_RHS,
                             isEntryPoint);
+                case XML_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
+                    break;
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1335,7 +1340,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case KEY_SPECIFIER:
             case ERROR_TYPE_DESCRIPTOR:
             case LET_VAR_DECL:
-            case TEMPLATE_EXPR:
+//            case TEMPLATE_EXPR:
+//            case XML_TEMPLATE_EXPR:
                 startContext(currentCtx);
                 break;
             default:
@@ -1843,11 +1849,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
 
                 throw new IllegalStateException();
-            case BACKTICK_TOKEN:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.TEMPLATE_EXPR) {
-                    return ParserRuleContext.EXPRESSION_RHS;
-                }
+            case TEMPLATE_END:
+                return ParserRuleContext.EXPRESSION_RHS;
+            case TEMPLATE_START:
                 return ParserRuleContext.TEMPLATE_BODY;
             case TEMPLATE_BODY:
                 return ParserRuleContext.TEMPLATE_MEMBER;
@@ -1855,6 +1859,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TEMPLATE_STRING_RHS;
             case INTERPOLATION_START_TOKEN:
                 return ParserRuleContext.EXPRESSION;
+            case XML_KEYWORD:
+                return ParserRuleContext.TEMPLATE_START;
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -2822,7 +2828,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.ERROR_KEYWORD;
             case LET_KEYWORD:
                 return SyntaxKind.LET_KEYWORD;
-            case BACKTICK_TOKEN:
+            case TEMPLATE_END:
+            case TEMPLATE_START:
                 return SyntaxKind.BACKTICK_TOKEN;
             case LT_TOKEN:
                 return SyntaxKind.LT_TOKEN;

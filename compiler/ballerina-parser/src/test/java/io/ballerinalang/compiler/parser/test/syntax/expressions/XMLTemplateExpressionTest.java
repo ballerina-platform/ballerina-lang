@@ -62,22 +62,22 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testXMLPI() {
         testFile("xml-template/xml_template_source_21.bal", "xml-template/xml_template_assert_21.json");
     }
-    
+
     @Test
     public void testComplexInterpolations() {
         testFile("xml-template/xml_template_source_23.bal", "xml-template/xml_template_assert_23.json");
     }
-    
+
     @Test
     public void testInterpolationInComment() {
         testFile("xml-template/xml_template_source_25.bal", "xml-template/xml_template_assert_25.json");
     }
-    
+
     @Test
     public void testInterpolationInPI() {
         testFile("xml-template/xml_template_source_26.bal", "xml-template/xml_template_assert_26.json");
     }
-    
+
     // Recovery test
 
     @Test
@@ -154,14 +154,19 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testErrorsInPI() {
         testFile("xml-template/xml_template_source_22.bal", "xml-template/xml_template_assert_22.json");
     }
-    
+
     @Test
     public void testComplexInvalidInterpolations() {
         testFile("xml-template/xml_template_source_24.bal", "xml-template/xml_template_assert_24.json");
     }
-    
+
     @Test
     public void testMissingClosingBacktick() {
         testFile("xml-template/xml_template_source_27.bal", "xml-template/xml_template_assert_27.json");
+    }
+
+    @Test
+    public void testErrorBeforeTemplateExpression() {
+        testFile("xml-template/xml_template_source_28.bal", "xml-template/xml_template_assert_28.json");
     }
 }

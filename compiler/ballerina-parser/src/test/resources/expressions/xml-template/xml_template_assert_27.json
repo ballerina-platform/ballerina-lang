@@ -166,8 +166,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "TEMPLATE_STRING",
-                                                                    "children": [
-                                                                    ]
+                                                                    "value": ";\n}\n"
                                                                 }
                                                             ]
                                                         },

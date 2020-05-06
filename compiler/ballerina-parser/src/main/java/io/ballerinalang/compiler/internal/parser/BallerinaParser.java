@@ -7381,15 +7381,13 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>BacktickString := ` expression `</code>
      * 
-     * @return
+     * @return Template expression node
      */
     private STNode parseTemplateExpression() {
-        startContext(ParserRuleContext.TEMPLATE_EXPR);
         STNode type = STNodeFactory.createEmptyNode();
-        STNode startingBackTick = parseBacktickToken();
+        STNode startingBackTick = parseBacktickToken(true);
         STNode content = parseTemplateContent();
-        STNode endingBackTick = parseBacktickToken();
-        endContext();
+        STNode endingBackTick = parseBacktickToken(false);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.RAW_TEMPLATE_EXPRESSION, type, startingBackTick,
                 content, endingBackTick);
     }
@@ -7434,9 +7432,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseXMLTemplateExpression() {
         STNode xmlKeyword = parseXMLKeyword();
-        STNode startingBackTick = parseBacktickToken();
+        STNode startingBackTick = parseBacktickToken(true);
         STNode content = parseTemplateContentAsXML();
-        STNode endingBackTick = parseBacktickToken();
+        STNode endingBackTick = parseBacktickToken(false);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, xmlKeyword,
                 startingBackTick, content, endingBackTick);
     }
@@ -7546,12 +7544,12 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Back-tick token
      */
-    private STNode parseBacktickToken() {
+    private STNode parseBacktickToken(boolean isStart) {
         STToken token = peek();
         if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BACKTICK_TOKEN);
+            Solution sol = recover(token, isStart ? ParserRuleContext.TEMPLATE_START : ParserRuleContext.TEMPLATE_END);
             return sol.recoveredNode;
         }
     }
