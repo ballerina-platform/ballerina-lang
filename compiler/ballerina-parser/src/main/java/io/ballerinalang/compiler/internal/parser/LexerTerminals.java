@@ -93,7 +93,6 @@ public class LexerTerminals {
     public static final String FUTURE = "future";
     public static final String TYPEDESC = "typedesc";
     public static final String BYTE = "byte";
-    public static final String ERROR = "error";
 
     // Separators
     public static final char SEMICOLON = ';';
