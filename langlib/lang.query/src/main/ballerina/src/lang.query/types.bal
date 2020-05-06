@@ -34,7 +34,11 @@ type Type any|error;
 type ErrorType error?;
 
 public type _Iterator abstract object {
-    public function next() returns record {|(any|error) value;|}|error?;
+    public function next() returns record {|Type value;|}|error?;
+};
+
+public type _Iterable abstract object {
+    public function __iterator() returns _Iterator;
 };
 
 public type _StreamFunction abstract object {
@@ -51,7 +55,8 @@ public type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection,
+    public function __init(
+            (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -106,16 +111,17 @@ public type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection;
+    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection) {
+    public function __init(
+            (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
         self.itr = self._getIterator(collection);
     }
 
-    public function process() returns record{|(any|error)...;|}|error? {
+    public function process() returns _Frame|error? {
         _Iterator i = <_Iterator> self.itr;
         record{|(any|error) value;|}|error? v = i.next();
         if (v is record{|(any|error) value;|}) {
@@ -133,7 +139,7 @@ public type _InitFunction object {
         }
     }
 
-    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection)
+    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection)
             returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
@@ -147,8 +153,8 @@ public type _InitFunction object {
             return lang_xml:iterator(collection);
         }  else if (collection is table<any|error>) {
             return lang_table:iterator(collection);
-        } else if (collection is _Iterator) {
-            return collection;
+        } else if (collection is _Iterable) {
+            return collection.__iterator();
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;

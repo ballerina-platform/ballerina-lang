@@ -14,8 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function createPipeline((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection,
-        typedesc<Type> resType) returns _StreamPipeline {
+public function createPipeline(
+        (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection,
+        typedesc<Type> resType)
+            returns _StreamPipeline {
     return new _StreamPipeline(collection, resType);
 }
 
