@@ -159,8 +159,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(mappingConstructorExpressionNode);
     }
 
-    public void visit(MemberAccessExpressionNode memberAccessExpressionNode) {
-        visitSyntaxNode(memberAccessExpressionNode);
+    public void visit(IndexedExpressionNode indexedExpressionNode) {
+        visitSyntaxNode(indexedExpressionNode);
     }
 
     public void visit(TypeofExpressionNode typeofExpressionNode) {
@@ -289,10 +289,6 @@ public abstract class NodeVisitor {
 
     public void visit(TypeTestExpressionNode typeTestExpressionNode) {
         visitSyntaxNode(typeTestExpressionNode);
-    }
-
-    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {

@@ -227,7 +227,8 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS };
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS,
+                    ParserRuleContext.TYPEDESC_RHS};
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };

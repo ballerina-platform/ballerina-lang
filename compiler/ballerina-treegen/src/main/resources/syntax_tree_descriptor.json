@@ -751,9 +751,9 @@
             ]
         },
         {
-            "name": "MemberAccessExpressionNode",
+            "name": "IndexedExpressionNode",
             "base": "ExpressionNode",
-            "kind": "MEMBER_ACCESS",
+            "kind": "INDEXED_EXPRESSION",
             "attributes": [
                 {
                     "name": "containerExpression",

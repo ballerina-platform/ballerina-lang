@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.MemberAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,18 +27,18 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STMemberAccessExpressionNode extends STExpressionNode {
+public class STIndexedExpressionNode extends STExpressionNode {
     public final STNode containerExpression;
     public final STNode openBracket;
     public final STNode keyExpression;
     public final STNode closeBracket;
 
-    STMemberAccessExpressionNode(
+    STIndexedExpressionNode(
             STNode containerExpression,
             STNode openBracket,
             STNode keyExpression,
             STNode closeBracket) {
-        super(SyntaxKind.MEMBER_ACCESS);
+        super(SyntaxKind.INDEXED_EXPRESSION);
         this.containerExpression = containerExpression;
         this.openBracket = openBracket;
         this.keyExpression = keyExpression;
@@ -52,6 +52,6 @@ public class STMemberAccessExpressionNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new MemberAccessExpressionNode(this, position, parent);
+        return new IndexedExpressionNode(this, position, parent);
     }
 }

@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -26,8 +25,7 @@
         },
         {
             "kind": "LIST",
-            "children": [
-            ]
+            "children": []
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -46,11 +44,10 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE_DESC",
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
                                         {
                                             "kind": "INT_KEYWORD"
@@ -77,11 +74,41 @@
                             "children": [
                                 {
                                     "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "T"
+                                        },
+                                        {
+                                            "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
                                     ]
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE_DESC",
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
                                         {
                                             "kind": "INT_KEYWORD"
@@ -112,11 +139,10 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE_DESC",
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
                                         {
                                             "kind": "OPTIONAL_TYPE_DESC",
@@ -155,14 +181,13 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
                                     "kind": "OPTIONAL_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "ARRAY_TYPE_DESC",
+                                            "kind": "INDEXED_EXPRESSION",
                                             "children": [
                                                 {
                                                     "kind": "OPTIONAL_TYPE_DESC",
@@ -202,14 +227,13 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE_DESC",
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "ARRAY_TYPE_DESC",
+                                            "kind": "INDEXED_EXPRESSION",
                                             "children": [
                                                 {
                                                     "kind": "INT_KEYWORD"
@@ -244,11 +268,59 @@
                             "children": [
                                 {
                                     "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
+                                        {
+                                            "kind": "INDEXED_EXPRESSION",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "T"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                                    "value": "5"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                            "kind": "ASTERISK_TOKEN"
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
                                     ]
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE_DESC",
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
                                         {
                                             "kind": "INT_KEYWORD"
@@ -291,11 +363,10 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE_DESC",
+                                    "kind": "INDEXED_EXPRESSION",
                                     "children": [
                                         {
                                             "kind": "INT_KEYWORD"

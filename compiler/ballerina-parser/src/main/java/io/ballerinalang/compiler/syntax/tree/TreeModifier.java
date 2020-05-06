@@ -432,12 +432,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(MemberAccessExpressionNode memberAccessExpressionNode) {
-        ExpressionNode containerExpression = modifyNode(memberAccessExpressionNode.containerExpression());
-        Token openBracket = modifyToken(memberAccessExpressionNode.openBracket());
-        ExpressionNode keyExpression = modifyNode(memberAccessExpressionNode.keyExpression());
-        Token closeBracket = modifyToken(memberAccessExpressionNode.closeBracket());
-        return memberAccessExpressionNode.modify(
+    public Node transform(IndexedExpressionNode indexedExpressionNode) {
+        ExpressionNode containerExpression = modifyNode(indexedExpressionNode.containerExpression());
+        Token openBracket = modifyToken(indexedExpressionNode.openBracket());
+        ExpressionNode keyExpression = modifyNode(indexedExpressionNode.keyExpression());
+        Token closeBracket = modifyToken(indexedExpressionNode.closeBracket());
+        return indexedExpressionNode.modify(
                 containerExpression,
                 openBracket,
                 keyExpression,
@@ -840,19 +840,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expression,
                 isKeyword,
                 typeDescriptor);
-    }
-
-    @Override
-    public Node transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        Node typeDescriptorNode = modifyNode(arrayTypeDescriptorNode.typeDescriptorNode());
-        Token openBracketToken = modifyToken(arrayTypeDescriptorNode.openBracketToken());
-        Node arrayLengthNode = modifyNode(arrayTypeDescriptorNode.arrayLengthNode());
-        Token closeBracketToken = modifyToken(arrayTypeDescriptorNode.closeBracketToken());
-        return arrayTypeDescriptorNode.modify(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
     }
 
     @Override

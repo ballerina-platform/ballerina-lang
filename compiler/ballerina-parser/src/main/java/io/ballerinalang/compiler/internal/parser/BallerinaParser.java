@@ -22,7 +22,7 @@ import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Sol
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
-import io.ballerinalang.compiler.internal.parser.tree.STMemberAccessExpressionNode;
+import io.ballerinalang.compiler.internal.parser.tree.STIndexedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -3063,8 +3063,8 @@ public class BallerinaParser {
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
-            case MEMBER_ACCESS:
-                return isValidLVExpr(((STMemberAccessExpressionNode) expression).containerExpression);
+            case INDEXED_EXPRESSION:
+                return isValidLVExpr(((STIndexedExpressionNode) expression).containerExpression);
             default:
                 return false;
         }
@@ -3169,8 +3169,8 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseActionOrExpressionInLhs(STNode lhsExpr) {
-        return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
+    private STNode parseActionOrExpressionInLhs(SyntaxKind nextTokenKind, STNode lhsExpr) {
+        return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
     }
 
     /**
@@ -3304,8 +3304,7 @@ public class BallerinaParser {
      * @return Member access expression
      */
     private STNode parseMemberAccessExpr(STNode lhsExpr) {
-        // Next token is already validated before coming here. Hence just consume.
-        STNode openBracket = consume();
+        STNode openBracket = parseOpenBracket();
 
         STNode keyExpr;
         switch (peek().kind) {
@@ -3322,7 +3321,7 @@ public class BallerinaParser {
         }
 
         STNode closeBracket = parseCloseBracket();
-        return STNodeFactory.createMemberAccessExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
+        return STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
     }
 
     /**
@@ -5367,7 +5366,7 @@ public class BallerinaParser {
         STNode closeBracketToken = parseCloseBracket();
 
         endContext();
-        return STNodeFactory.createMemberAccessExpressionNode(typeDescriptorNode, openBracketToken, arrayLengthNode,
+        return STNodeFactory.createIndexedExpressionNode(typeDescriptorNode, openBracketToken, arrayLengthNode,
                 closeBracketToken);
     }
 
@@ -5596,7 +5595,7 @@ public class BallerinaParser {
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind)) {
-                    STNode expression = parseActionOrExpressionInLhs(identifier);
+                    STNode expression = parseActionOrExpressionInLhs(nextTokenKind, identifier);
                     return parseStamentStartWithExpr(annots, expression);
                 }
 
@@ -6692,8 +6691,8 @@ public class BallerinaParser {
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
                 return true;
-            case MEMBER_ACCESS:
-                return isPossibleArrayType(((STMemberAccessExpressionNode) expression).containerExpression);
+            case INDEXED_EXPRESSION:
+                return isPossibleArrayType(((STIndexedExpressionNode) expression).containerExpression);
             default:
                 return false;
         }

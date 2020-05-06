@@ -579,7 +579,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMappingConstructorExpressionNode.createUnlinkedFacade();
     }
 
-    public static MemberAccessExpressionNode createMemberAccessExpressionNode(
+    public static IndexedExpressionNode createIndexedExpressionNode(
             ExpressionNode containerExpression,
             Token openBracket,
             ExpressionNode keyExpression,
@@ -589,12 +589,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(keyExpression, "keyExpression must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
 
-        STNode stMemberAccessExpressionNode = STNodeFactory.createMemberAccessExpressionNode(
+        STNode stIndexedExpressionNode = STNodeFactory.createIndexedExpressionNode(
                 containerExpression.internalNode(),
                 openBracket.internalNode(),
                 keyExpression.internalNode(),
                 closeBracket.internalNode());
-        return stMemberAccessExpressionNode.createUnlinkedFacade();
+        return stIndexedExpressionNode.createUnlinkedFacade();
     }
 
     public static TypeofExpressionNode createTypeofExpressionNode(
@@ -1138,24 +1138,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 isKeyword.internalNode(),
                 typeDescriptor.internalNode());
         return stTypeTestExpressionNode.createUnlinkedFacade();
-    }
-
-    public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
-            Node typeDescriptorNode,
-            Token openBracketToken,
-            Node arrayLengthNode,
-            Token closeBracketToken) {
-        Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
-        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
-        Objects.requireNonNull(arrayLengthNode, "arrayLengthNode must not be null");
-        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
-
-        STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
-                typeDescriptorNode.internalNode(),
-                openBracketToken.internalNode(),
-                arrayLengthNode.internalNode(),
-                closeBracketToken.internalNode());
-        return stArrayTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static RemoteMethodCallActionNode createRemoteMethodCallActionNode(

@@ -160,8 +160,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(mappingConstructorExpressionNode);
     }
 
-    public T transform(MemberAccessExpressionNode memberAccessExpressionNode) {
-        return transformSyntaxNode(memberAccessExpressionNode);
+    public T transform(IndexedExpressionNode indexedExpressionNode) {
+        return transformSyntaxNode(indexedExpressionNode);
     }
 
     public T transform(TypeofExpressionNode typeofExpressionNode) {
@@ -290,10 +290,6 @@ public abstract class NodeTransformer<T> {
 
     public T transform(TypeTestExpressionNode typeTestExpressionNode) {
         return transformSyntaxNode(typeTestExpressionNode);
-    }
-
-    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        return transformSyntaxNode(arrayTypeDescriptorNode);
     }
 
     public T transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {

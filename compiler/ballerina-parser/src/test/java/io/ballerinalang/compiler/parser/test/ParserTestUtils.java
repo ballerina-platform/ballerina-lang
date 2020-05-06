@@ -546,8 +546,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_ACCESS;
             case "METHOD_CALL":
                 return SyntaxKind.METHOD_CALL;
-            case "MEMBER_ACCESS":
-                return SyntaxKind.MEMBER_ACCESS;
+            case "INDEXED_EXPRESSION":
+                return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
