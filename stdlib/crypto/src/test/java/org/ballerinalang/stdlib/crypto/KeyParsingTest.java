@@ -71,17 +71,17 @@ public class KeyParsingTest {
                             "RSA");
         Assert.assertTrue(((BMap) returnValues[0]).get(Constants.PUBLIC_KEY_RECORD_CERTIFICATE_FIELD) instanceof BMap);
         BMap<String, BValue> certificate = (BMap<String, BValue>) ((BMap) returnValues[0]).get("certificate");
-        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_SERIAL_FIELD.getValue()).stringValue(),
+        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_SERIAL_FIELD).stringValue(),
                             "2097012467");
-        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_ISSUER_FIELD.getValue()).stringValue(),
+        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_ISSUER_FIELD).stringValue(),
                             "CN=localhost,OU=WSO2,O=WSO2,L=Mountain View,ST=CA,C=US");
-        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD.getValue()).stringValue(),
+        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD).stringValue(),
                             "CN=localhost,OU=WSO2,O=WSO2,L=Mountain View,ST=CA,C=US");
-        Assert.assertTrue(certificate.get(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD.getValue()) instanceof BMap);
-        Assert.assertTrue(certificate.get(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD.getValue()) instanceof BMap);
+        Assert.assertTrue(certificate.get(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD) instanceof BMap);
+        Assert.assertTrue(certificate.get(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD) instanceof BMap);
         Assert.assertTrue(
-                certificate.get(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD.getValue()) instanceof BValueArray);
-        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD.getValue()).stringValue(),
+                certificate.get(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD) instanceof BValueArray);
+        Assert.assertEquals(certificate.get(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD).stringValue(),
                             "SHA256withRSA");
     }
 
