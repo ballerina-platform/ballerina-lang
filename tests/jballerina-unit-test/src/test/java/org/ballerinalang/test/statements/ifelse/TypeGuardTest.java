@@ -263,7 +263,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "x is int: 5");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testTypeGuardInElse_6() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
         Assert.assertEquals(returns.length, 1);
@@ -271,7 +271,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "int: 5");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testTypeGuardInElse_7() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
         Assert.assertEquals(returns.length, 1);
