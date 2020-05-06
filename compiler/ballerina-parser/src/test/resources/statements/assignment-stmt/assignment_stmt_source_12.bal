@@ -1,5 +1,5 @@
 function foo() {
     a =
-    int b =
+    b =
     int a = 6;
 }

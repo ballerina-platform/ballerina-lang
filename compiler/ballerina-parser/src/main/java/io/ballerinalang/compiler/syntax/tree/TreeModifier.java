@@ -1109,6 +1109,34 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 gtToken);
     }
 
+    @Override
+    public Node transform(LetExpressionNode letExpressionNode) {
+        Token letKeyword = modifyToken(letExpressionNode.letKeyword());
+        SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letExpressionNode.letVarDeclarations());
+        Token inKeyword = modifyToken(letExpressionNode.inKeyword());
+        ExpressionNode expression = modifyNode(letExpressionNode.expression());
+        return letExpressionNode.modify(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(LetVariableDeclarationNode letVariableDeclarationNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(letVariableDeclarationNode.annotations());
+        Node typeName = modifyNode(letVariableDeclarationNode.typeName());
+        Token variableName = modifyToken(letVariableDeclarationNode.variableName());
+        Token equalsToken = modifyToken(letVariableDeclarationNode.equalsToken());
+        ExpressionNode expression = modifyNode(letVariableDeclarationNode.expression());
+        return letVariableDeclarationNode.modify(
+                annotations,
+                typeName,
+                variableName,
+                equalsToken,
+                expression);
+    }
+
     // Tokens
 
     @Override

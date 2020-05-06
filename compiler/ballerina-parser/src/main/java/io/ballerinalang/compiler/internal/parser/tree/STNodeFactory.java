@@ -1119,5 +1119,33 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 parameter,
                 gtToken);
     }
+
+    public static STNode createLetExpressionNode(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            STNode inKeyword,
+            STNode expression) {
+
+        return new STLetExpressionNode(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression);
+    }
+
+    public static STNode createLetVariableDeclarationNode(
+            STNode annotations,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STLetVariableDeclarationNode(
+                annotations,
+                typeName,
+                variableName,
+                equalsToken,
+                expression);
+    }
 }
 
