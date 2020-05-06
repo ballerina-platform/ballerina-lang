@@ -283,7 +283,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ReturnStatementNode returnStatementNode) {
         Token returnKeyword = modifyToken(returnStatementNode.returnKeyword());
-        ExpressionNode expression = modifyNode(returnStatementNode.expression());
+        ExpressionNode expression = modifyNode(returnStatementNode.expression().orElse(null));
         Token semicolonToken = modifyToken(returnStatementNode.semicolonToken());
         return returnStatementNode.modify(
                 returnKeyword,
@@ -312,6 +312,36 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         StatementNode blockStatement = modifyNode(lockStatementNode.blockStatement());
         return lockStatementNode.modify(
                 lockKeyword,
+                blockStatement);
+    }
+
+    @Override
+    public Node transform(ForkStatementNode forkStatementNode) {
+        Token forkKeyword = modifyToken(forkStatementNode.forkKeyword());
+        Token openBraceToken = modifyToken(forkStatementNode.openBraceToken());
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations = modifyNodeList(forkStatementNode.namedWorkerDeclarations());
+        Token closeBraceToken = modifyToken(forkStatementNode.closeBraceToken());
+        return forkStatementNode.modify(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken);
+    }
+
+    @Override
+    public Node transform(ForEachStatementNode forEachStatementNode) {
+        Token forEachKeyword = modifyToken(forEachStatementNode.forEachKeyword());
+        Node typeDescriptor = modifyNode(forEachStatementNode.typeDescriptor());
+        Token variableName = modifyToken(forEachStatementNode.variableName());
+        Token inKeyword = modifyToken(forEachStatementNode.inKeyword());
+        Node ActionOrExpressionNode = modifyNode(forEachStatementNode.ActionOrExpressionNode());
+        StatementNode blockStatement = modifyNode(forEachStatementNode.blockStatement());
+        return forEachStatementNode.modify(
+                forEachKeyword,
+                typeDescriptor,
+                variableName,
+                inKeyword,
+                ActionOrExpressionNode,
                 blockStatement);
     }
 
@@ -843,6 +873,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        Token parameterizedType = modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
+        Token ltToken = modifyToken(parameterizedTypeDescriptorNode.ltToken());
+        Node typeNode = modifyNode(parameterizedTypeDescriptorNode.typeNode());
+        Token gtToken = modifyToken(parameterizedTypeDescriptorNode.gtToken());
+        return parameterizedTypeDescriptorNode.modify(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    @Override
     public Node transform(NilLiteralNode nilLiteralNode) {
         Token openParenToken = modifyToken(nilLiteralNode.openParenToken());
         Token closeParenToken = modifyToken(nilLiteralNode.closeParenToken());
@@ -976,6 +1019,135 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return builtinSimpleNameReferenceNode.modify(
                 builtinSimpleNameReferenceNode.kind(),
                 name);
+    }
+
+    @Override
+    public Node transform(TrapExpressionNode trapExpressionNode) {
+        Token trapKeyword = modifyToken(trapExpressionNode.trapKeyword());
+        ExpressionNode expression = modifyNode(trapExpressionNode.expression());
+        return trapExpressionNode.modify(
+                trapKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        Token openBracket = modifyToken(listConstructorExpressionNode.openBracket());
+        SeparatedNodeList<Node> expressions = modifySeparatedNodeList(listConstructorExpressionNode.expressions());
+        Token closeBracket = modifyToken(listConstructorExpressionNode.closeBracket());
+        return listConstructorExpressionNode.modify(
+                openBracket,
+                expressions,
+                closeBracket);
+    }
+
+    @Override
+    public Node transform(TypeCastExpressionNode typeCastExpressionNode) {
+        Token ltToken = modifyToken(typeCastExpressionNode.ltToken());
+        TypeCastParamNode typeCastParam = modifyNode(typeCastExpressionNode.typeCastParam());
+        Token gtToken = modifyToken(typeCastExpressionNode.gtToken());
+        ExpressionNode expression = modifyNode(typeCastExpressionNode.expression());
+        return typeCastExpressionNode.modify(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
+    @Override
+    public Node transform(TypeCastParamNode typeCastParamNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(typeCastParamNode.annotations());
+        Node type = modifyNode(typeCastParamNode.type());
+        return typeCastParamNode.modify(
+                annotations,
+                type);
+    }
+
+    @Override
+    public Node transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
+        Token pipeToken = modifyToken(unionTypeDescriptorNode.pipeToken());
+        Node rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
+        return unionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
+    }
+
+    @Override
+    public Node transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        Token tableKeyword = modifyToken(tableConstructorExpressionNode.tableKeyword());
+        KeySpecifierNode KeySpecifier = modifyNode(tableConstructorExpressionNode.KeySpecifier());
+        Token openBracket = modifyToken(tableConstructorExpressionNode.openBracket());
+        SeparatedNodeList<Node> mappingConstructors = modifySeparatedNodeList(tableConstructorExpressionNode.mappingConstructors());
+        Token closeBracket = modifyToken(tableConstructorExpressionNode.closeBracket());
+        return tableConstructorExpressionNode.modify(
+                tableKeyword,
+                KeySpecifier,
+                openBracket,
+                mappingConstructors,
+                closeBracket);
+    }
+
+    @Override
+    public Node transform(KeySpecifierNode keySpecifierNode) {
+        Token keyKeyword = modifyToken(keySpecifierNode.keyKeyword());
+        Token openParenToken = modifyToken(keySpecifierNode.openParenToken());
+        SeparatedNodeList<Node> fieldNames = modifySeparatedNodeList(keySpecifierNode.fieldNames());
+        Token closeParenToken = modifyToken(keySpecifierNode.closeParenToken());
+        return keySpecifierNode.modify(
+                keyKeyword,
+                openParenToken,
+                fieldNames,
+                closeParenToken);
+    }
+
+    @Override
+    public Node transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        Token errorKeywordToken = modifyToken(errorTypeDescriptorNode.errorKeywordToken());
+        Node errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode());
+        return errorTypeDescriptorNode.modify(
+                errorKeywordToken,
+                errorTypeParamsNode);
+    }
+
+    @Override
+    public Node transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        Token ltToken = modifyToken(errorTypeParamsNode.ltToken());
+        Node parameter = modifyNode(errorTypeParamsNode.parameter());
+        Token gtToken = modifyToken(errorTypeParamsNode.gtToken());
+        return errorTypeParamsNode.modify(
+                ltToken,
+                parameter,
+                gtToken);
+    }
+
+    @Override
+    public Node transform(LetExpressionNode letExpressionNode) {
+        Token letKeyword = modifyToken(letExpressionNode.letKeyword());
+        SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letExpressionNode.letVarDeclarations());
+        Token inKeyword = modifyToken(letExpressionNode.inKeyword());
+        ExpressionNode expression = modifyNode(letExpressionNode.expression());
+        return letExpressionNode.modify(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(LetVariableDeclarationNode letVariableDeclarationNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(letVariableDeclarationNode.annotations());
+        Node typeName = modifyNode(letVariableDeclarationNode.typeName());
+        Token variableName = modifyToken(letVariableDeclarationNode.variableName());
+        Token equalsToken = modifyToken(letVariableDeclarationNode.equalsToken());
+        ExpressionNode expression = modifyNode(letVariableDeclarationNode.expression());
+        return letVariableDeclarationNode.modify(
+                annotations,
+                typeName,
+                variableName,
+                equalsToken,
+                expression);
     }
 
     @Override

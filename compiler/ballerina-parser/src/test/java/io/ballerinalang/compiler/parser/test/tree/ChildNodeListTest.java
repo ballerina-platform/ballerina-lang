@@ -39,13 +39,13 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
     public void testGetChildByIndex() {
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode)
-                syntaxTree.getModulePart().members().get(0);
+                syntaxTree.modulePart().members().get(0);
         int actualChildCount = firstFunctionNode.children().size();
         Assert.assertEquals(actualChildCount, 10);
 
         // The 'public' keyword and the return type desc is missing in the second function
         FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode)
-                syntaxTree.getModulePart().members().get(1);
+                syntaxTree.modulePart().members().get(1);
         actualChildCount = secondFunctionNode.children().size();
         Assert.assertEquals(actualChildCount, 8);
     }
@@ -60,7 +60,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
 
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode)
-                syntaxTree.getModulePart().members().get(0);
+                syntaxTree.modulePart().members().get(0);
         List<SyntaxKind> actualKinds = new ArrayList<>(firstFunctionNode.children().size());
         for (Node child : firstFunctionNode.children()) {
             actualKinds.add(child.kind());

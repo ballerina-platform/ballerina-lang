@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.text;
 
+import java.util.Objects;
+
 /**
  * Describes a contiguous sequence of unicode code points in the {@code TextDocument}.
  *
@@ -27,10 +29,10 @@ public class TextRange {
     private final int endOffset;
     private final int length;
 
-    public TextRange(int startOffset, int endOffset) {
+    public TextRange(int startOffset, int length) {
         this.startOffset = startOffset;
-        this.endOffset = endOffset;
-        this.length = endOffset - startOffset;
+        this.length = length;
+        this.endOffset = startOffset + length;
     }
 
     public int startOffset() {
@@ -45,7 +47,31 @@ public class TextRange {
         return length;
     }
 
+    public boolean contains(int position) {
+        return startOffset <= position && position < endOffset;
+    }
+
     public String toString() {
         return "(" + startOffset + "," + endOffset + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TextRange textRange = (TextRange) o;
+        return startOffset == textRange.startOffset &&
+                endOffset == textRange.endOffset;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startOffset, endOffset);
     }
 }

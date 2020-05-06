@@ -1,0 +1,117 @@
+{
+    "kind": "TABLE_CONSTRUCTOR",
+    "children": [
+        {
+            "kind": "TABLE_KEYWORD"
+        },
+        {
+            "kind": "KEY_SPECIFIER",
+            "children": [
+                {
+                    "kind": "KEY_KEYWORD"
+                },
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "a"
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "OPEN_BRACKET_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "MAPPING_CONSTRUCTOR",
+                    "children": [
+                        {
+                            "kind": "OPEN_BRACE_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "SPECIFIC_FIELD",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "foo"
+                                        },
+                                        {
+                                            "kind": "COLON_TOKEN",
+                                            "isMissing": true
+                                        },
+                                        {
+                                            "kind": "TABLE_CONSTRUCTOR",
+                                            "children": [
+                                                {
+                                                    "kind": "TABLE_KEYWORD",
+                                                    "isMissing": true
+                                                },
+                                                {
+                                                    "kind": "KEY_SPECIFIER",
+                                                    "children": [
+                                                        {
+                                                            "kind": "KEY_KEYWORD"
+                                                        },
+                                                        {
+                                                            "kind": "OPEN_PAREN_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                    "value": "b"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": []
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "CLOSE_BRACE_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_BRACKET_TOKEN",
+            "isMissing": true
+        }
+    ]
+}

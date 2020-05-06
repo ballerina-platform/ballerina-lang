@@ -36,6 +36,11 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
         test("func-definition/func_params_source_05.bal", "func-definition/func_params_assert_05.json");
     }
 
+    @Test
+    public void testParamsQualifiedNamedTyped() {
+        test("func-definition/func_params_source_08.bal", "func-definition/func_params_assert_08.json");
+    }
+    
     // Recovery tests
     @Test
     public void testRequiredParamAfterDefaultableParam() {

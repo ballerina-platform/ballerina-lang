@@ -22,6 +22,13 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
+/**
+ * Represents a terminal node in the internal syntax tree.
+ * <p>
+ * Always Minutiae is associated with a terminal node.
+ *
+ * @since 2.0.0
+ */
 public class STToken extends STNode {
 
     public final STNode leadingTrivia;
@@ -33,20 +40,19 @@ public class STToken extends STNode {
     public final int lookahead = 1; // TODO These is a default number
 
     STToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind);
-        this.width = kind.stringValue().length();
-        this.leadingTrivia = leadingTrivia;
-        this.trailingTrivia = trailingTrivia;
-        this.addTrivia(leadingTrivia);
-        this.addTrivia(trailingTrivia);
+        this(kind, kind.stringValue().length(), leadingTrivia, trailingTrivia);
     }
 
     STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, width);
+        super(kind);
         this.leadingTrivia = leadingTrivia;
         this.trailingTrivia = trailingTrivia;
-        this.addTrivia(leadingTrivia);
-        this.addTrivia(trailingTrivia);
+
+        this.width = width;
+        this.widthWithLeadingMinutiae = this.width + leadingTrivia.width;
+        this.widthWithTrailingMinutiae = this.width + trailingTrivia.width;
+        this.widthWithMinutiae = this.width + leadingTrivia.width + trailingTrivia.width;
+
     }
 
     public String text() {

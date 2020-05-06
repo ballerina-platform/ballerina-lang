@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  */
 public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
 
-    @Test
+    @Test(enabled = false)
     public void testVariableNameChange() {
         SyntaxTree oldTree = parseFile("module_declarations/function_name_old.bal");
         SyntaxTree newTree = parse(oldTree, "module_declarations/function_name_new.bal");

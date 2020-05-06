@@ -35,7 +35,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
-import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -119,7 +118,7 @@ public class ParserTestUtils {
     public static SyntaxTree parseFile(Path sourceFilePath) {
         String text = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(text);
-        return BLModules.parse(textDocument);
+        return SyntaxTree.from(textDocument, sourceFilePath.getFileName().toString());
     }
 
     private static JsonObject readAssertFile(Path filePath) {
@@ -271,6 +270,8 @@ public class ParserTestUtils {
                 return val.substring(1, lastCharPosition);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case WHITESPACE_TRIVIA:
             case END_OF_LINE_TRIVIA:
@@ -381,6 +382,12 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "MAP_KEYWORD":
+                return SyntaxKind.MAP_KEYWORD;
+            case "FUTURE_KEYWORD":
+                return SyntaxKind.FUTURE_KEYWORD;
+            case "TYPEDESC_KEYWORD":
+                return SyntaxKind.TYPEDESC_KEYWORD;
             case "NULL_KEYWORD":
                 return SyntaxKind.NULL_KEYWORD;
             case "LOCK_KEYWORD":
@@ -421,6 +428,22 @@ public class ParserTestUtils {
                 return SyntaxKind.ANYDATA_KEYWORD;
             case "NEVER_KEYWORD":
                 return SyntaxKind.NEVER_KEYWORD;
+            case "FORK_KEYWORD":
+                return SyntaxKind.FORK_KEYWORD;
+            case "TRAP_KEYWORD":
+                return SyntaxKind.TRAP_KEYWORD;
+            case "FOREACH_KEYWORD":
+                return SyntaxKind.FOREACH_KEYWORD;
+            case "IN_KEYWORD":
+                return SyntaxKind.IN_KEYWORD;
+            case "TABLE_KEYWORD":
+                return SyntaxKind.TABLE_KEYWORD;
+            case "KEY_KEYWORD":
+                return SyntaxKind.KEY_KEYWORD;
+            case "ERROR_KEYWORD":
+                return SyntaxKind.ERROR_KEYWORD;
+            case "LET_KEYWORD":
+                return SyntaxKind.LET_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -555,6 +578,16 @@ public class ParserTestUtils {
                 return SyntaxKind.NIL_LITERAL;
             case "SIMPLE_NAME_REFERENCE":
                 return SyntaxKind.SIMPLE_NAME_REFERENCE;
+            case "TRAP_EXPRESSION":
+                return SyntaxKind.TRAP_EXPRESSION;
+            case "LIST_CONSTRUCTOR":
+                return SyntaxKind.LIST_CONSTRUCTOR;
+            case "TYPE_CAST_EXPRESSION":
+                return SyntaxKind.TYPE_CAST_EXPRESSION;
+            case "TABLE_CONSTRUCTOR":
+                return SyntaxKind.TABLE_CONSTRUCTOR;
+            case "LET_EXPRESSION":
+                return SyntaxKind.LET_EXPRESSION;
             case "RAW_TEMPLATE_EXPRESSION":
                 return SyntaxKind.RAW_TEMPLATE_EXPRESSION;
             case "XML_TEMPLATE_EXPRESSION":
@@ -599,6 +632,10 @@ public class ParserTestUtils {
                 return SyntaxKind.ACTION_STATEMENT;
             case "LOCK_STATEMENT":
                 return SyntaxKind.LOCK_STATEMENT;
+            case "FORK_STATEMENT":
+                return SyntaxKind.FORK_STATEMENT;
+            case "FOREACH_STATEMENT":
+                return SyntaxKind.FOREACH_STATEMENT;
 
             // Types
             case "TYPE_DESC":
@@ -637,6 +674,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_TYPE_DESC;
             case "OBJECT_TYPE_DESC":
                 return SyntaxKind.OBJECT_TYPE_DESC;
+            case "UNION_TYPE_DESC":
+                return SyntaxKind.UNION_TYPE_DESC;
+            case "ERROR_TYPE_DESC":
+                return SyntaxKind.ERROR_TYPE_DESC;
+            case "EXPLICIT_TYPE_PARAMS":
+                return SyntaxKind.EXPLICIT_TYPE_PARAMS;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -691,6 +734,8 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
+            case "PARAMETERIZED_TYPE_DESC":
+                return SyntaxKind.PARAMETERIZED_TYPE_DESC;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
             case "NAMED_WORKER_DECLARATION":
@@ -701,6 +746,14 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_STRING;
             case "DOCUMENTATION_LINE":
                 return SyntaxKind.DOCUMENTATION_LINE;
+            case "TYPE_CAST_PARAM":
+                return SyntaxKind.TYPE_CAST_PARAM;
+            case "KEY_SPECIFIER":
+                return SyntaxKind.KEY_SPECIFIER;
+            case "ERROR_TYPE_PARAMS":
+                return SyntaxKind.ERROR_TYPE_PARAMS;
+            case "LET_VAR_DECL":
+                return SyntaxKind.LET_VAR_DECL;
 
             // XML template
             case "XML_ELEMENT":

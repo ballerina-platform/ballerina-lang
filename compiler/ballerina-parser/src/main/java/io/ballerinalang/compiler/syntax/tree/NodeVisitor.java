@@ -123,6 +123,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(lockStatementNode);
     }
 
+    public void visit(ForkStatementNode forkStatementNode) {
+        visitSyntaxNode(forkStatementNode);
+    }
+
+    public void visit(ForEachStatementNode forEachStatementNode) {
+        visitSyntaxNode(forEachStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }
@@ -291,6 +299,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
     public void visit(NilLiteralNode nilLiteralNode) {
         visitSyntaxNode(nilLiteralNode);
     }
@@ -337,6 +349,50 @@ public abstract class NodeVisitor {
 
     public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
         visitSyntaxNode(builtinSimpleNameReferenceNode);
+    }
+
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        visitSyntaxNode(trapExpressionNode);
+    }
+
+    public void visit(ListConstructorExpressionNode listConstructorExpressionNode) {
+        visitSyntaxNode(listConstructorExpressionNode);
+    }
+
+    public void visit(TypeCastExpressionNode typeCastExpressionNode) {
+        visitSyntaxNode(typeCastExpressionNode);
+    }
+
+    public void visit(TypeCastParamNode typeCastParamNode) {
+        visitSyntaxNode(typeCastParamNode);
+    }
+
+    public void visit(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        visitSyntaxNode(unionTypeDescriptorNode);
+    }
+
+    public void visit(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        visitSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public void visit(KeySpecifierNode keySpecifierNode) {
+        visitSyntaxNode(keySpecifierNode);
+    }
+
+    public void visit(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        visitSyntaxNode(errorTypeDescriptorNode);
+    }
+
+    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
+        visitSyntaxNode(errorTypeParamsNode);
+    }
+
+    public void visit(LetExpressionNode letExpressionNode) {
+        visitSyntaxNode(letExpressionNode);
+    }
+
+    public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
+        visitSyntaxNode(letVariableDeclarationNode);
     }
 
     public void visit(TemplateExpressionNode templateExpressionNode) {

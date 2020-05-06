@@ -124,6 +124,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(lockStatementNode);
     }
 
+    public T transform(ForkStatementNode forkStatementNode) {
+        return transformSyntaxNode(forkStatementNode);
+    }
+
+    public T transform(ForEachStatementNode forEachStatementNode) {
+        return transformSyntaxNode(forEachStatementNode);
+    }
+
     public T transform(BinaryExpressionNode binaryExpressionNode) {
         return transformSyntaxNode(binaryExpressionNode);
     }
@@ -292,6 +300,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public T transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        return transformSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
     public T transform(NilLiteralNode nilLiteralNode) {
         return transformSyntaxNode(nilLiteralNode);
     }
@@ -338,6 +350,50 @@ public abstract class NodeTransformer<T> {
 
     public T transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
         return transformSyntaxNode(builtinSimpleNameReferenceNode);
+    }
+
+    public T transform(TrapExpressionNode trapExpressionNode) {
+        return transformSyntaxNode(trapExpressionNode);
+    }
+
+    public T transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        return transformSyntaxNode(listConstructorExpressionNode);
+    }
+
+    public T transform(TypeCastExpressionNode typeCastExpressionNode) {
+        return transformSyntaxNode(typeCastExpressionNode);
+    }
+
+    public T transform(TypeCastParamNode typeCastParamNode) {
+        return transformSyntaxNode(typeCastParamNode);
+    }
+
+    public T transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        return transformSyntaxNode(unionTypeDescriptorNode);
+    }
+
+    public T transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        return transformSyntaxNode(tableConstructorExpressionNode);
+    }
+
+    public T transform(KeySpecifierNode keySpecifierNode) {
+        return transformSyntaxNode(keySpecifierNode);
+    }
+
+    public T transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        return transformSyntaxNode(errorTypeDescriptorNode);
+    }
+
+    public T transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        return transformSyntaxNode(errorTypeParamsNode);
+    }
+
+    public T transform(LetExpressionNode letExpressionNode) {
+        return transformSyntaxNode(letExpressionNode);
+    }
+
+    public T transform(LetVariableDeclarationNode letVariableDeclarationNode) {
+        return transformSyntaxNode(letVariableDeclarationNode);
     }
 
     public T transform(TemplateExpressionNode templateExpressionNode) {
