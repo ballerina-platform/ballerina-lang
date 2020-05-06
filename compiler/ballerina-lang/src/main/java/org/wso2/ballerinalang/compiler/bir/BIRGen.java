@@ -166,11 +166,13 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -1354,7 +1356,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
-        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.type);
+        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.type, Collections.emptyList());
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(astMapLiteralExpr.type, this.env.nextLocalVarId(names),
                                                        VarScope.FUNCTION, VarKind.TEMP);
@@ -1383,7 +1385,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral astStructLiteralExpr) {
-        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.type);
+        List<BIROperand> varDcls = mapToVarDcls(astStructLiteralExpr.enclMapSymbols);
+        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.type, varDcls);
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1402,6 +1405,19 @@ public class BIRGen extends BLangNodeVisitor {
         if (astStructLiteralExpr.initializer != null) {
             //TODO
         }
+    }
+
+    private List<BIROperand> mapToVarDcls(TreeMap<Integer, BVarSymbol> enclMapSymbols) {
+        if (enclMapSymbols == null || enclMapSymbols.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<BIROperand> varDcls = new ArrayList<>(enclMapSymbols.size());
+        for (BVarSymbol varSymbol : enclMapSymbols.values()) {
+            BIRVariableDcl varDcl = this.env.symbolVarMap.get(varSymbol);
+            varDcls.add(new BIROperand(varDcl));
+        }
+        return varDcls;
     }
 
     @Override
@@ -1731,7 +1747,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        visitTypedesc(waitLiteral.pos, waitLiteral.type);
+        visitTypedesc(waitLiteral.pos, waitLiteral.type, Collections.emptyList());
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitLiteral.type,
@@ -1949,7 +1965,8 @@ public class BIRGen extends BLangNodeVisitor {
                 new BIRVariableDcl(accessExpr.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType));
+        emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType,
+                                              Collections.emptyList()));
         this.env.targetOperand = toVarRef;
     }
 
@@ -1995,16 +2012,16 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        visitTypedesc(typeLoad.pos, typeLoad.symbol.type);
+        visitTypedesc(typeLoad.pos, typeLoad.symbol.type, Collections.emptyList());
     }
 
-    private void visitTypedesc(DiagnosticPos pos, BType type) {
+    private void visitTypedesc(DiagnosticPos pos, BType type, List<BIROperand> varDcls) {
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
                         .TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type));
+        emit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, varDcls));
         this.env.targetOperand = toVarRef;
     }
 

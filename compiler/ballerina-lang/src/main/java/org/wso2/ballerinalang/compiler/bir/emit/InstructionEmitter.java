@@ -220,11 +220,19 @@ class InstructionEmitter {
         str += emitModuleID(ins.pkgId);
         str += "::";
         str += emitName(ins.funcName);
-        str += "(";
-        str += ins.closureMaps.stream().map(EmitterUtils::emitVarRef).collect(Collectors.joining(","));
-        str += ")";
+        str += emitClosureParams(ins.closureMaps);
         // TODO add params and closure maps
         str += ";";
+        return str;
+    }
+
+    private static String emitClosureParams(List<BIROperand> closureVars) {
+        String str = "";
+        if (closureVars.size() > 0) {
+            str += "(";
+            str += closureVars.stream().map(EmitterUtils::emitVarRef).collect(Collectors.joining(","));
+            str += ")";
+        }
         return str;
     }
 
@@ -397,6 +405,7 @@ class InstructionEmitter {
         str += "newType";
         str += emitSpaces(1);
         str += emitTypeRef(ins.type, 0);
+        str = emitClosureParams(ins.closureVars);
         str += ";";
         return str;
     }
