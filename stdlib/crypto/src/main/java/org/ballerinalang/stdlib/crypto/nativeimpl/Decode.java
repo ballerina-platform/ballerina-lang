@@ -80,7 +80,7 @@ public class Decode {
                         createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PRIVATE_KEY_RECORD);
                 privateKeyRecord.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
                 privateKeyRecord.put(StringUtils.fromString(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD),
-                                     privateKey.getAlgorithm());
+                                     StringUtils.fromString(privateKey.getAlgorithm()));
                 return privateKeyRecord;
             } else {
                 return CryptoUtils.createError("Not a valid RSA key");
@@ -120,9 +120,9 @@ public class Decode {
             if (certificate instanceof X509Certificate) {
                 X509Certificate x509Certificate = (X509Certificate) certificate;
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_ISSUER_FIELD),
-                                    x509Certificate.getIssuerX500Principal().getName());
+                                    StringUtils.fromString(x509Certificate.getIssuerX500Principal().getName()));
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD),
-                                    x509Certificate.getSubjectX500Principal().getName());
+                                    StringUtils.fromString(x509Certificate.getSubjectX500Principal().getName()));
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_VERSION_FIELD),
                                     x509Certificate.getVersion());
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SERIAL_FIELD),
@@ -140,7 +140,7 @@ public class Decode {
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD),
                                     new ArrayValueImpl(x509Certificate.getSignature()));
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD),
-                                    x509Certificate.getSigAlgName());
+                                    StringUtils.fromString(x509Certificate.getSigAlgName()));
             }
             PublicKey publicKey = certificate.getPublicKey();
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
@@ -150,7 +150,7 @@ public class Decode {
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE, certificate);
                 publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),
-                                 publicKey.getAlgorithm());
+                                 StringUtils.fromString(publicKey.getAlgorithm()));
                 if (certificateBMap.size() > 0) {
                     publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_CERTIFICATE_FIELD),
                                      certificateBMap);
@@ -178,7 +178,7 @@ public class Decode {
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
             publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
             publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),
-                             publicKey.getAlgorithm());
+                             StringUtils.fromString(publicKey.getAlgorithm()));
             return publicKeyMap;
         } catch (InvalidKeySpecException e) {
             return CryptoUtils.createError("Invalid modulus or exponent: " + e.getMessage());
