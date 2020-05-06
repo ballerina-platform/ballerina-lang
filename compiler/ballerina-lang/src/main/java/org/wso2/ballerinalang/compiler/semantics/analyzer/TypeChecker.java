@@ -3306,7 +3306,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
         BType actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
-                queryExpr.isStream, queryExpr.isTable);
+                queryExpr.isStream);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -3315,11 +3315,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
-                                     boolean isStream, boolean isTable) {
+                                     boolean isStream) {
         List<BType> assignableSelectTypes = new ArrayList<>();
-        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream && !isTable) ? collectionType.tag : expType.tag;
+        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream) ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
 
+        //type checks select type against expected element type
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
                 .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
                         (types.isAssignable(memberType, symTable.nilType)))));
@@ -3330,9 +3331,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
                     enclosedTypeTag = TypeTags.ARRAY;
                     break;
-                case TypeTags.TABLE:
-                    selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
-                            true, true));
                 case TypeTags.STREAM:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
                             true, true));
@@ -3347,8 +3345,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (enclosedTypeTag == TypeTags.ARRAY) {
-                actualType = new BArrayType(assignableSelectTypes.get(0));
+            if (!isStream) {
+                actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
@@ -3357,6 +3355,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
+        //checks whether iterable collection's next() method returns an error
         BType nextMethodReturnType = null;
         BType errorType = null;
         switch (collectionType.tag) {
@@ -3376,25 +3375,20 @@ public class TypeChecker extends BLangNodeVisitor {
         if (nextMethodReturnType != null) {
             Map<Boolean, List<BType>> collectionTypeMap = types.getAllTypes(nextMethodReturnType).stream()
                     .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
-            if (collectionTypeMap.get(true) != null && !collectionTypeMap.get(true).isEmpty()) {
-                if (isStream) {
-                    return new BStreamType(TypeTags.STREAM, actualType, collectionTypeMap.get(true).get(0),
-                            symTable.streamType.tsymbol);
-                } else if (isTable) {
-                    return new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
-                }
-                else {
-                    List<BType> collectionTypes = Lists.of(actualType);
-                    collectionTypes.addAll(collectionTypeMap.get(true));
-                    return BUnionType.create(null, collectionTypes.toArray(new BType[collectionTypes.size()]));
+            List<BType> errorTypes = collectionTypeMap.get(true);
+            if (errorTypes != null && !errorTypes.isEmpty()) {
+                if (errorTypes.size() == 1) {
+                    errorType = errorTypes.get(0);
+                } else {
+                    errorType = BUnionType.create(null, errorTypes.toArray(new BType[errorTypes.size()]));
                 }
             }
         }
+
         if (isStream) {
-            return new BStreamType(TypeTags.STREAM, actualType, null, null);
-        }
-        else if (isTable) {
-            return new BTableType(TypeTags.TABLE, actualType, null);
+            return new BStreamType(TypeTags.STREAM, actualType, errorType, symTable.streamType.tsymbol);
+        } else if (errorType != null) {
+            return BUnionType.create(null, actualType, errorType);
         }
         return actualType;
     }

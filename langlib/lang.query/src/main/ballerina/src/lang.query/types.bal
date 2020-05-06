@@ -51,7 +51,7 @@ public type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection,
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -86,8 +86,8 @@ public type _StreamPipeline object {
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
                     Type v = <Type> f["$value$"];
-                    record {|Type value;|} res = {value: v};
-                    return res;
+                    // record {|Type value;|} res = {value: v};
+                    return self.pipeline.nextValue(v);
                 } else {
                     return f;
                 }
@@ -96,15 +96,19 @@ public type _StreamPipeline object {
         var strm = new stream<Type, error?>(itrObj);
         return strm;
     }
+
+    public function nextValue(Type value) returns record {|
+        Type value;
+    |}? = external;
 };
 
 public type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection;
+    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection;
 
-    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection) {
+    public function __init((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -115,8 +119,8 @@ public type _InitFunction object {
         _Iterator i = <_Iterator> self.itr;
         record{|(any|error) value;|}|error? v = i.next();
         if (v is record{|(any|error) value;|}) {
-            record{|(any|error)...;|} frame = {...v};
-            return frame;
+            record{|(any|error)...;|} _frame = {...v};
+            return _frame;
         }
         return v;
     }
@@ -129,7 +133,7 @@ public type _InitFunction object {
         }
     }
 
-    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream collection)
+    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterator collection)
             returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
@@ -143,6 +147,8 @@ public type _InitFunction object {
             return lang_xml:iterator(collection);
         }  else if (collection is table<any|error>) {
             return lang_table:iterator(collection);
+        } else if (collection is _Iterator) {
+            return collection;
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;
@@ -159,16 +165,16 @@ public type _FromFunction object {
     #   frame {nm1: firstName, nm2: lastName}
     # from var dept in deptList
     #   frame {dept: deptList[x]}
-    public function(_Frame frame) returns _Frame|error? fromFunc;
+    public function(_Frame _frame) returns _Frame|error? fromFunc;
 
-    public function __init(function(_Frame frame) returns _Frame|error? fromFunc) {
+    public function __init(function(_Frame _frame) returns _Frame|error? fromFunc) {
         self.fromFunc = fromFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns _Frame|error? f = self.fromFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.fromFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -191,16 +197,16 @@ public type _LetFunction object {
     # Desugared function to do;
     # let Company companyRecord = { name: "WSO2" }
     #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
-    public function(_Frame frame) returns _Frame|error? letFunc;
+    public function(_Frame _frame) returns _Frame|error? letFunc;
 
-    public function __init(function(_Frame frame) returns _Frame|error? letFunc) {
+    public function __init(function(_Frame _frame) returns _Frame|error? letFunc) {
         self.letFunc = letFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns _Frame|error? f = self.letFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.letFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -276,16 +282,16 @@ public type _FilterFunction object {
     #   1. on dn equals dept.deptName
     #   2. where person.age >= 70
     # emit the next frame which satisfies the condition
-    function(_Frame frame) returns boolean filterFunc;
+    function(_Frame _frame) returns boolean filterFunc;
 
-    public function __init(function(_Frame frame) returns boolean filterFunc) {
+    public function __init(function(_Frame _frame) returns boolean filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns boolean filterFunc = self.filterFunc;
+        function(_Frame _frame) returns boolean filterFunc = self.filterFunc;
         _Frame|error? pFrame = pf.process();
         while (pFrame is _Frame && !filterFunc(pFrame)) {
             pFrame = pf.process();
@@ -310,16 +316,16 @@ public type _SelectFunction object {
     #   lastName: person.lastName,
     #   dept : dept.name
     # };
-    public function(_Frame frame) returns _Frame|error? selectFunc;
+    public function(_Frame _frame) returns _Frame|error? selectFunc;
 
-    public function __init(function(_Frame frame) returns _Frame|error? selectFunc) {
+    public function __init(function(_Frame _frame) returns _Frame|error? selectFunc) {
         self.selectFunc = selectFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns _Frame|error? f = self.selectFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.selectFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -343,16 +349,16 @@ public type _DoFunction object {
     # do {
     #   count += value;
     # };
-    public function(_Frame frame) doFunc;
+    public function(_Frame _frame) doFunc;
 
-    public function __init(function(_Frame frame) doFunc) {
+    public function __init(function(_Frame _frame) doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) f = self.doFunc;
+        function(_Frame _frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
         while (pFrame is _Frame) {
             f(pFrame);
