@@ -69,6 +69,7 @@ public enum SyntaxKind {
     FOREACH_KEYWORD(220,"foreach"),
     TABLE_KEYWORD(221, "table"),
     KEY_KEYWORD(222, "key"),
+    LET_KEYWORD(223, "let"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -196,6 +197,7 @@ public enum SyntaxKind {
     LIST_CONSTRUCTOR(1315),
     TYPE_CAST_EXPRESSION(1316),
     TABLE_CONSTRUCTOR(1317),
+    LET_EXPRESSION(1318),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -265,6 +267,8 @@ public enum SyntaxKind {
     TYPE_CAST_PARAM(3032),
     KEY_SPECIFIER(3033),
     EXPLICIT_TYPE_PARAMS(3034),
+    ERROR_TYPE_PARAMS(3035),
+    LET_VAR_DECL(3036),
 
     INVALID(4),
     MODULE_PART(3),

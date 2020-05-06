@@ -17,14 +17,19 @@
                     "kind": "ERROR_KEYWORD"
                 },
                 {
-                    "kind": "LT_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "NO_MATCHING_OBJECT"
-                },
-                {
-                    "kind": "GT_TOKEN"
+                    "kind": "ERROR_TYPE_PARAMS",
+                    "children": [
+                        {
+                            "kind": "LT_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "NO_MATCHING_OBJECT"
+                        },
+                        {
+                            "kind": "GT_TOKEN"
+                        }
+                    ]
                 }
             ]
         },

@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -34,8 +36,8 @@ public class ReturnStatementNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public ExpressionNode expression() {
-        return childInBucket(1);
+    public Optional<ExpressionNode> expression() {
+        return optionalChildInBucket(1);
     }
 
     public Token semicolonToken() {

@@ -493,7 +493,8 @@
                 },
                 {
                     "name": "expression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -1988,11 +1989,22 @@
                     "type": "Token"
                 },
                 {
+                    "name": "errorTypeParamsNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ErrorTypeParamsNode",
+            "base": "Node",
+            "kind": "ERROR_TYPE_PARAMS",
+            "attributes": [
+                {
                     "name": "ltToken",
                     "type": "Token"
                 },
                 {
-                    "name": "errorTypeParamsNode",
+                    "name": "parameter",
                     "type": "Node"
                 },
                 {
@@ -2029,6 +2041,58 @@
                 {
                     "name": "gtToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "LetExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "LET_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "letKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "letVarDeclarations",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "LetVariableDeclarationNode",
+            "base": "Node",
+            "kind": "LET_VAR_DECL",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "typeName",
+                    "type": "Node"
+                },
+                {
+                    "name": "variableName",
+                    "type": "Token"
+                },
+                {
+                    "name": "equalsToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         }

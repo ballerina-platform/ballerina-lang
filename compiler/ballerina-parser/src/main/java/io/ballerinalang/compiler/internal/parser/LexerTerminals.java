@@ -72,6 +72,7 @@ public class LexerTerminals {
     public static final String TABLE = "table";
     public static final String KEY = "key";
     public static final String ERROR = "error";
+    public static final String LET = "let";
     public static final String STREAM = "stream";
 
     // Types

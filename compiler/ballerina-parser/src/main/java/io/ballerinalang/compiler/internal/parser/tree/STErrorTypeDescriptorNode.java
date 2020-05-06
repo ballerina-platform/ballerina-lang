@@ -29,26 +29,18 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STErrorTypeDescriptorNode extends STNode {
     public final STNode errorKeywordToken;
-    public final STNode ltToken;
     public final STNode errorTypeParamsNode;
-    public final STNode gtToken;
 
     STErrorTypeDescriptorNode(
             STNode errorKeywordToken,
-            STNode ltToken,
-            STNode errorTypeParamsNode,
-            STNode gtToken) {
+            STNode errorTypeParamsNode) {
         super(SyntaxKind.ERROR_TYPE_DESC);
         this.errorKeywordToken = errorKeywordToken;
-        this.ltToken = ltToken;
         this.errorTypeParamsNode = errorTypeParamsNode;
-        this.gtToken = gtToken;
 
         addChildren(
                 errorKeywordToken,
-                ltToken,
-                errorTypeParamsNode,
-                gtToken);
+                errorTypeParamsNode);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -384,8 +384,20 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(errorTypeDescriptorNode);
     }
 
+    public T transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        return transformSyntaxNode(errorTypeParamsNode);
+    }
+
     public T transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         return transformSyntaxNode(streamTypeDescriptorNode);
+    }
+
+    public T transform(LetExpressionNode letExpressionNode) {
+        return transformSyntaxNode(letExpressionNode);
+    }
+
+    public T transform(LetVariableDeclarationNode letVariableDeclarationNode) {
+        return transformSyntaxNode(letVariableDeclarationNode);
     }
 
     // Tokens

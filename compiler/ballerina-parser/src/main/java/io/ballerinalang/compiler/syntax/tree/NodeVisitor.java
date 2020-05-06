@@ -383,8 +383,20 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorTypeDescriptorNode);
     }
 
+    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
+        visitSyntaxNode(errorTypeParamsNode);
+    }
+
     public void visit(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
+    }
+
+    public void visit(LetExpressionNode letExpressionNode) {
+        visitSyntaxNode(letExpressionNode);
+    }
+
+    public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
+        visitSyntaxNode(letVariableDeclarationNode);
     }
 
     // Tokens

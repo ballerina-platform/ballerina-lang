@@ -348,6 +348,10 @@ public class BallerinaParser {
                 return parseErrorKeyWord();
             case ERROR_TYPE_DESCRIPTOR:
                 return parseErrorTypeDescriptor();
+            case LET_KEYWORD:
+                return parseLetKeyword();
+            case STREAM_KEYWORD:
+                return parseStreamKeyWord();
             case STREAM_TYPE_DESCRIPTOR:
                 return parseStreamTypeDescriptor();
             default:
@@ -3149,6 +3153,8 @@ public class BallerinaParser {
                 return parseTypeCastExpr();
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
+            case LET_KEYWORD:
+                return parseLetExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3167,6 +3173,9 @@ public class BallerinaParser {
                 }
                 if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD) {
                     return parseTableConstructorExpr();
+                }
+                if (solution.recoveredNode.kind == SyntaxKind.LET_KEYWORD) {
+                    return parseLetExpression();
                 }
 
                 return solution.recoveredNode;
@@ -3436,6 +3445,7 @@ public class BallerinaParser {
             case AT_TOKEN:
             case DOCUMENTATION_LINE:
             case AS_KEYWORD:
+            case IN_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);
@@ -3618,13 +3628,13 @@ public class BallerinaParser {
         STToken secondToken = peek(2);
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
-                STNode argNameOrVarRef = consume();
+                STNode argNameOrVarRef = STNodeFactory.createSimpleNameReferenceNode(consume());
                 STNode equal = parseAssignOp();
                 STNode expr = parseExpression();
                 return STNodeFactory.createNamedArgumentNode(leadingComma, argNameOrVarRef, equal, expr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
-                argNameOrVarRef = consume();
+                argNameOrVarRef = STNodeFactory.createSimpleNameReferenceNode(consume());
                 return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrVarRef);
 
             // Treat everything else as a single expression. If something is missing,
@@ -6727,6 +6737,7 @@ public class BallerinaParser {
             case NEVER_KEYWORD:
             case SERVICE_KEYWORD:
             case VAR_KEYWORD:
+            case ERROR_KEYWORD: // This is for the recovery <code>error a;</code> scenario recovered here.
                 return true;
             case TYPE_DESC:
                 // This is a special case. TYPE_DESC is only return from
@@ -7256,25 +7267,39 @@ public class BallerinaParser {
         startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
 
         STNode errorKeywordToken = parseErrorKeyWord();
-        STNode errorTypeParamsNode, ltToken, gtToken;
+        STNode errorTypeParamsNode;
         STToken nextToken = peek();
         STToken nextNextToken = peek(2);
         if (nextToken.kind == SyntaxKind.LT_TOKEN || nextNextToken.kind == SyntaxKind.GT_TOKEN) {
-            ltToken = parseLTToken();
-            nextToken = peek();
-            if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-                errorTypeParamsNode = consume();
-            } else {
-                errorTypeParamsNode = parseTypeDescriptor();
-            }
-            gtToken = parseGTToken();
+            errorTypeParamsNode = parseErrorTypeParamsNode();
         } else {
-            ltToken = STNodeFactory.createEmptyNode();
             errorTypeParamsNode = STNodeFactory.createEmptyNode();
-            gtToken = STNodeFactory.createEmptyNode();
         }
         endContext();
-        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, ltToken, errorTypeParamsNode, gtToken);
+        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
+    }
+
+    /**
+     * Parse error type param node.
+     * <p>
+     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
+     * detail-type-descriptor := type-descriptor
+     * inferred-type-descriptor := *
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseErrorTypeParamsNode() {
+        STNode ltToken = parseLTToken();
+        STNode parameter;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+            parameter = consume();
+        } else {
+            parameter = parseTypeDescriptor();
+        }
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createErrorTypeParamsNode(ltToken, parameter, gtToken);
     }
 
     /**
@@ -7344,5 +7369,104 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.STREAM_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse let expression.
+     * <p>
+     * <code>
+     * let-expr := let let-var-decl [, let-var-decl]* in expression
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetExpression() {
+        STNode letKeyword = parseLetKeyword();
+        STNode letVarDeclarations = parseLetVarDeclarations();
+        STNode inKeyword = parseInKeyword();
+        STNode expression = parseExpression();
+        return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
+    }
+
+    /**
+     * Parse let-keyword.
+     *
+     * @return Let-keyword node
+     */
+    private STNode parseLetKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LET_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LET_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse let variable declarations.
+     * <p>
+     * <code>let-var-decl-list := let-var-decl [, let-var-decl]*</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetVarDeclarations() {
+        startContext(ParserRuleContext.LET_VAR_DECL);
+        List<STNode> varDecls = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Make sure at least one let variable declaration is present
+        if (isEndOfLetVarDeclarations(nextToken.kind)) {
+            endContext();
+            this.errorHandler.reportMissingTokenError("missing let variable declaration");
+            return STNodeFactory.createNodeList(varDecls);
+        }
+
+        // Parse first variable declaration, that has no leading comma
+        STNode varDec = parseLetVarDec();
+        varDecls.add(varDec);
+
+        // Parse the remaining variable declarations
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfLetVarDeclarations(nextToken.kind)) {
+            leadingComma = parseComma();
+            varDecls.add(leadingComma);
+            varDec = parseLetVarDec();
+            varDecls.add(varDec);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createNodeList(varDecls);
+    }
+
+    private boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+            case AT_TOKEN:
+                return false;
+            case IN_KEYWORD:
+                return true;
+            default:
+                return !isTypeStartingToken(tokenKind);
+        }
+    }
+
+    /**
+     * Parse let variable declaration.
+     * <p>
+     * <code>let-var-decl := [annots] typed-binding-pattern = expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetVarDec() {
+        STNode annot = parseAnnotations();
+        //TODO: Replace type and varName with typed-binding-pattern
+        STNode type = parseTypeDescriptor();
+        STNode varName = parseVariableName();
+        STNode assign = parseAssignOp();
+        STNode expression = parseExpression();
+        return STNodeFactory.createLetVariableDeclarationNode(annot, type, varName, assign, expression);
     }
 }

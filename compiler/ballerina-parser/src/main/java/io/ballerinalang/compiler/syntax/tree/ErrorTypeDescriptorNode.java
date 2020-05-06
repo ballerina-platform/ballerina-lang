@@ -34,16 +34,8 @@ public class ErrorTypeDescriptorNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token ltToken() {
-        return childInBucket(1);
-    }
-
     public Node errorTypeParamsNode() {
-        return childInBucket(2);
-    }
-
-    public Token gtToken() {
-        return childInBucket(3);
+        return childInBucket(1);
     }
 
     @Override
@@ -60,28 +52,20 @@ public class ErrorTypeDescriptorNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "errorKeywordToken",
-                "ltToken",
-                "errorTypeParamsNode",
-                "gtToken"};
+                "errorTypeParamsNode"};
     }
 
     public ErrorTypeDescriptorNode modify(
             Token errorKeywordToken,
-            Token ltToken,
-            Node errorTypeParamsNode,
-            Token gtToken) {
+            Node errorTypeParamsNode) {
         if (checkForReferenceEquality(
                 errorKeywordToken,
-                ltToken,
-                errorTypeParamsNode,
-                gtToken)) {
+                errorTypeParamsNode)) {
             return this;
         }
 
         return NodeFactory.createErrorTypeDescriptorNode(
                 errorKeywordToken,
-                ltToken,
-                errorTypeParamsNode,
-                gtToken);
+                errorTypeParamsNode);
     }
 }
