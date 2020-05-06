@@ -70,7 +70,7 @@ public class CharacterChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return characterChannel.read((int) numberOfCharacters);
+                return org.ballerinalang.jvm.StringUtils.fromString(characterChannel.read((int) numberOfCharacters));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading characters.", e);
                 return IOUtils.createError(e);
