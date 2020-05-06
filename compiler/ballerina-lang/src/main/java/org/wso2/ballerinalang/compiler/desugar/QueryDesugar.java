@@ -603,6 +603,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         requiredArgs.forEach(arg -> arg.accept(this));
         invocationExpr.restArgs.forEach(arg -> arg.accept(this));
+        if (invocationExpr.expr != null) {
+            invocationExpr.expr.accept(this);
+        }
     }
 
     @Override
