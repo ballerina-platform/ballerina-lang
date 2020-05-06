@@ -3004,6 +3004,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterQueryExpr(BallerinaParser.QueryExprContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -17,10 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
@@ -39,7 +42,9 @@ import java.util.stream.Collectors;
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
     public List<BLangNode> queryClauseList = new ArrayList<>();
+    public List<BLangIdentifier> fieldNameIdentifierList = new ArrayList<>();
     public boolean isStream = false;
+    public boolean isTable = false;
 
     @Override
     public BLangSelectClause getSelectClause() {
@@ -69,6 +74,26 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void setIsStream(boolean isStream) {
         this.isStream = isStream;
+    }
+
+    @Override
+    public boolean isTable() {
+        return isTable;
+    }
+
+    @Override
+    public void setIsTable(boolean isTable) {
+        this.isTable = isTable;
+    }
+
+    @Override
+    public void addFieldNameIdentifier(IdentifierNode fieldNameIdentifier) {
+        fieldNameIdentifierList.add((BLangIdentifier) fieldNameIdentifier);
+    }
+
+    @Override
+    public List<IdentifierNode> getFieldNameIdentifierList() {
+        return getFieldNameIdentifierList();
     }
 
     @Override

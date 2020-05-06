@@ -2646,6 +2646,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitQueryPipeline(BallerinaParser.QueryPipelineContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#queryConstructType}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#queryConstructType}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueryConstructType(BallerinaParser.QueryConstructTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#queryExpr}.
 	 * @param ctx the parse tree
 	 */

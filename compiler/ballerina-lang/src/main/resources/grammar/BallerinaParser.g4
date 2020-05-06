@@ -921,8 +921,12 @@ queryPipeline
     :   fromClause (fromClause | letClause | whereClause)*
     ;
 
+queryConstructType
+    :   TYPE_TABLE tableKeySpecifier | TYPE_STREAM
+    ;
+
 queryExpr
-    :   TYPE_STREAM? queryPipeline onClause? selectClause onConflictClause?
+    :   queryConstructType? queryPipeline onClause? selectClause onConflictClause?
     ;
 
 queryAction
