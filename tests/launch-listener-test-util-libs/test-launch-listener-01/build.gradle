@@ -27,7 +27,7 @@ jar {
 
 description = 'Ballerina - Test - Launch Listener - 01'
 
-ext.moduleName = 'ballerina.toml.parser'
+ext.moduleName = 'ballerina.test.listener'
 
 compileJava {
     inputs.property("moduleName", moduleName)

@@ -26,3 +26,15 @@ jar {
 }
 
 description = 'Ballerina - Test - Launch Listener - 02'
+
+ext.moduleName = 'ballerina.test.listener'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
