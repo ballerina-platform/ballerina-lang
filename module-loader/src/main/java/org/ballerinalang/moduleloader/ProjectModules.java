@@ -11,13 +11,13 @@ import java.util.List;
 
 import static org.ballerinalang.moduleloader.Util.isValidVersion;
 
-public class Project implements Cache {
+public class ProjectModules implements Cache {
 
     private Path projectPath;
     private String orgName;
     private String version;
 
-    public Project(Path projectPath, String orgName, String version) {
+    public ProjectModules(Path projectPath, String orgName, String version) {
         this.projectPath = projectPath;
         this.orgName = orgName;
         this.version = version;
