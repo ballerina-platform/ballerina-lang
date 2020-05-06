@@ -5,8 +5,8 @@
             "kind": "LET_KEYWORD"
         },
         {
-            "kind": "LET_VAR_DECL",
-            "isMissing": true
+            "kind": "LIST",
+            "children": []
         },
         {
             "kind": "IN_KEYWORD"
@@ -17,4 +17,3 @@
         }
     ]
 }
-

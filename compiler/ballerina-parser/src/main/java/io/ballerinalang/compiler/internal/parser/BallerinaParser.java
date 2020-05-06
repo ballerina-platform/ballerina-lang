@@ -7356,8 +7356,9 @@ public class BallerinaParser {
 
         // Make sure at least one let variable declaration is present
         if (isEndOfLetVarDeclarations(nextToken.kind)) {
+            endContext();
             this.errorHandler.reportMissingTokenError("missing let variable declaration");
-            return STNodeFactory.createMissingToken(SyntaxKind.LET_VAR_DECL);
+            return STNodeFactory.createNodeList(varDecls);
         }
 
         // Parse first variable declaration, that has no leading comma
