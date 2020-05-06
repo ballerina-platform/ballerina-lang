@@ -3382,8 +3382,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (errorTypes != null && !errorTypes.isEmpty()) {
                 if (errorTypes.size() == 1) {
                     errorType = errorTypes.get(0);
-                }
-                else {
+                } else {
                     errorType = BUnionType.create(null, errorTypes.toArray(new BType[errorTypes.size()]));
                 }
             }
