@@ -67,9 +67,9 @@ public class ExternMethods {
         try {
             if ("RFC_1123".equals(pattern.getValue())) {
                 ZonedDateTime zonedDateTime = getZonedDateTime(timeRecord);
-                return zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);
+                return StringUtils.fromString(zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME));
             } else {
-                return getFormattedString(timeRecord, pattern.getValue());
+                return StringUtils.fromString(getFormattedString(timeRecord, pattern.getValue()));
             }
         } catch (IllegalArgumentException e) {
             return TimeUtils.getTimeError("Invalid Pattern: " + pattern.getValue());
@@ -133,8 +133,9 @@ public class ExternMethods {
         return time;
     }
 
-    public static MapValue<?, ?> addDuration(MapValue<BString, Object> timeRecord, long years, long months, long days,
-                                             long hours, long minutes, long seconds, long milliSeconds) {
+    public static MapValue<BString, Object> addDuration(MapValue<BString, Object> timeRecord, long years, long months,
+                                                        long days, long hours, long minutes, long seconds,
+                                                        long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         long nanoSeconds = milliSeconds * MULTIPLIER_TO_NANO;
         dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
@@ -162,7 +163,7 @@ public class ExternMethods {
         }
     }
 
-    public static MapValue<?, ?> currentTime() {
+    public static MapValue<BString, Object> currentTime() {
         long currentTime = Instant.now().toEpochMilli();
         return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), currentTime,
                                           ZoneId.systemDefault().toString());
