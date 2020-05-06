@@ -104,19 +104,47 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
     assertTrue(r2 is [Employee, Employee] & readonly);
     assertTrue(r2 is Employee[2] & readonly);
 
-    [Employee, Employee] & readonly empArr = <[Employee, Employee] & readonly> r2;
+    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> r2;
 
-    assertEquality(emp, empArr[0]);
-    record {} rec = empArr[0];
+    assertEquality(emp, empTup[0]);
+    record {} rec = empTup[0];
     assertTrue(rec is Employee & readonly);
     assertTrue(rec.isReadOnly());
 
-    rec = empArr[1];
+    rec = empTup[1];
     assertTrue(rec is Employee & readonly);
     assertTrue(rec.isReadOnly());
     assertEquality("IT", rec["department"]);
     assertTrue(rec["details"] is Details & readonly);
     assertTrue(rec["details"].isReadOnly());
+
+    Details & readonly details = {
+        name: "Jo",
+        id: 9876
+    };
+    [Details[], Employee...] & readonly detEmpTup = [
+                                                        [{name: "May", id: 1234}, details],
+                                                        {details, department: "finance"}
+                                                    ];
+    readonly r3 = detEmpTup;
+    assertTrue(r3 is [Details[], Employee...] & readonly);
+    assertTrue(r3 is [[Details, Details], Employee] & readonly);
+
+    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> r3;
+    assertTrue(vals[0].isReadOnly());
+
+    Details d1 = vals[0][0];
+    assertEquality(<Details> {name: "May", id: 1234}, d1);
+    assertTrue(d1.isReadOnly());
+
+    Details d2 = vals[0][1];
+    assertEquality(details, d2);
+    assertTrue(d2.isReadOnly());
+
+    Employee e = vals[1];
+    assertEquality(<Employee> {details, department: "finance"}, e);
+    assertTrue(e.isReadOnly());
+    assertTrue(e.details.isReadOnly());
 }
 
 function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
@@ -151,7 +179,39 @@ function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
     Details det = rec.details;
     assertTrue(det is Details & readonly);
     assertTrue(det.isReadOnly());
+
+    Student & readonly st = {
+        details: {
+            name: "Jo",
+            id: 4567
+        },
+        "math": ["P", 75],
+        "science": ["P", 65]
+    };
+    readonly r3 = st;
+    assertTrue(r3 is Student & readonly);
+
+    val = r3;
+    Student stVal = <Student> val;
+    assertTrue(stVal.isReadOnly());
+    assertTrue(stVal.details.isReadOnly());
+    assertEquality(<Details> {name: "Jo", id: 4567}, stVal.details);
+
+    assertTrue(stVal["math"] is [RESULT, int] & readonly);
+    assertTrue(stVal["math"].isReadOnly());
+    assertEquality(<[RESULT, int]> ["P", 75], stVal["math"]);
+
+    assertTrue(stVal["science"] is [RESULT, int] & readonly);
+    assertTrue(stVal["science"].isReadOnly());
+    assertEquality(<[RESULT, int]> ["P", 65], stVal["science"]);
 }
+
+type RESULT "P"|"F";
+
+type Student record {|
+    Details details;
+    [RESULT, int]...;
+|};
 
 function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     xml a = xml `<foo><bar>Text</bar></foo>`;

@@ -1221,7 +1221,7 @@ public class TypeChecker {
                 }
 
                 BType recordRestType = recordType.restFieldType;
-                if (recordRestType == null) { // TODO: 4/28/20 Check
+                if (recordRestType == null) {
                     return true;
                 }
 

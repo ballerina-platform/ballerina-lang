@@ -302,7 +302,15 @@ public class ImmutableTypeCloner {
 
         immutableRecordType.fields = fields;
         immutableRecordType.sealed = origRecordType.sealed;
-        immutableRecordType.restFieldType = origRecordType.restFieldType;
+
+        BType origRestFieldType = origRecordType.restFieldType;
+
+        if (origRestFieldType == null || origRestFieldType == symTable.noType) {
+            immutableRecordType.restFieldType = origRestFieldType;
+        } else {
+            immutableRecordType.restFieldType = setImmutableType(pos, types, origRestFieldType, env, symTable,
+                                                                 anonymousModelHelper, names, unresolvedTypes);
+        }
 
         recordSymbol.type = immutableRecordType;
         immutableRecordType.tsymbol = recordSymbol;
