@@ -807,7 +807,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType inferTableMemberType(List<BType> memTypes) {
 
         if (memTypes.isEmpty()) {
-            return symTable.semanticError;
+            return ((BTableType) expType).constraint;
         }
 
         LinkedHashSet<BType> result = new LinkedHashSet<>();
@@ -1510,7 +1510,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
                 if (name.equals(getKeyValueFieldName(keyValueField))) {
-                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.pos);
+                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.key.expr.pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =

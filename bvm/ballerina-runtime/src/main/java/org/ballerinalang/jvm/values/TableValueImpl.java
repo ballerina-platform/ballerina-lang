@@ -366,21 +366,21 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, null);
             keys.put(hash, (K) key);
             values.put(hash, (V) data);
             entries.put(hash, entry);
         }
 
         public V getData(K key) {
-            return values.get(TableUtils.hash(key, new ArrayList<>()));
+            return values.get(TableUtils.hash(key, null));
         }
 
         public V putData(K key, V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
-            Integer actualHash = TableUtils.hash(actualKey, new ArrayList<>());
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer actualHash = TableUtils.hash(actualKey, null);
+            Integer hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
                 throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
@@ -393,14 +393,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V remove(K key) {
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, null);
             entries.remove(hash);
             keys.remove(hash);
             return values.remove(hash);
         }
 
         public boolean containsKey(K key) {
-            return keys.containsKey(TableUtils.hash(key, new ArrayList<>()));
+            return keys.containsKey(TableUtils.hash(key, null));
         }
 
         public BType getKeyType() {
