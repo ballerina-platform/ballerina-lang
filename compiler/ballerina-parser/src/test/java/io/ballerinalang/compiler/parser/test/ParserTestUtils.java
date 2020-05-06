@@ -434,6 +434,14 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_KEYWORD;
             case "LET_KEYWORD":
                 return SyntaxKind.LET_KEYWORD;
+            case "STREAM_KEYWORD":
+                return SyntaxKind.STREAM_KEYWORD;
+            case "FROM_KEYWORD":
+                return SyntaxKind.FROM_KEYWORD;
+            case "WHERE_KEYWORD":
+                return SyntaxKind.WHERE_KEYWORD;
+            case "SELECT_KEYWORD":
+                return SyntaxKind.SELECT_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -572,6 +580,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TABLE_CONSTRUCTOR;
             case "LET_EXPRESSION":
                 return SyntaxKind.LET_EXPRESSION;
+            case "QUERY_EXPRESSION":
+                return SyntaxKind.QUERY_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -728,6 +738,18 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_SPECIFIER;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "QUERY_CONSTRUCT_TYPE":
+                return SyntaxKind.QUERY_CONSTRUCT_TYPE;
+            case "FROM_CLAUSE":
+                return SyntaxKind.FROM_CLAUSE;
+            case "WHERE_CLAUSE":
+                return SyntaxKind.WHERE_CLAUSE;
+            case "LET_CLAUSE":
+                return SyntaxKind.LET_CLAUSE;
+            case "QUERY_PIPELINE":
+                return SyntaxKind.QUERY_PIPELINE;
+            case "SELECT_CLAUSE":
+                return SyntaxKind.SELECT_CLAUSE;
 
             // Trivia
             case "EOF_TOKEN":
