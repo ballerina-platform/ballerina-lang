@@ -201,7 +201,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the implementation of the project.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test updating  TestProject1 and pushing.", dependsOnMethods = "testBuildTestProject2")
+    @Test(description = "Test updating  TestProject1 and pushing.", dependsOnMethods = "testBuildTestProject2",
+            enabled = false)
     public void testModifyProj1AndPush() throws IOException, BallerinaTestException {
         // Update code in module1
         Path module2SourceFile = testProj1Path.resolve("src").resolve(module2Name).resolve("say.bal");
