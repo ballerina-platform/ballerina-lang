@@ -86,8 +86,8 @@ public type _StreamPipeline object {
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
                     Type v = <Type> f["$value$"];
-                    record {|Type value;|} res = {value: v};
-                    return res;
+                    // record {|Type value;|} res = {value: v};
+                    return self.pipeline.nextValue(v);
                 } else {
                     return f;
                 }
@@ -96,6 +96,10 @@ public type _StreamPipeline object {
         var strm = new stream<Type, error?>(itrObj);
         return strm;
     }
+
+    public function nextValue(Type value) returns record {|
+        Type value;
+    |}? = external;
 };
 
 public type _InitFunction object {
