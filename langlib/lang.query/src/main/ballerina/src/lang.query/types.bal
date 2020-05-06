@@ -56,7 +56,7 @@ public type _StreamPipeline object {
     typedesc<Type> resType;
 
     public function __init(
-            (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection,
+            (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -111,10 +111,10 @@ public type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection;
+    (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection;
 
     public function __init(
-            (any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection) {
+            (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -139,8 +139,9 @@ public type _InitFunction object {
         }
     }
 
-    function _getIterator((any|error)[]|map<any|error>|record{}|string|xml|table<any|error>|stream|_Iterable collection)
-            returns _Iterator {
+    function _getIterator(
+            (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection)
+                returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
         } else if (collection is record{}) {
@@ -151,7 +152,7 @@ public type _InitFunction object {
             return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
-        }  else if (collection is table<any|error>) {
+        }  else if (collection is table<map<any|error>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.__iterator();
