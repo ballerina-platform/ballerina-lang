@@ -135,4 +135,54 @@ public class TypedescTests {
     public void testCustomErrorTypeDesc() {
         BValue[] returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
     }
+
+    @Test
+    public void testBasicTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testBasicTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testRefTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testRefTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testObjectTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testObjectTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testArrayTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testArrayTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testRecordTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testRecordTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testTuplesWithExpressionsWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testTuplesWithExpressionsWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testAnyToTypedescWithoutConstraint() {
+        BRunUtil.invoke(result, "testAnyToTypedescWithoutConstraint");
+    }
+
+    @Test
+    public void testModuleLevelTypeDescWithoutConstraint() {
+        BRunUtil.invoke(result, "testModuleLevelTypeDescWithoutConstraint");
+    }
+
+    @Test
+    public void testMethodLevelTypeDescWithoutConstraint() {
+        BRunUtil.invoke(result, "testMethodLevelTypeDescWithoutConstraint");
+    }
+
+   @Test
+   public void testCustomErrorTypeDescWithoutConstraint() {
+       BRunUtil.invoke(result, "testCustomErrorTypeDescWithoutConstraint");
+   }
 }
