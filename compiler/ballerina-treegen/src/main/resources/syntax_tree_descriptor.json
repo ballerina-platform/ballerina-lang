@@ -2278,7 +2278,27 @@
                 },
                 {
                     "name": "value",
-                    "type": "Node"
+                    "type": "XMLAttributeValue"
+                }
+            ]
+        },
+        {
+            "name": "XMLAttributeValue",
+            "base": "Node",
+            "kind": "XML_ATTRIBUTE_VALUE",
+            "attributes": [
+                {
+                    "name": "startQuote",
+                    "type": "Token"
+                },
+                {
+                    "name": "value",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endQuote",
+                    "type": "Token"
                 }
             ]
         },
@@ -2320,26 +2340,6 @@
                 },
                 {
                     "name": "piEnd",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "XMLAttributeValue",
-            "base": "XMLItemNode",
-            "kind": "XML_ATTRIBUTE_VALUE",
-            "attributes": [
-                {
-                    "name": "startQuote",
-                    "type": "Token"
-                },
-                {
-                    "name": "value",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "endQuote",
                     "type": "Token"
                 }
             ]

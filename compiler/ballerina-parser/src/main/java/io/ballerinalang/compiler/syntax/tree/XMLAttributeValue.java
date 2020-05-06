@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class XMLAttributeValue extends XMLItemNode {
+public class XMLAttributeValue extends NonTerminalNode {
 
     public XMLAttributeValue(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

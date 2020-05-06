@@ -1256,11 +1256,22 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(XMLAttributeNode xMLAttributeNode) {
         XMLNameNode attributeName = modifyNode(xMLAttributeNode.attributeName());
         Token equalToken = modifyToken(xMLAttributeNode.equalToken());
-        Node value = modifyNode(xMLAttributeNode.value());
+        XMLAttributeValue value = modifyNode(xMLAttributeNode.value());
         return xMLAttributeNode.modify(
                 attributeName,
                 equalToken,
                 value);
+    }
+
+    @Override
+    public Node transform(XMLAttributeValue xMLAttributeValue) {
+        Token startQuote = modifyToken(xMLAttributeValue.startQuote());
+        NodeList<Node> value = modifyNodeList(xMLAttributeValue.value());
+        Token endQuote = modifyToken(xMLAttributeValue.endQuote());
+        return xMLAttributeValue.modify(
+                startQuote,
+                value,
+                endQuote);
     }
 
     @Override
@@ -1285,17 +1296,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 target,
                 data,
                 piEnd);
-    }
-
-    @Override
-    public Node transform(XMLAttributeValue xMLAttributeValue) {
-        Token startQuote = modifyToken(xMLAttributeValue.startQuote());
-        NodeList<Node> value = modifyNodeList(xMLAttributeValue.value());
-        Token endQuote = modifyToken(xMLAttributeValue.endQuote());
-        return xMLAttributeValue.modify(
-                startQuote,
-                value,
-                endQuote);
     }
 
     // Tokens

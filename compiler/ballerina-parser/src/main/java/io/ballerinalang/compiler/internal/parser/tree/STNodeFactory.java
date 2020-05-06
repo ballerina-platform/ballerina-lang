@@ -1275,6 +1275,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 value);
     }
 
+    public static STNode createXMLAttributeValue(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote) {
+
+        return new STXMLAttributeValue(
+                startQuote,
+                value,
+                endQuote);
+    }
+
     public static STNode createXMLComment(
             STNode commentStart,
             STNode content,
@@ -1297,17 +1308,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 target,
                 data,
                 piEnd);
-    }
-
-    public static STNode createXMLAttributeValue(
-            STNode startQuote,
-            STNode value,
-            STNode endQuote) {
-
-        return new STXMLAttributeValue(
-                startQuote,
-                value,
-                endQuote);
     }
 }
 

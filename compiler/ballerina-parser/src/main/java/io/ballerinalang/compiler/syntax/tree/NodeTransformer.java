@@ -436,16 +436,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLAttributeNode);
     }
 
+    public T transform(XMLAttributeValue xMLAttributeValue) {
+        return transformSyntaxNode(xMLAttributeValue);
+    }
+
     public T transform(XMLComment xMLComment) {
         return transformSyntaxNode(xMLComment);
     }
 
     public T transform(XMLProcessingInstruction xMLProcessingInstruction) {
         return transformSyntaxNode(xMLProcessingInstruction);
-    }
-
-    public T transform(XMLAttributeValue xMLAttributeValue) {
-        return transformSyntaxNode(xMLAttributeValue);
     }
 
     // Tokens

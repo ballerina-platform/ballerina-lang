@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
  *
  * @since 1.3.0
  */
-public class STXMLAttributeValue extends STXMLItemNode {
+public class STXMLAttributeValue extends STNode {
     public final STNode startQuote;
     public final STNode value;
     public final STNode endQuote;

@@ -38,7 +38,7 @@ public class XMLAttributeNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Node value() {
+    public XMLAttributeValue value() {
         return childInBucket(2);
     }
 
@@ -63,7 +63,7 @@ public class XMLAttributeNode extends NonTerminalNode {
     public XMLAttributeNode modify(
             XMLNameNode attributeName,
             Token equalToken,
-            Node value) {
+            XMLAttributeValue value) {
         if (checkForReferenceEquality(
                 attributeName,
                 equalToken,

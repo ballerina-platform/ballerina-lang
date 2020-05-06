@@ -1705,7 +1705,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static XMLAttributeNode createXMLAttributeNode(
             XMLNameNode attributeName,
             Token equalToken,
-            Node value) {
+            XMLAttributeValue value) {
         Objects.requireNonNull(attributeName, "attributeName must not be null");
         Objects.requireNonNull(equalToken, "equalToken must not be null");
         Objects.requireNonNull(value, "value must not be null");
@@ -1715,6 +1715,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 equalToken.internalNode(),
                 value.internalNode());
         return stXMLAttributeNode.createUnlinkedFacade();
+    }
+
+    public static XMLAttributeValue createXMLAttributeValue(
+            Token startQuote,
+            NodeList<Node> value,
+            Token endQuote) {
+        Objects.requireNonNull(startQuote, "startQuote must not be null");
+        Objects.requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(endQuote, "endQuote must not be null");
+
+        STNode stXMLAttributeValue = STNodeFactory.createXMLAttributeValue(
+                startQuote.internalNode(),
+                value.underlyingListNode().internalNode(),
+                endQuote.internalNode());
+        return stXMLAttributeValue.createUnlinkedFacade();
     }
 
     public static XMLComment createXMLComment(
@@ -1748,21 +1763,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 data.internalNode(),
                 piEnd.internalNode());
         return stXMLProcessingInstruction.createUnlinkedFacade();
-    }
-
-    public static XMLAttributeValue createXMLAttributeValue(
-            Token startQuote,
-            NodeList<Node> value,
-            Token endQuote) {
-        Objects.requireNonNull(startQuote, "startQuote must not be null");
-        Objects.requireNonNull(value, "value must not be null");
-        Objects.requireNonNull(endQuote, "endQuote must not be null");
-
-        STNode stXMLAttributeValue = STNodeFactory.createXMLAttributeValue(
-                startQuote.internalNode(),
-                value.underlyingListNode().internalNode(),
-                endQuote.internalNode());
-        return stXMLAttributeValue.createUnlinkedFacade();
     }
 }
 
