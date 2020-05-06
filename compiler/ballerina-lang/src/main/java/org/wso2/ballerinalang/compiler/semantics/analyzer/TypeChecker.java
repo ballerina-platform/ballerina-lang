@@ -3348,7 +3348,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (isStream) {
+            if (!isStream) {
                 actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
