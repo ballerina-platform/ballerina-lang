@@ -13,9 +13,10 @@ module ballerina.runtime {
     requires ballerina.logging;
     exports org.ballerinalang.jvm.values;
     exports org.ballerinalang.jvm.types;
-    exports org.ballerinalang.jvm;
     exports org.ballerinalang.jvm.util;
     exports org.ballerinalang.jvm.values.api;
     exports org.ballerinalang.jvm.util.exceptions;
     exports org.ballerinalang.jvm.values.utils;
+    exports org.ballerinalang.jvm.launch;
+    exports org.ballerinalang.jvm;
 }
