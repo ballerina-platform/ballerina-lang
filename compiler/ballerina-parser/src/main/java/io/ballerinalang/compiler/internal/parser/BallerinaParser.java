@@ -348,6 +348,8 @@ public class BallerinaParser {
                 return parseErrorKeyWord();
             case ERROR_TYPE_DESCRIPTOR:
                 return parseErrorTypeDescriptor();
+            case LET_KEYWORD:
+                return parseLetKeyword();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3145,6 +3147,8 @@ public class BallerinaParser {
                 return parseTypeCastExpr();
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
+            case LET_KEYWORD:
+                return parseLetExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3163,6 +3167,9 @@ public class BallerinaParser {
                 }
                 if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD) {
                     return parseTableConstructorExpr();
+                }
+                if (solution.recoveredNode.kind == SyntaxKind.LET_KEYWORD) {
+                    return parseLetExpression();
                 }
 
                 return solution.recoveredNode;
@@ -3432,6 +3439,7 @@ public class BallerinaParser {
             case AT_TOKEN:
             case DOCUMENTATION_LINE:
             case AS_KEYWORD:
+            case IN_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);
@@ -7300,5 +7308,104 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse let expression.
+     * <p>
+     * <code>
+     * let-expr := let let-var-decl [, let-var-decl]* in expression
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetExpression() {
+        STNode letKeyword = parseLetKeyword();
+        STNode letVarDeclarations = parseLetVarDeclarations();
+        STNode inKeyword = parseInKeyword();
+        STNode expression = parseExpression();
+        return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
+    }
+
+    /**
+     * Parse let-keyword.
+     *
+     * @return Let-keyword node
+     */
+    private STNode parseLetKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LET_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LET_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse let variable declarations.
+     * <p>
+     * <code>let-var-decl-list := let-var-decl [, let-var-decl]*</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetVarDeclarations() {
+        startContext(ParserRuleContext.LET_VAR_DECL);
+        List<STNode> varDecls = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Make sure at least one let variable declaration is present
+        if (isEndOfLetVarDeclarations(nextToken.kind)) {
+            endContext();
+            this.errorHandler.reportMissingTokenError("missing let variable declaration");
+            return STNodeFactory.createNodeList(varDecls);
+        }
+
+        // Parse first variable declaration, that has no leading comma
+        STNode varDec = parseLetVarDec();
+        varDecls.add(varDec);
+
+        // Parse the remaining variable declarations
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfLetVarDeclarations(nextToken.kind)) {
+            leadingComma = parseComma();
+            varDecls.add(leadingComma);
+            varDec = parseLetVarDec();
+            varDecls.add(varDec);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createNodeList(varDecls);
+    }
+
+    private boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case COMMA_TOKEN:
+            case AT_TOKEN:
+                return false;
+            case IN_KEYWORD:
+                return true;
+            default:
+                return !isTypeStartingToken(tokenKind);
+        }
+    }
+
+    /**
+     * Parse let variable declaration.
+     * <p>
+     * <code>let-var-decl := [annots] typed-binding-pattern = expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseLetVarDec() {
+        STNode annot = parseAnnotations();
+        //TODO: Replace type and varName with typed-binding-pattern
+        STNode type = parseTypeDescriptor();
+        STNode varName = parseVariableName();
+        STNode assign = parseAssignOp();
+        STNode expression = parseExpression();
+        return STNodeFactory.createLetVariableDeclarationNode(annot, type, varName, assign, expression);
     }
 }

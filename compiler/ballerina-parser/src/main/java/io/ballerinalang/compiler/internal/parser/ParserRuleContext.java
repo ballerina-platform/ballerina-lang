@@ -119,6 +119,8 @@ public enum ParserRuleContext {
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
     ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
+    LET_VAR_DECL("let-var-decl"),
+    LET_VAR_DECL_START("let-var-decl-start"),
 
     // Statements
     STATEMENT("statement"),
@@ -198,6 +200,7 @@ public enum ParserRuleContext {
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
     ERROR_KEYWORD("error"),
+    LET_KEYWORD("let"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -280,6 +283,7 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    LET_EXPRESSION("let-expr"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

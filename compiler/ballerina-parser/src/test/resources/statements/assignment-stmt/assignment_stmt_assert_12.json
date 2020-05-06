@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -23,8 +22,7 @@
         },
         {
             "kind": "LIST",
-            "children": [
-            ]
+            "children": []
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -50,37 +48,9 @@
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN",
-                                    "isMissing": true
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                },
-                                {
-                                    "kind": "INT_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
                                     "value": "b"
                                 },
                                 {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
                                     "kind": "SEMICOLON_TOKEN",
                                     "isMissing": true
                                 }
@@ -91,8 +61,7 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
                                     "kind": "INT_KEYWORD"
