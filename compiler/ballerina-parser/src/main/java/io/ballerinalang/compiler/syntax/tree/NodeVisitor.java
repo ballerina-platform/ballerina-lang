@@ -379,6 +379,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
+    public void visit(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        visitSyntaxNode(errorTypeDescriptorNode);
+    }
+
+    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
+        visitSyntaxNode(errorTypeParamsNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
