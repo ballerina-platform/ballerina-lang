@@ -1,2 +1,4 @@
 // The UDP Client is used to connect to a remote UDP host.
-// This sample demonstrates how to send data to a remote server and print the echoed response.
+// This sample demonstrates how to send data to a remote server and print the echoed response.<br/><br/>
+// For more information on the underlying module, 
+// see the [Socket module](https://ballerina.io/learn/api-docs/ballerina/socket/index.html).

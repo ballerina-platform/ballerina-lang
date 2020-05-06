@@ -1,1 +1,3 @@
-// The Timeout is used to gracefully handle network timeouts, which occur when using the HTTP Client.
+// The Timeout is used to gracefully handle network timeouts, which occur when using the HTTP Client.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

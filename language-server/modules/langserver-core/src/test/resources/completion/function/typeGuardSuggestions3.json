@@ -238,7 +238,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the response. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the response. Existing header values are not replaced. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
         }
       },
       "sortText": "120",
@@ -418,7 +418,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specified header value. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
         }
       },
       "sortText": "120",

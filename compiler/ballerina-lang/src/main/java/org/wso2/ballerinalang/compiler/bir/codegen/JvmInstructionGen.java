@@ -48,8 +48,10 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -1775,7 +1777,21 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
         loadType(this.mv, newTypeDesc.type);
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
+
+
+        List<BIROperand> closureVars = newTypeDesc.closureVars;
+        mv.visitIntInsn(BIPUSH, closureVars.size());
+        mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);
+        for (int i = 0; i < closureVars.size(); i++) {
+            BIROperand closureVar = closureVars.get(i);
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, i);
+            this.loadVar(closureVar.variableDcl);
+            mv.visitInsn(AASTORE);
+        }
+
+        String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", descriptor, false);
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 

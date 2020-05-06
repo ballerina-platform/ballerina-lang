@@ -184,6 +184,7 @@ function runTableTestcasesWithVarType() {
     testTableWithKeySpecifier();
     testTableWithMultiKeySpecifier1();
     testTableWithMultiKeySpecifier2();
+    testInferTableType();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -199,6 +200,15 @@ function testTableWithKeySpecifier() {
 
     assertEquality(2, customerTable.length());
     assertEquality("Sanjiva", customerTable[13]["name"]);
+}
+
+function testInferTableType() {
+    string cutomerListString = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James\nid=133 name=Mohan lname=Darshan address=Colombo";
+    var tab = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" },
+                                       { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
+
+    assertEquality(cutomerListString, tab.toString());
 }
 
 function testTableWithMultiKeySpecifier1() {

@@ -423,14 +423,10 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].toString(), "{\"home\":\"SriLanka\"}");
     }
 
-    //TODO Table remove - Fix
-//    @Test(description = "Test casting a any to table")
-//    public void testAnyToTable() {
-//        BValue[] returns = BRunUtil.invoke(result, "testAnyToTable");
-//        Assert.assertTrue(returns[0] instanceof BTable);
-//        Assert.assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
-//                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
-//    }
+    @Test(description = "Test casting a any to table")
+    public void testAnyToTable() {
+        BRunUtil.invoke(result, "testAnyToTable");
+    }
 
     @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {

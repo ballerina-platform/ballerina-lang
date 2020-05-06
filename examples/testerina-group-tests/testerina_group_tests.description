@@ -2,4 +2,5 @@
 // This allows you to control the execution of selected tests.
 // In order to execute tests belonging to a selected test group, you can name the 
 // test groups that are to be executed when you run tests. 
-// Likewise, you can exclude executing selected tests as well.
+// Likewise, you can exclude executing selected tests as well.<br/><br/>
+// For more information, see [How to Test Ballerina Code](https://ballerina.io/learn/how-to-test-ballerina-code/).
