@@ -62,6 +62,11 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testXMLPI() {
         testFile("xml-template/xml_template_source_21.bal", "xml-template/xml_template_assert_21.json");
     }
+    
+    @Test
+    public void testComplexInterpolations() {
+        testFile("xml-template/xml_template_source_23.bal", "xml-template/xml_template_assert_23.json");
+    }
 
     // Recovery test
 
@@ -138,5 +143,10 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testErrorsInPI() {
         testFile("xml-template/xml_template_source_22.bal", "xml-template/xml_template_assert_22.json");
+    }
+    
+    @Test
+    public void testComplexInvalidInterpolations() {
+        testFile("xml-template/xml_template_source_24.bal", "xml-template/xml_template_assert_24.json");
     }
 }

@@ -87,8 +87,24 @@
                                                                             "kind": "EQUAL_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "STRING_LITERAL",
-                                                                            "value": "hel'lo"
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "hel'lo"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 },
@@ -103,8 +119,24 @@
                                                                             "kind": "EQUAL_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "STRING_LITERAL",
-                                                                            "value": "wor\"ld'"
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "SINGLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "wor\"ld"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "SINGLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 }

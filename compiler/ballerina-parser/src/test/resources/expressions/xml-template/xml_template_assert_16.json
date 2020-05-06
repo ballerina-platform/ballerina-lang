@@ -69,7 +69,7 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
-                                                    "kind": "XML_ELEMENT",
+                                                    "kind": "XML_COMMENT",
                                                     "children": [
                                                         {
                                                             "kind": "XML_COMMENT_START_TOKEN"
@@ -122,7 +122,7 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
-                                                    "kind": "XML_ELEMENT",
+                                                    "kind": "XML_COMMENT",
                                                     "children": [
                                                         {
                                                             "kind": "XML_COMMENT_START_TOKEN"
@@ -205,7 +205,7 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "XML_ELEMENT",
+                                                                    "kind": "XML_COMMENT",
                                                                     "children": [
                                                                         {
                                                                             "kind": "XML_COMMENT_START_TOKEN"
@@ -314,7 +314,7 @@
                                                                     "value": " bar "
                                                                 },
                                                                 {
-                                                                    "kind": "XML_ELEMENT",
+                                                                    "kind": "XML_COMMENT",
                                                                     "children": [
                                                                         {
                                                                             "kind": "XML_COMMENT_START_TOKEN"

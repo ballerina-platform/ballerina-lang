@@ -60,10 +60,11 @@ public class XMLParser extends AbstractParser {
                 return parseXMLNCName();
             case ASSIGN_OP:
                 return parseAssignOp();
-            case XML_QUOTED_STRING:
-                return parseXMLQuotedString();
             case XML_START_OR_EMPTY_TAG_END:
                 return parseXMLElementTagEnd((STNode) args[0], (STNode) args[1], (STNode) args[2]);
+            case XML_QUOTE_START:
+            case XML_QUOTE_END:
+                return parseStartQuote(context);
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -391,7 +392,7 @@ public class XMLParser extends AbstractParser {
 
         STNode attributeName = parseXMLNCName();
         STNode equalToken = parseAssignOp();
-        STNode value = parseXMLQuotedString();
+        STNode value = parseAttributeValue();
         return STNodeFactory.createXMLAttributeNode(attributeName, equalToken, value);
     }
 
@@ -410,18 +411,65 @@ public class XMLParser extends AbstractParser {
         }
     }
 
+    private STNode parseAttributeValue() {
+        STNode startQuote = parseStartQuote(ParserRuleContext.XML_QUOTE_START);
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLAttributeValue(nextToken.kind)) {
+            STNode contentItem = parseXMLAttributeValueItem();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+
+        STNode value = STNodeFactory.createNodeList(items);
+        STNode endQuote = parseStartQuote(ParserRuleContext.XML_QUOTE_END);
+
+        return STNodeFactory.createXMLAttributeValue(startQuote, value, endQuote);
+    }
+
+    /**
+     * Parse assign operator.
+     *
+     * @return Parsed node
+     */
+    private STNode parseStartQuote(ParserRuleContext ctx) {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || token.kind == SyntaxKind.SINGLE_QUOTE_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ctx);
+            return sol.recoveredNode;
+        }
+    }
+
+    private boolean isEndOfXMLAttributeValue(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case DOUBLE_QUOTE_TOKEN:
+            case SINGLE_QUOTE_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Parse XML Quoted String.
      * 
      * @return XML quoted string
      */
-    private STNode parseXMLQuotedString() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.STRING_LITERAL) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.XML_QUOTED_STRING);
-            return sol.recoveredNode;
+    private STNode parseXMLAttributeValueItem() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case XML_TEXT_CONTENT:
+                return consume();
+            case INTERPOLATION_START_TOKEN:
+                return parseInterpolation();
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -468,7 +516,7 @@ public class XMLParser extends AbstractParser {
             content = parseXMLCommentContent();
         }
         STNode commentEnd = parseXMLCommentEnd();
-        return STNodeFactory.createXMLElementNode(commentStart, content, commentEnd);
+        return STNodeFactory.createXMLComment(commentStart, content, commentEnd);
     }
 
     private STNode parseXMLCommentStart() {

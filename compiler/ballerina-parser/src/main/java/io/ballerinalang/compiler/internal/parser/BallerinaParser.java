@@ -6718,9 +6718,28 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.INTERPOLATION);
         STNode interpolStart = parseInterpolationStart();
         STNode expr = parseExpression();
+        removeAdditionalTokensInInterpolation();
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createInterpolationNode(interpolStart, expr, closeBrace);
+    }
+
+    /**
+     * @return
+     */
+    private void removeAdditionalTokensInInterpolation() {
+        while (true) {
+            STToken nextToken = peek();
+            switch (nextToken.kind) {
+                case EOF_TOKEN:
+                    return;
+                case CLOSE_BRACE_TOKEN:
+                    return;
+                default:
+                    consume();
+                    this.errorHandler.reportInvalidNode(nextToken, "invalid token '" + nextToken.text() + "'");
+            }
+        }
     }
 
     /**

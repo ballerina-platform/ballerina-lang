@@ -2504,8 +2504,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.XML_KEYWORD;
             case XML_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
-            case XML_QUOTED_STRING:
-                return SyntaxKind.STRING_LITERAL;
 
             // TODO:
             case COMP_UNIT:

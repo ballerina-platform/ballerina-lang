@@ -1126,5 +1126,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 data,
                 piEnd);
     }
+
+    public static STNode createXMLAttributeValue(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote) {
+
+        return new STXMLAttributeValue(
+                startQuote,
+                value,
+                endQuote);
+    }
 }
 

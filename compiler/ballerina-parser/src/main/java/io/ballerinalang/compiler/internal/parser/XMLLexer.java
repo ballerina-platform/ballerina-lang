@@ -74,6 +74,12 @@ public class XMLLexer extends AbstractLexer {
             case XML_PI_DATA:
                 processLeadingXMLTrivia();
                 return readTokenInXMLPIData();
+            case XML_SINGLE_QUOTED_STRING:
+                this.leadingTriviaList = new ArrayList<>(0);
+                return processXMLSingleQuotedString();
+            case XML_DOUBLE_QUOTED_STRING:
+                this.leadingTriviaList = new ArrayList<>(0);
+                return processXMLDoubleQuotedString();
             default:
                 // should never reach here.
                 return null;
@@ -197,6 +203,11 @@ public class XMLLexer extends AbstractLexer {
      */
 
     private STToken readTokenInInterpolation() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
         int nextToken = peek();
         switch (nextToken) {
             case LexerTerminals.CLOSE_BRACE:
@@ -506,8 +517,8 @@ public class XMLLexer extends AbstractLexer {
             return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
-        int c = reader.peek();
-        switch (c) {
+        int nextChar = reader.peek();
+        switch (nextChar) {
             case LexerTerminals.LT:
             case LexerTerminals.GT:
             case LexerTerminals.SLASH:
@@ -531,31 +542,80 @@ public class XMLLexer extends AbstractLexer {
                 reader.advance();
                 return getXMLSyntaxToken(SyntaxKind.EQUAL_TOKEN, true, true);
             case LexerTerminals.DOUBLE_QUOTE:
+                reader.advance();
+                startMode(ParserMode.XML_DOUBLE_QUOTED_STRING);
+                return getXMLSyntaxToken(SyntaxKind.DOUBLE_QUOTE_TOKEN, false, false);
             case LexerTerminals.SINGLE_QUOTE:
-                return processXMLQuotedString();
+                reader.advance();
+                startMode(ParserMode.XML_SINGLE_QUOTED_STRING);
+                return getXMLSyntaxToken(SyntaxKind.SINGLE_QUOTE_TOKEN, false, false);
             default:
                 break;
         }
 
         reader.advance();
-        STToken attributeName = processXMLName(c, true);
+        STToken attributeName = processXMLName(nextChar, true);
         return attributeName;
     }
 
-    private STToken processXMLQuotedString() {
-        int startingQuote = peek();
-        this.reader.advance();
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_SINGLE_QUOTED_STRING mode and XML_DOUBLE_QUOTED_STRING mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
 
-        int nextChar;
+    private STToken processXMLDoubleQuotedString() {
+        return processXMLQuotedString(LexerTerminals.DOUBLE_QUOTE, SyntaxKind.DOUBLE_QUOTE_TOKEN);
+    }
+
+    private STToken processXMLSingleQuotedString() {
+        return processXMLQuotedString(LexerTerminals.SINGLE_QUOTE, SyntaxKind.SINGLE_QUOTE_TOKEN);
+    }
+
+    private STToken processXMLQuotedString(int startingQuote, SyntaxKind startQuoteKind) {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        /*
+         * Handle starting char
+         */
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.DOUBLE_QUOTE:
+            case LexerTerminals.SINGLE_QUOTE:
+                if (nextChar == startingQuote) {
+                    this.reader.advance();
+                    endMode();
+                    return getXMLSyntaxToken(startQuoteKind, false, true);
+                }
+                break;
+            case LexerTerminals.DOLLAR:
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    reader.advance(2);
+                    startMode(ParserMode.INTERPOLATION);
+                    // Trailing trivia should be captured similar to DEFAULT mode.
+                    // Hence using the 'getSyntaxToken()' method.
+                    return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                break;
+            default:
+                break;
+        }
+
+        /*
+         * Handle remaining chars
+         */
         while (!reader.isEOF()) {
             nextChar = peek();
             switch (nextChar) {
                 case LexerTerminals.DOUBLE_QUOTE:
                 case LexerTerminals.SINGLE_QUOTE:
-                    this.reader.advance();
                     if (nextChar == startingQuote) {
                         break;
                     }
+                    this.reader.advance();
                     continue;
                 case LexerTerminals.BITWISE_AND:
                     processXMLReferenceInQuotedString(startingQuote);
@@ -564,6 +624,11 @@ public class XMLLexer extends AbstractLexer {
                     reader.advance();
                     this.reportLexerError("'<' is not allowed in XML attribute value");
                     continue;
+                case LexerTerminals.DOLLAR:
+                    if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                        break;
+                    }
+                    // fall through
                 default:
                     this.reader.advance();
                     continue;
@@ -571,11 +636,7 @@ public class XMLLexer extends AbstractLexer {
             break;
         }
 
-        if (reader.isEOF()) {
-            reportLexerError("missing " + String.valueOf((char) startingQuote));
-        }
-
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getLiteral(SyntaxKind.XML_TEXT_CONTENT);
     }
 
     private void processXMLReferenceInQuotedString(int startingQuote) {

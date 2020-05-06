@@ -96,7 +96,9 @@ public enum SyntaxKind {
     AT_TOKEN(513, "@"),
     HASH_TOKEN(514, "#"),
     BACKTICK_TOKEN(515, "`"),
-
+    DOUBLE_QUOTE_TOKEN(516, "\""),
+    SINGLE_QUOTE_TOKEN(517, "'"),
+    
     // Operators
     EQUAL_TOKEN(550, "="),
     DOUBLE_EQUAL_TOKEN(551, "=="),
@@ -263,7 +265,8 @@ public enum SyntaxKind {
     XML_SIMPLE_NAME(4007),
     XML_QUALIFIED_NAME(4008),
     XML_ATTRIBUTE(4009),
-    INTERPOLATION(4010),
+    XML_ATTRIBUTE_VALUE(4010),
+    INTERPOLATION(4011),
 
     INVALID(4),
     MODULE_PART(3),

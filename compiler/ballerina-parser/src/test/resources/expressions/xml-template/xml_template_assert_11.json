@@ -95,8 +95,24 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "&#56;"
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                                    "value": "&#56;"
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         },
@@ -111,8 +127,24 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "&#x4Ab;"
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                                    "value": "&#x4Ab;"
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         },
@@ -127,8 +159,24 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "&hello;"
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                                    "value": "&hello;"
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         }

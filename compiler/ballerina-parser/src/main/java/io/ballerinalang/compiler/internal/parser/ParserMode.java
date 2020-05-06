@@ -36,4 +36,6 @@ public enum ParserMode {
     XML_COMMENT,
     XML_PI,
     XML_PI_DATA,
+    XML_SINGLE_QUOTED_STRING,
+    XML_DOUBLE_QUOTED_STRING
 }

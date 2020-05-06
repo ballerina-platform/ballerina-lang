@@ -60,6 +60,21 @@ public class BallerinaLexer extends AbstractLexer {
         }
     }
 
+    public STToken nextTokenInternal() {
+        switch (this.mode) {
+            case TEMPLATE:
+                return readTemplateToken();
+            case INTERPOLATION:
+                return readTokenInInterpolation();
+            case INTERPOLATION_BRACED_CONTENT:
+                return readTokenInBracedContentInInterpolation();
+            case DEFAULT:
+            case IMPORT:
+            default:
+                return readToken();
+        }
+    }
+
     /*
      * Private Methods
      */
@@ -262,7 +277,9 @@ public class BallerinaLexer extends AbstractLexer {
             default:
                 // Process invalid token as trivia, and continue to next token
                 processInvalidToken();
-                token = readToken();
+
+                // Use the internal method to use the already captured trivia.
+                token = nextTokenInternal();
                 break;
         }
 
@@ -690,7 +707,9 @@ public class BallerinaLexer extends AbstractLexer {
             reader.advance();
         }
 
-        STNode trivia = STNodeFactory.createSyntaxTrivia(SyntaxKind.INVALID, getLexeme());
+        String tokenText = getLexeme();
+        reportLexerError("invalid token '" + tokenText + "'");
+        STNode trivia = STNodeFactory.createSyntaxTrivia(SyntaxKind.INVALID, tokenText);
         this.leadingTriviaList.add(trivia);
     }
 
@@ -717,6 +736,12 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.SPACE:
             case LexerTerminals.TAB:
             case LexerTerminals.SEMICOLON:
+            case LexerTerminals.OPEN_BRACE:
+            case LexerTerminals.CLOSE_BRACE:
+            case LexerTerminals.OPEN_BRACKET:
+            case LexerTerminals.CLOSE_BRACKET:
+            case LexerTerminals.OPEN_PARANTHESIS:
+            case LexerTerminals.CLOSE_PARANTHESIS:
                 // TODO: add all separators (braces, parentheses, etc)
                 // TODO: add all operators (arithmetic, binary, etc)
                 return true;
@@ -1010,6 +1035,10 @@ public class BallerinaLexer extends AbstractLexer {
 
     private STToken readTemplateToken() {
         reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
         char nextChar = this.reader.peek();
         switch (nextChar) {
             case LexerTerminals.BACKTICK:
@@ -1109,11 +1138,9 @@ public class BallerinaLexer extends AbstractLexer {
                 startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
                 break;
             case LexerTerminals.CLOSE_BRACE:
-                endMode();
-                break;
             case LexerTerminals.BACKTICK:
                 endMode();
-                return readToken();
+                break;
             default:
                 // Otherwise read the token from default mode.
                 break;

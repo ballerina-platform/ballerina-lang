@@ -90,8 +90,24 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "John"
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                                    "value": "John"
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         },
@@ -118,8 +134,24 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "20"
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                                    "value": "20"
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         },
@@ -146,8 +178,24 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "http://ballerinalang.com/ns0"
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                                    "value": "http://ballerinalang.com/ns0"
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         }
@@ -241,8 +289,24 @@
                                                                             "kind": "EQUAL_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "STRING_LITERAL",
-                                                                            "value": "John"
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "John"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 },
@@ -269,8 +333,24 @@
                                                                             "kind": "EQUAL_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "STRING_LITERAL",
-                                                                            "value": "20"
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "20"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 },
@@ -297,8 +377,24 @@
                                                                             "kind": "EQUAL_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "STRING_LITERAL",
-                                                                            "value": "http://ballerinalang.com/ns0"
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "http://ballerinalang.com/ns0"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 }

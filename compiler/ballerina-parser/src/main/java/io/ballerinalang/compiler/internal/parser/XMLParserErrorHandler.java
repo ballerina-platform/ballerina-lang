@@ -39,6 +39,9 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_START_OR_EMPTY_TAG_END =
             { ParserRuleContext.SLASH, ParserRuleContext.GT_TOKEN };
 
+    private static final ParserRuleContext[] XML_ATTRIBUTE_VALUE_ITEM =
+            { ParserRuleContext.XML_ATTRIBUTE_VALUE_TEXT, ParserRuleContext.XML_QUOTE_END };
+
     public XMLParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -80,9 +83,6 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_TEXT:
                     hasMatch = nextToken.kind == SyntaxKind.XML_TEXT;
                     break;
-                case XML_QUOTED_STRING:
-                    hasMatch = nextToken.kind == SyntaxKind.STRING_LITERAL;
-                    break;
                 case SLASH:
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_TOKEN;
                     break;
@@ -102,6 +102,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.XML_COMMENT_START_TOKEN;
                     break;
                 case XML_COMMENT_CONTENT:
+                case XML_ATTRIBUTE_VALUE_TEXT:
                     hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
                     break;
                 case XML_COMMENT_END:
@@ -116,6 +117,14 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_PI_DATA:
                     hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
                     break;
+                case XML_QUOTE_START:
+                case XML_QUOTE_END:
+                    hasMatch = nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN ||
+                            nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN;
+                    break;
+                case XML_ATTRIBUTE_VALUE_ITEM:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            XML_ATTRIBUTE_VALUE_ITEM, isEntryPoint);
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -200,10 +209,10 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                         throw new IllegalStateException("slash cannot exist in: " + parentCtx);
                 }
             case ASSIGN_OP:
-                return ParserRuleContext.XML_QUOTED_STRING;
+                return ParserRuleContext.XML_QUOTE_START;
             case XML_ATTRIBUTE:
                 return ParserRuleContext.XML_NAME;
-            case XML_QUOTED_STRING:
+            case XML_QUOTE_END:
                 return ParserRuleContext.XML_ATTRIBUTES;
             case XML_COMMENT_START:
                 return ParserRuleContext.XML_COMMENT_CONTENT;
@@ -221,6 +230,9 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_CONTENT;
             case XML_PI_DATA:
                 return ParserRuleContext.XML_PI_END;
+            case XML_QUOTE_START:
+            case XML_ATTRIBUTE_VALUE_TEXT:
+                return ParserRuleContext.XML_ATTRIBUTE_VALUE_ITEM;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -241,8 +253,6 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case ASSIGN_OP:
                 return SyntaxKind.EQUAL_TOKEN;
-            case XML_QUOTED_STRING:
-                return SyntaxKind.STRING_LITERAL;
             case XML_START_OR_EMPTY_TAG_END:
             case XML_ATTRIBUTES:
                 return SyntaxKind.GT_TOKEN;
@@ -252,9 +262,9 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_COMMENT_START:
                 return SyntaxKind.XML_COMMENT_START_TOKEN;
             case XML_COMMENT_CONTENT:
-                return SyntaxKind.XML_COMMENT_END_TOKEN;
-            case XML_COMMENT_END:
                 return SyntaxKind.XML_TEXT_CONTENT;
+            case XML_COMMENT_END:
+                return SyntaxKind.XML_COMMENT_END_TOKEN;
             case XML_PI:
             case XML_PI_START:
                 return SyntaxKind.XML_PI_START_TOKEN;
@@ -262,6 +272,9 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.XML_PI_END_TOKEN;
             case XML_PI_DATA:
                 return SyntaxKind.XML_TEXT_CONTENT;
+            case XML_QUOTE_END:
+            case XML_QUOTE_START:
+                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             default:
                 return SyntaxKind.NONE;
         }

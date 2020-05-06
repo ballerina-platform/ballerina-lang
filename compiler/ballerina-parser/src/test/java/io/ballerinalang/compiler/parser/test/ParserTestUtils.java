@@ -503,6 +503,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
             case "BACKTICK_TOKEN":
                 return SyntaxKind.BACKTICK_TOKEN;
+            case "DOUBLE_QUOTE_TOKEN":
+                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case "SINGLE_QUOTE_TOKEN":
+                return SyntaxKind.SINGLE_QUOTE_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -733,6 +737,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_PI_START_TOKEN;
             case "XML_PI_END_TOKEN":
                 return SyntaxKind.XML_PI_END_TOKEN;
+            case "XML_ATTRIBUTE_VALUE":
+                return SyntaxKind.XML_ATTRIBUTE_VALUE;
 
             // Trivia
             case "EOF_TOKEN":

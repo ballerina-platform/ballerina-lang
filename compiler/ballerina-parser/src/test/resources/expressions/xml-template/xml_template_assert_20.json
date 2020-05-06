@@ -96,8 +96,22 @@
                                                                                     "isMissing": true
                                                                                 },
                                                                                 {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "isMissing": true
+                                                                                    "kind": "XML_ATTRIBUTE_VALUE",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN",
+                                                                                            "isMissing": true
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOUBLE_QUOTE_TOKEN",
+                                                                                            "isMissing": true
+                                                                                        }
+                                                                                    ]
                                                                                 }
                                                                             ]
                                                                         }

@@ -1513,5 +1513,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 piEnd.internalNode());
         return stXMLProcessingInstruction.createUnlinkedFacade();
     }
+
+    public static XMLAttributeValue createXMLAttributeValue(
+            Token startQuote,
+            NodeList<Node> value,
+            Token endQuote) {
+        Objects.requireNonNull(startQuote, "startQuote must not be null");
+        Objects.requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(endQuote, "endQuote must not be null");
+
+        STNode stXMLAttributeValue = STNodeFactory.createXMLAttributeValue(
+                startQuote.internalNode(),
+                value.underlyingListNode().internalNode(),
+                endQuote.internalNode());
+        return stXMLAttributeValue.createUnlinkedFacade();
+    }
 }
 

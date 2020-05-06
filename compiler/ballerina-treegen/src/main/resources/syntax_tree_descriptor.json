@@ -2013,6 +2013,26 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "XMLAttributeValue",
+            "base": "XMLItemNode",
+            "kind": "XML_ATTRIBUTE_VALUE",
+            "attributes": [
+                {
+                    "name": "startQuote",
+                    "type": "Token"
+                },
+                {
+                    "name": "value",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endQuote",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
