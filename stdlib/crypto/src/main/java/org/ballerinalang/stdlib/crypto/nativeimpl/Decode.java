@@ -165,7 +165,7 @@ public class Decode {
                                                          new BigInteger(1, decodedExponent));
             RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
 
-            MapValue<String, Object> publicKeyMap = BallerinaValues.
+            MapValue<BString, Object> publicKeyMap = BallerinaValues.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
             publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
             publicKeyMap.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD, publicKey.getAlgorithm());

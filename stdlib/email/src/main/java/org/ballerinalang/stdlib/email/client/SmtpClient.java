@@ -65,7 +65,7 @@ public class SmtpClient {
                     }
                 });
         clientEndpoint.addNativeData(EmailConstants.PROPS_SESSION, session);
-        clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
+        clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username);
     }
 
     /**
@@ -78,7 +78,7 @@ public class SmtpClient {
         try {
             Transport.send(SmtpUtil.generateMessage(
                     (Session) clientConnector.getNativeData(EmailConstants.PROPS_SESSION),
-                    (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME), message));
+                    (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME.getValue()), message));
             return null;
         } catch (MessagingException | IOException e) {
             log.error("Failed to send message to SMTP server : ", e);

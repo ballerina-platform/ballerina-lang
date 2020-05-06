@@ -421,7 +421,7 @@ public class HttpUtil {
         if (!errorDetails.isEmpty()) {
             return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
-        return error.getReason();
+        return error.getReason().getValue();
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {

@@ -68,9 +68,9 @@ public class EmailAccessClient {
         try {
             Store store = session.getStore(EmailConstants.POP_PROTOCOL);
             clientEndpoint.addNativeData(EmailConstants.PROPS_STORE, store);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST, host);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD, password);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST.getValue(), host);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD.getValue(), password);
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
@@ -94,9 +94,9 @@ public class EmailAccessClient {
         try {
             Store store = session.getStore(EmailConstants.IMAP_PROTOCOL);
             clientEndpoint.addNativeData(EmailConstants.PROPS_STORE, store);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST, host);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD, password);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST.getValue(), host);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD.getValue(), password);
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
@@ -111,9 +111,9 @@ public class EmailAccessClient {
      * @return If successful return the received email, otherwise an error
      */
     public static Object readMessage(ObjectValue clientConnector, String folder) {
-        String host = (String) clientConnector.getNativeData(EmailConstants.PROPS_HOST);
-        String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME);
-        String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD);
+        String host = (String) clientConnector.getNativeData(EmailConstants.PROPS_HOST.getValue());
+        String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME.getValue());
+        String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD.getValue());
         try (Store store = (Store) clientConnector.getNativeData(EmailConstants.PROPS_STORE)) {
             log.debug("Access email server with properties, host: " + host + " username: " + username
                     + " folder: " + folder);
