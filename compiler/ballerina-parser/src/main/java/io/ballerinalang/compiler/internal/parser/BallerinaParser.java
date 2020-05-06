@@ -3184,13 +3184,17 @@ public class BallerinaParser {
      * @return Parsed NewExpression node.
      */
     private STNode parseNewExpression() {
-        startContext(ParserRuleContext.NEW_EXPRESSION);
         STNode newKeyword = parseNewKeyword();
-        STNode newExpressionNode = parseNewExpression(newKeyword);
-        endContext();
-        return newExpressionNode;
+        return parseNewExpression(newKeyword);
     }
 
+    /**
+     * <p>
+     * Parse `new` keyword.
+     * </p>
+     *
+     * @return Parsed NEW_KEYWORD Token.
+     */
     private STNode parseNewKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.NEW_KEYWORD) {
@@ -3217,15 +3221,16 @@ public class BallerinaParser {
     private STNode parseNewExpression(SyntaxKind kind, STNode newKeyword) {
         switch (kind) {
             case OPEN_PAREN_TOKEN:
-            case SEMICOLON_TOKEN:
                 return parseImplicitNewExpression(newKeyword);
+            case SEMICOLON_TOKEN:
+                return STNodeFactory.createImplicitNewExpression(newKeyword, null);
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
                 // TODO: Support `stream` keyword once introduced
                 return parseExplicitNewExpression(newKeyword);
             default:
                 Solution sol = recover(peek(), ParserRuleContext.NEW_EXPRESSION, newKeyword);
-                return sol.recoveredNode;
+                return parseNewExpression(sol.recoveredNode.kind, newKeyword);
         }
     }
 
@@ -3247,8 +3252,6 @@ public class BallerinaParser {
         switch (kind) {
             case OPEN_PAREN_TOKEN:
                 break;
-            case SEMICOLON_TOKEN:
-                return STNodeFactory.createImplicitNewExpression(newKeyword, null);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW, newKeyword);
                 return solution.recoveredNode;

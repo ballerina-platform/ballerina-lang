@@ -287,6 +287,12 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TABLE_KEY_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
+    private static final ParserRuleContext[] NEW_EXPR =
+            { ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] IMPLICIT_NEW =
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.SEMICOLON };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -1149,6 +1155,11 @@ public class BallerinaParserErrorHandler {
                 case TABLE_KEY_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_KEY_RHS,
                             isEntryPoint);
+                case NEW_EXPRESSION:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NEW_EXPR, isEntryPoint);
+                case IMPLICIT_NEW:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, IMPLICIT_NEW,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1222,6 +1233,7 @@ public class BallerinaParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
+                case NEW_KEYWORD:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -2112,6 +2124,8 @@ public class BallerinaParserErrorHandler {
             case PARAMETERIZED_TYPE:
                 endContext();
                 return ParserRuleContext.LT;
+            case NEW_KEYWORD:
+                return ParserRuleContext.NEW_EXPRESSION;
             case LT:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
