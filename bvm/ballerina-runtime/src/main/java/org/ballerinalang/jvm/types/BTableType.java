@@ -57,7 +57,7 @@ public class BTableType extends BType {
 
     @Override
     public <V> V getZeroValue() {
-        return (V) new TableValueImpl<String, V>(new BTableType(constraint));
+        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint));
     }
 
     @Override

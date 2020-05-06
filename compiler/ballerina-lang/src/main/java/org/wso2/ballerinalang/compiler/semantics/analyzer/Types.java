@@ -1136,10 +1136,6 @@ public class Types {
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
-                if (tableType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
                 varType = tableType.constraint;
                 break;
             case TypeTags.STREAM:
@@ -1236,10 +1232,6 @@ public class Types {
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
-                if (tableType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
                 varType = tableType.constraint;
                 break;
             case TypeTags.STREAM:
