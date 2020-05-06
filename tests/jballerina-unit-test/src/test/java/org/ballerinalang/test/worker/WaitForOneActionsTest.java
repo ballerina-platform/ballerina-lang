@@ -103,7 +103,7 @@ public class WaitForOneActionsTest {
     }
 
     @Test
-    public void waitTest10() {
-        BRunUtil.invoke(result, "waitTest10", new BValue[0]);
+    public void emptyObjectCreationTest() {
+        BRunUtil.invoke(result, "emptyObjectCreationTest", new BValue[0]);
     }
 }

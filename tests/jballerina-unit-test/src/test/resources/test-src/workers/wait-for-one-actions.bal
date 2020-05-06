@@ -133,7 +133,7 @@ type Student object {
     }
 };
 
-function waitTest10() {
+function emptyObjectCreationTest() {
     Student s = new();
     Student[] arr = [];
     arr[0] = s;
