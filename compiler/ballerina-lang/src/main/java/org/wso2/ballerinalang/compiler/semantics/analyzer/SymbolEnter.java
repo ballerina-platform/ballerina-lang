@@ -1370,9 +1370,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
             SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
 
-            // Resolve and add the fields of the referenced types to this object.
-            resolveReferencedFields(structureTypeNode, typeDefEnv);
-
             // Define all the fields
             structureType.fields =
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
@@ -1380,6 +1377,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                             .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                             .collect(getFieldCollector());
+
+            // Resolve and add the fields of the referenced types to this object.
+            resolveReferencedFields(structureTypeNode, typeDefEnv);
+
+            for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
+                defineNode(field, typeDefEnv);
+                if (field.symbol.type == symTable.semanticError) {
+                    continue;
+                }
+                structureType.fields.add(new BField(names.fromIdNode(field.name), field.pos, field.symbol));
+            }
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
                 continue;
@@ -1850,6 +1858,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
                 dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
+                invalidTypeRefs.add(typeRef);
+                return Stream.empty();
+            }
+
+//            List<BSymbol> referenceSymbols = new ArrayList<>();
+//            getAllReferences((BLangType) referredType.tsymbol.type, referenceSymbols);
+
+            // Check for duplicate type references
+            if (referencedTypes.contains(referredType.tsymbol)) {
+                dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_TYPE_REFERENCE, typeRef);
+                invalidTypeRefs.add(typeRef);
                 return Stream.empty();
             }
 
@@ -1859,6 +1878,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
+            return ((BStructureType) referredType).fields.stream().filter(f -> {
+                if (fieldNames.containsKey(f.name.value)) {
+                    BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                    boolean isAssignable = types.isAssignable(f.type, existingVariable.type);
+                    if (!isAssignable) {
+                        // TODO : give an error message - Rukshan
+                    }
+                    return !isAssignable;
+                }
+                return true;
+            }).map(field -> {
             return ((BStructureType) referredType).fields.values().stream().map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
