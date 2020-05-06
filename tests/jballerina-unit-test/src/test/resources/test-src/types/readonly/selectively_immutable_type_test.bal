@@ -49,6 +49,7 @@ function testReadonlyType() {
 function testSimpleAssignmentForSelectivelyImmutableTypes() {
     testSimpleAssignmentForSelectivelyImmutableXmlTypes();
     testSimpleAssignmentForSelectivelyImmutableListTypes();
+    testSimpleAssignmentForSelectivelyImmutableMappingTypes();
 }
 
 function testSimpleAssignmentForSelectivelyImmutableXmlTypes() {
@@ -98,12 +99,12 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
         department: "finance"
     };
 
-    Employee[] & readonly b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
+    [Employee, Employee] & readonly b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
     readonly r2 = b;
-    assertTrue(r2 is Employee[] & readonly);
+    assertTrue(r2 is [Employee, Employee] & readonly);
+    assertTrue(r2 is Employee[2] & readonly);
 
-    Employee[] & readonly empArr = <Employee[] & readonly> r2;
-    assertEquality(2, empArr.length());
+    [Employee, Employee] & readonly empArr = <[Employee, Employee] & readonly> r2;
 
     assertEquality(emp, empArr[0]);
     record {} rec = empArr[0];
@@ -116,6 +117,40 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
     assertEquality("IT", rec["department"]);
     assertTrue(rec["details"] is Details & readonly);
     assertTrue(rec["details"].isReadOnly());
+}
+
+function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
+    boolean bool = false;
+
+    map<boolean> & readonly a = {
+        a: true,
+        bool,
+        c: false
+    };
+    readonly r1 = a;
+    assertTrue(r1 is map<boolean> & readonly);
+    assertEquality(<map<boolean>> {a: true, bool: false, c: false}, r1);
+
+    Employee & readonly emp = {
+        details: {
+            name: "Emma",
+            id: 1234
+        },
+        department: "finance"
+    };
+
+    readonly r2 = emp;
+    assertTrue(r2 is Employee & readonly);
+
+    assertEquality(emp, r2);
+    any val = r2;
+    Employee rec = <Employee> val;
+    assertTrue(rec is Employee & readonly);
+    assertTrue(rec.isReadOnly());
+
+    Details det = rec.details;
+    assertTrue(det is Details & readonly);
+    assertTrue(det.isReadOnly());
 }
 
 function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
