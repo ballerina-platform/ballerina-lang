@@ -1030,31 +1030,31 @@
         "samples": [
             {
                 "name": "Producer",
-                "url": "kafka_message_producer"
+                "url": "kafka-producer"
             },
             {
                 "name": "Consumer Service",
-                "url": "kafka_message_consumer_service"
+                "url": "kafka-consumer-service"
             },
             {
                 "name": "Consumer Client",
-                "url": "kafka_message_consumer_simple"
+                "url": "kafka-consumer-client"
             },
             {
                 "name": "Transactional Producer",
-                "url": "kafka_message_producer_transactional"
+                "url": "kafka-producer-transactional"
             },
             {
                 "name": "Consumer Groups",
-                "url": "kafka_message_consumer_group_service"
+                "url": "kafka-consumer-group-service"
             },
             {
                 "name": "SASL Authentication - Consumer",
-                "url": "kafka_authentication_sasl_plain_consumer"
+                "url": "kafka-authentication-sasl-plain-consumer"
             },
             {
                 "name": "SASL Authentication - Producer",
-                "url": "kafka_authentication_sasl_plain_producer"
+                "url": "kafka-authentication-sasl-plain-producer"
             }
         ]
     },
