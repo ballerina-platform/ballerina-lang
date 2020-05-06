@@ -691,12 +691,31 @@ public class Types {
 
 
     BField getTableConstraintField(BType constraintType, String fieldName) {
-        List<BField> fieldList = ((BRecordType) constraintType).getFields();
 
-        for (BField field : fieldList) {
-            if (field.name.toString().equals(fieldName)) {
-                return field;
-            }
+        switch (constraintType.tag) {
+            case TypeTags.RECORD:
+                List<BField> fieldList = ((BRecordType) constraintType).getFields();
+
+                for (BField field : fieldList) {
+                    if (field.name.toString().equals(fieldName)) {
+                        return field;
+                    }
+                }
+                break;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) constraintType;
+                Set<BType> memTypes = unionType.getMemberTypes();
+                List<BField> fields = memTypes.stream().map(type -> getTableConstraintField(type, fieldName))
+                        .filter(Objects::nonNull).collect(Collectors.toList());
+
+                if (fields.size() != memTypes.size()) {
+                    return null;
+                }
+
+                if (fields.stream().allMatch(field -> isAssignable(field.type, fields.get(0).type) &&
+                        isAssignable(fields.get(0).type, field.type))) {
+                    return fields.get(0);
+                }
         }
 
         return null;
