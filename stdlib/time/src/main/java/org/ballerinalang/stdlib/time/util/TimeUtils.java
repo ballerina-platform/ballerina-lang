@@ -103,7 +103,7 @@ public class TimeUtils {
     }
 
     public static ErrorValue getTimeError(String message) {
-        return BallerinaErrors.createError(TIME_ERROR_CODE, message);
+        return BallerinaErrors.createError(StringUtils.fromString(TIME_ERROR_CODE), StringUtils.fromString(message));
     }
 
     public static MapValue<BString, Object> getTimeRecord(TemporalAccessor dateTime, String dateString,
@@ -194,11 +194,12 @@ public class TimeUtils {
         if (dateTime != null) {
             return dateTime;
         }
-        long timeData = (Long) timeRecord.get(TIME_FIELD);
-        MapValue<BString, Object> zoneData = (MapValue<BString, Object>) timeRecord.get(ZONE_FIELD);
+        long timeData = timeRecord.getIntValue(StringUtils.fromString(TIME_FIELD));
+        MapValue<BString, Object> zoneData =
+                (MapValue<BString, Object>) timeRecord.getMapValue(StringUtils.fromString(ZONE_FIELD));
         ZoneId zoneId;
         if (zoneData != null) {
-            String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
+            String zoneIdName = zoneData.getStringValue(StringUtils.fromString(ZONE_ID_FIELD)).toString();
             if (zoneIdName.isEmpty()) {
                 zoneId = ZoneId.systemDefault();
             } else {
@@ -224,7 +225,8 @@ public class TimeUtils {
     }
 
     public static String getZoneId(MapValue<BString, Object> timeRecord) {
-        MapValue<BString, Object> zoneData = (MapValue<BString, Object>) timeRecord.get(ZONE_FIELD);
-        return zoneData.get(ZONE_ID_FIELD).toString();
+        MapValue<BString, Object> zoneData =
+                (MapValue<BString, Object>) timeRecord.getMapValue(StringUtils.fromString(ZONE_FIELD));
+        return zoneData.getStringValue(StringUtils.fromString(ZONE_ID_FIELD)).getValue();
     }
 }
