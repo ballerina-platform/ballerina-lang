@@ -57,7 +57,6 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
@@ -633,6 +632,14 @@ class JvmValueGen {
                            false);
 
         mv.visitInsn(POP);
+
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(CHECKCAST, valueClassName);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitTypeInsn(CHECKCAST, String.format("[L%s;", MAPPING_INITIAL_VALUE_ENTRY));
+        mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValues",
+                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
+
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -754,10 +761,6 @@ class JvmValueGen {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
                                                                 toNameString(typeRef));
                 mv.visitInsn(DUP2);
-
-                mv.visitInsn(ICONST_0);
-                mv.visitTypeInsn(ANEWARRAY, MAPPING_INITIAL_VALUE_ENTRY);
-
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
                                    String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
             }
@@ -784,20 +787,6 @@ class JvmValueGen {
                            String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
         mv.visitInsn(POP);
 
-        // Workaround to avoid calling `populateInitialValues` for referenced types' `$init`s.
-        Label emptyArrayLabel = new Label();
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitInsn(ARRAYLENGTH);
-        mv.visitJumpInsn(IFEQ, emptyArrayLabel);
-
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitTypeInsn(CHECKCAST, valueClassName);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitTypeInsn(CHECKCAST, String.format("[L%s;", MAPPING_INITIAL_VALUE_ENTRY));
-        mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValues",
-                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
-
-        mv.visitLabel(emptyArrayLabel);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
