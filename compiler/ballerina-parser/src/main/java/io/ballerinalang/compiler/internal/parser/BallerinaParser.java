@@ -344,6 +344,10 @@ public class BallerinaParser {
                 return parseKeyKeyword();
             case TABLE_KEYWORD_RHS:
                 return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
+            case ERROR_KEYWORD:
+                return parseErrorKeyWord();
+            case ERROR_TYPE_DESCRIPTOR:
+                return parseErrorTypeDescriptor();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -1734,6 +1738,8 @@ public class BallerinaParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
                 return parseParameterizedTypeDescriptor();
+            case ERROR_KEYWORD: // error type descriptor
+                return parseErrorTypeDescriptor();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -6733,6 +6739,7 @@ public class BallerinaParser {
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
+            case ERROR_KEYWORD: // error type desc
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -6755,6 +6762,7 @@ public class BallerinaParser {
             case NEVER_KEYWORD:
             case SERVICE_KEYWORD:
             case VAR_KEYWORD:
+            case ERROR_KEYWORD: // This is for the recovery <code>error a;</code> scenario recovered here.
                 return true;
             case TYPE_DESC:
                 // This is a special case. TYPE_DESC is only return from
@@ -7266,6 +7274,71 @@ public class BallerinaParser {
                 return false;
             default:
                 return true;
+        }
+    }
+
+    /**
+     * Parse error type descriptor.
+     * <p>
+     * error-type-descriptor := error [error-type-param]
+     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
+     * detail-type-descriptor := type-descriptor
+     * inferred-type-descriptor := *
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseErrorTypeDescriptor() {
+        startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
+
+        STNode errorKeywordToken = parseErrorKeyWord();
+        STNode errorTypeParamsNode;
+        STToken nextToken = peek();
+        STToken nextNextToken = peek(2);
+        if (nextToken.kind == SyntaxKind.LT_TOKEN || nextNextToken.kind == SyntaxKind.GT_TOKEN) {
+            errorTypeParamsNode = parseErrorTypeParamsNode();
+        } else {
+            errorTypeParamsNode = STNodeFactory.createEmptyNode();
+        }
+        endContext();
+        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
+    }
+
+    /**
+     * Parse error type param node.
+     * <p>
+     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
+     * detail-type-descriptor := type-descriptor
+     * inferred-type-descriptor := *
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseErrorTypeParamsNode() {
+        STNode ltToken = parseLTToken();
+        STNode parameter;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+            parameter = consume();
+        } else {
+            parameter = parseTypeDescriptor();
+        }
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createErrorTypeParamsNode(ltToken, parameter, gtToken);
+    }
+
+    /**
+     * Parse error-keyword.
+     *
+     * @return Parsed error-keyword node
+     */
+    private STNode parseErrorKeyWord() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ERROR_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
+            return sol.recoveredNode;
         }
     }
 }

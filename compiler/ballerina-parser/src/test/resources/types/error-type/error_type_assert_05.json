@@ -1,5 +1,5 @@
 {
-    "kind": "MODULE_VAR_DECL",
+    "kind": "TYPE_DEFINITION",
     "children": [
         {
             "kind": "METADATA",
@@ -11,11 +11,17 @@
             ]
         },
         {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "InvalidAccountTypeError"
+        },
+        {
             "kind": "ERROR_TYPE_DESC",
             "children": [
                 {
-                    "kind": "ERROR_KEYWORD",
-                    "isMissing": true
+                    "kind": "ERROR_KEYWORD"
                 },
                 {
                     "kind": "ERROR_TYPE_PARAMS",
@@ -24,7 +30,8 @@
                             "kind": "LT_TOKEN"
                         },
                         {
-                            "kind": "INT_KEYWORD"
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "INVALID_ACC_TYPE"
                         },
                         {
                             "kind": "GT_TOKEN"
@@ -32,10 +39,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
         },
         {
             "kind": "SEMICOLON_TOKEN"

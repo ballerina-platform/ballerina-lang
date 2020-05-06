@@ -380,6 +380,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(keySpecifierNode);
     }
 
+    public T transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        return transformSyntaxNode(errorTypeDescriptorNode);
+    }
+
+    public T transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        return transformSyntaxNode(errorTypeParamsNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
