@@ -3300,13 +3300,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 typeCheckOnConflictClause((BLangOnConflictClause) clause, parentEnv);
             } else if (kind == NodeKind.WHERE) {
                 whereEnv = typeCheckWhereClause(((BLangWhereClause) clause).expression, select, parentEnv);
-            }else if (kind == NodeKind.ON) {
+            } else if (kind == NodeKind.ON) {
                 whereEnv = typeCheckWhereClause(((BLangOnClause) clause).expression, select, parentEnv);
             }
         }
         whereEnv = (whereEnv != null) ? whereEnv : parentEnv;
         BType actualType = findAssignableType(whereEnv, select.expression, collectionNode.type, expType,
-                queryExpr.isStream);
+                queryExpr.isStream, queryExpr.isTable);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -3315,9 +3315,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
-                                     boolean isStream) {
+                                     boolean isStream, boolean isTable) {
         List<BType> assignableSelectTypes = new ArrayList<>();
-        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream) ? collectionType.tag : expType.tag;
+        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream && !isTable) ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
 
         //type checks select type against expected element type
@@ -3331,6 +3331,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
                     enclosedTypeTag = TypeTags.ARRAY;
                     break;
+                case TypeTags.TABLE:
+                    selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
+                            true, true));
                 case TypeTags.STREAM:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
                             true, true));
@@ -3345,7 +3348,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (!isStream) {
+            if (isStream) {
                 actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
@@ -3379,7 +3382,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (errorTypes != null && !errorTypes.isEmpty()) {
                 if (errorTypes.size() == 1) {
                     errorType = errorTypes.get(0);
-                } else {
+                }
+                else {
                     errorType = BUnionType.create(null, errorTypes.toArray(new BType[errorTypes.size()]));
                 }
             }
@@ -3387,6 +3391,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (isStream) {
             return new BStreamType(TypeTags.STREAM, actualType, errorType, symTable.streamType.tsymbol);
+        } else if (isTable) {
+            return new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
         } else if (errorType != null) {
             return BUnionType.create(null, actualType, errorType);
         }
