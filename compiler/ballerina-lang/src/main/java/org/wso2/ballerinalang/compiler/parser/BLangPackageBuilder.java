@@ -1927,11 +1927,16 @@ public class BLangPackageBuilder {
         addExpressionNode(trapExpr);
     }
 
-    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean isTable, boolean isStream) {
+    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean isTable, boolean isStream, List<BLangIdentifier> keyFieldNameIdentifierList) {
         BLangQueryExpr queryExpr = (BLangQueryExpr) TreeBuilder.createQueryExpressionNode();
         queryExpr.pos = pos;
         queryExpr.addWS(ws);
         queryExpr.setIsTable(isTable);
+        if (isTable) {
+            for (BLangIdentifier identifier : keyFieldNameIdentifierList) {
+                queryExpr.addFieldNameIdentifier(identifier);
+            }
+        }
         queryExpr.setIsStream(isStream);
         Collections.reverse(queryClauseStack);
         while (queryClauseStack.size() > 0) {

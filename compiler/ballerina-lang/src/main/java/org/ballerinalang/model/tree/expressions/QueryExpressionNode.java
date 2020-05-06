@@ -17,6 +17,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.clauses.SelectClauseNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -41,5 +42,9 @@ public interface QueryExpressionNode extends ExpressionNode {
     boolean isTable();
 
     void setIsTable(boolean isTable);
+
+    void addFieldNameIdentifier(IdentifierNode fieldNameIdentifier);
+
+    List<IdentifierNode> getFieldNameIdentifierList();
 
 }

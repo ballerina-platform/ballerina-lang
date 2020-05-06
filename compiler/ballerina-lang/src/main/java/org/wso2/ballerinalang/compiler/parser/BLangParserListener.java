@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -2879,12 +2880,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.queryConstructType() != null) {
             if (ctx.queryConstructType().TYPE_STREAM() != null) {
                 isStream = true;
+                this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream, null);
             } else {
                 isTable = true;
+                List<BLangIdentifier> keyFieldNameIdentifierList = new ArrayList<>();
+                for (TerminalNode terminalNode : ctx.queryConstructType().tableKeySpecifier().Identifier()) {
+                    BLangIdentifier identifier = pkgBuilder.createIdentifier(getCurrentPos(terminalNode),
+                            terminalNode.getText());
+                    keyFieldNameIdentifierList.add(identifier);
+                }
+                this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream,
+                        keyFieldNameIdentifierList);
             }
+        } else {
+            this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream, null);
         }
-
-        this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream);
     }
 
     @Override
