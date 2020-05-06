@@ -110,12 +110,37 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        return null;
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        TableValueImpl<K, V> clone = new TableValueImpl<>(type);
+        if (fieldNames != null) {
+            clone.fieldNames = fieldNames;
+        }
+
+        IteratorValue itr = getIterator();
+        while (itr.hasNext()) {
+            TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
+            Object value = tupleValue.get(1);
+            value = value instanceof RefValue ? ((RefValue) value).copy(refs) : value;
+            clone.add((V) value);
+        }
+
+       return clone;
     }
 
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        return null;
+        TableValueImpl<K, V> copy = (TableValueImpl<K, V>) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
     }
 
     @Override
@@ -232,11 +257,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         this.freezeStatus.setFrozen();
-        this.values().forEach(val -> {
-            if (val instanceof RefValue) {
-                ((RefValue) val).freezeDirect();
-            }
-        });
+        //we know that values are always RefValues
+        this.values().forEach(val -> ((RefValue) val).freezeDirect());
     }
 
     public String stringValue() {
