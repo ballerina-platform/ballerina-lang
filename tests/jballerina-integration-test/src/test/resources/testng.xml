@@ -312,25 +312,25 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-packerina-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="brokenOnJBallerina"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>&ndash;&gt;-->
+    <test name="ballerina-packerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+        <classes>
+<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
-<!--            &lt;!&ndash;            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>&ndash;&gt;-->
+            <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
+        </classes>
+    </test>
 
     <test name="ballerina-task-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

@@ -259,7 +259,8 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2", dependsOnMethods = "testModifyProj1AndPush")
+    @Test(description = "Test rebuilding and running TestProject2", dependsOnMethods = "testModifyProj1AndPush",
+            enabled = false)
     public void testRebuildTestProj2() throws BallerinaTestException {
         // Build module
         String fooBaloFileName = "foo-"
