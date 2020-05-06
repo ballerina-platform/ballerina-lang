@@ -242,6 +242,8 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
     protected SyntaxKind getExpectedTokenKind(ParserRuleContext context) {
         switch (context) {
             case LT_TOKEN:
+            case XML_START_OR_EMPTY_TAG:
+            case XML_END_TAG:
                 return SyntaxKind.LT_TOKEN;
             case GT_TOKEN:
                 return SyntaxKind.GT_TOKEN;

@@ -739,6 +739,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_PI_END_TOKEN;
             case "XML_ATTRIBUTE_VALUE":
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
+            case "TEMPLATE_STRING":
+                return SyntaxKind.TEMPLATE_STRING;
 
             // Trivia
             case "EOF_TOKEN":

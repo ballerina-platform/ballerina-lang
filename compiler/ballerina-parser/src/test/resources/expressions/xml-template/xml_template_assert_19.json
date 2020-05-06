@@ -75,8 +75,13 @@
                                                             "kind": "XML_COMMENT_START_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "XML_TEXT_CONTENT",
-                                                            "value": "hello--world"
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                    "value": "hello--world"
+                                                                }
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "XML_COMMENT_END_TOKEN"
@@ -132,8 +137,13 @@
                                                             "kind": "XML_COMMENT_START_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "XML_TEXT_CONTENT",
-                                                            "value": "- "
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                    "value": "- "
+                                                                }
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "XML_COMMENT_END_TOKEN"
@@ -189,8 +199,13 @@
                                                             "kind": "XML_COMMENT_START_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "XML_TEXT_CONTENT",
-                                                            "value": " --->"
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                    "value": " --->"
+                                                                }
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "XML_COMMENT_END_TOKEN",
@@ -247,8 +262,13 @@
                                                             "kind": "XML_COMMENT_START_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "XML_TEXT_CONTENT",
-                                                            "value": " --"
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                    "value": " --"
+                                                                }
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "XML_COMMENT_END_TOKEN"

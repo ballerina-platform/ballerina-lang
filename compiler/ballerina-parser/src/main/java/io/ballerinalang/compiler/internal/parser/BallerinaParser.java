@@ -6623,7 +6623,7 @@ public class BallerinaParser extends AbstractParser {
         STNode content = parseTemplateContent();
         STNode endingBackTick = parseBacktickToken();
         endContext();
-        return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, type, startingBackTick,
+        return STNodeFactory.createTemplateExpressionNode(SyntaxKind.RAW_TEMPLATE_EXPRESSION, type, startingBackTick,
                 content, endingBackTick);
     }
 

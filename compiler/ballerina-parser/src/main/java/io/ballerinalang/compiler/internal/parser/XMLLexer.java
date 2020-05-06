@@ -825,17 +825,32 @@ public class XMLLexer extends AbstractLexer {
          * 2) Comment body was processed during previous readToken(). And the next readToken()
          * will bring us here as we are still inside the xml-comment-mode.
          */
-        if (reader.peek() == LexerTerminals.MINUS && reader.peek(1) == LexerTerminals.MINUS) {
-            // '-->' marks the end of comment
-            if (reader.peek(2) == LexerTerminals.GT) {
-                reader.advance(3);
-                endMode();
-                return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_COMMENT_END_TOKEN);
-            }
+        switch (reader.peek()) {
+            case LexerTerminals.MINUS:
+                if (reader.peek(1) == LexerTerminals.MINUS) {
+                    // '-->' marks the end of comment
+                    if (reader.peek(2) == LexerTerminals.GT) {
+                        reader.advance(3);
+                        endMode();
+                        return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_COMMENT_END_TOKEN);
+                    }
 
-            // Double-hyphen is not allowed. So log an error, but continue.
-            reader.advance(1);
-            reportLexerError("double-hypen is not allowed within xml comment");
+                    // Double-hyphen is not allowed. So log an error, but continue.
+                    reader.advance(1);
+                    reportLexerError("double-hypen is not allowed within xml comment");
+                }
+                break;
+            case LexerTerminals.DOLLAR:
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    reader.advance(2);
+                    startMode(ParserMode.INTERPOLATION);
+                    // Trailing trivia should be captured similar to DEFAULT mode.
+                    // Hence using the 'getSyntaxToken()' method.
+                    return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                break;
+            default:
+                break;
         }
 
         /*
@@ -857,7 +872,13 @@ public class XMLLexer extends AbstractLexer {
                         reader.advance();
                     }
                     continue;
+                case LexerTerminals.DOLLAR:
+                    if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                        break;
+                    }
+                    // fall through
                 case LexerTerminals.BACKTICK:
+                    endMode();
                     break;
                 default:
                     reader.advance();
@@ -915,6 +936,27 @@ public class XMLLexer extends AbstractLexer {
             return getXMLSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
+        switch (reader.peek()) {
+            case LexerTerminals.DOLLAR:
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    reader.advance(2);
+                    startMode(ParserMode.INTERPOLATION);
+                    // Trailing trivia should be captured similar to DEFAULT mode.
+                    // Hence using the 'getSyntaxToken()' method.
+                    return getXMLSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                break;
+            case LexerTerminals.QUESTION_MARK:
+                if (this.reader.peek(1) == LexerTerminals.GT) {
+                    reader.advance(2);
+                    endMode();
+                    return getXMLSyntaxToken(SyntaxKind.XML_PI_END_TOKEN);
+                }
+                break;
+            default:
+                break;
+        }
+
         while (!reader.isEOF()) {
             switch (reader.peek()) {
                 case LexerTerminals.QUESTION_MARK:
@@ -924,7 +966,13 @@ public class XMLLexer extends AbstractLexer {
                     }
                     reader.advance();
                     continue;
+                case LexerTerminals.DOLLAR:
+                    if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                        break;
+                    }
+                    // fall through
                 case LexerTerminals.BACKTICK:
+                    endMode();
                     break;
                 default:
                     reader.advance();
@@ -933,7 +981,6 @@ public class XMLLexer extends AbstractLexer {
             break;
         }
 
-        endMode();
         return getXMLText(SyntaxKind.XML_TEXT_CONTENT);
     }
 

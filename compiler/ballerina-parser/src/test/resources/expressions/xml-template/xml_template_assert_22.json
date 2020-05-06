@@ -79,6 +79,11 @@
                                                             "isMissing": true
                                                         },
                                                         {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "XML_PI_END_TOKEN"
                                                         }
                                                     ]
@@ -134,6 +139,11 @@
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
                                                             "isMissing": true
+                                                        },
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "XML_PI_END_TOKEN",
@@ -220,8 +230,13 @@
                                                                             "value": "bar"
                                                                         },
                                                                         {
-                                                                            "kind": "XML_TEXT_CONTENT",
-                                                                            "value": "</foo>"
+                                                                            "kind": "LIST",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "XML_TEXT_CONTENT",
+                                                                                    "value": "</foo>"
+                                                                                }
+                                                                            ]
                                                                         },
                                                                         {
                                                                             "kind": "XML_PI_END_TOKEN",

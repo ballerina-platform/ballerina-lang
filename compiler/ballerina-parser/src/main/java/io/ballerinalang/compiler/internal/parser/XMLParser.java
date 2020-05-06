@@ -416,7 +416,7 @@ public class XMLParser extends AbstractParser {
         List<STNode> items = new ArrayList<>();
         STToken nextToken = peek();
         while (!isEndOfXMLAttributeValue(nextToken.kind)) {
-            STNode contentItem = parseXMLAttributeValueItem();
+            STNode contentItem = parseXMLCharacterSet();
             items.add(contentItem);
             nextToken = peek();
         }
@@ -457,23 +457,6 @@ public class XMLParser extends AbstractParser {
     }
 
     /**
-     * Parse XML Quoted String.
-     * 
-     * @return XML quoted string
-     */
-    private STNode parseXMLAttributeValueItem() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case XML_TEXT_CONTENT:
-                return consume();
-            case INTERPOLATION_START_TOKEN:
-                return parseInterpolation();
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    /**
      * Parse XML text.
      * <p>
      * <code>
@@ -509,12 +492,18 @@ public class XMLParser extends AbstractParser {
 
     private STNode parseXMLComment() {
         STNode commentStart = parseXMLCommentStart();
-        STNode content;
-        if (peek().kind == SyntaxKind.XML_COMMENT_END_TOKEN) {
-            content = STNodeFactory.createEmptyNode();
-        } else {
-            content = parseXMLCommentContent();
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLComment(nextToken.kind)) {
+            STNode contentItem = parseXMLCharacterSet();
+            if (contentItem.kind == SyntaxKind.INTERPOLATION) {
+                this.errorHandler.reportInvalidNode(nextToken, "interpolation is not allowed within xml comments");
+            }
+            items.add(contentItem);
+            nextToken = peek();
         }
+
+        STNode content = STNodeFactory.createNodeList(items);
         STNode commentEnd = parseXMLCommentEnd();
         return STNodeFactory.createXMLComment(commentStart, content, commentEnd);
     }
@@ -539,13 +528,16 @@ public class XMLParser extends AbstractParser {
         }
     }
 
-    private STNode parseXMLCommentContent() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.XML_TEXT_CONTENT) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.XML_COMMENT_CONTENT);
-            return sol.recoveredNode;
+    private boolean isEndOfXMLComment(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case XML_COMMENT_END_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -565,12 +557,18 @@ public class XMLParser extends AbstractParser {
         STNode piStart = parseXMLPIStart();
         STNode target = parseXMLNCName();
 
-        STNode data;
-        if (peek().kind == SyntaxKind.XML_TEXT_CONTENT) {
-            data = parseXMLPIData();
-        } else {
-            data = STNodeFactory.createEmptyNode();
+        STToken nextToken = peek();
+        List<STNode> items = new ArrayList<>();
+        while (!isEndOfXMLPI(nextToken.kind)) {
+            STNode contentItem = parseXMLCharacterSet();
+            if (contentItem.kind == SyntaxKind.INTERPOLATION) {
+                this.errorHandler.reportInvalidNode(nextToken, "interpolation is not allowed within xml processing instruction");
+            }
+            items.add(contentItem);
+            nextToken = peek();
         }
+
+        STNode data = STNodeFactory.createNodeList(items);
 
         STNode piEnd = parseXMLPIEnd();
         endContext();
@@ -597,13 +595,28 @@ public class XMLParser extends AbstractParser {
         }
     }
 
-    private STNode parseXMLPIData() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.XML_TEXT_CONTENT) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.XML_PI_DATA);
-            return sol.recoveredNode;
+    private boolean isEndOfXMLPI(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case XML_PI_END_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseXMLCharacterSet() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case XML_TEXT_CONTENT:
+                return consume();
+            case INTERPOLATION_START_TOKEN:
+                return parseInterpolation();
+            default:
+                throw new IllegalStateException();
         }
     }
 }
