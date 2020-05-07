@@ -54,6 +54,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR;
 
 /**
  * The runtime representation of table.
@@ -169,10 +170,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return valueHolder.getData((K) key);
     }
 
+    public KeyHashValueHolder.DefaultKeyWrapper getKeyWrapper() {
+        return this.valueHolder.getKeyWrapper();
+    }
+
     @Override
     public V put(K key, V value) {
         handleFrozenTableValue();
-        return valueHolder.putData(key, value);
+        return valueHolder.putData(value);
     }
 
     @Override
@@ -329,8 +334,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.type;
     }
 
-
-
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type.getConstrainedType());
@@ -383,8 +386,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
 
-        public V putData(K key, V data) {
-            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+        public V putData(V data) {
+            throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR, "value type inconsistent "
+                    + "with the inherent table type");
         }
 
         public V remove(K key) {
@@ -395,12 +399,17 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return false;
         }
 
+        public KeyHashValueHolder.DefaultKeyWrapper getKeyWrapper() {
+            return null;
+        }
+
         public BType getKeyType() {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "keys are not defined");
         }
     }
 
     private class KeyHashValueHolder extends ValueHolder {
+
         private DefaultKeyWrapper keyWrapper;
         private BType keyType;
 
@@ -411,6 +420,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             } else {
                 keyWrapper = new DefaultKeyWrapper();
             }
+        }
+
+        public DefaultKeyWrapper getKeyWrapper() {
+            return keyWrapper;
         }
 
         public void addData(V data) {
@@ -437,19 +450,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return values.get(TableUtils.hash(key, null));
         }
 
-        public V putData(K key, V data) {
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
-            Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
-            Integer actualHash = TableUtils.hash(actualKey, null);
-            Integer hash = TableUtils.hash(key, null);
-
-            if (!hash.equals(actualHash)) {
-                throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
-                        key + "' not found in value " + data.toString());
-            }
-
+        public V putData(V data) {
+            MapValue dataMap = (MapValue) data;
+            Object key = this.keyWrapper.wrapKey(dataMap);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>((K) key, data);
+            Integer hash = TableUtils.hash(key, new ArrayList<>());
             entries.put(hash, entry);
-            keys.put(hash, key);
+            keys.put(hash, (K) key);
             return values.put(hash, data);
         }
 

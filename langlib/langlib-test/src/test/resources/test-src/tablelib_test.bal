@@ -222,3 +222,57 @@ function testNextKey() returns int {
     ];
     return custTbl.nextKey();
 }
+
+function testAddData() returns boolean {
+    boolean testPassed = true;
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer data = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    custTbl.add(data);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && tableToList[3] == data;
+    return testPassed;
+}
+
+function testAddExistingMember() returns any[]|error {
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer data = { id: 5, firstName: "Gimantha", lastName: "Bandara" };
+    custTbl.add(data);
+    return custTbl.toArray();
+}
+
+
+function testPutData() returns boolean {
+    boolean testPassed = true;
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer customer1 = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    Customer customer2 = { id: 5, firstName: "Grainier", lastName: "Perera" };
+    custTbl.put(customer1);
+    custTbl.put(customer2);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && tableToList[2] == customer2;
+    testPassed = testPassed && tableToList[3] == customer1;
+    return testPassed;
+}
+
+function testPutInconsistentData() returns any[]|error {
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    var person = { name: "Chiran", age: 33 };
+    custTbl.put(person);
+    return custTbl.toArray();
+}
