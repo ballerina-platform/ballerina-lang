@@ -3246,11 +3246,17 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseImplicitNewExpression(STNode newKeyword) {
-        STNode token = peek();
-        return parseImplicitNewExpression(token.kind, newKeyword);
-    }
-
+    /**
+     * <p>
+     * Parse an Explicit New expression.
+     * </p>
+     * <code>
+     *  explicit-new-expr := new type-descriptor ( arg-list )
+     * </code>
+     *
+     * @param newKeyword Parsed `new` keyword.
+     * @return the Parsed Explicit New Expression.
+     */
     private STNode parseExplicitNewExpression(STNode newKeyword) {
         startContext(ParserRuleContext.EXPLICIT_NEW_RHS);
         STNode typeDescriptor = parseTypeDescriptor();
@@ -3260,18 +3266,28 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createExplicitNewExpression(newKeyword, typeDescriptor, parenthesizedArgsList);
     }
 
-    private STNode parseImplicitNewExpression(SyntaxKind kind, STNode newKeyword) {
+    /**
+     * <p>
+     * Parse an <code>implicit-new-expr</code> with arguments.
+     * </p>
+     *
+     * @param newKeyword Parsed `new` keyword.
+     * @return Parsed implicit-new-expr.
+     */
+    private STNode parseImplicitNewExpression(STNode newKeyword) {
         STNode implicitNewArgList = parseParenthesizedArgList();
 
         return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
     }
 
+    /**
+     * <p>
+     * Parse the parenthesized argument list for a <code>new-expr</code>.
+     * </p>
+     *
+     * @return Parsed parenthesized rhs of <code>new-expr</code>.
+     */
     private STNode parseParenthesizedArgList() {
-        STNode token = peek();
-        return parseParenthesizedArgList(token.kind);
-    }
-
-    private STNode parseParenthesizedArgList(SyntaxKind kind) {
         startContext(ParserRuleContext.NEW_RHS);
         STNode openParan = parseOpenParenthesis();
         STNode arguments = parseArgsList();
