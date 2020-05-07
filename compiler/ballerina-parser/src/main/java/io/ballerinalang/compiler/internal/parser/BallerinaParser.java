@@ -355,7 +355,7 @@ public class BallerinaParser {
             case STREAM_TYPE_DESCRIPTOR:
                 return parseStreamTypeDescriptor();
             case STREAM_TYPE_PARAMS:
-                return parseStreamTypeParamsNode();
+                return parseStreamTypeParamsNode((STNode) args[0], (STNode) args[1]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -7350,14 +7350,21 @@ public class BallerinaParser {
      *
      * @return Parsed stream type params node
      */
-    private STNode parseStreamTypeParamsNode() {
-        return parseStreamTypeParamsNode(peek().kind);
-    }
 
-    private STNode parseStreamTypeParamsNode(SyntaxKind nextTokenKind) {
-        STNode ltToken, leftTypeDescNode, commaToken, rightTypeDescNode, gtToken;
+    private STNode parseStreamTypeParamsNode() {
+        STNode ltToken, leftTypeDescNode;
         ltToken = parseLTToken();
         leftTypeDescNode = parseTypeDescriptor();
+        return parseStreamTypeParamsNode(ltToken, leftTypeDescNode);
+    }
+
+    private STNode parseStreamTypeParamsNode(STNode ltToken, STNode leftTypeDescNode) {
+        return parseStreamTypeParamsNode(peek().kind, ltToken, leftTypeDescNode);
+    }
+
+    private STNode parseStreamTypeParamsNode(SyntaxKind nextTokenKind, STNode ltToken, STNode leftTypeDescNode) {
+        STNode commaToken, rightTypeDescNode, gtToken;
+
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 commaToken = parseComma();
@@ -7368,7 +7375,7 @@ public class BallerinaParser {
                 rightTypeDescNode = STNodeFactory.createEmptyNode();
                 break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.STREAM_TYPE_PARAMS, nextTokenKind);
+                Solution solution = recover(peek(), ParserRuleContext.STREAM_TYPE_PARAMS, ltToken, leftTypeDescNode);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -7376,7 +7383,7 @@ public class BallerinaParser {
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
                 }
-                return parseStreamTypeParamsNode(solution.tokenKind);
+                return parseStreamTypeParamsNode(solution.tokenKind, ltToken, leftTypeDescNode);
         }
         gtToken = parseGTToken();
 
