@@ -267,12 +267,40 @@ function testPutData() returns boolean {
     return testPassed;
 }
 
-function testPutInconsistentData() returns any[]|error {
-    CustomerTable custTbl = table key(id) [
+//function testPutInconsistentData() returns any[]|error {
+//    CustomerTable custTbl = table key(id) [
+//      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+//      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+//    ];
+//    var person = { name: "Chiran", age: 33 };
+//    custTbl.put(person);
+//    return custTbl.toArray();
+//}
+
+function testPutWithKeyLessTbl() returns boolean {
+    boolean testPassed = true;
+    CustomerTable custTbl = table [
       { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
       { id: 5, firstName: "Gimantha", lastName: "Bandara" }
     ];
-    var person = { name: "Chiran", age: 33 };
-    custTbl.put(person);
-    return custTbl.toArray();
+    Customer customer = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    custTbl.put(customer);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == customer;
+    return testPassed;
+}
+
+function testAddWithKeyLessTbl() returns boolean {
+    boolean testPassed = true;
+    CustomerTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer customer = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    custTbl.add(customer);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == customer;
+    return testPassed;
 }

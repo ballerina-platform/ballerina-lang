@@ -207,4 +207,16 @@ public class LangLibTableTest {
         BRunUtil.invoke(compileResult, "testPutInconsistentData");
         Assert.fail();
     }
+
+    @Test
+    public void testPutWithKeyLessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAddWithKeyLessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }
