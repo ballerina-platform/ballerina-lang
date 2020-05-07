@@ -15,7 +15,7 @@
             "kind": "OPTIONAL_TYPE_DESC",
             "children": [
                 {
-                    "kind": "ARRAY_TYPE_DESC",
+                    "kind": "INDEXED_EXPRESSION",
                     "children": [
                         {
                             "kind": "OPTIONAL_TYPE_DESC",

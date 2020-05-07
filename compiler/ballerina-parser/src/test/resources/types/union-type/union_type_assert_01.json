@@ -80,7 +80,7 @@
                                     "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "ARRAY_TYPE_DESC",
+                                            "kind": "INDEXED_EXPRESSION",
                                             "children": [
                                                 {
                                                     "kind": "INT_KEYWORD"
@@ -97,7 +97,7 @@
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "ARRAY_TYPE_DESC",
+                                            "kind": "INDEXED_EXPRESSION",
                                             "children": [
                                                 {
                                                     "kind": "STRING_KEYWORD"
@@ -152,7 +152,7 @@
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "ARRAY_TYPE_DESC",
+                                            "kind": "INDEXED_EXPRESSION",
                                             "children": [
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",
