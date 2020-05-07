@@ -295,6 +295,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] LET_VAR_DECL_START =
             { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.ANNOTATIONS };
 
+    private static final ParserRuleContext[] STREAM_TYPE_PARAMS =
+            { ParserRuleContext.COMMA, ParserRuleContext.GT };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -484,6 +487,7 @@ public class BallerinaParserErrorHandler {
             case TYPEDESC_RHS:
             case ERROR_TYPE_PARAMS:
             case LET_VAR_DECL_START:
+            case STREAM_TYPE_PARAMS:
                 return true;
             default:
                 return false;
@@ -1173,7 +1177,12 @@ public class BallerinaParserErrorHandler {
                 case LET_VAR_DECL_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LET_VAR_DECL_START,
                             isEntryPoint);
-
+                case STREAM_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.STREAM_KEYWORD;
+                    break;
+                case STREAM_TYPE_PARAMS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, STREAM_TYPE_PARAMS,
+                            isEntryPoint);
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
@@ -1249,6 +1258,7 @@ public class BallerinaParserErrorHandler {
                 case ERROR_TYPE_DESCRIPTOR:
                 case LET_VAR_DECL:
                 case LET_EXPRESSION:
+                case STREAM_TYPE_DESCRIPTOR:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1679,6 +1689,7 @@ public class BallerinaParserErrorHandler {
             case KEY_SPECIFIER:
             case ERROR_TYPE_DESCRIPTOR:
             case LET_VAR_DECL:
+            case STREAM_TYPE_DESCRIPTOR:
                 startContext(currentCtx);
                 break;
             default:
@@ -2157,6 +2168,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.LET_VAR_DECL;
             case LET_VAR_DECL:
                 return ParserRuleContext.LET_VAR_DECL_START;
+            case STREAM_TYPE_DESCRIPTOR:
+                return ParserRuleContext.STREAM_KEYWORD;
+            case STREAM_KEYWORD:
+                return ParserRuleContext.LT;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2175,16 +2190,16 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case GT:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR ||
-                        parentCtx == ParserRuleContext.ERROR_TYPE_DESCRIPTOR) {
-                    endContext();
-                    return ParserRuleContext.TYPEDESC_RHS;
+                switch (parentCtx) {
+                    case PARAMETERIZED_TYPE_DESCRIPTOR:
+                    case ERROR_TYPE_DESCRIPTOR:
+                    case STREAM_TYPE_DESCRIPTOR:
+                        endContext();
+                        return ParserRuleContext.TYPEDESC_RHS;
+                    default: // TYPE_CAST_EXPRESSION:
+                        endContext();
+                        return ParserRuleContext.EXPRESSION;
                 }
-                if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
-                    endContext();
-                    return ParserRuleContext.EXPRESSION;
-                }
-                // fall through
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -2310,6 +2325,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.VARIABLE_NAME;
             case LET_VAR_DECL:
                 return ParserRuleContext.LET_VAR_DECL_START;
+            case STREAM_TYPE_DESCRIPTOR:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             default:
                 throw new IllegalStateException();
         }
@@ -2353,6 +2370,8 @@ public class BallerinaParserErrorHandler {
             case TYPE_CAST_EXPRESSION:
             case ERROR_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
+            case STREAM_TYPE_DESCRIPTOR:
+                return ParserRuleContext.STREAM_TYPE_PARAMS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -3143,6 +3162,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.KEY_KEYWORD;
             case ERROR_KEYWORD:
                 return SyntaxKind.ERROR_KEYWORD;
+            case STREAM_KEYWORD:
+                return SyntaxKind.STREAM_KEYWORD;
             case LET_KEYWORD:
                 return SyntaxKind.LET_KEYWORD;
 

@@ -6739,7 +6739,8 @@ public class BallerinaParser {
             case NEVER_KEYWORD:
             case SERVICE_KEYWORD:
             case VAR_KEYWORD:
-            case ERROR_KEYWORD: // This is for the recovery <code>error a;</code> scenario recovered here.
+            case ERROR_KEYWORD: // This is for the recovery. <code>error a;</code> scenario recovered here.
+            case STREAM_KEYWORD: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
                 return true;
             case TYPE_DESC:
                 // This is a special case. TYPE_DESC is only return from
@@ -7349,7 +7350,7 @@ public class BallerinaParser {
      *
      * @return Parsed stream type params node
      */
-    private STNode parseStreamTypeParamsNode(){
+    private STNode parseStreamTypeParamsNode() {
         return parseStreamTypeParamsNode(peek().kind);
     }
 
