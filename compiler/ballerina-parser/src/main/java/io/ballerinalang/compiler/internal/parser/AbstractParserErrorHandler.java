@@ -178,6 +178,7 @@ public abstract class AbstractParserErrorHandler {
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, from the position of the original error.
      * @param currentDepth Amount of distance traveled so far.
+     * @param isEntryPoint Flag indicating whether this is the entry point to the error recovery
      * @return Recovery result
      */
     protected Result seekMatchInSubTree(ParserRuleContext currentCtx, int lookahead, int currentDepth,
@@ -222,7 +223,8 @@ public abstract class AbstractParserErrorHandler {
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
-     * @param fixes Fixes made so far
+     * @param alternativeRules Alternative rules
+     * @param isEntryPoint Flag indicating whether this is the entry point to the error recovery
      * @return Recovery result
      */
     protected Result seekInAlternativesPaths(int lookahead, int currentDepth, int currentMatches,
@@ -351,7 +353,6 @@ public abstract class AbstractParserErrorHandler {
      * an input a user has given.
      * </li>
      * </ol>
-     * </p>
      * 
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error

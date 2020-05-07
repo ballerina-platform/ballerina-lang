@@ -562,7 +562,8 @@ public class XMLParser extends AbstractParser {
         while (!isEndOfXMLPI(nextToken.kind)) {
             STNode contentItem = parseXMLCharacterSet();
             if (contentItem.kind == SyntaxKind.INTERPOLATION) {
-                this.errorHandler.reportInvalidNode(nextToken, "interpolation is not allowed within xml processing instruction");
+                this.errorHandler.reportInvalidNode(nextToken,
+                        "interpolation is not allowed within xml processing instruction");
             }
             items.add(contentItem);
             nextToken = peek();

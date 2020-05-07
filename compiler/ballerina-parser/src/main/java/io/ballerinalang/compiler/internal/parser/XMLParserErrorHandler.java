@@ -103,6 +103,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case XML_COMMENT_CONTENT:
                 case XML_ATTRIBUTE_VALUE_TEXT:
+                case XML_PI_DATA:
                     hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
                     break;
                 case XML_COMMENT_END:
@@ -113,9 +114,6 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case XML_PI_END:
                     hasMatch = nextToken.kind == SyntaxKind.XML_PI_END_TOKEN;
-                    break;
-                case XML_PI_DATA:
-                    hasMatch = nextToken.kind == SyntaxKind.XML_TEXT_CONTENT;
                     break;
                 case XML_QUOTE_START:
                 case XML_QUOTE_END:
@@ -160,6 +158,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             case XML_ATTRIBUTES:
             case XML_PI:
                 startContext(currentCtx);
+                break;
             default:
                 break;
         }
@@ -179,6 +178,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                         throw new IllegalStateException(" < cannot exist in: " + parentCtx);
                 }
             case GT_TOKEN:
+            case XML_PI_END:
                 endContext();
                 return ParserRuleContext.XML_CONTENT;
             case XML_NAME:
@@ -225,9 +225,6 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_PI_START;
             case XML_PI_START:
                 return ParserRuleContext.XML_NAME;
-            case XML_PI_END:
-                endContext();
-                return ParserRuleContext.XML_CONTENT;
             case XML_PI_DATA:
                 return ParserRuleContext.XML_PI_END;
             case XML_QUOTE_START:
