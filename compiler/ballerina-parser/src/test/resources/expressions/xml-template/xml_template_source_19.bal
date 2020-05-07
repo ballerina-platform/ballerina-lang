@@ -3,4 +3,5 @@ function foo() {
     var x = xml `<!--- -->`;
     var x = xml `<!-- --->`;
     var x = xml `<!-- ---->`;
+    var x = xml `<!----->`;
 }

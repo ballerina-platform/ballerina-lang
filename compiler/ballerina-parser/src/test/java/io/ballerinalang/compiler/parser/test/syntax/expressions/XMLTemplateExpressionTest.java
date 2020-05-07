@@ -169,4 +169,9 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testErrorBeforeTemplateExpression() {
         testFile("xml-template/xml_template_source_28.bal", "xml-template/xml_template_assert_28.json");
     }
+    
+    @Test
+    public void testInvalidTokensInAttributeValue() {
+        testFile("xml-template/xml_template_source_29.bal", "xml-template/xml_template_assert_29.json");
+    }
 }
