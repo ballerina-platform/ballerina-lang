@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -1144,12 +1145,15 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            }
-
-            if (env.node.getKind() == NodeKind.FUNCTION) {
+            } else if (((tempSymbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)
+                    && env.node.getKind() == NodeKind.FUNCTION) {
+                //  TODO: Check what happens when the same param is used in multiple places in the same return type
                 BLangFunction func = (BLangFunction) env.node;
                 if (func.hasBody() && func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
-                    symbol = tempSymbol;
+                    BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, 0, tempSymbol.name,
+                                                          tempSymbol.pkgID, null, func.symbol);
+                    this.resultType = tSymbol.type = new BParameterizedType((BVarSymbol) tempSymbol, tSymbol);
+                    return;
                 } else {
                     dlog.error(func.pos, DiagnosticCode.INVALID_RETURN_TYPE_PARAMETERIZATION);
                 }

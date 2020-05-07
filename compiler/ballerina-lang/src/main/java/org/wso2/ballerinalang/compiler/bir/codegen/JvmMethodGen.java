@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -235,12 +236,14 @@ public class JvmMethodGen {
     private int nextVarId = -1;
     private JvmPackageGen jvmPackageGen;
     private SymbolTable symbolTable;
+    private ConcreteBTypeBuilder typeBuilder;
     private BUnionType errorOrNilType;
 
     public JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
+        this.typeBuilder = new ConcreteBTypeBuilder();
         this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
     }
 
@@ -1470,7 +1473,12 @@ public class JvmMethodGen {
         int ignoreStrandVarIndex = indexMap.getIndex(strandVar);
 
         // generate method desc
-        String desc = getMethodDesc(func.type.paramTypes, func.type.retType, null, false);
+        BType retType = func.type.retType;
+        if (isExternFunc(func) && !func.type.paramTypes.isEmpty()) {
+            retType = typeBuilder.buildType(func.type.retType, null);
+        }
+
+        String desc = getMethodDesc(func.type.paramTypes, retType, null, false);
         int access = ACC_PUBLIC;
         int localVarOffset;
         if (attachedType != null) {
@@ -1543,8 +1551,8 @@ public class JvmMethodGen {
 
         BIRVariableDcl varDcl = getVariableDcl(localVars.get(0));
         returnVarRefIndex = indexMap.getIndex(varDcl);
-        BType returnType = func.type.retType;
-        genDefaultValue(mv, returnType, returnVarRefIndex);
+//        BType returnType = func.type.retType;
+        genDefaultValue(mv, retType, returnVarRefIndex);
 
         BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt
                 new Name("state"), null, VarKind.TEMP);

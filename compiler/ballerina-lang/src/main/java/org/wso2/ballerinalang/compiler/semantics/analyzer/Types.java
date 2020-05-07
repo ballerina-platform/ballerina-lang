@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -2156,6 +2157,16 @@ public class Types {
         public Boolean visit(BFiniteType t, BType s) {
 
             return s == t;
+        }
+
+        @Override
+        public Boolean visit(BParameterizedType t, BType s) {
+            if (s.tag != TypeTags.PARAMETERIZED_TYPE) {
+                return false;
+            }
+
+            BParameterizedType sType = (BParameterizedType) s;
+            return isSameType(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
         }
 
     };

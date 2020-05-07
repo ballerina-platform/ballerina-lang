@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -117,6 +118,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
  */
 public class InteropMethodGen {
 
+    private static final ConcreteBTypeBuilder typeBuilder = new ConcreteBTypeBuilder();
+
     static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
                                          ClassWriter classWriter,
                                          BIRPackage birModule,
@@ -134,6 +137,12 @@ public class InteropMethodGen {
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
+        BType retType = birFunc.type.retType;
+
+        if (!birFunc.parameters.isEmpty()) {
+            retType = typeBuilder.buildType(birFunc.type.retType, null);
+        }
+
         String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false);
         int access = ACC_PUBLIC + ACC_STATIC;
 
@@ -246,7 +255,7 @@ public class InteropMethodGen {
         }
 
         // Handle return type
-        BType retType = birFunc.type.retType;
+//        BType retType = birFunc.type.retType;
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
         int returnVarRefIndex = indexMap.getIndex(retVarDcl);
 
@@ -285,6 +294,9 @@ public class InteropMethodGen {
                                     JvmMethodGen jvmMethodGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
+        if (!birFunc.type.paramTypes.isEmpty()) {
+            retType = typeBuilder.buildType(birFunc.type.retType, null);
+        }
         JMethod jMethod = extFuncWrapper.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
