@@ -591,6 +591,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RAW_TEMPLATE_EXPRESSION;
             case "XML_TEMPLATE_EXPRESSION":
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
+            case "STRING_TEMPLATE_EXPRESSION":
+                return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
