@@ -1277,7 +1277,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(XMLComment xMLComment) {
         Token commentStart = modifyToken(xMLComment.commentStart());
-        Token content = modifyToken(xMLComment.content());
+        NodeList<Node> content = modifyNodeList(xMLComment.content());
         Token commentEnd = modifyToken(xMLComment.commentEnd());
         return xMLComment.modify(
                 commentStart,
@@ -1289,7 +1289,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(XMLProcessingInstruction xMLProcessingInstruction) {
         Token piStart = modifyToken(xMLProcessingInstruction.piStart());
         XMLNameNode target = modifyNode(xMLProcessingInstruction.target());
-        Token data = modifyToken(xMLProcessingInstruction.data());
+        NodeList<Node> data = modifyNodeList(xMLProcessingInstruction.data());
         Token piEnd = modifyToken(xMLProcessingInstruction.piEnd());
         return xMLProcessingInstruction.modify(
                 piStart,

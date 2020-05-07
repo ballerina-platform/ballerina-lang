@@ -2313,7 +2313,8 @@
                 },
                 {
                     "name": "content",
-                    "type": "Token"
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "commentEnd",
@@ -2336,7 +2337,8 @@
                 },
                 {
                     "name": "data",
-                    "type": "Token"
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "piEnd",

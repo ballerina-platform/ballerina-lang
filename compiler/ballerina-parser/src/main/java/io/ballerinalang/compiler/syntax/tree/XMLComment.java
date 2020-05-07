@@ -34,8 +34,8 @@ public class XMLComment extends XMLItemNode {
         return childInBucket(0);
     }
 
-    public Token content() {
-        return childInBucket(1);
+    public NodeList<Node> content() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token commentEnd() {
@@ -62,11 +62,11 @@ public class XMLComment extends XMLItemNode {
 
     public XMLComment modify(
             Token commentStart,
-            Token content,
+            NodeList<Node> content,
             Token commentEnd) {
         if (checkForReferenceEquality(
                 commentStart,
-                content,
+                content.underlyingListNode(),
                 commentEnd)) {
             return this;
         }

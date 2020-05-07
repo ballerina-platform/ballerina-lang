@@ -38,8 +38,8 @@ public class XMLProcessingInstruction extends XMLItemNode {
         return childInBucket(1);
     }
 
-    public Token data() {
-        return childInBucket(2);
+    public NodeList<Node> data() {
+        return new NodeList<>(childInBucket(2));
     }
 
     public Token piEnd() {
@@ -68,12 +68,12 @@ public class XMLProcessingInstruction extends XMLItemNode {
     public XMLProcessingInstruction modify(
             Token piStart,
             XMLNameNode target,
-            Token data,
+            NodeList<Node> data,
             Token piEnd) {
         if (checkForReferenceEquality(
                 piStart,
                 target,
-                data,
+                data.underlyingListNode(),
                 piEnd)) {
             return this;
         }

@@ -145,7 +145,7 @@ public class BallerinaParser extends AbstractParser {
             case STATEMENT_WITHOUT_ANNOTS:
                 return parseStatement((STNode) args[0]);
             case EXPRESSION_RHS:
-                return parseExpressionRhs((OperatorPrecedence) args[1], (STNode) args[0], (boolean) args[2],
+                return parseExpressionRhs((OperatorPrecedence) args[0], (STNode) args[1], (boolean) args[2],
                         (boolean) args[3]);
             case PARAMETER:
                 return parseParameter((STNode) args[0], (int) args[1]);
@@ -352,6 +352,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseErrorTypeDescriptor();
             case LET_KEYWORD:
                 return parseLetKeyword();
+            case TEMPLATE_START:
+            case TEMPLATE_END:
+                return parseBacktickToken(context);
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -3127,27 +3130,29 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
-                if (solution.recoveredNode.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    return parseQualifiedIdentifier(solution.recoveredNode);
-                }
-                if (solution.recoveredNode.kind == SyntaxKind.OPEN_PAREN_TOKEN &&
-                        peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-                    return parseNilLiteral();
-                }
-                if (solution.recoveredNode.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                    return parseListConstructorExpr();
-                }
-                if (solution.recoveredNode.kind == SyntaxKind.LT_TOKEN) {
-                    return parseTypeCastExpr();
-                }
-                if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD) {
-                    return parseTableConstructorExpr();
-                }
-                if (solution.recoveredNode.kind == SyntaxKind.LET_KEYWORD) {
-                    return parseLetExpression();
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
                 }
 
-                return solution.recoveredNode;
+                if (solution.action == Action.KEEP) {
+                    return parseXMLTemplateExpression();
+                }
+
+                switch (solution.tokenKind) {
+                    case IDENTIFIER_TOKEN:
+                        return parseQualifiedIdentifier(solution.recoveredNode);
+                    case DECIMAL_INTEGER_LITERAL:
+                    case HEX_INTEGER_LITERAL:
+                    case STRING_LITERAL:
+                    case NULL_KEYWORD:
+                    case TRUE_KEYWORD:
+                    case FALSE_KEYWORD:
+                    case DECIMAL_FLOATING_POINT_LITERAL:
+                    case HEX_FLOATING_POINT_LITERAL:
+                        return solution.recoveredNode;
+                    default:
+                        return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
+                }
         }
     }
 
@@ -7385,9 +7390,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTemplateExpression() {
         STNode type = STNodeFactory.createEmptyNode();
-        STNode startingBackTick = parseBacktickToken(true);
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         STNode content = parseTemplateContent();
-        STNode endingBackTick = parseBacktickToken(false);
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.RAW_TEMPLATE_EXPRESSION, type, startingBackTick,
                 content, endingBackTick);
     }
@@ -7432,9 +7437,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseXMLTemplateExpression() {
         STNode xmlKeyword = parseXMLKeyword();
-        STNode startingBackTick = parseBacktickToken(true);
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         STNode content = parseTemplateContentAsXML();
-        STNode endingBackTick = parseBacktickToken(false);
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, xmlKeyword,
                 startingBackTick, content, endingBackTick);
     }
@@ -7544,12 +7549,12 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Back-tick token
      */
-    private STNode parseBacktickToken(boolean isStart) {
+    private STNode parseBacktickToken(ParserRuleContext ctx) {
         STToken token = peek();
         if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, isStart ? ParserRuleContext.TEMPLATE_START : ParserRuleContext.TEMPLATE_END);
+            Solution sol = recover(token, ctx);
             return sol.recoveredNode;
         }
     }
