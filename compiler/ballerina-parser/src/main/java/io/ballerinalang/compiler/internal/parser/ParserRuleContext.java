@@ -292,6 +292,7 @@ public enum ParserRuleContext {
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
+    STREAM_TYPE_PARAMS("stream-type-params"),
     ;
 
     private String value;

@@ -2023,6 +2023,17 @@
                     "type": "Token"
                 },
                 {
+                    "name": "streamTypeParamsNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "StreamTypeParamsNode",
+            "base": "Node",
+            "kind": "STREAM_TYPE_PARAMS",
+            "attributes": [
+                {
                     "name": "ltToken",
                     "type": "Token"
                 },

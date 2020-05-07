@@ -354,6 +354,8 @@ public class BallerinaParser {
                 return parseStreamKeyWord();
             case STREAM_TYPE_DESCRIPTOR:
                 return parseStreamTypeDescriptor();
+            case STREAM_TYPE_PARAMS:
+                return parseStreamTypeParamsNode();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -7326,34 +7328,59 @@ public class BallerinaParser {
      *
      * @return Parsed stream type descriptor node
      */
-    private STToken parseStreamTypeDescriptor(){
+    private STNode parseStreamTypeDescriptor() {
         startContext(ParserRuleContext.STREAM_TYPE_DESCRIPTOR);
 
         STNode streamKeywordToken = parseStreamKeyWord();
-        STNode leftTypeDescNode, rightTypeDescNode,ltToken, gtToken, commaToken;
+        STNode streamTypeParamsNode;
         STToken nextToken = peek();
-        if(nextToken.kind == SyntaxKind.LT_TOKEN) {
-            ltToken = parseLTToken();
-            leftTypeDescNode = parseTypeDescriptor();
-            if(nextToken.kind == SyntaxKind.COMMA_TOKEN) {
-                commaToken = parseComma();
-                rightTypeDescNode = parseTypeDescriptor();
-                gtToken = parseGTToken();
-            } else {
-                commaToken = STNodeFactory.createEmptyNode();
-                rightTypeDescNode = STNodeFactory.createEmptyNode();
-                gtToken = STNodeFactory.createEmptyNode();
-            }
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            streamTypeParamsNode = parseStreamTypeParamsNode();
         } else {
-            leftTypeDescNode = STNodeFactory.createEmptyNode();
-            ltToken = STNodeFactory.createEmptyNode();
-            gtToken = STNodeFactory.createEmptyNode();
-            commaToken = STNodeFactory.createEmptyNode();
-            rightTypeDescNode = STNodeFactory.createEmptyNode();
+            streamTypeParamsNode = STNodeFactory.createEmptyNode();
         }
         endContext();
-        return STNodeFactory.createStreamTypeDescriptorNode(streamKeywordToken, ltToken, leftTypeDescNode, commaToken,
-                rightTypeDescNode, gtToken);
+        return STNodeFactory.createStreamTypeDescriptorNode(streamKeywordToken, streamTypeParamsNode);
+    }
+
+    /**
+     * Parse stream type params node.
+     * <p>stream-type-parameters := < type-descriptor [, type-descriptor]></p>
+     *
+     * @return Parsed stream type params node
+     */
+    private STNode parseStreamTypeParamsNode(){
+        return parseStreamTypeParamsNode(peek().kind);
+    }
+
+    private STNode parseStreamTypeParamsNode(SyntaxKind nextTokenKind) {
+        STNode ltToken, leftTypeDescNode, commaToken, rightTypeDescNode, gtToken;
+        ltToken = parseLTToken();
+        leftTypeDescNode = parseTypeDescriptor();
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                commaToken = parseComma();
+                rightTypeDescNode = parseTypeDescriptor();
+                break;
+            case GT_TOKEN:
+                commaToken = STNodeFactory.createEmptyNode();
+                rightTypeDescNode = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.STREAM_TYPE_PARAMS, nextTokenKind);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseStreamTypeParamsNode(solution.tokenKind);
+        }
+        gtToken = parseGTToken();
+
+        return STNodeFactory.createStreamTypeParamsNode(ltToken, leftTypeDescNode, commaToken, rightTypeDescNode,
+                gtToken);
     }
 
     /**

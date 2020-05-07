@@ -123,7 +123,8 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
                     ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR, ParserRuleContext.ERROR_TYPE_DESCRIPTOR };
+                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR, ParserRuleContext.ERROR_TYPE_DESCRIPTOR,
+                    ParserRuleContext.STREAM_TYPE_DESCRIPTOR};
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_FIELD, ParserRuleContext.RECORD_BODY_END };

@@ -24,18 +24,30 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class StreamTypeDescriptorNode extends NonTerminalNode {
+public class StreamTypeParamsNode extends NonTerminalNode {
 
-    public StreamTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public StreamTypeParamsNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token streamKeywordToken() {
+    public Token ltToken() {
         return childInBucket(0);
     }
 
-    public Node streamTypeParamsNode() {
+    public Node leftTypeDescNode() {
         return childInBucket(1);
+    }
+
+    public Token commaToken() {
+        return childInBucket(2);
+    }
+
+    public Node rightTypeDescNode() {
+        return childInBucket(3);
+    }
+
+    public Token gtToken() {
+        return childInBucket(4);
     }
 
     @Override
@@ -51,21 +63,33 @@ public class StreamTypeDescriptorNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "streamKeywordToken",
-                "streamTypeParamsNode"};
+                "ltToken",
+                "leftTypeDescNode",
+                "commaToken",
+                "rightTypeDescNode",
+                "gtToken"};
     }
 
-    public StreamTypeDescriptorNode modify(
-            Token streamKeywordToken,
-            Node streamTypeParamsNode) {
+    public StreamTypeParamsNode modify(
+            Token ltToken,
+            Node leftTypeDescNode,
+            Token commaToken,
+            Node rightTypeDescNode,
+            Token gtToken) {
         if (checkForReferenceEquality(
-                streamKeywordToken,
-                streamTypeParamsNode)) {
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken)) {
             return this;
         }
 
-        return NodeFactory.createStreamTypeDescriptorNode(
-                streamKeywordToken,
-                streamTypeParamsNode);
+        return NodeFactory.createStreamTypeParamsNode(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
     }
 }

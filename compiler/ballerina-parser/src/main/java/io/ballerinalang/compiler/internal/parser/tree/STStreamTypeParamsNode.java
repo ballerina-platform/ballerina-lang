@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,23 +27,35 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STStreamTypeDescriptorNode extends STNode {
-    public final STNode streamKeywordToken;
-    public final STNode streamTypeParamsNode;
+public class STStreamTypeParamsNode extends STNode {
+    public final STNode ltToken;
+    public final STNode leftTypeDescNode;
+    public final STNode commaToken;
+    public final STNode rightTypeDescNode;
+    public final STNode gtToken;
 
-    STStreamTypeDescriptorNode(
-            STNode streamKeywordToken,
-            STNode streamTypeParamsNode) {
-        super(SyntaxKind.STREAM_TYPE_DESC);
-        this.streamKeywordToken = streamKeywordToken;
-        this.streamTypeParamsNode = streamTypeParamsNode;
+    STStreamTypeParamsNode(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken) {
+        super(SyntaxKind.STREAM_TYPE_PARAMS);
+        this.ltToken = ltToken;
+        this.leftTypeDescNode = leftTypeDescNode;
+        this.commaToken = commaToken;
+        this.rightTypeDescNode = rightTypeDescNode;
+        this.gtToken = gtToken;
 
         addChildren(
-                streamKeywordToken,
-                streamTypeParamsNode);
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new StreamTypeDescriptorNode(this, position, parent);
+        return new StreamTypeParamsNode(this, position, parent);
     }
 }

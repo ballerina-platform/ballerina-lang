@@ -392,6 +392,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(streamTypeDescriptorNode);
     }
 
+    public T transform(StreamTypeParamsNode streamTypeParamsNode) {
+        return transformSyntaxNode(streamTypeParamsNode);
+    }
+
     public T transform(LetExpressionNode letExpressionNode) {
         return transformSyntaxNode(letExpressionNode);
     }

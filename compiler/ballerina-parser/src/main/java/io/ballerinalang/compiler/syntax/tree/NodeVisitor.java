@@ -391,6 +391,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeDescriptorNode);
     }
 
+    public void visit(StreamTypeParamsNode streamTypeParamsNode) {
+        visitSyntaxNode(streamTypeParamsNode);
+    }
+
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
     }

@@ -1525,26 +1525,35 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static StreamTypeDescriptorNode createStreamTypeDescriptorNode(
             Token streamKeywordToken,
+            Node streamTypeParamsNode) {
+        Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
+        Objects.requireNonNull(streamTypeParamsNode, "streamTypeParamsNode must not be null");
+
+        STNode stStreamTypeDescriptorNode = STNodeFactory.createStreamTypeDescriptorNode(
+                streamKeywordToken.internalNode(),
+                streamTypeParamsNode.internalNode());
+        return stStreamTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static StreamTypeParamsNode createStreamTypeParamsNode(
             Token ltToken,
             Node leftTypeDescNode,
             Token commaToken,
             Node rightTypeDescNode,
             Token gtToken) {
-        Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
         Objects.requireNonNull(ltToken, "ltToken must not be null");
         Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
         Objects.requireNonNull(commaToken, "commaToken must not be null");
         Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
         Objects.requireNonNull(gtToken, "gtToken must not be null");
 
-        STNode stStreamTypeDescriptorNode = STNodeFactory.createStreamTypeDescriptorNode(
-                streamKeywordToken.internalNode(),
+        STNode stStreamTypeParamsNode = STNodeFactory.createStreamTypeParamsNode(
                 ltToken.internalNode(),
                 leftTypeDescNode.internalNode(),
                 commaToken.internalNode(),
                 rightTypeDescNode.internalNode(),
                 gtToken.internalNode());
-        return stStreamTypeDescriptorNode.createUnlinkedFacade();
+        return stStreamTypeParamsNode.createUnlinkedFacade();
     }
 
     public static LetExpressionNode createLetExpressionNode(

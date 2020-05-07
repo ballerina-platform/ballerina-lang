@@ -1135,14 +1135,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createStreamTypeDescriptorNode(
             STNode streamKeywordToken,
+            STNode streamTypeParamsNode) {
+
+        return new STStreamTypeDescriptorNode(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
+    public static STNode createStreamTypeParamsNode(
             STNode ltToken,
             STNode leftTypeDescNode,
             STNode commaToken,
             STNode rightTypeDescNode,
             STNode gtToken) {
 
-        return new STStreamTypeDescriptorNode(
-                streamKeywordToken,
+        return new STStreamTypeParamsNode(
                 ltToken,
                 leftTypeDescNode,
                 commaToken,
