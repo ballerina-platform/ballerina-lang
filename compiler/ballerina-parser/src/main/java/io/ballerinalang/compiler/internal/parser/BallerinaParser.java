@@ -3038,7 +3038,7 @@ public class BallerinaParser extends AbstractParser {
             case INDEXED_EXPRESSION:
                 return isValidLVExpr(((STIndexedExpressionNode) expression).containerExpression);
             default:
-                return false;
+                return (expression instanceof STMissingToken);
         }
     }
 
@@ -3473,7 +3473,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse function call argument list.
      *
-     * @return Parsed agrs list
+     * @return Parsed args list
      */
     private STNode parseArgsList() {
         startContext(ParserRuleContext.ARG_LIST);
@@ -3501,13 +3501,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Kind of the argument first argument.
      */
     private SyntaxKind parseFirstArg(ArrayList<STNode> argsList) {
-        startContext(ParserRuleContext.ARG);
-
         // Comma precedes the first argument is an empty node, since it doesn't exist.
         STNode leadingComma = STNodeFactory.createEmptyNode();
         STNode arg = parseArg(leadingComma);
-        endContext();
-
         if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
             argsList.add(arg);
             return arg.kind;
@@ -3526,8 +3522,6 @@ public class BallerinaParser extends AbstractParser {
     private void parseFollowUpArg(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
-            startContext(ParserRuleContext.ARG);
-
             STNode leadingComma = parseComma();
 
             // If there's an extra comma at the end of arguments list, remove it.
@@ -3535,7 +3529,6 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
             if (isEndOfParametersList(nextToken.kind)) {
                 this.errorHandler.reportInvalidNode((STToken) leadingComma, "invalid token " + leadingComma);
-                endContext();
                 break;
             }
 
@@ -3552,7 +3545,6 @@ public class BallerinaParser extends AbstractParser {
             }
 
             nextToken = peek();
-            endContext();
         }
     }
 

@@ -57,7 +57,7 @@ public enum ParserRuleContext {
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
     ARG_LIST("arguments"),
-    ARG("argument"),
+    ARG_START("argument-start"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
@@ -254,6 +254,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
+    ARG_LIST_START("arg-list-start"),
 
     // Expressions
     EXPRESSION("expression"),
