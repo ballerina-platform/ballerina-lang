@@ -722,6 +722,14 @@ public class ParserTestUtils {
                 return SyntaxKind.UNION_TYPE_DESC;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
+            case "IMPLICIT_NEW":
+                return SyntaxKind.IMPLICIT_NEW;
+            case "NEW_KEYWORD":
+                return SyntaxKind.NEW_KEYWORD;
+            case "PARENTHESIZED_ARG_LIST":
+                return SyntaxKind.PARENTHESIZED_ARG_LIST;
+            case "EXPLICIT_NEW":
+                return SyntaxKind.EXPLICIT_NEW;
 
             // Trivia
             case "EOF_TOKEN":
@@ -734,7 +742,6 @@ public class ParserTestUtils {
                 return SyntaxKind.COMMENT;
             case "INVALID":
                 return SyntaxKind.INVALID;
-
             // Unsupported
             default:
                 throw new UnsupportedOperationException("cannot find syntax kind: " + kind);

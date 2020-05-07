@@ -1227,7 +1227,6 @@ public class BallerinaParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
-                case NEW_KEYWORD:
                 case NEW_RHS:
                 case EXPLICIT_NEW_RHS:
                 default:
