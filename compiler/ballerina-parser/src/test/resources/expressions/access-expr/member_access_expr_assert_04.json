@@ -1,11 +1,11 @@
 {
-    "kind": "MEMBER_ACCESS",
+    "kind": "INDEXED_EXPRESSION",
     "children": [
         {
             "kind": "METHOD_CALL",
             "children": [
                 {
-                    "kind": "MEMBER_ACCESS",
+                    "kind": "INDEXED_EXPRESSION",
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -15,7 +15,7 @@
                             "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                            "kind": "MEMBER_ACCESS",
+                            "kind": "INDEXED_EXPRESSION",
                             "children": [
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

@@ -751,9 +751,9 @@
             ]
         },
         {
-            "name": "MemberAccessExpressionNode",
+            "name": "IndexedExpressionNode",
             "base": "ExpressionNode",
-            "kind": "MEMBER_ACCESS",
+            "kind": "INDEXED_EXPRESSION",
             "attributes": [
                 {
                     "name": "containerExpression",
@@ -1500,29 +1500,6 @@
                 {
                     "name": "typeDescriptor",
                     "type": "Node"
-                }
-            ]
-        },
-        {
-            "name": "ArrayTypeDescriptorNode",
-            "base": "TypeDescriptorNode",
-            "kind": "ARRAY_TYPE_DESC",
-            "attributes": [
-                {
-                    "name": "typeDescriptorNode",
-                    "type": "Node"
-                },
-                {
-                    "name": "openBracketToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "arrayLengthNode",
-                    "type": "Node"
-                },
-                {
-                    "name": "closeBracketToken",
-                    "type": "Token"
                 }
             ]
         },

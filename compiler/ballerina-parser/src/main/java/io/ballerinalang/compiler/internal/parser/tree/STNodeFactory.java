@@ -440,13 +440,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createMemberAccessExpressionNode(
+    public static STNode createIndexedExpressionNode(
             STNode containerExpression,
             STNode openBracket,
             STNode keyExpression,
             STNode closeBracket) {
 
-        return new STMemberAccessExpressionNode(
+        return new STIndexedExpressionNode(
                 containerExpression,
                 openBracket,
                 keyExpression,
@@ -849,19 +849,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression,
                 isKeyword,
                 typeDescriptor);
-    }
-
-    public static STNode createArrayTypeDescriptorNode(
-            STNode typeDescriptorNode,
-            STNode openBracketToken,
-            STNode arrayLengthNode,
-            STNode closeBracketToken) {
-
-        return new STArrayTypeDescriptorNode(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
     }
 
     public static STNode createRemoteMethodCallActionNode(

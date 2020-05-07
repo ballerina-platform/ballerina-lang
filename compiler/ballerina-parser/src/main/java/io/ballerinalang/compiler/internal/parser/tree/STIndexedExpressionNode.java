@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,31 +27,31 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode typeDescriptorNode;
-    public final STNode openBracketToken;
-    public final STNode arrayLengthNode;
-    public final STNode closeBracketToken;
+public class STIndexedExpressionNode extends STExpressionNode {
+    public final STNode containerExpression;
+    public final STNode openBracket;
+    public final STNode keyExpression;
+    public final STNode closeBracket;
 
-    STArrayTypeDescriptorNode(
-            STNode typeDescriptorNode,
-            STNode openBracketToken,
-            STNode arrayLengthNode,
-            STNode closeBracketToken) {
-        super(SyntaxKind.ARRAY_TYPE_DESC);
-        this.typeDescriptorNode = typeDescriptorNode;
-        this.openBracketToken = openBracketToken;
-        this.arrayLengthNode = arrayLengthNode;
-        this.closeBracketToken = closeBracketToken;
+    STIndexedExpressionNode(
+            STNode containerExpression,
+            STNode openBracket,
+            STNode keyExpression,
+            STNode closeBracket) {
+        super(SyntaxKind.INDEXED_EXPRESSION);
+        this.containerExpression = containerExpression;
+        this.openBracket = openBracket;
+        this.keyExpression = keyExpression;
+        this.closeBracket = closeBracket;
 
         addChildren(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ArrayTypeDescriptorNode(this, position, parent);
+        return new IndexedExpressionNode(this, position, parent);
     }
 }

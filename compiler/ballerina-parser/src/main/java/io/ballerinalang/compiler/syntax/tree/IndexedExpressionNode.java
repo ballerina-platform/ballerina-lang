@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class MemberAccessExpressionNode extends ExpressionNode {
+public class IndexedExpressionNode extends ExpressionNode {
 
-    public MemberAccessExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public IndexedExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -65,7 +65,7 @@ public class MemberAccessExpressionNode extends ExpressionNode {
                 "closeBracket"};
     }
 
-    public MemberAccessExpressionNode modify(
+    public IndexedExpressionNode modify(
             ExpressionNode containerExpression,
             Token openBracket,
             ExpressionNode keyExpression,
@@ -78,7 +78,7 @@ public class MemberAccessExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createMemberAccessExpressionNode(
+        return NodeFactory.createIndexedExpressionNode(
                 containerExpression,
                 openBracket,
                 keyExpression,

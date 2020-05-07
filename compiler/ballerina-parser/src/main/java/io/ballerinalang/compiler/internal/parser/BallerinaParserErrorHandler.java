@@ -228,7 +228,8 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS };
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS,
+                    ParserRuleContext.TYPEDESC_RHS};
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
@@ -2715,11 +2716,14 @@ public class BallerinaParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
                 endContext(); // End array type descriptor context
                 return ParserRuleContext.TYPEDESC_RHS;
+            case COMPUTED_FIELD_NAME:
+                endContext(); // end computed-field-name
+                return ParserRuleContext.COLON;
             case LIST_CONSTRUCTOR:
             case TABLE_CONSTRUCTOR:
-            case COMPUTED_FIELD_NAME:
+                endContext();
+                return getNextRuleForExpr();
             default:
-                endContext(); // end computed-field-name, list-constructor or table-constructor
                 return getNextRuleForExpr();
         }
     }
