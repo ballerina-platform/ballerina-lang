@@ -24,6 +24,9 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 /**
  * Tests for selectively immutable values with the `readonly` type.
  *
@@ -35,11 +38,44 @@ public class SelectivelyImmutableTypeTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/readonly/selectively_immutable_type_test.bal");
+        result = BCompileUtil.compile("test-src/types/readonly/test_selectively_immutable_type.bal");
     }
 
     @Test
     public void testReadonlyType() {
         BRunUtil.invoke(result, "testReadonlyType");
+    }
+
+    @Test
+    public void testReadonlyRecordFieldsNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/types/readonly/test_selectively_immutable_type_negative.bal");
+        int index = 0;
+
+        // Assignment and initialization.
+        validateError(result, index++, "incompatible types: expected 'Student', found 'Person & readonly'", 41, 17);
+        validateError(result, index++, "incompatible types: expected '(int|string)', found 'PersonalDetails & " +
+                "readonly'", 42, 20);
+        validateError(result, index++, "incompatible types: expected 'Student', found 'Person & readonly?'", 43, 17);
+        validateError(result, index++, "incompatible types: expected 'string', found 'int'", 44, 16);
+        validateError(result, index++, "incompatible types: expected 'Student & readonly', found 'Student'", 57, 30);
+        validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
+                "'PersonalDetails'", 60, 18);
+        validateError(result, index++, "incompatible types: expected '(A|B|any & readonly)', found 'Obj'", 78, 26);
+        validateError(result, index++, "invalid field: 'readonly' field expected for 'details'", 105, 18);
+        validateError(result, index++, "incompatible types: expected 'Department & readonly' for field 'dept', found " +
+                "'Department'", 106, 12);
+
+        // Updates.
+        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 129, 5);
+        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
+                "'other'", 129, 17);
+        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 133, 5);
+        validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 138,
+                      14);
+        validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 139,
+                      17);
+
+        assertEquals(result.getErrorCount(), index);
     }
 }

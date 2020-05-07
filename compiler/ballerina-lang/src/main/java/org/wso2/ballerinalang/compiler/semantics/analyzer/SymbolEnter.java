@@ -1334,7 +1334,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        for (BLangTypeDefinition typeDef : typeDefNodes) {
+        for (int i = 0; i < typeDefNodes.size(); i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
             NodeKind nodeKind = typeDef.typeNode.getKind();
             if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
                 continue;

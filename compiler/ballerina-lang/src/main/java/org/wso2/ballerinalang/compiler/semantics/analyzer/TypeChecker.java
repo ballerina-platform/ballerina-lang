@@ -1495,7 +1495,13 @@ public class TypeChecker extends BLangNodeVisitor {
                         types.isAssignable(typePosPair.type, symTable.readonlyType)) {
                     continue;
                 }
-                dlog.error(typePosPair.pos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, fieldName);
+
+                if (!Symbols.isFlagOn(type.flags, Flags.READONLY) &&
+                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
+                    // If the expected field type itself is readonly, an error would be logged already.
+                    dlog.error(typePosPair.pos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, fieldName);
+                }
+
                 if (hasValidReadonlyFields) {
                     hasValidReadonlyFields = false;
                 }
@@ -1524,7 +1530,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
                 if (name.equals(getKeyValueFieldName(keyValueField))) {
-                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.pos);
+                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.valueExpr.pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
@@ -2106,6 +2112,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (isAllReadonlyTypes(varRefType)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                    varRefType);
+                        types.checkType(fieldAccessExpr, actualType, this.expType);
+                        resultType = symTable.semanticError;
+                        return;
                     } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
                             isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
@@ -2206,6 +2215,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (isAllReadonlyTypes(exprType)) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                            exprType);
+                resultType = symTable.semanticError;
+                return;
             } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) &&
                     (indexExpr.getKind() == NodeKind.LITERAL || isConst(indexExpr)) &&
                     isInvalidReadonlyFieldUpdate(exprType, getConstFieldName(indexExpr))) {

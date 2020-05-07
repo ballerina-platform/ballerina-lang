@@ -35,7 +35,7 @@ public class InherentlyImmutableTypeTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/readonly/inherently_immutable_type_test.bal");
+        result = BCompileUtil.compile("test-src/types/readonly/test_inherently_immutable_type.bal");
     }
 
     @Test
