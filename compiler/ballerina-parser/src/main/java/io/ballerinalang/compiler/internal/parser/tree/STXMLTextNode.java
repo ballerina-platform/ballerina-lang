@@ -17,41 +17,29 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode typeDescriptorNode;
-    public final STNode openBracketToken;
-    public final STNode arrayLengthNode;
-    public final STNode closeBracketToken;
+public class STXMLTextNode extends STXMLItemNode {
+    public final STNode content;
 
-    STArrayTypeDescriptorNode(
-            STNode typeDescriptorNode,
-            STNode openBracketToken,
-            STNode arrayLengthNode,
-            STNode closeBracketToken) {
-        super(SyntaxKind.ARRAY_TYPE_DESC);
-        this.typeDescriptorNode = typeDescriptorNode;
-        this.openBracketToken = openBracketToken;
-        this.arrayLengthNode = arrayLengthNode;
-        this.closeBracketToken = closeBracketToken;
+    STXMLTextNode(
+            STNode content) {
+        super(SyntaxKind.XML_TEXT);
+        this.content = content;
 
         addChildren(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
+                content);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ArrayTypeDescriptorNode(this, position, parent);
+        return new XMLTextNode(this, position, parent);
     }
 }

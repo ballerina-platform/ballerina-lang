@@ -24,5 +24,18 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum ParserMode {
     DEFAULT,
-    IMPORT
+    IMPORT,
+    TEMPLATE,
+    INTERPOLATION,
+    INTERPOLATION_BRACED_CONTENT,
+    XML_CONTENT,
+    XML_ELEMENT_START_TAG,
+    XML_ELEMENT_END_TAG,
+    XML_TEXT,
+    XML_ATTRIBUTES,
+    XML_COMMENT,
+    XML_PI,
+    XML_PI_DATA,
+    XML_SINGLE_QUOTED_STRING,
+    XML_DOUBLE_QUOTED_STRING
 }

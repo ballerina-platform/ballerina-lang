@@ -64,10 +64,10 @@ public abstract class AbstractTokenReader {
      * 
      * @param mode Mode to switch on to
      */
-    public abstract void switchMode(ParserMode mode);
+    public abstract void startMode(ParserMode mode);
 
     /**
      * Switch the mode of the token read to {@link ParserMode#DEFAULT}.
      */
-    public abstract void resetMode();
+    public abstract void endMode();
 }

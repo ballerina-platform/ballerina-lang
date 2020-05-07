@@ -209,7 +209,7 @@
                                                     "kind": "LT_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "ARRAY_TYPE_DESC",
+                                                    "kind": "INDEXED_EXPRESSION",
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",

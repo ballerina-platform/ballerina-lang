@@ -160,8 +160,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(mappingConstructorExpressionNode);
     }
 
-    public T transform(MemberAccessExpressionNode memberAccessExpressionNode) {
-        return transformSyntaxNode(memberAccessExpressionNode);
+    public T transform(IndexedExpressionNode indexedExpressionNode) {
+        return transformSyntaxNode(indexedExpressionNode);
     }
 
     public T transform(TypeofExpressionNode typeofExpressionNode) {
@@ -292,10 +292,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeTestExpressionNode);
     }
 
-    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        return transformSyntaxNode(arrayTypeDescriptorNode);
-    }
-
     public T transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
@@ -402,6 +398,58 @@ public abstract class NodeTransformer<T> {
 
     public T transform(LetVariableDeclarationNode letVariableDeclarationNode) {
         return transformSyntaxNode(letVariableDeclarationNode);
+    }
+
+    public T transform(TemplateExpressionNode templateExpressionNode) {
+        return transformSyntaxNode(templateExpressionNode);
+    }
+
+    public T transform(XMLElementNode xMLElementNode) {
+        return transformSyntaxNode(xMLElementNode);
+    }
+
+    public T transform(XMLStartTagNode xMLStartTagNode) {
+        return transformSyntaxNode(xMLStartTagNode);
+    }
+
+    public T transform(XMLEndTagNode xMLEndTagNode) {
+        return transformSyntaxNode(xMLEndTagNode);
+    }
+
+    public T transform(XMLSimpleNameNode xMLSimpleNameNode) {
+        return transformSyntaxNode(xMLSimpleNameNode);
+    }
+
+    public T transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
+        return transformSyntaxNode(xMLQualifiedNameNode);
+    }
+
+    public T transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        return transformSyntaxNode(xMLEmptyElementNode);
+    }
+
+    public T transform(InterpolationNode interpolationNode) {
+        return transformSyntaxNode(interpolationNode);
+    }
+
+    public T transform(XMLTextNode xMLTextNode) {
+        return transformSyntaxNode(xMLTextNode);
+    }
+
+    public T transform(XMLAttributeNode xMLAttributeNode) {
+        return transformSyntaxNode(xMLAttributeNode);
+    }
+
+    public T transform(XMLAttributeValue xMLAttributeValue) {
+        return transformSyntaxNode(xMLAttributeValue);
+    }
+
+    public T transform(XMLComment xMLComment) {
+        return transformSyntaxNode(xMLComment);
+    }
+
+    public T transform(XMLProcessingInstruction xMLProcessingInstruction) {
+        return transformSyntaxNode(xMLProcessingInstruction);
     }
 
     // Tokens

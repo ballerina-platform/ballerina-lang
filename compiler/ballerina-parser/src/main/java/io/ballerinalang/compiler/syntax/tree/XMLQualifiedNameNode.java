@@ -24,26 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class MemberAccessExpressionNode extends ExpressionNode {
+public class XMLQualifiedNameNode extends XMLNameNode {
 
-    public MemberAccessExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public XMLQualifiedNameNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public ExpressionNode containerExpression() {
+    public XMLSimpleNameNode prefix() {
         return childInBucket(0);
     }
 
-    public Token openBracket() {
+    public Token colon() {
         return childInBucket(1);
     }
 
-    public ExpressionNode keyExpression() {
+    public XMLSimpleNameNode name() {
         return childInBucket(2);
-    }
-
-    public Token closeBracket() {
-        return childInBucket(3);
     }
 
     @Override
@@ -59,29 +55,25 @@ public class MemberAccessExpressionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "containerExpression",
-                "openBracket",
-                "keyExpression",
-                "closeBracket"};
+                "prefix",
+                "colon",
+                "name"};
     }
 
-    public MemberAccessExpressionNode modify(
-            ExpressionNode containerExpression,
-            Token openBracket,
-            ExpressionNode keyExpression,
-            Token closeBracket) {
+    public XMLQualifiedNameNode modify(
+            XMLSimpleNameNode prefix,
+            Token colon,
+            XMLSimpleNameNode name) {
         if (checkForReferenceEquality(
-                containerExpression,
-                openBracket,
-                keyExpression,
-                closeBracket)) {
+                prefix,
+                colon,
+                name)) {
             return this;
         }
 
-        return NodeFactory.createMemberAccessExpressionNode(
-                containerExpression,
-                openBracket,
-                keyExpression,
-                closeBracket);
+        return NodeFactory.createXMLQualifiedNameNode(
+                prefix,
+                colon,
+                name);
     }
 }
