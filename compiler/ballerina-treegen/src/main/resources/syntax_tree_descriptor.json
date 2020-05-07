@@ -2322,6 +2322,66 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "NewExpression",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "ExplicitNewExpression",
+            "base": "NewExpression",
+            "kind": "EXPLICIT_NEW",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "TypeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "ParenthesizedArgList",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ImplicitNewExpression",
+            "base": "NewExpression",
+            "kind": "IMPLICIT_NEW",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "ParenthesizedArgList",
+                    "type": "Node",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ParenthesizedArgList",
+            "base": "Node",
+            "kind": "PARENTHESIZED_ARG_LIST",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

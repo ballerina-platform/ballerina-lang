@@ -289,6 +289,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TEMPLATE_STRING_RHS =
             { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
+    private static final ParserRuleContext[] NEW_EXPR =
+            { ParserRuleContext.NEW_RHS, ParserRuleContext.EXPLICIT_NEW_RHS };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1020,6 +1023,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case STRING_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
                     break;
+                case NEW_EXPRESSION:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NEW_EXPR, isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1089,6 +1094,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
+                case NEW_RHS:
+                case EXPLICIT_NEW_RHS:
                 case ERROR_TYPE_DESCRIPTOR:
                 case LET_VAR_DECL:
                 case LET_EXPRESSION:
@@ -1343,6 +1350,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case KEY_SPECIFIER:
             case ERROR_TYPE_DESCRIPTOR:
             case LET_VAR_DECL:
+            case NEW_RHS:
+            case EXPLICIT_NEW_RHS:
                 startContext(currentCtx);
                 break;
             default:
@@ -1448,7 +1457,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.EXPRESSION_STATEMENT_START;
                 } else if (isExpressionContext(parentCtx)) {
                     return ParserRuleContext.EXPRESSION;
-                } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
+                } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION ||
+                        parentCtx == ParserRuleContext.NEW_RHS) {
                     return ParserRuleContext.PARAM_LIST;
                 } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR ||
                         parentCtx == ParserRuleContext.NIL_LITERAL) {
@@ -1534,6 +1544,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_REFERENCE;
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case EXPLICIT_NEW_RHS:
+                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
             case OBJECT_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
             case REMOTE_KEYWORD:
@@ -1828,6 +1840,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PARAMETERIZED_TYPE:
                 endContext();
                 return ParserRuleContext.LT;
+            case NEW_KEYWORD:
+                return ParserRuleContext.NEW_EXPRESSION;
+            case NEW_RHS:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             case LT:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
@@ -2032,6 +2048,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_CAST_EXPRESSION:
             case ERROR_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
+            case EXPLICIT_NEW_RHS:
+                return ParserRuleContext.NEW_RHS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -2192,6 +2210,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERPOLATION:
                 endContext();
                 return ParserRuleContext.TEMPLATE_MEMBER;
+            case EXPLICIT_NEW_RHS:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }

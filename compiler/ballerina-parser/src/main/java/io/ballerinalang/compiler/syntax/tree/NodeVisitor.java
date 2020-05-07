@@ -443,6 +443,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLProcessingInstruction);
     }
 
+    public void visit(ExplicitNewExpression explicitNewExpression) {
+        visitSyntaxNode(explicitNewExpression);
+    }
+
+    public void visit(ImplicitNewExpression implicitNewExpression) {
+        visitSyntaxNode(implicitNewExpression);
+    }
+
+    public void visit(ParenthesizedArgList parenthesizedArgList) {
+        visitSyntaxNode(parenthesizedArgList);
+    }
+
     // Tokens
 
     public void visit(Token token) {

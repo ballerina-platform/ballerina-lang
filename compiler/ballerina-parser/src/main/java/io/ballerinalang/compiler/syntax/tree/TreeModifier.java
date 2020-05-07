@@ -1285,6 +1285,37 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 piEnd);
     }
 
+    @Override
+    public Node transform(ExplicitNewExpression explicitNewExpression) {
+        Token NewKeyword = modifyToken(explicitNewExpression.NewKeyword());
+        Node TypeDescriptor = modifyNode(explicitNewExpression.TypeDescriptor());
+        Node ParenthesizedArgList = modifyNode(explicitNewExpression.ParenthesizedArgList());
+        return explicitNewExpression.modify(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
+    }
+
+    @Override
+    public Node transform(ImplicitNewExpression implicitNewExpression) {
+        Token NewKeyword = modifyToken(implicitNewExpression.NewKeyword());
+        Node ParenthesizedArgList = modifyNode(implicitNewExpression.ParenthesizedArgList().orElse(null));
+        return implicitNewExpression.modify(
+                NewKeyword,
+                ParenthesizedArgList);
+    }
+
+    @Override
+    public Node transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = modifyToken(parenthesizedArgList.openParenToken());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(parenthesizedArgList.arguments());
+        Token closeParenToken = modifyToken(parenthesizedArgList.closeParenToken());
+        return parenthesizedArgList.modify(
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
     // Tokens
 
     @Override

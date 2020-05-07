@@ -795,6 +795,14 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+            case "IMPLICIT_NEW":
+                return SyntaxKind.IMPLICIT_NEW;
+            case "NEW_KEYWORD":
+                return SyntaxKind.NEW_KEYWORD;
+            case "PARENTHESIZED_ARG_LIST":
+                return SyntaxKind.PARENTHESIZED_ARG_LIST;
+            case "EXPLICIT_NEW":
+                return SyntaxKind.EXPLICIT_NEW;
 
             // Trivia
             case "EOF_TOKEN":

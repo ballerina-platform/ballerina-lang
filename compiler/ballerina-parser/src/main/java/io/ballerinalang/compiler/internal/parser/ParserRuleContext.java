@@ -203,6 +203,7 @@ public enum ParserRuleContext {
     LET_KEYWORD("let"),
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
+    NEW_KEYWORD("new"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -289,9 +290,12 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    NEW_EXPRESSION("new-expr"),
+    IMPLICIT_NEW("implicit-new"),
+    IMPLICIT_NEW_ARG("implicit-new-arg"),
     LET_EXPRESSION("let-expr"),
 
-    // XML 
+    // XML
     XML_CONTENT("xml-content"),
     XML_TAG("xml-tag"),
     XML_START_OR_EMPTY_TAG("xml-start-or-empty-tag"),
@@ -324,6 +328,8 @@ public enum ParserRuleContext {
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
+    NEW_RHS("new-rhs"),
+    EXPLICIT_NEW_RHS("explicit-new-rhs"),
     ;
 
     private String value;

@@ -1296,5 +1296,36 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 data,
                 piEnd);
     }
+
+    public static STNode createExplicitNewExpression(
+            STNode NewKeyword,
+            STNode TypeDescriptor,
+            STNode ParenthesizedArgList) {
+
+        return new STExplicitNewExpression(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
+    }
+
+    public static STNode createImplicitNewExpression(
+            STNode NewKeyword,
+            STNode ParenthesizedArgList) {
+
+        return new STImplicitNewExpression(
+                NewKeyword,
+                ParenthesizedArgList);
+    }
+
+    public static STNode createParenthesizedArgList(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STParenthesizedArgList(
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
 }
 
