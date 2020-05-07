@@ -181,12 +181,7 @@ public class ParserTestUtils {
         // Validate the token text, if this is not a syntax token.
         // e.g: identifiers, basic-literals, etc.
         if (!isSyntaxToken(node.kind)) {
-            String expectedText;
-            if (node.kind == SyntaxKind.END_OF_LINE_TRIVIA) {
-                expectedText = System.lineSeparator();
-            } else {
-                expectedText = json.get(VALUE_FIELD).getAsString();
-            }
+            String expectedText = json.get(VALUE_FIELD).getAsString();
             String actualText = getTokenText(node);
             Assert.assertEquals(actualText, expectedText);
         }
@@ -274,20 +269,24 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case WHITESPACE_TRIVIA:
-            case END_OF_LINE_TRIVIA:
             case COMMENT:
             case INVALID:
                 return ((SyntaxTrivia) token).text;
+            case END_OF_LINE_TRIVIA:
+                return cleanupText(((SyntaxTrivia) token).text);
             case DOCUMENTATION_LINE:
                 return ((STDocumentationLineToken) token).text;
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-                return ((STLiteralValueToken) token).text;
+                return cleanupText(((STLiteralValueToken) token).text);
             default:
                 return token.kind.toString();
-
         }
+    }
+
+    private static String cleanupText(String text) {
+        return text.replace(System.lineSeparator(), "\n");
     }
 
     private static SyntaxKind getNodeKind(String kind) {
