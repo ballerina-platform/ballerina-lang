@@ -140,10 +140,10 @@
                                                                             "kind": "INTERPOLATION_START_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "MEMBER_ACCESS",
+                                                                            "kind": "INDEXED_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "MEMBER_ACCESS",
+                                                                                    "kind": "INDEXED_EXPRESSION",
                                                                                     "children": [
                                                                                         {
                                                                                             "kind": "IDENTIFIER_TOKEN",
