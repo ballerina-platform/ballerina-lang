@@ -1746,5 +1746,25 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 piEnd.internalNode());
         return stXMLProcessingInstruction.createUnlinkedFacade();
     }
+
+    public static FunctionTypeDescriptorNode createFunctionTypeDescriptorNode(
+            Token functionKeyword,
+            Token openParenToken,
+            NodeList<ParameterNode> parameters,
+            Token closeParenToken,
+            Node returnTypeDesc) {
+        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(parameters, "parameters must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stFunctionTypeDescriptorNode = STNodeFactory.createFunctionTypeDescriptorNode(
+                functionKeyword.internalNode(),
+                openParenToken.internalNode(),
+                parameters.underlyingListNode().internalNode(),
+                closeParenToken.internalNode(),
+                getOptionalSTNode(returnTypeDesc));
+        return stFunctionTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

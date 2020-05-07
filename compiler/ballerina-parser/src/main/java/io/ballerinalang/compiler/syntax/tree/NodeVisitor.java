@@ -443,6 +443,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLProcessingInstruction);
     }
 
+    public void visit(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        visitSyntaxNode(functionTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

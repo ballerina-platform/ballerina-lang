@@ -1285,6 +1285,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 piEnd);
     }
 
+    @Override
+    public Node transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        Token functionKeyword = modifyToken(functionTypeDescriptorNode.functionKeyword());
+        Token openParenToken = modifyToken(functionTypeDescriptorNode.openParenToken());
+        NodeList<ParameterNode> parameters = modifyNodeList(functionTypeDescriptorNode.parameters());
+        Token closeParenToken = modifyToken(functionTypeDescriptorNode.closeParenToken());
+        Node returnTypeDesc = modifyNode(functionTypeDescriptorNode.returnTypeDesc().orElse(null));
+        return functionTypeDescriptorNode.modify(
+                functionKeyword,
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc);
+    }
+
     // Tokens
 
     @Override

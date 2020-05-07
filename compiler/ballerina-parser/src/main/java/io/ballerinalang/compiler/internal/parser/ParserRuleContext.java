@@ -31,7 +31,7 @@ public enum ParserRuleContext {
     TOP_LEVEL_NODE("top-level-node"),
     TOP_LEVEL_NODE_WITHOUT_METADATA("top-level-node-without-metadata"),
     TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
-    FUNC_DEFINITION("func-definition"),
+    FUNC_DEF_OR_FUNC_TYPE("func-def-or-func-type"),
     PARAM_LIST("parameters"),
     PARAMETER("parameter"),
     PARAMETER_WITHOUT_ANNOTS("parameter-without-annots"),
@@ -121,6 +121,8 @@ public enum ParserRuleContext {
     ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
     LET_VAR_DECL("let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
+    FUNC_TYPE_DESC("func-type-desc"),
+    FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
 
     // Statements
     STATEMENT("statement"),

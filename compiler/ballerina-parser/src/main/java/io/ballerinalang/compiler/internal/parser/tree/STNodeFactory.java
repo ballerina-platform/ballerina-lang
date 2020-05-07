@@ -1296,5 +1296,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 data,
                 piEnd);
     }
+
+    public static STNode createFunctionTypeDescriptorNode(
+            STNode functionKeyword,
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc) {
+
+        return new STFunctionTypeDescriptorNode(
+                functionKeyword,
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc);
+    }
 }
 

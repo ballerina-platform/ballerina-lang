@@ -79,12 +79,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseTopLevelNode();
             case STATEMENT:
                 startContext(ParserRuleContext.COMP_UNIT);
-                startContext(ParserRuleContext.FUNC_DEFINITION);
+                startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
                 startContext(ParserRuleContext.FUNC_BODY_BLOCK);
                 return parseStatement();
             case EXPRESSION:
                 startContext(ParserRuleContext.COMP_UNIT);
-                startContext(ParserRuleContext.FUNC_DEFINITION);
+                startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
                 startContext(ParserRuleContext.FUNC_BODY_BLOCK);
                 startContext(ParserRuleContext.STATEMENT);
                 return parseExpression();
@@ -117,8 +117,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseFunctionName();
             case OPEN_PARENTHESIS:
                 return parseOpenParenthesis();
-            case PARAM_LIST:
-                return parseParamList();
             case RETURN_TYPE_DESCRIPTOR:
                 return parseReturnTypeDescriptor();
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -145,12 +143,13 @@ public class BallerinaParser extends AbstractParser {
                 return parseExpressionRhs((OperatorPrecedence) args[0], (STNode) args[1], (boolean) args[2],
                         (boolean) args[3]);
             case PARAMETER:
-                return parseParameter((SyntaxKind) args[0], (STNode) args[1], (int) args[2]);
+                return parseParameter((SyntaxKind) args[0], (STNode) args[1], (int) args[2], (boolean) args[3]);
             case PARAMETER_WITHOUT_ANNOTS:
-                return parseParamGivenAnnots((SyntaxKind) args[0], (STNode) args[1], (STNode) args[2], (int) args[3]);
+                return parseParamGivenAnnots((SyntaxKind) args[0], (STNode) args[1], (STNode) args[2], (int) args[3],
+                        (boolean) args[4]);
             case AFTER_PARAMETER_TYPE:
                 return parseAfterParamType((SyntaxKind) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
-                        (STNode) args[4]);
+                        (STNode) args[4], (boolean) args[5]);
             case PARAMETER_RHS:
                 return parseParameterRhs((SyntaxKind) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
                         (STNode) args[4], (STNode) args[5]);
@@ -269,7 +268,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseArrayTypeDescriptor((STNode) args[0]);
             case ARRAY_LENGTH:
                 return parseArrayLength();
-            case FUNC_DEFINITION:
+            case FUNC_DEF_OR_FUNC_TYPE:
             case REQUIRED_PARAM:
             case ANNOT_REFERENCE:
                 return parseIdentifier(context);
@@ -353,6 +352,8 @@ public class BallerinaParser extends AbstractParser {
             case TEMPLATE_START:
             case TEMPLATE_END:
                 return parseBacktickToken(context);
+            case FUNCTION_KEYWORD_RHS:
+                return parseFunctionKeywrodRhs((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -1171,18 +1172,103 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFunctionDefinition(STNode metadata, STNode visibilityQualifier) {
-        startContext(ParserRuleContext.FUNC_DEFINITION);
+        startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
         STNode functionKeyword = parseFunctionKeyword();
-        STNode name = parseFunctionName();
+        return parseFunctionKeywrodRhs(metadata, visibilityQualifier, functionKeyword);
+    }
+
+    private STNode parseFunctionKeywrodRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword) {
+        return parseFunctionKeywrodRhs(peek().kind, metadata, visibilityQualifier, functionKeyword);
+    }
+
+    private STNode parseFunctionKeywrodRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
+                                           STNode functionKeyword) {
+        STNode name;
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                name = parseFunctionName();
+                break;
+            case OPEN_PAREN_TOKEN:
+                name = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.FUNCTION_KEYWORD_RHS, metadata,
+                        visibilityQualifier, functionKeyword);
+
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseFunctionKeywrodRhs(solution.tokenKind, metadata, visibilityQualifier, functionKeyword);
+        }
+
+        // If the is present, treat this as a function def
+        if (!isEmpty(name)) {
+            STNode openParenthesis = parseOpenParenthesis();
+            STNode parameters = parseParamList(true);
+            STNode closeParenthesis = parseCloseParenthesis();
+            STNode returnTypeDesc = parseReturnTypeDescriptor();
+            STNode body = parseFunctionBody();
+            endContext();
+            return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
+                    openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
+        }
+
         STNode openParenthesis = parseOpenParenthesis();
-        STNode parameters = parseParamList();
+        STNode parameters = parseParamList(false);
         STNode closeParenthesis = parseCloseParenthesis();
         STNode returnTypeDesc = parseReturnTypeDescriptor();
-        STNode body = parseFunctionBody();
 
+        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, name, openParenthesis, parameters,
+                closeParenthesis, returnTypeDesc);
+    }
+
+    private STNode parseReturnTypeDescRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                          STNode name, STNode openParenthesis, STNode parameters,
+                                          STNode closeParenthesis, STNode returnTypeDesc) {
+        return parseReturnTypeDescRhs(peek().kind, metadata, visibilityQualifier, functionKeyword, name,
+                openParenthesis, parameters, closeParenthesis, returnTypeDesc);
+    }
+
+    private STNode parseReturnTypeDescRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
+                                          STNode functionKeyword, STNode name, STNode openParenthesis,
+                                          STNode parameters, STNode closeParenthesis, STNode returnTypeDesc) {
+        switch (nextTokenKind) {
+            // TODO: add binding-patterns
+            case IDENTIFIER_TOKEN:
+                switchContext(ParserRuleContext.FUNC_TYPE_DESC);
+                endContext();
+
+                // Parse the remaining as var-decl, becauze its the only module-level construct
+                // that can start with a func-type-desc. Constants cannot have func-type-desc.
+                startContext(ParserRuleContext.VAR_DECL_STMT);
+                STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, openParenthesis,
+                        parameters, closeParenthesis, returnTypeDesc);
+                STNode varName = parseVariableName();
+                STNode varDecl = parseVarDeclRhs(metadata, visibilityQualifier, typeDesc, varName, true);
+                endContext();
+                return varDecl;
+            default:
+                // We reach here only if the func-name is not present
+                this.errorHandler.reportMissingTokenError("missing " + ParserRuleContext.FUNC_NAME);
+                name = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                break;
+        }
+
+        STNode body = parseFunctionBody();
         endContext();
         return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
                 openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
+    }
+
+    /**
+     * Check whether a given node is an empty.
+     * 
+     * @param node Node to check
+     * @return <code>true</code> if the given node is empty. <code>false</code> otherwise
+     */
+    private boolean isEmpty(STNode node) {
+        return node == null;
     }
 
     /**
@@ -1270,7 +1356,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseParamList() {
+    private STNode parseParamList(boolean isFuncDef) {
         startContext(ParserRuleContext.PARAM_LIST);
         ArrayList<STNode> paramsList = new ArrayList<>();
 
@@ -1283,7 +1369,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the first parameter. Comma precedes the first parameter doesn't exist.
         STNode startingComma = STNodeFactory.createEmptyNode();
-        STNode firstParam = parseParameter(startingComma, SyntaxKind.REQUIRED_PARAM);
+        STNode firstParam = parseParameter(startingComma, SyntaxKind.REQUIRED_PARAM, isFuncDef);
         SyntaxKind prevParamKind = firstParam.kind;
         paramsList.add(firstParam);
 
@@ -1291,7 +1377,7 @@ public class BallerinaParser extends AbstractParser {
         token = peek();
         while (!isEndOfParametersList(token.kind)) {
             STNode leadingComma = parseComma();
-            STNode param = parseParameter(leadingComma, prevParamKind);
+            STNode param = parseParameter(leadingComma, prevParamKind, isFuncDef);
             prevParamKind = param.kind;
             paramsList.add(param);
             token = peek();
@@ -1310,7 +1396,7 @@ public class BallerinaParser extends AbstractParser {
      * @param leadingComma Comma that occurs before the param
      * @return Parsed node
      */
-    private STNode parseParameter(STNode leadingComma, SyntaxKind prevParamKind) {
+    private STNode parseParameter(STNode leadingComma, SyntaxKind prevParamKind, boolean isFuncDef) {
         STToken token = peek();
         switch (prevParamKind) {
             case REST_PARAM:
@@ -1332,15 +1418,16 @@ public class BallerinaParser extends AbstractParser {
 
         }
 
-        return parseParameter(token.kind, prevParamKind, leadingComma, 1);
+        return parseParameter(token.kind, prevParamKind, leadingComma, 1, isFuncDef);
     }
 
-    private STNode parseParameter(SyntaxKind prevParamKind, STNode leadingComma, int nextTokenOffset) {
-        return parseParameter(peek().kind, prevParamKind, leadingComma, nextTokenOffset);
+    private STNode parseParameter(SyntaxKind prevParamKind, STNode leadingComma, int nextTokenOffset,
+                                  boolean isFuncDef) {
+        return parseParameter(peek().kind, prevParamKind, leadingComma, nextTokenOffset, isFuncDef);
     }
 
     private STNode parseParameter(SyntaxKind nextTokenKind, SyntaxKind prevParamKind, STNode leadingComma,
-                                  int nextTokenOffset) {
+                                  int nextTokenOffset, boolean isFuncDef) {
         STNode annots;
         switch (nextTokenKind) {
             case AT_TOKEN:
@@ -1352,14 +1439,15 @@ public class BallerinaParser extends AbstractParser {
                 annots = STNodeFactory.createNodeList(new ArrayList<>());
                 break;
             default:
+                // TODO: can remove the first check?
                 if (nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN && isTypeStartingToken(nextTokenKind)) {
                     annots = STNodeFactory.createNodeList(new ArrayList<>());
                     break;
                 }
 
                 STToken token = peek();
-                Solution solution =
-                        recover(token, ParserRuleContext.PARAMETER, prevParamKind, leadingComma, nextTokenOffset);
+                Solution solution = recover(token, ParserRuleContext.PARAMETER, prevParamKind, leadingComma,
+                        nextTokenOffset, isFuncDef);
 
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
@@ -1378,19 +1466,19 @@ public class BallerinaParser extends AbstractParser {
 
                 // Since we come here after recovering by insertion, then the current token becomes the next token.
                 // So the nextNextToken offset becomes 1.
-                return parseParameter(solution.tokenKind, prevParamKind, leadingComma, 0);
+                return parseParameter(solution.tokenKind, prevParamKind, leadingComma, 0, isFuncDef);
         }
 
-        return parseParamGivenAnnots(nextTokenKind, prevParamKind, leadingComma, annots, 1);
+        return parseParamGivenAnnots(nextTokenKind, prevParamKind, leadingComma, annots, 1, isFuncDef);
     }
 
     private STNode parseParamGivenAnnots(SyntaxKind prevParamKind, STNode leadingComma, STNode annots,
-                                         int nextNextTokenOffset) {
-        return parseParamGivenAnnots(peek().kind, prevParamKind, leadingComma, annots, nextNextTokenOffset);
+                                         int nextNextTokenOffset, boolean isFuncDef) {
+        return parseParamGivenAnnots(peek().kind, prevParamKind, leadingComma, annots, nextNextTokenOffset, isFuncDef);
     }
 
     private STNode parseParamGivenAnnots(SyntaxKind nextTokenKind, SyntaxKind prevParamKind, STNode leadingComma,
-                                         STNode annots, int nextTokenOffset) {
+                                         STNode annots, int nextTokenOffset, boolean isFuncDef) {
         STNode qualifier;
         switch (nextTokenKind) {
             case PUBLIC_KEYWORD:
@@ -1408,7 +1496,7 @@ public class BallerinaParser extends AbstractParser {
 
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, prevParamKind,
-                        leadingComma, annots, nextTokenOffset);
+                        leadingComma, annots, nextTokenOffset, isFuncDef);
 
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
@@ -1427,52 +1515,68 @@ public class BallerinaParser extends AbstractParser {
 
                 // Since we come here after recovering by insertion, then the current token becomes the next token.
                 // So the nextNextToken offset becomes 1.
-                return parseParamGivenAnnots(solution.tokenKind, prevParamKind, leadingComma, annots, 0);
+                return parseParamGivenAnnots(solution.tokenKind, prevParamKind, leadingComma, annots, 0, isFuncDef);
         }
 
-        return parseParamGivenAnnotsAndQualifier(prevParamKind, leadingComma, annots, qualifier);
+        return parseParamGivenAnnotsAndQualifier(prevParamKind, leadingComma, annots, qualifier, isFuncDef);
     }
 
     private STNode parseParamGivenAnnotsAndQualifier(SyntaxKind prevParamKind, STNode leadingComma, STNode annots,
-                                                     STNode qualifier) {
+                                                     STNode qualifier, boolean isFuncDef) {
         STNode type = parseTypeDescriptor();
-        STNode param = parseAfterParamType(prevParamKind, leadingComma, annots, qualifier, type);
+        STNode param = parseAfterParamType(prevParamKind, leadingComma, annots, qualifier, type, isFuncDef);
         endContext();
         return param;
     }
 
     private STNode parseAfterParamType(SyntaxKind prevParamKind, STNode leadingComma, STNode annots, STNode qualifier,
-                                       STNode type) {
+                                       STNode type, boolean isFuncDef) {
         STToken token = peek();
-        return parseAfterParamType(token.kind, prevParamKind, leadingComma, annots, qualifier, type);
+        return parseAfterParamType(token.kind, prevParamKind, leadingComma, annots, qualifier, type, isFuncDef);
     }
 
     private STNode parseAfterParamType(SyntaxKind tokenKind, SyntaxKind prevParamKind, STNode leadingComma,
-                                       STNode annots, STNode qualifier, STNode type) {
+                                       STNode annots, STNode qualifier, STNode type, boolean isFuncDef) {
+        STNode paramName;
         switch (tokenKind) {
             case ELLIPSIS_TOKEN:
                 switchContext(ParserRuleContext.REST_PARAM);
                 reportInvalidQualifier(qualifier);
                 STNode ellipsis = parseEllipsis();
-                STNode paramName = parseVariableName();
+                paramName = parseVariableName();
                 return STNodeFactory.createRestParameterNode(leadingComma, annots, type, ellipsis, paramName);
             case IDENTIFIER_TOKEN:
                 paramName = parseVariableName();
                 return parseParameterRhs(prevParamKind, leadingComma, annots, qualifier, type, paramName);
-            default:
-                STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, prevParamKind, leadingComma,
-                        annots, qualifier, type);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
+            case EQUAL_TOKEN:
+                // If this is a func-def, then param name must be there
+                if (isFuncDef) {
+                    break;
                 }
-
-                return parseAfterParamType(solution.tokenKind, prevParamKind, leadingComma, annots, qualifier, type);
+                // If this is a function-type-desc, then param name is optional, and may not exist
+                paramName = STNodeFactory.createEmptyNode();
+                return parseParameterRhs(prevParamKind, leadingComma, annots, qualifier, type, paramName);
+            default:
+                if (!isFuncDef && isEndOfParameter(tokenKind)) {
+                    // If this is a function-type-desc, then param name is optional, and may not exist
+                    paramName = STNodeFactory.createEmptyNode();
+                    return parseParameterRhs(prevParamKind, leadingComma, annots, qualifier, type, paramName);
+                }
+                break;
         }
+        STToken token = peek();
+        Solution solution = recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, prevParamKind, leadingComma, annots,
+                qualifier, type, isFuncDef);
+
+        // If the parser recovered by inserting a token, then try to re-parse the same
+        // rule with the inserted token. This is done to pick the correct branch
+        // to continue the parsing.
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
+
+        return parseAfterParamType(solution.tokenKind, prevParamKind, leadingComma, annots, qualifier, type, isFuncDef);
+
     }
 
     /**
@@ -1730,6 +1834,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseParameterizedTypeDescriptor();
             case ERROR_KEYWORD: // error type descriptor
                 return parseErrorTypeDescriptor();
+            case FUNCTION_KEYWORD:
+                return parseFunctionTypeDesc();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -6751,6 +6857,7 @@ public class BallerinaParser extends AbstractParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
             case ERROR_KEYWORD: // error type desc
+            case FUNCTION_KEYWORD:
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -7652,5 +7759,17 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ctx);
             return sol.recoveredNode;
         }
+    }
+
+    private STNode parseFunctionTypeDesc() {
+        startContext(ParserRuleContext.FUNC_TYPE_DESC);
+        STNode functionKeyword = parseFunctionKeyword();
+        STNode openParenthesis = parseOpenParenthesis();
+        STNode parameters = parseParamList(false);
+        STNode closeParenthesis = parseCloseParenthesis();
+        STNode returnTypeDesc = parseReturnTypeDescriptor();
+        endContext();
+        return STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, openParenthesis, parameters,
+                closeParenthesis, returnTypeDesc);
     }
 }

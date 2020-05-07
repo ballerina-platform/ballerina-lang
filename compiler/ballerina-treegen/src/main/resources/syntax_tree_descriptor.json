@@ -2322,6 +2322,35 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "FunctionTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "FUNCTION_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameters",
+                    "type": "ParameterNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "returnTypeDesc",
+                    "type": "Node",
+                    "isOptional": true
+                }
+            ]
         }
     ]
 }
