@@ -7361,7 +7361,6 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed stream type params node
      */
-
     private STNode parseStreamTypeParamsNode() {
         STNode ltToken, leftTypeDescNode;
         ltToken = parseLTToken();
