@@ -281,7 +281,6 @@ public enum ParserRuleContext {
     TABLE_ROW_END("table-row-end"),
     NEW_EXPRESSION("new-expr"),
     IMPLICIT_NEW("implicit-new"),
-    IMPLICIT_NEW_ARG("implicit-new-arg"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
