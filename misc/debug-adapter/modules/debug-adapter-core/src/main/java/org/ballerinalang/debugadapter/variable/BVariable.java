@@ -21,28 +21,36 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Map;
 
-
 /**
- * Variable class for internal use of debug adapter.
+ * Base class for all the ballerina variable types.
  */
-public class VariableImpl {
+public class BVariable {
+
     private Map<String, Value> childVariables;
-    Variable dapVariable;
+    private Variable dapVariable;
 
-    public void setChildVariables(Map<String, Value> childVariables) {
-        this.childVariables = childVariables;
+    public BVariable() {
+        this(null);
     }
 
-    public void setDapVariable(Variable dapVariable) {
+    public BVariable(Variable dapVariable) {
         this.dapVariable = dapVariable;
-    }
-
-    public Variable getDapVariable() {
-        return dapVariable;
+        this.childVariables = null;
     }
 
     public Map<String, Value> getChildVariables() {
         return childVariables;
     }
 
+    public void setChildVariables(Map<String, Value> childVariables) {
+        this.childVariables = childVariables;
+    }
+
+    public Variable getDapVariable() {
+        return dapVariable;
+    }
+
+    public void setDapVariable(Variable dapVariable) {
+        this.dapVariable = dapVariable;
+    }
 }

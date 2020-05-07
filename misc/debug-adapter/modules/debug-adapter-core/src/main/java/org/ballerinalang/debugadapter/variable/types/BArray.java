@@ -20,8 +20,8 @@ import com.sun.jdi.Field;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.VariableUtils;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.utils.VariableUtils;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * Array variable type.
  */
-public class BArray extends VariableImpl {
+public class BArray extends BVariable {
 
     private final ObjectReferenceImpl value;
     private Map<String, Value> childVariables;

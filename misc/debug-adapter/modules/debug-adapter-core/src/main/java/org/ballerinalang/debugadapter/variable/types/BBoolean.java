@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * Boolean variable type.
  */
-public class BBoolean extends VariableImpl {
+public class BBoolean extends BVariable {
 
     private final ObjectReferenceImpl value;
 
