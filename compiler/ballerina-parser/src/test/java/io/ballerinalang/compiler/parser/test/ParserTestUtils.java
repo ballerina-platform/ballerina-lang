@@ -33,6 +33,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -137,6 +138,8 @@ public class ParserTestUtils {
             node = ((STSimpleNameReferenceNode) node).name;
         } else if (node instanceof STBuiltinSimpleNameReferenceNode) {
             node = ((STBuiltinSimpleNameReferenceNode) node).name;
+        } else if (node instanceof STXMLTextNode) {
+            node = ((STXMLTextNode) node).content;
         }
 
         aseertNodeKind(json, node);
@@ -178,12 +181,7 @@ public class ParserTestUtils {
         // Validate the token text, if this is not a syntax token.
         // e.g: identifiers, basic-literals, etc.
         if (!isSyntaxToken(node.kind)) {
-            String expectedText;
-            if (node.kind == SyntaxKind.END_OF_LINE_TRIVIA) {
-                expectedText = System.lineSeparator();
-            } else {
-                expectedText = json.get(VALUE_FIELD).getAsString();
-            }
+            String expectedText = json.get(VALUE_FIELD).getAsString();
             String actualText = getTokenText(node);
             Assert.assertEquals(actualText, expectedText);
         }
@@ -236,7 +234,8 @@ public class ParserTestUtils {
     }
 
     public static boolean isTerminalNode(SyntaxKind syntaxKind) {
-        return SyntaxKind.IMPORT_DECLARATION.compareTo(syntaxKind) > 0 || syntaxKind == SyntaxKind.EOF_TOKEN;
+        return SyntaxKind.IMPORT_DECLARATION.compareTo(syntaxKind) > 0 || syntaxKind == SyntaxKind.EOF_TOKEN ||
+                syntaxKind == SyntaxKind.XML_TEXT;
     }
 
     public static boolean isSyntaxToken(SyntaxKind syntaxKind) {
@@ -270,16 +269,24 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case WHITESPACE_TRIVIA:
-            case END_OF_LINE_TRIVIA:
             case COMMENT:
             case INVALID:
                 return ((SyntaxTrivia) token).text;
+            case END_OF_LINE_TRIVIA:
+                return cleanupText(((SyntaxTrivia) token).text);
             case DOCUMENTATION_LINE:
                 return ((STDocumentationLineToken) token).text;
+            case XML_TEXT:
+            case XML_TEXT_CONTENT:
+            case TEMPLATE_STRING:
+                return cleanupText(((STLiteralValueToken) token).text);
             default:
                 return token.kind.toString();
-
         }
+    }
+
+    private static String cleanupText(String text) {
+        return text.replace(System.lineSeparator(), "\n");
     }
 
     private static SyntaxKind getNodeKind(String kind) {
@@ -516,6 +523,12 @@ public class ParserTestUtils {
                 return SyntaxKind.AT_TOKEN;
             case "RIGHT_ARROW_TOKEN":
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
+            case "BACKTICK_TOKEN":
+                return SyntaxKind.BACKTICK_TOKEN;
+            case "DOUBLE_QUOTE_TOKEN":
+                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case "SINGLE_QUOTE_TOKEN":
+                return SyntaxKind.SINGLE_QUOTE_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -574,6 +587,10 @@ public class ParserTestUtils {
                 return SyntaxKind.TABLE_CONSTRUCTOR;
             case "LET_EXPRESSION":
                 return SyntaxKind.LET_EXPRESSION;
+            case "RAW_TEMPLATE_EXPRESSION":
+                return SyntaxKind.RAW_TEMPLATE_EXPRESSION;
+            case "XML_TEMPLATE_EXPRESSION":
+                return SyntaxKind.XML_TEMPLATE_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -736,6 +753,46 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+
+            // XML template
+            case "XML_ELEMENT":
+                return SyntaxKind.XML_ELEMENT;
+            case "XML_EMPTY_ELEMENT":
+                return SyntaxKind.XML_EMPTY_ELEMENT;
+            case "XML_ELEMENT_START_TAG":
+                return SyntaxKind.XML_ELEMENT_START_TAG;
+            case "XML_ELEMENT_END_TAG":
+                return SyntaxKind.XML_ELEMENT_END_TAG;
+            case "XML_TEXT":
+                return SyntaxKind.XML_TEXT;
+            case "XML_PI":
+                return SyntaxKind.XML_PI;
+            case "XML_ATTRIBUTE":
+                return SyntaxKind.XML_ATTRIBUTE;
+            case "XML_SIMPLE_NAME":
+                return SyntaxKind.XML_SIMPLE_NAME;
+            case "XML_QUALIFIED_NAME":
+                return SyntaxKind.XML_QUALIFIED_NAME;
+            case "INTERPOLATION":
+                return SyntaxKind.INTERPOLATION;
+            case "INTERPOLATION_START_TOKEN":
+                return SyntaxKind.INTERPOLATION_START_TOKEN;
+            case "XML_COMMENT":
+                return SyntaxKind.XML_COMMENT;
+            case "XML_COMMENT_START_TOKEN":
+                return SyntaxKind.XML_COMMENT_START_TOKEN;
+            case "XML_COMMENT_END_TOKEN":
+                return SyntaxKind.XML_COMMENT_END_TOKEN;
+            case "XML_TEXT_CONTENT":
+                return SyntaxKind.XML_TEXT_CONTENT;
+            case "XML_PI_START_TOKEN":
+                return SyntaxKind.XML_PI_START_TOKEN;
+            case "XML_PI_END_TOKEN":
+                return SyntaxKind.XML_PI_END_TOKEN;
+            case "XML_ATTRIBUTE_VALUE":
+                return SyntaxKind.XML_ATTRIBUTE_VALUE;
+            case "TEMPLATE_STRING":
+                return SyntaxKind.TEMPLATE_STRING;
 
             // Trivia
             case "EOF_TOKEN":

@@ -391,6 +391,58 @@ public abstract class NodeVisitor {
         visitSyntaxNode(letVariableDeclarationNode);
     }
 
+    public void visit(TemplateExpressionNode templateExpressionNode) {
+        visitSyntaxNode(templateExpressionNode);
+    }
+
+    public void visit(XMLElementNode xMLElementNode) {
+        visitSyntaxNode(xMLElementNode);
+    }
+
+    public void visit(XMLStartTagNode xMLStartTagNode) {
+        visitSyntaxNode(xMLStartTagNode);
+    }
+
+    public void visit(XMLEndTagNode xMLEndTagNode) {
+        visitSyntaxNode(xMLEndTagNode);
+    }
+
+    public void visit(XMLSimpleNameNode xMLSimpleNameNode) {
+        visitSyntaxNode(xMLSimpleNameNode);
+    }
+
+    public void visit(XMLQualifiedNameNode xMLQualifiedNameNode) {
+        visitSyntaxNode(xMLQualifiedNameNode);
+    }
+
+    public void visit(XMLEmptyElementNode xMLEmptyElementNode) {
+        visitSyntaxNode(xMLEmptyElementNode);
+    }
+
+    public void visit(InterpolationNode interpolationNode) {
+        visitSyntaxNode(interpolationNode);
+    }
+
+    public void visit(XMLTextNode xMLTextNode) {
+        visitSyntaxNode(xMLTextNode);
+    }
+
+    public void visit(XMLAttributeNode xMLAttributeNode) {
+        visitSyntaxNode(xMLAttributeNode);
+    }
+
+    public void visit(XMLAttributeValue xMLAttributeValue) {
+        visitSyntaxNode(xMLAttributeValue);
+    }
+
+    public void visit(XMLComment xMLComment) {
+        visitSyntaxNode(xMLComment);
+    }
+
+    public void visit(XMLProcessingInstruction xMLProcessingInstruction) {
+        visitSyntaxNode(xMLProcessingInstruction);
+    }
+
     // Tokens
 
     public void visit(Token token) {
