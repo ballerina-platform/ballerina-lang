@@ -288,10 +288,7 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
     private static final ParserRuleContext[] NEW_EXPR =
-            { ParserRuleContext.SEMICOLON };
-
-    private static final ParserRuleContext[] IMPLICIT_NEW =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.SEMICOLON };
+            { ParserRuleContext.NEW_RHS, ParserRuleContext.EXPLICIT_NEW_RHS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -1157,9 +1154,6 @@ public class BallerinaParserErrorHandler {
                             isEntryPoint);
                 case NEW_EXPRESSION:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NEW_EXPR, isEntryPoint);
-                case IMPLICIT_NEW:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, IMPLICIT_NEW,
-                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1234,6 +1228,8 @@ public class BallerinaParserErrorHandler {
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
                 case NEW_KEYWORD:
+                case NEW_RHS:
+                case EXPLICIT_NEW_RHS:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1656,6 +1652,8 @@ public class BallerinaParserErrorHandler {
             case TYPE_CAST_EXPRESSION:
             case TABLE_CONSTRUCTOR:
             case KEY_SPECIFIER:
+            case NEW_RHS:
+            case EXPLICIT_NEW_RHS:
                 startContext(currentCtx);
                 break;
             default:
@@ -1761,7 +1759,8 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.EXPRESSION_STATEMENT_START;
                 } else if (isExpressionContext(parentCtx)) {
                     return ParserRuleContext.EXPRESSION;
-                } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
+                } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION ||
+                        parentCtx == ParserRuleContext.NEW_RHS) {
                     return ParserRuleContext.PARAM_LIST;
                 } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR ||
                         parentCtx == ParserRuleContext.NIL_LITERAL) {
@@ -1844,6 +1843,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPE_REFERENCE;
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case EXPLICIT_NEW_RHS:
+                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
             case OBJECT_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
             case REMOTE_KEYWORD:
@@ -2126,6 +2127,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.LT;
             case NEW_KEYWORD:
                 return ParserRuleContext.NEW_EXPRESSION;
+            case NEW_RHS:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             case LT:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
@@ -2306,6 +2309,8 @@ public class BallerinaParserErrorHandler {
             case PARAMETERIZED_TYPE_DESCRIPTOR:
             case TYPE_CAST_EXPRESSION:
                 return ParserRuleContext.GT;
+            case EXPLICIT_NEW_RHS:
+                return ParserRuleContext.NEW_RHS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -2459,6 +2464,8 @@ public class BallerinaParserErrorHandler {
             case FORK_STMT:
                 endContext(); // end fork-statement
                 return ParserRuleContext.STATEMENT;
+            case EXPLICIT_NEW_RHS:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }

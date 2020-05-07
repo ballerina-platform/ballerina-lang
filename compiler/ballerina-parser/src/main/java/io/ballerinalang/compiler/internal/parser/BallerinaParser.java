@@ -3184,8 +3184,11 @@ public class BallerinaParser {
      * @return Parsed NewExpression node.
      */
     private STNode parseNewExpression() {
+        startContext(ParserRuleContext.NEW_EXPRESSION);
         STNode newKeyword = parseNewKeyword();
-        return parseNewExpression(newKeyword);
+        STNode newExpression = parseNewExpression(newKeyword);
+        endContext();
+        return newExpression;
     }
 
     /**
@@ -3223,7 +3226,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
                 return parseImplicitNewExpression(newKeyword);
             case SEMICOLON_TOKEN:
-                return STNodeFactory.createImplicitNewExpression(newKeyword, null);
+                return STNodeFactory.createImplicitNewExpression(newKeyword, STNodeFactory.createEmptyNode());
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
                 // TODO: Support `stream` keyword once introduced
@@ -3240,24 +3243,16 @@ public class BallerinaParser {
     }
 
     private STNode parseExplicitNewExpression(STNode newKeyword) {
+        startContext(ParserRuleContext.EXPLICIT_NEW_RHS);
         STNode typeDescriptor = parseTypeDescriptor();
         STNode parenthesizedArgsList = parseParenthesizedArgList();
+        endContext();
 
         return STNodeFactory.createExplicitNewExpression(newKeyword, typeDescriptor, parenthesizedArgsList);
     }
 
     private STNode parseImplicitNewExpression(SyntaxKind kind, STNode newKeyword) {
-        STNode implicitNewArgList;
-
-        switch (kind) {
-            case OPEN_PAREN_TOKEN:
-                break;
-            default:
-                Solution solution = recover(peek(), ParserRuleContext.IMPLICIT_NEW, newKeyword);
-                return solution.recoveredNode;
-        }
-
-        implicitNewArgList = parseParenthesizedArgList();
+        STNode implicitNewArgList = parseParenthesizedArgList();
 
         return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
     }
@@ -3268,9 +3263,11 @@ public class BallerinaParser {
     }
 
     private STNode parseParenthesizedArgList(SyntaxKind kind) {
+        startContext(ParserRuleContext.NEW_RHS);
         STNode openParan = parseOpenParenthesis();
         STNode arguments = parseArgsList();
         STNode closeParan = parseCloseParenthesis();
+        endContext();
 
         return STNodeFactory.createParenthesizedArgList(openParan, arguments, closeParan);
     }
