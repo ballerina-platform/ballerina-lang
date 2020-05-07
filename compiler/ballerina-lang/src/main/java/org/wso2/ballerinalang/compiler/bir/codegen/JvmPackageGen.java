@@ -201,6 +201,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.OBJECT);
         dependentModuleArray.add(PackageID.STREAM);
         dependentModuleArray.add(PackageID.STRING);
+        dependentModuleArray.add(PackageID.TABLE);
         dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.XML);
         dependentModuleArray.add(PackageID.TYPEDESC);
