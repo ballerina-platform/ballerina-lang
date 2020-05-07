@@ -3126,33 +3126,45 @@ public class BallerinaParser extends AbstractParser {
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseXMLTemplateExpression();
                 }
-                // fall through
+                break;
+            case STRING_KEYWORD:
+                nextNextToken = getNextNextToken(kind);
+                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
+                    return parseStringTemplateExpression();
+                }
+                break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
+                break;
+        }
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
+        Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
-                if (solution.action == Action.KEEP) {
-                    return parseXMLTemplateExpression();
-                }
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
 
-                switch (solution.tokenKind) {
-                    case IDENTIFIER_TOKEN:
-                        return parseQualifiedIdentifier(solution.recoveredNode);
-                    case DECIMAL_INTEGER_LITERAL:
-                    case HEX_INTEGER_LITERAL:
-                    case STRING_LITERAL:
-                    case NULL_KEYWORD:
-                    case TRUE_KEYWORD:
-                    case FALSE_KEYWORD:
-                    case DECIMAL_FLOATING_POINT_LITERAL:
-                    case HEX_FLOATING_POINT_LITERAL:
-                        return solution.recoveredNode;
-                    default:
-                        return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
-                }
+        if (solution.action == Action.KEEP) {
+            if (kind == SyntaxKind.XML_KEYWORD) {
+                return parseXMLTemplateExpression();
+            }
+
+            return parseStringTemplateExpression();
+        }
+
+        switch (solution.tokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseQualifiedIdentifier(solution.recoveredNode);
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
+            case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+                return solution.recoveredNode;
+            default:
+                return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
         }
     }
 
@@ -7465,6 +7477,37 @@ public class BallerinaParser extends AbstractParser {
 
         // Template string component
         return consume();
+    }
+
+    /**
+     * Parse string template expression.
+     * <p>
+     * <code>string-template-expr := string ` expression `</code>
+     * 
+     * @return String template expression node
+     */
+    private STNode parseStringTemplateExpression() {
+        STNode type = parseStringKeyword();
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode content = parseTemplateContent();
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        return STNodeFactory.createTemplateExpressionNode(SyntaxKind.STRING_TEMPLATE_EXPRESSION, type, startingBackTick,
+                content, endingBackTick);
+    }
+
+    /**
+     * Parse <code>string</code> keyword.
+     *
+     * @return string keyword node
+     */
+    private STNode parseStringKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STRING_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STRING_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 
     /**

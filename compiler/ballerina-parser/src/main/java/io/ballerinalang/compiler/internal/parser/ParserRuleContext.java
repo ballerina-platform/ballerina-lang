@@ -202,6 +202,7 @@ public enum ParserRuleContext {
     ERROR_KEYWORD("error"),
     LET_KEYWORD("let"),
     XML_KEYWORD("xml"),
+    STRING_KEYWORD("string"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

@@ -186,7 +186,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
             ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
             ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION,
-            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD };
+            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -216,9 +216,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS,
-                    ParserRuleContext.TYPEDESC_RHS};
+    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER = { ParserRuleContext.ASSIGN_OP,
+            ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS, ParserRuleContext.TYPEDESC_RHS };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
@@ -1018,6 +1017,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
                     break;
+                case STRING_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
+                    break;
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1341,8 +1343,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case KEY_SPECIFIER:
             case ERROR_TYPE_DESCRIPTOR:
             case LET_VAR_DECL:
-//            case TEMPLATE_EXPR:
-//            case XML_TEMPLATE_EXPR:
+                // case TEMPLATE_EXPR:
+                // case XML_TEMPLATE_EXPR:
                 startContext(currentCtx);
                 break;
             default:
@@ -1861,6 +1863,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERPOLATION_START_TOKEN:
                 return ParserRuleContext.EXPRESSION;
             case XML_KEYWORD:
+            case STRING_KEYWORD:
                 return ParserRuleContext.TEMPLATE_START;
 
             case OBJECT_FUNC_OR_FIELD:
@@ -2845,6 +2848,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.XML_KEYWORD;
             case XML_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
+            case STRING_KEYWORD:
+                return SyntaxKind.STRING_KEYWORD;
 
             // TODO:
             case COMP_UNIT:

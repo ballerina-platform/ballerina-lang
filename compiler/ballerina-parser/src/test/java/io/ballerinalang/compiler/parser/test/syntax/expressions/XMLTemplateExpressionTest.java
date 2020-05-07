@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.expressions;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing nil literal.
+ * Test parsing XML template expression.
  * 
  * @since 2.0.0
  */
