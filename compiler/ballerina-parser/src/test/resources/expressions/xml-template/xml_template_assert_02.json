@@ -419,6 +419,183 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "x"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "XML_TEMPLATE_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "XML_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "BACKTICK_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "XML_EMPTY_ELEMENT",
+                                                    "children": [
+                                                        {
+                                                            "kind": "LT_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "foo"
+                                                        },
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "XML_ATTRIBUTE",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                            "value": "name"
+                                                                        },
+                                                                        {
+                                                                            "kind": "EQUAL_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "John"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    "kind": "XML_ATTRIBUTE",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "QUALIFIED_NAME_REFERENCE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "ns0"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "COLON_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "age"
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "kind": "EQUAL_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "20"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    "kind": "XML_ATTRIBUTE",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "QUALIFIED_NAME_REFERENCE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "xmlns"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "COLON_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "ns0"
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "kind": "EQUAL_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "XML_ATTRIBUTE_VALUE",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "XML_TEXT_CONTENT",
+                                                                                            "value": "http://ballerinalang.com/ns0"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "DOUBLE_QUOTE_TOKEN"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "SLASH_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "GT_TOKEN"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "BACKTICK_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
                         }
                     ]
                 },

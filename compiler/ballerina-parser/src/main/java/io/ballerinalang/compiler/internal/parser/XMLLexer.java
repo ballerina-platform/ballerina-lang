@@ -422,7 +422,7 @@ public class XMLLexer extends AbstractLexer {
                 return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.GT_TOKEN);
             case LexerTerminals.SLASH:
                 reader.advance();
-                return getXMLSyntaxToken(SyntaxKind.SLASH_TOKEN, false, false);
+                return getXMLSyntaxToken(SyntaxKind.SLASH_TOKEN, isStartTag, false);
             case LexerTerminals.COLON:
                 reader.advance();
                 return getXMLSyntaxToken(SyntaxKind.COLON_TOKEN, false, false);
