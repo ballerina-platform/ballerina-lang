@@ -33,11 +33,7 @@ public function sleep(int millis) = @java:Method {
 #
 # + name - Name of the property
 # + return - Value of the property if the property exists or else an empty string otherwise
-public function getProperty(@untainted string name) returns string {
-    return externGetProperty(name);
-}
-
-function externGetProperty(@untainted string name) returns string = @java:Method {
+public function getProperty(@untainted string name) returns string = @java:Method {
     name: "getProperty",
     class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetProperty"
 } external;

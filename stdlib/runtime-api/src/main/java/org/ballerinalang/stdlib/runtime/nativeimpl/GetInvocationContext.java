@@ -58,11 +58,12 @@ public class GetInvocationContext {
     }
 
     private static MapValue<BString, Object> initInvocationContext() {
-        MapValue<BString, Object> invocationContextInfo = valueCreator.createRecordValue(
-                STRUCT_TYPE_INVOCATION_CONTEXT);
+        MapValue<BString, Object> invocationContextInfo =
+                valueCreator.createRecordValue(STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        invocationContextInfo.put(StringUtils.fromString(INVOCATION_ID_KEY), invocationId.toString());
-        invocationContextInfo.put(StringUtils.fromString(INVOCATION_ATTRIBUTES), new MapValueImpl());
+        invocationContextInfo.put(StringUtils.fromString(INVOCATION_ID_KEY),
+                                  StringUtils.fromString(invocationId.toString()));
+        invocationContextInfo.put(StringUtils.fromString(INVOCATION_ATTRIBUTES), new MapValueImpl<BString, Object>());
         return invocationContextInfo;
     }
 }
