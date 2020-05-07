@@ -7435,7 +7435,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse raw backtick string template expression.
      * <p>
-     * <code>BacktickString := ` expression `</code>
+     * <code>BacktickString := `expression`</code>
      * 
      * @return Template expression node
      */

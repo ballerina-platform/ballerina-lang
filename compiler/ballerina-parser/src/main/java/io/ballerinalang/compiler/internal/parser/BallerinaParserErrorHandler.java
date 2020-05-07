@@ -1343,8 +1343,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case KEY_SPECIFIER:
             case ERROR_TYPE_DESCRIPTOR:
             case LET_VAR_DECL:
-                // case TEMPLATE_EXPR:
-                // case XML_TEMPLATE_EXPR:
                 startContext(currentCtx);
                 break;
             default:
