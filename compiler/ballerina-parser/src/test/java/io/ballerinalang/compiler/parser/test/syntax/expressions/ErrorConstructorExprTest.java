@@ -53,6 +53,8 @@ public class ErrorConstructorExprTest extends AbstractExpressionsTest {
                 "functional-constructor-expr/error-constructor-expr/error_constructor_expr_assert_02.json");
         testFile("functional-constructor-expr/error-constructor-expr/error_constructor_expr_source_03.bal",
                 "functional-constructor-expr/error-constructor-expr/error_constructor_expr_assert_03.json");
+        testFile("functional-constructor-expr/error-constructor-expr/error_constructor_expr_source_04.bal",
+                "functional-constructor-expr/error-constructor-expr/error_constructor_expr_assert_04.json");
     }
 
     @Test
