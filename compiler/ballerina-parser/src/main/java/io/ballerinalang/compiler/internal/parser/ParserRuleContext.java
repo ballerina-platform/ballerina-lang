@@ -41,7 +41,8 @@ public enum ParserRuleContext {
     AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_RHS("parameter-rhs"),
     RETURN_TYPE_DESCRIPTOR("return-type-desc"),
-    FUNC_BODY("func-body"),
+    FUNC_PARAMS_LIST_RHS("func-param-list-rhs"),
+    FUNC_SIGNATURE_RHS("func-signature-rhs"),
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
@@ -123,6 +124,7 @@ public enum ParserRuleContext {
     LET_VAR_DECL_START("let-var-decl-start"),
     FUNC_TYPE_DESC("func-type-desc"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
+    END_OF_TYPE_DESC("end-of-type-desc"),
 
     // Statements
     STATEMENT("statement"),
@@ -323,7 +325,6 @@ public enum ParserRuleContext {
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
-    NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     ;

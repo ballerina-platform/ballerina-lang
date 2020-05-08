@@ -49,13 +49,11 @@ import java.util.ArrayDeque;
  */
 public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
-    /**
-     * Two or more rules which's left side of the production is same (has alternative paths).
-     * eg : FUNC_BODIES --> FUNC_BODY_BLOCK
-     * FUNC_BODIES --> EXTERNAL_FUNC_BODY
-     */
-    private static final ParserRuleContext[] FUNC_BODIES =
-            { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
+    private static final ParserRuleContext[] FUNC_PARAMS_LIST_RHS =
+            { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.TYPEDESC_RHS };
+
+    private static final ParserRuleContext[] FUNC_SIGNATURE_RHS =
+            { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY, ParserRuleContext.TYPEDESC_RHS };
 
     // We add named-worker-decl also as a statement. This is because we let having a named-worker
     // in all places a statement can be added during parsing, but then validates it based on the
@@ -249,10 +247,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
-    // ParserRuleContext.PIPE is to detect union type descriptor
-    private static final ParserRuleContext[] TYPEDESC_RHS =
-            { ParserRuleContext.NON_RECURSIVE_TYPE, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
@@ -305,7 +299,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
-            case FUNC_BODY:
+            case FUNC_SIGNATURE_RHS:
             case VAR_DECL_STMT_RHS:
             case EXPRESSION_RHS:
             case PARAMETER_RHS:
@@ -527,20 +521,23 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case CLOSE_PARENTHESIS:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
+                case FUNC_PARAMS_LIST_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, FUNC_PARAMS_LIST_RHS,
+                            isEntryPoint);
                 case RETURNS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.RETURNS_KEYWORD;
-                    if (!hasMatch) {
-                        // If there are no matches in the optional rule, then continue from the
-                        // next immediate rule without changing the state
-                        skipRule = true;
-                    }
+                    // if (!hasMatch) {
+                    // // If there are no matches in the optional rule, then continue from the
+                    // // next immediate rule without changing the state
+                    // skipRule = true;
+                    // }
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
                     hasMatch = BallerinaParser.isSimpleType(nextToken.kind) ||
                             nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
-                case FUNC_BODY:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, FUNC_BODIES,
+                case FUNC_SIGNATURE_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, FUNC_SIGNATURE_RHS,
                             isEntryPoint);
                 case OPEN_BRACE:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN;
@@ -950,8 +947,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
                     break;
                 case TYPEDESC_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
-                            isEntryPoint);
+                    return seekInTypeDescRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint);
+                // return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
+                // isEntryPoint);
                 case TRAP_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
                     break;
@@ -1025,7 +1023,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case FUNCTION_KEYWORD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, FUNCTION_KEYWORD_RHS,
                             isEntryPoint);
-
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1086,7 +1083,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NIL_LITERAL:
                 case LOCK_STMT:
                 case PARAMETERIZED_TYPE_DESCRIPTOR:
-                case NON_RECURSIVE_TYPE:
                 case FORK_STMT:
                 case TRAP_EXPRESSION:
                 case LIST_CONSTRUCTOR:
@@ -1097,6 +1093,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case ERROR_TYPE_DESCRIPTOR:
                 case LET_VAR_DECL:
                 case LET_EXPRESSION:
+                case END_OF_TYPE_DESC:
 
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
@@ -1127,6 +1124,20 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
         result.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
+    }
+
+    /**
+     * @param lookahead
+     * @param currentDepth
+     * @param matchingRulesCount
+     * @param isEntryPoint
+     * @return
+     */
+    private Result seekInTypeDescRhs(int lookahead, int currentDepth, int matchingRulesCount, boolean isEntryPoint) {
+        ParserRuleContext[] TYPEDESC_RHS =
+                { ParserRuleContext.END_OF_TYPE_DESC, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
+                        ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
+        return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS, isEntryPoint);
     }
 
     /**
@@ -1397,23 +1408,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (isParameter(parentCtx)) {
                     endContext(); // end parameter
                     endContext(); // end parameter-list
-                }
-                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
+                } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
                     endContext();
                     // After parsing nil type descriptor all the other parsing is same as next rule of simple type
                     return ParserRuleContext.TYPEDESC_RHS;
-                }
-                if (parentCtx == ParserRuleContext.NIL_LITERAL) {
+                } else if (parentCtx == ParserRuleContext.NIL_LITERAL) {
                     endContext();
                     return ParserRuleContext.EXPRESSION_RHS;
-                }
-                if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
+                } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
                     endContext(); // end key-specifier
                     // For now key-specifier ctx is only referred inside table-constructor ctx
                     return ParserRuleContext.OPEN_BRACKET;
                 }
-                // endContext(); // end func signature
-                return ParserRuleContext.FUNC_BODY;
+                return ParserRuleContext.FUNC_PARAMS_LIST_RHS;
             case EXPRESSION:
             case BASIC_LITERAL:
             case TERMINAL_EXPRESSION:
@@ -1432,7 +1439,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (this.tokenReader.peek(nextLookahead).kind != SyntaxKind.RETURNS_KEYWORD) {
                     // If there are no matches in the optional rule, then continue from the
                     // next immediate rule without changing the state
-                    return ParserRuleContext.FUNC_BODY;
+                    return ParserRuleContext.FUNC_SIGNATURE_RHS;
                 }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case SEMICOLON:
@@ -1444,8 +1451,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForVarName(nextLookahead);
             case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
                 return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
-            case FUNC_BODY:
-                return ParserRuleContext.TOP_LEVEL_NODE;
+            // case FUNC_SIGNATURE_RHS:
+            // return ParserRuleContext.TOP_LEVEL_NODE;
             case REQUIRED_PARAM:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
@@ -1792,7 +1799,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LET_VAR_DECL;
             case LET_VAR_DECL:
                 return ParserRuleContext.LET_VAR_DECL_START;
-            case NON_RECURSIVE_TYPE:
+            case END_OF_TYPE_DESC:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
                 return ParserRuleContext.PARAMETERIZED_TYPE;
@@ -2028,14 +2035,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.SEMICOLON;
             case RETURN_TYPE_DESCRIPTOR:
-                endContext();
+                endContext(); // end return type-desc
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
                     return ParserRuleContext.BLOCK_STMT;
                 } else if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE) {
-                    return ParserRuleContext.FUNC_BODY;
+                    return ParserRuleContext.FUNC_SIGNATURE_RHS;
                 } else if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
-                    return getNextRuleForTypeDescriptor();
+                    return ParserRuleContext.TYPEDESC_RHS;
                 }
                 throw new IllegalStateException();
             case OPTIONAL_TYPE_DESCRIPTOR:
@@ -2051,6 +2058,27 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_CAST_EXPRESSION:
             case ERROR_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
+            case FUNC_DEF_OR_FUNC_TYPE:
+                endContext(); // End function-signature
+
+                /*
+                 * Fact 1:
+                 * ------
+                 * FUNC_DEF_OR_FUNC_TYPE is only possible for module level construct that starts with 
+                 * 'function' keyword. However, until the end of func-signature, we don't know whether 
+                 * this is a func-def or a function type.
+                 * Hence a var-decl-stmt context is not started until. this point
+                 * 
+                 * Fact 2:
+                 * ------
+                 * We reach here for END_OF_TYPE_DESC context. That means we are going to end the 
+                 * func-type-desc. 
+                 */
+                startContext(ParserRuleContext.VAR_DECL_STMT);
+                return ParserRuleContext.TYPEDESC_RHS;
+            case FUNC_TYPE_DESC:
+                endContext(); // End function-type
+                return ParserRuleContext.TYPEDESC_RHS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -2104,7 +2132,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         switch (parentCtx) {
             case FUNC_BODY_BLOCK:
                 endContext(); // end body block
-                endContext();
                 STToken nextToken = this.tokenReader.peek(nextLookahead);
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
@@ -2297,7 +2324,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
             endContext(); // end external func-body
-            endContext(); // func def
             nextToken = this.tokenReader.peek(nextLookahead);
             if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                 return ParserRuleContext.EOF;
@@ -2606,7 +2632,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case EXTERNAL_FUNC_BODY:
                 return SyntaxKind.EQUAL_TOKEN;
-            case FUNC_BODY:
+            case FUNC_SIGNATURE_RHS:
             case FUNC_BODY_BLOCK:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEF_OR_FUNC_TYPE:
