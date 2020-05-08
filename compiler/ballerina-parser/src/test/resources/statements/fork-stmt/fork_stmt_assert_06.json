@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -25,7 +26,8 @@
         },
         {
             "kind": "LIST",
-            "children": []
+            "children": [
+            ]
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -56,7 +58,8 @@
                                             "children": [
                                                 {
                                                     "kind": "LIST",
-                                                    "children": []
+                                                    "children": [
+                                                    ]
                                                 },
                                                 {
                                                     "kind": "WORKER_KEYWORD"
@@ -73,7 +76,8 @@
                                                         },
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
+                                                            "children": [
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "INT_KEYWORD"
@@ -94,7 +98,8 @@
                                                                     "children": [
                                                                         {
                                                                             "kind": "LIST",
-                                                                            "children": []
+                                                                            "children": [
+                                                                            ]
                                                                         },
                                                                         {
                                                                             "kind": "INT_KEYWORD"
@@ -104,14 +109,9 @@
                                                                             "value": "i"
                                                                         },
                                                                         {
-                                                                            "kind": "SEMICOLON_TOKEN",
+                                                                            "kind": "EQUAL_TOKEN",
                                                                             "isMissing": true
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "INVALID",
-                                                                    "children": [
+                                                                        },
                                                                         {
                                                                             "kind": "BINARY_EXPRESSION",
                                                                             "children": [
@@ -162,7 +162,8 @@
                                             "children": [
                                                 {
                                                     "kind": "LIST",
-                                                    "children": []
+                                                    "children": [
+                                                    ]
                                                 },
                                                 {
                                                     "kind": "WORKER_KEYWORD"
@@ -179,7 +180,8 @@
                                                         },
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
+                                                            "children": [
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "INT_KEYWORD"
@@ -200,7 +202,8 @@
                                                                     "children": [
                                                                         {
                                                                             "kind": "LIST",
-                                                                            "children": []
+                                                                            "children": [
+                                                                            ]
                                                                         },
                                                                         {
                                                                             "kind": "INT_KEYWORD"
