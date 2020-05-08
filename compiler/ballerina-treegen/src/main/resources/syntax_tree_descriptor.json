@@ -685,12 +685,11 @@
             ]
         },
         {
-            "name": "ErrorConstructorExpressionNode",
+            "name": "FunctionalConstructorExpressionNode",
             "base": "ExpressionNode",
-            "kind": "ERROR_CONSTRUCTOR",
             "attributes": [
                 {
-                    "name": "errorKeyword",
+                    "name": "functionallyConstructableTypeReference",
                     "type": "Token"
                 },
                 {
