@@ -18,8 +18,6 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
  * Represents the builtin type descriptor.
@@ -30,7 +28,7 @@ public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
     
     private String typeName;
     
-    private BuiltinTypeDescriptor(ModuleID moduleID,
+    public BuiltinTypeDescriptor(ModuleID moduleID,
                                   String name) {
         super(TypeDescKind.BUILTIN, moduleID);
         this.typeName = name;
@@ -40,33 +38,5 @@ public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
     public String getSignature() {
         // For the builtin types, return the type kind as the type name
         return this.typeName;
-    }
-
-    /**
-     * Represents the builder for Builtin Type Descriptor.
-     */
-    public static class BuiltinTypeBuilder extends TypeBuilder<BuiltinTypeBuilder> {
-        
-        private BTypeSymbol typeSymbol;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param moduleID     Module ID of the type descriptor
-         * @param typeSymbol type symbol
-         */
-        public BuiltinTypeBuilder(PackageID moduleID, BTypeSymbol typeSymbol) {
-            super(TypeDescKind.BUILTIN, moduleID);
-            this.typeSymbol = typeSymbol;
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public BuiltinTypeDescriptor build() {
-            return new BuiltinTypeDescriptor(this.moduleID, this.typeSymbol.getName().getValue());
-        }
     }
 }

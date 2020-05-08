@@ -17,63 +17,43 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.BallerinaTypeDefinition;
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * Represents a TypeReference type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class TypeReferenceTypeDescriptor extends BallerinaTypeDesc {
-    private BallerinaTypeDefinition typeDefinition;
-    
-    private TypeReferenceTypeDescriptor(TypeDescKind typeDescKind,
-                                        ModuleID moduleID,
-                                        BallerinaTypeDefinition typeDefinition) {
-        super(typeDescKind, moduleID);
-        this.typeDefinition = typeDefinition;
+
+    private String definitionName;
+
+    private BType bType;
+
+    private TypeDescriptor typeDescriptor;
+
+    public TypeReferenceTypeDescriptor(ModuleID moduleID,
+                                        BType bType,
+                                        String definitionName) {
+        super(TypeDescKind.TYPE_REFERENCE, moduleID);
+        this.bType = bType;
+        this.definitionName = definitionName;
+    }
+
+    public TypeDescriptor getTypeDescriptor() {
+        if (this.typeDescriptor == null) {
+            this.typeDescriptor = TypesFactory.getTypeDescriptor(this.bType);
+        }
+        return typeDescriptor;
     }
 
     @Override
     public String getSignature() {
-        return this.typeDefinition.getModuleID().getModulePrefix() + ":" + this.typeDefinition.getName();
-    }
-
-    /**
-     * Represents a builder for Type Reference.
-     */
-    public static class TypeReferenceBuilder extends TypeBuilder<TypeReferenceBuilder> {
-        private BallerinaTypeDefinition typeDefinition;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public TypeReferenceBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
+        if (this.getModuleID() == null) {
+            return this.definitionName;
         }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            if (this.typeDefinition == null) {
-                throw new AssertionError("Type Definition cannot be null");
-            }
-            return new TypeReferenceTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.typeDefinition);
-        }
-
-        public TypeReferenceBuilder withTypeDefinition(BallerinaTypeDefinition typeDefinition) {
-            this.typeDefinition = typeDefinition;
-            return this;
-        }
+        return this.getModuleID().getModulePrefix() + ":" + this.definitionName;
     }
 }

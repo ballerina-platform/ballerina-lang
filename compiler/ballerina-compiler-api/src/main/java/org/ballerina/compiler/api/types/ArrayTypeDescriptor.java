@@ -18,7 +18,8 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 
 /**
  * Represents an array type descriptor.
@@ -26,56 +27,26 @@ import org.ballerinalang.model.elements.PackageID;
  * @since 1.3.0
  */
 public class ArrayTypeDescriptor extends BallerinaTypeDesc {
+    
     private TypeDescriptor memberTypeDesc;
     
-    public ArrayTypeDescriptor(TypeDescKind typeDescKind,
-                               ModuleID moduleID,
-                               TypeDescriptor memberTypeDesc) {
-        super(typeDescKind, moduleID);
-        this.memberTypeDesc = memberTypeDesc;
+    private BArrayType arrayType;
+    
+    public ArrayTypeDescriptor(ModuleID moduleID,
+                               BArrayType arrayType) {
+        super(TypeDescKind.ARRAY, moduleID);
+        this.arrayType = arrayType;
     }
     
     public TypeDescriptor getMemberTypeDescriptor() {
-        return this.memberTypeDesc;
+        if (this.memberTypeDesc == null) {
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(this.arrayType.eType);
+        }
+        return memberTypeDesc;
     }
 
     @Override
     public String getSignature() {
-        return memberTypeDesc.getSignature() + "[]";
-    }
-
-    /**
-     * Represents Tuple Type Descriptor.
-     */
-    public static class ArrayTypeBuilder extends TypeBuilder<ArrayTypeBuilder> {
-        private TypeDescriptor memberType;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public ArrayTypeBuilder(PackageID moduleID) {
-            super(TypeDescKind.ARRAY, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            if (this.memberType == null) {
-                throw new AssertionError("Member Type Cannot be null");
-            }
-            return new ArrayTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.memberType);
-        }
-
-        public ArrayTypeBuilder withMemberType(TypeDescriptor memberType) {
-            this.memberType = memberType;
-            return this;
-        }
+        return this.getMemberTypeDescriptor().getSignature() + "[]";
     }
 }

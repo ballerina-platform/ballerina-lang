@@ -35,5 +35,8 @@ public enum TypeDescKind {
     NIL,
     TUPLE,
     STREAM,
+    FUTURE,
+    TYPEDESC,
+    TYPE_REFERENCE,
     UNION
 }

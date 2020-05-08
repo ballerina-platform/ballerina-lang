@@ -53,7 +53,8 @@ public class BallerinaModule extends BallerinaSymbol {
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol instanceof BTypeSymbol
                     && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                typeDefs.add(SymbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol));
+                String typeName = scopeEntry.symbol.getName().getValue();
+                typeDefs.add(SymbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol, typeName));
             }
         });
         
@@ -70,7 +71,8 @@ public class BallerinaModule extends BallerinaSymbol {
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol instanceof BInvokableSymbol
                     && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                functions.add(SymbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol));
+                String funcName = scopeEntry.symbol.getName().getValue();
+                functions.add(SymbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
             }
         });
         return functions;
@@ -86,7 +88,8 @@ public class BallerinaModule extends BallerinaSymbol {
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol instanceof BConstantSymbol
                     && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                constants.add(SymbolFactory.createConstantSymbol((BConstantSymbol) scopeEntry.symbol));
+                String constName = scopeEntry.symbol.getName().getValue();
+                constants.add(SymbolFactory.createConstantSymbol((BConstantSymbol) scopeEntry.symbol, constName));
             }
         });
         
@@ -112,7 +115,8 @@ public class BallerinaModule extends BallerinaSymbol {
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol instanceof BConstantSymbol
                     && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol));
+                String symbolName = scopeEntry.symbol.getName().getValue();
+                symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, symbolName));
             }
         });
         

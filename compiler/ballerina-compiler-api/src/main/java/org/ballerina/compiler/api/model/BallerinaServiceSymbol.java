@@ -58,7 +58,8 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
         }
         for (BAttachedFunction function : ((BObjectTypeSymbol) this.serviceSymbol.type.tsymbol).attachedFuncs) {
             if ((function.symbol.flags & Flags.REMOTE) == Flags.REMOTE) {
-                BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol);
+                String name = function.symbol.getName().getValue();
+                BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
                 resources.add(functionSymbol);
             }
         }

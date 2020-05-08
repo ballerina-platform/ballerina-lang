@@ -18,7 +18,8 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,20 +27,27 @@ import java.util.StringJoiner;
 
 /**
  * Represents an stream type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class StreamTypeDescriptor extends BallerinaTypeDesc {
+
     private List<TypeDescriptor> typeParameters;
-    
-    private StreamTypeDescriptor(TypeDescKind typeDescKind,
-                                 ModuleID moduleID,
-                                 List<TypeDescriptor> typeParameters) {
-        super(typeDescKind, moduleID);
-        this.typeParameters = typeParameters;
+
+    private BStreamType streamType;
+
+    public StreamTypeDescriptor(ModuleID moduleID,
+                                BStreamType streamType) {
+        super(TypeDescKind.STREAM, moduleID);
+        this.streamType = streamType;
     }
-    
+
     public List<TypeDescriptor> getTypeParameters() {
+        if (this.typeParameters == null) {
+            this.typeParameters = new ArrayList<>();
+            typeParameters.add(TypesFactory.getTypeDescriptor(this.streamType.constraint));
+        }
+
         return this.typeParameters;
     }
 
@@ -54,37 +62,5 @@ public class StreamTypeDescriptor extends BallerinaTypeDesc {
             memberSignature = joiner.toString();
         }
         return "stream<" + memberSignature + ">";
-    }
-
-    /**
-     * Represents Future Type Descriptor Builder.
-     */
-    public static class StreamTypeBuilder extends TypeBuilder<StreamTypeBuilder> {
-        private List<TypeDescriptor> typeParameters = new ArrayList<>();
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public StreamTypeBuilder(PackageID moduleID) {
-            super(TypeDescKind.STREAM, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            return new StreamTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.typeParameters);
-        }
-
-        public StreamTypeBuilder withTypeParameter(TypeDescriptor memberType) {
-            this.typeParameters.add(memberType);
-            return this;
-        }
     }
 }

@@ -18,45 +18,20 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
 
 /**
  * Represents the nil type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class NilTypeDescriptor extends BallerinaTypeDesc {
-    
-    private NilTypeDescriptor(ModuleID moduleID) {
+
+    public NilTypeDescriptor(ModuleID moduleID) {
         super(TypeDescKind.NIL, moduleID);
     }
 
     @Override
     public String getSignature() {
         return "()";
-    }
-
-    /**
-     * Represents the builder for Builtin Type Descriptor.
-     */
-    public static class NilTypeBuilder extends TypeBuilder<NilTypeBuilder> {
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public NilTypeBuilder(PackageID moduleID) {
-            super(TypeDescKind.NIL, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public NilTypeDescriptor build() {
-            return new NilTypeDescriptor(this.moduleID);
-        }
     }
 }

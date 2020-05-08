@@ -66,13 +66,18 @@ public class SemanticModel extends AbstractSemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(lookupVisitor.lookUp(this.compilationUnit));
         
-        scopeSymbols.values()
-                .forEach(scopeEntries ->
-                        scopeEntries.forEach(scopeEntry -> {
-                            if (!(scopeEntry.symbol instanceof BOperatorSymbol)) {
-                                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol));
-                            }
-                        }));
+        scopeSymbols.forEach((name, scopeEntries) -> scopeEntries.forEach(scopeEntry -> {
+            if (!(scopeEntry.symbol instanceof BOperatorSymbol)) {
+                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, name.getValue()));
+            }
+        }));
+//        scopeSymbols.values()
+//                .forEach(scopeEntries ->
+//                        scopeEntries.forEach(scopeEntry -> {
+//                            if (!(scopeEntry.symbol instanceof BOperatorSymbol)) {
+//                                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, scopeEntry.));
+//                            }
+//                        }));
         
         return compiledSymbols;
     }

@@ -18,7 +18,6 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -43,31 +42,4 @@ public abstract class BallerinaTypeDesc implements TypeDescriptor {
     }
     
     public abstract String getSignature();
-
-    /**
-     * Represents Ballerina Symbol Builder.
-     * @param <T> Symbol Type
-     */
-    protected abstract static class TypeBuilder<T extends TypeBuilder<T>> {
-        protected TypeDescKind typeDescKind;
-        protected ModuleID moduleID;
-        
-        /**
-         * Symbol Builder Constructor.
-         * 
-         * @param typeDescKind type descriptor kind
-         * @param moduleID Module ID of the type descriptor
-         */
-        public TypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            this.typeDescKind = typeDescKind;
-            this.moduleID = new ModuleID(moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public abstract TypeDescriptor build();
-    }
 }

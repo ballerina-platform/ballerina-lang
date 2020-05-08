@@ -20,6 +20,9 @@ package org.ballerina.compiler.api.model;
 import org.ballerina.compiler.api.semantic.SymbolFactory;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import org.ballerina.compiler.api.types.TypeDescKind;
+import org.ballerina.compiler.api.types.TypeDescriptor;
+import org.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -42,7 +45,7 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
     private BallerinaObjectVarSymbol(String name,
                                      PackageID moduleID,
                                      BallerinaSymbolKind symbolKind,
-                                     ObjectTypeDescriptor typeDescriptor,
+                                     TypeDescriptor typeDescriptor,
                                      BallerinaFunctionSymbol initFunction,
                                      List<BallerinaFunctionSymbol> methods,
                                      BSymbol symbol) {
@@ -75,8 +78,17 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
      * @return {@link Boolean} status
      */
     public boolean isAbstract() {
-        return ((ObjectTypeDescriptor) this.getTypeDescriptor()).getTypeQualifiers()
-                .contains(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
+        ObjectTypeDescriptor typeDesc;
+        if (!this.getTypeDescriptor().isPresent()) {
+            return false;
+        }
+        if (this.getTypeDescriptor().get().getKind() == TypeDescKind.TYPE_REFERENCE) {
+            typeDesc = (ObjectTypeDescriptor) ((TypeReferenceTypeDescriptor) this.getTypeDescriptor().get())
+                    .getTypeDescriptor();
+        } else {
+            typeDesc = ((ObjectTypeDescriptor) this.getTypeDescriptor().get());
+        }
+        return typeDesc.getTypeQualifiers().contains(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
     }
 
     /**
@@ -109,7 +121,7 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
         
         public ObjectVarSymbolBuilder(String name, PackageID moduleID, BObjectTypeSymbol bObjectTypeSymbol) {
             super(name, moduleID, bObjectTypeSymbol);
-            withObjectTypeSymbol(bObjectTypeSymbol);
+            withObjectTypeSymbol(bObjectTypeSymbol, name);
         }
 
         @Override
@@ -128,17 +140,18 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
             return new BallerinaObjectVarSymbol(this.name,
                     this.moduleID,
                     symbolKind,
-                    (ObjectTypeDescriptor) this.typeDescriptor,
+                    this.typeDescriptor,
                     this.initFunction,
                     this.methods,
                     this.bSymbol);
         }
 
-        private void withObjectTypeSymbol(BObjectTypeSymbol objectTypeSymbol) {
-            this.initFunction = SymbolFactory.createFunctionSymbol(objectTypeSymbol.initializerFunc.symbol);
+        private void withObjectTypeSymbol(BObjectTypeSymbol objectTypeSymbol, String name) {
+            this.initFunction = SymbolFactory.createFunctionSymbol(objectTypeSymbol.initializerFunc.symbol, name);
             List<BallerinaFunctionSymbol> list = new ArrayList<>();
             for (BAttachedFunction function : objectTypeSymbol.attachedFuncs) {
-                BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol);
+                String funcName = function.symbol.getName().getValue();
+                BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, funcName);
                 list.add(functionSymbol);
             }
             this.methods = list;

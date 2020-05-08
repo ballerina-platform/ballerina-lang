@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a ballerina variable.
@@ -59,8 +60,8 @@ public class BallerinaVariable extends BallerinaSymbol {
      * 
      * @return {@link TypeDescriptor} of the variable
      */
-    public TypeDescriptor getTypeDescriptor() {
-        return typeDescriptor;
+    public Optional<TypeDescriptor> getTypeDescriptor() {
+        return Optional.ofNullable(typeDescriptor);
     }
 
     /**

@@ -18,7 +18,9 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,16 +32,24 @@ import java.util.StringJoiner;
  * @since 1.3.0
  */
 public class UnionTypeDescriptor extends BallerinaTypeDesc {
+    
+    BUnionType unionType;
+    
     private List<TypeDescriptor> memberTypes;
     
-    private UnionTypeDescriptor(TypeDescKind typeDescKind,
-                                ModuleID moduleID,
-                                List<TypeDescriptor> memberTypes) {
-        super(typeDescKind, moduleID);
-        this.memberTypes = memberTypes;
+    public UnionTypeDescriptor(ModuleID moduleID,
+                                BUnionType unionType) {
+        super(TypeDescKind.UNION, moduleID);
+        this.unionType = unionType;
     }
     
     public List<TypeDescriptor> getMemberTypes() {
+        if (this.memberTypes == null) {
+            this.memberTypes = new ArrayList<>();
+            for (BType memberType : this.unionType.getMemberTypes()) {
+                this.memberTypes.add(TypesFactory.getTypeDescriptor(memberType));
+            }
+        }
         return this.memberTypes;
     }
 
@@ -49,38 +59,5 @@ public class UnionTypeDescriptor extends BallerinaTypeDesc {
         this.getMemberTypes().forEach(typeDescriptor -> joiner.add(typeDescriptor.getSignature()));
         
         return joiner.toString(); 
-    }
-
-    /**
-     * Represents Future Type Descriptor Builder.
-     */
-    public static class UnionTypeBuilder extends TypeBuilder<UnionTypeBuilder> {
-        private List<TypeDescriptor> memberTypes = new ArrayList<>();
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public UnionTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            return new UnionTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.memberTypes);
-        }
-
-        public UnionTypeBuilder withMember(TypeDescriptor memberType) {
-            this.memberTypes.add(memberType);
-            return this;
-        }
     }
 }

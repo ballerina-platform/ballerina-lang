@@ -20,6 +20,7 @@ package org.ballerina.compiler.api.model;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -30,8 +31,6 @@ import java.util.stream.Collectors;
 public class ModuleID {
     
     private static final String ANON_ORG = "$anon";
-    
-    
     
     private PackageID moduleID;
 
@@ -48,7 +47,8 @@ public class ModuleID {
     }
 
     public String getModulePrefix() {
-        return null;
+        List<Name> nameComps = this.moduleID.getNameComps();
+        return nameComps.get(nameComps.size() - 1).getValue();
     }
     
     public String getModuleName() {

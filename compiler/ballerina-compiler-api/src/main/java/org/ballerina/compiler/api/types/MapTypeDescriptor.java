@@ -18,66 +18,38 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+
+import java.util.Optional;
 
 /**
  * Represents an array type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class MapTypeDescriptor extends BallerinaTypeDesc {
-    
+
     private TypeDescriptor memberTypeDesc;
-    
-    private MapTypeDescriptor(TypeDescKind typeDescKind,
-                             ModuleID moduleID,
-                             TypeDescriptor memberTypeDesc) {
-        super(typeDescKind, moduleID);
-        this.memberTypeDesc = memberTypeDesc;
+
+    private BMapType mapType;
+
+    public MapTypeDescriptor(ModuleID moduleID,
+                              BMapType mapType) {
+        super(TypeDescKind.MAP, moduleID);
+        this.mapType = mapType;
     }
-    
-    public TypeDescriptor getMemberTypeDescriptor() {
-        return this.memberTypeDesc;
+
+    public Optional<TypeDescriptor> getMemberTypeDescriptor() {
+        if (this.memberTypeDesc == null) {
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(this.mapType.constraint);
+        }
+        return Optional.ofNullable(this.memberTypeDesc);
     }
 
     @Override
     public String getSignature() {
-        return "map<" + memberTypeDesc.getSignature() + ">";
-    }
-
-    /**
-     * Represents Tuple Type Descriptor.
-     */
-    public static class MapTypeBuilder extends TypeBuilder<MapTypeBuilder> {
-        
-        private TypeDescriptor memberType;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public MapTypeBuilder(PackageID moduleID) {
-            super(TypeDescKind.MAP, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            if (this.memberType == null) {
-                throw new AssertionError("Member Type Cannot be null");
-            }
-            return new MapTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.memberType);
-        }
-
-        public MapTypeBuilder withMemberType(TypeDescriptor memberType) {
-            this.memberType = memberType;
-            return this;
-        }
+        Optional<TypeDescriptor> memberTypeDescriptor = this.getMemberTypeDescriptor();
+        return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.getSignature() + ">").orElse("map<>");
     }
 }

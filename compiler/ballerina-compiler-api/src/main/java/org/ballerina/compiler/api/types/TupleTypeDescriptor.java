@@ -18,7 +18,9 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,27 +29,39 @@ import java.util.StringJoiner;
 
 /**
  * Represents a tuple type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class TupleTypeDescriptor extends BallerinaTypeDesc {
+
+    private BTupleType tupleType;
+
     private List<TypeDescriptor> memberTypes;
+
     private TypeDescriptor restTypeDesc;
-    
-    private TupleTypeDescriptor(TypeDescKind typeDescKind,
-                               ModuleID moduleID,
-                                List<TypeDescriptor> memberTypes,
-                                TypeDescriptor restTypeDesc) {
-        super(typeDescKind, moduleID);
-        this.memberTypes = memberTypes;
-        this.restTypeDesc = restTypeDesc;
+
+    public TupleTypeDescriptor(ModuleID moduleID,
+                               BTupleType tupleType) {
+        super(TypeDescKind.TUPLE, moduleID);
+        this.tupleType = tupleType;
     }
-    
+
     public List<TypeDescriptor> getMemberTypes() {
+        if (this.memberTypes == null) {
+            this.memberTypes = new ArrayList<>();
+            for (BType type : this.tupleType.tupleTypes) {
+                this.memberTypes.add(TypesFactory.getTypeDescriptor(type));
+            }
+        }
+
         return this.memberTypes;
     }
-    
+
     public Optional<TypeDescriptor> getRestType() {
+        if (this.restTypeDesc == null) {
+            this.restTypeDesc = TypesFactory.getTypeDescriptor(this.tupleType.restType);
+        }
+
         return Optional.ofNullable(this.restTypeDesc);
     }
 
@@ -63,45 +77,5 @@ public class TupleTypeDescriptor extends BallerinaTypeDesc {
         }
 
         return "[" + joiner.toString() + "]";
-    }
-
-    /**
-     * Represents Tuple Type Descriptor.
-     */
-    public static class TupleTypeBuilder extends TypeBuilder<TupleTypeBuilder> {
-        private List<TypeDescriptor> memberTypes = new ArrayList<>();
-        private TypeDescriptor restTypeDesc = null;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public TupleTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            return new TupleTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.memberTypes,
-                    this.restTypeDesc);
-        }
-        
-        public TupleTypeBuilder withMemberType(TypeDescriptor memberType) {
-            this.memberTypes.add(memberType);
-            return this;
-        }
-        
-        public TupleTypeBuilder withRestType(TypeDescriptor restTypeDesc) {
-            this.restTypeDesc = restTypeDesc;
-            return this;
-        }
     }
 }

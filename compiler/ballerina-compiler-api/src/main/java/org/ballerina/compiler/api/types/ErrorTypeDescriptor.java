@@ -19,8 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.TypesFactory;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 
 /**
@@ -30,15 +28,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
  */
 public class ErrorTypeDescriptor extends BallerinaTypeDesc {
     
-    TypeDescriptor reason;
-    TypeDescriptor detail;
+    private BErrorType errorType;
+    
+    private TypeDescriptor reason;
+    
+    private TypeDescriptor detail;
 
     public ErrorTypeDescriptor(ModuleID moduleID,
-                               TypeDescriptor reason,
-                               TypeDescriptor detail) {
+                               BErrorType errorType) {
         super(TypeDescKind.ERROR, moduleID);
-        this.reason = reason;
-        this.detail = detail;
+        this.errorType = errorType;
     }
 
     /**
@@ -47,7 +46,10 @@ public class ErrorTypeDescriptor extends BallerinaTypeDesc {
      * @return {@link TypeDescriptor} reason
      */
     public TypeDescriptor getReason() {
-        return reason;
+        if (this.reason == null) {
+            this.reason = TypesFactory.getTypeDescriptor(errorType.getReasonType());
+        }
+        return this.reason;
     }
 
     /**
@@ -56,33 +58,14 @@ public class ErrorTypeDescriptor extends BallerinaTypeDesc {
      * @return {@link TypeDescriptor} detail
      */
     public TypeDescriptor getDetail() {
-        return detail;
+        if (this.detail == null) {
+            this.detail = TypesFactory.getTypeDescriptor(errorType.getDetailType());
+        }
+        return this.detail;
     }
 
     @Override
     public String getSignature() {
         return null;
-    }
-
-    /**
-     * Represents the builder for error Type Descriptor.
-     */
-    public static class ErrorTypeBuilder extends TypeBuilder<ErrorTypeBuilder> {
-
-        private BErrorTypeSymbol typeSymbol;
-        
-        public ErrorTypeBuilder(PackageID moduleID, BErrorTypeSymbol typeSymbol) {
-            super(TypeDescKind.ERROR, moduleID);
-            this.typeSymbol = typeSymbol;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public ErrorTypeDescriptor build() {
-            TypeDescriptor reason = TypesFactory.getTypeDescriptor(((BErrorType) typeSymbol.getType()).getReasonType());
-            TypeDescriptor detail = TypesFactory.getTypeDescriptor(((BErrorType) typeSymbol.getType()).getDetailType());
-            return new ErrorTypeDescriptor(this.moduleID, reason, detail);
-        }
     }
 }

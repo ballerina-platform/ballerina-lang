@@ -49,68 +49,69 @@ import java.util.List;
 
 /**
  * Represents a set of factory methods to generate the {@link BCompiledSymbol}s.
- * 
+ *
  * @since 1.3.0
  */
 public class SymbolFactory {
-    
+
     /**
      * Get the matching {@link BCompiledSymbol} for a given {@link BSymbol}.
-     * 
+     *
      * @param symbol BSymbol to generated the BCompiled Symbol
+     * @param name   symbol name
      * @return generated compiled symbol
      */
-    public static BCompiledSymbol getBCompiledSymbol(BSymbol symbol) {
+    public static BCompiledSymbol getBCompiledSymbol(BSymbol symbol, String name) {
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
-                return createFunctionSymbol((BInvokableSymbol) symbol);
+                return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
             if (symbol instanceof BConstantSymbol) {
-                return createConstantSymbol((BConstantSymbol) symbol);
+                return createConstantSymbol((BConstantSymbol) symbol, name);
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
-                return createWorkerSymbol((BVarSymbol) symbol);
+                return createWorkerSymbol((BVarSymbol) symbol, name);
             }
             if (symbol.type != null && symbol.type.tsymbol != null && symbol.type.tsymbol.kind == SymbolKind.OBJECT) {
-                return createObjectVarSymbol(symbol.name.getValue(), (BObjectTypeSymbol) symbol.type.tsymbol);
+                return createObjectVarSymbol(name, (BObjectTypeSymbol) symbol.type.tsymbol);
             }
             if (symbol.type != null && symbol.type.tsymbol != null && symbol.type.tsymbol.kind == SymbolKind.RECORD) {
-                return createRecordVarSymbol(symbol.name.getValue(), (BRecordTypeSymbol) symbol.type.tsymbol);
+                return createRecordVarSymbol(name, (BRecordTypeSymbol) symbol.type.tsymbol);
             }
             // return the variable symbol
-            return createVariableSymbol((BVarSymbol) symbol);
+            return createVariableSymbol((BVarSymbol) symbol, name);
         }
-        
+
         if (symbol instanceof BTypeSymbol) {
             if (symbol.kind == SymbolKind.ANNOTATION) {
                 return createAnnotationSymbol((BAnnotationSymbol) symbol);
             }
             if (symbol instanceof BPackageSymbol) {
-                return createModuleSymbol((BPackageSymbol) symbol);
+                return createModuleSymbol((BPackageSymbol) symbol, name);
             }
             // create the typeDefs
-            return createTypeDefinition((BTypeSymbol) symbol);
+            return createTypeDefinition((BTypeSymbol) symbol, name);
         }
-        
+
         return null;
     }
 
     /**
      * Create Function Symbol.
-     * 
+     *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
+     * @param name            symbol name
      * @return {@link BCompiledSymbol} generated
      */
-    public static BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol) {
-        String name = invokableSymbol.getName().getValue();
+    public static BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
         PackageID pkgID = invokableSymbol.pkgID;
         return new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol).build();
     }
 
     /**
      * Create an Object Symbol.
-     * 
-     * @param name name of the variable
+     *
+     * @param name             name of the variable
      * @param objectTypeSymbol ObjectTypeSymbol to convert
      * @return {@link BallerinaObjectVarSymbol} generated
      */
@@ -126,7 +127,7 @@ public class SymbolFactory {
     /**
      * Create a Record variable Symbol.
      *
-     * @param name name of the variable
+     * @param name             name of the variable
      * @param recordTypeSymbol BRecordTypeSymbol to convert
      * @return {@link BallerinaObjectVarSymbol} generated
      */
@@ -139,7 +140,7 @@ public class SymbolFactory {
         if ((recordTypeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withAccessModifier(AccessModifier.PUBLIC);
         }
-        
+
         return symbolBuilder
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(recordTypeSymbol.type))
                 .build();
@@ -147,30 +148,30 @@ public class SymbolFactory {
 
     /**
      * Create a generic variable symbol.
-     * 
+     *
      * @param symbol {@link BVarSymbol} to convert
+     * @param name   symbol name
      * @return {@link BallerinaVariable} generated
      */
-    public static BallerinaVariable createVariableSymbol(BVarSymbol symbol) {
-        String name = symbol.getName().getValue();
+    public static BallerinaVariable createVariableSymbol(BVarSymbol symbol, String name) {
         PackageID pkgID = symbol.pkgID;
         BallerinaVariable.VariableSymbolBuilder symbolBuilder =
                 new BallerinaVariable.VariableSymbolBuilder(name, pkgID, symbol);
-        
+
         return symbolBuilder
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.type))
                 .build();
     }
-    
-    public static BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol) {
-        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol)
+
+    public static BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
+        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
                 .withReturnType(TypesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
                 .build();
     }
-    
+
     /**
      * Create a ballerina parameter.
-     * 
+     *
      * @param symbol Variable symbol for the parameter
      * @return {@link BallerinaParameter} generated parameter
      */
@@ -189,31 +190,32 @@ public class SymbolFactory {
 
     /**
      * Create a Ballerina Type Definition Symbol.
-     * 
+     *
      * @param typeSymbol type symbol to convert
-     * @return {@link} 
+     * @param name       symbol name
+     * @return {@link}
      */
-    public static BallerinaTypeDefinition createTypeDefinition(BTypeSymbol typeSymbol) {
+    public static BallerinaTypeDefinition createTypeDefinition(BTypeSymbol typeSymbol, String name) {
         BallerinaTypeDefinition.TypeDefSymbolBuilder symbolBuilder =
-                new BallerinaTypeDefinition.TypeDefSymbolBuilder(typeSymbol.getName().getValue(),
+                new BallerinaTypeDefinition.TypeDefSymbolBuilder(name,
                         typeSymbol.pkgID,
                         typeSymbol);
         if ((typeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withAccessModifier(AccessModifier.PUBLIC);
         }
-        
+
         return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))
                 .build();
     }
 
     /**
      * Create a constant symbol.
-     * 
+     *
      * @param constantSymbol BConstantSymbol to convert
+     * @param name           symbol name
      * @return {@link BallerinaConstantSymbol} generated
      */
-    public static BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol) {
-        String name = constantSymbol.name.getValue();
+    public static BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
         return symbolBuilder.withConstValue(constantSymbol.getConstValue())
@@ -223,7 +225,7 @@ public class SymbolFactory {
 
     /**
      * Creates an annotation Symbol.
-     * 
+     *
      * @param symbol Annotation symbol to convert
      * @return {@link BallerinaAnnotationSymbol}
      */
@@ -235,12 +237,12 @@ public class SymbolFactory {
 
     /**
      * Create a module symbol.
-     * 
+     *
      * @param symbol Package Symbol to evaluate
+     * @param name   symbol name
      * @return {@link BallerinaModule} symbol generated
      */
-    public static BallerinaModule createModuleSymbol(BPackageSymbol symbol) {
-        String name = symbol.getName().getValue();
+    public static BallerinaModule createModuleSymbol(BPackageSymbol symbol, String name) {
         return new BallerinaModule.ModuleSymbolBuilder(name, symbol.pkgID, symbol).build();
     }
 }

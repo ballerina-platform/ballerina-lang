@@ -17,23 +17,35 @@
  */
 package org.ballerina.compiler.api.semantic;
 
-import org.ballerina.compiler.api.model.BallerinaField;
+import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.types.ArrayTypeDescriptor;
 import org.ballerina.compiler.api.types.BuiltinTypeDescriptor;
 import org.ballerina.compiler.api.types.ErrorTypeDescriptor;
 import org.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import org.ballerina.compiler.api.types.FutureTypeDescriptor;
+import org.ballerina.compiler.api.types.MapTypeDescriptor;
 import org.ballerina.compiler.api.types.NilTypeDescriptor;
 import org.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import org.ballerina.compiler.api.types.RecordTypeDescriptor;
-import org.ballerina.compiler.api.types.TypeDescKind;
+import org.ballerina.compiler.api.types.StreamTypeDescriptor;
+import org.ballerina.compiler.api.types.TupleTypeDescriptor;
+import org.ballerina.compiler.api.types.TypeDescTypeDescriptor;
 import org.ballerina.compiler.api.types.TypeDescriptor;
+import org.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
+import org.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.util.Flags;
 
 /** Represents a set of factory methods to generate the {@link org.ballerina.compiler.api.types.TypeDescriptor}s.
@@ -49,106 +61,68 @@ public class TypesFactory {
      * @return {@link TypeDescriptor} generated
      */
     public static TypeDescriptor getTypeDescriptor(BType bType) {
+        TypeDescriptor typeDescriptor;
+        if (bType == null) {
+            return null;
+        }
+        ModuleID moduleID = bType.tsymbol == null ? null : new ModuleID(bType.tsymbol.pkgID);
         switch (bType.getKind()) {
             case OBJECT:
-                return createObjectTypeDescriptor((BObjectType) bType);
+                typeDescriptor = new ObjectTypeDescriptor(moduleID, (BObjectType) bType);
+                break;
             case RECORD:
-                return createRecordTypeDescriptor((BRecordType) bType);
+                typeDescriptor = new RecordTypeDescriptor(moduleID, (BRecordType) bType);
+                break;
             case FUNCTION:
-                return createFunctionTypeDescriptor((BInvokableType) bType);
+                typeDescriptor = new FunctionTypeDescriptor(moduleID, (BInvokableType) bType);
+                break;
             case ERROR:
                 if (bType.tsymbol != null && "error".equals(bType.tsymbol.name.getValue())) {
-                    return createBuiltinTypeDesc(bType);
+                    String name = bType.tsymbol.getName().getValue();
+                    typeDescriptor = new BuiltinTypeDescriptor(moduleID, name);
+                    break;
                 }
-                return createErrorTypeDescriptor((BErrorType) bType);
+                typeDescriptor = new ErrorTypeDescriptor(moduleID, (BErrorType) bType);
+                break;
+            case UNION:
+                typeDescriptor = new UnionTypeDescriptor(moduleID, (BUnionType) bType);
+                break;
+            case FUTURE:
+                typeDescriptor = new FutureTypeDescriptor(moduleID, (BFutureType) bType);
+                break;
+            case MAP:
+                typeDescriptor = new MapTypeDescriptor(moduleID, (BMapType) bType);
+                break;
+            case STREAM:
+                typeDescriptor = new StreamTypeDescriptor(moduleID, (BStreamType) bType);
+                break;
+            case ARRAY:
+                typeDescriptor = new ArrayTypeDescriptor(moduleID, (BArrayType) bType);
+                break;
+            case TUPLE:
+                typeDescriptor = new TupleTypeDescriptor(moduleID, (BTupleType) bType);
+                break;
+            case TYPEDESC:
+                typeDescriptor = new TypeDescTypeDescriptor(moduleID, (BTypedescType) bType);
+                break;
+            case NIL:
+                 return new NilTypeDescriptor(moduleID);
             case ANNOTATION:
                 return null;
-            case NIL:
-                return createNilTypeDesc(bType);
             default:
-                return createBuiltinTypeDesc(bType);
+                String name = bType.tsymbol == null ? "" : bType.tsymbol.getName().getValue();
+                return new BuiltinTypeDescriptor(moduleID, name);
         }
-    }
-
-    /**
-     * Creates an Object Type Descriptor.
-     * 
-     * @param objectType BObjectType to convert
-     * @return {@link ObjectTypeDescriptor} generated
-     */
-    public static ObjectTypeDescriptor createObjectTypeDescriptor(BObjectType objectType) {
-        PackageID pkgID = objectType.tsymbol.pkgID;
-        ObjectTypeDescriptor.ObjectTypeBuilder objectTypeBuilder
-                = new ObjectTypeDescriptor.ObjectTypeBuilder(TypeDescKind.OBJECT, pkgID);
         
-        objectType.fields.forEach(bField -> objectTypeBuilder.withObjectField(new BallerinaField(bField)));
-        if ((objectType.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
-            objectTypeBuilder.withTypeQualifier(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
+        if (bType.tsymbol != null && ((bType.tsymbol.flags & Flags.ANONYMOUS) != Flags.ANONYMOUS)
+                && !bType.tsymbol.getName().getValue().isEmpty()) {
+            typeDescriptor = new TypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
         }
-        if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
-            objectTypeBuilder.withTypeQualifier(ObjectTypeDescriptor.TypeQualifier.CLIENT);
-        }
-        if ((objectType.flags & Flags.LISTENER) == Flags.LISTENER) {
-            objectTypeBuilder.withTypeQualifier(ObjectTypeDescriptor.TypeQualifier.CLIENT);
-        }
-        objectTypeBuilder.withSymbol((BObjectTypeSymbol) objectType.tsymbol);
-        
-        return objectTypeBuilder.build();
-    }
-    
-    /**
-     * Creates an Object Type Descriptor.
-     *
-     * @param recordType BRecordType to convert
-     * @return {@link ObjectTypeDescriptor} generated
-     */
-    public static RecordTypeDescriptor createRecordTypeDescriptor(BRecordType recordType) {
-        PackageID pkgID = recordType.tsymbol.pkgID;
-        RecordTypeDescriptor.RecordTypeBuilder recordTypeBuilder =
-                new RecordTypeDescriptor.RecordTypeBuilder(TypeDescKind.RECORD, pkgID, !recordType.sealed);
-        recordType.fields.forEach(bField -> recordTypeBuilder.withFieldTypeDesc(new BallerinaField(bField)));
-        // TODO: Figure out the type reference
-        recordTypeBuilder.withRestTypeDesc(getTypeDescriptor(recordType.restFieldType));
-        
-        return recordTypeBuilder.build();
+        return typeDescriptor;
     }
     
     public static FunctionTypeDescriptor createFunctionTypeDescriptor(BInvokableType invokableType) {
         PackageID pkgID = invokableType.tsymbol.pkgID;
-        FunctionTypeDescriptor.FunctionTypeBuilder functionTypeBuilder
-                = new FunctionTypeDescriptor.FunctionTypeBuilder(TypeDescKind.FUNCTION, pkgID);
-        return functionTypeBuilder.build();
-    }
-    
-    public static ErrorTypeDescriptor createErrorTypeDescriptor(BErrorType errorType) {
-        PackageID pkgID = errorType.tsymbol.pkgID;
-        ErrorTypeDescriptor.ErrorTypeBuilder errorTypeBuilder
-                = new ErrorTypeDescriptor.ErrorTypeBuilder(pkgID, (BErrorTypeSymbol) errorType.tsymbol);
-        return errorTypeBuilder.build();
-    }
-
-    /**
-     * Create a builtin type descriptor.
-     * 
-     * @param bType {@link BType} to convert
-     * @return {@link BuiltinTypeDescriptor} generated
-     */
-    public static BuiltinTypeDescriptor createBuiltinTypeDesc(BType bType) {
-        if (bType.tsymbol == null || bType.tsymbol.name.getValue().isEmpty()) {
-            return null;
-        }
-        return new BuiltinTypeDescriptor
-                .BuiltinTypeBuilder(bType.tsymbol.pkgID, bType.tsymbol)
-                .build();
-    }
-
-    /**
-     * Create a builtin type descriptor.
-     * 
-     * @param bType {@link BType} to convert
-     * @return {@link BuiltinTypeDescriptor} generated
-     */
-    public static NilTypeDescriptor createNilTypeDesc(BType bType) {
-        return new NilTypeDescriptor.NilTypeBuilder(bType.tsymbol.pkgID).build();
+        return new FunctionTypeDescriptor(new ModuleID(pkgID), invokableType);
     }
 }

@@ -20,9 +20,11 @@ package org.ballerina.compiler.api.types;
 import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.TypesFactory;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,69 +33,93 @@ import java.util.StringJoiner;
 
 /**
  * Represents an object type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class ObjectTypeDescriptor extends BallerinaTypeDesc {
-    List<TypeQualifier> typeQualifiers;
-    TypeDescriptor objectTypeReference;
-    List<BallerinaField> objectFields;
-    List<FunctionTypeDescriptor> methods;
-    FunctionTypeDescriptor initFunction;
-    
-    private ObjectTypeDescriptor(TypeDescKind typeDescKind,
-                                 ModuleID moduleID,
-                                 List<TypeQualifier> typeQualifiers,
-                                 List<BallerinaField> objectFields,
-                                 List<FunctionTypeDescriptor> methods,
-                                 FunctionTypeDescriptor initFunction,
-                                 TypeDescriptor objectTypeReference) {
-        super(typeDescKind, moduleID);
-        this.typeQualifiers = typeQualifiers;
-        this.objectFields = objectFields;
-        this.methods = methods;
-        this.initFunction = initFunction;
-        this.objectTypeReference = objectTypeReference;
+
+    private BObjectType objectType;
+    private List<TypeQualifier> typeQualifiers;
+    private TypeDescriptor objectTypeReference;
+    private List<BallerinaField> objectFields;
+    private List<FunctionTypeDescriptor> methods;
+    private FunctionTypeDescriptor initFunction;
+
+    public ObjectTypeDescriptor(ModuleID moduleID,
+                                 BObjectType objectType) {
+        super(TypeDescKind.OBJECT, moduleID);
+        this.objectType = objectType;
     }
 
     /**
      * Get the object type qualifiers.
-     * 
+     *
      * @return {@link List} of object type qualifiers
      */
     public List<TypeQualifier> getTypeQualifiers() {
-        return typeQualifiers;
+        if (this.typeQualifiers == null) {
+            this.typeQualifiers = new ArrayList<>();
+            if ((objectType.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+                this.typeQualifiers.add(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
+            }
+            if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
+                this.typeQualifiers.add(ObjectTypeDescriptor.TypeQualifier.CLIENT);
+            }
+            if ((objectType.flags & Flags.LISTENER) == Flags.LISTENER) {
+                this.typeQualifiers.add(ObjectTypeDescriptor.TypeQualifier.LISTENER);
+            }
+        }
+
+        return this.typeQualifiers;
     }
 
     /**
      * Get the object fields.
-     * 
+     *
      * @return {@link List} of object fields
      */
     public List<BallerinaField> getObjectFields() {
+        if (this.objectFields == null) {
+            this.objectFields = new ArrayList<>();
+            for (BField field : this.objectType.fields) {
+                this.objectFields.add(new BallerinaField(field));
+            }
+        }
         return objectFields;
     }
 
     /**
      * Get the list of methods.
-     * 
+     *
      * @return {@link List} of object methods
      */
     public List<FunctionTypeDescriptor> getMethods() {
+        if (this.methods == null) {
+            this.methods = new ArrayList<>();
+            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.objectType.tsymbol).attachedFuncs) {
+                this.methods.add(TypesFactory.createFunctionTypeDescriptor(attachedFunc.type));
+            }
+        }
+
         return this.methods;
     }
-    
+
     public FunctionTypeDescriptor getInitializer() {
+        if (this.initFunction == null) {
+            this.initFunction = TypesFactory
+                    .createFunctionTypeDescriptor(((BObjectTypeSymbol) this.objectType.tsymbol).initializerFunc.type);
+        }
+
         return this.initFunction;
     }
 
     /**
      * Get the object type reference.
-     * 
+     *
      * @return {@link Optional} type reference
      */
     public Optional<TypeDescriptor> getObjectTypeReference() {
-        return Optional.ofNullable(objectTypeReference);
+        return Optional.ofNullable(this.objectTypeReference);
     }
 
     @Override
@@ -102,17 +128,17 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
         StringJoiner qualifierJoiner = new StringJoiner(" ");
         StringJoiner fieldJoiner = new StringJoiner(";");
         StringJoiner methodJoiner = new StringJoiner(" ");
-        
+
         for (TypeQualifier typeQualifier : this.getTypeQualifiers()) {
             String value = typeQualifier.getValue();
             qualifierJoiner.add(value);
         }
         signature.append(qualifierJoiner.toString()).append(" object {");
-        
+
         this.getObjectTypeReference().ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.getObjectFields().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.getSignature()));
         this.getMethods().forEach(method -> methodJoiner.add(method.getSignature()));
-        
+
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())
                 .append("}")
@@ -120,80 +146,15 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
     }
 
     /**
-     * Represents Object Type Builder.
-     */
-    public static class ObjectTypeBuilder extends TypeBuilder<ObjectTypeBuilder> {
-        
-        List<TypeQualifier> typeQualifiers = new ArrayList<>();
-        List<BallerinaField> objectFields = new ArrayList<>();
-        TypeDescriptor objectTypeReference;
-        List<FunctionTypeDescriptor> methods = new ArrayList<>();
-        FunctionTypeDescriptor initFunction;
-        
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public ObjectTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public ObjectTypeDescriptor build() {
-            return new ObjectTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.typeQualifiers,
-                    this.objectFields,
-                    this.methods,
-                    this.initFunction,
-                    this.objectTypeReference);
-        }
-
-        public ObjectTypeBuilder withTypeQualifier(TypeQualifier typeQualifier) {
-            this.typeQualifiers.add(typeQualifier);
-            return this;
-        }
-
-        public ObjectTypeBuilder withObjectField(BallerinaField objectField) {
-            this.objectFields.add(objectField);
-            return this;
-        }
-
-        public ObjectTypeBuilder withSymbol(BObjectTypeSymbol symbol) {
-            for (BAttachedFunction function : symbol.attachedFuncs) {
-
-                FunctionTypeDescriptor functionType =
-                        TypesFactory.createFunctionTypeDescriptor(function.symbol.getType());
-                this.methods.add(functionType);
-            }
-            if (symbol.initializerFunc != null) {
-                this.initFunction = TypesFactory.createFunctionTypeDescriptor(symbol.initializerFunc.symbol.getType());
-            }
-            
-            return this;
-        }
-
-        public ObjectTypeBuilder withObjectTypeReference(TypeDescriptor objectTypeReference) {
-            this.objectTypeReference = objectTypeReference;
-            return this;
-        }
-    }
-
-    /**
      * Represents the object type qualifier.
-     * 
+     *
      * @since 1.3.0
      */
     public enum TypeQualifier {
         ABSTRACT("abstract"),
+        LISTENER("listener"),
         CLIENT("client");
-        
+
         private String value;
 
         TypeQualifier(String value) {

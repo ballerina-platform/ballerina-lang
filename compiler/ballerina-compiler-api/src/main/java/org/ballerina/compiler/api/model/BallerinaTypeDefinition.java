@@ -46,6 +46,10 @@ public class BallerinaTypeDefinition extends BallerinaVariable {
                                       BSymbol bSymbol) {
         super(name, moduleID, symbolKind, accessModifiers, typeDescriptor, bSymbol);
     }
+    
+    public String getModuleQualifiedName() {
+        return this.getModuleID().getModuleName() + ":" + this.getName();
+    }
 
     /**
      * Represents a type definition symbol builder.

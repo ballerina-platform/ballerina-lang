@@ -18,26 +18,33 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
 import java.util.Optional;
 
 /**
  * Represents a typeDesc type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class TypeDescTypeDescriptor extends BallerinaTypeDesc {
+
+    private BTypedescType typedescType;
+
     private TypeDescriptor typeParameter;
-    
-    private TypeDescTypeDescriptor(TypeDescKind typeDescKind,
-                                   ModuleID moduleID,
-                                   TypeDescriptor typeParameter) {
-        super(typeDescKind, moduleID);
-        this.typeParameter = typeParameter;
+
+    public TypeDescTypeDescriptor(ModuleID moduleID,
+                                  BTypedescType typedescType) {
+        super(TypeDescKind.TYPEDESC, moduleID);
+        this.typedescType = typedescType;
     }
-    
+
     public Optional<TypeDescriptor> getTypeParameter() {
+        if (this.typeParameter == null) {
+            this.typeParameter = TypesFactory.getTypeDescriptor(typedescType.constraint);
+        }
+
         return Optional.ofNullable(this.typeParameter);
     }
 
@@ -47,38 +54,5 @@ public class TypeDescTypeDescriptor extends BallerinaTypeDesc {
             return this.getKind().name() + "<" + this.getTypeParameter().get().getSignature() + ">";
         }
         return this.getKind().name();
-    }
-
-    /**
-     * Represents a builder for TypeDesc Type Descriptor.
-     */
-    public static class TypeDescTypeBuilder extends TypeBuilder<TypeDescTypeBuilder> {
-        private TypeDescriptor typeParameter;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public TypeDescTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public TypeDescriptor build() {
-            return new TypeDescTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.typeParameter);
-        }
-
-        public TypeDescTypeBuilder withTypeParameter(TypeDescriptor typeParameter) {
-            this.typeParameter = typeParameter;
-            return this;
-        }
     }
 }

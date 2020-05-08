@@ -19,7 +19,9 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,22 +34,17 @@ import java.util.StringJoiner;
  * @since 1.3.0
  */
 public class RecordTypeDescriptor extends BallerinaTypeDesc {
+    
+    private BRecordType recordType;
     private List<BallerinaField> fieldDescriptors;
     private boolean isInclusive;
     private TypeDescriptor typeReference;
     private TypeDescriptor restTypeDesc;
     
-    public RecordTypeDescriptor(TypeDescKind typeDescKind,
-                                ModuleID moduleID,
-                                List<BallerinaField> fieldDescriptors,
-                                TypeDescriptor typeReference,
-                                TypeDescriptor restTypeDesc,
-                                boolean isInclusive) {
-        super(typeDescKind, moduleID);
-        this.fieldDescriptors = fieldDescriptors;
-        this.typeReference = typeReference;
-        this.restTypeDesc = restTypeDesc;
-        this.isInclusive = isInclusive;
+    public RecordTypeDescriptor(ModuleID moduleID, BRecordType recordType) {
+        super(TypeDescKind.RECORD, moduleID);
+        this.recordType = recordType;
+        this.isInclusive = !recordType.sealed;
     }
 
     /**
@@ -56,6 +53,13 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
      * @return {@link List} of ballerina field
      */
     public List<BallerinaField> getFieldDescriptors() {
+        if (this.fieldDescriptors == null) {
+            this.fieldDescriptors = new ArrayList<>();
+            for (BField field : this.recordType.fields) {
+                this.fieldDescriptors.add(new BallerinaField(field));
+            }
+        }
+        
         return this.fieldDescriptors;
     }
 
@@ -78,13 +82,16 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
     }
 
     public Optional<TypeDescriptor> getRestTypeDesc() {
-        return Optional.ofNullable(restTypeDesc);
+        if (this.restTypeDesc == null) {
+            this.restTypeDesc = TypesFactory.getTypeDescriptor(this.recordType.restFieldType);
+        }
+        return Optional.ofNullable(this.restTypeDesc);
     }
 
     @Override
     public String getSignature() {
         StringJoiner joiner = new StringJoiner(";");
-        for (BallerinaField fieldDescriptor : this.fieldDescriptors) {
+        for (BallerinaField fieldDescriptor : this.getFieldDescriptors()) {
             String ballerinaFieldSignature = fieldDescriptor.getSignature();
             joiner.add(ballerinaFieldSignature);
         }
@@ -101,56 +108,5 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
         }
         signature.append("}");
         return signature.toString();
-    }
-
-    /**
-     * Represents Tuple Type Descriptor.
-     */
-    public static class RecordTypeBuilder extends TypeBuilder<RecordTypeBuilder> {
-        private List<BallerinaField> fieldDescriptors = new ArrayList<>();
-        private boolean isInclusive;
-        private TypeDescriptor typeReference;
-        private TypeDescriptor restTypeDesc;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         * @param inclusive whether the record is inclusive or not
-         */
-        public RecordTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, boolean inclusive) {
-            super(typeDescKind, moduleID);
-            this.isInclusive = inclusive;
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public RecordTypeDescriptor build() {
-            return new RecordTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.fieldDescriptors,
-                    this.typeReference,
-                    this.restTypeDesc,
-                    this.isInclusive);
-        }
-
-        public RecordTypeBuilder withFieldTypeDesc(BallerinaField ballerinaField) {
-            this.fieldDescriptors.add(ballerinaField);
-            return this;
-        }
-
-        public RecordTypeBuilder withTypeReference(TypeDescriptor typeReference) {
-            this.typeReference = typeReference;
-            return this;
-        }
-
-        public RecordTypeBuilder withRestTypeDesc(TypeDescriptor restTypeDesc) {
-            this.restTypeDesc = restTypeDesc;
-            return this;
-        }
     }
 }

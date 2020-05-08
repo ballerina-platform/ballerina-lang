@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.TypesFactory;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -30,43 +29,51 @@ import java.util.StringJoiner;
 
 /**
  * Represents a function type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class FunctionTypeDescriptor extends BallerinaTypeDesc {
+    private BInvokableType invokableType;
     private List<TypeDescriptor> requiredParams;
     private TypeDescriptor restParam;
     private TypeDescriptor returnType;
     // TODO: Represent the return type's annotations
-    
-    public FunctionTypeDescriptor(TypeDescKind typeDescKind,
-                                  ModuleID moduleID,
-                                  List<TypeDescriptor> requiredParams,
-                                  TypeDescriptor restParam,
-                                  TypeDescriptor returnType) {
-        super(typeDescKind, moduleID);
-        this.requiredParams = requiredParams;
-        this.restParam = restParam;
-        this.returnType = returnType;
+
+    public FunctionTypeDescriptor(ModuleID moduleID,
+                                  BInvokableType invokableType) {
+        super(TypeDescKind.FUNCTION, moduleID);
+        this.invokableType = invokableType;
     }
 
     public List<TypeDescriptor> getRequiredParams() {
-        return requiredParams;
+        if (this.requiredParams == null) {
+            this.requiredParams = new ArrayList<>();
+            for (BType requiredParam : this.invokableType.getParameterTypes()) {
+                this.requiredParams.add(TypesFactory.getTypeDescriptor(requiredParam));
+            }
+        }
+        return this.requiredParams;
     }
 
     public Optional<TypeDescriptor> getRestParam() {
-        return Optional.ofNullable(restParam);
+        if (restParam == null) {
+            this.restParam = TypesFactory.getTypeDescriptor(this.invokableType.restType);
+        }
+        return Optional.ofNullable(this.restParam);
     }
 
     public Optional<TypeDescriptor> getReturnType() {
-        return Optional.ofNullable(returnType);
+        if (returnType == null) {
+            this.returnType = TypesFactory.getTypeDescriptor(this.invokableType.retType);
+        }
+        return Optional.ofNullable(this.returnType);
     }
 
     @Override
     public String getSignature() {
         StringBuilder signature = new StringBuilder("function (");
         StringJoiner joiner = new StringJoiner(",");
-        for (TypeDescriptor requiredParam : this.requiredParams) {
+        for (TypeDescriptor requiredParam : this.getRequiredParams()) {
             String ballerinaParameterSignature = requiredParam.getSignature();
             joiner.add(ballerinaParameterSignature);
         }
@@ -75,53 +82,7 @@ public class FunctionTypeDescriptor extends BallerinaTypeDesc {
                 .append(")");
         this.getReturnType().ifPresent(typeDescriptor -> signature.append(" returns ")
                 .append(typeDescriptor.getSignature()));
-        
+
         return signature.toString();
-    }
-
-    /**
-     * Represents Tuple Type Descriptor.
-     */
-    public static class FunctionTypeBuilder extends TypeBuilder<FunctionTypeBuilder> {
-        private List<TypeDescriptor> paramTypes = new ArrayList<>();
-        private TypeDescriptor restType;
-        private TypeDescriptor returnType;
-
-        /**
-         * Symbol Builder Constructor.
-         *
-         * @param typeDescKind type descriptor kind
-         * @param moduleID     Module ID of the type descriptor
-         */
-        public FunctionTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID);
-        }
-
-        /**
-         * Build the Ballerina Type Descriptor.
-         *
-         * @return {@link TypeDescriptor} built
-         */
-        public FunctionTypeDescriptor build() {
-            return new FunctionTypeDescriptor(this.typeDescKind,
-                    this.moduleID,
-                    this.paramTypes,
-                    this.restType,
-                    this.returnType);
-        }
-
-        public FunctionTypeBuilder withInvokableType(BInvokableType invokableType) {
-            for (BType paramType : invokableType.paramTypes) {
-                TypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(paramType);
-                this.paramTypes.add(typeDescriptor);
-            }
-            if (invokableType.restType != null) {
-                this.restType = TypesFactory.getTypeDescriptor(invokableType.restType);
-            }
-            if (invokableType.retType != null) {
-                this.returnType = TypesFactory.getTypeDescriptor(invokableType.retType);
-            }
-            return this;
-        }
     }
 }
