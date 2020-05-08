@@ -28,25 +28,25 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STFunctionalConstructorExpressionNode extends STExpressionNode {
-    public final STNode functionallyConstructableTypeReference;
+    public final STNode functionallyConstructibleTypeReference;
     public final STNode openParenToken;
     public final STNode arguments;
     public final STNode closeParenToken;
 
     STFunctionalConstructorExpressionNode(
             SyntaxKind kind,
-            STNode functionallyConstructableTypeReference,
+            STNode functionallyConstructibleTypeReference,
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
         super(kind);
-        this.functionallyConstructableTypeReference = functionallyConstructableTypeReference;
+        this.functionallyConstructibleTypeReference = functionallyConstructibleTypeReference;
         this.openParenToken = openParenToken;
         this.arguments = arguments;
         this.closeParenToken = closeParenToken;
 
         addChildren(
-                functionallyConstructableTypeReference,
+                functionallyConstructibleTypeReference,
                 openParenToken,
                 arguments,
                 closeParenToken);

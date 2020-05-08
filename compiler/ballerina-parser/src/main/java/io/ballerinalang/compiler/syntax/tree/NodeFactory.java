@@ -534,18 +534,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FunctionalConstructorExpressionNode createFunctionalConstructorExpressionNode(
             SyntaxKind kind,
-            Token functionallyConstructableTypeReference,
+            Token functionallyConstructibleTypeReference,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
-        Objects.requireNonNull(functionallyConstructableTypeReference, "functionallyConstructableTypeReference must not be null");
+        Objects.requireNonNull(functionallyConstructibleTypeReference, "functionallyConstructibleTypeReference must not be null");
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
         Objects.requireNonNull(arguments, "arguments must not be null");
         Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
         STNode stFunctionalConstructorExpressionNode = STNodeFactory.createFunctionalConstructorExpressionNode(
                 kind,
-                functionallyConstructableTypeReference.internalNode(),
+                functionallyConstructibleTypeReference.internalNode(),
                 openParenToken.internalNode(),
                 arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());

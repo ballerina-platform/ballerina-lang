@@ -34,6 +34,7 @@ import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionalConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
@@ -661,10 +662,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
-        return createBLangInvocation(errorConstructorExpressionNode.arguments(),
-                getBLangNameReference(errorConstructorExpressionNode.errorKeyword()),
-                getPosition(errorConstructorExpressionNode));
+    public BLangNode transform(FunctionalConstructorExpressionNode functionalConstructorExpressionNode) {
+        return createBLangInvocation(functionalConstructorExpressionNode.arguments(),
+                getBLangNameReference(functionalConstructorExpressionNode.functionallyConstructibleTypeReference()),
+                getPosition(functionalConstructorExpressionNode));
     }
 
     private BLangInvocation createBLangInvocation(NodeList<FunctionArgumentNode> arguments,

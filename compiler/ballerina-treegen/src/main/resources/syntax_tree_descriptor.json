@@ -689,7 +689,7 @@
             "base": "ExpressionNode",
             "attributes": [
                 {
-                    "name": "functionallyConstructableTypeReference",
+                    "name": "functionallyConstructibleTypeReference",
                     "type": "Token"
                 },
                 {

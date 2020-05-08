@@ -30,7 +30,7 @@ public class FunctionalConstructorExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Token functionallyConstructableTypeReference() {
+    public Token functionallyConstructibleTypeReference() {
         return childInBucket(0);
     }
 
@@ -59,7 +59,7 @@ public class FunctionalConstructorExpressionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "functionallyConstructableTypeReference",
+                "functionallyConstructibleTypeReference",
                 "openParenToken",
                 "arguments",
                 "closeParenToken"};
@@ -67,12 +67,12 @@ public class FunctionalConstructorExpressionNode extends ExpressionNode {
 
     public FunctionalConstructorExpressionNode modify(
             SyntaxKind kind,
-            Token functionallyConstructableTypeReference,
+            Token functionallyConstructibleTypeReference,
             Token openParenToken,
             NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
-                functionallyConstructableTypeReference,
+                functionallyConstructibleTypeReference,
                 openParenToken,
                 arguments.underlyingListNode(),
                 closeParenToken)) {
@@ -81,7 +81,7 @@ public class FunctionalConstructorExpressionNode extends ExpressionNode {
 
         return NodeFactory.createFunctionalConstructorExpressionNode(
                 kind,
-                functionallyConstructableTypeReference,
+                functionallyConstructibleTypeReference,
                 openParenToken,
                 arguments,
                 closeParenToken);

@@ -408,14 +408,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFunctionalConstructorExpressionNode(
             SyntaxKind kind,
-            STNode functionallyConstructableTypeReference,
+            STNode functionallyConstructibleTypeReference,
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
 
         return new STFunctionalConstructorExpressionNode(
                 kind,
-                functionallyConstructableTypeReference,
+                functionallyConstructibleTypeReference,
                 openParenToken,
                 arguments,
                 closeParenToken);
