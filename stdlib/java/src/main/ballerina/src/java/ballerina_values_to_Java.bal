@@ -74,6 +74,10 @@ public function createNull() returns handle = external;
 # + return - The Java Class object for the class with the given name
 public function getClass(string name) returns handle | error = external;
 
+# A type parameter that is a subtype of `any`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
 type AnyType any;
 
 # Returns an `any|error`, which is obtained after casting the provided `JObject` instance
