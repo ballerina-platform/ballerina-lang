@@ -74,12 +74,6 @@ public function createNull() returns handle = external;
 # + return - The Java Class object for the class with the given name
 public function getClass(string name) returns handle | error = external;
 
-# A type parameter that is a subtype of `any`.
-# Has the special semantic that when used in a declaration
-# all uses in the declaration must refer to same type.
-@typeParam
-type AnyType any;
-
 # Returns an `any|error`, which is obtained after casting the provided `JObject` instance
 # to the given `JObject` type depending on assignability.
 # ```ballerina
@@ -92,4 +86,4 @@ type AnyType any;
 # + value - The JObject `object` instance which is to be casted
 # + castType - The JObject implementation type `typedesc<object>` to which the given object is casted to if assignable
 # + return - The `any|error`, which refers to the new JObject `object` instance or an `error`
-public function cast(any value, typedesc<any> castType) returns AnyType|error = external;
+public function cast(any value, typedesc<any> castType) returns any|error = external;
