@@ -212,7 +212,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR,
             ParserRuleContext.TYPE_CAST_EXPRESSION, ParserRuleContext.OPEN_PARENTHESIS,
             ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START,
-            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION };
+            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION,
+            ParserRuleContext.ERROR_CONSTRUCTOR_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -1171,6 +1172,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case LET_EXPRESSION:
                 case END_OF_TYPE_DESC:
                 case VAR_DECL_STARTED_WITH_DENTIFIER:
+                case ERROR_CONSTRUCTOR_EXPRESSION:
 
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
@@ -1435,6 +1437,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case KEY_SPECIFIER:
             case LET_VAR_DECL:
+            case ERROR_CONSTRUCTOR_EXPRESSION:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2194,7 +2197,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                  * that starts with 'function' keyword. However, until the end of func-signature,
                  * we don't know whether this is a func-def or a function type.
                  * Hence a var-decl-stmt context is not started until this point.
-                 * 
+                 *
                  * Fact 2:
                  * ------
                  * We reach here for END_OF_TYPE_DESC context. That means we are going to end the
