@@ -1,0 +1,18 @@
+{
+    "kind": "ERROR_CONSTRUCTOR_EXPRESSION",
+    "children": [
+        {
+            "kind": "ERROR_KEYWORD"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": []
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        }
+    ]
+}

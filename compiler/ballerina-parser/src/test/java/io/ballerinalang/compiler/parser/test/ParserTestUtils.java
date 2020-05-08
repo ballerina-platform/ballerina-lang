@@ -612,8 +612,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_CAST_EXPRESSION;
             case "TABLE_CONSTRUCTOR":
                 return SyntaxKind.TABLE_CONSTRUCTOR;
-            case "ERROR_CONSTRUCTOR":
-                return SyntaxKind.ERROR_CONSTRUCTOR;
+            case "ERROR_CONSTRUCTOR_EXPRESSION":
+                return SyntaxKind.ERROR_CONSTRUCTOR_EXPRESSION;
             case "LET_EXPRESSION":
                 return SyntaxKind.LET_EXPRESSION;
             case "RAW_TEMPLATE_EXPRESSION":

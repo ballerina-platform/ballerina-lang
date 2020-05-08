@@ -36,7 +36,8 @@ public class TestParser {
     private static final PrintStream OUT = System.out;
 
     public static void main(String[] args) throws IOException {
-        String path = "src/test/resources/test1.bal";
+        String path = "/home/kavindu/WSO2-GIT/test1/ballerina-lang/compiler/ballerina-parser/src/test/resources/test1" +
+                ".bal";
         // String path = "src/test/resources/test2.bal";
         // String path = "src/test/resources/test3.bal";
 

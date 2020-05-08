@@ -1,0 +1,40 @@
+{
+    "kind": "ERROR_CONSTRUCTOR_EXPRESSION",
+    "children": [
+        {
+            "kind": "ERROR_KEYWORD"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "POSITIONAL_ARG",
+                    "children": [
+                        {
+                            "kind": "BRACED_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "OPEN_PAREN_TOKEN"
+                                },
+                                {
+                                    "kind": "STRING_LITERAL",
+                                    "value": "message"
+                                },
+                                {
+                                    "kind": "CLOSE_PAREN_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN",
+            "isMissing": true
+        }
+    ]
+}
