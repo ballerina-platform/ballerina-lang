@@ -966,10 +966,9 @@ public class Types {
             return false;
         }
 
-        if (unresolvedTypes.contains(type)) {
+        if (!unresolvedTypes.add(type)) {
             return true;
         }
-        unresolvedTypes.add(type);
 
         switch (type.tag) {
             case TypeTags.ANY:

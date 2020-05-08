@@ -228,6 +228,7 @@ public class ImmutableTypeCloner {
                 for (BType memberType : origUnionType.getMemberTypes()) {
                     if (types.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
+                        continue;
                     }
 
                     if (!types.isSelectivelyImmutableType(memberType, unresolvedTypes)) {

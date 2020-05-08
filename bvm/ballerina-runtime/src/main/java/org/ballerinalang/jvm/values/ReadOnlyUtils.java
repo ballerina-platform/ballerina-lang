@@ -163,6 +163,7 @@ class ReadOnlyUtils {
                 for (BType memberType : origUnionType.getMemberTypes()) {
                     if (TypeChecker.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
+                        continue;
                     }
 
                     if (!TypeChecker.isSelectivelyImmutableType(memberType, unresolvedTypes)) {

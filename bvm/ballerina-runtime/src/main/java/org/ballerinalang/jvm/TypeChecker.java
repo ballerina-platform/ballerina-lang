@@ -1171,15 +1171,9 @@ public class TypeChecker {
     }
 
     public static boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        if (isInherentlyImmutableType(type)) {
-            // Always immutable.
-            return false;
-        }
-
-        if (unresolvedTypes.contains(type)) {
+        if (!unresolvedTypes.add(type)) {
             return true;
         }
-        unresolvedTypes.add(type);
 
         switch (type.getTag()) {
             case TypeTags.ANY_TAG:
