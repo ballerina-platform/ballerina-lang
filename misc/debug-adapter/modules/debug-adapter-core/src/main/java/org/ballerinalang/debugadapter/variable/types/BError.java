@@ -19,36 +19,41 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * error type.
+ * Ballerina error variable type.
  */
-public class BError extends BVariable {
+public class BError extends BCompoundVariable {
 
-    private final ObjectReferenceImpl value;
+    private final ObjectReferenceImpl jvmValueRef;
 
     public BError(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+        this.jvmValueRef = (ObjectReferenceImpl) value;
+        dapVariable.setType(BVariableType.ERROR.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("error");
-        dapVariable.setValue(this.toString());
+        this.computeChildVariables();
     }
 
     @Override
-    public String toString() {
-        List<Field> fields = value.referenceType().allFields();
-
-        Field valueField = fields.stream().filter(field ->
-                field.name().equals("reason"))
+    public String getValue() {
+        List<Field> fields = jvmValueRef.referenceType().allFields();
+        Field valueField = fields.stream().filter(field -> field.name().equals("reason"))
                 .collect(Collectors.toList()).get(0);
-
-        Value error = value.getValue(valueField);
-
+        Value error = jvmValueRef.getValue(valueField);
         return error.toString();
+    }
+
+    @Override
+    public void computeChildVariables() {
+        // Todo
+        this.setChildVariables(new HashMap<>());
     }
 }

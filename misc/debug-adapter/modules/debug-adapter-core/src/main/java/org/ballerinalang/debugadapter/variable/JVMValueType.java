@@ -5,14 +5,16 @@ package org.ballerinalang.debugadapter.variable;
  */
 public enum JVMValueType {
 
-    LONG("java.lang.Long"),
-    BOOLEAN("java.lang.Boolean"),
-    DOUBLE("java.lang.Double"),
+    LONG("long"),
+    BOOLEAN("boolean"),
+    DOUBLE("double"),
+    DECIMAL("org.ballerinalang.jvm.values.DecimalValue"), // todo - parent var name
     STRING("java.lang.String"),
     OBJECT("java.lang.Object"),
     OBJECT_TYPE("org.ballerinalang.jvm.types.BObjectType"),
     OBJECT_VALUE("org.ballerinalang.jvm.values.ObjectValue"),
     ARRAY_VALUE("org.ballerinalang.jvm.values.ArrayValue"),
+    TUPLE_VALUE("org.ballerinalang.jvm.values.TupleValue"),
     MAP_VALUE("org.ballerinalang.jvm.values.MapValue"),
     ERROR_VALUE("org.ballerinalang.jvm.values.ErrorValue"),
     XML_ITEM("org.ballerinalang.jvm.values.XMLItem");
