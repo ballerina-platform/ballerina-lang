@@ -1,3 +1,0 @@
-// Ballerina supports HTTP access logs for HTTP services. The access log format used is the combined log format.<br/><br/>
-// For more information on the underlying module, 
-// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).
