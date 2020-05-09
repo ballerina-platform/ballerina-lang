@@ -62,6 +62,9 @@ public enum ParserRuleContext {
     TYPE_REFERENCE("type-reference"),
     ARG_LIST("arguments"),
     ARG_START("argument-start"),
+    ARG_LIST_START("("),
+    ARG_LIST_END(")"),
+    ARG_START_OR_ARG_LIST_END("arg-start-or-args-list-end"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
@@ -263,7 +266,6 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
-    ARG_LIST_START("arg-list-start"),
 
     // Expressions
     EXPRESSION("expression"),
