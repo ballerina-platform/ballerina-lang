@@ -208,10 +208,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] EXPRESSION_START = { ParserRuleContext.BASIC_LITERAL,
             ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
             ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
-             ParserRuleContext.CHECKING_KEYWORD,
-            ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
-            ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION,
-            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD,
+            ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR,
+            ParserRuleContext.TYPE_CAST_EXPRESSION, ParserRuleContext.OPEN_PARENTHESIS,
+            ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START,
+            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD,
             ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
@@ -242,8 +242,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER = { ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS, ParserRuleContext.VAR_DECL_STARTED_WITH_DENTIFIER };
+    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS,
+                    ParserRuleContext.VAR_DECL_STARTED_WITH_DENTIFIER };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
@@ -313,6 +314,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] FUNCTION_KEYWORD_RHS =
             { ParserRuleContext.FUNC_NAME, ParserRuleContext.OPEN_PARENTHESIS };
+
+    private static final ParserRuleContext[] TYPEDESC_RHS =
+            { ParserRuleContext.END_OF_TYPE_DESC, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
+                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -987,7 +992,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
                     break;
                 case TYPEDESC_RHS:
-                    return seekInTypeDescRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint);
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
+                            isEntryPoint);
                 case TRAP_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
                     break;
@@ -1180,20 +1186,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
         result.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
-    }
-
-    /**
-     * @param lookahead
-     * @param currentDepth
-     * @param matchingRulesCount
-     * @param isEntryPoint
-     * @return
-     */
-    private Result seekInTypeDescRhs(int lookahead, int currentDepth, int matchingRulesCount, boolean isEntryPoint) {
-        ParserRuleContext[] TYPEDESC_RHS =
-                { ParserRuleContext.END_OF_TYPE_DESC, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
-                        ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
-        return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS, isEntryPoint);
     }
 
     /**
@@ -1915,7 +1907,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VAR_DECL_STARTED_WITH_DENTIFIER:
                 // We come here trying to recover statement started with identifier,
                 // and trying to match it against a var-decl. Since this wasn't a var-decl
-                // originally, a context for type hasn't started yet. Therefore start a 
+                // originally, a context for type hasn't started yet. Therefore start a
                 // a context manually here.
                 startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
                 return ParserRuleContext.TYPEDESC_RHS;
@@ -2111,12 +2103,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.ANNOTATION_TAG;
             case TYPE_DESC_BEFORE_IDENTIFIER:
-                endContext();
-                if (isInTypeDesContext()) {
-                    return ParserRuleContext.TYPEDESC_RHS;
-                }
-                return ParserRuleContext.VARIABLE_NAME;
             case TYPE_DESC_IN_RECORD_FIELD:
+            case TYPE_DESC_IN_TYPE_BINDING_PATTERN: // TODO: Update this once the typed-binding-patterns added.
                 endContext();
                 if (isInTypeDesContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
@@ -2128,13 +2116,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.AFTER_PARAMETER_TYPE;
-            case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
-                endContext();
-                if (isInTypeDesContext()) {
-                    return ParserRuleContext.TYPEDESC_RHS;
-                }
-                // TODO: Update this once the typed-binding-patterns added.
-                return ParserRuleContext.VARIABLE_NAME;
             case TYPE_DESC_IN_TYPE_DEF:
                 endContext();
                 if (isInTypeDesContext()) {

@@ -1222,7 +1222,7 @@ public class BallerinaParser extends AbstractParser {
                         isFuncDef);
         }
 
-        // If the is present, treat this as a function def
+        // If the function name is present, treat this as a function def
         if (isFuncDef) {
             switchContext(ParserRuleContext.FUNC_DEF);
             STNode funcSignature = parseFuncSignature(false, false);
@@ -1233,7 +1233,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Otherwise it could be a func-def or a func-type
         STNode funcSignature = parseFuncSignature(true, false);
-        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, name, funcSignature);
+        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, funcSignature);
     }
 
     /**
@@ -1253,14 +1253,14 @@ public class BallerinaParser extends AbstractParser {
         STNode openParenthesis = parseOpenParenthesis();
         STNode parameters = parseParamList(isParamNameOptional);
         STNode closeParenthesis = parseCloseParenthesis();
-        endContext();// end param-list
+        endContext(); // end param-list
         STNode returnTypeDesc = parseFuncReturnTypeDescriptor(isInExprContext);
-        endContext();// end func-signature
+        endContext(); // end func-signature
         return STNodeFactory.createFunctionSignatureNode(openParenthesis, parameters, closeParenthesis, returnTypeDesc);
     }
 
     private STNode parseReturnTypeDescRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
-                                          STNode name, STNode funcSignature) {
+                                          STNode funcSignature) {
         switch (peek().kind) {
             // TODO: add binding-patterns
 
@@ -1286,7 +1286,7 @@ public class BallerinaParser extends AbstractParser {
 
         // We reach this method only if the func-name is not present.
         this.errorHandler.reportMissingTokenError("missing " + ParserRuleContext.FUNC_NAME);
-        name = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        STNode name = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
 
         // Function definition cannot have missing param-names. So validate it.
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);

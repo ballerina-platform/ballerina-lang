@@ -302,7 +302,7 @@ public enum ParserRuleContext {
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
-    TYPE_DESC_BEFORE_IDENTIFIER("type-desc-before-identifier"),             // object/record fields, params, const, listener
+    TYPE_DESC_BEFORE_IDENTIFIER("type-desc-before-identifier"), // object/record fields, params, const, listener
     TYPE_DESC_IN_RECORD_FIELD("type-desc-in-record-field"),
     TYPE_DESC_IN_PARAM("type-desc-in-param"),
     TYPE_DESC_IN_TYPE_BINDING_PATTERN("type-desc-in-type-binding-pattern"), // foreach, let-var-decl, var-decl

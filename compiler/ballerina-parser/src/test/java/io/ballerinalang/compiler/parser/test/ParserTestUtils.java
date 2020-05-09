@@ -95,11 +95,9 @@ public class ParserTestUtils {
                 try (BufferedWriter writer =
                         new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                // Ignore
             }
         }
     }
