@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -21,60 +22,26 @@
             "value": "foo"
         },
         {
-            "kind": "OPEN_PAREN_TOKEN",
-            "isMissing": true
+            "kind": "OPEN_PAREN_TOKEN"
         },
         {
             "kind": "LIST",
             "children": [
-                {
-                    "kind": "DEFAULTABLE_PARAM",
-                    "children": [
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "hello"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "NIL_LITERAL",
-                            "children": [
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                }
             ]
         },
         {
-            "kind": "CLOSE_PAREN_TOKEN",
-            "isMissing": true
+            "kind": "CLOSE_PAREN_TOKEN"
         },
         {
             "kind": "FUNCTION_BODY_BLOCK",
             "children": [
                 {
-                    "kind": "OPEN_BRACE_TOKEN",
-                    "isMissing": true
+                    "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 },
                 {
                     "kind": "CLOSE_BRACE_TOKEN"

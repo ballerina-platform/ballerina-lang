@@ -33,6 +33,22 @@
             "kind": "CLOSE_PAREN_TOKEN"
         },
         {
+            "kind": "RETURN_TYPE_DESCRIPTOR",
+            "children": [
+                {
+                    "kind": "RETURNS_KEYWORD"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
+                    "kind": "INT_KEYWORD"
+                }
+            ]
+        },
+        {
             "kind": "FUNCTION_BODY_BLOCK",
             "children": [
                 {
