@@ -283,7 +283,6 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
-    TYPE_TEST_EXPRESSION("type-test-expr"),
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
@@ -300,6 +299,18 @@ public enum ParserRuleContext {
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
     LET_EXPRESSION("let-expr"),
+
+    // Contexts that expect a type
+    TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
+    TYPE_DESC_BEFORE_IDENTIFIER("type-desc-before-identifier"),             // object/record fields, params, const, listener
+    TYPE_DESC_IN_RECORD_FIELD("type-desc-in-record-field"),
+    TYPE_DESC_IN_PARAM("type-desc-in-param"),
+    TYPE_DESC_IN_TYPE_BINDING_PATTERN("type-desc-in-type-binding-pattern"), // foreach, let-var-decl, var-decl
+    TYPE_DESC_IN_TYPE_DEF("type-def-type-desc"),                            // local/mdule type defitions
+    TYPE_DESC_IN_ANGLE_BRACKETS("type-desc-in-angle-bracket"),              // type-cast, parameterized-type
+    TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
+    TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
+    VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML 
     XML_CONTENT("xml-content"),
