@@ -73,10 +73,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * eg: Both anon-func and func-type-desc can be used as an expression.
      */
     private static final ParserRuleContext[] ANNON_FUNC_OR_FUNC_TYPE_OPTIONAL_RETURNS =
-            { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.FUNC_TYPE_OR_DEF_SIGNATURE_RHS };
+            { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE_SIGNATURE_RHS };
 
     private static final ParserRuleContext[] ANNON_FUNC_OR_FUNC_TYPE_SIGNATURE_RHS =
-            { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.TYPEDESC_RHS };
+            { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.TYPEDESC_RHS, ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] WORKER_NAME_RHS =
             { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.BLOCK_STMT };
@@ -553,15 +553,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case FUNC_OPTIONAL_RETURNS:
                     ParserRuleContext parentCtx = getParentContext();
+                    ParserRuleContext[] alternatives;
                     if (parentCtx == ParserRuleContext.FUNC_DEF) {
-                        return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                                FUNC_DEF_OPTIONAL_RETURNS, isEntryPoint);
+                        alternatives = FUNC_DEF_OPTIONAL_RETURNS;
                     } else if (parentCtx == ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE) {
-                        return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                                ANNON_FUNC_OR_FUNC_TYPE_OPTIONAL_RETURNS, isEntryPoint);
+                        alternatives = ANNON_FUNC_OR_FUNC_TYPE_OPTIONAL_RETURNS;
+                    } else {
+                        alternatives = FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS;
                     }
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                            FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS, isEntryPoint);
+                            alternatives, isEntryPoint);
                 case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
                     endContext(); // end signature
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,

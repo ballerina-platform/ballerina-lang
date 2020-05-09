@@ -29,7 +29,7 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidLocalLevelParameterizedType() {
-        testFile("parameterized-type/parameterized_type_assert_01.bal",
+        testTopLevelNode("parameterized-type/parameterized_type_assert_01.bal",
                 "parameterized-type/parameterized_type_assert_01.json");
     }
 
@@ -55,7 +55,7 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidMapTypeDescAsReturnType() {
-        testFile("parameterized-type/parameterized_type_assert_02.bal",
+        testTopLevelNode("parameterized-type/parameterized_type_assert_02.bal",
                 "parameterized-type/parameterized_type_assert_11.json");
     }
 

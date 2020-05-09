@@ -681,6 +681,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_DESC;
             case "EXPLICIT_TYPE_PARAMS":
                 return SyntaxKind.EXPLICIT_TYPE_PARAMS;
+            case "FUNCTION_TYPE_DESC":
+                return SyntaxKind.FUNCTION_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
