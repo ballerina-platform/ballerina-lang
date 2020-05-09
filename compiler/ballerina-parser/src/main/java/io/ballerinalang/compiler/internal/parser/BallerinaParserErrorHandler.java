@@ -186,7 +186,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
             ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST_EXPRESSION,
             ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION,
-            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD };
+            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD,
+            ParserRuleContext.NEW_KEYWORD };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -290,7 +291,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
     private static final ParserRuleContext[] NEW_EXPR =
-            { ParserRuleContext.NEW_RHS, ParserRuleContext.EXPLICIT_NEW_RHS };
+            { ParserRuleContext.NEW_EXPR_ARGS, ParserRuleContext.EXPLICIT_NEW_RHS };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1023,7 +1024,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case STRING_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
                     break;
-                case NEW_EXPRESSION:
+                case NEW_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.NEW_KEYWORD;
+                    break;
+                case NEW_KEYWORD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NEW_EXPR, isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
@@ -1094,7 +1098,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
-                case NEW_RHS:
+                case NEW_EXPR_ARGS:
                 case EXPLICIT_NEW_RHS:
                 case ERROR_TYPE_DESCRIPTOR:
                 case LET_VAR_DECL:
@@ -1350,7 +1354,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case KEY_SPECIFIER:
             case ERROR_TYPE_DESCRIPTOR:
             case LET_VAR_DECL:
-            case NEW_RHS:
+            case NEW_EXPR_ARGS:
             case EXPLICIT_NEW_RHS:
                 startContext(currentCtx);
                 break;
@@ -1414,6 +1418,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     // For now key-specifier ctx is only referred inside table-constructor ctx
                     return ParserRuleContext.OPEN_BRACKET;
                 }
+                if (parentCtx == ParserRuleContext.NEW_EXPR_ARGS) {
+                    endContext();
+                    ParserRuleContext parentsParentCtx = getParentContext();
+                    if (parentsParentCtx == ParserRuleContext.EXPLICIT_NEW_RHS) {
+                        endContext();
+                    }
+                    return ParserRuleContext.FUNC_BODY;
+                }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
@@ -1458,7 +1470,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 } else if (isExpressionContext(parentCtx)) {
                     return ParserRuleContext.EXPRESSION;
                 } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION ||
-                        parentCtx == ParserRuleContext.NEW_RHS) {
+                        parentCtx == ParserRuleContext.NEW_EXPR_ARGS) {
                     return ParserRuleContext.PARAM_LIST;
                 } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR ||
                         parentCtx == ParserRuleContext.NIL_LITERAL) {
@@ -1841,8 +1853,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext();
                 return ParserRuleContext.LT;
             case NEW_KEYWORD:
-                return ParserRuleContext.NEW_EXPRESSION;
-            case NEW_RHS:
+                return ParserRuleContext.NEW_KEYWORD_RHS;
+            case NEW_EXPR_ARGS:
                 return ParserRuleContext.OPEN_PARENTHESIS;
             case LT:
                 parentCtx = getParentContext();
@@ -2049,7 +2061,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
             case EXPLICIT_NEW_RHS:
-                return ParserRuleContext.NEW_RHS;
+                return ParserRuleContext.NEW_EXPR_ARGS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;

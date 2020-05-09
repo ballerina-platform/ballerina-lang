@@ -290,9 +290,8 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
-    NEW_EXPRESSION("new-expr"),
+    NEW_KEYWORD_RHS("new-keyword-rhs"),
     IMPLICIT_NEW("implicit-new"),
-    IMPLICIT_NEW_ARG("implicit-new-arg"),
     LET_EXPRESSION("let-expr"),
 
     // XML
@@ -328,7 +327,7 @@ public enum ParserRuleContext {
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
-    NEW_RHS("new-rhs"),
+    NEW_EXPR_ARGS("new-expr-args"),
     EXPLICIT_NEW_RHS("explicit-new-rhs"),
     ;
 

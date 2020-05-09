@@ -355,8 +355,8 @@ public class BallerinaParser extends AbstractParser {
             case TEMPLATE_START:
             case TEMPLATE_END:
                 return parseBacktickToken(context);
-            case NEW_EXPRESSION:
-                return parseNewExpression((STNode) args[0]);
+            case NEW_KEYWORD_RHS:
+                return parseNewKeywordRhs((STNode) args[0]);
             case NEW_KEYWORD:
                 return parseNewKeyword();
             case IMPLICIT_NEW:
@@ -3193,11 +3193,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed NewExpression node.
      */
     private STNode parseNewExpression() {
-        startContext(ParserRuleContext.NEW_EXPRESSION);
         STNode newKeyword = parseNewKeyword();
-        STNode newExpression = parseNewExpression(newKeyword);
-        endContext();
-        return newExpression;
+        return parseNewKeywordRhs(newKeyword);
     }
 
     /**
@@ -3217,9 +3214,9 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseNewExpression(STNode newKeyword) {
+    private STNode parseNewKeywordRhs(STNode newKeyword) {
         STNode token = peek();
-        return parseNewExpression(token.kind, newKeyword);
+        return parseNewKeywordRhs(token.kind, newKeyword);
     }
 
     /**
@@ -3230,7 +3227,7 @@ public class BallerinaParser extends AbstractParser {
      * @param newKeyword parsed node for `new` keyword.
      * @return Parsed new-expression node.
      */
-    private STNode parseNewExpression(SyntaxKind kind, STNode newKeyword) {
+    private STNode parseNewKeywordRhs(SyntaxKind kind, STNode newKeyword) {
         switch (kind) {
             case OPEN_PAREN_TOKEN:
                 return parseImplicitNewExpression(newKeyword);
@@ -3241,8 +3238,8 @@ public class BallerinaParser extends AbstractParser {
                 // TODO: Support `stream` keyword once introduced
                 return parseExplicitNewExpression(newKeyword);
             default:
-                Solution sol = recover(peek(), ParserRuleContext.NEW_EXPRESSION, newKeyword);
-                return parseNewExpression(sol.recoveredNode.kind, newKeyword);
+                Solution sol = recover(peek(), ParserRuleContext.NEW_KEYWORD_RHS, newKeyword);
+                return parseNewKeywordRhs(sol.recoveredNode.kind, newKeyword);
         }
     }
 
@@ -3276,7 +3273,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseImplicitNewExpression(STNode newKeyword) {
         STNode implicitNewArgList = parseParenthesizedArgList();
-
         return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
     }
 
@@ -3288,17 +3284,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed parenthesized rhs of <code>new-expr</code>.
      */
     private STNode parseParenthesizedArgList() {
-        startContext(ParserRuleContext.NEW_RHS);
+        startContext(ParserRuleContext.NEW_EXPR_ARGS);
         STNode openParan = parseOpenParenthesis();
         STNode arguments = parseArgsList();
         STNode closeParan = parseCloseParenthesis();
         endContext();
 
         return STNodeFactory.createParenthesizedArgList(openParan, arguments, closeParan);
-    }
-
-    private STNode parseActionOrExpressionInLhs(STNode lhsExpr) {
-        return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
     }
 
     /**
