@@ -19,8 +19,6 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Optional;
-
 /**
  * This is a generated syntax tree node.
  *
@@ -36,20 +34,8 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Token openParenToken() {
+    public FunctionSignatureNode functionSignature() {
         return childInBucket(1);
-    }
-
-    public NodeList<ParameterNode> parameters() {
-        return new NodeList<>(childInBucket(2));
-    }
-
-    public Token closeParenToken() {
-        return childInBucket(3);
-    }
-
-    public Optional<Node> returnTypeDesc() {
-        return optionalChildInBucket(4);
     }
 
     @Override
@@ -66,32 +52,20 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
     protected String[] childNames() {
         return new String[]{
                 "functionKeyword",
-                "openParenToken",
-                "parameters",
-                "closeParenToken",
-                "returnTypeDesc"};
+                "functionSignature"};
     }
 
     public FunctionTypeDescriptorNode modify(
             Token functionKeyword,
-            Token openParenToken,
-            NodeList<ParameterNode> parameters,
-            Token closeParenToken,
-            Node returnTypeDesc) {
+            FunctionSignatureNode functionSignature) {
         if (checkForReferenceEquality(
                 functionKeyword,
-                openParenToken,
-                parameters.underlyingListNode(),
-                closeParenToken,
-                returnTypeDesc)) {
+                functionSignature)) {
             return this;
         }
 
         return NodeFactory.createFunctionTypeDescriptorNode(
                 functionKeyword,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc);
+                functionSignature);
     }
 }

@@ -98,8 +98,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 SyntaxKind.PUBLIC_KEYWORD,
                 SyntaxKind.FUNCTION_KEYWORD,
                 SyntaxKind.IDENTIFIER_TOKEN,
-                SyntaxKind.OPEN_PAREN_TOKEN,
-                SyntaxKind.CLOSE_PAREN_TOKEN,
+                SyntaxKind.FUNCTION_SIGNATURE,
                 SyntaxKind.FUNCTION_BODY_BLOCK);
 
         for (Node child : funcDef.children()) {

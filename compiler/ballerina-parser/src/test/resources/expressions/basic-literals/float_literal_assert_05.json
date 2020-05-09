@@ -1,427 +1,432 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x3eA3.4Eb2"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x.4Eb2"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X3eA3.4Eb2"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X.4Eb2"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x3eA3.4Eb2p45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x3eA3.4Eb2P45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x.4Eb2p45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x.4Eb2P45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X3eA3.4Eb2p45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X3eA3.4Eb2P45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X.4Eb2p45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X.4Eb2P45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x3eA3.4Eb2p+45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x3eA3.4Eb2P-45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x.4Eb2p+45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0x.4Eb2P-45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X3eA3.4Eb2p+45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X3eA3.4Eb2P-45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X.4Eb2p+45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "a"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "HEX_FLOATING_POINT_LITERAL",
-                                    "value": "0X.4Eb2P-45"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x3eA3.4Eb2"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x.4Eb2"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X3eA3.4Eb2"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X.4Eb2"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x3eA3.4Eb2p45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x3eA3.4Eb2P45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x.4Eb2p45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x.4Eb2P45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X3eA3.4Eb2p45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X3eA3.4Eb2P45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X.4Eb2p45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X.4Eb2P45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x3eA3.4Eb2p+45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x3eA3.4Eb2P-45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x.4Eb2p+45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0x.4Eb2P-45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X3eA3.4Eb2p+45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X3eA3.4Eb2P-45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X.4Eb2p+45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "HEX_FLOATING_POINT_LITERAL",
+                  "value": "0X.4Eb2P-45"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }

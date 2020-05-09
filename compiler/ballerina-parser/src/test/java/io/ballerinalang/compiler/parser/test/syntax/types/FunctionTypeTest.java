@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.types;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing function type desc.
+ * Test parsing function type descriptors.
  * 
  * @since 1.3.0
  */

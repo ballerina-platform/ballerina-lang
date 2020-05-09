@@ -61,22 +61,8 @@
                     "type": "IdentifierToken"
                 },
                 {
-                    "name": "openParenToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "parameters",
-                    "type": "ParameterNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeParenToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "returnTypeDesc",
-                    "type": "Node",
-                    "isOptional": true
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
                 },
                 {
                     "name": "functionBody",
@@ -2333,6 +2319,41 @@
                     "type": "Token"
                 },
                 {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                }
+            ]
+        },
+        {
+            "name": "AnonymousFunctionExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ANONYMOUS_FUNCTION_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "FunctionSignatureNode",
+            "base": "Node",
+            "kind": "FUNCTION_SIGNATURE",
+            "attributes": [
+                {
                     "name": "openParenToken",
                     "type": "Token"
                 },
@@ -2347,7 +2368,7 @@
                 },
                 {
                     "name": "returnTypeDesc",
-                    "type": "Node",
+                    "type": "ReturnTypeDescriptorNode",
                     "isOptional": true
                 }
             ]

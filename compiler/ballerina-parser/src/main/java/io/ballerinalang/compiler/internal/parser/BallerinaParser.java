@@ -23,6 +23,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
+import io.ballerinalang.compiler.internal.parser.tree.STFunctionSignatureNode;
 import io.ballerinalang.compiler.internal.parser.tree.STIndexedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
@@ -1224,51 +1225,52 @@ public class BallerinaParser extends AbstractParser {
         // If the is present, treat this as a function def
         if (isFuncDef) {
             switchContext(ParserRuleContext.FUNC_DEF);
-            STNode openParenthesis = parseOpenParenthesis();
-            STNode parameters = parseParamList(false);
-            STNode closeParenthesis = parseCloseParenthesis();
-            endContext();
-            STNode returnTypeDesc = parseFuncReturnTypeDescriptor(false);
-            endContext(); // end func-signature
+            STNode funcSignature = parseFuncSignature(false, false);
             STNode body = parseFunctionBody();
             return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
-                    openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
+                    funcSignature, body);
         }
 
         // Otherwise it could be a func-def or a func-type
+        STNode funcSignature = parseFuncSignature(true, false);
+        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, name, funcSignature);
+    }
+
+    /**
+     * Parse function signature.
+     * <p>
+     * <code>
+     * function-signature := ( param-list ) return-type-descriptor
+     * <br/>
+     * return-type-descriptor := [ returns [annots] type-descriptor ]
+     * </code>
+     * 
+     * @param isParamNameOptional Whether the parameter names are optional
+     * @param isInExprContext Whether this function signature is occurred within an expression context
+     * @return Function signature node
+     */
+    private STNode parseFuncSignature(boolean isParamNameOptional, boolean isInExprContext) {
         STNode openParenthesis = parseOpenParenthesis();
-        STNode parameters = parseParamList(true);
+        STNode parameters = parseParamList(isParamNameOptional);
         STNode closeParenthesis = parseCloseParenthesis();
-        endContext(); // end func-signature
-        STNode returnTypeDesc = parseFuncReturnTypeDescriptor(false);
-        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, name, openParenthesis, parameters,
-                closeParenthesis, returnTypeDesc);
+        endContext();// end param-list
+        STNode returnTypeDesc = parseFuncReturnTypeDescriptor(isInExprContext);
+        endContext();// end func-signature
+        return STNodeFactory.createFunctionSignatureNode(openParenthesis, parameters, closeParenthesis, returnTypeDesc);
     }
 
     private STNode parseReturnTypeDescRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
-                                          STNode name, STNode openParenthesis, STNode parameters,
-                                          STNode closeParenthesis, STNode returnTypeDesc) {
-        return parseReturnTypeDescRhs(peek().kind, metadata, visibilityQualifier, functionKeyword, name,
-                openParenthesis, parameters, closeParenthesis, returnTypeDesc);
-    }
-
-    private STNode parseReturnTypeDescRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
-                                          STNode functionKeyword, STNode name, STNode openParenthesis,
-                                          STNode parameters, STNode closeParenthesis, STNode returnTypeDesc) {
-        switch (nextTokenKind) {
+                                          STNode name, STNode funcSignature) {
+        switch (peek().kind) {
             // TODO: add binding-patterns
 
             // var-decl with function type
             case SEMICOLON_TOKEN:
             case IDENTIFIER_TOKEN:
-                switchContext(ParserRuleContext.FUNC_TYPE_DESC);
-                endContext(); // end func-signature
-
                 // Parse the remaining as var-decl, because its the only module-level construct
                 // that can start with a func-type-desc. Constants cannot have func-type-desc.
                 startContext(ParserRuleContext.VAR_DECL_STMT);
-                STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, openParenthesis,
-                        parameters, closeParenthesis, returnTypeDesc);
+                STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, funcSignature);
                 STNode varName = parseVariableName();
                 STNode varDecl = parseVarDeclRhs(metadata, visibilityQualifier, typeDesc, varName, true);
                 endContext();
@@ -1287,12 +1289,11 @@ public class BallerinaParser extends AbstractParser {
         name = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
 
         // Function definition cannot have missing param-names. So validate it.
-        parameters = validateAndGetFuncParams(parameters);
+        funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
 
-        endContext(); // end func signature
         STNode body = parseFunctionBody();
         return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
-                openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
+                funcSignature, body);
     }
 
     /**
@@ -1300,10 +1301,11 @@ public class BallerinaParser extends AbstractParser {
      * then this method will create a new set of params with missing param-name
      * and return.
      * 
-     * @param parameters List of parameters
+     * @param signature Function signature
      * @return
      */
-    private STNode validateAndGetFuncParams(STNode parameters) {
+    private STNode validateAndGetFuncParams(STFunctionSignatureNode signature) {
+        STNode parameters = signature.parameters;
         int paramCount = parameters.bucketCount();
         int index = 0;
         for (; index < paramCount; index++) {
@@ -1339,7 +1341,7 @@ public class BallerinaParser extends AbstractParser {
         // then we can return the same parameter as is. Here we have optimized
         // the happy path.
         if (index == paramCount) {
-            return parameters;
+            return signature;
         }
 
         // Otherwise, we create a new param list. This overhead is acceptable, since
@@ -1347,7 +1349,9 @@ public class BallerinaParser extends AbstractParser {
         // has a missing name, along with some parameter with a missing name.
 
         // Add the parameters up to the erroneous param, to the new list.
-        return getUpdatedParamList(parameters, index);
+        STNode updatedParams = getUpdatedParamList(parameters, index);
+        return STNodeFactory.createFunctionSignatureNode(signature.openParenToken, updatedParams,
+                signature.closeParenToken, signature.returnTypeDesc);
     }
 
     private STNode getUpdatedParamList(STNode parameters, int index) {
@@ -7952,14 +7956,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFunctionTypeDesc() {
         startContext(ParserRuleContext.FUNC_TYPE_DESC);
         STNode functionKeyword = parseFunctionKeyword();
-        STNode openParenthesis = parseOpenParenthesis();
-        STNode parameters = parseParamList(true);
-        STNode closeParenthesis = parseCloseParenthesis();
-        endContext();// end param-list
-        STNode returnTypeDesc = parseFuncReturnTypeDescriptor(false);
-        endContext();// end func-signature
-        return STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, openParenthesis, parameters,
-                closeParenthesis, returnTypeDesc);
+        STNode signature = parseFuncSignature(true, false);
+        return STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, signature);
     }
 
     /**
@@ -7973,25 +7971,15 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFunctionTypeOrAnonFunc(STNode annots) {
         startContext(ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE);
         STNode funcKeyword = parseFunctionKeyword();
+        STNode funcSignature = parseFuncSignature(true, false);
+        STNode funcBody = parseFunctionTypeOrAnonFuncBody();
 
-        STNode openParenToken = parseOpenParenthesis();
-        STNode parameters = parseParamList(true);
-        STNode closeParenToken = parseCloseParenthesis();
-        endContext(); // end param-list
-
-        STNode returnTypeDesc = parseFuncReturnTypeDescriptor(true);
-        endContext(); // end func-signature
-        STNode functionBody = parseFunctionTypeOrAnonFuncBody();
-
-        if (functionBody == null) {
-            return STNodeFactory.createFunctionTypeDescriptorNode(funcKeyword, openParenToken, parameters,
-                    closeParenToken, returnTypeDesc);
+        if (funcBody == null) {
+            return STNodeFactory.createFunctionTypeDescriptorNode(funcKeyword, funcSignature);
         }
 
-        // TODO: introduce a proper node?
         // TODO: Add parameter name validation
-        return STNodeFactory.createFunctionDefinitionNode(null, annots, funcKeyword, null, openParenToken, parameters,
-                closeParenToken, returnTypeDesc, functionBody);
+        return STNodeFactory.createAnonymousFunctionExpressionNode(annots, funcKeyword, funcSignature, funcBody);
     }
 
     private STNode parseFunctionTypeOrAnonFuncBody() {

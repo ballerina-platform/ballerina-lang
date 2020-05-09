@@ -1,21 +1,21 @@
 {
-    "kind": "IMPORT_DECLARATION",
-    "children": [
+  "kind": "IMPORT_DECLARATION",
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "IMPORT_KEYWORD"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
-                }
-            ]
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

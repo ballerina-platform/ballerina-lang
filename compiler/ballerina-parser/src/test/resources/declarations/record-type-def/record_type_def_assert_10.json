@@ -1,74 +1,71 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": [
-            ]
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "TYPE_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "TYPE_DEFINITION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "TYPE_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "Student"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "MODULE_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN"
-                        }
-                    ]
-                },
-                {
-                    "kind": "EOF_TOKEN"
+                  "kind": "LIST",
+                  "children": []
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "TYPE_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Student"
+            },
+            {
+              "kind": "INT_KEYWORD"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
         },
         {
-            "kind": "EOF_TOKEN"
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "INT_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "EOF_TOKEN"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

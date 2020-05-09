@@ -29,30 +29,18 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode functionKeyword;
-    public final STNode openParenToken;
-    public final STNode parameters;
-    public final STNode closeParenToken;
-    public final STNode returnTypeDesc;
+    public final STNode functionSignature;
 
     STFunctionTypeDescriptorNode(
             STNode functionKeyword,
-            STNode openParenToken,
-            STNode parameters,
-            STNode closeParenToken,
-            STNode returnTypeDesc) {
+            STNode functionSignature) {
         super(SyntaxKind.FUNCTION_TYPE_DESC);
         this.functionKeyword = functionKeyword;
-        this.openParenToken = openParenToken;
-        this.parameters = parameters;
-        this.closeParenToken = closeParenToken;
-        this.returnTypeDesc = returnTypeDesc;
+        this.functionSignature = functionSignature;
 
         addChildren(
                 functionKeyword,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc);
+                functionSignature);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

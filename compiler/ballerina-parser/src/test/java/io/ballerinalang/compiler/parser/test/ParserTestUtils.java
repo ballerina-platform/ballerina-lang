@@ -41,7 +41,9 @@ import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
 import org.testng.Assert;
 
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -66,6 +68,12 @@ public class ParserTestUtils {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
     /**
+     * <b>WARNING</b>: Enabling this flag will update all the assertion files in unit tests.
+     * Should be used only if there is a bulk update that needs to be made to the test assertions.
+     */
+    private static final boolean UPDATE_ASSERTS = false;
+
+    /**
      * Test parsing a valid source.
      *
      * @param sourceFilePath Path to the ballerina file
@@ -73,8 +81,27 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(Path sourceFilePath, ParserRuleContext context, Path assertFilePath) {
+        // updateAssertFiles(sourceFilePath, assertFilePath, context);
+
         String content = getSourceText(sourceFilePath);
         test(content, context, assertFilePath);
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -757,6 +784,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "FUNCTION_SIGNATURE":
+                return SyntaxKind.FUNCTION_SIGNATURE;
 
             // XML template
             case "XML_ELEMENT":
