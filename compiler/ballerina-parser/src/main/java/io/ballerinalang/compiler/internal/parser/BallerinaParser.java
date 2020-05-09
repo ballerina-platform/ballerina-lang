@@ -356,8 +356,8 @@ public class BallerinaParser extends AbstractParser {
             case TEMPLATE_END:
                 return parseBacktickToken(context);
             case FUNCTION_KEYWORD_RHS:
-                return parseFunctionKeywrodRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
-            case FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS:
+                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
+            case FUNC_OPTIONAL_RETURNS:
                 return parseFuncReturnTypeDescriptor();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
@@ -1169,7 +1169,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFuncDefinition(STNode metadata, STNode visibilityQualifier) {
         startContext(ParserRuleContext.FUNC_DEF);
         STNode functionKeyword = parseFunctionKeyword();
-        return parseFunctionKeywrodRhs(metadata, visibilityQualifier, functionKeyword, true);
+        return parseFunctionKeywordRhs(metadata, visibilityQualifier, functionKeyword, true);
     }
 
     /**
@@ -1188,15 +1188,15 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, STNode visibilityQualifier) {
         startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
         STNode functionKeyword = parseFunctionKeyword();
-        return parseFunctionKeywrodRhs(metadata, visibilityQualifier, functionKeyword, false);
+        return parseFunctionKeywordRhs(metadata, visibilityQualifier, functionKeyword, false);
     }
 
-    private STNode parseFunctionKeywrodRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+    private STNode parseFunctionKeywordRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
                                            boolean isFuncDef) {
-        return parseFunctionKeywrodRhs(peek().kind, metadata, visibilityQualifier, functionKeyword, isFuncDef);
+        return parseFunctionKeywordRhs(peek().kind, metadata, visibilityQualifier, functionKeyword, isFuncDef);
     }
 
-    private STNode parseFunctionKeywrodRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
+    private STNode parseFunctionKeywordRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
                                            STNode functionKeyword, boolean isFuncDef) {
         STNode name;
         switch (nextTokenKind) {
@@ -1215,7 +1215,7 @@ public class BallerinaParser extends AbstractParser {
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
                 }
-                return parseFunctionKeywrodRhs(solution.tokenKind, metadata, visibilityQualifier, functionKeyword,
+                return parseFunctionKeywordRhs(solution.tokenKind, metadata, visibilityQualifier, functionKeyword,
                         isFuncDef);
         }
 
@@ -1885,7 +1885,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS);
+                Solution solution = recover(token, ParserRuleContext.FUNC_OPTIONAL_RETURNS);
 
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
@@ -2364,7 +2364,6 @@ public class BallerinaParser extends AbstractParser {
             case ASTERISK_TOKEN:
             case GT_TOKEN:
             case LT_TOKEN:
-            case EQUAL_GT_TOKEN:
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
             case LT_EQUAL_TOKEN:
@@ -3422,6 +3421,12 @@ public class BallerinaParser extends AbstractParser {
                     return parseStringTemplateExpression();
                 }
                 break;
+            case FUNCTION_KEYWORD:
+                return parseFunctionTypeOrAnonFunc(null);
+            case AT_TOKEN:
+                // Annon-func can have annotations. Check for other expressions 
+                // that van start with annots.
+                break;
             default:
                 break;
         }
@@ -3720,7 +3725,6 @@ public class BallerinaParser extends AbstractParser {
             case SEMICOLON_TOKEN:
             case COMMA_TOKEN:
             case PUBLIC_KEYWORD:
-            case FUNCTION_KEYWORD:
             case EOF_TOKEN:
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
@@ -7951,15 +7955,46 @@ public class BallerinaParser extends AbstractParser {
         STNode openParenthesis = parseOpenParenthesis();
         STNode parameters = parseParamList(true);
         STNode closeParenthesis = parseCloseParenthesis();
-        endContext();
+        endContext();// end param-list
         STNode returnTypeDesc = parseFuncReturnTypeDescriptor();
-        endContext();
+        endContext();// end func-signature
         return STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, openParenthesis, parameters,
                 closeParenthesis, returnTypeDesc);
     }
 
-    private STNode parseFunctionTypeORAnonFunc(STNode annots) {
-        
-        return null;
+    private STNode parseFunctionTypeOrAnonFunc(STNode annots) {
+        startContext(ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE);
+        STNode funcKeyword = parseFunctionKeyword();
+
+        STNode openParenToken = parseOpenParenthesis();
+        STNode parameters = parseParamList(false);
+        STNode closeParenToken = parseCloseParenthesis();
+        endContext(); // end param-list
+
+        STNode returnTypeDesc = parseFuncReturnTypeDescriptor();
+        endContext(); // end func-signature
+        STNode functionBody = parseFunctionTypeORAnonFuncBody();
+
+        if (functionBody == null) {
+            return STNodeFactory.createFunctionTypeDescriptorNode(funcKeyword, openParenToken, parameters,
+                    closeParenToken, returnTypeDesc);
+        }
+
+        // TODO: introduce a proper node?
+        return STNodeFactory.createFunctionDefinitionNode(null, annots, funcKeyword, null, openParenToken, parameters,
+                closeParenToken, returnTypeDesc, functionBody);
+    }
+
+    private STNode parseFunctionTypeORAnonFuncBody() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case OPEN_BRACE_TOKEN:
+                return parseFunctionBodyBlock();
+            case EQUAL_GT_TOKEN:
+                // EXpression func body
+                return null;
+            default:
+                return null;
+        }
     }
 }

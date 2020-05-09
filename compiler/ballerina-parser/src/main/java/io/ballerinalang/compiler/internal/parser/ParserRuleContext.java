@@ -41,10 +41,11 @@ public enum ParserRuleContext {
     REST_PARAM("rest-parameter"),
     AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_NAME_RHS("parameter-name-rhs"),
-    FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS("func-param-list-rhs"),
+    FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
     FUNC_TYPE_OR_DEF_SIGNATURE_RHS("func-signature-rhs"),
-    
+    ANNON_FUNC_OR_FUNC_TYPE_SIGNATURE_RHS("annon-func-or-func-type-rhs"),
+
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
@@ -128,6 +129,7 @@ public enum ParserRuleContext {
     FUNC_TYPE_DESC("func-type-desc"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
+    ANNON_FUNC_OR_FUNC_TYPE("annon-func-or-func-type"),
 
     // Statements
     STATEMENT("statement"),
