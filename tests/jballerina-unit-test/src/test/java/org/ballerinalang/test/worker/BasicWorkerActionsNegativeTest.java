@@ -53,7 +53,7 @@ public class BasicWorkerActionsNegativeTest {
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
         int index = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 20, "Worker actions negative test error count");
+
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w1', there are no " +
                 "worker send statements to 'w1' from 'w3'", 61, 17);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker send statement position, must be a top " +
@@ -78,7 +78,11 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 217, 30);
         BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 218, 75);
         BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 225, 30);
-        BAssertUtil.validateError(resultNegative, index, "unsupported worker reference 'wx'", 226, 25);
+        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 226, 25);
+        BAssertUtil.validateError(resultNegative, index++, "action invocation as an expression not allowed here",
+                                  232, 23);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
 
     }
 }

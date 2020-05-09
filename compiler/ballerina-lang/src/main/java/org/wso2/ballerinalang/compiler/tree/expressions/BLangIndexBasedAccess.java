@@ -129,6 +129,23 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
     }
 
     /**
+     * @since 1.3.0
+     */
+    public static class BLangTableAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangTableAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr) {
+            this.pos = pos;
+            this.expr = varExpr;
+            this.indexExpr = keyExpr;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * @since 1.0
      */
     public static class BLangStringAccessExpr extends BLangIndexBasedAccess {

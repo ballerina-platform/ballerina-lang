@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.965.0
  */
+@Test(enabled = false)
 public class SQLTest {
 
     //TODO Table remove - Fix
@@ -47,7 +48,7 @@ public class SQLTest {
     }
 
 
-    @Test
+    @Test (enabled = false)
     public void testSelectWithUntaintedQueryProducingTaintedReturn() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return.bal");

@@ -29,6 +29,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.internal" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>
@@ -171,5 +174,9 @@
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRVariableDcl"/>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
 </FindBugsFilter>

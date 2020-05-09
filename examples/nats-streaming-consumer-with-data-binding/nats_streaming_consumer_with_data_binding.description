@@ -1,3 +1,5 @@
 // This sample demonstrates the usage of NATS subscriber
 // services to bind the data in the incoming message to
-// a user-provided compatible type.
+// a user-provided compatible type.<br/><br/>
+// For more information on the underlying module, 
+// see the [NATS module](https://ballerina.io/learn/api-docs/ballerina/nats/index.html).

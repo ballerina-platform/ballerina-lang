@@ -162,7 +162,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
         }
       },
       "sortText": "120",
@@ -362,7 +362,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
+          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
         }
       },
       "sortText": "120",

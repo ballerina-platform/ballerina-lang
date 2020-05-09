@@ -38,7 +38,7 @@ import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -252,7 +252,7 @@ import javax.xml.namespace.QName;
       * @return type descriptor
       */
      public static BTypedesc createTypedescValue(BType describingType) {
-         return new TypedescValue(describingType);
+         return new TypedescValueImpl(describingType);
      }
 
      /**

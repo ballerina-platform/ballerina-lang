@@ -22,8 +22,8 @@ public class Annotation extends Construct {
     public Type type;
     public String attachmentPoints;
 
-    public Annotation(String name, String description, Type type, String attachmentPoints) {
-        super(name, description);
+    public Annotation(String name, String description, boolean isDeprecated, Type type, String attachmentPoints) {
+        super(name, description, isDeprecated);
         this.type = type;
         this.attachmentPoints = attachmentPoints;
     }

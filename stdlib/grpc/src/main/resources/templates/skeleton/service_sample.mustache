@@ -2,13 +2,13 @@ import ballerina/grpc;
 
 {{#if enableEp}}listener grpc:Listener ep = new (9090);{{/if}}
 {{#if bidiStreaming}}
-@grpc:ServiceConfig { {{#streamingFunction}}
-    name: "{{methodName}}",{{/streamingFunction}}
+@grpc:ServiceConfig {
+    name: "{{serviceName}}",
     clientStreaming: true,
     serverStreaming: true
 }{{/if}}{{#if clientStreaming}}
-@grpc:ServiceConfig { {{#streamingFunction}}
-    name: "{{methodName}}",{{/streamingFunction}}
+@grpc:ServiceConfig {
+    name: "{{serviceName}}",
     clientStreaming: true
 }
 {{/if}}
@@ -18,7 +18,7 @@ service {{serviceName}} on ep {
         // Implementation goes here.
     }
 
-    resource function onMessage(grpc:Caller caller, {{inputType}} value) {
+    resource function onMessage(grpc:Caller caller{{#isNotNull inputType}}, {{inputType}} value{{/isNotNull}}) {
         // Implementation goes here.
     }
 
@@ -32,7 +32,7 @@ service {{serviceName}} on ep {
     }
 {{/streamingFunction}}{{#unaryFunctions}}{{#equals methodType "SERVER_STREAMING"}}
     @grpc:ResourceConfig { streaming: true } {{/equals}}
-    resource function {{methodName}}(grpc:Caller caller, {{inputType}} value) {
+    resource function {{methodName}}(grpc:Caller caller{{#isNotNull inputType}}, {{inputType}} value{{/isNotNull}}) {
         // Implementation goes here.
 
         // You should return a {{outputType}}

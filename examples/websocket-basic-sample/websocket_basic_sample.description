@@ -1,1 +1,3 @@
-// This example explains the basic functions of a WebSocket server endpoint.
+// This example explains the basic functions of a WebSocket server endpoint.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

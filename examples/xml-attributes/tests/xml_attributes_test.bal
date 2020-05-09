@@ -1,6 +1,6 @@
 import ballerina/test;
 
-string[] outputs = [];
+string|error[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -8,7 +8,7 @@ int counter = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     if (s[0] is ()) {
         // Cannot convert () to string.
         outputs[counter] = "()";

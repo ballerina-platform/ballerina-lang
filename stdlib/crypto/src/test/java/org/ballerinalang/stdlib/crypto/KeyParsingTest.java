@@ -98,4 +98,18 @@ public class KeyParsingTest {
                 new BString("ballerina"), new BString("ballerina")};
         BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
     }
+
+    @Test(description = "Check parsing public-key from a JWK parameters.")
+    public void testParsingPublicKeyFromJwk() {
+        String modulus = "luZFdW1ynitztkWLC6xKegbRWxky-5P0p4ShYEOkHs30QI2VCuR6Qo4Bz5rTgLBrky03W1GAVrZxuvKRGj9V9-" +
+                "PmjdGtau4CTXu9pLLcqnruaczoSdvBYA3lS9a7zgFU0-s6kMl2EhB-rk7gXluEep7lIOenzfl2f6IoTKa2fVgVd3YKiSGsy" +
+                "L4tztS70vmmX121qm0sTJdKWP4HxXyqK9neolXI9fYyHOYILVNZ69z_73OOVhkh_mvTmWZLM7GM6sApmyLX6OXUp8z0pkY-v" +
+                "T_9-zRxxQs7GurC4_C1nK3rI_0ySUgGEafO1atNjYmlFN-M3tZX6nEcA6g94IavyQ";
+        String exponent = "AQAB";
+        BValue[] args = {new BString(modulus), new BString(exponent)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPublicKeyFromJwk", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(((BMap) returnValues[0]).get(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD).stringValue(),
+                            "RSA");
+    }
 }

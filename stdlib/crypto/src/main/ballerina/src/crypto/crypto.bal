@@ -553,6 +553,25 @@ function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
 
+# Returns the `crypto:PublicKey` created with the modulus and exponent retrieved from the JWK's endpoint.
+# ```ballerina
+# string modulus = "luZFdW1ynitztkWLC6xKegbRWxky...";
+# string exponent = "AQAB";
+# crypto:PublicKey|crypto:Error publicKey = crypto:buildRsaPublicKey(modulus, exponent);
+# ```
+#
+# + modulus - JWK modulus value ('n' parameter) for the RSA public key
+# + exponent - JWK exponent value ('e' paramenter) for the RSA public key
+# + return - Reference to the public key or else a `crypto:Error` if the modulus or exponent is invalid
+public function buildRsaPublicKey(string modulus, string exponent) returns PublicKey|Error {
+    return externBuildRsaPublicKey(java:fromString(modulus), java:fromString(exponent));
+}
+
+function externBuildRsaPublicKey(handle modulus, handle exponent) returns PublicKey|Error = @java:Method {
+    name: "buildRsaPublicKey",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
+} external;
+
 # Returns the RSA-encrypted value for the given data.
 # ```ballerina
 #  string stringData = "Hello Ballerina";

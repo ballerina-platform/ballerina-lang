@@ -163,7 +163,11 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
         SemanticHighlightProvider.HighlightInfo highlightInfo =
                     new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varRefExpr.variableName);
         highlights.add(highlightInfo);
+    }
 
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        this.acceptNode(actionInvocationExpr.expr);
     }
 
     @Override

@@ -1,1 +1,3 @@
-//The Content-Based Router service reads the content of a request and routes it to a specific recipient based on the content.
+//The Content-Based Router service reads the content of a request and routes it to a specific recipient based on the content.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

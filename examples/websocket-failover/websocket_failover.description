@@ -1,1 +1,6 @@
-// Ballerina users can configure multiple backends in a given failover config. If the client looses the connection by the server being shut down or by getting any IOExceptions, Ballerina automatically tries to connect with the remaining backends that are specified in the configuration. The trying happens only once for each of the backends.
+// Ballerina users can configure multiple backends in a given failover config. 
+// If the client looses the connection by the server being shut down or by getting any IOExceptions, 
+// Ballerina automatically tries to connect with the remaining backends that are specified in the configuration. 
+// The trying happens only once for each of the backends.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

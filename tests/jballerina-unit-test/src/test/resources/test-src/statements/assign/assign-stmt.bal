@@ -86,3 +86,53 @@ public function restActionResultAssignment() returns [int, int, string, string, 
     var error(r2, failedAttempts = failedAttempts) = c->foo3();
     return [a, b, d, r, r2, <int>failedAttempts];
 }
+
+function testAssignErrorArrayToAny() {
+    string errorReason = "TestError";
+    error testError = error(errorReason);
+    error[] errorArray = [testError];
+    any anyVal = errorArray;
+    error[] errorArrayBack = <error[]>anyVal;
+    assertEquality(errorReason, errorArrayBack[0].reason());
+}
+
+function testAssignIntArrayToJson() {
+    int[*] intArray = [1, 2];
+    json jsonVar = intArray;
+    assertTrue(jsonVar is int[2]);
+    int[2] arr = <int[2]> jsonVar;
+    assertEquality(1, arr[0]);
+    assertEquality(2, arr[1]);
+}
+
+function testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
+    int[]|string[] arr1 = <int[]>[1, 2];
+    (int|float)[]|string[] arr2 = arr1;
+    assertEquality(1, arr2[0]);
+    assertEquality(2, arr2[1]);
+}
+
+function assignAnyToUnionWithErrorAndAny() {
+    any x = 4;
+    any|error y = x;
+    assertEquality(4, y);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+type AssertionError error<ASSERTION_ERROR_REASON>;
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}

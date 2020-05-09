@@ -2,4 +2,6 @@
 // existing queue using the Ballerina RabbitMQ message listener.
 // The received messages are acknowledged manually.
 // By default, the ackMode is rabbitmq:AUTO_ACK, which will automatically acknowledge
-// all messages once consumed.
+// all messages once consumed.<br/><br/>
+// For more information on the underlying module, 
+// see the [RabbitMQ module](https://ballerina.io/learn/api-docs/ballerina/rabbitmq/index.html).

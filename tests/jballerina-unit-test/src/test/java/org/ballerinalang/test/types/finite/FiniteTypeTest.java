@@ -367,4 +367,14 @@ public class FiniteTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "testEscapedTypeName");
         Assert.assertEquals(returns[0].stringValue(), "-");
     }
+
+    @Test(description = "Test finite type where integer literals with positive sign as members")
+    public void testFiniteTypesWithPositiveIntegers() {
+        BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
+    }
+
+    @Test(description = "Test finite type where float literals with positive sign as members")
+    public void testFiniteTypesWithPositiveFloats() {
+        BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
+    }
 }

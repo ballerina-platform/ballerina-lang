@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.Location;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -90,6 +91,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
@@ -152,7 +155,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
-
 
     @Override
     public CompletableFuture<Void> configurationDone(ConfigurationDoneArguments args) {
@@ -290,7 +292,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             StackFrame[] filteredStackFrames = Arrays.stream(stackFrames)
                     .filter(stackFrame -> {
-                        if (stackFrame.getSource() == null || stackFrame.getSource().getPath() == null) {
+                        if (stackFrame == null || stackFrame.getSource() == null
+                                || stackFrame.getSource().getPath() == null) {
                             return false;
                         } else {
                             return stackFrame.getSource().getName().endsWith(".bal");
@@ -303,32 +306,27 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(stackTraceResponse);
     }
 
+    @Nullable
     private StackFrame toDapStackFrame(com.sun.jdi.StackFrame stackFrame) {
-        long variableReference = (long) nextVarReference.getAndIncrement();
+        long variableReference = nextVarReference.getAndIncrement();
         stackframesMap.put(variableReference, stackFrame);
 
-        StackFrame dapStackFrame = new StackFrame();
-        Source source = new Source();
         try {
-            String sourcePath = stackFrame.location().sourcePath();
-            sourcePath = sourcePath != null ? sourcePath : "";
-            sourcePath = sourcePath.replaceFirst("tests" + File.separator + "tests", "tests");
-            if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
-                sourcePath = sourcePath.replaceFirst(orgName, "src");
-            }
-
+            String sourcePath = getRectifiedPath(stackFrame.location());
+            Source source = new Source();
             source.setPath(projectRoot + File.separator + sourcePath);
             source.setName(stackFrame.location().sourceName());
+
+            StackFrame dapStackFrame = new StackFrame();
+            dapStackFrame.setId(variableReference);
+            dapStackFrame.setSource(source);
+            dapStackFrame.setLine((long) stackFrame.location().lineNumber());
+            dapStackFrame.setColumn(0L);
+            dapStackFrame.setName(stackFrame.location().method().name());
+            return dapStackFrame;
         } catch (AbsentInformationException e) {
+            return null;
         }
-        dapStackFrame.setId(variableReference);
-
-        dapStackFrame.setSource(source);
-        dapStackFrame.setLine((long) stackFrame.location().lineNumber());
-        dapStackFrame.setColumn(0L);
-        dapStackFrame.setName(stackFrame.location().method().name());
-
-        return dapStackFrame;
     }
 
     @Override
@@ -533,4 +531,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         this.client = client;
     }
 
+    /**
+     * Some additional processing is required to rectify the source path, as the source name will be the
+     * relative path instead of just the file name, for the ballerina module sources.
+     */
+    private String getRectifiedPath(Location location) throws AbsentInformationException {
+        String sourcePath = location.sourcePath();
+        String sourceName = location.sourceName();
+
+        // Note: directly using file separator as a regex will fail on windows.
+        String[] srcNames = sourceName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+        String fileName = srcNames[srcNames.length - 1];
+        String relativePath = sourcePath.replace(sourceName, fileName);
+
+        if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
+            relativePath = relativePath.replaceFirst(orgName, "src");
+        }
+        return relativePath;
+    }
 }
