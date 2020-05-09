@@ -79,6 +79,9 @@ public class ObserveUtils {
      */
     public static void startResourceObservation(BString serviceName, BString resourceName,
                                                 MapValue<BString, BString> tags) {
+        if (!enabled) {
+            return;
+        }
         MapValue<String, String> stringTags = new MapValueImpl<>();
         for (Map.Entry<BString, BString> tagEntry : tags.entrySet()) {
             stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
@@ -95,12 +98,12 @@ public class ObserveUtils {
      */
     public static void startResourceObservation(String serviceName, String resourceName,
                                                 MapValue<String, String> tags) {
-        Strand strand = Scheduler.getStrand();
         if (!enabled) {
             return;
         }
 
         ObserverContext observerContext;
+        Strand strand = Scheduler.getStrand();
         if (strand.observerContext != null) {
             observerContext = strand.observerContext;
         } else {
@@ -167,6 +170,9 @@ public class ObserveUtils {
      */
     public static void startCallableObservation(BString serviceName, BString resourceName,
                                                 MapValue<BString, BString> tags) {
+        if (!enabled) {
+            return;
+        }
         MapValue<String, String> stringTags = new MapValueImpl<>();
         for (Map.Entry<BString, BString> tagEntry : tags.entrySet()) {
             stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
@@ -183,11 +189,10 @@ public class ObserveUtils {
      */
     public static void startCallableObservation(String connectorName, String actionName,
                                                 MapValue<String, String> tags) {
-        Strand strand = Scheduler.getStrand();
         if (!enabled) {
             return;
         }
-
+        Strand strand = Scheduler.getStrand();
         ObserverContext observerCtx = strand.observerContext;
 
         ObserverContext newObContext = new ObserverContext();
@@ -227,10 +232,10 @@ public class ObserveUtils {
      */
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
-        Strand strand = Scheduler.getStrand();
         if (!tracingEnabled) {
             return;
         }
+        Strand strand = Scheduler.getStrand();
         Optional<ObserverContext> observerContext = getObserverContextOfCurrentFrame(strand);
         if (!observerContext.isPresent()) {
             return;
