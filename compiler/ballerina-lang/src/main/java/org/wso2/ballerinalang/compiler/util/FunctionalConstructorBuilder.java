@@ -72,7 +72,7 @@ public class FunctionalConstructorBuilder {
     }
 
     public BConstructorSymbol build() {
-        List<BType> paramTypes = new ArrayList<>();
+        List<BType> paramTypes = new ArrayList<>(params.size());
         for (BVarSymbol param : params) {
             paramTypes.add(param.type);
         }

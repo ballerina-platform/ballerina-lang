@@ -1331,14 +1331,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        ScopeEntry entry = xmlModuleSymbol.scope.lookup(names.fromString("Element"));
-        while (entry.symbol != null && entry.symbol != symTable.notFoundSymbol) {
-            if (entry.symbol.tag == SymTag.CONSTRUCTOR) {
-                return;
-            }
-            entry = entry.next;
-        }
-
         BConstructorSymbol elementCtor =
                 FunctionalConstructorBuilder.newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType)
                     .addParam("name", symTable.stringType)

@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * XML Element constructor function.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "elementCtor",
@@ -48,12 +48,8 @@ public class ElementCtor {
     public static XMLValue elementCtor(Strand strand, String name, MapValue<String, String> attributeMap,
                                        XMLValue children) {
         XMLItem xmlElement = (XMLItem) XMLFactory.createXMLElement(new XMLQName(name), (String) null);
-        if (children != null) {
-            xmlElement.setChildren(children);
-        }
-        if (attributeMap != null) {
-            xmlElement.setAttributes(attributeMap);
-        }
+        xmlElement.setChildren(children);
+        xmlElement.setAttributes(attributeMap);
         return xmlElement;
     }
 }

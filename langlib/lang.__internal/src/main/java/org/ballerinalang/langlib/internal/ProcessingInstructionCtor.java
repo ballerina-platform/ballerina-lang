@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * XML Processing Instruction constructor function.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "processingInstructionCtor",
@@ -42,9 +42,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ProcessingInstructionCtor {
 
     public static XMLValue processingInstructionCtor(Strand strand, String target, String content) {
-        if (content == null) {
-            content = "";
-        }
         return XMLFactory.createXMLProcessingInstruction(target, content);
     }
 }

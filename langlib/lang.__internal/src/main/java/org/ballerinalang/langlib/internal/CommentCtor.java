@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * XML Comment constructor function.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "commentCtor",
@@ -41,9 +41,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class CommentCtor {
 
     public static XMLValue commentCtor(Strand strand, String content) {
-        if (content == null) {
-            content = "";
-        }
         return XMLFactory.createXMLComment(content);
     }
 }
