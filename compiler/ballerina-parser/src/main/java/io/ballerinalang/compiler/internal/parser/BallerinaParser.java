@@ -360,7 +360,7 @@ public class BallerinaParser extends AbstractParser {
             case NEW_KEYWORD:
                 return parseNewKeyword();
             case IMPLICIT_NEW:
-                return parseImplicitNewExpression((STNode) args[0]);
+                return parseImplicitNewRhs((STNode) args[0]);
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -3230,13 +3230,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseNewKeywordRhs(SyntaxKind kind, STNode newKeyword) {
         switch (kind) {
             case OPEN_PAREN_TOKEN:
-                return parseImplicitNewExpression(newKeyword);
+                return parseImplicitNewRhs(newKeyword);
             case SEMICOLON_TOKEN:
                 return STNodeFactory.createImplicitNewExpression(newKeyword, STNodeFactory.createEmptyNode());
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
                 // TODO: Support `stream` keyword once introduced
-                return parseExplicitNewExpression(newKeyword);
+                return parseExplicitNewRhs(newKeyword);
             default:
                 Solution sol = recover(peek(), ParserRuleContext.NEW_KEYWORD_RHS, newKeyword);
                 return parseNewKeywordRhs(sol.recoveredNode.kind, newKeyword);
@@ -3254,7 +3254,7 @@ public class BallerinaParser extends AbstractParser {
      * @param newKeyword Parsed `new` keyword.
      * @return the Parsed Explicit New Expression.
      */
-    private STNode parseExplicitNewExpression(STNode newKeyword) {
+    private STNode parseExplicitNewRhs(STNode newKeyword) {
         startContext(ParserRuleContext.EXPLICIT_NEW_RHS);
         STNode typeDescriptor = parseTypeDescriptor();
         STNode parenthesizedArgsList = parseParenthesizedArgList();
@@ -3271,7 +3271,7 @@ public class BallerinaParser extends AbstractParser {
      * @param newKeyword Parsed `new` keyword.
      * @return Parsed implicit-new-expr.
      */
-    private STNode parseImplicitNewExpression(STNode newKeyword) {
+    private STNode parseImplicitNewRhs(STNode newKeyword) {
         STNode implicitNewArgList = parseParenthesizedArgList();
         return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
     }
