@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.expressions;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing nil literal.
+ * Test parsing XML template expression.
  * 
  * @since 2.0.0
  */
@@ -168,5 +168,10 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testErrorBeforeTemplateExpression() {
         testFile("xml-template/xml_template_source_28.bal", "xml-template/xml_template_assert_28.json");
+    }
+    
+    @Test
+    public void testInvalidTokensInAttributeValue() {
+        testFile("xml-template/xml_template_source_29.bal", "xml-template/xml_template_assert_29.json");
     }
 }

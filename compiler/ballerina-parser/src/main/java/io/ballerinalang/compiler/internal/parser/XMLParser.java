@@ -411,6 +411,20 @@ public class XMLParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse XML attribute value.
+     * <p>
+     * <code>
+     * AttValue := SingleQuotedValue |  DoubleQuotedValue
+     * <br>
+     * SingleQuotedValue := "'" ([^<&'] | Reference | interpolation)* "'"
+     * <br>
+     * DoubleQuotedValue := '"' ([^<&"] | Reference | interpolation)* '"'
+     * <br>
+     * </code>
+     * 
+     * @return XML attribute value node
+     */
     private STNode parseAttributeValue() {
         STNode startQuote = parseStartQuote(ParserRuleContext.XML_QUOTE_START);
         List<STNode> items = new ArrayList<>();
@@ -490,6 +504,15 @@ public class XMLParser extends AbstractParser {
         return consume();
     }
 
+    /**
+     * Parse XML comment.
+     * <p>
+     * <code>
+     * Comment := '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
+     * </code>
+     * 
+     * @return XML comment node
+     */
     private STNode parseXMLComment() {
         STNode commentStart = parseXMLCommentStart();
         List<STNode> items = new ArrayList<>();
@@ -508,6 +531,11 @@ public class XMLParser extends AbstractParser {
         return STNodeFactory.createXMLComment(commentStart, content, commentEnd);
     }
 
+    /**
+     * Parse XML comment start.
+     * 
+     * @return XML comment start token
+     */
     private STNode parseXMLCommentStart() {
         STToken token = peek();
         if (token.kind == SyntaxKind.XML_COMMENT_START_TOKEN) {
@@ -518,6 +546,11 @@ public class XMLParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse XML comment end.
+     * 
+     * @return XML comment end
+     */
     private STNode parseXMLCommentEnd() {
         STToken token = peek();
         if (token.kind == SyntaxKind.XML_COMMENT_END_TOKEN) {
@@ -576,6 +609,11 @@ public class XMLParser extends AbstractParser {
         return STNodeFactory.createXMLProcessingInstruction(piStart, target, data, piEnd);
     }
 
+    /**
+     * Parse XML PI start.
+     * 
+     * @return XML PI start token
+     */
     private STNode parseXMLPIStart() {
         STToken token = peek();
         if (token.kind == SyntaxKind.XML_PI_START_TOKEN) {
@@ -586,6 +624,11 @@ public class XMLParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse XML PI end.
+     * 
+     * @return XML PI end token
+     */
     private STNode parseXMLPIEnd() {
         STToken token = peek();
         if (token.kind == SyntaxKind.XML_PI_END_TOKEN) {
@@ -609,6 +652,11 @@ public class XMLParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse character set token.
+     * 
+     * @return Character set token
+     */
     private STNode parseXMLCharacterSet() {
         STToken nextToken = peek();
         switch (nextToken.kind) {

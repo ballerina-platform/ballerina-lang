@@ -57,7 +57,7 @@ public enum ParserRuleContext {
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
     ARG_LIST("arguments"),
-    ARG("argument"),
+    ARG_START("argument-start"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
@@ -204,6 +204,7 @@ public enum ParserRuleContext {
     LET_KEYWORD("let"),
     STREAM_KEYWORD("stream"),
     XML_KEYWORD("xml"),
+    STRING_KEYWORD("string"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -255,6 +256,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
+    ARG_LIST_START("arg-list-start"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -305,13 +307,13 @@ public enum ParserRuleContext {
     XML_ATTRIBUTE("xml-attribute"),
     XML_ATTRIBUTE_VALUE_ITEM("xml-attribute-value-item"),
     XML_ATTRIBUTE_VALUE_TEXT("xml-attribute-value-text"),
-    XML_COMMENT_START("xml-comment-start"),
-    XML_COMMENT_END("xml-comment-end"),
+    XML_COMMENT_START("<!--"),
+    XML_COMMENT_END("-->"),
     XML_COMMENT_CONTENT("xml-comment-content"),
-    XML_PI_START("xml-pi-start"),
-    XML_PI_END("xml-pi-end"),
+    XML_PI_START("<?"),
+    XML_PI_END("?>"),
     XML_PI_DATA("xml-pi-data"),
-    INTERPOLATION_START_TOKEN("interpolation-start-token"),
+    INTERPOLATION_START_TOKEN("${"),
     INTERPOLATION("interoplation"),
     TEMPLATE_BODY("template-body"),
     TEMPLATE_MEMBER("template-member"),

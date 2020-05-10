@@ -3046,7 +3046,7 @@ public class BallerinaParser extends AbstractParser {
             case INDEXED_EXPRESSION:
                 return isValidLVExpr(((STIndexedExpressionNode) expression).containerExpression);
             default:
-                return false;
+                return (expression instanceof STMissingToken);
         }
     }
 
@@ -3134,33 +3134,45 @@ public class BallerinaParser extends AbstractParser {
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseXMLTemplateExpression();
                 }
-                // fall through
+                break;
+            case STRING_KEYWORD:
+                nextNextToken = getNextNextToken(kind);
+                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
+                    return parseStringTemplateExpression();
+                }
+                break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
+                break;
+        }
 
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
+        Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
-                if (solution.action == Action.KEEP) {
-                    return parseXMLTemplateExpression();
-                }
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
 
-                switch (solution.tokenKind) {
-                    case IDENTIFIER_TOKEN:
-                        return parseQualifiedIdentifier(solution.recoveredNode);
-                    case DECIMAL_INTEGER_LITERAL:
-                    case HEX_INTEGER_LITERAL:
-                    case STRING_LITERAL:
-                    case NULL_KEYWORD:
-                    case TRUE_KEYWORD:
-                    case FALSE_KEYWORD:
-                    case DECIMAL_FLOATING_POINT_LITERAL:
-                    case HEX_FLOATING_POINT_LITERAL:
-                        return solution.recoveredNode;
-                    default:
-                        return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
-                }
+        if (solution.action == Action.KEEP) {
+            if (kind == SyntaxKind.XML_KEYWORD) {
+                return parseXMLTemplateExpression();
+            }
+
+            return parseStringTemplateExpression();
+        }
+
+        switch (solution.tokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseQualifiedIdentifier(solution.recoveredNode);
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
+            case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+                return solution.recoveredNode;
+            default:
+                return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
         }
     }
 
@@ -3469,7 +3481,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse function call argument list.
      *
-     * @return Parsed agrs list
+     * @return Parsed args list
      */
     private STNode parseArgsList() {
         startContext(ParserRuleContext.ARG_LIST);
@@ -3497,13 +3509,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Kind of the argument first argument.
      */
     private SyntaxKind parseFirstArg(ArrayList<STNode> argsList) {
-        startContext(ParserRuleContext.ARG);
-
         // Comma precedes the first argument is an empty node, since it doesn't exist.
         STNode leadingComma = STNodeFactory.createEmptyNode();
         STNode arg = parseArg(leadingComma);
-        endContext();
-
         if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
             argsList.add(arg);
             return arg.kind;
@@ -3522,8 +3530,6 @@ public class BallerinaParser extends AbstractParser {
     private void parseFollowUpArg(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
-            startContext(ParserRuleContext.ARG);
-
             STNode leadingComma = parseComma();
 
             // If there's an extra comma at the end of arguments list, remove it.
@@ -3531,7 +3537,6 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
             if (isEndOfParametersList(nextToken.kind)) {
                 this.errorHandler.reportInvalidNode((STToken) leadingComma, "invalid token " + leadingComma);
-                endContext();
                 break;
             }
 
@@ -3548,7 +3553,6 @@ public class BallerinaParser extends AbstractParser {
             }
 
             nextToken = peek();
-            endContext();
         }
     }
 
@@ -7519,7 +7523,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse raw backtick string template expression.
      * <p>
-     * <code>BacktickString := ` expression `</code>
+     * <code>BacktickString := `expression`</code>
      * 
      * @return Template expression node
      */
@@ -7561,6 +7565,37 @@ public class BallerinaParser extends AbstractParser {
 
         // Template string component
         return consume();
+    }
+
+    /**
+     * Parse string template expression.
+     * <p>
+     * <code>string-template-expr := string ` expression `</code>
+     * 
+     * @return String template expression node
+     */
+    private STNode parseStringTemplateExpression() {
+        STNode type = parseStringKeyword();
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode content = parseTemplateContent();
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        return STNodeFactory.createTemplateExpressionNode(SyntaxKind.STRING_TEMPLATE_EXPRESSION, type, startingBackTick,
+                content, endingBackTick);
+    }
+
+    /**
+     * Parse <code>string</code> keyword.
+     *
+     * @return string keyword node
+     */
+    private STNode parseStringKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STRING_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STRING_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 
     /**
