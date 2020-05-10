@@ -57,7 +57,7 @@ function testToJson() returns @tainted json|error {
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
-    json|error retVal = json.constructFrom(value);
+    json|error retVal = value.cloneWithType(json);
     check dbClient.close();
     return retVal;
 }

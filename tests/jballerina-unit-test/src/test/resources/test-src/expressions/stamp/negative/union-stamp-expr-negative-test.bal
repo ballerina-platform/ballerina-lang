@@ -25,13 +25,13 @@ type Employee record {
 function stampUnionToXML() returns Employee|error {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
 
-    Employee|error employeeValue = Employee.constructFrom(unionVar);
+    Employee|error employeeValue = unionVar.cloneWithType(Employee);
     return employeeValue;
 }
 
 function stampUnionToConstraintMapToUnionNegative() returns int|float|decimal|[string, int]|error  {
     int|float|[string, string] unionVar = 2;
-    float|decimal|[string, int]|error  tupleValue = float|decimal|[string, int].constructFrom(unionVar);
+    float|decimal|[string, int]|error  tupleValue = unionVar.cloneWithType(typedesc<float|decimal|[string, int]>);
 
     return tupleValue;
 }

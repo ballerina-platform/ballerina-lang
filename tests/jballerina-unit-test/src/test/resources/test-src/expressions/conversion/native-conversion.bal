@@ -54,7 +54,7 @@ function testStructToMap () returns (map<anydata> | error) {
                    info:{status:"single"},
                    marks:[67, 38, 91]
                };
-    map<anydata> m =  check map<anydata>.constructFrom(p);
+    map<anydata> m =  check p.cloneWithType(map<anydata>);
     return m;
 }
 
@@ -86,7 +86,7 @@ function testMapToStruct () returns Person|error {
                 score:5.67,
                 alive:true
             };
-    Person p = check Person.constructFrom(m);
+    Person p = check m.cloneWithType(Person);
     return p;
 }
 
@@ -116,7 +116,7 @@ function testNestedMapToNestedStruct() returns Person|error {
         score:5.67,
         alive:true
     };
-    Person p = check Person.constructFrom(m);
+    Person p = check m.cloneWithType(Person);
     return p;
 }
 
@@ -133,7 +133,7 @@ function testStructToJson () returns json|error {
                    children:()
                };
 
-    json j = check json.constructFrom(p);
+    json j = check p.cloneWithType(json);
     return j;
 }
 
@@ -142,7 +142,7 @@ function testAnyRecordToAnydataMap() returns (map<anydata> | error) {
                     parent:{name:"Parent"},
                     address:{"city":"Colombo", "country":"SriLanka"}
     };
-    map<anydata> m =  check map<anydata>.constructFrom(p);
+    map<anydata> m =  check p.cloneWithType(map<anydata>);
     return m;
 }
 
@@ -168,7 +168,7 @@ function testJsonToStruct () returns (Person | error) {
                  score:5.67,
                  alive:true
              };
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     return p;
 }
 
@@ -187,7 +187,7 @@ function testMapToStructWithMapValueForJsonField() returns Person|error {
                 alive:true,
                 children:()
             };
-    Person p = check Person.constructFrom(m);
+    Person p = check m.cloneWithType(Person);
     return p;
 }
 
@@ -203,7 +203,7 @@ function testMapWithMissingOptionalFieldsToStruct () returns Person|error {
                 score:5.67,
                 alive:true
             };
-    Person p = check Person.constructFrom(m);
+    Person p = check m.cloneWithType(Person);
     return p;
 }
 
@@ -233,7 +233,7 @@ function testMapWithIncompatibleArrayToStruct () returns Person {
                 alive:true
             };
 
-    var p = Person.constructFrom(m);
+    var p = m.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -267,7 +267,7 @@ function testMapWithIncompatibleStructToStruct () returns Employee {
                 marks:marks
             };
             
-    var e = Employee.constructFrom(m);
+    var e = m.cloneWithType(Employee);
     if (e is Employee) {
         return e;
     } else {
@@ -287,7 +287,7 @@ function testJsonToStructWithMissingOptionalFields () returns Person {
                  alive:true
              };
 
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -319,7 +319,7 @@ function testJsonToStructWithMissingRequiredFields () returns PersonWithChildren
                  score:5.67
              };
 
-    var p = PersonWithChildren.constructFrom(j);
+    var p = j.cloneWithType(PersonWithChildren);
     if (p is PersonWithChildren) {
         return p;
     } else {
@@ -335,7 +335,7 @@ function testIncompatibleJsonToStruct () returns Person {
                  marks:[87, 94, 72]
              };
 
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -359,7 +359,7 @@ function testJsonWithIncompatibleMapToStruct () returns Person {
                  marks:[87, 94, 72]
              };
 
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -383,7 +383,7 @@ function testJsonWithIncompatibleTypeToStruct () returns Person {
                  marks:[87, 94, 72]
              };
 
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -407,7 +407,7 @@ function testJsonWithIncompatibleStructToStruct () returns Person {
                  marks:[87, 94, 72]
              };
 
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -418,7 +418,7 @@ function testJsonWithIncompatibleStructToStruct () returns Person {
 function testJsonArrayToStruct () returns Person {
     json j = [87, 94, 72];
 
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -440,7 +440,7 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
     map<anydata> m = {bar:x};
     Info info = {foo:m};
 
-    var j = json.constructFrom(info);
+    var j = info.cloneWithType(json);
     if (j is json) {
         return j;
     } else {
@@ -451,43 +451,43 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
 function testJsonIntToString () returns string|error {
     json j = 5;
     int value;
-    value = check int.constructFrom(j);
-    return  string.constructFrom(value);
+    value = check j.cloneWithType(int);
+    return value.cloneWithType(string);
 }
 
 
 
 function testBooleanInJsonToInt () returns int|error {
     json j = true;
-    int value = check int.constructFrom(j);
+    int value = check j.cloneWithType(int);
     return value;
 }
 
 function testIncompatibleJsonToInt () returns int|error {
     json j = "hello";
     int value;
-    value = check int.constructFrom(j);
+    value = check j.cloneWithType(int);
     return value;
 }
 
 function testIntInJsonToFloat () returns float|error {
     json j = 7;
     float value;
-    value = check float.constructFrom(j);
+    value = check j.cloneWithType(float);
     return value;
 }
 
 function testIncompatibleJsonToFloat () returns float|error {
     json j = "hello";
     float value;
-    value = check float.constructFrom(j);
+    value = check j.cloneWithType(float);
     return value;
 }
 
 function testIncompatibleJsonToBoolean () returns boolean|error {
     json j = "hello";
     boolean value;
-    value = check boolean.constructFrom(j);
+    value = check j.cloneWithType(boolean);
     return value;
 }
 
@@ -502,7 +502,7 @@ type AnyArray record {|
 
 function testJsonToAnyArray () returns AnyArray|error {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4, 3, 7], null]};
-    AnyArray value = check AnyArray.constructFrom(j);
+    AnyArray value = check j.cloneWithType(AnyArray);
     return value;
 }
 
@@ -512,7 +512,7 @@ type IntArray record {|
 
 function testJsonToIntArray () returns IntArray|error {
     json j = {a:[4, 3, 9]};
-    IntArray value = check IntArray.constructFrom(j);
+    IntArray value = check j.cloneWithType(IntArray);
     return value;
 }
 
@@ -523,13 +523,14 @@ type StringArray record {|
 
 function testJsonToStringArray () returns StringArray|error {
     json j = {a:["a", "b", "c"]};
-    StringArray a = check StringArray.constructFrom(j);
+    StringArray a = check j.cloneWithType(StringArray);
     return a;
 }
 
 function testJsonIntArrayToStringArray () returns json|error {
     json j = {a:[4, 3, 9]};
-    int[] a =  check int[].constructFrom(check j.a);
+    var x = check j.a;
+    int[] a =  check x.cloneWithType(int[]);
     string[] s =  [];
     foreach var i in a {
         s[s.length()] = i.toString();
@@ -544,7 +545,7 @@ type XmlArray record {|
 
 function testJsonToXmlArray () returns XmlArray {
     json j = {a:["a", "b", "c"]};
-    var a = XmlArray.constructFrom(j);
+    var a = j.cloneWithType(XmlArray);
     if (a is XmlArray) {
         return a;
     } else {
@@ -554,7 +555,7 @@ function testJsonToXmlArray () returns XmlArray {
 
 function testNullJsonArrayToArray () returns StringArray {
     json j = {a:null};
-    var a =  StringArray.constructFrom(j);
+    var a =  j.cloneWithType(StringArray);
     if (a is StringArray) {
         return a;
     } else {
@@ -564,7 +565,7 @@ function testNullJsonArrayToArray () returns StringArray {
 
 function testNullJsonToArray () returns StringArray {
     json j = ();
-    var s = StringArray.constructFrom(j);
+    var s = j.cloneWithType(StringArray);
     if (s is StringArray) {
         return s;
     } else {
@@ -574,7 +575,7 @@ function testNullJsonToArray () returns StringArray {
 
 function testNonArrayJsonToArray () returns StringArray {
     json j = {a:"im not an array"};
-    var a = StringArray.constructFrom(j);
+    var a = j.cloneWithType(StringArray);
     if (a is StringArray) {
         return a;
     } else {
@@ -585,7 +586,7 @@ function testNonArrayJsonToArray () returns StringArray {
 
 function testNullJsonToStruct () returns Person {
     json j = ();
-    var p = Person.constructFrom(j);
+    var p = j.cloneWithType(Person);
     if (p is Person) {
         return p;
     } else {
@@ -595,7 +596,7 @@ function testNullJsonToStruct () returns Person {
 
 function testNullStructToJson () returns json {
     Person? p = ();
-    var j = json.constructFrom(p);
+    var j = p.cloneWithType(json);
     if (j is json) {
         return j;
     } else {
@@ -611,7 +612,7 @@ type PersonA record {|
 function JsonToStructWithErrors () returns (PersonA | error) {
     json j = {name:"supun"};
 
-    PersonA pA = check PersonA.constructFrom(j);
+    PersonA pA = check j.cloneWithType(PersonA);
 
     return pA;
 }
@@ -622,7 +623,7 @@ type PhoneBook record {|
 
 function testStructWithStringArrayToJSON () returns json|error {
     PhoneBook phonebook = {names:["John", "Doe"]};
-    var phonebookJson = json.constructFrom(phonebook);
+    var phonebookJson = phonebook.cloneWithType(json);
     return phonebookJson;
 }
 
@@ -650,10 +651,10 @@ function testStructToMapWithRefTypeArray () returns [map<any>, int]|error {
                             actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
                                     {fname:"Tom", lname:"Hardy", age:34}]};
 
-    map<anydata> m = check map<anydata>.constructFrom(theRevenant);
+    map<anydata> m = check theRevenant.cloneWithType(map<anydata>);
 
     anydata a = m["writers"];
-    var writers = person[].constructFrom(a);
+    var writers = a.cloneWithType(person[]);
     if(writers is person[]){
         return [m, writers[0].age];
     } else {
@@ -672,7 +673,7 @@ type StructWithOptionals record {|
 
 function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | error) {
     json j = {};
-    var testStruct = check StructWithOptionals.constructFrom(j);
+    var testStruct = check j.cloneWithType(StructWithOptionals);
 
     return testStruct;
 }
@@ -683,11 +684,11 @@ function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | er
 //                                       json, error,
 //                                       xml, error) {
 //    string s;
-//    var i, err1 = int.constructFrom(s);
-//    var f, err2 = float.constructFrom(s);
-//    var b, err3 = boolean.constructFrom(s);
-//    var j, err4 = json.constructFrom(s);
-//    var x, err5 = xml.constructFrom(s);
+//    var i, err1 = s.cloneWithType(int);
+//    var f, err2 = s.cloneWithType(float);
+//    var b, err3 = s.cloneWithType(boolean);
+//    var j, err4 = s.cloneWithType(json);
+//    var x, err5 = s.cloneWithType(xml);
 //    
 //    return i, err1, f, err2, b, err3, j, err4, x, err5;
 //}
@@ -703,7 +704,7 @@ function structWithComplexMapToJson() returns (json | error) {
     map<anydata> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":()};
     
     Info info = {foo : m};
-    var js =  check json.constructFrom(info);
+    var js =  check info.cloneWithType(json);
     return js;
 }
 
@@ -724,7 +725,7 @@ function structWithComplexArraysToJson() returns (json | error) {
     PersonA p1 = {name:""};
     PersonA p2 = {name:""};
     ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[m1, m2], f:[p1, p2], g:[g]};
-    var js = json.constructFrom(t);
+    var js = t.cloneWithType(json);
     return js;
 }
 
@@ -734,7 +735,7 @@ function testComplexMapToJson () returns json|error {
                 gpa:2.81,
                 status:true
             };
-    json j2 = check json.constructFrom(m);
+    json j2 = check m.cloneWithType(json);
     return j2;
 }
 
@@ -743,7 +744,7 @@ function testStructWithIncompatibleTypeToJson () returns json {
     Info2 info = {
         infoBlob : [xml1]
     };
-    var j = json.constructFrom(info);
+    var j = info.cloneWithType(json);
     if (j is json) {
         return j;
     } else {
@@ -762,7 +763,7 @@ function testJsonToMapUnconstrained() returns map<any>|error {
             c : true
         }
     };
-    map<anydata> m = check map<anydata>.constructFrom(jx);
+    map<anydata> m = check jx.cloneWithType(map<anydata>);
     return m;
 }
 
@@ -772,7 +773,7 @@ function testJsonToMapConstrained1() returns map<any>|error {
         y: "B"
     };
 
-    return map<string>.constructFrom(j);
+    return j.cloneWithType(map<string>);
 }
 
 type T1 record {
@@ -789,7 +790,7 @@ function testJsonToMapConstrained2() returns map<any>|error {
         a : j1
     };
     map<T1> m;
-    m = check map<T1>.constructFrom(j2);
+    m = check j2.cloneWithType(map<T1>);
     return m;
 }
 
@@ -801,7 +802,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
         }
     };
     map<T1> m = {};
-    var result = map<T1>.constructFrom(j1);
+    var result = j1.cloneWithType(map<T1>);
     if (result is map<T1>) {
         m = result;
     } else {
@@ -823,7 +824,7 @@ function testStructArrayConversion1() returns T1|error {
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a = check T1[].constructFrom(b);
+    a = check b.cloneWithType(T1[]);
     return a[0];
 }
 
@@ -834,8 +835,8 @@ function testStructArrayConversion2() returns T2|error {
     b[0].x = 5;
     b[0].y = 1;
     b[0].z = 2;
-    a = check T1[].constructFrom(b);
-    b = check T2[].constructFrom(a);
+    a = check b.cloneWithType(T1[]);
+    b = check a.cloneWithType(T2[]);
     return b[0];
 }
 
@@ -858,7 +859,7 @@ public type O2 object {
 //function testObjectRecordConversionFail() {
 //    O2 a = new;
 //    T3 b = {};
-//    var result = O2.constructFrom(b);
+//    var result = b.cloneWithType(O2);
 //    if (result is O2) {
 //        a = result;
 //    } else {
@@ -872,14 +873,14 @@ function testTupleConversion1() returns [T1, T1]|error {
     [T1, T2] x = [a, b];
     [T1, T1] x2;
     anydata y = x;
-    x2 = check [T1, T1].constructFrom(y);
+    x2 = check y.cloneWithType([T1, T1]);
     return x2;
 }
 
 function testTupleConversion2() returns [int, string]|error {
     [int, string] x = [10, "XX"];
     anydata y = x;
-    x = check [int, string].constructFrom(y);
+    x = check y.cloneWithType([int, string]);
     return x;
 }
 
@@ -889,7 +890,7 @@ function testArrayToJson1() returns json|error {
     int[] x = [];
     x[0] = 10;
     x[1] = 15;
-    json j = check json.constructFrom(x);
+    json j = check x.cloneWithType(json);
     return j;
 }
 
@@ -901,7 +902,7 @@ function testArrayToJson2() returns json|error {
     b.x = 15;
     x[0] = a;
     x[1] = b;
-    json j = check json.constructFrom(x);
+    json j = check x.cloneWithType(json);
     return j;
 }
 
@@ -915,14 +916,14 @@ function testJsonToArray1() returns T1[]|error {
     T1[] x = [];
     x[0] = {};
     x[0].x = 10;
-    json j = check json.constructFrom(x);
-    x = check T1[].constructFrom(j);
+    json j = check x.cloneWithType(json);
+    x = check j.cloneWithType(T1[]);
     return x;
 }
 
 function testJsonToArray2() returns int[]|error {
     json j = [1, 2, 3];
-    int[] x = check int[].constructFrom(j);
+    int[] x = check j.cloneWithType(int[]);
     return x;
 }
 
@@ -931,7 +932,7 @@ function testJsonToArrayFail() {
         x: 1,
         y: 1.5
     };
-    var result = int[].constructFrom(j);
+    var result = j.cloneWithType(int[]);
     if (result is int[]) {
         int[] x = result;
     } else {
@@ -945,12 +946,12 @@ type A record {
 
 function testJsonFloatToRecordWithFloat() returns A|error {
     json j = {f : 3.0};
-    return A.constructFrom(j);
+    return j.cloneWithType(A);
 }
 
 function testRecordToJsonWithIsJson() returns boolean {
     Person2 p = {name:"Waruna", age:10};
-    var personData = json.constructFrom(p);
+    var personData = p.cloneWithType(json);
     return personData is json;
 }
 
@@ -959,12 +960,18 @@ function testImplicitConversionToInt() returns map<any>|error {
     anydata fromByte = <byte> 5;
     anydata fromDecimal = 23.456d;
     anydata fromBoolean = true;
-    int a = check int.constructFrom(check operationReq.fromInt);
-    int b = check int.constructFrom(check operationReq.fromString);
-    int c = check int.constructFrom(check operationReq.fromFloat);
-    int d = check int.constructFrom(fromByte);
-    int e = check int.constructFrom(fromDecimal);
-    int f = check int.constructFrom(fromBoolean);
+      var ae = check operationReq.fromInt;
+      int a = check ae.cloneWithType(int);
+
+      var be = check operationReq.fromString;
+      int b = check be.cloneWithType(int);
+
+      var ce = check operationReq.fromFloat;
+      int c = check ce.cloneWithType(int);
+
+      int d = check fromByte.cloneWithType(int);
+      int e = check fromDecimal.cloneWithType(int);
+      int f = check fromBoolean.cloneWithType(int);
     return {"fromInt":a, "fromString":b ,"fromFloat":c, "fromByte":d, "fromDecimal": e, "fromBoolean": f };
 }
 
