@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -268,11 +269,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Rearrange the top level nodes so that global variables come on top
         List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
-        pkgNode.topLevelNodes.forEach(topLevelNode -> {
-            if (!sortedListOfNodes.contains(topLevelNode)) {
-                sortedListOfNodes.add(topLevelNode);
-            }
-        });
+        addModuleInitToSortedNodeList(pkgNode, sortedListOfNodes);
+        addNodesToSortedNodeList(pkgNode, sortedListOfNodes);
 
         for (TopLevelNode topLevelNode : sortedListOfNodes) {
             if (isModuleInitFunction((BLangNode) topLevelNode)) {
@@ -289,6 +287,23 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
+    private void addModuleInitToSortedNodeList(BLangPackage pkgNode, List<TopLevelNode> sortedListOfNodes) {
+        for (TopLevelNode node : pkgNode.topLevelNodes) {
+            if (isModuleInitFunction((BLangNode) node)) {
+                sortedListOfNodes.add(node);
+                break;
+            }
+        }
+    }
+
+    private void addNodesToSortedNodeList(BLangPackage pkgNode, List<TopLevelNode> sortedListOfNodes) {
+        pkgNode.topLevelNodes.forEach(topLevelNode -> {
+            if (!sortedListOfNodes.contains(topLevelNode)) {
+                sortedListOfNodes.add(topLevelNode);
+            }
+        });
+    }
+
     private boolean isModuleInitFunction(BLangNode node) {
         return node.getKind() == NodeKind.FUNCTION &&
                 Names.USER_DEFINED_INIT_SUFFIX.value.equals(((BLangFunction) node).name.value);
@@ -296,11 +311,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void analyzeModuleInitFunc(BLangFunction funcNode) {
         this.currDependentSymbol.push(funcNode.symbol);
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        SymbolEnv moduleInitFuncEnv = SymbolEnv.createModuleInitFunctionEnv(funcNode, funcNode.symbol.scope, env);
         for (BLangAnnotationAttachment bLangAnnotationAttachment : funcNode.annAttachments) {
             analyzeNode(bLangAnnotationAttachment.expr, env);
         }
-        analyzeNode(funcNode.body, funcEnv);
+        analyzeNode(funcNode.body, moduleInitFuncEnv);
         this.currDependentSymbol.pop();
     }
 
@@ -326,6 +341,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody body) {
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        bodyEnv.isModuleInit = env.isModuleInit;
         for (BLangStatement statement : body.stmts) {
             analyzeNode(statement, bodyEnv);
         }
@@ -803,6 +819,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
+        if (!isGlobalVarsInitialized(invocationExpr.pos)) {
+            return;
+        }
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
             return;
         }
@@ -903,6 +922,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                             uninitializedFields.toString());
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    private boolean isGlobalVarsInitialized(DiagnosticPos pos) {
+        if (env.isModuleInit) {
+            boolean isFirstUninitializedField = true;
+            StringBuilder uninitializedFields = new StringBuilder();
+            for (BSymbol symbol : this.uninitializedVars.keySet()) {
+                if (isFirstUninitializedField) {
+                    uninitializedFields = new StringBuilder(symbol.getName().value);
+                    isFirstUninitializedField = false;
+                } else {
+                    uninitializedFields.append(", ").append(symbol.getName().value);
+                }
+            }
+            if (uninitializedFields.length() != 0) {
+                this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_VARIABLES,
+                        uninitializedFields.toString());
+                return false;
             }
         }
         return true;

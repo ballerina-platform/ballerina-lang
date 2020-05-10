@@ -14,21 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int i;
-string s;
-int a;
-
+int i; // uninitialized variable 'i'
+string s; // uninitialized variable 's'
 
 function __init() {
     i = foo();
+    s = bar();
 }
 
 function foo() returns int {
-    a = 8;
-    return 8;
+    return 0;
 }
 
-function testModuleVarDeclNegative() {
-    int x = a;
-    string str = s;
+function bar() returns string {
+    return "";
 }

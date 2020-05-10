@@ -262,6 +262,7 @@ public enum DiagnosticCode {
     USAGE_OF_UNINITIALIZED_VARIABLE("usage.of.uninitialized.variable"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     CONTAINS_UNINITIALIZED_FIELDS("uninitialized.object.fields"),
+    CONTAINS_UNINITIALIZED_VARIABLES("uninitialized.variables"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),

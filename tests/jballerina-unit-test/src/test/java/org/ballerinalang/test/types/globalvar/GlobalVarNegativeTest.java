@@ -39,4 +39,32 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(resultNegative, 2, "mismatched input ';'. expecting '='", 31, 46);
         BAssertUtil.validateError(resultNegative, 3, "mismatched input ';'. expecting '='", 33, 59);
     }
+
+    @Test
+    void testGlobalVariableInitNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/global_variable_init_negative" +
+                ".bal");
+
+        Assert.assertEquals(result.getErrorCount(), 8);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'i'", 17, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 's'", 18, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'a'", 19, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'b'", 20, 1);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 25, 5);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 31, 5);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 39, 13);
+        BAssertUtil.validateError(result, i, "variable 's' is not initialized", 40, 18);
+    }
+
+    @Test
+    void testGlobalVariableInitWithInvocationNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
+                "/global_variable_init_with_invocation_negative.bal");
+
+        Assert.assertEquals(result.getErrorCount(), 2);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "variable(s) 's, i' not initialized", 21, 9);
+        BAssertUtil.validateError(result, i, "variable(s) 's' not initialized", 22, 9);
+    }
 }
