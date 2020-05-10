@@ -19,6 +19,9 @@ package io.ballerinalang.compiler.parser.test.syntax.expressions;
 
 import org.testng.annotations.Test;
 
+/**
+ * Test parsing <code>new-expr</code>.
+ */
 public class NewExpressionTest extends AbstractExpressionsTest {
 
     @Test
