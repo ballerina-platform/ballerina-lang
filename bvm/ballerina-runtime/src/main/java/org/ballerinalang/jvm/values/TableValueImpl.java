@@ -170,14 +170,15 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return valueHolder.getData((K) key);
     }
 
-    public KeyHashValueHolder.DefaultKeyWrapper getKeyWrapper() {
-        return this.valueHolder.getKeyWrapper();
+    //Generates the key from the given data
+    public V put(V value) {
+        return valueHolder.putData(value);
     }
 
     @Override
     public V put(K key, V value) {
         handleFrozenTableValue();
-        return valueHolder.putData(value);
+        return valueHolder.putData(key, value);
     }
 
     @Override
@@ -386,6 +387,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
 
+        public V putData(K key, V data) {
+            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+        }
+
         public V putData(V data) {
             throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR, "value type inconsistent "
                     + "with the inherent table type");
@@ -399,17 +404,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return false;
         }
 
-        public KeyHashValueHolder.DefaultKeyWrapper getKeyWrapper() {
-            return null;
-        }
-
         public BType getKeyType() {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "keys are not defined");
         }
     }
 
     private class KeyHashValueHolder extends ValueHolder {
-
         private DefaultKeyWrapper keyWrapper;
         private BType keyType;
 
@@ -420,10 +420,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             } else {
                 keyWrapper = new DefaultKeyWrapper();
             }
-        }
-
-        public DefaultKeyWrapper getKeyWrapper() {
-            return keyWrapper;
         }
 
         public void addData(V data) {
@@ -448,6 +444,22 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V getData(K key) {
             return values.get(TableUtils.hash(key, null));
+        }
+
+        public V putData(K key, V data) {
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
+            Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
+            Integer actualHash = TableUtils.hash(actualKey, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, new ArrayList<>());
+
+            if (!hash.equals(actualHash)) {
+                throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
+                        key + "' not found in value " + data.toString());
+            }
+
+            entries.put(hash, entry);
+            keys.put(hash, key);
+            return values.put(hash, data);
         }
 
         public V putData(V data) {

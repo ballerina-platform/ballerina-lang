@@ -37,8 +37,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Put {
 
     public static void put(Strand strand, TableValueImpl tbl, Object val) {
-        //Key will be generated from val. Hence, passing null
-        tbl.put(null, val);
+        tbl.put(val);
     }
 
     public static void put_bstring(Strand strand, TableValueImpl tbl, Object val) {
