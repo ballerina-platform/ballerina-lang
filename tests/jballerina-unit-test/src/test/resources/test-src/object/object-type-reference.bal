@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'int;
+import ballerina/test;
+
 type Person1 abstract object {
     public int age;
     public string name;
@@ -189,6 +192,69 @@ public function testNonAbstractObjectInclusion() {
 
     FireAnt dullAnt = new FireAnt(0);
     assertEquality(dullAnt.getId(), ());
+}
+
+// Type inclusion tests
+
+type AgeDataObject abstract object {
+    'int:Signed8 age;
+};
+
+type DefaultPerson object {
+    *AgeDataObject;
+    int age;
+    string name;
+
+    function __init(int age=18, string name = "UNKNOWN") {
+       self.age = age;
+       self.name = name;
+    }
+};
+
+function testCreatingObjectWithOverriddenFields() {
+    DefaultPerson dummyPerson = new DefaultPerson();
+    test:assertEquals(dummyPerson.age, 18);
+    dummyPerson.age = 400;
+    test:assertEquals(dummyPerson.age, 400);
+    test:assertEquals(dummyPerson.name, "UNKNOWN");
+}
+
+type NameInterface abstract object {
+    public function getName(string greeting = "Hi") returns string;
+};
+
+type AgeInterface abstract object {
+    *AgeDataObject;
+    public function setAge('int:Signed8 age = 0) returns 'int:Signed8;
+};
+
+type DefaultPersonGreetedName object {
+    *NameInterface;
+    *AgeInterface;
+    string name;
+    'int:Signed16 age;
+
+    function __init('int:Signed16 age = 18, string name = "UNKNOWN") {
+       self.age = age;
+       self.name = name;
+    }
+
+    public function getName(string greeting = "Hello") returns string {
+        return greeting + " " + self.name;
+    }
+
+    public function setAge('int:Signed8 age = 0) returns int {
+        self.age = age;
+        return self.age;
+    }
+};
+
+function testCreatingObjectWithOverriddenMethods() {
+    DefaultPersonGreetedName dummyPerson = new DefaultPersonGreetedName(name="Doe");
+    test:assertEquals(dummyPerson.age, 18);
+    int age = dummyPerson.setAge(80);
+    test:assertEquals(dummyPerson.age, 80);
+    test:assertEquals(dummyPerson.getName(), "Hello Doe");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
