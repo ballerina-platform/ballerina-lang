@@ -44,6 +44,7 @@ import ballerina/lang.'xml;
 function testReadonlyType() {
     testSimpleAssignmentForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
+    testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
 }
 
 function testSimpleAssignmentForSelectivelyImmutableTypes() {
@@ -251,6 +252,119 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     assertTrue(o is readonly);
 
     // TODO: table.
+}
+
+function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
+    int[] a = [1, 2];
+    anydata a1 = a;
+    any an1 = a;
+    assertFalse(an1 is int[] & readonly);
+    assertFalse(an1 is readonly);
+    assertFalse(a1.isReadOnly());
+
+    Employee emp = {
+        details: {
+            name: "Emma",
+            id: 1234
+        },
+        department: "finance"
+    };
+
+    [Employee, Employee] b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
+    anydata a2 = b;
+    any an2 = b;
+    assertFalse(an2 is [Employee, Employee] & readonly);
+    assertFalse(an2 is readonly);
+    assertFalse(a2.isReadOnly());
+
+    [Employee, Employee] empTup = <[Employee, Employee]> a2;
+
+    assertEquality(emp, empTup[0]);
+    record {} rec = empTup[0];
+    assertTrue(rec is Employee);
+    assertFalse(rec is Employee & readonly);
+    assertFalse(rec.isReadOnly());
+
+    rec = empTup[1];
+    assertTrue(rec is Employee);
+    assertFalse(rec is Employee & readonly);
+    assertFalse(rec.isReadOnly());
+    assertTrue(rec["details"] is Details);
+    assertFalse(rec["details"] is Details & readonly);
+    assertFalse(rec["details"].isReadOnly());
+
+    Details & readonly details = {
+        name: "Jo",
+        id: 9876
+    };
+    [Details[], Employee...] detEmpTup = [
+                                            [{name: "May", id: 1234}, details],
+                                            {details, department: "finance"}
+                                         ];
+    anydata a3 = detEmpTup;
+    assertTrue(a3 is [Details[], Employee...]);
+    assertFalse(a3 is [Details[], Employee...] & readonly);
+    assertFalse(a3 is [[Details, Details], Employee] & readonly);
+
+    [Details[], Employee] vals = <[Details[], Employee]> a3;
+    assertFalse(vals[0].isReadOnly());
+
+    Details d1 = vals[0][0];
+    assertFalse(d1.isReadOnly());
+
+    Details d2 = vals[0][1];
+    assertEquality(details, d2);
+    assertTrue(d2.isReadOnly());
+
+    Employee e = vals[1];
+    assertEquality(<Employee> {details, department: "finance"}, e);
+    assertFalse(e.isReadOnly());
+    assertTrue(e.details.isReadOnly());
+
+    boolean aBool = true;
+    map<boolean> f = {
+        aBool,
+        b: false
+    };
+    anydata a4 = f;
+    any an4 = f;
+    assertFalse(an4 is map<boolean> & readonly);
+    assertFalse(an4 is readonly);
+    assertFalse(a4.isReadOnly());
+
+    json g = [1, {a: "abc", b: true}];
+    anydata a5 = g;
+    any an5 = g;
+    assertTrue(an5 is json);
+    assertFalse(an5 is json & readonly);
+    assertFalse(an5 is json[] & readonly);
+    assertFalse(an5 is readonly);
+    assertFalse(a5.isReadOnly());
+
+    json[] jsonVal = <json[]> an5;
+    map<json> a8 = <map<json>> jsonVal[1];
+    any an8 = a8;
+    assertFalse(a8 is map<json> & readonly);
+    assertFalse(an8 is readonly);
+    assertFalse(a8.isReadOnly());
+
+    map<int>|boolean[] h = [true, false];
+    anydata a6 = h;
+    any an6 = h;
+    assertTrue(an6 is boolean[]);
+    assertTrue(an6 is map<int>|boolean[]);
+    assertFalse(an6 is map<int>|boolean[] & readonly);
+    assertFalse(an6 is boolean[] & readonly);
+    assertFalse(an6 is readonly);
+    assertFalse(a6.isReadOnly());
+
+    'xml:Element i = xml `<Student><name>Emma</name><id>6040</id></Student>`;
+    anydata a7 = i;
+    any an7 = i;
+    assertTrue(an7 is 'xml:Element);
+    assertFalse(an7 is 'xml:Element & readonly);
+    assertFalse(an7 is readonly);
+    assertFalse(a7.isReadOnly());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

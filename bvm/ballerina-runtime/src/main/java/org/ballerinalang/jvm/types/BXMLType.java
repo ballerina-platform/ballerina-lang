@@ -92,7 +92,7 @@ public class BXMLType extends BType {
             return true;
         }
 
-        return constraint.equals(other.constraint);
+        return this.readonly == other.readonly && constraint.equals(other.constraint);
     }
 
     @Override

@@ -129,7 +129,7 @@ public class BTupleType extends BType {
             return false;
         }
         BTupleType that = (BTupleType) o;
-        return Objects.equals(tupleTypes, that.tupleTypes);
+        return this.readonly == that.readonly && Objects.equals(tupleTypes, that.tupleTypes);
     }
 
     @Override

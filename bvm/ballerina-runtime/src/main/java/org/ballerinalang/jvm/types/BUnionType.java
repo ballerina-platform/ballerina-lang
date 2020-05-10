@@ -167,7 +167,7 @@ public class BUnionType extends BType {
                 return false;
             }
         }
-        return true;
+        return this.readonly == that.readonly;
     }
 
     @Override

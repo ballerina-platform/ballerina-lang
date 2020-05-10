@@ -582,6 +582,10 @@ public class Types {
         }
 
         if (targetTag == TypeTags.JSON) {
+            if (sourceTag == TypeTags.JSON) {
+                return true;
+            }
+
             if (sourceTag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes, unresolvedReadonlyTypes);
             }

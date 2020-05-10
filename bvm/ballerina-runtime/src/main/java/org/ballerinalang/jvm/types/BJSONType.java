@@ -69,7 +69,11 @@ public class BJSONType extends BType {
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj) && obj instanceof BJSONType;
+        if (!(obj instanceof BJSONType)) {
+            return false;
+        }
+
+        return super.equals(obj) && this.readonly == ((BJSONType) obj).readonly;
     }
 
     public boolean isNilable() {

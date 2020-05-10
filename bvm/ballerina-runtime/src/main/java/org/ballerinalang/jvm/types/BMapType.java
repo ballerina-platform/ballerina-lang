@@ -115,6 +115,11 @@ public class BMapType extends BType {
         }
 
         BMapType other = (BMapType) obj;
+
+        if (this.readonly != other.readonly) {
+            return false;
+        }
+
         if (constraint == other.constraint) {
             return true;
         }

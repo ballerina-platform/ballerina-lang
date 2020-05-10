@@ -130,7 +130,7 @@ public class BArrayType extends BType {
             if (other.state == ArrayState.CLOSED_SEALED && this.size != other.size) {
                 return false;
             }
-            return this.elementType.equals(other.elementType);
+            return this.elementType.equals(other.elementType) && this.readonly == other.readonly;
         }
 
         return false;
