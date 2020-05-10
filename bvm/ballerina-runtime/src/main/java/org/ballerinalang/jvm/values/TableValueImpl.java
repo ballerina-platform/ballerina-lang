@@ -215,7 +215,20 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public V fillAndGet(Object key) {
-        return null;
+        if (containsKey(key)) {
+            return this.get(key);
+        }
+
+        BType expectedType = (this.type).getConstrainedType();
+
+        if (!TypeChecker.hasFillerValue(expectedType)) {
+            // Panic if the field does not have a filler value.
+            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+        }
+
+        Object value = expectedType.getZeroValue();
+        this.put((K) key, (V) value);
+        return (V) value;
     }
 
     @Override

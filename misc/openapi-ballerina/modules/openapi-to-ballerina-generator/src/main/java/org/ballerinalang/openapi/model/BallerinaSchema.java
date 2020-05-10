@@ -161,7 +161,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
                 type += "[]";
                 break;
             case "object":
-                type = "any";
+                type = "anydata";
                 break;
             default:
                 type = prop.getType();

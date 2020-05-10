@@ -1124,6 +1124,10 @@ public class Types {
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) collectionType;
+                varType = tableType.constraint;
+                break;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) collectionType;
                 if (streamType.constraint.tag == TypeTags.NONE) {
@@ -1215,6 +1219,10 @@ public class Types {
                 break;
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) collectionType;
+                varType = tableType.constraint;
                 break;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) collectionType;
@@ -2919,6 +2927,7 @@ public class Types {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.NIL:
+            case TypeTags.TABLE:
             case TypeTags.ANYDATA:
             case TypeTags.MAP:
             case TypeTags.ANY:
