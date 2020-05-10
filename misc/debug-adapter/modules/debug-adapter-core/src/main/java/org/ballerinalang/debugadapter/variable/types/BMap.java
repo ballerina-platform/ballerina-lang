@@ -31,15 +31,15 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Ballerina json variable type.
+ * Ballerina map variable type.
  */
-public class BJson extends BCompoundVariable {
+public class BMap extends BCompoundVariable {
 
     private final ObjectReferenceImpl jvmValueRef;
 
-    public BJson(Value value, Variable dapVariable) {
+    public BMap(Value value, Variable dapVariable) {
         this.jvmValueRef = (ObjectReferenceImpl) value;
-        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setType(BVariableType.MAP.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
         this.computeChildVariables();
@@ -47,7 +47,8 @@ public class BJson extends BCompoundVariable {
 
     @Override
     public String getValue() {
-        return "json";
+        // Todo - Extract map type.
+        return "map";
     }
 
     @Override

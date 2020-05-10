@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 /**
  * Ballerina object variable type.
+ * // Todo - verify
  */
 public class BObjectType extends BCompoundVariable {
 
