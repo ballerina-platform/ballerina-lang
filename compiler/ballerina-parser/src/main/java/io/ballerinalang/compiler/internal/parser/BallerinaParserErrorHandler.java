@@ -285,7 +285,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] LET_VAR_DECL_START =
             { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.ANNOTATIONS };
 
-    private static final ParserRuleContext[] STREAM_TYPE_PARAMS =
+    private static final ParserRuleContext[] STREAM_TYPE_FIRST_PARAM_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.GT };
 
     private static final ParserRuleContext[] TEMPLATE_MEMBER = { ParserRuleContext.TEMPLATE_STRING,
@@ -354,7 +354,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPEDESC_RHS:
             case ERROR_TYPE_PARAMS:
             case LET_VAR_DECL_START:
-            case STREAM_TYPE_PARAMS:
+            case STREAM_TYPE_FIRST_PARAM_RHS:
                 return true;
             default:
                 return false;
@@ -1013,9 +1013,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case STREAM_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.STREAM_KEYWORD;
                     break;
-                case STREAM_TYPE_PARAMS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, STREAM_TYPE_PARAMS,
-                            isEntryPoint);
+                case STREAM_TYPE_FIRST_PARAM_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            STREAM_TYPE_FIRST_PARAM_RHS, isEntryPoint);
                 case TEMPLATE_START:
                 case TEMPLATE_END:
                     hasMatch = nextToken.kind == SyntaxKind.BACKTICK_TOKEN;
@@ -2050,7 +2050,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
             case STREAM_TYPE_DESCRIPTOR:
-                return ParserRuleContext.STREAM_TYPE_PARAMS;
+                return ParserRuleContext.STREAM_TYPE_FIRST_PARAM_RHS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;

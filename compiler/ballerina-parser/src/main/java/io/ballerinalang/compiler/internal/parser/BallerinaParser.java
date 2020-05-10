@@ -356,7 +356,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseStreamKeyWord();
             case STREAM_TYPE_DESCRIPTOR:
                 return parseStreamTypeDescriptor();
-            case STREAM_TYPE_PARAMS:
+            case STREAM_TYPE_FIRST_PARAM_RHS:
                 return parseStreamTypeParamsNode((STNode) args[0], (STNode) args[1]);
             case TEMPLATE_START:
             case TEMPLATE_END:
@@ -7385,7 +7385,8 @@ public class BallerinaParser extends AbstractParser {
                 rightTypeDescNode = STNodeFactory.createEmptyNode();
                 break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.STREAM_TYPE_PARAMS, ltToken, leftTypeDescNode);
+                Solution solution = recover(peek(), ParserRuleContext.STREAM_TYPE_FIRST_PARAM_RHS, ltToken,
+                        leftTypeDescNode);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
