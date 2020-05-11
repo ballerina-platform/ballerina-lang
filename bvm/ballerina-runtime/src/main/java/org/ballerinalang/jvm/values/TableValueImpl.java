@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BField;
@@ -432,7 +433,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             public Object wrapKey(MapValue data) {
-                return data.get(fieldNames[0]);
+                return data.get(StringUtils.fromString(fieldNames[0]));
             }
         }
 
@@ -456,7 +457,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 TupleValueImpl arr = (TupleValueImpl) BValueCreator
                         .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
-                    arr.add(i, data.get(fieldNames[i]));
+                    arr.add(i, data.get(StringUtils.fromString(fieldNames[i])));
                 }
                 return arr;
             }
