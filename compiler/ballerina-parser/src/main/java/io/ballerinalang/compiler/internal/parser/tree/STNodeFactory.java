@@ -438,13 +438,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createMemberAccessExpressionNode(
+    public static STNode createIndexedExpressionNode(
             STNode containerExpression,
             STNode openBracket,
             STNode keyExpression,
             STNode closeBracket) {
 
-        return new STMemberAccessExpressionNode(
+        return new STIndexedExpressionNode(
                 containerExpression,
                 openBracket,
                 keyExpression,
@@ -849,19 +849,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor);
     }
 
-    public static STNode createArrayTypeDescriptorNode(
-            STNode typeDescriptorNode,
-            STNode openBracketToken,
-            STNode arrayLengthNode,
-            STNode closeBracketToken) {
-
-        return new STArrayTypeDescriptorNode(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
-    }
-
     public static STNode createRemoteMethodCallActionNode(
             STNode expression,
             STNode rightArrowToken,
@@ -1110,6 +1097,228 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 fieldNames,
                 closeParenToken);
     }
+
+    public static STNode createErrorTypeDescriptorNode(
+            STNode errorKeywordToken,
+            STNode errorTypeParamsNode) {
+
+        return new STErrorTypeDescriptorNode(
+                errorKeywordToken,
+                errorTypeParamsNode);
+    }
+
+    public static STNode createErrorTypeParamsNode(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
+
+        return new STErrorTypeParamsNode(
+                ltToken,
+                parameter,
+                gtToken);
+    }
+
+    public static STNode createStreamTypeDescriptorNode(
+            STNode streamKeywordToken,
+            STNode streamTypeParamsNode) {
+
+        return new STStreamTypeDescriptorNode(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
+    public static STNode createStreamTypeParamsNode(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken) {
+
+        return new STStreamTypeParamsNode(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
+    }
+
+    public static STNode createLetExpressionNode(
+            STNode letKeyword,
+            STNode letVarDeclarations,
+            STNode inKeyword,
+            STNode expression) {
+
+        return new STLetExpressionNode(
+                letKeyword,
+                letVarDeclarations,
+                inKeyword,
+                expression);
+    }
+
+    public static STNode createLetVariableDeclarationNode(
+            STNode annotations,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STLetVariableDeclarationNode(
+                annotations,
+                typeName,
+                variableName,
+                equalsToken,
+                expression);
+    }
+
+    public static STNode createTemplateExpressionNode(
+            SyntaxKind kind,
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STTemplateExpressionNode(
+                kind,
+                type,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    public static STNode createXMLElementNode(
+            STNode startTag,
+            STNode content,
+            STNode endTag) {
+
+        return new STXMLElementNode(
+                startTag,
+                content,
+                endTag);
+    }
+
+    public static STNode createXMLStartTagNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode getToken) {
+
+        return new STXMLStartTagNode(
+                ltToken,
+                name,
+                attributes,
+                getToken);
+    }
+
+    public static STNode createXMLEndTagNode(
+            STNode ltToken,
+            STNode slashToken,
+            STNode name,
+            STNode getToken) {
+
+        return new STXMLEndTagNode(
+                ltToken,
+                slashToken,
+                name,
+                getToken);
+    }
+
+    public static STNode createXMLSimpleNameNode(
+            STNode name) {
+
+        return new STXMLSimpleNameNode(
+                name);
+    }
+
+    public static STNode createXMLQualifiedNameNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+
+        return new STXMLQualifiedNameNode(
+                prefix,
+                colon,
+                name);
+    }
+
+    public static STNode createXMLEmptyElementNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode slashToken,
+            STNode getToken) {
+
+        return new STXMLEmptyElementNode(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken);
+    }
+
+    public static STNode createInterpolationNode(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken) {
+
+        return new STInterpolationNode(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken);
+    }
+
+    public static STNode createXMLTextNode(
+            STNode content) {
+
+        return new STXMLTextNode(
+                content);
+    }
+
+    public static STNode createXMLAttributeNode(
+            STNode attributeName,
+            STNode equalToken,
+            STNode value) {
+
+        return new STXMLAttributeNode(
+                attributeName,
+                equalToken,
+                value);
+    }
+
+    public static STNode createXMLAttributeValue(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote) {
+
+        return new STXMLAttributeValue(
+                startQuote,
+                value,
+                endQuote);
+    }
+
+    public static STNode createXMLComment(
+            STNode commentStart,
+            STNode content,
+            STNode commentEnd) {
+
+        return new STXMLComment(
+                commentStart,
+                content,
+                commentEnd);
+    }
+
+    public static STNode createXMLProcessingInstruction(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd) {
+
+        return new STXMLProcessingInstruction(
+                piStart,
+                target,
+                data,
+                piEnd);
+    }
+
 
     public static STNode createTypedBindingPattern(
             STNode typeDescriptor,

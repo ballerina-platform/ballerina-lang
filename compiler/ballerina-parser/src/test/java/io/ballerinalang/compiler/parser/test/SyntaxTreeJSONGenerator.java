@@ -29,6 +29,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class SyntaxTreeJSONGenerator {
      * Change the below two constants as required, depending on the type of test.
      */
     private static final boolean INCLUDE_TRIVIA = false;
-    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
 
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
@@ -95,6 +96,8 @@ public class SyntaxTreeJSONGenerator {
             treeNode = ((STSimpleNameReferenceNode) treeNode).name;
         } else if (treeNode instanceof STBuiltinSimpleNameReferenceNode) {
             treeNode = ((STBuiltinSimpleNameReferenceNode) treeNode).name;
+        } else if (treeNode instanceof STXMLTextNode) {
+            treeNode = ((STXMLTextNode) treeNode).content;
         }
 
         JsonObject jsonNode = new JsonObject();

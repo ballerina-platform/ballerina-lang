@@ -57,7 +57,7 @@ public enum ParserRuleContext {
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
     ARG_LIST("arguments"),
-    ARG("argument"),
+    ARG_START("argument-start"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
@@ -118,6 +118,10 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
+    ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
+    LET_VAR_DECL("let-var-decl"),
+    LET_VAR_DECL_START("let-var-decl-start"),
+    STREAM_TYPE_DESCRIPTOR("stream-type-descriptor"),
     TYPED_BINDING_PATTERN("typed-binding-pattern"),
     BINDING_PATTERN("binding-pattern"),
 
@@ -198,6 +202,11 @@ public enum ParserRuleContext {
     FOREACH_KEYWORD("foreach"),
     TABLE_KEYWORD("table"),
     KEY_KEYWORD("key"),
+    ERROR_KEYWORD("error"),
+    LET_KEYWORD("let"),
+    STREAM_KEYWORD("stream"),
+    XML_KEYWORD("xml"),
+    STRING_KEYWORD("string"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -222,6 +231,10 @@ public enum ParserRuleContext {
     GT(">"),
     LT("<"),
     PIPE("|"),
+    TEMPLATE_START("`"),
+    TEMPLATE_END("`"),
+    LT_TOKEN("<"),
+    GT_TOKEN(">"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -245,6 +258,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
+    ARG_LIST_START("arg-list-start"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -280,11 +294,42 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    LET_EXPRESSION("let-expr"),
+
+    // XML 
+    XML_CONTENT("xml-content"),
+    XML_TAG("xml-tag"),
+    XML_START_OR_EMPTY_TAG("xml-start-or-empty-tag"),
+    XML_START_OR_EMPTY_TAG_END("xml-start-or-empty-tag-end"),
+    XML_END_TAG("xml-end-tag"),
+    XML_NAME("xml-name"),
+    XML_PI("xml-pi"),
+    XML_TEXT("xml-text"),
+    XML_ATTRIBUTES("xml-attributes"),
+    XML_ATTRIBUTE("xml-attribute"),
+    XML_ATTRIBUTE_VALUE_ITEM("xml-attribute-value-item"),
+    XML_ATTRIBUTE_VALUE_TEXT("xml-attribute-value-text"),
+    XML_COMMENT_START("<!--"),
+    XML_COMMENT_END("-->"),
+    XML_COMMENT_CONTENT("xml-comment-content"),
+    XML_PI_START("<?"),
+    XML_PI_END("?>"),
+    XML_PI_DATA("xml-pi-data"),
+    INTERPOLATION_START_TOKEN("${"),
+    INTERPOLATION("interoplation"),
+    TEMPLATE_BODY("template-body"),
+    TEMPLATE_MEMBER("template-member"),
+    TEMPLATE_STRING("template-string"),
+    TEMPLATE_STRING_RHS("template-string-rhs"),
+    XML_QUOTE_START("xml-quote-start"),
+    XML_QUOTE_END("xml-quote-end"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
+    ERROR_TYPE_PARAMS("error-type-params"),
+    STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     ;
 
     private String value;

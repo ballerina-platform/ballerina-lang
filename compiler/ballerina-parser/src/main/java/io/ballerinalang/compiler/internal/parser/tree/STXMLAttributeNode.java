@@ -17,41 +17,37 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.MemberAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STMemberAccessExpressionNode extends STExpressionNode {
-    public final STNode containerExpression;
-    public final STNode openBracket;
-    public final STNode keyExpression;
-    public final STNode closeBracket;
+public class STXMLAttributeNode extends STNode {
+    public final STNode attributeName;
+    public final STNode equalToken;
+    public final STNode value;
 
-    STMemberAccessExpressionNode(
-            STNode containerExpression,
-            STNode openBracket,
-            STNode keyExpression,
-            STNode closeBracket) {
-        super(SyntaxKind.MEMBER_ACCESS);
-        this.containerExpression = containerExpression;
-        this.openBracket = openBracket;
-        this.keyExpression = keyExpression;
-        this.closeBracket = closeBracket;
+    STXMLAttributeNode(
+            STNode attributeName,
+            STNode equalToken,
+            STNode value) {
+        super(SyntaxKind.XML_ATTRIBUTE);
+        this.attributeName = attributeName;
+        this.equalToken = equalToken;
+        this.value = value;
 
         addChildren(
-                containerExpression,
-                openBracket,
-                keyExpression,
-                closeBracket);
+                attributeName,
+                equalToken,
+                value);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new MemberAccessExpressionNode(this, position, parent);
+        return new XMLAttributeNode(this, position, parent);
     }
 }

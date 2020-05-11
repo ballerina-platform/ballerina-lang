@@ -44,10 +44,10 @@
                     ]
                 },
                 {
-                    "kind": "ARRAY_TYPE_DESC",
+                    "kind": "INDEXED_EXPRESSION",
                     "children": [
                         {
-                            "kind": "ARRAY_TYPE_DESC",
+                            "kind": "INDEXED_EXPRESSION",
                             "children": [
                                 {
                                     "kind": "INT_KEYWORD"

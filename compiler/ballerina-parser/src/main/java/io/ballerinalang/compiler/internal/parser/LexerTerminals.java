@@ -71,6 +71,9 @@ public class LexerTerminals {
     public static final String FOREACH = "foreach";
     public static final String TABLE = "table";
     public static final String KEY = "key";
+    public static final String ERROR = "error";
+    public static final String LET = "let";
+    public static final String STREAM = "stream";
 
     // Types
     public static final String INT = "int";
@@ -105,8 +108,11 @@ public class LexerTerminals {
     public static final char PIPE = '|';
     public static final char QUESTION_MARK = '?';
     public static final char DOUBLE_QUOTE = '"';
+    public static final char SINGLE_QUOTE = '\'';
     public static final char HASH = '#';
     public static final char AT = '@';
+    public static final char BACKTICK = '`';
+    public static final char DOLLAR = '$';
 
     // Arithmetic operators
     public static final char EQUAL = '=';
