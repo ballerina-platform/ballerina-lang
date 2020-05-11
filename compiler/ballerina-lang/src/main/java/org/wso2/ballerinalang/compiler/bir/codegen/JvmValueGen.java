@@ -120,7 +120,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
@@ -494,14 +493,14 @@ class JvmValueGen {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                               true);
-            mv.visitInsn(DUP);
-            fieldNameRegIndex = 3;
-            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-            mv.visitVarInsn(ALOAD, valueRegIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
-                               String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                           true);
+        mv.visitInsn(DUP);
+        fieldNameRegIndex = 3;
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
+                           String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
@@ -804,8 +803,8 @@ class JvmValueGen {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+        mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
                                true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 

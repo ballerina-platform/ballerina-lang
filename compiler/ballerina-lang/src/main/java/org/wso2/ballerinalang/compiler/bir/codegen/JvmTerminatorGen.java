@@ -129,7 +129,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethod
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
@@ -648,7 +647,7 @@ public class JvmTerminatorGen {
         String jvmClass;
         if (functionWrapper != null) {
             jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = functionWrapper.jvmMethodDescription;
+            methodDesc = functionWrapper.jvmMethodDescription;
         } else {
             BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
