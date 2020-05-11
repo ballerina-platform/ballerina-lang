@@ -21,6 +21,9 @@ package org.ballerinalang.messaging.kafka.utils;
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Collect;
 import kafka.server.KafkaConfig;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -30,9 +33,9 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Constants used in Ballerina Kafka tests.
  */
-public class KafkaTestUtils {
+public class TestUtils {
 
-    private KafkaTestUtils() {
+    private TestUtils() {
     }
 
     private static final Path TEST_PATH = Paths.get("src", "test", "resources");
@@ -42,7 +45,7 @@ public class KafkaTestUtils {
     public static final String TEST_SERVICES = "services";
     public static final String TEST_SERDES = "serdes";
     public static final String TEST_COMPILER = "compiler-validation";
-    public static final String TEST_SSL = "ssl";
+    public static final String TEST_SECURITY = "security";
     public static final String TEST_TRANSACTIONS = "transactions";
 
     public static String getFilePath(Path filePath) {
@@ -57,6 +60,10 @@ public class KafkaTestUtils {
         } catch (Exception ex) {
             //Ignore
         }
+    }
+
+    public static String getErrorMessageFromReturnValue(BValue value) {
+        return ((BMap) ((BError) value).getDetails()).get("message").stringValue();
     }
 
     public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {

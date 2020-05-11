@@ -35,15 +35,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 
 /**
  * Test cases for Kafka Consumer assign() function.
  */
-public class KafkaConsumerAssignTest {
+public class TopicAssignTest {
     private CompileResult result;
     private static KafkaCluster kafkaCluster;
     private File dataDir;
@@ -52,7 +52,7 @@ public class KafkaConsumerAssignTest {
     public void setup() throws IOException {
         dataDir =  Testing.Files.createTestingDirectory("kafka-consumer-assign-test");
         result = BCompileUtil.compileOffline(
-                getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_assign.bal")));
+                getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "topic_assign.bal")));
         kafkaCluster = createKafkaCluster(dataDir, 14001, 14101).addBrokers(1).startup();
         kafkaCluster.createTopic("test-1", 1, 1);
     }
