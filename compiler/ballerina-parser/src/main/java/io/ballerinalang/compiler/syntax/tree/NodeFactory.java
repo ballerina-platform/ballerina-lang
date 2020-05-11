@@ -1779,5 +1779,47 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 piEnd.internalNode());
         return stXMLProcessingInstruction.createUnlinkedFacade();
     }
+
+    public static TableTypeDescriptorNode createTableTypeDescriptorNode(
+            Token tableKeywordToken,
+            Node typeParameterNode,
+            Node keyConstraintNode) {
+        Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
+        Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
+        Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
+
+        STNode stTableTypeDescriptorNode = STNodeFactory.createTableTypeDescriptorNode(
+                tableKeywordToken.internalNode(),
+                typeParameterNode.internalNode(),
+                keyConstraintNode.internalNode());
+        return stTableTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static TypeParameterNode createTypeParameterNode(
+            Token ltToken,
+            Node typeNode,
+            Token gtToken) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(typeNode, "typeNode must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stTypeParameterNode = STNodeFactory.createTypeParameterNode(
+                ltToken.internalNode(),
+                typeNode.internalNode(),
+                gtToken.internalNode());
+        return stTypeParameterNode.createUnlinkedFacade();
+    }
+
+    public static KeyTypeConstraintNode createKeyTypeConstraintNode(
+            Token keyKeywordToken,
+            Node typeParameterNode) {
+        Objects.requireNonNull(keyKeywordToken, "keyKeywordToken must not be null");
+        Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
+
+        STNode stKeyTypeConstraintNode = STNodeFactory.createKeyTypeConstraintNode(
+                keyKeywordToken.internalNode(),
+                typeParameterNode.internalNode());
+        return stKeyTypeConstraintNode.createUnlinkedFacade();
+    }
 }
 

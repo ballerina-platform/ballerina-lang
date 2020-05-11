@@ -452,6 +452,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLProcessingInstruction);
     }
 
+    public T transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        return transformSyntaxNode(tableTypeDescriptorNode);
+    }
+
+    public T transform(TypeParameterNode typeParameterNode) {
+        return transformSyntaxNode(typeParameterNode);
+    }
+
+    public T transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        return transformSyntaxNode(keyTypeConstraintNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

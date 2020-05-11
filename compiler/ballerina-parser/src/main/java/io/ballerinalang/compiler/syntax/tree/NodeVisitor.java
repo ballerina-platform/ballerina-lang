@@ -451,6 +451,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLProcessingInstruction);
     }
 
+    public void visit(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        visitSyntaxNode(tableTypeDescriptorNode);
+    }
+
+    public void visit(TypeParameterNode typeParameterNode) {
+        visitSyntaxNode(typeParameterNode);
+    }
+
+    public void visit(KeyTypeConstraintNode keyTypeConstraintNode) {
+        visitSyntaxNode(keyTypeConstraintNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

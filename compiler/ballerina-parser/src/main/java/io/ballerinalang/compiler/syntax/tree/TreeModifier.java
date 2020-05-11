@@ -1309,6 +1309,37 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 piEnd);
     }
 
+    @Override
+    public Node transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        Token tableKeywordToken = modifyToken(tableTypeDescriptorNode.tableKeywordToken());
+        Node typeParameterNode = modifyNode(tableTypeDescriptorNode.typeParameterNode());
+        Node keyConstraintNode = modifyNode(tableTypeDescriptorNode.keyConstraintNode());
+        return tableTypeDescriptorNode.modify(
+                tableKeywordToken,
+                typeParameterNode,
+                keyConstraintNode);
+    }
+
+    @Override
+    public Node transform(TypeParameterNode typeParameterNode) {
+        Token ltToken = modifyToken(typeParameterNode.ltToken());
+        Node typeNode = modifyNode(typeParameterNode.typeNode());
+        Token gtToken = modifyToken(typeParameterNode.gtToken());
+        return typeParameterNode.modify(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    @Override
+    public Node transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        Token keyKeywordToken = modifyToken(keyTypeConstraintNode.keyKeywordToken());
+        Node typeParameterNode = modifyNode(keyTypeConstraintNode.typeParameterNode());
+        return keyTypeConstraintNode.modify(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
     // Tokens
 
     @Override

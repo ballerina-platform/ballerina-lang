@@ -122,6 +122,7 @@ public enum ParserRuleContext {
     LET_VAR_DECL("let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
     STREAM_TYPE_DESCRIPTOR("stream-type-descriptor"),
+    TABLE_TYPE_DESCRIPTOR("table-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
@@ -328,6 +329,7 @@ public enum ParserRuleContext {
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
+    KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
     ;
 
     private String value;

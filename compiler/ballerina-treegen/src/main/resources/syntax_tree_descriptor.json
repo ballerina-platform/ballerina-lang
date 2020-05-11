@@ -2364,6 +2364,59 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "TableTypeDescriptorNode",
+            "base": "Node",
+            "kind": "TABLE_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "tableKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameterNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "keyConstraintNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "TypeParameterNode",
+            "base": "Node",
+            "kind": "TYPE_PARAMETER",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "KeyTypeConstraintNode",
+            "base": "Node",
+            "kind": "KEY_TYPE_CONSTRAINT",
+            "attributes": [
+                {
+                    "name": "keyKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameterNode",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }
