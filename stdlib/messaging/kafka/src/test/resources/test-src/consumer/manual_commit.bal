@@ -16,7 +16,7 @@
 
 import ballerina/kafka;
 
-const TOPIC = "test";
+const TOPIC = "manual-commit-test-topic";
 
 kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14102",
@@ -39,7 +39,7 @@ kafka:TopicPartition topicPartitionNegative = {
     partition: 100
 };
 
-function funcKafkaPoll() returns int|error {
+function testPoll() returns int|error {
     var records = consumer->poll(1000);
     if (records is error) {
         return records;
@@ -48,23 +48,23 @@ function funcKafkaPoll() returns int|error {
     }
 }
 
-function funcKafkaGetCommittedOffset() returns kafka:PartitionOffset|error {
+function testGetCommittedOffset() returns kafka:PartitionOffset|error {
     return consumer->getCommittedOffset(topicPartition);
 }
 
-function funcKafkaGetCommittedOffsetForNonExistingTopic() returns kafka:PartitionOffset|error {
+function testGetCommittedOffsetForNonExistingTopic() returns kafka:PartitionOffset|error {
     return consumer->getCommittedOffset(topicPartitionNegative);
 }
 
-function funcKafkaGetPositionOffset() returns int|error {
+function testGetPositionOffset() returns int|error {
      return consumer->getPositionOffset(topicPartition);
  }
 
- function funcKafkaGetPositionOffsetForNonExistingTopic() returns int|error {
+ function testGetPositionOffsetForNonExistingTopic() returns int|error {
      return consumer->getPositionOffset(topicPartitionNegative);
  }
 
-function funcKafkaCommit() returns boolean {
+function testCommit() returns boolean {
     var result = consumer->commit();
     return !(result is error);
 }

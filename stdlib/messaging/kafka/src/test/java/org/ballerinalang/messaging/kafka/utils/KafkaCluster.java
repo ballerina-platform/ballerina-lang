@@ -21,35 +21,44 @@ package org.ballerinalang.messaging.kafka.utils;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.TopicPartition;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
 
 /**
  * Creates a local Kafka cluster for testing Ballerina Kafka module.
  */
 public class KafkaCluster {
+
+    private static PrintStream console = System.out;
 
     // Default properties file paths
     private static final String propertiesPath = Paths.get("data-files", "properties").toString();
@@ -64,6 +73,7 @@ public class KafkaCluster {
     private static final String zookeeperConnectConfig = "zookeeper.connect";
     private static final String logDirConfig = "log.dirs";
     private static final String listenersConfig = "listeners";
+    private static final String brokerIdConfig = "broker.id";
 
     // Zookeeper configs
     private static final String dataDirConfig = "dataDir";
@@ -71,6 +81,7 @@ public class KafkaCluster {
 
     private KafkaConsumer<?, ?> kafkaConsumer = null;
     private KafkaProducer<?, ?> kafkaProducer = null;
+    private AdminClient kafkaAdminClient = null;
     private final String dataDir;
 
     private ZookeeperLocal zookeeper;
@@ -84,10 +95,22 @@ public class KafkaCluster {
     private String bootstrapServer = host + ":" + brokerPort;
 
     public KafkaCluster(String dataDir, String host) throws IOException {
+        if (dataDir == null) {
+            throw new IllegalArgumentException("Data directory cannot be null");
+        }
         this.dataDir = dataDir;
         if (host != null) {
             this.host = host;
         }
+        initializeDefaultProperties();
+        this.brokerList = new ArrayList<>();
+    }
+
+    public KafkaCluster(String dataDir) throws IOException {
+        if (dataDir == null) {
+            throw new IllegalArgumentException("Data directory cannot be null");
+        }
+        this.dataDir = dataDir;
         initializeDefaultProperties();
         this.brokerList = new ArrayList<>();
     }
@@ -105,6 +128,10 @@ public class KafkaCluster {
 
         this.zookeeper = new ZookeeperLocal(properties);
         return this;
+    }
+
+    public KafkaCluster withZookeeper(int port) {
+        return withZookeeper(port, null);
     }
 
     public KafkaCluster withBroker(String protocol, int port, Properties customProperties) {
@@ -126,37 +153,76 @@ public class KafkaCluster {
         String zookeeperConfig = this.host + ":" + this.zookeeperPort;
         properties.setProperty(zookeeperConnectConfig, zookeeperConfig);
         properties.setProperty(logDirConfig, kafkaDataDir);
+        // Assign next broker index as the broker ID
+        properties.setProperty(brokerIdConfig, Integer.toString(brokerList.size()));
         KafkaLocal kafkaServer = new KafkaLocal(properties);
         this.brokerList.add(kafkaServer);
         this.brokerPort = port;
+        this.bootstrapServer = this.host + ":" + this.brokerPort;
         return this;
     }
 
+    public KafkaCluster withBroker(String protocol, int port) {
+        return withBroker(protocol, port, null);
+    }
+
     public KafkaCluster withConsumer(String keyDeserializer, String valueDeserializer, String groupId,
-                                     List<String> topics) {
-        this.bootstrapServer = this.host + ":" + this.brokerPort;
-        int maximumMessagesPerPoll = 1;
+                                     List<String> topics, Properties additionalProperties) {
+        String maximumMessagesPerPoll = Integer.toString(1);
+        String offsetCommit = "earliest";
         Properties properties = new Properties();
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        if (additionalProperties != null) {
+            properties.putAll(additionalProperties);
+        }
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapServer);
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-                               Integer.toString(maximumMessagesPerPoll));
+        // Consumer one message at a time. Call this again to consume more.
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maximumMessagesPerPoll);
+        // We don't want to miss any messages, which were sent before the consumer started.
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetCommit);
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         this.kafkaConsumer = new KafkaConsumer(properties);
         this.kafkaConsumer.subscribe(topics);
         return this;
     }
 
-    public KafkaCluster withProducer(String keySerializer, String valueSerializer) {
+    public KafkaCluster withConsumer(String keyDeserializer, String valueDeserializer, String groupId,
+                                     List<String> topics) {
+        return withConsumer(keyDeserializer, valueDeserializer, groupId, topics, null);
+    }
+
+    public KafkaCluster withProducer(String keySerializer, String valueSerializer, Properties additionalProperties) {
         Properties properties = new Properties();
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        if (additionalProperties != null) {
+            properties.putAll(additionalProperties);
+        }
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapServer);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
-        // Stop batching the messages, w=since we need to send messages ASAP in the tests.
+        // Stop batching the messages since we need to send messages ASAP in the tests.
         properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(0));
         this.kafkaProducer = new KafkaProducer(properties);
         return this;
+    }
+
+    public KafkaCluster withProducer(String keySerializer, String valueSerializer) {
+        return withProducer(keySerializer, valueSerializer, null);
+    }
+
+    public KafkaCluster withAdminClient(Properties additionalProperties) {
+        Properties properties = new Properties();
+        if (additionalProperties != null) {
+            properties.putAll(additionalProperties);
+        }
+        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapServer);
+        this.kafkaAdminClient = KafkaAdminClient.create(properties);
+        return this;
+    }
+
+    public KafkaCluster withAdminClient() {
+        return withAdminClient(null);
     }
 
     public KafkaCluster start() throws Throwable {
@@ -168,6 +234,8 @@ public class KafkaCluster {
         for (KafkaLocal kafkaServer : brokerList) {
             kafkaServer.start();
         }
+        console.println("Started ZooKeeper at: " + this.host + ":" + this.zookeeperPort);
+        console.println("Started Kafka Server at: " + this.host + ":" + this.brokerPort);
         return this;
     }
 
@@ -175,18 +243,24 @@ public class KafkaCluster {
         if (this.kafkaConsumer != null) {
             this.kafkaConsumer.close();
         }
-
+        if (this.kafkaProducer != null) {
+            this.kafkaProducer.close();
+        }
         for (KafkaLocal kafkaServer : brokerList) {
             kafkaServer.stop();
         }
+        deleteDirectory(new File(dataDir));
+
+        console.println("Stopped ZooKeeper at: " + this.host + ":" + this.zookeeperPort);
+        console.println("Stopped Kafka Server at: " + this.host + ":" + this.brokerPort);
     }
 
-    public void createTopic(String topic, int partitions, short replicationFactor) {
-        Properties properties = new Properties();
-        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapServer);
-        AdminClient adminClient = AdminClient.create(properties);
-        NewTopic newTopic = new NewTopic(topic, partitions, replicationFactor);
-        CreateTopicsResult createTopicsResult = adminClient.createTopics(Collections.singletonList(newTopic));
+    public void createTopic(String topic, int partitions, int replicationFactor) {
+        if (this.kafkaAdminClient == null) {
+            throw new IllegalStateException("Kafka cluster does not have an admin client");
+        }
+        NewTopic newTopic = new NewTopic(topic, partitions, (short) replicationFactor);
+        CreateTopicsResult createTopicsResult = this.kafkaAdminClient.createTopics(Collections.singletonList(newTopic));
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> createTopicsResult.all().isDone());
     }
 
@@ -196,31 +270,56 @@ public class KafkaCluster {
         }
         Duration duration = Duration.ofMillis(timeout);
         ConsumerRecords<?, ?> records = this.kafkaConsumer.poll(duration);
-        for (Object record : records) {
-            ConsumerRecord<?, ?> consumerRecord = (ConsumerRecord<?, ?>) record;
-            return consumerRecord.value().toString();
+        if (records != null && !records.isEmpty()) {
+            for (ConsumerRecord<?, ?> record : records) {
+                ConsumerRecord<?, ?> consumerRecord = record;
+                TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
+                OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset());
+                Map<TopicPartition, OffsetAndMetadata> consumedMap = new HashMap<>();
+                consumedMap.put(topicPartition, offsetAndMetadata);
+                kafkaConsumer.commitSync(consumedMap, Duration.ofMillis(1000));
+                return consumerRecord.value().toString();
+            }
         }
         return null;
     }
 
     public void sendMessage(String topic, Object key, Object value) throws ExecutionException, InterruptedException {
+        if (this.kafkaProducer == null) {
+            throw new IllegalStateException("Kafka cluster does not have a producer");
+        }
         ProducerRecord producerRecord = new ProducerRecord<>(topic, key, value);
-        // Since this is for tests, we block until producer sends the message
+        // Since this is for tests, block until producer sends the message.
         this.kafkaProducer.send(producerRecord).get();
     }
 
     public void sendMessage(String topic, Object value) throws ExecutionException, InterruptedException {
+        if (this.kafkaProducer == null) {
+            throw new IllegalStateException("Kafka cluster does not have a producer");
+        }
         ProducerRecord producerRecord = new ProducerRecord<>(topic, value);
-        // Since this is for tests, we block until producer sends the message
+        // Since this is for tests, block until producer sends the message
         this.kafkaProducer.send(producerRecord).get();
+    }
+
+    private void deleteDirectory(File file) {
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File content : contents) {
+                deleteDirectory(content);
+            }
+        }
+        if (!file.delete()) {
+            file.deleteOnExit();
+        }
     }
 
     private void initializeDefaultProperties() throws IOException {
         defaultZookeeperProperties = new Properties();
         defaultKafkaProperties = new Properties();
-        InputStream zookeeperPropertiesStream = new FileInputStream(getFilePath(zookeeperPropFile));
+        InputStream zookeeperPropertiesStream = new FileInputStream(getResourcePath(zookeeperPropFile));
         defaultZookeeperProperties.load(zookeeperPropertiesStream);
-        InputStream kafkaPropertiesStream = new FileInputStream(getFilePath(kafkaPropFile));
+        InputStream kafkaPropertiesStream = new FileInputStream(getResourcePath(kafkaPropFile));
         defaultKafkaProperties.load(kafkaPropertiesStream);
     }
 }

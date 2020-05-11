@@ -32,10 +32,8 @@ public class ZookeeperLocal {
     PrintStream console = System.out;
     private final ZooKeeperServerMain zooKeeperServer;
 
-    public ZookeeperLocal(Properties additionalProperties) {
+    public ZookeeperLocal(Properties properties) {
         QuorumPeerConfig quorumConfiguration = new QuorumPeerConfig();
-        Properties properties = new Properties();
-        properties.putAll(additionalProperties);
         try {
             quorumConfiguration.parseProperties(properties);
         } catch (Exception e) {
