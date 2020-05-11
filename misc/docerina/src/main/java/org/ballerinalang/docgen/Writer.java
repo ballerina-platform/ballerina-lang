@@ -112,6 +112,15 @@ public class Writer {
                 }
             });
 
+            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+                //remove paragraph tags
+                if (string != null) {
+                    return string.replaceAll("<\\/?p>", "");
+                } else {
+                    return "";
+                }
+            });
+
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
                 Object param0 = options.param(0);
