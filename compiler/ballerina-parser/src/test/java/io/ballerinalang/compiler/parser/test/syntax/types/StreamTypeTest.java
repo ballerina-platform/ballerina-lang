@@ -25,12 +25,12 @@ import org.testng.annotations.Test;
 
 public class StreamTypeTest extends AbstractTypesTest {
 
-    //Valid source tests
+    // Valid source tests
     @Test
     public void testValidLocalLevelStreamTypes() {
-        testFile("stream-type/stream_type_assert_01.bal", "stream-type/stream_type_assert_01.json");
+        testTopLevelNode("stream-type/stream_type_source_01.bal", "stream-type/stream_type_assert_01.json");
     }
-    
+
     @Test
     public void testValidModuleLevelStreamType() {
         test("stream<T, error> a;", "stream-type/stream_type_assert_02.json");
@@ -38,18 +38,18 @@ public class StreamTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidStreamTypeAsReturnType() {
-        testFile("stream-type/stream_type_assert_03.bal", "stream-type/stream_type_assert_03.json");
+        testTopLevelNode("stream-type/stream_type_source_03.bal", "stream-type/stream_type_assert_03.json");
     }
 
     @Test
     public void testValidStreamTypeAsTypeDefinition() {
-        testFile("stream-type/stream_type_assert_04.bal", "stream-type/stream_type_assert_04.json");
+        testTopLevelNode("stream-type/stream_type_source_04.bal", "stream-type/stream_type_assert_04.json");
     }
 
-    //Recovery tests
+    // Recovery tests
     @Test
     public void testInValidLocalLevelStreamTypes() {
-        testFile("stream-type/stream_type_assert_05.bal", "stream-type/stream_type_assert_05.json");
+        testTopLevelNode("stream-type/stream_type_source_05.bal", "stream-type/stream_type_assert_05.json");
     }
 
     @Test

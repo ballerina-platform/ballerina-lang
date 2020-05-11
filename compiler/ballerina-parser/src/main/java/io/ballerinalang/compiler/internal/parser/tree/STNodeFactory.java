@@ -52,10 +52,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode visibilityQualifier,
             STNode functionKeyword,
             STNode functionName,
-            STNode openParenToken,
-            STNode parameters,
-            STNode closeParenToken,
-            STNode returnTypeDesc,
+            STNode functionSignature,
             STNode functionBody) {
 
         return new STFunctionDefinitionNode(
@@ -63,10 +60,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc,
+                functionSignature,
                 functionBody);
     }
 
@@ -1319,6 +1313,40 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 piEnd);
     }
 
+    public static STNode createFunctionTypeDescriptorNode(
+            STNode functionKeyword,
+            STNode functionSignature) {
+
+        return new STFunctionTypeDescriptorNode(
+                functionKeyword,
+                functionSignature);
+    }
+
+    public static STNode createAnonymousFunctionExpressionNode(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody) {
+
+        return new STAnonymousFunctionExpressionNode(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
+    }
+
+    public static STNode createFunctionSignatureNode(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc) {
+
+        return new STFunctionSignatureNode(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc);
+    }
 
     public static STNode createTypedBindingPattern(
             STNode typeDescriptor,
@@ -1336,4 +1364,3 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 }
-

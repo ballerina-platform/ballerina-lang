@@ -1,203 +1,201 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": [
-            ]
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "ANNOTATION_DECLARATION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "ANNOTATION_DECLARATION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ANNOTATION_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "Foo"
-                        },
-                        {
-                            "kind": "ON_KEYWORD"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "SOURCE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "PARAMETER_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "PARAMETER_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "TYPE_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "SOURCE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "OBJECT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "TYPE_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "OBJECT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "FUNCTION_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "RESOURCE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "FUNCTION_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "FUNCTION_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "OBJECT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "FIELD_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "SOURCE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "RECORD_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "FIELD_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "SOURCE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "ANNOTATION_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "ANNOTATION_ATTACH_POINT",
-                                    "children": [
-                                        {
-                                            "kind": "SOURCE_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "VAR_KEYWORD"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN"
-                        }
-                    ]
+                  "kind": "LIST",
+                  "children": []
                 }
-            ]
-        },
-        {
-            "kind": "EOF_TOKEN"
+              ]
+            },
+            {
+              "kind": "ANNOTATION_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Foo"
+            },
+            {
+              "kind": "ON_KEYWORD"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "SOURCE_KEYWORD"
+                    },
+                    {
+                      "kind": "PARAMETER_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "PARAMETER_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "TYPE_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "SOURCE_KEYWORD"
+                    },
+                    {
+                      "kind": "OBJECT_KEYWORD"
+                    },
+                    {
+                      "kind": "TYPE_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "OBJECT_KEYWORD"
+                    },
+                    {
+                      "kind": "FUNCTION_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "RESOURCE_KEYWORD"
+                    },
+                    {
+                      "kind": "FUNCTION_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "FUNCTION_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "OBJECT_KEYWORD"
+                    },
+                    {
+                      "kind": "FIELD_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "SOURCE_KEYWORD"
+                    },
+                    {
+                      "kind": "RECORD_KEYWORD"
+                    },
+                    {
+                      "kind": "FIELD_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "SOURCE_KEYWORD"
+                    },
+                    {
+                      "kind": "ANNOTATION_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "children": [
+                    {
+                      "kind": "SOURCE_KEYWORD"
+                    },
+                    {
+                      "kind": "VAR_KEYWORD"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

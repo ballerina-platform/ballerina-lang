@@ -27,7 +27,7 @@ public class UnionTypeTest extends AbstractTypesTest {
     //Valid source test
     @Test
     public void testValidLocalLevelUnionType() {
-        testFile("union-type/union_type_assert_01.bal", "union-type/union_type_assert_01.json");
+        testTopLevelNode("union-type/union_type_assert_01.bal", "union-type/union_type_assert_01.json");
     }
 
     @Test
@@ -44,16 +44,16 @@ public class UnionTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInValidLocalLevelUnionTypeMissingLeftTypeDesc() {
-        testFile("union-type/union_type_assert_02.bal", "union-type/union_type_assert_02.json");
+        testTopLevelNode("union-type/union_type_assert_02.bal", "union-type/union_type_assert_02.json");
     }
 
     @Test
     public void testInValidLocalLevelUnionTypeExtraSymbols() {
-        testFile("union-type/union_type_assert_03.bal", "union-type/union_type_assert_03.json");
+        testTopLevelNode("union-type/union_type_assert_03.bal", "union-type/union_type_assert_03.json");
     }
 
     @Test
     public void testInValidLocalLevelUnionTypeMissingRightTypeDesc() {
-        testFile("union-type/union_type_assert_04.bal", "union-type/union_type_assert_06.json");
+        testTopLevelNode("union-type/union_type_assert_04.bal", "union-type/union_type_assert_06.json");
     }
 }

@@ -1,33 +1,33 @@
 {
-    "kind": "IMPORT_DECLARATION",
-    "children": [
+  "kind": "IMPORT_DECLARATION",
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD"
+    },
+    {
+      "kind": "IMPORT_ORG_NAME",
+      "children": [
         {
-            "kind": "IMPORT_KEYWORD"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         },
         {
-            "kind": "IMPORT_ORG_NAME",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
-                },
-                {
-                    "kind": "SLASH_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                }
-            ]
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
+          "kind": "SLASH_TOKEN"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

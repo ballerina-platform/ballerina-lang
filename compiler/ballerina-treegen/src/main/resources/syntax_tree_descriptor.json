@@ -61,22 +61,8 @@
                     "type": "IdentifierToken"
                 },
                 {
-                    "name": "openParenToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "parameters",
-                    "type": "ParameterNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeParenToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "returnTypeDesc",
-                    "type": "Node",
-                    "isOptional": true
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
                 },
                 {
                     "name": "functionBody",
@@ -2362,6 +2348,7 @@
             ]
         },
         {
+<<<<<<< HEAD
             "name": "BindingPatternNode",
             "base": "Node",
             "kind": "BINDING_PATTERN",
@@ -2370,10 +2357,24 @@
                     "name": "variableName",
                     "type": "Token",
                     "isOptional": true
+=======
+            "name": "FunctionTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "FUNCTION_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+>>>>>>> 39c16a0472beaf960b6b8aa06854a192f357a55d
                 }
             ]
         },
         {
+<<<<<<< HEAD
             "name": "TypedBindingPattern",
             "base": "Node",
             "kind": "TYPED_BINDING_PATTERN",
@@ -2385,6 +2386,53 @@
                 {
                     "name": "bindingPattern",
                     "type": "BindingPatternNode"
+=======
+            "name": "AnonymousFunctionExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ANONYMOUS_FUNCTION_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "FunctionSignatureNode",
+            "base": "Node",
+            "kind": "FUNCTION_SIGNATURE",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameters",
+                    "type": "ParameterNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "returnTypeDesc",
+                    "type": "ReturnTypeDescriptorNode",
+                    "isOptional": true
+>>>>>>> 39c16a0472beaf960b6b8aa06854a192f357a55d
                 }
             ]
         }
