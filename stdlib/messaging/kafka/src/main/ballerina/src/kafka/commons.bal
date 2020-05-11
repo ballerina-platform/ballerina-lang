@@ -103,13 +103,13 @@ public type Protocols record {|
 
 # Configurations related to Kafka authentication mechanisms.
 #
-# + authenticationMechanism - Type of the authentication mechanism. Currently, SASL_PLAIN and SCRAM are supported. See
+# + mechanism - Type of the authentication mechanism. Currently, SASL_PLAIN and SCRAM are supported. See
 #                             `kafka:AuthennticationType` for more information
 # + securityProtocol - Type of the security protocol to use in the broker connection
 # + username - The username to use to authenticate the Kafka producer/consumer
 # + password - The password to use to authenticate the Kafka producer/consumer
 public type AuthenticationConfiguration record {|
-    AuthenticationMechanism authenticationMechanism = AUTH_SASL_PLAIN;
+    AuthenticationMechanism mechanism = AUTH_SASL_PLAIN;
     string securityProtocol = PROTOCOL_SASL_PLAINTEXT;
     string username;
     string password;

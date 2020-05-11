@@ -4,7 +4,7 @@ import ballerina/kafka;
 // The `kafka:AuthenticationConfiguration` is used to provide authentication-related details.
 kafka:AuthenticationConfiguration authConfig = {
     // Provide the authentication mechanism used by the Kafka server.
-    authenticationMechanism: kafka:AUTH_SASL_PLAIN,
+    mechanism: kafka:AUTH_SASL_PLAIN,
     // Username and password should be set here in order to authenticate the producer.
     // Check Ballerina `config` APIs to see how to use encrypted values instead of plain text values here.
     username: "ballerina",
