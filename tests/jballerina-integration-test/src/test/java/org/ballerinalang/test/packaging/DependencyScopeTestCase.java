@@ -74,12 +74,12 @@ public class DependencyScopeTestCase extends BaseTest {
 
     /**
      * Build TestProject1 which has a native module which needs an interop jar to compile. Then build TestProject2
-     * in which testable package needs an interop jar. Dependency scope is 'compile' for both projects.
+     * in which testable package needs an interop jar. Dependency scope is 'provided' for both projects.
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test compile scope for platform dependency jars")
-    public void compileScopeDependencyCase() throws BallerinaTestException, IOException {
+    @Test(description = "Test 'provided' scope for platform dependency jars")
+    public void providedScopeDependencyCase() throws BallerinaTestException, IOException {
         String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String moduleUtilsBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
@@ -100,8 +100,8 @@ public class DependencyScopeTestCase extends BaseTest {
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertFalse(isJarExists(baloZipFile, jarEntry));
 
-        // Define the scope as compile for a dependency jar which is needed for testable package
-        copy(tempTestResources.resolve("compile").resolve(MANIFEST_FILE_NAME),
+        // Define the scope as provided for a dependency jar which is needed for testable package
+        copy(tempTestResources.resolve("provided").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject2").resolve(MANIFEST_FILE_NAME));
         String moduleFooTestMsg = "Tested utils getString method using interop and received: " +
                 "This is a test string value !!!";
@@ -113,12 +113,12 @@ public class DependencyScopeTestCase extends BaseTest {
 
     /**
      * Build TestProject2 in which testable package needs an interop jar. Then build TestProject1 which has a native
-     * module which needs an interop jar to compile. Dependency scope is 'test' for both projects.
+     * module which needs an interop jar to compile. Dependency scope is 'testOnly' for both projects.
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test test scope for platform dependency jars")
-    public void testScopeDependencyCase() throws BallerinaTestException, IOException {
+    @Test(description = "Test 'testOnly' scope for platform dependency jars")
+    public void testOnlyScopeDependencyCase() throws BallerinaTestException, IOException {
         Path baloPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
                 "balo");
         String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
@@ -138,8 +138,8 @@ public class DependencyScopeTestCase extends BaseTest {
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertFalse(isJarExists(baloZipFile, jarEntry));
 
-        // Define the scope as test for a dependency jar which is needed for compiling module
-        copy(tempTestResources.resolve("test").resolve(MANIFEST_FILE_NAME),
+        // Define the scope as testOnly for a dependency jar which is needed for compiling module
+        copy(tempTestResources.resolve("testOnly").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
         String errorMsg = "error: wso2/utils:0.1.0::main.bal:4:1: {ballerina/java}CLASS_NOT_FOUND" +
                 " 'org.wso2.test.StaticMethods'";
@@ -152,7 +152,7 @@ public class DependencyScopeTestCase extends BaseTest {
 
     /**
      * Build TestProject1 which has a native module which needs an interop jar to compile. Dependency scope is
-     * 'compile' for that interop jar. Then Build TestProject3 which imports the native module of TestProject1.
+     * 'provided' for that interop jar. Then Build TestProject3 which imports the native module of TestProject1.
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
@@ -169,14 +169,14 @@ public class DependencyScopeTestCase extends BaseTest {
                 projectResources.resolve("TestProject1").toString());
         moduleUtilsBuildLeecher.waitForText(5000);
 
-        // Build TestProject3 without adding the compile scope jars to the toml
+        // Build TestProject3 without adding the provided scope jars to the toml
         String warningMsg = "warning: wso2/utils:0.1.0 is missing a native library dependency - utils";
         LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
         moduleFooWarningLeecher.waitForText(5000);
 
-        // Add the compile scope jars to the toml
+        // Add the provided scope jars to the toml
         copy(tempTestResources.resolve("validate-dependency").resolve("TestProject3").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject3").resolve(MANIFEST_FILE_NAME));
 

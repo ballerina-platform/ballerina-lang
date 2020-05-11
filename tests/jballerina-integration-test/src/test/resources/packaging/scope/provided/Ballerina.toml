@@ -11,5 +11,5 @@ target = "java8"
     artifactId = "utils"
     path = "../../utils-lib/utils.jar"
     groupId = "wso2"
-    modules = ["utils"]
-    scope = "test"
+    modules = ["foo"]
+    scope = "provided"

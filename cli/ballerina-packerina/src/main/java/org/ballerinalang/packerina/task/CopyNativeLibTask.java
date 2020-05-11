@@ -128,6 +128,7 @@ public class CopyNativeLibTask implements Task {
         if (libraries == null) {
             return;
         }
+
         for (Library lib : libraries) {
             if (lib.getModules() == null || Arrays.asList(lib.getModules()).contains(packageID.name.value)) {
                 String libFilePath = lib.getPath();
@@ -135,7 +136,7 @@ public class CopyNativeLibTask implements Task {
                     continue;
                 }
                 Path nativeFile = project.resolve(Paths.get(libFilePath));
-                if (lib.getScope() != null && lib.getScope().equals("test")) {
+                if (lib.getScope() != null && lib.getScope().equalsIgnoreCase("testOnly")) {
                     executableJar.testLibs.add(nativeFile);
                     continue;
                 }
@@ -248,18 +249,16 @@ public class CopyNativeLibTask implements Task {
         Manifest manifestFromBalo = RepoUtils.getManifestFromBalo(importDependencyPath);
         List<Library> baloDependencies = manifestFromBalo.getPlatform().libraries;
         List<Library> libraries = manifest.getPlatform().libraries;
-        HashSet<String> baloCompileScopeDependencies = new HashSet<>();
-        HashSet<String> platformLibs = new HashSet<>();
+        HashSet<Path> baloCompileScopeDependencies = new HashSet<>();
+        HashSet<Path> platformLibs = new HashSet<>();
 
         if (baloDependencies == null) {
             return;
         }
 
         for (Library baloTomlLib : baloDependencies) {
-            if (baloTomlLib.getScope() != null && baloTomlLib.getScope().equals("compile")) {
-                String libName = baloTomlLib.getArtifactId() != null ? baloTomlLib.getArtifactId() :
-                        String.valueOf(Paths.get(baloTomlLib.getPath()).getFileName());
-                baloCompileScopeDependencies.add(libName);
+            if (baloTomlLib.getScope() != null && baloTomlLib.getScope().equalsIgnoreCase("provided")) {
+                baloCompileScopeDependencies.add(Paths.get(baloTomlLib.getPath()).getFileName());
             }
         }
 
@@ -267,11 +266,9 @@ public class CopyNativeLibTask implements Task {
             for (Library library : libraries) {
                 if (Arrays.asList(library.getModules()).contains(packageID.orgName.value + "/" +
                         packageID.name.value)) {
-                    Path libPath = Paths.get(library.getPath());
-                    String libName = library.getArtifactId() != null ? library.getArtifactId() :
-                            String.valueOf(libPath.getFileName());
-                    platformLibs.add(libName);
-                    moduleDependencySet.add(project.resolve(libPath));
+                    Path libFilePath = Paths.get(library.getPath());
+                    platformLibs.add(libFilePath.getFileName());
+                    moduleDependencySet.add(project.resolve(libFilePath));
                 }
             }
         }
@@ -281,7 +278,7 @@ public class CopyNativeLibTask implements Task {
         }
 
         baloCompileScopeDependencies.removeAll(platformLibs);
-        for (String baloTomlLib : baloCompileScopeDependencies) {
+        for (Path baloTomlLib : baloCompileScopeDependencies) {
             buildContext.out().println("warning: " + packageID + " is missing a native library dependency - " +
                     baloTomlLib);
         }

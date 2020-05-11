@@ -94,21 +94,9 @@ public class DependencyScopeTest extends CommandTest {
         Assert.assertTrue(isJarExists(baloZipFile, storedJarPath));
     }
 
-    @Test(description = "Test if platform libs are packed with the balo for package scope.", priority = 1)
-    public void testPackageScope() throws IOException {
-        copy(scopeToml.resolve("case1").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
-                this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
-        buildCommand.execute();
-        Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");
-
-        // Check whether dependency jars getting packed to balo
-        Assert.assertTrue(renameFile(baloFile, baloZipFile));
-        Assert.assertTrue(isJarExists(baloZipFile, storedJarPath));
-    }
-
-    @Test(description = "Test if platform libs are packed with the balo for compile scope.", priority = 2)
+    @Test(description = "Test if platform libs are packed with the balo for 'provided' scope.", priority = 1)
     public void testCompileScope() throws IOException {
-        copy(scopeToml.resolve("case2").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
+        copy(scopeToml.resolve("case1").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
         buildCommand.execute();
         Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");
@@ -118,9 +106,9 @@ public class DependencyScopeTest extends CommandTest {
         Assert.assertFalse(isJarExists(baloZipFile, storedJarPath));
     }
 
-    @Test(description = "Test if platform libs are packed with the balo for test scope.", priority = 3)
+    @Test(description = "Test if platform libs are packed with the balo for 'TestOnly' scope.", priority = 2)
     public void testTestScope() throws IOException {
-        copy(scopeToml.resolve("case3").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
+        copy(scopeToml.resolve("case2").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
         buildCommand.execute();
         Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");

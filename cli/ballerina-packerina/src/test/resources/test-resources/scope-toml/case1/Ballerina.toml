@@ -12,4 +12,4 @@ target = "java8"
     path = "./lib/storedJar.jar"
     groupId = "wso2"
     modules = ["mymodule"]
-    scope = "package"
+    scope = "provided"

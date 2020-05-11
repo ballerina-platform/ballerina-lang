@@ -305,7 +305,7 @@ public class BaloFileWriter {
 
         for (Library lib : platformLibs) {
             if ((lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
-                    && (lib.getScope() == null || lib.getScope().equals("package"))) {
+                    && lib.getScope() == null) {
                 Path libPath = Paths.get(lib.getPath());
                 Path nativeFile = projectDirectory.resolve(libPath);
                 Path libFileName = libPath.getFileName();
