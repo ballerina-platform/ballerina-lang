@@ -172,6 +172,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     //Generates the key from the given data
     public V put(V value) {
+        handleFrozenTableValue();
         return valueHolder.putData(value);
     }
 
@@ -449,8 +450,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         public V putData(K key, V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
-            Integer actualHash = TableUtils.hash(actualKey, new ArrayList<>());
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer actualHash = TableUtils.hash(actualKey, null);
+            Integer hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
                 throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
@@ -466,7 +467,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             MapValue dataMap = (MapValue) data;
             Object key = this.keyWrapper.wrapKey(dataMap);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>((K) key, data);
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, null);
             entries.put(hash, entry);
             keys.put(hash, (K) key);
             return values.put(hash, data);
