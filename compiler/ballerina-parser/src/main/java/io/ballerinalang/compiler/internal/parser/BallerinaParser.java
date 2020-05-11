@@ -8066,7 +8066,7 @@ public class BallerinaParser extends AbstractParser {
      * @return
      */
     private STNode parseFunctionExpression(STNode annots) {
-        startContext(ParserRuleContext.ANNON_FUNC_EXPRESSION);
+        startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
         STNode funcKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(true, false);
         STNode funcBody = parseFunctionTypeOrAnonFuncBody();

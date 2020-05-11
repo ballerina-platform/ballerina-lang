@@ -212,7 +212,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR,
             ParserRuleContext.TYPE_CAST_EXPRESSION, ParserRuleContext.OPEN_PARENTHESIS,
             ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START,
-            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANNON_FUNC_EXPRESSION };
+            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -565,7 +565,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext[] alternatives;
                     if (parentCtx == ParserRuleContext.FUNC_DEF) {
                         alternatives = FUNC_DEF_OPTIONAL_RETURNS;
-                    } else if (parentCtx == ParserRuleContext.ANNON_FUNC_EXPRESSION) {
+                    } else if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
                         alternatives = ANNON_FUNC_OPTIONAL_RETURNS;
                     } else {
                         alternatives = FUNC_TYPE_OR_DEF_OPTIONAL_RETURNS;
@@ -1106,7 +1106,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
                 case FUNC_DEF:
-                case ANNON_FUNC_EXPRESSION:
+                case ANON_FUNC_EXPRESSION:
                 case EXTERNAL_FUNC_BODY:
                 case FUNC_BODY_BLOCK:
                 case ASSIGNMENT_STMT:
@@ -1378,7 +1378,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         switch (currentCtx) {
             case COMP_UNIT:
             case FUNC_DEF_OR_FUNC_TYPE:
-            case ANNON_FUNC_EXPRESSION:
+            case ANON_FUNC_EXPRESSION:
             case FUNC_DEF:
             case FUNC_TYPE_DESC:
             case EXTERNAL_FUNC_BODY:
@@ -1473,7 +1473,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
-            case ANNON_FUNC_EXPRESSION:
+            case ANON_FUNC_EXPRESSION:
                 return ParserRuleContext.FUNCTION_KEYWORD;
             case EXTERNAL_FUNC_BODY:
                 return ParserRuleContext.ASSIGN_OP;
@@ -2017,7 +2017,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.EXPRESSION;
         } else if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE ||
                 parentCtx == ParserRuleContext.FUNC_TYPE_DESC || parentCtx == ParserRuleContext.FUNC_DEF ||
-                parentCtx == ParserRuleContext.ANNON_FUNC_EXPRESSION) {
+                parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
             // TODO: find a better way
             startContext(ParserRuleContext.PARAM_LIST);
             return ParserRuleContext.PARAM_LIST;
@@ -2176,7 +2176,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case FUNC_DEF:
                         endContext(); // End function-signature
                         return ParserRuleContext.FUNC_BODY;
-                    case ANNON_FUNC_EXPRESSION:
+                    case ANON_FUNC_EXPRESSION:
                         return ParserRuleContext.ANNON_FUNC_BODY;
                     case NAMED_WORKER_DECL:
                         return ParserRuleContext.BLOCK_STMT;
@@ -2361,7 +2361,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case FUNC_DEF:
                     case FUNC_TYPE_DESC:
                     case FUNC_DEF_OR_FUNC_TYPE:
-                    case ANNON_FUNC_EXPRESSION:
+                    case ANON_FUNC_EXPRESSION:
                         return ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC;
                     case LET_VAR_DECL:
                         return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;

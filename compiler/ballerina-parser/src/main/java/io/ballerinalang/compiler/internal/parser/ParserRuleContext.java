@@ -301,7 +301,7 @@ public enum ParserRuleContext {
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
     LET_EXPRESSION("let-expr"),
-    ANNON_FUNC_EXPRESSION("annon-func-expression"),
+    ANON_FUNC_EXPRESSION("anon-func-expression"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
