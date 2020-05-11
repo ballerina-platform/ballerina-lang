@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to record constraint test table type.
+ * Class to test record constraint table type.
  *
  * @since 1.3.0
  */
