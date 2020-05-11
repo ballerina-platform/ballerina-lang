@@ -347,8 +347,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
             case ERROR_KEYWORD:
                 return parseErrorKeyWord();
-            case ERROR_TYPE_DESCRIPTOR:
-                return parseErrorTypeDescriptor();
             case LET_KEYWORD:
                 return parseLetKeyword();
             case STREAM_KEYWORD:
@@ -3436,7 +3434,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case FUNCTION_KEYWORD:
-                return parseFunctionTypeOrAnonFunc(null);
+                return parseFunctionExpression(null);
             case AT_TOKEN:
                 // Annon-func can have annotations. Check for other expressions
                 // that van start with annots.
@@ -7600,8 +7598,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseErrorTypeDescriptor() {
-        startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
-
         STNode errorKeywordToken = parseErrorKeyWord();
         STNode errorTypeParamsNode;
         STToken nextToken = peek();
@@ -7611,7 +7607,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             errorTypeParamsNode = STNodeFactory.createEmptyNode();
         }
-        endContext();
         return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
     }
 
@@ -8070,8 +8065,8 @@ public class BallerinaParser extends AbstractParser {
      * @param annots
      * @return
      */
-    private STNode parseFunctionTypeOrAnonFunc(STNode annots) {
-        startContext(ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE);
+    private STNode parseFunctionExpression(STNode annots) {
+        startContext(ParserRuleContext.ANNON_FUNC_EXPRESSION);
         STNode funcKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(true, false);
         STNode funcBody = parseFunctionTypeOrAnonFuncBody();
