@@ -118,8 +118,13 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
-    LET_VAR_DECL("let-var-decl"),
+    LET_EXPR_LET_VAR_DECL("let-expr-let-var-decl"),
+    LET_CLAUSE_LET_VAR_DECL("let-clause-let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
+    SELECT_CLAUSE("select-clause"),
+    WHERE_CLAUSE("where-clause"),
+    FROM_CLAUSE("from-clause"),
+    LET_CLAUSE("let-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -286,6 +291,10 @@ public enum ParserRuleContext {
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
     LET_EXPRESSION("trap-expr"),
+    TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
+    TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
+    QUERY_EXPRESSION("query-expr"),
+    QUERY_EXPRESSION_RHS("query-expr-rhs"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

@@ -343,9 +343,23 @@ public class BallerinaParser {
             case KEY_KEYWORD:
                 return parseKeyKeyword();
             case TABLE_KEYWORD_RHS:
-                return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
+                return parseTableConstructorOrQuery((STNode) args[0], (STNode) args[1]);
             case LET_KEYWORD:
                 return parseLetKeyword();
+            case FROM_KEYWORD:
+                return parseFromKeyword();
+            case WHERE_KEYWORD:
+                return parseWhereKeyword();
+            case SELECT_KEYWORD:
+                return parseSelectKeyword();
+            case STREAM_KEYWORD:
+                return parseStreamKeyword();
+            case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
+                return parseTableConstructorOrQuery();
+            case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
+                return parseTableConstructorOrQueryWithKeySpecifier((STNode) args[0], (STNode) args[1]);
+            case QUERY_EXPRESSION_RHS:
+                return parseQueryPipeline((STNode) args[0], (List<STNode>) args[1]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3139,13 +3153,12 @@ public class BallerinaParser {
                 return parseListConstructorExpr();
             case LT_TOKEN:
                 return parseTypeCastExpr();
-            case TABLE_KEYWORD:
-                return parseTableConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
+            case TABLE_KEYWORD:
             case STREAM_KEYWORD:
             case FROM_KEYWORD:
-                return parseQueryExpr();
+                return parseTableConstructorOrQuery();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3162,8 +3175,10 @@ public class BallerinaParser {
                 if (solution.recoveredNode.kind == SyntaxKind.LT_TOKEN) {
                     return parseTypeCastExpr();
                 }
-                if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD) {
-                    return parseTableConstructorExpr();
+                if (solution.recoveredNode.kind == SyntaxKind.TABLE_KEYWORD ||
+                        solution.recoveredNode.kind == SyntaxKind.STREAM_KEYWORD ||
+                        solution.recoveredNode.kind == SyntaxKind.FROM_KEYWORD) {
+                    return parseTableConstructorOrQuery();
                 }
                 if (solution.recoveredNode.kind == SyntaxKind.LET_KEYWORD) {
                     return parseLetExpression();
@@ -3437,6 +3452,10 @@ public class BallerinaParser {
             case DOCUMENTATION_LINE:
             case AS_KEYWORD:
             case IN_KEYWORD:
+            case FROM_KEYWORD:
+            case WHERE_KEYWORD:
+            case LET_KEYWORD:
+            case SELECT_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);
@@ -7054,49 +7073,18 @@ public class BallerinaParser {
      * Parse table constructor expression.
      * <p>
      * <code>
-     * table-constructor-expr := table [key-specifier] [ [row-list] ]
+     * table-constructor-expr-rhs := [ [row-list] ]
      * </code>
      *
+     * @param tableKeyword tableKeyword that precedes this rhs
+     * @param keySpecifier keySpecifier that precedes this rhs
      * @return Parsed node
      */
-    private STNode parseTableConstructorExpr() {
+    private STNode parseTableConstructorExprRhs(STNode tableKeyword, STNode keySpecifier) {
         startContext(ParserRuleContext.TABLE_CONSTRUCTOR);
-        STNode tableKeyword = parseTableKeyword();
-        STNode keySpecifier = STNodeFactory.createEmptyNode();
-        return parseTableConstructorExpr(tableKeyword, keySpecifier);
-    }
-
-    private STNode parseTableConstructorExpr(STNode tableKeyword, STNode keySpecifier) {
-        return parseTableConstructorExpr(peek().kind, tableKeyword, keySpecifier);
-    }
-
-    private STNode parseTableConstructorExpr(SyntaxKind nextTokenKind, STNode tableKeyword, STNode keySpecifier) {
-        STNode openBracket;
-        STNode rowList;
-        STNode closeBracket;
-
-        switch (nextTokenKind) {
-            case KEY_KEYWORD:
-                keySpecifier = parseKeySpecifier();
-                break;
-            case OPEN_BRACKET_TOKEN:
-                break;
-            default:
-                Solution solution = recover(peek(), ParserRuleContext.TABLE_KEYWORD_RHS, tableKeyword, keySpecifier);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
-                return parseTableConstructorExpr(solution.tokenKind, tableKeyword, keySpecifier);
-        }
-
-        openBracket = parseOpenBracket();
-        rowList = parseRowList();
-        closeBracket = parseCloseBracket();
+        STNode openBracket = parseOpenBracket();
+        STNode rowList = parseRowList();
+        STNode closeBracket = parseCloseBracket();
         endContext();
         return STNodeFactory.createTableConstructorExpressionNode(tableKeyword,
                                                                   keySpecifier,
@@ -7251,7 +7239,7 @@ public class BallerinaParser {
      */
     private STNode parseLetExpression() {
         STNode letKeyword = parseLetKeyword();
-        STNode letVarDeclarations = parseLetVarDeclarations();
+        STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL);
         STNode inKeyword = parseInKeyword();
         STNode expression = parseExpression();
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
@@ -7279,15 +7267,16 @@ public class BallerinaParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetVarDeclarations() {
-        startContext(ParserRuleContext.LET_VAR_DECL);
+    private STNode parseLetVarDeclarations(ParserRuleContext context) {
+        startContext(context);
         List<STNode> varDecls = new ArrayList<>();
         STToken nextToken = peek();
 
         // Make sure at least one let variable declaration is present
         if (isEndOfLetVarDeclarations(nextToken.kind)) {
+            endContext();
             this.errorHandler.reportMissingTokenError("missing let variable declaration");
-            return STNodeFactory.createMissingToken(SyntaxKind.LET_VAR_DECL);
+            return STNodeFactory.createNodeList(varDecls);
         }
 
         // Parse first variable declaration, that has no leading comma
@@ -7339,26 +7328,40 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse query expression.
-     * <code>query-expr := [query-construct-type] query-pipeline select-clause</code>
+     * Parse table constructor or query expression.
+     * <p>
+     * <code>
+     * table-constructor-or-query-expr := table-constructor-expr | query-expr
+     * <br/>
+     * table-constructor-expr := table [key-specifier] [ [row-list] ]
+     * <br/>
+     * query-expr := [query-construct-type] query-pipeline select-clause
+     * <br/>
+     * query-construct-type := table key-specifier | stream
+     * </code>
      *
      * @return Parsed node
      */
-    private STNode parseQueryExpr() {
-        STToken nextToken = peek();
-        STNode queryConstructType = STNodeFactory.createEmptyNode();
-        STNode queryPipeline;
-        STNode selectClause;
 
-        switch (nextToken.kind) {
-            case TABLE_KEYWORD:
-            case STREAM_KEYWORD:
-                queryConstructType = parseQueryConstructType();
-                break;
+    private STNode parseTableConstructorOrQuery() {
+        return parseTableConstructorOrQuery(peek().kind);
+    }
+
+    private STNode parseTableConstructorOrQuery(SyntaxKind nextTokenKind) {
+        STNode queryConstructType;
+        switch (nextTokenKind) {
             case FROM_KEYWORD:
-                break;
+                queryConstructType = STNodeFactory.createEmptyNode();
+                return parseQueryExprRhs(queryConstructType);
+            case STREAM_KEYWORD:
+                queryConstructType = parseStreamKeyword();
+                return parseQueryExprRhs(queryConstructType);
+            case TABLE_KEYWORD:
+                STNode tableKeyword = parseTableKeyword();
+                STNode keySpecifier = STNodeFactory.createEmptyNode();
+                return parseTableConstructorOrQuery(tableKeyword, keySpecifier);
             default:
-                Solution solution = recover(peek(), ParserRuleContext.FROM_KEYWORD);
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -7367,32 +7370,99 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseQueryExpr();
+                return parseTableConstructorOrQuery(solution.tokenKind);
         }
 
-        queryPipeline = parseQueryPipeline();
-        selectClause = parseSelectClause();
+    }
+
+    private STNode parseTableConstructorOrQuery(STNode tableKeyword, STNode keySpecifier) {
+        return parseTableConstructorOrQuery(peek().kind, tableKeyword, keySpecifier);
+    }
+
+    private STNode parseTableConstructorOrQuery(SyntaxKind nextTokenKind, STNode tableKeyword, STNode keySpecifier) {
+        switch (nextTokenKind) {
+            case OPEN_BRACKET_TOKEN:
+                return parseTableConstructorExprRhs(tableKeyword, keySpecifier);
+            case KEY_KEYWORD:
+                keySpecifier = parseKeySpecifier();
+                return parseTableConstructorOrQueryWithKeySpecifier(peek().kind, tableKeyword, keySpecifier);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_KEYWORD_RHS, tableKeyword, keySpecifier);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseTableConstructorOrQuery(solution.tokenKind, tableKeyword, keySpecifier);
+        }
+    }
+
+    private STNode parseTableConstructorOrQueryWithKeySpecifier(STNode tableKeyword, STNode keySpecifier) {
+        return parseTableConstructorOrQueryWithKeySpecifier(peek().kind, tableKeyword, keySpecifier);
+    }
+
+    private STNode parseTableConstructorOrQueryWithKeySpecifier(SyntaxKind nextTokenKind, STNode tableKeyword, STNode keySpecifier) {
+        switch (nextTokenKind) {
+            case FROM_KEYWORD:
+                return parseQueryExprRhs(parseQueryConstructType(tableKeyword, keySpecifier));
+            case OPEN_BRACKET_TOKEN:
+                return parseTableConstructorExprRhs(tableKeyword, keySpecifier);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_RHS, tableKeyword, keySpecifier);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseTableConstructorOrQueryWithKeySpecifier(solution.tokenKind, tableKeyword, keySpecifier);
+        }
+    }
+
+    /**
+     * Parse stream-keyword.
+     *
+     * @return Stream-keyword node
+     */
+    private STNode parseStreamKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STREAM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STREAM_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse query expression.
+     * <code>query-expr-rhs := query-pipeline select-clause</code>
+     *
+     * @param queryConstructType queryConstructType that precedes this rhs
+     * @return Parsed node
+     */
+    private STNode parseQueryExprRhs(STNode queryConstructType) {
+        startContext(ParserRuleContext.QUERY_EXPRESSION);
+        STNode queryPipeline = parseQueryPipeline();
+        STNode selectClause = parseSelectClause();;
+        endContext();
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
     }
 
     /**
      * Parse query construct type.
      * <p>
-     * <code>query-construct-type := table key-specifier | stream</code>
+     * <code>query-construct-type := table key-specifier</code>
      *
      * @return Parsed node
      */
-    private STNode parseQueryConstructType() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case TABLE_KEYWORD:
-                STNode tableKeyword = parseTableKeyword();
-                STNode keySpecifier = parseKeySpecifier();
-                return STNodeFactory.createQueryConstructTypeNode(tableKeyword, keySpecifier);
-            default:
-                // stream keyword is already validated before coming here
-                return consume();
-        }
+    private STNode parseQueryConstructType(STNode tableKeyword, STNode keySpecifier) {
+        return STNodeFactory.createQueryConstructTypeNode(tableKeyword, keySpecifier);
     }
 
     /**
@@ -7408,29 +7478,46 @@ public class BallerinaParser {
      */
     private STNode parseQueryPipeline() {
         STNode fromClause = parseFromClause();
-        STToken nextToken = peek();
-
         List<STNode> clauses = new ArrayList<>();
+        return parseQueryPipeline(fromClause, clauses);
+    }
+
+    private STNode parseQueryPipeline(STNode fromClause, List<STNode> clauses) {
+        return parseQueryPipeline(peek().kind, fromClause, clauses);
+    }
+    private STNode parseQueryPipeline(SyntaxKind nextTokenKind, STNode fromClause, List<STNode> clauses) {
         STNode clause;
+
         while (true) {
-            switch (nextToken.kind) {
+            switch (nextTokenKind) {
                 case FROM_KEYWORD:
                     clause = parseFromClause();
                     clauses.add(clause);
-                    nextToken = peek();
+                    nextTokenKind = peek().kind;
                     continue;
                 case WHERE_KEYWORD:
                     clause = parseWhereClause();
                     clauses.add(clause);
-                    nextToken = peek();
+                    nextTokenKind = peek().kind;
                     continue;
                 case LET_KEYWORD:
                     clause = parseLetClause();
                     clauses.add(clause);
-                    nextToken = peek();
+                    nextTokenKind = peek().kind;
                     continue;
-                default:
+                case SELECT_KEYWORD:
                     break;
+                default:
+                    Solution solution = recover(peek(), ParserRuleContext.QUERY_EXPRESSION_RHS, fromClause, clauses);
+
+                    // If the parser recovered by inserting a token, then try to re-parse the same
+                    // rule with the inserted token. This is done to pick the correct branch
+                    // to continue the parsing.
+                    if (solution.action == Action.REMOVE) {
+                        return solution.recoveredNode;
+                    }
+
+                    return parseQueryPipeline(solution.tokenKind, fromClause, clauses);
             }
             break;
         }
@@ -7508,7 +7595,7 @@ public class BallerinaParser {
      */
     private STNode parseLetClause() {
         STNode letKeyword = parseLetKeyword();
-        STNode letVarDeclarations = parseLetVarDeclarations();
+        STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL);
         return STNodeFactory.createLetClauseNode(letKeyword, letVarDeclarations);
     }
 
