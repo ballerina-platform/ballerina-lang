@@ -84,25 +84,29 @@ function testMapArrayFill(int index, map<any> value) returns map<any>[] {
 }
 
 type Employee record {
-    int id;
+    readonly int id;
     string name;
     float salary;
 };
 
-//function testTableArrayFill(int index) returns [table<Employee>[], string] {
-//    table<Employee> tbEmployee = table { { key id, name, salary }, [{1, "John", 50000}] };
-//    table<Employee>[] ar = [];
-//    ar[index] = tbEmployee;
-//
-//    string name = "";
-//    foreach var tab in ar {
-//        foreach var row in tab {
-//            name += row.name;
-//        }
-//    }
-//
-//    return [ar, name];
-//}
+function testTableArrayFill(int index) {
+    table<Employee> tbEmployee = table key(id) [
+                    {id: 1, name: "John", salary: 50000}
+        ];
+
+    table<Employee>[] ar = [];
+    ar[index] = tbEmployee;
+
+    string name = "";
+    foreach var tab in ar {
+        foreach var row in tab {
+            name += row.name;
+        }
+    }
+
+    assertEquality("id=1 name=John salary=50000.0", ar[index].toString());
+    assertEquality("John", name.trim());
+}
 
 function testXMLArrayFill(int index) returns xml[] {
     xml value = xml `<name>Pubudu</name>`;
@@ -317,4 +321,20 @@ function testFiniteTypeArrayFill() returns DEC[] {
     LiteralsAndType[] ar2 = [];
     ar2[5] = value2;
     return ar;
+}
+
+type AssertionError error<ASSERTION_ERROR_REASON>;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
