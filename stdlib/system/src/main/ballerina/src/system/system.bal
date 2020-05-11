@@ -43,11 +43,7 @@ function nativeGetEnv(handle key) returns handle = @java:Method {
 # ```
 #
 # + return - Current user's name if it can be determined or else an empty string
-public function getUsername() returns string {
-    return covertToString(nativeGetUsername());
-}
-
-function nativeGetUsername() returns handle = @java:Method {
+public function getUsername() returns string = @java:Method {
     name: "getUsername",
     class: "org.ballerinalang.stdlib.system.nativeimpl.GetUsername"
 } external;
@@ -58,11 +54,7 @@ function nativeGetUsername() returns handle = @java:Method {
 # ```
 #
 # + return - Current user's home directory if it can be determined or else an empty string
-public function getUserHome() returns string {
-    return covertToString(nativeGetUserHome());
-}
-
-function nativeGetUserHome() returns handle = @java:Method {
+public function getUserHome() returns string = @java:Method {
     name: "getUserHome",
     class: "org.ballerinalang.stdlib.system.nativeimpl.GetUserHome"
 } external;
@@ -74,7 +66,12 @@ function nativeGetUserHome() returns handle = @java:Method {
 #
 # + return - The random string
 public function uuid() returns string {
-    return covertToString(nativeUuid());
+    var result = java:toString(nativeUuid());
+    if (result is string) {
+        return result;
+    } else {
+        panic error("Error occured when converting the UUID to string.");
+    }
 }
 
 function nativeUuid() returns handle = @java:Method {
@@ -93,20 +90,7 @@ function nativeUuid() returns handle = @java:Method {
 # + args - Command arguments to be passed in
 # + return - A `system:Process` object if successful or else a `system:Error` if a failure occurs
 public function exec(@untainted string command, @untainted map<string> env = {},
-                     @untainted string? dir = (), @untainted string... args) returns Process|Error {
-    return nativeExec(java:fromString(command), env, dir, args);
-}
-
-function nativeExec(handle command, map<string> env, string? dir, string[] args) returns Process|Error = @java:Method {
+                     @untainted string? dir = (), @untainted string... args) returns Process|Error = @java:Method {
     name: "exec",
     class: "org.ballerinalang.stdlib.system.nativeimpl.Exec"
 } external;
-
-function covertToString(handle value) returns string {
-    var result = java:toString(value);
-    if (result is string) {
-        return result;
-    } else {
-        panic error("Error occured when converting the value to string.");
-    }
-}

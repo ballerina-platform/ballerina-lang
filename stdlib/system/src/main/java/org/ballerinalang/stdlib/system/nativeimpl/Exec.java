@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Extern function ballerina.system:exec.
@@ -43,17 +42,17 @@ public class Exec {
 
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
 
-    public static Object exec(String command, MapValue<String, String> env, Object dir, ArrayValue args) {
+    public static Object exec(BString command, MapValue<BString, BString> env, Object dir, ArrayValue args) {
         List<String> commandList = new ArrayList<>();
-        commandList.add(command);
+        commandList.add(command.getValue());
         commandList.addAll(Arrays.asList(args.getStringArray()));
         ProcessBuilder pb = new ProcessBuilder(commandList);
         if (dir != null) {
-            pb.directory(new File((String) dir));
+            pb.directory(new File(((BString) dir).getValue()));
         }
         if (env != null) {
             Map<String, String> pbEnv = pb.environment();
-            env.entrySet().forEach(entry -> pbEnv.put(entry.getKey(), entry.getValue()));
+            env.entrySet().forEach(entry -> pbEnv.put(entry.getKey().getValue(), entry.getValue().getValue()));
         }
         try {
             return SystemUtils.getProcessObject(pb.start());
