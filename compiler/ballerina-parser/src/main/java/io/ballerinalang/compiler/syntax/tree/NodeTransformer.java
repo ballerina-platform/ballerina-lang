@@ -380,6 +380,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(keySpecifierNode);
     }
 
+    public T transform(TypedBindingPattern typedBindingPattern) {
+        return transformSyntaxNode(typedBindingPattern);
+    }
+
+    public T transform(BindingPatternNode bindingPatternNode) {
+        return transformSyntaxNode(bindingPatternNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

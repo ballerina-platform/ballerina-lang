@@ -24,30 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ForEachStatementNode extends StatementNode {
+public class TypedBindingPattern extends NonTerminalNode {
 
-    public ForEachStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public TypedBindingPattern(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token forEachKeyword() {
+    public Node typeDescriptor() {
         return childInBucket(0);
     }
 
-    public Node typedBindingPattern() {
+    public BindingPatternNode bindingPattern() {
         return childInBucket(1);
-    }
-
-    public Token inKeyword() {
-        return childInBucket(2);
-    }
-
-    public Node ActionOrExpressionNode() {
-        return childInBucket(3);
-    }
-
-    public StatementNode blockStatement() {
-        return childInBucket(4);
     }
 
     @Override
@@ -63,33 +51,21 @@ public class ForEachStatementNode extends StatementNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "forEachKeyword",
-                "typedBindingPattern",
-                "inKeyword",
-                "ActionOrExpressionNode",
-                "blockStatement"};
+                "typeDescriptor",
+                "bindingPattern"};
     }
 
-    public ForEachStatementNode modify(
-            Token forEachKeyword,
-            Node typedBindingPattern,
-            Token inKeyword,
-            Node ActionOrExpressionNode,
-            StatementNode blockStatement) {
+    public TypedBindingPattern modify(
+            Node typeDescriptor,
+            BindingPatternNode bindingPattern) {
         if (checkForReferenceEquality(
-                forEachKeyword,
-                typedBindingPattern,
-                inKeyword,
-                ActionOrExpressionNode,
-                blockStatement)) {
+                typeDescriptor,
+                bindingPattern)) {
             return this;
         }
 
-        return NodeFactory.createForEachStatementNode(
-                forEachKeyword,
-                typedBindingPattern,
-                inKeyword,
-                ActionOrExpressionNode,
-                blockStatement);
+        return NodeFactory.createTypedBindingPattern(
+                typeDescriptor,
+                bindingPattern);
     }
 }

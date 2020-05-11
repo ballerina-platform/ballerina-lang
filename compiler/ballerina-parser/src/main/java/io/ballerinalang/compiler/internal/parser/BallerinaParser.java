@@ -6950,15 +6950,13 @@ public class BallerinaParser {
     private STNode parseForEachStatement() {
         startContext(ParserRuleContext.FOREACH_STMT);
         STNode forEachKeyword = parseForEachKeyword();
-        STNode type = parseTypeDescriptor();
-        STNode varName = parseVariableName();
+        STNode typedBindingPattern = parseTypedBindingPattern();
         STNode inKeyword = parseInKeyword();
         STNode actionOrExpr = parseActionOrExpression();
         STNode blockStatement = parseBlockNode();
         endContext();
         return STNodeFactory.createForEachStatementNode(forEachKeyword,
-                                                        type,
-                                                        varName,
+                                                        typedBindingPattern,
                                                         inKeyword,
                                                         actionOrExpr,
                                                         blockStatement);
@@ -7227,5 +7225,72 @@ public class BallerinaParser {
             default:
                 return true;
         }
+    }
+
+    /**
+     * Parse binding-patterns.
+     *
+     * binding-pattern :=
+     *   capture-binding-pattern
+     *    | wildcard-binding-pattern
+     *    | list-binding-pattern
+     *    | mapping-binding-pattern
+     *    | functional-binding-pattern
+     * capture-binding-pattern := variable-name
+     * variable-name := identifier
+     * wildcard-binding-pattern := _
+     * list-binding-pattern := [ list-member-binding-patterns ]
+     * list-member-binding-patterns :=
+     *    binding-pattern (, binding-pattern)* [, rest-binding-pattern]
+     *    | [ rest-binding-pattern ]
+     * mapping-binding-pattern := { field-binding-patterns }
+     * field-binding-patterns :=
+     *    field-binding-pattern (, field-binding-pattern)* [, rest-binding-pattern]
+     *    | [ rest-binding-pattern ] 
+     * field-binding-pattern :=
+     *    field-name : binding-pattern
+     *    | variable-name
+     * rest-binding-pattern := ... variable-name
+     * functional-binding-pattern := functionally-constructible-type-reference ( arg-list-binding-pattern )
+     * arg-list-binding-pattern :=
+     *    positional-arg-binding-patterns [, other-arg-binding-patterns]
+     *    | other-arg-binding-patterns
+     * positional-arg-binding-patterns := positional-arg-binding-pattern (, positional-arg-binding-pattern)*
+     * positional-arg-binding-pattern := binding-pattern
+     * other-arg-binding-patterns :=
+     *    named-arg-binding-patterns [, rest-binding-pattern]
+     *    | [rest-binding-pattern]
+     * named-arg-binding-patterns := named-arg-binding-pattern (, named-arg-binding-pattern)*
+     * named-arg-binding-pattern := arg-name = binding-pattern
+     *
+     * @return binding-pattern node
+     */
+    private STNode parseBindingPattern() {
+        STToken token = peek();
+
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+                STNode varName = parseVariableName();
+                return STNodeFactory.createBindingPatternNode(varName);
+            default:
+                Solution sol = recover(token, ParserRuleContext.BINDING_PATTERN);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse Typed-binding-pattern.
+     *
+     * <code>typed-binding-pattern := inferable-type-descriptor binding-pattern</code>
+     * <code>inferable-type-descriptor := type-descriptor | var</code>
+     *
+     * @return Fork statement
+     */
+    private STNode parseTypedBindingPattern() {
+        startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
+        STNode typeDesc = parseTypeDescriptor();
+        STNode bindingPattern = parseBindingPattern();
+        endContext();
+        return STNodeFactory.createTypedBindingPattern(typeDesc, bindingPattern);
     }
 }

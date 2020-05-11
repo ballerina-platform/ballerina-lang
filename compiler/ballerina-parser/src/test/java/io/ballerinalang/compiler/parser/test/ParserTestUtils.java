@@ -722,6 +722,10 @@ public class ParserTestUtils {
                 return SyntaxKind.UNION_TYPE_DESC;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
+            case "TYPED_BINDING_PATTERN":
+                return SyntaxKind.TYPED_BINDING_PATTERN;
+            case "BINDING_PATTERN":
+                return SyntaxKind.BINDING_PATTERN;
 
             // Trivia
             case "EOF_TOKEN":

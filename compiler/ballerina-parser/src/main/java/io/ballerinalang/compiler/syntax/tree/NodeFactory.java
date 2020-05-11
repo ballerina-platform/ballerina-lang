@@ -437,22 +437,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ForEachStatementNode createForEachStatementNode(
             Token forEachKeyword,
-            Node typeDescriptor,
-            Token variableName,
+            Node typedBindingPattern,
             Token inKeyword,
             Node ActionOrExpressionNode,
             StatementNode blockStatement) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
         Objects.requireNonNull(ActionOrExpressionNode, "ActionOrExpressionNode must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stForEachStatementNode = STNodeFactory.createForEachStatementNode(
                 forEachKeyword.internalNode(),
-                typeDescriptor.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
                 ActionOrExpressionNode.internalNode(),
                 blockStatement.internalNode());
@@ -1494,6 +1491,26 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 fieldNames.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
         return stKeySpecifierNode.createUnlinkedFacade();
+    }
+
+    public static TypedBindingPattern createTypedBindingPattern(
+            Node typeDescriptor,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stTypedBindingPattern = STNodeFactory.createTypedBindingPattern(
+                typeDescriptor.internalNode(),
+                bindingPattern.internalNode());
+        return stTypedBindingPattern.createUnlinkedFacade();
+    }
+
+    public static BindingPatternNode createBindingPatternNode(
+            Token variableName) {
+
+        STNode stBindingPatternNode = STNodeFactory.createBindingPatternNode(
+                getOptionalSTNode(variableName));
+        return stBindingPatternNode.createUnlinkedFacade();
     }
 }
 

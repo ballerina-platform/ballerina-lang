@@ -379,6 +379,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
+    public void visit(TypedBindingPattern typedBindingPattern) {
+        visitSyntaxNode(typedBindingPattern);
+    }
+
+    public void visit(BindingPatternNode bindingPatternNode) {
+        visitSyntaxNode(bindingPatternNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

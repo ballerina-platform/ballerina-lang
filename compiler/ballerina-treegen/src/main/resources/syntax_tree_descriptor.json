@@ -579,12 +579,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeDescriptor",
+                    "name": "typedBindingPattern",
                     "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
                 },
                 {
                     "name": "inKeyword",
@@ -1976,6 +1972,33 @@
                 {
                     "name": "closeParenToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TypedBindingPattern",
+            "base": "Node",
+            "kind": "TYPED_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "BindingPatternNode",
+            "base": "Node",
+            "kind": "BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }

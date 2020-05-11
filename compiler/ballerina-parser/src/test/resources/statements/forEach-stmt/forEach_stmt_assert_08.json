@@ -46,12 +46,17 @@
                                     "kind": "FOREACH_KEYWORD"
                                 },
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "v"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "isMissing": true
+                                    "kind": "TYPED_BINDING_PATTERN",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "v"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "isMissing": true
+                                        }
+                                    ]
                                 },
                                 {
                                     "kind": "IN_KEYWORD"

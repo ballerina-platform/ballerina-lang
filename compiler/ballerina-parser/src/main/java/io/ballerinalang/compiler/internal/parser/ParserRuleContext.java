@@ -118,6 +118,8 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
+    TYPED_BINDING_PATTERN("typed-binding-pattern"),
+    BINDING_PATTERN("binding-pattern"),
 
     // Statements
     STATEMENT("statement"),

@@ -2090,7 +2090,7 @@ public class BallerinaParserErrorHandler {
             case FOREACH_STMT:
                 return ParserRuleContext.FOREACH_KEYWORD;
             case FOREACH_KEYWORD:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.TYPED_BINDING_PATTERN;
             case IN_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case TYPE_CAST_EXPRESSION:
@@ -2109,6 +2109,10 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
                 return ParserRuleContext.PARAMETERIZED_TYPE;
+            case TYPED_BINDING_PATTERN:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case BINDING_PATTERN:
+                return getNextRuleForBindingPattern();
             case PARAMETERIZED_TYPE:
                 endContext();
                 return ParserRuleContext.LT;
@@ -2292,6 +2296,8 @@ public class BallerinaParserErrorHandler {
             case PARAMETERIZED_TYPE_DESCRIPTOR:
             case TYPE_CAST_EXPRESSION:
                 return ParserRuleContext.GT;
+            case TYPED_BINDING_PATTERN:
+                return ParserRuleContext.BINDING_PATTERN;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -2692,6 +2698,23 @@ public class BallerinaParserErrorHandler {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    /**
+     * Get the next parser context to visit after a binding-pattern.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForBindingPattern() {
+        endContext(); //ending typed-binding-pattern context
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case FOREACH_STMT:
+                return ParserRuleContext.VARIABLE_NAME;
+            default:
+                break;
+        }
+        throw new IllegalStateException(parentCtx.toString());
     }
 
     /**

@@ -336,16 +336,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createForEachStatementNode(
             STNode forEachKeyword,
-            STNode typeDescriptor,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode ActionOrExpressionNode,
             STNode blockStatement) {
 
         return new STForEachStatementNode(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 ActionOrExpressionNode,
                 blockStatement);
@@ -1111,6 +1109,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openParenToken,
                 fieldNames,
                 closeParenToken);
+    }
+
+    public static STNode createTypedBindingPattern(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+
+        return new STTypedBindingPattern(
+                typeDescriptor,
+                bindingPattern);
+    }
+
+    public static STNode createBindingPatternNode(
+            STNode variableName) {
+
+        return new STBindingPatternNode(
+                variableName);
     }
 }
 

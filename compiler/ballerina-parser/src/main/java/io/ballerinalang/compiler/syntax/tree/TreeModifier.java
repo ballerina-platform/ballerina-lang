@@ -331,15 +331,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ForEachStatementNode forEachStatementNode) {
         Token forEachKeyword = modifyToken(forEachStatementNode.forEachKeyword());
-        Node typeDescriptor = modifyNode(forEachStatementNode.typeDescriptor());
-        Token variableName = modifyToken(forEachStatementNode.variableName());
+        Node typedBindingPattern = modifyNode(forEachStatementNode.typedBindingPattern());
         Token inKeyword = modifyToken(forEachStatementNode.inKeyword());
         Node ActionOrExpressionNode = modifyNode(forEachStatementNode.ActionOrExpressionNode());
         StatementNode blockStatement = modifyNode(forEachStatementNode.blockStatement());
         return forEachStatementNode.modify(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 ActionOrExpressionNode,
                 blockStatement);
@@ -1100,6 +1098,22 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openParenToken,
                 fieldNames,
                 closeParenToken);
+    }
+
+    @Override
+    public Node transform(TypedBindingPattern typedBindingPattern) {
+        Node typeDescriptor = modifyNode(typedBindingPattern.typeDescriptor());
+        BindingPatternNode bindingPattern = modifyNode(typedBindingPattern.bindingPattern());
+        return typedBindingPattern.modify(
+                typeDescriptor,
+                bindingPattern);
+    }
+
+    @Override
+    public Node transform(BindingPatternNode bindingPatternNode) {
+        Token variableName = modifyToken(bindingPatternNode.variableName().orElse(null));
+        return bindingPatternNode.modify(
+                variableName);
     }
 
     // Tokens
