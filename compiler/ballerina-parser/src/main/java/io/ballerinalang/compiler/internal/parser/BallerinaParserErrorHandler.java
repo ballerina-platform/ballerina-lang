@@ -712,8 +712,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
                 case ARG_START_OR_ARG_LIST_END:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ARG_START_OR_ARG_LIST_END,
-                            isEntryPoint);
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            ARG_START_OR_ARG_LIST_END, isEntryPoint);
                 case NAMED_OR_POSITIONAL_ARG_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             NAMED_OR_POSITIONAL_ARG_RHS, isEntryPoint);
@@ -1152,7 +1152,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TEMPLATE_BODY:
                 case NIL_LITERAL:
                 case LOCK_STMT:
-//                case PARAMETERIZED_TYPE_DESCRIPTOR:
+                    // case PARAMETERIZED_TYPE_DESCRIPTOR:
                 case FORK_STMT:
                 case TRAP_EXPRESSION:
                 case LIST_CONSTRUCTOR:
@@ -2123,7 +2123,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
                 endContext();
-                if (isInTypeDesContext()) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.ANNOTATION_TAG;
@@ -2131,31 +2131,31 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_RECORD_FIELD:
             case TYPE_DESC_IN_TYPE_BINDING_PATTERN: // TODO: Update this once the typed-binding-patterns added.
                 endContext();
-                if (isInTypeDesContext()) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case TYPE_DESC_IN_PARAM:
                 endContext();
-                if (isInTypeDesContext()) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.AFTER_PARAMETER_TYPE;
             case TYPE_DESC_IN_TYPE_DEF:
                 endContext();
-                if (isInTypeDesContext()) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.SEMICOLON;
             case TYPE_DESC_IN_ANGLE_BRACKETS:
                 endContext();
-                if (isInTypeDesContext()) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.GT;
             case TYPE_DESC_IN_RETURN_TYPE_DESC:
                 endContext();
-                if (isInTypeDesContext()) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
 
@@ -2206,7 +2206,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
-    private boolean isInTypeDesContext() {
+    private boolean isInTypeDescContext() {
         switch (getParentContext()) {
             case TYPE_DESC_IN_ANNOTATION_DECL:
             case TYPE_DESC_BEFORE_IDENTIFIER:
