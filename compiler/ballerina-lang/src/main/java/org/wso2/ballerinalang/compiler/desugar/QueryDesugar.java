@@ -660,9 +660,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         //do nothing
     }
 
-    //todo check ref visits @chiran
     public void visit(BLangTupleVarRef varRefExpr) {
-        BSymbol symbol = varRefExpr.symbol;
         varRefExpr.expressions.forEach(expression -> expression.accept(this));
         if (varRefExpr.restParam != null) {
             BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
@@ -671,7 +669,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
-        BSymbol symbol = varRefExpr.symbol;
         varRefExpr.recordRefFields.forEach(recordVarRefKeyValue
                 -> recordVarRefKeyValue.variableReference.accept(this));
         if (varRefExpr.restParam != null) {
@@ -681,10 +678,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVarRef varRefExpr) {
-        BSymbol symbol = varRefExpr.symbol;
-        varRefExpr.reason.accept(this);
+        if(varRefExpr.reason != null) {
+            varRefExpr.reason.accept(this);
+        }
+        if(varRefExpr.restVar != null) {
+            varRefExpr.restVar.accept(this);
+        }
         varRefExpr.detail.forEach(bLangNamedArgsExpression -> bLangNamedArgsExpression.accept(this));
-        varRefExpr.restVar.accept(this);
     }
 
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
