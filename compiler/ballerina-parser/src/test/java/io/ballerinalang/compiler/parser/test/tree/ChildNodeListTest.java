@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -38,25 +39,30 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGetChildByIndex() {
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
-        FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode)
-                syntaxTree.modulePart().members().get(0);
+        FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) syntaxTree.modulePart().members().get(0);
         int actualChildCount = firstFunctionNode.children().size();
-        Assert.assertEquals(actualChildCount, 10);
+        Assert.assertEquals(actualChildCount, 6);
+        // Check signature child count
+        FunctionSignatureNode signature = firstFunctionNode.functionSignature();
+        int actualSignatureChildCount = signature.children().size();
+        Assert.assertEquals(actualSignatureChildCount, 5);
 
         // The 'public' keyword and the return type desc is missing in the second function
-        FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode)
-                syntaxTree.modulePart().members().get(1);
+        FunctionDefinitionNode secondFunctionNode = (FunctionDefinitionNode) syntaxTree.modulePart().members().get(1);
         actualChildCount = secondFunctionNode.children().size();
-        Assert.assertEquals(actualChildCount, 8);
+        Assert.assertEquals(actualChildCount, 5);
+        // Check signature child count
+        signature = secondFunctionNode.functionSignature();
+        actualSignatureChildCount = signature.children().size();
+        Assert.assertEquals(actualSignatureChildCount, 4);
     }
 
     @Test
     public void testIterator() {
         List<SyntaxKind> expectedKinds = new ArrayList<>();
         Collections.addAll(expectedKinds, SyntaxKind.METADATA, SyntaxKind.PUBLIC_KEYWORD,
-                SyntaxKind.FUNCTION_KEYWORD, SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.OPEN_PAREN_TOKEN,
-                SyntaxKind.REQUIRED_PARAM, SyntaxKind.REQUIRED_PARAM, SyntaxKind.CLOSE_PAREN_TOKEN,
-                SyntaxKind.RETURN_TYPE_DESCRIPTOR, SyntaxKind.FUNCTION_BODY_BLOCK);
+                SyntaxKind.FUNCTION_KEYWORD, SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.FUNCTION_SIGNATURE,
+                SyntaxKind.FUNCTION_BODY_BLOCK);
 
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode)

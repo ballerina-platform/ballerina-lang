@@ -452,6 +452,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLProcessingInstruction);
     }
 
+    public T transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        return transformSyntaxNode(functionTypeDescriptorNode);
+    }
+
+    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
+        return transformSyntaxNode(anonymousFunctionExpressionNode);
+    }
+
+    public T transform(FunctionSignatureNode functionSignatureNode) {
+        return transformSyntaxNode(functionSignatureNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
