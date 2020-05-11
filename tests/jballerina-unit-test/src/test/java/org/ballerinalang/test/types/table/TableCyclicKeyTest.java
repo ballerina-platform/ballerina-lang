@@ -24,6 +24,9 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This test class contains the test to check cyclic check for keys.
+ */
 public class TableCyclicKeyTest {
     private CompileResult result;
 
