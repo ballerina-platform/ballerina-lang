@@ -491,7 +491,7 @@ class ValidatorUtil {
 
                     if (!isExist) {
                         nonExistingResourceParameter = parameter;
-                        break;
+                        continue;
                     }
                 }
 
