@@ -61,13 +61,7 @@ public class TypedescTests {
 
     @Test(description = "Test buildin ref types")
     public void testRefTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testRefTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "xml");
-        Assert.assertEquals(returns[1].stringValue(), "json");
-        //TODO Table remove - Fix
-//        Assert.assertEquals(returns[2].stringValue(), "map");
-//        Assert.assertEquals(returns[3].stringValue(), "table<Employee>");
+        BRunUtil.invoke(result, "testRefTypes");
     }
 
 
