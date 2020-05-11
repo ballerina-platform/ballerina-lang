@@ -1,0 +1,10 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run kafka_authentication_sasl_plain_consumer.bal
+
+# The following lines will be printed in the Console when consumer starts.
+# If the consumer connected successfully, it will start to receive messages
+# from the subscribed topic(s).
+[ballerina/kafka] kafka servers: localhost:9092
+[ballerina/kafka] subscribed topics: topic-sasl
+[ballerina/kafka] started kafka listener
