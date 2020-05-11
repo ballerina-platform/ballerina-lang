@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -32,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Extern function ballerina.system:exec.
@@ -42,10 +42,10 @@ public class Exec {
 
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
 
-    public static Object exec(BString command, MapValue<BString, BString> env, Object dir, ArrayValue args) {
+    public static Object exec(BString command, MapValue<BString, BString> env, Object dir, BString[] args) {
         List<String> commandList = new ArrayList<>();
         commandList.add(command.getValue());
-        commandList.addAll(Arrays.asList(args.getStringArray()));
+        commandList.addAll(Arrays.stream(args).map(BString::getValue).collect(Collectors.toList()));
         ProcessBuilder pb = new ProcessBuilder(commandList);
         if (dir != null) {
             pb.directory(new File(((BString) dir).getValue()));

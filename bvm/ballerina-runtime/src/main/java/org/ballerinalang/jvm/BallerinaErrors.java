@@ -50,10 +50,10 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  */
 public class BallerinaErrors {
 
-    public static final String ERROR_MESSAGE_FIELD = "message";
+    public static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
-    public static final String ERROR_CAUSE_FIELD = "cause";
+    public static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
     public static final String ERROR_STACK_TRACE = "stackTrace";
     public static final String ERROR_PRINT_PREFIX = "error: ";
     public static final String GENERATE_PKG_INIT = "___init_";
@@ -78,7 +78,7 @@ public class BallerinaErrors {
     public static ErrorValue createError(BString reason, BString detail) {
         MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
-            detailMap.put(StringUtils.fromString(ERROR_MESSAGE_FIELD), detail);
+            detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
         return new ErrorValue(reason, detailMap);
     }
@@ -89,7 +89,7 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createError(BType type, BString reason, BString detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
@@ -171,9 +171,9 @@ public class BallerinaErrors {
      * @return ballerina error
      */
     public static ErrorValue createInteropError(Throwable e) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (e.getMessage() != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, e.getMessage());
+            detailMap.put(ERROR_MESSAGE_FIELD, StringUtils.fromString(e.getMessage()));
         }
         if (e.getCause() != null) {
             detailMap.put(ERROR_CAUSE_FIELD, createError(e.getCause().getClass().getName(), e.getCause().getMessage()));
