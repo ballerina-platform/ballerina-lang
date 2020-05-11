@@ -26,7 +26,7 @@ public type TypedValue abstract object {
 };
 
 # Possible type of parameters that can be passed into the SQL query.
-public type Value ()|string|int|boolean|float|decimal|byte[]|xml|TypedValue;
+public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
 
 public type VarcharValue object {
    *TypedValue;
@@ -60,7 +60,6 @@ public type NCharValue object {
    }
 };
 
-//todo: should we support io:ReadableCharacterChannel?
 public type TextValue object {
    *TypedValue;
 
@@ -69,7 +68,7 @@ public type TextValue object {
    }
 };
 
-public type Clob object {
+public type ClobValue object {
    *TypedValue;
 
    public function __init(io:ReadableCharacterChannel|string? value) {
@@ -77,7 +76,7 @@ public type Clob object {
    }
 };
 
-public type NClob object {
+public type NClobValue object {
    *TypedValue;
 
    public function __init(io:ReadableCharacterChannel|string? value) {
@@ -112,7 +111,7 @@ public type BigIntValue object {
 public type NumericValue object {
    *TypedValue;
 
-   public function __init(float|decimal? value) {
+   public function __init(int|float|decimal? value) {
        self.value = value;
    }
 };
@@ -120,7 +119,7 @@ public type NumericValue object {
 public type DecimalValue object {
    *TypedValue;
 
-   public function __init(decimal? value) {
+   public function __init(int|decimal? value) {
        self.value = value;
    }
 };
@@ -128,7 +127,7 @@ public type DecimalValue object {
 public type RealValue object {
    *TypedValue;
 
-   public function __init(float|decimal? value) {
+   public function __init(int|float|decimal? value) {
        self.value = value;
    }
 };
@@ -136,7 +135,7 @@ public type RealValue object {
 public type FloatValue object {
    *TypedValue;
 
-   public function __init(float? value) {
+   public function __init(int|float? value) {
        self.value = value;
    }
 };
@@ -144,7 +143,7 @@ public type FloatValue object {
 public type DoubleValue object {
    *TypedValue;
 
-   public function __init(float|decimal? value) {
+   public function __init(int|float|decimal? value) {
        self.value = value;
    }
 };
@@ -152,7 +151,7 @@ public type DoubleValue object {
 public type BitValue object {
    *TypedValue;
 
-   public function __init(boolean? value) {
+   public function __init(boolean|int? value) {
        self.value = value;
    }
 };
