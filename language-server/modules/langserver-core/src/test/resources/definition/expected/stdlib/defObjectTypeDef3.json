@@ -18,7 +18,7 @@
           "character": 26
         }
       },
-      "uri": "src/ballerina_http_0.0.0/client_endpoint.bal"
+      "uri": "src/ballerina_http_1.0.0/client_endpoint.bal"
     }
   ]
 }
