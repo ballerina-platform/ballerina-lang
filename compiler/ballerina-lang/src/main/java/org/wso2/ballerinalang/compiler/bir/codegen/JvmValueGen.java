@@ -29,6 +29,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -56,6 +59,7 @@ import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
@@ -105,6 +109,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL_CLOSURES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
@@ -542,15 +547,15 @@ class JvmValueGen {
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
         this.createTypeDescConstructor(cw, className);
-        this.createInstantiateMethod(cw, recordType);
+        this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
     }
 
-    private void createInstantiateMethod(ClassWriter cw, BRecordType recordType) {
-
+    private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
+                                         BIRNode.BIRTypeDefinition typeDef) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "instantiate",
                 String.format("(L%s;)L%s;", STRAND, OBJECT), null, null);
         mv.visitCode();
@@ -562,15 +567,77 @@ class JvmValueGen {
         loadType(mv, recordType);
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
 
+
+        BAttachedFunction initializer = ((BRecordTypeSymbol) recordType.tsymbol).initializerFunc;
+        StringBuilder closureParamSignature = calcClosureMapSignature(initializer.type.paramTypes.size());
+
         // Invoke the init-function of this type.
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(SWAP);
-        mv.visitMethodInsn(INVOKESTATIC, className, "$init",
-                String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
 
+
+        // Invoke the init-functions of referenced types. This is done to initialize the
+        // defualt values of the fields coming from the referenced types.
+        for (BType typeRef : typeDef.referencedTypes) {
+            if (typeRef.tag == TypeTags.RECORD) {
+                String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
+                mv.visitInsn(DUP2);
+                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
+                                   String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+            }
+        }
+
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, TYPEDESC_VALUE_IMPL, TYPEDESC_VALUE_IMPL_CLOSURES,
+                          String.format("[L%s;", MAP_VALUE));
+
+        for (int i = 0; i < initializer.type.paramTypes.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, i);
+            mv.visitInsn(AALOAD);
+            mv.visitInsn(SWAP);
+
+            mv.visitInsn(ICONST_1);
+            mv.visitInsn(SWAP);
+        }
+        mv.visitInsn(POP);
+
+
+        // Invoke the init-function of this type.
+        String initFuncName;
+        String valueClassName;
+        List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
+
+        // Attached functions are empty for type-labeling. In such cases, call the __init() of
+        // the original type value;
+        if (attachedFuncs.size() != 0) {
+            initFuncName = attachedFuncs.get(0).name.value;
+            valueClassName = className;
+        } else {
+            // record type is the original record-type of this type-label
+            valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
+            initFuncName = cleanupFunctionName(recordType.name + "__init_");
+        }
+
+        mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
+                           String.format("(L%s;L%s;%s)L%s;", STRAND, MAP_VALUE, closureParamSignature, OBJECT),
+                           false);
+
+        mv.visitInsn(POP);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private StringBuilder calcClosureMapSignature(int size) {
+        StringBuilder closureParamSignature = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            closureParamSignature.append('L');
+            closureParamSignature.append(MAP_VALUE);
+            closureParamSignature.append(";Z");
+        }
+        return closureParamSignature;
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className,
@@ -625,15 +692,18 @@ class JvmValueGen {
 
     private void createTypeDescConstructor(ClassWriter cw, String className) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", BTYPE), null, null);
+        String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
         mv.visitCode();
 
         // load super
         mv.visitVarInsn(ALOAD, 0);
         // load type
         mv.visitVarInsn(ALOAD, 1);
+
+        mv.visitVarInsn(ALOAD, 2);
         // invoke `super(type)`;
-        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, "<init>", descriptor, false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -657,10 +727,11 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
+    // TODO: remove this method, logic moved to createInstantiateMethod, see #23012
     private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
-                String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), null, null);
+                                          String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), null, null);
         mv.visitCode();
         // load strand
         mv.visitVarInsn(ALOAD, 0);
@@ -672,10 +743,10 @@ class JvmValueGen {
         for (BType typeRef : typeDef.referencedTypes) {
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
-                        toNameString(typeRef));
+                                                                toNameString(typeRef));
                 mv.visitInsn(DUP2);
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
-                        String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+                                   String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
             }
         }
 
@@ -697,7 +768,7 @@ class JvmValueGen {
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
-                String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
+                           String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
         mv.visitInsn(POP);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);

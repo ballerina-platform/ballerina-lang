@@ -732,23 +732,20 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
 
-            if (tableConstructorExpr.tableKeySpecifier != null) {
-                if (!(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
-                        tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
-                    resultType = symTable.semanticError;
-                    return;
-                }
-                tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+            if (checkKeySpecifier(tableConstructorExpr, tableType)) {
+                return;
             }
 
             resultType = tableType;
         } else if (expType.tag == TypeTags.TABLE) {
+            List<BType> memTypes = new ArrayList<>();
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 BType recordType = checkExpr(recordLiteral, env, ((BTableType) expType).constraint);
                 if (recordType == symTable.semanticError) {
                     resultType = symTable.semanticError;
                     return;
                 }
+                memTypes.add(recordType);
             }
 
             if (((BTableType) expType).constraint.tag == TypeTags.MAP) {
@@ -763,16 +760,74 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
 
-            BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
-            BTableType actualTableType = (BTableType) actualType;
-            BTableType expectedTableType = (BTableType) expType;
-            if (expectedTableType.fieldNameList != null && actualTableType.fieldNameList == null) {
-                actualTableType.fieldNameList = expectedTableType.fieldNameList;
-                resultType = actualType;
+            BTableType tableType = new BTableType(TypeTags.TABLE, inferTableMemberType(memTypes), null);
+            if (checkKeySpecifier(tableConstructorExpr, tableType)) {
+                return;
             }
+
+            BTableType expectedTableType = (BTableType) expType;
+            if (expectedTableType.fieldNameList != null && tableType.fieldNameList == null) {
+                tableType.fieldNameList = expectedTableType.fieldNameList;
+            }
+            resultType = tableType;
+        } else if (expType.tag == TypeTags.UNION) {
+            List<BType> matchingTypes = new ArrayList<>();
+            BUnionType expectedType = (BUnionType) expType;
+            BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
+            for (BType memType : expectedType.getMemberTypes()) {
+                if (types.isAssignable(actualType, memType)) {
+                    matchingTypes.add(actualType);
+                }
+            }
+
+            if (matchingTypes.size() == 1) {
+                resultType = matchingTypes.get(0);
+                return;
+            } else if (matchingTypes.size() > 1) {
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expectedType);
+            }
+            resultType = symTable.semanticError;
         } else {
             resultType = symTable.semanticError;
         }
+    }
+
+    private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType) {
+        if (tableConstructorExpr.tableKeySpecifier != null) {
+            if (!(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
+                    tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
+                resultType = symTable.semanticError;
+                return true;
+            }
+            tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+        }
+        return false;
+    }
+
+    private BType inferTableMemberType(List<BType> memTypes) {
+
+        if (memTypes.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        LinkedHashSet<BType> result = new LinkedHashSet<>();
+
+        result.add(memTypes.get(0));
+
+        BUnionType unionType = BUnionType.create(null, result);
+        for (int i = 1; i < memTypes.size(); i++) {
+            BType source = memTypes.get(i);
+            if (!types.isAssignable(source, unionType)) {
+                result.add(source);
+                unionType = BUnionType.create(null, result);
+            }
+        }
+
+        if (unionType.getMemberTypes().size() == 1) {
+            return memTypes.get(0);
+        }
+
+        return unionType;
     }
 
     private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
@@ -828,13 +883,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean validateTableType(BTableType tableType, List<BLangRecordLiteral> recordLiterals) {
-        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
-        memTypes.add(symTable.anyType);
-        memTypes.add(symTable.errorType);
-        BUnionType unionType = BUnionType.create(null, memTypes);
-        BMapType anyErrorMapType = new BMapType(TypeTags.MAP, unionType, null);
 
-        if (!types.isAssignable(tableType.constraint, anyErrorMapType)) {
+        if (!types.isAssignable(tableType.constraint, symTable.mapAllType)) {
             dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
             return false;
@@ -1016,13 +1066,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType createTableKeyConstraint(List<String> fieldNames, BType constraintType) {
         if (fieldNames == null) {
-            return null;
+            return symTable.semanticError;
         }
 
         List<BType> memTypes = new ArrayList<>();
         for (String fieldName : fieldNames) {
             //null is not possible for field
-            BType fieldType = types.getTableConstraintField(constraintType, fieldName).type;
+            BField tableConstraintField = types.getTableConstraintField(constraintType, fieldName);
+
+            if (tableConstraintField == null) {
+                return symTable.semanticError;
+            }
+
+            BType fieldType = tableConstraintField.type;
             memTypes.add(fieldType);
         }
 
@@ -1454,7 +1510,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
                 if (name.equals(getKeyValueFieldName(keyValueField))) {
-                    return new FieldTypePosPair(keyValueField.type, keyValueField.pos);
+                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
@@ -3086,8 +3142,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // it's merely a annotation on contextually expected type.
         BLangExpression expr = conversionExpr.expr;
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(expr, env, this.expType);
-            resultType = expType;
+            resultType = checkExpr(expr, env, this.expType);
             return;
         }
 
@@ -5432,7 +5487,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 keyTypeConstraint = createTableKeyConstraint(((BTableType) indexBasedAccessExpr.expr.type).
                         fieldNameList, ((BTableType) indexBasedAccessExpr.expr.type).constraint);
 
-                if (keyTypeConstraint == null) {
+                if (keyTypeConstraint == symTable.semanticError) {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE,
                             indexBasedAccessExpr.expr);
                     return symTable.semanticError;

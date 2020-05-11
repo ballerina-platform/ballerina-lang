@@ -19,8 +19,9 @@ import ballerina/mime;
 import ballerina/lang.'string as strings;
 
 email:PopConfig popConfig = {
-     port: 3110,
-     enableSsl: false
+     port: 31100, // This is an incorrect value. Later the correct value, 3110 will be set via a property.
+     enableSsl: false,
+     properties: {"mail.pop3.port":"3110"}
 };
 
 function testReceiveComplexEmail(string host, string username, string password) returns @tainted string[] {

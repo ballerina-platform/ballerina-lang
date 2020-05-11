@@ -49,6 +49,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
@@ -91,6 +92,15 @@ public class EmailAccessUtil {
         properties.put(EmailConstants.PROPS_POP_SSL_ENABLE,
                 emailAccessConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         properties.put(EmailConstants.MAIL_STORE_PROTOCOL, EmailConstants.POP_PROTOCOL);
+        CommonUtil.addCustomProperties(emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        if (log.isDebugEnabled()) {
+            Set<String> propertySet = properties.stringPropertyNames();
+            log.debug("POP3 Properties set are as follows.");
+            for (Object propertyObj : propertySet) {
+                log.debug("Property Name: " + propertyObj + ", Value: " + properties.get(propertyObj).toString()
+                        + " ValueType: " + properties.get(propertyObj).getClass().getName());
+            }
+        }
         return properties;
     }
 
@@ -111,6 +121,15 @@ public class EmailAccessUtil {
         properties.put(EmailConstants.PROPS_IMAP_SSL_ENABLE,
                 emailAccessConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         properties.put(EmailConstants.MAIL_STORE_PROTOCOL, EmailConstants.IMAP_PROTOCOL);
+        CommonUtil.addCustomProperties(emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        if (log.isDebugEnabled()) {
+            Set<String> propertySet = properties.stringPropertyNames();
+            log.debug("IMAP4 Properties set are as follows.");
+            for (Object propertyObj : propertySet) {
+                log.debug("Property Name: " + propertyObj + ", Value: " + properties.get(propertyObj).toString()
+                        + " ValueType: " + properties.get(propertyObj).getClass().getName());
+            }
+        }
         return properties;
     }
 

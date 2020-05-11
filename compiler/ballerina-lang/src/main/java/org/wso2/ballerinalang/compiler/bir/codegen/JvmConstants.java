@@ -50,6 +50,7 @@ public class JvmConstants {
     public static final String XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
     public static final String FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
     public static final String TYPEDESC_VALUE_IMPL = "org/ballerinalang/jvm/values/TypedescValueImpl";
+    public static final String TYPEDESC_VALUE_IMPL_CLOSURES = "closures";
     public static final String TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
     public static final String HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
     public static final String LOCK_VALUE = "org/ballerinalang/jvm/BLock";
