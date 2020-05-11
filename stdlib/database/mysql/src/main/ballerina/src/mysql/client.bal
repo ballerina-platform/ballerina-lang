@@ -78,14 +78,24 @@ public type Client client object {
 
     # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
     #
-    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
-    # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
+    #              when the query has params to be passed in
+    # + return - Summary of the sql update query as `ExecuteResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecuteResult|sql:Error? {
         if (self.clientActive) {
-            return nativeExecute(self, java:fromString(sqlQuery));
+            sql:ParameterizedString sqlParamString;
+            if (sqlQuery is string) {
+                sqlParamString = {
+                    parts: [sqlQuery],
+                    insertions: []
+                };
+            } else {
+                sqlParamString = sqlQuery;
+            }
+            return nativeExecute(self, sqlParamString);
         } else {
-            return sql:ApplicationError(message = "JDBC Client is already closed,"
+            return sql:ApplicationError( message = "MySQL Client is already closed,"
                 + " hence further operations are not allowed");
         }
     }
@@ -163,7 +173,7 @@ returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
-function nativeExecute(Client sqlClient,@untainted handle sqlQuery)
+function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
 returns sql:ExecuteResult|sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;

@@ -61,8 +61,10 @@ function popRead(PopClient clientEndpoint, handle folder) returns Email|Error? =
 #
 # + port - Port number of the POP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               The default value is true for the "pop3s" protocol and false for the "pop3" protocol.
+#               The default value is true for the "pops" protocol and false for the "pop" protocol
+# + properties - POP3 properties to override the existing configuration
 public type PopConfig record {|
     int port = 995;
     boolean enableSsl = true;
+    map<string>? properties = ();
 |};

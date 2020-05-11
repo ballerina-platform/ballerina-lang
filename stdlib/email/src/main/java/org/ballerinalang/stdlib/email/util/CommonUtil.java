@@ -18,11 +18,15 @@
 
 package org.ballerinalang.stdlib.email.util;
 
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.mime.util.MimeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Contains the common utility functions.
@@ -30,6 +34,8 @@ import java.io.InputStream;
  * @since 1.2.1
  */
 public class CommonUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(CommonUtil.class);
 
     /**
      * Check whether the content type is based on text.
@@ -81,5 +87,23 @@ public class CommonUtil {
             buffer.write(data, 0, nRead);
         }
         return buffer.toByteArray();
+    }
+
+    /**
+     * Add custom properties from the Ballerina configuration.
+     *
+     * @param customProperties Custom properties from Ballerina
+     * @param properties Properties to be used to create the session
+     */
+    public static void addCustomProperties(MapValue customProperties, Properties properties) {
+        if (customProperties != null) {
+            for (Object propertyName : customProperties.getKeys()) {
+                if (propertyName instanceof String) {
+                    properties.put(propertyName, customProperties.getStringValue((String) propertyName));
+                    log.debug("Added custom protocol property with Name: " + propertyName + ", Value: "
+                            + customProperties.getStringValue((String) propertyName));
+                }
+            }
+        }
     }
 }

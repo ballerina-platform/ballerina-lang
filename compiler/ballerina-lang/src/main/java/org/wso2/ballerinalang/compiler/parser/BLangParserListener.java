@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeN
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -527,11 +529,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         DiagnosticPos identifierPos = getCurrentPos(ctx.Identifier());
+
         boolean exprAvailable = ctx.expression() != null;
         boolean isOptional = ctx.QUESTION_MARK() != null;
         boolean markdownExists = ctx.documentationString() != null;
+        boolean isReadonly = ctx.TYPE_READONLY() != null;
+
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, identifierPos, exprAvailable,
-                                         ctx.annotationAttachment().size(), false, isOptional, markdownExists);
+                                         ctx.annotationAttachment().size(), false, isOptional, markdownExists,
+                                         isReadonly);
     }
 
     /**
@@ -952,6 +958,43 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addStreamTypeWithTypeName(getCurrentPos(ctx), getWS(ctx),
                 ctx.typeName(0) != null, ctx.typeName(1) != null);
+    }
+
+    @Override
+    public void exitTableTypeDescriptor(BallerinaParser.TableTypeDescriptorContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addTableType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableKeySpecifier(BallerinaParser.TableKeySpecifierContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        if (ctx.Identifier() != null) {
+            List<BLangIdentifier> keyFieldNameIdentifierList = new ArrayList<>();
+            for (TerminalNode terminalNode : ctx.Identifier()) {
+                BLangIdentifier identifier = pkgBuilder.createIdentifier(getCurrentPos(terminalNode),
+                        terminalNode.getText());
+                keyFieldNameIdentifierList.add(identifier);
+            }
+            if (keyFieldNameIdentifierList.size() > 0) {
+                this.pkgBuilder.addTableKeySpecifier(getCurrentPos(ctx), getWS(ctx), keyFieldNameIdentifierList);
+            }
+        }
+    }
+
+    @Override
+    public void exitTableKeyTypeConstraint(BallerinaParser.TableKeyTypeConstraintContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addTableKeyTypeConstraint(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -1411,12 +1454,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null) {
             DiagnosticPos pos = getCurrentPos(ctx);
             this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
-            this.pkgBuilder.createBLangRecordVarRefNameField(pos, getWS(ctx));
+            this.pkgBuilder.createBLangRecordVarRefNameField(pos, getWS(ctx), ctx.TYPE_READONLY() != null);
             this.pkgBuilder.addIdentifierRecordField();
         } else if (ctx.ELLIPSIS() != null) {
             this.pkgBuilder.addSpreadOpRecordField(getWS(ctx));
         } else {
-            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
+            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null,
+                                                   ctx.TYPE_READONLY() != null);
         }
     }
 
@@ -1435,6 +1479,34 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.LEFT_BRACKET() != null) {
             this.pkgBuilder.addRecordKeyWS(getWS(ctx));
         }
+    }
+
+    @Override
+    public void enterMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExprNodeList();
+    }
+
+    @Override
+    public void exitMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
+        this.pkgBuilder.createMultiKeyExpressionNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableConstructorExpr(BallerinaParser.TableConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createTableConstructor(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2053,8 +2125,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
         String invocation = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
-                getCurrentPos(identifierContext));
+                                             getCurrentPos(identifierContext), isAsync(ctx), annots);
     }
 
     @Override
@@ -2076,8 +2150,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = invocation.invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
         String invocationText = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation), invocationText,
-                argsAvailable, getCurrentPos(identifierContext));
+                                             argsAvailable, getCurrentPos(identifierContext), isAsync(ctx), annots);
         this.pkgBuilder.createGroupExpression(getCurrentPos(node), getWS(ctx));
     }
 
@@ -2089,7 +2165,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocationArgList() != null;
-        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        boolean actionInvocation = ctx.parent instanceof BallerinaParser.ActionInvocationContext || isAsync(ctx);
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable, actionInvocation);
+    }
+
+    private boolean isAsync(RuleContext ctx) {
+        BallerinaParser.VariableReferenceExpressionContext parent = getParentVarRefExprContext(ctx);
+        return parent != null && parent.START() != null;
+    }
+
+    private BallerinaParser.VariableReferenceExpressionContext getParentVarRefExprContext(RuleContext ctx) {
+        RuleContext parent = ctx.parent;
+        while (parent != null && !(parent instanceof BallerinaParser.VariableReferenceExpressionContext)) {
+            parent = parent.parent;
+        }
+        return (BallerinaParser.VariableReferenceExpressionContext) parent;
     }
 
     @Override
@@ -2182,8 +2272,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
         String invocation = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
-                getCurrentPos(identifierContext));
+                                             getCurrentPos(identifierContext), isAsync(ctx), annots);
     }
 
     @Override
@@ -2197,9 +2289,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = invocation.invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
         String invocationText = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
         this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation),
-                invocationText, argsAvailable, getCurrentPos(identifierContext));
+                                             invocationText, argsAvailable, getCurrentPos(identifierContext),
+                                             isAsync(ctx), annots);
     }
 
     @Override
@@ -2211,8 +2306,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
         String invocation = identifierContext.getText();
+        BallerinaParser.VariableReferenceExpressionContext varRefCtx = getParentVarRefExprContext(ctx);
+        int annots = varRefCtx != null ? varRefCtx.annotationAttachment().size() : 0;
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
-                getCurrentPos(identifierContext));
+                                             getCurrentPos(identifierContext), isAsync(ctx), annots);
     }
 
     /**
@@ -2540,8 +2637,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         int numAnnotations = ctx.annotationAttachment().size();
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null,
-                numAnnotations);
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null, true,
+                                                   numAnnotations);
     }
 
     @Override

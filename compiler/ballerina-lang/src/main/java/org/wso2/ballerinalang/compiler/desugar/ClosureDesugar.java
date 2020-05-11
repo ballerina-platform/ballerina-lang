@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -80,6 +82,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -212,6 +216,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Update function parameters.
         pkgNode.functions.forEach(this::updateFunctionParams);
+        pkgNode.typeDefinitions.stream()
+                .filter(typeDef -> typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE)
+                .forEach(this::updateRecordInitFunction);
 
         result = pkgNode;
     }
@@ -320,6 +327,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
             dupFuncType.paramTypes.add(i, mapSymbol.type);
             i++;
         }
+    }
+
+    private void updateRecordInitFunction(BLangTypeDefinition typeDef) {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+        BInvokableSymbol initFnSym = recordTypeNode.initFunction.symbol;
+        BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
+        recordTypeSymbol.initializerFunc.symbol = initFnSym;
+        recordTypeSymbol.initializerFunc.type = (BInvokableType) initFnSym.type;
     }
 
     /**
@@ -688,6 +703,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        rewriteExprs(tableConstructorExpr.recordLiteralList);
+        result = tableConstructorExpr;
+    }
+
+    @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
         jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
         result = jsonArrayLiteral;
@@ -738,6 +759,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
         result = iExpr;
+    }
+
+    @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        List<BLangExpression> exprList = new ArrayList<>();
+        tableMultiKeyExpr.multiKeyIndexExprs.forEach(expression -> exprList.add(rewriteExpr(expression)));
+        tableMultiKeyExpr.multiKeyIndexExprs = exprList;
+        result = tableMultiKeyExpr;
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
@@ -810,20 +839,21 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.capturedClosureEnv = env.createClone();
-        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(bLangLambdaFunction.capturedClosureEnv,
-                bLangLambdaFunction);
+        SymbolEnv symbolEnv = env.createClone();
+        bLangLambdaFunction.capturedClosureEnv = symbolEnv;
+        BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
+        // Save param closure map of the encl invokable.
+        bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
+        boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
+        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
         result = bLangLambdaFunction;
     }
 
-    private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv,
-                                                                  BLangLambdaFunction bLangLambdaFunction) {
-        // Save param closure map of the encl invokable.
-        bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = ((BLangFunction) symbolEnv.enclInvokable).paramClosureMap;
-
+    private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv, BLangInvokableNode enclInvokable,
+                                                                  boolean isWorker) {
         // Recursively iterate back to the encl invokable and get all map symbols visited.
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
-        while (symbolEnv != null && symbolEnv.enclInvokable == bLangLambdaFunction.capturedClosureEnv.enclInvokable) {
+        while (symbolEnv != null && symbolEnv.enclInvokable == enclInvokable) {
             BVarSymbol mapSym = getMapSymbol(symbolEnv.node);
 
             // Skip non-block bodies
@@ -834,7 +864,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
             if (mapSym != null) {
                 enclMapSymbols.putIfAbsent(symbolEnv.envCount, mapSym);
-            } else if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
+            } else if (isWorker) {
                 // Create mapSymbol in outer function node when it contain workers and it's not already created.
                 // We need this to allow worker identifier to be used as a future.
                 mapSym = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
@@ -1154,6 +1184,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
+        tableKeyAccessExpr.indexExpr = rewriteExpr(tableKeyAccessExpr.indexExpr);
+        tableKeyAccessExpr.expr = rewriteExpr(tableKeyAccessExpr.expr);
+        result = tableKeyAccessExpr;
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
         arrayIndexAccessExpr.indexExpr = rewriteExpr(arrayIndexAccessExpr.indexExpr);
         arrayIndexAccessExpr.expr = rewriteExpr(arrayIndexAccessExpr.expr);
@@ -1210,6 +1247,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
+        SymbolEnv symbolEnv = env.createClone();
+        BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
+        structLiteral.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, false);
         result = structLiteral;
     }
 
@@ -1312,6 +1352,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation aIExpr) {
+        aIExpr.expr = rewriteExpr(aIExpr.expr);
+        aIExpr.requiredArgs = rewriteExprs(aIExpr.requiredArgs);
+        aIExpr.restArgs = rewriteExprs(aIExpr.restArgs);
         result = aIExpr;
     }
 

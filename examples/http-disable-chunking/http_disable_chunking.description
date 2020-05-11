@@ -1,2 +1,4 @@
 //This sample demonstrates how to configure the chunking behavior of an HTTP client endpoint. By default, the HTTP client sends messages with the `content-length` header.
-//If the message size is larger than the buffer size (8K), messages are chunked. Chunking can be disabled using the connector options.
+//If the message size is larger than the buffer size (8K), messages are chunked. Chunking can be disabled using the connector options.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

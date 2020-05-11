@@ -6,7 +6,11 @@ function testInitInvocation() returns (int) {
     return a:getA1();
 }
 
-future<int> intFuture = start getInt();
+future<int> intFuture = getFuture();
+
+public function getFuture() returns future<int> {
+    return start getInt();
+}
 
 public function getInt() returns int {
     return 899;

@@ -135,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -672,7 +673,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param expr expression to be validated.
      */
     private void validateWorkerAnnAttachments(BLangExpression expr) {
-        if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
+        if (expr != null && expr instanceof BLangInvocation.BLangActionInvocation &&
+                ((BLangInvocation.BLangActionInvocation) expr).async) {
             ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
                 annotationAttachment.accept(this);
@@ -1724,12 +1726,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
 
-        if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
-            // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/17927
-            dlog.error(tupleDeStmt.expr.pos, DiagnosticCode.BINDING_PATTERN_NOT_YET_SUPPORTED, tupleDeStmt.expr.type);
-            return;
-        }
-
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                     tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
@@ -1915,8 +1911,61 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::hasErrorType);
     }
 
+    /**
+     * This method checks destructure patterns when given an array source.
+     *
+     * @param pos diagnostic Pos of the tuple de-structure statement.
+     * @param target target tuple variable.
+     * @param source source type.
+     * @param rhsPos position of source expression.
+     */
+    private void checkArrayVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
+            DiagnosticPos rhsPos) {
+        BArrayType arraySource = (BArrayType) source;
+
+        // For unsealed
+        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.UNSEALED) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
+        }
+
+        BType souceElementType = arraySource.eType;
+        for (BLangExpression expression : target.expressions) {
+            if (NodeKind.RECORD_VARIABLE_REF == expression.getKind()) {
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) expression;
+                checkRecordVarRefEquivalency(pos, recordVarRef, souceElementType, rhsPos);
+            } else if (NodeKind.TUPLE_VARIABLE_REF == expression.getKind()) {
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expression;
+                checkTupleVarRefEquivalency(pos, tupleVarRef, souceElementType, rhsPos);
+            } else if (NodeKind.ERROR_VARIABLE_REF == expression.getKind()) {
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expression;
+                checkErrorVarRefEquivalency(pos, errorVarRef, souceElementType, rhsPos);
+            } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
+                }
+
+                resetTypeNarrowing(simpleVarRef, souceElementType);
+
+                BType targetType = simpleVarRef.type;
+                if (!types.isAssignable(souceElementType, targetType)) {
+                    dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
+                    break;
+                }
+            } else {
+                dlog.error(expression.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expression);
+            }
+        }
+    }
+
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
                                              DiagnosticPos rhsPos) {
+        if (source.tag == TypeTags.ARRAY) {
+            checkArrayVarRefEquivalency(pos, target, source, rhsPos);
+            return;
+        }
+
         if (source.tag != TypeTags.TUPLE) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
             return;
@@ -1964,6 +2013,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 BType targetType;
                 resetTypeNarrowing(simpleVarRef, sourceType);
+                // Check if this is the rest param and get the type of rest param.
                 if ((target.expressions.size() > i)) {
                     targetType = varRefExpr.type;
                 } else {
@@ -2653,6 +2703,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    // TODO: remove unused method
     private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
         if (transactionHanlder != null) {
             BSymbol handlerSymbol = ((BLangSimpleVarRef) transactionHanlder).symbol;
@@ -2849,14 +2900,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         for (BLangAnnotationAttachment attachment : attachments) {
-            if (!attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
+            if (attachment.annotationSymbol == null || // annotation symbol can be null on invalid attachment.
+                    !attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
                 continue;
             }
             String annotationName = attachment.annotationName.value;
             if (annotationName.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
                 dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             } else if (annotationName.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
-                dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+                dlog.error(attachment.pos, DiagnosticCode.BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE);
             }
         }
     }

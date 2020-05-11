@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BBoolean;
@@ -360,7 +361,7 @@ public class RefTypeTests {
     }
 
     public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {
@@ -372,7 +373,7 @@ public class RefTypeTests {
     }
 
     public static TypedescValue getTypeDesc() {
-        return new TypedescValue(BTypes.typeXML);
+        return new TypedescValueImpl(BTypes.typeXML);
     }
 
     public static Object useFuture(FutureValue future) {

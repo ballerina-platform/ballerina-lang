@@ -28,7 +28,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.PageContext;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
@@ -64,7 +64,7 @@ public class Writer {
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
-            handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
+            handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVariable>>)
                     (varList, options) -> varList.stream()
                             .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
@@ -98,6 +98,18 @@ public class Writer {
                     defaultValue = "<span class=\"default\">(default " + name + ")</span>";
                 }
                 return defaultValue;
+            });
+
+            handlebars.registerHelper("editDescription", (Helper<String>) (description, options) -> {
+                //remove anything with <pre> tag
+                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>", "");
+                // select only the first sentence
+                String[] splits = newDescription.split("\\.", 2);
+                if (splits.length < 2) {
+                    return splits[0];
+                } else {
+                    return splits[0] + ".";
+                }
             });
 
             handlebars.registerHelper("equals", (arg1, options) -> {
@@ -159,7 +171,7 @@ public class Writer {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
-                || !type.generateUserDefinedTypeLink) {
+                || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);

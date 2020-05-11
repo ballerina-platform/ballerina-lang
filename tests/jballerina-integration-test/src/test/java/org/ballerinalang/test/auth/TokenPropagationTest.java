@@ -31,7 +31,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class TokenPropagationTest extends AuthBaseTest {
 
-    @Test(description = "Test JWT Token propagation with basic auth as the inbound authentication mechanism")
+    @Test(description = "Test JWT propagation with basic auth as the inbound authentication mechanism")
     public void testTokenPropagationWithBasicAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
@@ -40,7 +40,7 @@ public class TokenPropagationTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Test behaviour when JWT Token propagation is disabled, resulting in authn failure")
+    @Test(description = "Test behaviour when JWT propagation is disabled, resulting in authn failure")
     public void testWithoutTokenPropagation() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
@@ -49,7 +49,7 @@ public class TokenPropagationTest extends AuthBaseTest {
         assertUnauthorized(response);
     }
 
-    @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, without " +
+    @Test(description = "Test JWT propagation with JWT auth as the inbound authentication mechanism, without " +
             "token reissuing")
     public void testTokenPropagationWithJwtAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
@@ -66,7 +66,7 @@ public class TokenPropagationTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, with " +
+    @Test(description = "Test JWT propagation with JWT auth as the inbound authentication mechanism, with " +
             "token reissuing")
     public void testTokenPropagationWithJwtAuthInboundAndTokenReissuing() throws Exception {
         Map<String, String> headers = new HashMap<>();
@@ -82,7 +82,7 @@ public class TokenPropagationTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Negative test for JWT Token propagation with JWT auth as the inbound authentication " +
+    @Test(description = "Negative test for JWT propagation with JWT auth as the inbound authentication " +
             "mechanism, with token reissuing. Newly issued token's issuer is not what is expected.")
     public void testTokenPropagationWithJwtAuthInboundAndTokenReissuingNegative() throws Exception {
         Map<String, String> headers = new HashMap<>();

@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/lang.'xml;
+import ballerina/lang.'int as langint;
+
 'xml:Element catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
@@ -216,6 +218,56 @@ function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|erro
     xml|error item2 = trap s.get(-1);
 
     return [e1, e2, c1, item, item2];
+}
+
+xml bookstore = xml `<bookstore><book category="cooking">
+                            <title lang="en">Everyday Italian</title>
+                            <author>Giada De Laurentiis</author>
+                            <year>1990</year>
+                            <price>30.00</price>
+                        </book>
+                        <book category="children">
+                            <title lang="en">Harry Potter</title>
+                            <author>J. K. Rowling</author>
+                            <year>2005</year>
+                            <price>29.99</price>
+                        </book>
+                        <book category="web" cover="paperback">
+                            <title lang="en">Learning XML</title>
+                            <author>Erik T. Ray</author>
+                            <year>2020</year>
+                            <price>39.95</price>
+                        </book>
+                    </bookstore>`;
+
+function testAsyncFpArgsWithXmls() returns [int, xml] {
+
+    int sum = 0;
+    ((bookstore/*).elements()).forEach(function (xml x) {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      sum = sum + result;
+    });
+
+    var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      return result > 2000;
+    });
+
+    var filter2 = (filter).map(function (xml x) returns xml {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      return xml `<year>${result}</year>`;
+    });
+    return [sum, filter];
+}
+
+function getRandomNumber(int i) returns int {
+    return i + 2;
 }
 
 function testChildren() {

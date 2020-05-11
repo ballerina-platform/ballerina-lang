@@ -143,7 +143,7 @@ public type Request object {
     }
 
     # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
-    # header value is replaced with the specified header value.
+    # header value is replaced with the specified header value. Panic if an illegal header is passed.
     #
     # + headerName - The header name
     # + headerValue - The header value
@@ -152,7 +152,7 @@ public type Request object {
         entity.setHeader(headerName, headerValue);
     }
 
-    # Adds the specified header to the request. Existing header values are not replaced.
+    # Adds the specified header to the request. Existing header values are not replaced. Panic if an illegal header is passed.
     #
     # + headerName - The header name
     # + headerValue - The header value

@@ -58,20 +58,24 @@ public class BDecimalValueNegativeTest {
     @Test
     void testDecimalValueNegativeLiteral() {
         CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative_literal.bal");
-        Assert.assertEquals(negative.getErrorCount(), 13);
+        Assert.assertEquals(negative.getErrorCount(), 17);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 20, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 21, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 22, 22);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 23, 22);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 23, 31);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 24, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 30, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 31, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 32, 24);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 33, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 34, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 35, 17);
-        BAssertUtil.validateError(negative, i, "incompatible types: expected 'decimal', found 'float'", 37, 37);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 22, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 23, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 24, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 25, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 26, 22);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 27, 22);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 27, 31);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 28, 23);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 34, 23);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 35, 23);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 36, 24);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 37, 23);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 38, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 39, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 41, 37);
     }
 }

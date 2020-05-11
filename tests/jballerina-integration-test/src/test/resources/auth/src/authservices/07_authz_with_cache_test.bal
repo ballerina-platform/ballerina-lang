@@ -21,7 +21,7 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider07 = new({
     issuer: "ballerina",
     audience: "ballerina",
-    trustStoreConfig: {
+    signatureConfig: {
         certificateAlias: "ballerina",
         trustStore: {
            path: config:getAsString("truststore"),

@@ -63,7 +63,7 @@ import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMinorVersion;
  */
 public class LSPUtils {
 
-    private static BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
+    private static final BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
     private static final Logger LOG = Logger.getInstance(LSPUtils.class);
 
     /**
@@ -298,7 +298,16 @@ public class LSPUtils {
                 }
             } else {
                 // Checks if the ballerina command works.
-                String ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
+                String ballerinaPath = "";
+                try {
+                    ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD,
+                            BALLERINA_HOME_CMD));
+                } catch (BallerinaCmdException ignored) {
+                    // We do nothing here as we need to fall back for default installer based locations, since
+                    // "ballerina" command might not work because of the IntelliJ issue of PATH variable might not
+                    // being identified by the IntelliJ java runtime.
+                }
+
                 if (!ballerinaPath.isEmpty()) {
                     cmdArgs.add(BALLERINA_CMD);
                     cmdArgs.add(BALLERINA_LS_CMD);

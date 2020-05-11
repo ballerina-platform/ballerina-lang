@@ -1,12 +1,12 @@
 import ballerina/test;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     outputs.push(s[0]);
 }
 

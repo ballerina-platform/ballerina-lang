@@ -19,8 +19,9 @@ import ballerina/mime;
 import ballerina/lang.'string as strings;
 
 email:ImapConfig imapConfig = {
-     port: 3143,
-     enableSsl: false
+     port: 31430, // This is an incorrect value. Later the correct value, 3143 will be set via a property.
+     enableSsl: false,
+     properties: {"mail.imap.port":"3143"}
 };
 
 function testReceiveComplexEmail(string host, string username, string password) returns @tainted string[] {

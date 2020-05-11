@@ -83,8 +83,8 @@ public abstract class CompletionTest {
 //            obj.add("items", resultList);
 //            java.nio.file.Files.write(RES_DIR.resolve(configJsonPath),
 //                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
-
-            // This will print nice comparable text in IDE
+//
+//             //This will print nice comparable text in IDE
 //            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),
 //                        "Failed Test for: " + configJsonPath);
             Assert.fail("Failed Test for: " + configJsonPath);
