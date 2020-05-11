@@ -119,14 +119,19 @@ public type Grades record {|
    int chemistry?;
 |};
 
-//function tableFunc() returns table<Grades> {
-//    table<Grades> gradesTable = table {
-//             { key name, physics, chemistry },
-//              [ {  "Mary",  90, 87 }]
-//           };
-//    return gradesTable;
-//
-//}
+public type StudentGrade record {|
+   readonly string name;
+   int physics;
+   int chemistry?;
+|};
+
+function tableFunc(){
+    table<StudentGrade> gradesTable = table key(name)[
+            { name: "Mary", physics: 90, chemistry: 87 }
+        ];
+
+    assertEquality("name=Mary physics=90 chemistry=87", gradesTable.toString());
+}
 
 function arrayFunc(string[] strs) returns Grades[] {
     Grades g = {name: strs[0], physics: 75, chemistry: 65};
@@ -731,4 +736,20 @@ function testTypeDescValuePrint() {
 	map<int|string> m1 = { one: 1, two: 2 };
     typedesc<map<anydata>> t1 = typeof m1;
     io:print(t1);
+}
+
+type AssertionError error<ASSERTION_ERROR_REASON>;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
