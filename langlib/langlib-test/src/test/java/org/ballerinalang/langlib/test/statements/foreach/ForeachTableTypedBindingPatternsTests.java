@@ -63,10 +63,10 @@ public class ForeachTableTypedBindingPatternsTests {
         Assert.assertEquals(returns[0].stringValue(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
     }
 
-//    @Test
-//    public void testEmptyTableIteration() {
-//        BValue[] returns = BRunUtil.invoke(program, "testEmptyTableIteration");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertEquals(returns[0].stringValue(), "");
-//    }
+    @Test
+    public void testEmptyTableIteration() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyTableIteration");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
 }
