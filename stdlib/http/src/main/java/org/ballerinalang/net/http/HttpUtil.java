@@ -421,7 +421,7 @@ public class HttpUtil {
         if (!errorDetails.isEmpty()) {
             return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
-        return error.getReason();
+        return error.getReason().getValue();
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -523,7 +523,7 @@ public class HttpUtil {
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
         Map<String, Object> values = new HashMap<>();
-        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
+        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD.getValue(), message);
         MapValue<BString, Object> detail =
                 BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD, values);
         return BallerinaErrors.createError(errorType.getReason(), detail);

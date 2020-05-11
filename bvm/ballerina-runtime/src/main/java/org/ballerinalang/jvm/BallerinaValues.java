@@ -62,7 +62,11 @@ public class BallerinaValues {
                                                               Map<String, Object> valueMap) {
         MapValue<BString, Object> record = createRecordValue(packageId, recordTypeName);
         for (Entry<String, Object> fieldEntry : valueMap.entrySet()) {
-            record.put(StringUtils.fromString(fieldEntry.getKey()), fieldEntry.getValue());
+            Object val = fieldEntry.getValue();
+            if (val instanceof String) {
+                val = StringUtils.fromString((String) val);
+            }
+            record.put(StringUtils.fromString(fieldEntry.getKey()), val);
         }
 
         return record;
