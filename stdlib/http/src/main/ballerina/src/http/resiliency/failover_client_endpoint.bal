@@ -432,20 +432,26 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 }
 
 # Provides a set of HTTP related configurations and failover related configurations.
+# Following fields are inherited from the other configuration records in addition to the failover client specific
+# configs.
 #
-# httpVersion - Copied from CommonClientConfiguration
-# http1Settings - Copied from CommonClientConfiguration
-# http2Settings - Copied from CommonClientConfiguration
-# timeoutInMillis - Copied from CommonClientConfiguration
-# forwarded - Copied from CommonClientConfiguration
-# followRedirects - Copied from CommonClientConfiguration
-# poolConfig - Copied from CommonClientConfiguration
-# cache - Copied from CommonClientConfiguration
-# compression - Copied from CommonClientConfiguration
-# auth - Copied from CommonClientConfiguration
-# circuitBreaker - Copied from CommonClientConfiguration
-# retryConfig - Copied from CommonClientConfiguration
-# cookieConfig - Copied from CommonClientConfiguration
+# |                                                         |
+# |:------------------------------------------------------- |
+# | httpVersion - Copied from CommonClientConfiguration     |
+# | http1Settings - Copied from CommonClientConfiguration   |
+# | http2Settings - Copied from CommonClientConfiguration   |
+# | timeoutInMillis - Copied from CommonClientConfiguration |
+# | forwarded - Copied from CommonClientConfiguration       |
+# | followRedirects - Copied from CommonClientConfiguration |
+# | poolConfig - Copied from CommonClientConfiguration      |
+# | cache - Copied from CommonClientConfiguration           |
+# | compression - Copied from CommonClientConfiguration     |
+# | auth - Copied from CommonClientConfiguration            |
+# | circuitBreaker - Copied from CommonClientConfiguration  |
+# | retryConfig - Copied from CommonClientConfiguration     |
+# | cookieConfig - Copied from CommonClientConfiguration    |
+#
+
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalInMillis - Failover delay interval in milliseconds

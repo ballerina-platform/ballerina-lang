@@ -169,7 +169,7 @@ public final class ServiceDefinition {
                                     requestType)))
                             .setResponseMarshaller(ProtoUtils.marshaller(new MessageParser(resMessage.getName(),
                                     responseType == null ?
-                                            getBallerinaValueType(attachedFunction.getPackage(),
+                                            getBallerinaValueType(clientEndpointType.getPackage(),
                                                     resMessage.getName()) : responseType)))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();

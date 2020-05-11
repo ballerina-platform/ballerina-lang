@@ -102,6 +102,9 @@ public class Decode {
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);
+            if (certificate == null) {
+                return CryptoUtils.createError("Certificate cannot be recovered by using given key alias: " + keyAlias);
+            }
             MapValue<String, Object> certificateBMap = BallerinaValues.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.CERTIFICATE_RECORD);
             if (certificate instanceof X509Certificate) {

@@ -2,6 +2,8 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    {{#if module.id}}<meta name="description" content="{{{ removePTags module.summary }}}">{{/if}}
+    <meta name="keywords" content="ballerina,ballerina lang,api docs{{#if module.id}},{{ module.id }}{{/if}}">
 
     <title>{{ title }}</title>
     <script src="{{ rootPath }}html-template-resources/jquery.min.js"></script>
