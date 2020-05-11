@@ -1104,6 +1104,30 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        Token streamKeywordToken = modifyToken(streamTypeDescriptorNode.streamKeywordToken());
+        Node streamTypeParamsNode = modifyNode(streamTypeDescriptorNode.streamTypeParamsNode());
+        return streamTypeDescriptorNode.modify(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
+    @Override
+    public Node transform(StreamTypeParamsNode streamTypeParamsNode) {
+        Token ltToken = modifyToken(streamTypeParamsNode.ltToken());
+        Node leftTypeDescNode = modifyNode(streamTypeParamsNode.leftTypeDescNode());
+        Token commaToken = modifyToken(streamTypeParamsNode.commaToken());
+        Node rightTypeDescNode = modifyNode(streamTypeParamsNode.rightTypeDescNode());
+        Token gtToken = modifyToken(streamTypeParamsNode.gtToken());
+        return streamTypeParamsNode.modify(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
+    }
+
+    @Override
     public Node transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = modifyToken(letExpressionNode.letKeyword());
         SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letExpressionNode.letVarDeclarations());

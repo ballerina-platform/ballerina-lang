@@ -1114,6 +1114,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 gtToken);
     }
 
+    public static STNode createStreamTypeDescriptorNode(
+            STNode streamKeywordToken,
+            STNode streamTypeParamsNode) {
+
+        return new STStreamTypeDescriptorNode(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
+    public static STNode createStreamTypeParamsNode(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken) {
+
+        return new STStreamTypeParamsNode(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
+    }
+
     public static STNode createLetExpressionNode(
             STNode letKeyword,
             STNode letVarDeclarations,

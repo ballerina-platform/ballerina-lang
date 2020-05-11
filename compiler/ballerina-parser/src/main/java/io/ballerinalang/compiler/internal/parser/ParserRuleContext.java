@@ -107,7 +107,6 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
-    PARAMETERIZED_TYPE_DESCRIPTOR("parameterized-type-descriptor"),
     ANNOTATION_DECL("annotation-decl"),
     ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
     ANNOT_DECL_RHS("annot-decl-rhs"),
@@ -213,6 +212,7 @@ public enum ParserRuleContext {
     KEY_KEYWORD("key"),
     ERROR_KEYWORD("error"),
     LET_KEYWORD("let"),
+    STREAM_KEYWORD("stream"),
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
 
@@ -312,6 +312,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_ANGLE_BRACKETS("type-desc-in-angle-bracket"),              // type-cast, parameterized-type
     TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
+    TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-des"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML 
@@ -346,6 +347,7 @@ public enum ParserRuleContext {
     PARAMETERIZED_TYPE("parameterized-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
+    STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     ;
 
     private String value;

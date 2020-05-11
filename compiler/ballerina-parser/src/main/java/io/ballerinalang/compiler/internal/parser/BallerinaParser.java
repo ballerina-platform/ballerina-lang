@@ -286,8 +286,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
-            case PARAMETERIZED_TYPE_DESCRIPTOR:
-                return parseParameterizedTypeDescriptor();
             case LT:
                 return parseLTToken();
             case GT:
@@ -353,6 +351,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseErrorTypeDescriptor();
             case LET_KEYWORD:
                 return parseLetKeyword();
+            case STREAM_KEYWORD:
+                return parseStreamKeyWord();
+            case STREAM_TYPE_FIRST_PARAM_RHS:
+                return parseStreamTypeParamsNode((STNode) args[0], (STNode) args[1]);
             case TEMPLATE_START:
             case TEMPLATE_END:
                 return parseBacktickToken(context);
@@ -2015,6 +2017,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseParameterizedTypeDescriptor();
             case ERROR_KEYWORD: // error type descriptor
                 return parseErrorTypeDescriptor();
+            case STREAM_KEYWORD: // stream type desc
+                return parseStreamTypeDescriptor();
             case FUNCTION_KEYWORD:
                 return parseFunctionTypeDesc();
             default:
@@ -6152,14 +6156,10 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseParameterizedTypeDescriptor() {
-        startContext(ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
         STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
-
         STNode ltToken = parseLTToken();
         STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
         STNode gtToken = parseGTToken();
-
-        endContext();
         return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, ltToken, typeNode,
                 gtToken);
     }
@@ -7055,6 +7055,7 @@ public class BallerinaParser extends AbstractParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
             case ERROR_KEYWORD: // error type desc
+            case STREAM_KEYWORD: // stream type desc
             case FUNCTION_KEYWORD:
                 return true;
             default:
@@ -7078,7 +7079,8 @@ public class BallerinaParser extends AbstractParser {
             case NEVER_KEYWORD:
             case SERVICE_KEYWORD:
             case VAR_KEYWORD:
-            case ERROR_KEYWORD: // This is for the recovery <code>error a;</code> scenario recovered here.
+            case ERROR_KEYWORD: // This is for the recovery. <code>error a;</code> scenario recovered here.
+            case STREAM_KEYWORD: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
                 return true;
             case TYPE_DESC:
                 // This is a special case. TYPE_DESC is only return from
@@ -7647,6 +7649,93 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.ERROR_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse stream type descriptor.
+     * <p>
+     * stream-type-descriptor := stream [stream-type-parameters]
+     * stream-type-parameters := < type-descriptor [, type-descriptor]>
+     * </p>
+     *
+     * @return Parsed stream type descriptor node
+     */
+    private STNode parseStreamTypeDescriptor() {
+        STNode streamKeywordToken = parseStreamKeyWord();
+        STNode streamTypeParamsNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            streamTypeParamsNode = parseStreamTypeParamsNode();
+        } else {
+            streamTypeParamsNode = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createStreamTypeDescriptorNode(streamKeywordToken, streamTypeParamsNode);
+    }
+
+    /**
+     * Parse stream type params node.
+     * <p>
+     * stream-type-parameters := < type-descriptor [, type-descriptor]>
+     * </p>
+     *
+     * @return Parsed stream type params node
+     */
+    private STNode parseStreamTypeParamsNode() {
+        STNode ltToken = parseLTToken();
+        startContext(ParserRuleContext.TYPE_DESC_IN_STREAM_TYPE_DESC);
+        STNode leftTypeDescNode = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_STREAM_TYPE_DESC);
+        STNode streamTypedesc = parseStreamTypeParamsNode(ltToken, leftTypeDescNode);
+        endContext();
+        return streamTypedesc;
+    }
+
+    private STNode parseStreamTypeParamsNode(STNode ltToken, STNode leftTypeDescNode) {
+        return parseStreamTypeParamsNode(peek().kind, ltToken, leftTypeDescNode);
+    }
+
+    private STNode parseStreamTypeParamsNode(SyntaxKind nextTokenKind, STNode ltToken, STNode leftTypeDescNode) {
+        STNode commaToken, rightTypeDescNode, gtToken;
+
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                commaToken = parseComma();
+                rightTypeDescNode = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_STREAM_TYPE_DESC);
+                break;
+            case GT_TOKEN:
+                commaToken = STNodeFactory.createEmptyNode();
+                rightTypeDescNode = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution =
+                        recover(peek(), ParserRuleContext.STREAM_TYPE_FIRST_PARAM_RHS, ltToken, leftTypeDescNode);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseStreamTypeParamsNode(solution.tokenKind, ltToken, leftTypeDescNode);
+        }
+
+        gtToken = parseGTToken();
+        return STNodeFactory.createStreamTypeParamsNode(ltToken, leftTypeDescNode, commaToken, rightTypeDescNode,
+                gtToken);
+    }
+
+    /**
+     * Parse stream-keyword.
+     *
+     * @return Parsed stream-keyword node
+     */
+    private STNode parseStreamKeyWord() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STREAM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STREAM_KEYWORD);
             return sol.recoveredNode;
         }
     }

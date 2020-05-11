@@ -468,6 +468,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_KEYWORD;
             case "LET_KEYWORD":
                 return SyntaxKind.LET_KEYWORD;
+            case "STREAM_KEYWORD":
+                return SyntaxKind.STREAM_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -706,6 +708,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_DESC;
             case "EXPLICIT_TYPE_PARAMS":
                 return SyntaxKind.EXPLICIT_TYPE_PARAMS;
+            case "STREAM_TYPE_DESC":
+                return SyntaxKind.STREAM_TYPE_DESC;
             case "FUNCTION_TYPE_DESC":
                 return SyntaxKind.FUNCTION_TYPE_DESC;
 
@@ -782,6 +786,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "STREAM_TYPE_PARAMS":
+                return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
                 return SyntaxKind.FUNCTION_SIGNATURE;
 
