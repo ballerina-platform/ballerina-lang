@@ -523,7 +523,7 @@ public class HttpUtil {
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
         Map<String, Object> values = new HashMap<>();
-        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
+        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD.getValue(), message);
         MapValue<BString, Object> detail =
                 BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD, values);
         return BallerinaErrors.createError(errorType.getReason(), detail);

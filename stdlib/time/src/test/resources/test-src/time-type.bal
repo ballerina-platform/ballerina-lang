@@ -77,7 +77,7 @@ function testParseTimeWithTimePartOnly() returns [int, string] {
     var timeRet = time:parse("09:46:22", "HH:mm:ss");
     if (timeRet is time:Time) {
         timeValue = timeRet.time;
-        string|error formattedRet = time:format(timeRet, "HH:mm:ss");
+        string|time:Error formattedRet = time:format(timeRet, "HH:mm:ss");
         if (formattedRet is string) {
             timeFormatted = formattedRet;
         }
@@ -182,7 +182,7 @@ function testSubtractDuration() returns (string) {
     return formattedTime;
 }
 
-function testToTimezone() returns [string, string]|error {
+function testToTimezone() returns [string, string]|time:Error {
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     string timeStrBefore = time:toString(time);
@@ -196,7 +196,7 @@ function testToTimezone() returns [string, string]|error {
 
 }
 
-function testToTimezoneWithInvalidZone() returns string|error {
+function testToTimezoneWithInvalidZone() returns string|time:Error {
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     var retTime = time:toTimeZone(time, "test");
