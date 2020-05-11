@@ -256,7 +256,7 @@ public class LocksInMainTest {
                 18, 9);
     }
 
-    @Test(description = "Test for parallel run using locks", enabled = false)
+    @Test(description = "Test for parallel run using locks")
     public void testParallelRunUsingLocks() {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
     }

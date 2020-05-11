@@ -97,7 +97,7 @@ public type Response object {
         return entity.getHeader(headerName, position);
     }
 
-    # Adds the specified header to the response. Existing header values are not replaced.
+    # Adds the specified header to the response. Existing header values are not replaced. Panic if an illegal header is passed.
     #
     # + headerName - The header name
     # + headerValue - The header value
@@ -122,7 +122,7 @@ public type Response object {
     }
 
     # Sets the specified header to the response. If a mapping already exists for the specified header key, the
-    # existing header value is replaced with the specified header value.
+    # existing header value is replaced with the specified header value. Panic if an illegal header is passed.
     #
     # + headerName - The header name
     # + headerValue - The header value

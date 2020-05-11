@@ -983,7 +983,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         terminalNode.getText());
                 keyFieldNameIdentifierList.add(identifier);
             }
-            this.pkgBuilder.addTableKeySpecifier(getCurrentPos(ctx), getWS(ctx), keyFieldNameIdentifierList);
+            if (keyFieldNameIdentifierList.size() > 0) {
+                this.pkgBuilder.addTableKeySpecifier(getCurrentPos(ctx), getWS(ctx), keyFieldNameIdentifierList);
+            }
         }
     }
 
