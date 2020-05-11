@@ -357,7 +357,7 @@ public class BallerinaParser {
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
                 return parseTableConstructorOrQuery();
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
-                return parseTableConstructorOrQueryWithKeySpecifier((STNode) args[0], (STNode) args[1]);
+                return parseTableConstructorOrQueryRhs((STNode) args[0], (STNode) args[1]);
             case QUERY_EXPRESSION_RHS:
                 return parseQueryPipeline((STNode) args[0], (List<STNode>) args[1]);
             default:
@@ -7385,7 +7385,7 @@ public class BallerinaParser {
                 return parseTableConstructorExprRhs(tableKeyword, keySpecifier);
             case KEY_KEYWORD:
                 keySpecifier = parseKeySpecifier();
-                return parseTableConstructorOrQueryWithKeySpecifier(peek().kind, tableKeyword, keySpecifier);
+                return parseTableConstructorOrQueryRhs(peek().kind, tableKeyword, keySpecifier);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TABLE_KEYWORD_RHS, tableKeyword, keySpecifier);
 
@@ -7400,18 +7400,19 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseTableConstructorOrQueryWithKeySpecifier(STNode tableKeyword, STNode keySpecifier) {
-        return parseTableConstructorOrQueryWithKeySpecifier(peek().kind, tableKeyword, keySpecifier);
+    private STNode parseTableConstructorOrQueryRhs(STNode tableKeyword, STNode keySpecifier) {
+        return parseTableConstructorOrQueryRhs(peek().kind, tableKeyword, keySpecifier);
     }
 
-    private STNode parseTableConstructorOrQueryWithKeySpecifier(SyntaxKind nextTokenKind, STNode tableKeyword, STNode keySpecifier) {
+    private STNode parseTableConstructorOrQueryRhs(SyntaxKind nextTokenKind, STNode tableKeyword, STNode keySpecifier) {
         switch (nextTokenKind) {
             case FROM_KEYWORD:
                 return parseQueryExprRhs(parseQueryConstructType(tableKeyword, keySpecifier));
             case OPEN_BRACKET_TOKEN:
                 return parseTableConstructorExprRhs(tableKeyword, keySpecifier);
             default:
-                Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_RHS, tableKeyword, keySpecifier);
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_RHS,
+                        tableKeyword, keySpecifier);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -7420,7 +7421,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseTableConstructorOrQueryWithKeySpecifier(solution.tokenKind, tableKeyword, keySpecifier);
+                return parseTableConstructorOrQueryRhs(solution.tokenKind, tableKeyword, keySpecifier);
         }
     }
 
@@ -7523,7 +7524,7 @@ public class BallerinaParser {
         }
 
         STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
-        return STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses );
+        return STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
     }
 
     /**

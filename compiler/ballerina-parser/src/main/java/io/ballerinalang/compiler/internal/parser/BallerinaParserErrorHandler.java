@@ -1189,8 +1189,8 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION, isEntryPoint);
                 case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_CONSTRUCTOR_OR_QUERY_RHS,
-                            isEntryPoint);
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            TABLE_CONSTRUCTOR_OR_QUERY_RHS, isEntryPoint);
                 case QUERY_EXPRESSION_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, QUERY_EXPRESSION_RHS,
                             isEntryPoint);

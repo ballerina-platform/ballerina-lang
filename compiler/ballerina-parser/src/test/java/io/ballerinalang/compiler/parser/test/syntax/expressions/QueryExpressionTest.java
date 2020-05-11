@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test parsing query expression.
  */
-public class QueryExpressionTest extends AbstractExpressionsTest{
+public class QueryExpressionTest extends AbstractExpressionsTest {
 
     // Valid syntax
 
