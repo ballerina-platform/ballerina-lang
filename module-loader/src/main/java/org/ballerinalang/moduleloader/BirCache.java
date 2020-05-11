@@ -9,12 +9,16 @@ import java.nio.file.Path;
  * BIR Cache representation for Home BIR Cache and Distribution BIR Cache.
  */
 public class BirCache extends FileSystemCache implements Cache {
+
+    private Path fileSystemCachePath;
+
     public BirCache(Path fileSystemCachePath) {
         super(fileSystemCachePath);
+        this.fileSystemCachePath = fileSystemCachePath;
     }
 
     @Override
     public Module getModule(ModuleId moduleId) {
-        return null;
+        return new Module(moduleId, fileSystemCachePath);
     }
 }

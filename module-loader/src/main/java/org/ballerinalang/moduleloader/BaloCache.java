@@ -10,12 +10,15 @@ import java.nio.file.Path;
  */
 public class BaloCache extends FileSystemCache implements Cache {
 
+    private Path fileSystemCachePath;
+
     public BaloCache(Path fileSystemCachePath) {
         super(fileSystemCachePath);
+        this.fileSystemCachePath = fileSystemCachePath;
     }
 
     @Override
     public Module getModule(ModuleId moduleId) {
-        return null;
+        return new Module(moduleId, fileSystemCachePath);
     }
 }
