@@ -1991,6 +1991,48 @@
             ]
         },
         {
+            "name": "StreamTypeDescriptorNode",
+            "base": "Node",
+            "kind": "STREAM_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "streamKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "streamTypeParamsNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "StreamTypeParamsNode",
+            "base": "Node",
+            "kind": "STREAM_TYPE_PARAMS",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "leftTypeDescNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "commaToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rightTypeDescNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",

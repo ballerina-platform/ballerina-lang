@@ -121,6 +121,7 @@ public enum ParserRuleContext {
     ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
     LET_VAR_DECL("let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
+    STREAM_TYPE_DESCRIPTOR("stream-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
@@ -201,6 +202,7 @@ public enum ParserRuleContext {
     KEY_KEYWORD("key"),
     ERROR_KEYWORD("error"),
     LET_KEYWORD("let"),
+    STREAM_KEYWORD("stream"),
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
 
@@ -325,6 +327,7 @@ public enum ParserRuleContext {
     NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
+    STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     ;
 
     private String value;
