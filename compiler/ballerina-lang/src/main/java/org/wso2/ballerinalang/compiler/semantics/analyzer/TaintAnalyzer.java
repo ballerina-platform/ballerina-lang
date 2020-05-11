@@ -1076,6 +1076,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        this.visit((BLangInvocation) actionInvocation);
+    }
+
     private boolean isErrorConstructorInvocation(BLangInvocation invocationExpr) {
         return invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR;
     }
@@ -1147,11 +1152,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         getCurrentAnalysisState().taintedStatus = typeTaintedStatus;
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        /* ignore */
     }
 
     @Override

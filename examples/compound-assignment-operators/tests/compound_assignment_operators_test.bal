@@ -1,13 +1,13 @@
 import ballerina/test;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 
 // This is the mock function which will replace the real function.
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     foreach var entry in s {
     	 outputs.push(entry);
     }

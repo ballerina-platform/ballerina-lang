@@ -4,4 +4,5 @@
 // 'gen-service' generates a mock version of the Ballerina service for a provided OAS definition.
 // `ballerina openapi gen-service <module-name>:<service-name> <openapi-contract>`
 // 'gen-client' generates a Ballerina client endpoint for a provided OAS definition.
-// `ballerina openapi gen-client [<module>:]<client-name> <openapi-file> [-o=<outputFileName>]`
+// `ballerina openapi gen-client [<module>:]<client-name> <openapi-file> [-o=<outputFileName>]`<br/><br/>
+// For more information, see [Ballerina OpenAPI Tools](https://ballerina.io/learn/how-to-use-openapi-tools/).

@@ -906,9 +906,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.name = source.name;
         clone.argExprs = cloneList(source.argExprs);
         clone.functionPointerInvocation = source.functionPointerInvocation;
-        clone.actionInvocation = source.actionInvocation;
         clone.langLibInvocation = source.langLibInvocation;
-        clone.async = source.async;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.requiredArgs = cloneList(source.requiredArgs);
@@ -927,9 +925,21 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+    public void visit(BLangInvocation.BLangActionInvocation source) {
+        BLangInvocation.BLangActionInvocation clone = new BLangInvocation.BLangActionInvocation();
+        source.cloneRef = clone;
+        clone.pkgAlias = source.pkgAlias;
+        clone.name = source.name;
+        clone.argExprs = cloneList(source.argExprs);
+        clone.functionPointerInvocation = source.functionPointerInvocation;
+        clone.langLibInvocation = source.langLibInvocation;
+        clone.async = source.async;
+        clone.remoteMethodCall = source.remoteMethodCall;
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.annAttachments = cloneList(source.annAttachments);
+        clone.requiredArgs = cloneList(source.requiredArgs);
 
-        // Ignore
+        cloneBLangAccessExpression(source, clone);
     }
 
     @Override

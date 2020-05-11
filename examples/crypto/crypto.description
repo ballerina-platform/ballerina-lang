@@ -1,2 +1,4 @@
 // The `crypto` stdlib provides functions usable to perform different cryptographic operations such as hashing,
-// HMAC generation, checksum generation and digitally signing data.
+// HMAC generation, checksum generation and digitally signing data.<br/><br/>
+// For more information on the underlying module, 
+// see the [Crypto module](https://ballerina.io/learn/api-docs/ballerina/crypto/index.html).

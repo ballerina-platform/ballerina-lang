@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.ActionNode;
+
 /**
  * This represents the wait expression node.
- * 
+ *
  * @since 0.965
  */
-public interface WaitExpressionNode extends ExpressionNode {
+public interface WaitExpressionNode extends ExpressionNode, ActionNode {
 
     ExpressionNode getExpression();
 

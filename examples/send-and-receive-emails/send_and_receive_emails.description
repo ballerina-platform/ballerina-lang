@@ -1,4 +1,6 @@
 // The Email Connector is used to send (with SMTP) and receive (with POP3 or
 // IMAP4) emails using the SSL or STARTTLS protocols. This sample includes
 // sending and receiving emails with default configurations over SSL using
-// default ports.
+// default ports.<br/><br/>
+// For more information on the underlying module, 
+// see the [Email module](https://ballerina.io/learn/api-docs/ballerina/email/index.html).

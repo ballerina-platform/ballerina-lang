@@ -1,0 +1,7 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run kafka_authentication_sasl_plain_producer.bal
+
+# If the producer is authenticated and the message sent successfully,
+# following message will be printed in the console.
+Message successfully sent.

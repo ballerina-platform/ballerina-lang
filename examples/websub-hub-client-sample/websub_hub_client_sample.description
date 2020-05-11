@@ -9,4 +9,6 @@
 // is not included.
 //
 // The Hub Client Endpoint can be used by subscribers to subscribe/unsubscribe at a Hub, and by publishers to
-// register topics and publish updates for topics at the Hub.
+// register topics and publish updates for topics at the Hub.<br/><br/>
+// For more information on the underlying module, 
+// see the [WebSub module](https://ballerina.io/learn/api-docs/ballerina/websub/index.html).

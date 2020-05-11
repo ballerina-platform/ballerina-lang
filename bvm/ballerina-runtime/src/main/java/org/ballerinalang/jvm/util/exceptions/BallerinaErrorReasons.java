@@ -81,6 +81,8 @@ public class BallerinaErrorReasons {
                                                                                  KEY_NOT_FOUND_ERROR_IDENTIFIER);
     public static final String TABLE_KEY_NOT_FOUND_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
             KEY_NOT_FOUND_ERROR_IDENTIFIER);
+    public static final String TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR =
+            getModulePrefixedReason(TABLE_LANG_LIB, "CyclicValueReferenceError");
     public static final String TABLE_HAS_A_VALUE_FOR_KEY_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
             "KeyConstraintViolation");
     public static final String ILLEGAL_LIST_INSERTION_ERROR = getModulePrefixedReason(ARRAY_LANG_LIB,
