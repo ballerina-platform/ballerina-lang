@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ import java.util.Map;
  */
 public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
-    private Map<String, BLangExpression> paramValues;
+    private Map<String, BType> paramValueTypes;
     private boolean isInvocation;
 
     public BType buildType(BType originalType, BLangInvocation invocation) {
@@ -65,7 +64,9 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         if (this.isInvocation) {
             createParamMap(invocation);
         }
-        return originalType.accept(this, null);
+        BType newType = originalType.accept(this, null);
+        this.paramValueTypes = null;
+        return newType;
     }
 
     @Override
@@ -311,7 +312,7 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         String paramVarName = originalType.paramSymbol.name.value;
         BType type;
         if (this.isInvocation) {
-            type = ((BTypedescType) paramValues.get(paramVarName).type).constraint;
+            type = ((BTypedescType) paramValueTypes.get(paramVarName)).constraint;
         } else {
             type = originalType.paramValueType;
         }
@@ -320,18 +321,21 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
     }
 
     private void createParamMap(BLangInvocation invocation) {
-        paramValues = new LinkedHashMap<>();
+        paramValueTypes = new LinkedHashMap<>();
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
+        int nArgs = invocation.requiredArgs.size();
+        int nParams = symbol.params.size();
         BVarSymbol param;
 
-        for (int i = 0; i < symbol.params.size(); i++) {
+        for (int i = 0; i < nParams; i++) {
             param = symbol.params.get(i);
 
-            if (param.defaultableParam) {
-                break;
+            if (param.defaultableParam && i >= nArgs) {
+                paramValueTypes.put(param.name.value, symbol.paramDefaultValTypes.get(param.name.value));
+                continue;
             }
 
-            paramValues.put(param.name.value, invocation.requiredArgs.get(i));
+            paramValueTypes.put(param.name.value, invocation.requiredArgs.get(i).type);
         }
     }
 }

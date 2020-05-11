@@ -315,6 +315,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
+
+            if (param.expr != null) {
+                funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, param.expr.type);
+            }
         }
         if (funcNode.restParam != null) {
             symbolEnter.defineExistingVarSymbolInEnv(funcNode.restParam.symbol, funcNode.clonedEnv);
