@@ -18,8 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.security;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
@@ -46,52 +45,55 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SSL;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
 
 /**
  * Test cases for ballerina.kafka consumer and producer with SSL.
  */
-public class ConsumerAndProducerWithSslTest {
+public class SslConsumerAndProducerTest {
 
     private CompileResult result;
-    private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private static String resourceDir = Paths.get("src", "test", "resources").toString();
-    private static String configFile = Paths.get(TEST_SRC, TEST_SECURITY, "ssl_producer_consumer.bal").toString();
-    private String message = "Hello World SSL Test";
-
-    //Constants
-    private String filePath = "<FILE_PATH>";
-    private static String keystoresAndTruststores = Paths.get("data-files", "keystores-truststores").toString();
+    private static final String balFile = "ssl_producer_consumer.bal";
+    private static final String balFilePath = getResourcePath(Paths.get(TEST_SRC, TEST_SECURITY, balFile));
+    private static final String dataDir = getDataDirectoryName(SslConsumerAndProducerTest.class.getName());
+    private static final String filePath = "<FILE_PATH>";
+    private static final String keystoreAndTruststore = getResourcePath(Paths.get("data-files", "keystore-truststore"));
 
     @BeforeClass
-    public void setup() throws IOException {
-        Properties prop = getKafkaBrokerProperties();
-        kafkaCluster = kafkaCluster(prop).deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).addBrokers(1).startup();
+    public void setup() throws Throwable {
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14022)
+                .withBroker(PROTOCOL_SSL, 14122, getKafkaBrokerProperties())
+                .withAdminClient(getClientProperties())
+                .start();
         kafkaCluster.createTopic("test-topic-ssl", 2, 1);
         //Setting the keystore and trust-store file paths
-        String filePathString = Paths.get(resourceDir, configFile).toAbsolutePath().toString();
-        setFilePath(filePathString, filePath, Paths.get(resourceDir,
-                                                        keystoresAndTruststores).toAbsolutePath().toString());
-        result = BCompileUtil.compileOffline(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
+        String filePathString = Paths.get(balFilePath).toAbsolutePath().toString();
+        setFilePath(filePathString, filePath, Paths.get(keystoreAndTruststore).toAbsolutePath().toString());
+        result = BCompileUtil.compile(balFilePath);
     }
 
     @Test(description = "Test SSL producer and consumer")
-    public void testKafkaProducerWithSSL() {
+    public void testKafkaProducerWithSsl() {
+        String message = "Hello World SSL Test";
         BValue[] args = new BValue[1];
         args[0] = new BString(message);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] returnBValues = BRunUtil.invoke(result, "funcTestKafkaProduceWithSSL", args);
+            BValue[] returnBValues = BRunUtil.invoke(result, "testProducerWithSsl", args);
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BBoolean);
             return ((BBoolean) returnBValues[0]).booleanValue();
         });
 
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPollWithSSL");
+            BValue[] returnBValues = BRunUtil.invoke(result, "testPollWithSsl");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BString);
             return returnBValues[0].stringValue().equals(message);
@@ -100,40 +102,13 @@ public class ConsumerAndProducerWithSslTest {
 
     @SuppressWarnings(UNCHECKED)
     @Test(description = "Test kafka consumer connect with no SSL config values")
-    public void testKafkaConsumerSSLConnectNegative() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaSSLConnectNegative");
+    public void testKafkaConsumerSslConnectNegative() {
+        BValue[] returnBValues = BRunUtil.invoke(result, "testSslConnectNegative");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BError);
         String errorMessage =
                 "Failed to send data to Kafka server: Topic test-topic-ssl not present in metadata after 1000 ms.";
         Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]), errorMessage);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        //Reverting the keystore and trust-store file paths
-        setFilePath(Paths.get(resourceDir, configFile).toAbsolutePath().toString(),
-                    Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePath);
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
-    }
-
-    private static KafkaCluster kafkaCluster(Properties prop) {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-ssl-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir)
-                .withPorts(14011, 14111)
-                .withKafkaConfiguration(prop);
-        return kafkaCluster;
     }
 
     private static void setFilePath(String path, String searchValue, String newValue) {
@@ -168,21 +143,42 @@ public class ConsumerAndProducerWithSslTest {
         }
     }
 
-    private static Properties getKafkaBrokerProperties() {
-        Properties prop = new Properties();
-        prop.put("listeners", "SSL://localhost:14111");
-        prop.put("security.inter.broker.protocol", "SSL");
-        prop.put("ssl.client.auth", "required");
-        prop.put("ssl.keystore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator +
-                "kafka.server.keystore.jks");
-        prop.put("ssl.keystore.password", "test1234");
-        prop.put("ssl.key.password", "test1234");
-        prop.put("ssl.truststore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator
-                + "kafka.server.truststore.jks");
-        prop.put("ssl.truststore.password", "test1234");
-        prop.put("zookeeper.session.timeout.ms", "20000");
-        prop.put("zookeeper.connection.timeout.ms", "20000");
+    private static Properties getClientProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("security.protocol", "SSL");
+        properties.setProperty("ssl.truststore.location",
+                               keystoreAndTruststore + File.separator + "kafka.client.truststore.jks");
+        properties.setProperty("ssl.truststore.password", "test1234");
+        properties.setProperty("ssl.keystore.location",
+                               keystoreAndTruststore + File.separator + "kafka.client.keystore.jks");
+        properties.setProperty("ssl.keystore.password", "test1234");
+        properties.setProperty("ssl.key.password", "test1234");
+        return properties;
+    }
 
-        return prop;
+    private static Properties getKafkaBrokerProperties() {
+        Properties properties = new Properties();
+        properties.put("listeners", "SSL://localhost:14122");
+        properties.put("security.inter.broker.protocol", "SSL");
+        properties.put("ssl.client.auth", "required");
+        properties.put("ssl.keystore.location",
+                       keystoreAndTruststore + File.separator + "kafka.server.keystore.jks");
+        properties.put("ssl.keystore.password", "test1234");
+        properties.put("ssl.key.password", "test1234");
+        properties.put("ssl.truststore.location",
+                       keystoreAndTruststore + File.separator + "kafka.server.truststore.jks");
+        properties.put("ssl.truststore.password", "test1234");
+        properties.put("zookeeper.session.timeout.ms", "30000");
+        properties.put("zookeeper.connection.timeout.ms", "30000");
+
+        return properties;
+    }
+
+    @AfterClass
+    public void tearDown() throws IOException {
+        // Reverting the keystore and trust-store file paths
+        setFilePath(Paths.get(balFilePath).toAbsolutePath().toString(),
+                    Paths.get(keystoreAndTruststore).toAbsolutePath().toString(), filePath);
+        finishTest(kafkaCluster, dataDir);
     }
 }

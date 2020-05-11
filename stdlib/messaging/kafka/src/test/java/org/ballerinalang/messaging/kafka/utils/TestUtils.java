@@ -18,17 +18,19 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Collect;
-import kafka.server.KafkaConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.CountDownLatch;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Constants used in Ballerina Kafka tests.
@@ -38,7 +40,7 @@ public class TestUtils {
     private TestUtils() {
     }
 
-    private static final Path TEST_PATH = Paths.get("src", "test", "resources");
+    public static final Path TEST_PATH = Paths.get("src", "test", "resources");
     public static final String TEST_SRC = "test-src";
     public static final String TEST_CONSUMER = "consumer";
     public static final String TEST_PRODUCER = "producer";
@@ -48,31 +50,47 @@ public class TestUtils {
     public static final String TEST_SECURITY = "security";
     public static final String TEST_TRANSACTIONS = "transactions";
 
-    public static String getFilePath(Path filePath) {
+    public static final String PROTOCOL_PLAINTEXT = "PLAINTEXT";
+    public static final String PROTOCOL_SSL = "SSL";
+    public static final String PROTOCOL_SASL_PLAIN = "SASL_PLAINTEXT";
+    public static final String STRING_SERIALIZER = StringSerializer.class.getName();
+    public static final String STRING_DESERIALIZER = StringDeserializer.class.getName();
+
+    private static final int ZOOKEEPER_CONNECTION_TIMEOUT = 10000;
+
+    public static String getResourcePath(Path filePath) {
         return TEST_PATH.resolve(filePath).toAbsolutePath().toString();
     }
 
-    public static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic, String message) {
-        CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings(topic, 10, completion::countDown, () -> message);
-        try {
-            completion.await();
-        } catch (Exception ex) {
-            //Ignore
+    public static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic, String message)
+            throws ExecutionException, InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            kafkaCluster.sendMessage(topic, message);
         }
+    }
+
+    public static Properties getZookeeperTimeoutProperty() {
+        Properties properties = new Properties();
+        properties.setProperty("zookeeper.connection.timeout.ms", Integer.toString(ZOOKEEPER_CONNECTION_TIMEOUT));
+        return properties;
     }
 
     public static String getErrorMessageFromReturnValue(BValue value) {
         return ((BMap) ((BError) value).getDetails()).get("message").stringValue();
     }
 
-    public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
-        String timeout = "30000";
-        return new KafkaCluster()
-                .usingDirectory(dataDir)
-                .deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true)
-                .withKafkaConfiguration(Collect.propertiesOf(KafkaConfig.ZkSessionTimeoutMsProp(), timeout))
-                .withPorts(zkPort, brokerPort);
+    public static void finishTest(KafkaCluster kafkaCluster, String dataDir) throws IOException {
+        if (kafkaCluster != null) {
+            kafkaCluster.stop();
+        }
+        boolean deleted = Files.deleteIfExists(Paths.get(dataDir));
+        if (!deleted) {
+            File file = new File(dataDir);
+            file.deleteOnExit();
+        }
+    }
+
+    public static String getDataDirectoryName(String testName) {
+        return Paths.get("build", "kafka-logs", testName).toString();
     }
 }

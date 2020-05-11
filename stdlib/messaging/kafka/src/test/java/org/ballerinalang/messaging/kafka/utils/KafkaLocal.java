@@ -29,9 +29,7 @@ import java.util.Properties;
 public class KafkaLocal {
     public KafkaServerStartable kafka;
 
-    public KafkaLocal(Properties kafkaProperties) {
-        Properties properties = new Properties();
-        properties.putAll(kafkaProperties);
+    public KafkaLocal(Properties properties) {
         KafkaConfig kafkaConfig = KafkaConfig.fromProps(properties);
 
         // start local kafka broker

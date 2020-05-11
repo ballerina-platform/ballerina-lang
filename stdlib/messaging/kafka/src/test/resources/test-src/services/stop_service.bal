@@ -19,7 +19,7 @@ import ballerina/kafka;
 string topic = "service-stop-test";
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14110",
+    bootstrapServers: "localhost:14141",
     groupId: "service-stop-test-group",
     clientId: "service-stop-consumer",
     offsetReset: "earliest",
@@ -38,7 +38,7 @@ service kafkaTestService on kafkaConsumer {
 }
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers: "localhost:14110",
+    bootstrapServers: "localhost:14141",
     clientId: "service-producer",
     acks: kafka:ACKS_ALL,
     retryCount: 3
@@ -46,12 +46,12 @@ kafka:ProducerConfiguration producerConfigs = {
 
 kafka:Producer kafkaProducer = new(producerConfigs);
 
-function funcKafkaProduce() {
+function testProduce() {
     string msg = "test_string";
     byte[] byteMsg = msg.toBytes();
     var result = kafkaProducer->send(byteMsg, topic);
 }
 
-function funcKafkaGetResult() returns boolean {
+function testGetResult() returns boolean {
     return isSuccess;
 }

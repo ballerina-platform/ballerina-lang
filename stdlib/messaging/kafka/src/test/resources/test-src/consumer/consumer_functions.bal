@@ -17,37 +17,31 @@
 import ballerina/kafka;
 
 kafka:ConsumerConfiguration consumerConfig = {
-    bootstrapServers: "localhost:14107",
+    bootstrapServers: "localhost:14101",
     groupId: "test-group",
     clientId: "basic-consumer",
     offsetReset: "earliest",
-    topics: ["test"]
+    topics: ["consumer-functions-test-topic"]
 };
 
-function funcKafkaConnect() returns kafka:Consumer {
+function testCreateConsumer() returns kafka:Consumer {
     kafka:Consumer consumer= new(consumerConfig);
     return consumer;
 }
 
-function funcKafkaClose() returns boolean {
+function testClose() returns kafka:ConsumerError? {
     kafka:Consumer consumer= new(consumerConfig);
-    var result = consumer->close();
-    return !(result is error);
+    return consumer->close();
 }
 
-function funcKafkaGetSubscription() returns string[]|error {
+function testGetSubscription() returns string[]|error {
     kafka:Consumer consumer= new(consumerConfig);
     return consumer->getSubscription();
 }
 
-function funcKafkaGetAssignment() returns kafka:TopicPartition[]|error {
+function testPoll() returns int|error {
     kafka:Consumer consumer= new(consumerConfig);
-    return consumer->getAssignment();
-}
-
-function funcKafkaPoll() returns int|error {
-    kafka:Consumer consumer= new(consumerConfig);
-    var results = consumer->poll(1000);
+    var results = consumer->poll(2000);
     if (results is error) {
         return results;
     } else {
@@ -58,12 +52,11 @@ function funcKafkaPoll() returns int|error {
 string topic1 = "consumer-unsubscribe-test-1";
 string topic2 = "consumer-unsubscribe-test-2";
 
-function funcKafkaTestUnsubscribe() returns boolean {
+function testTestUnsubscribe() returns boolean {
     kafka:Consumer kafkaConsumer = new({
-            bootstrapServers: "localhost:9100",
+            bootstrapServers: "localhost:14101",
             groupId: "test-group",
             clientId: "unsubscribe-consumer",
-            offsetReset: "earliest",
             topics: [topic1, topic2]
         });
     var subscribedTopics = kafkaConsumer->getSubscription();
