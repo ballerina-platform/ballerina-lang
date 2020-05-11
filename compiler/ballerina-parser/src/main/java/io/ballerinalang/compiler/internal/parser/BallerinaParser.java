@@ -7814,7 +7814,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseKeyTypeConstraint(STNode keyKeywordToken) {
+        startContext(ParserRuleContext.KEY_TYPE_CONSTRAINTS_RHS);
         STNode typeParameterNode = parseTypeParameter();
+        endContext();
         return STNodeFactory.createKeyTypeConstraintNode(keyKeywordToken, typeParameterNode);
     }
 }

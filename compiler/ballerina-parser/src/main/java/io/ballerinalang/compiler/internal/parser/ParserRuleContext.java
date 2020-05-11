@@ -330,6 +330,7 @@ public enum ParserRuleContext {
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
+    KEY_TYPE_CONSTRAINTS_RHS("key-type-constraints-ths"),
     ;
 
     private String value;
