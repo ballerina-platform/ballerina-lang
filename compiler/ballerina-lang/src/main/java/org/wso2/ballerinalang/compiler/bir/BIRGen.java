@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -95,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStringAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -114,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -163,11 +166,13 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -1351,7 +1356,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
-        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.type);
+        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.type, Collections.emptyList());
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(astMapLiteralExpr.type, this.env.nextLocalVarId(names),
                                                        VarScope.FUNCTION, VarKind.TEMP);
@@ -1378,7 +1383,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral astStructLiteralExpr) {
-        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.type);
+        List<BIROperand> varDcls = mapToVarDcls(astStructLiteralExpr.enclMapSymbols);
+        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.type, varDcls);
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1396,6 +1402,19 @@ public class BIRGen extends BLangNodeVisitor {
         if (astStructLiteralExpr.initializer != null) {
             //TODO
         }
+    }
+
+    private List<BIROperand> mapToVarDcls(TreeMap<Integer, BVarSymbol> enclMapSymbols) {
+        if (enclMapSymbols == null || enclMapSymbols.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<BIROperand> varDcls = new ArrayList<>(enclMapSymbols.size());
+        for (BVarSymbol varSymbol : enclMapSymbols.values()) {
+            BIRVariableDcl varDcl = this.env.symbolVarMap.get(varSymbol);
+            varDcls.add(new BIROperand(varDcl));
+        }
+        return varDcls;
     }
 
     @Override
@@ -1479,6 +1498,33 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
                                               astMapAccessExpr.lhsVar && !astMapAccessExpr.leafNode));
+        this.env.targetOperand = tempVarRef;
+        this.varAssignment = variableStore;
+    }
+
+    @Override
+    public void visit(BLangTableAccessExpr astTableAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+        BIROperand rhsOp = this.env.targetOperand;
+
+        astTableAccessExpr.expr.accept(this);
+        BIROperand varRefRegIndex = this.env.targetOperand;
+
+        astTableAccessExpr.indexExpr.accept(this);
+        BIROperand keyRegIndex = this.env.targetOperand;
+        if (variableStore) {
+            emit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_STORE, varRefRegIndex,
+                    keyRegIndex, rhsOp));
+            return;
+        }
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTableAccessExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+        emit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_LOAD, tempVarRef,
+                keyRegIndex, varRefRegIndex));
         this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }
@@ -1698,7 +1744,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        visitTypedesc(waitLiteral.pos, waitLiteral.type);
+        visitTypedesc(waitLiteral.pos, waitLiteral.type, Collections.emptyList());
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitLiteral.type,
@@ -1914,22 +1960,63 @@ public class BIRGen extends BLangNodeVisitor {
                 new BIRVariableDcl(accessExpr.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType));
+        emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType,
+                                              Collections.emptyList()));
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(tableConstructorExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        BLangArrayLiteral keySpecifierLiteral = new BLangArrayLiteral();
+        keySpecifierLiteral.pos = tableConstructorExpr.pos;
+        keySpecifierLiteral.type = symTable.stringArrayType;
+        keySpecifierLiteral.exprs = new ArrayList<>();
+        BTableType type = (BTableType) tableConstructorExpr.type;
+
+        if (type.fieldNameList != null) {
+            type.fieldNameList.forEach(col -> {
+                BLangLiteral colLiteral = new BLangLiteral();
+                colLiteral.pos = tableConstructorExpr.pos;
+                colLiteral.type = symTable.stringType;
+                colLiteral.value = col;
+                keySpecifierLiteral.exprs.add(colLiteral);
+            });
+        }
+
+        keySpecifierLiteral.accept(this);
+        BIROperand keyColOp = this.env.targetOperand;
+
+        BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
+        dataLiteral.pos = tableConstructorExpr.pos;
+        dataLiteral.type = new BArrayType(((BTableType) tableConstructorExpr.type).constraint);
+        dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
+        dataLiteral.accept(this);
+        BIROperand dataOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewTable(tableConstructorExpr.pos, tableConstructorExpr.type, toVarRef, keyColOp,
+                dataOp));
+
         this.env.targetOperand = toVarRef;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        visitTypedesc(typeLoad.pos, typeLoad.symbol.type);
+        visitTypedesc(typeLoad.pos, typeLoad.symbol.type, Collections.emptyList());
     }
 
-    private void visitTypedesc(DiagnosticPos pos, BType type) {
+    private void visitTypedesc(DiagnosticPos pos, BType type, List<BIROperand> varDcls) {
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
                         .TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type));
+        emit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, varDcls));
         this.env.targetOperand = toVarRef;
     }
 

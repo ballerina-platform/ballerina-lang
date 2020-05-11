@@ -46,13 +46,6 @@ public enum DiagnosticCode {
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED("missing.error.reason"),
-    UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
-    TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
-    FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
-    TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
-    TABLE_CONSTRAINT_MUST_BE_A_RECORD_TYPE("table.constraint.must.be.a.record"),
-    CANNOT_INFER_TABLE_TYPE("cannot.infer.table.type"),
-    TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
@@ -273,6 +266,7 @@ public enum DiagnosticCode {
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
+    DUPLICATE_KEY_IN_TABLE_LITERAL("duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
@@ -411,6 +405,23 @@ public enum DiagnosticCode {
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
+
+    // Table related codes
+    TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.table.constraint.subtype"),
+    TABLE_KEY_SPECIFIER_MISMATCH("table.key.specifier.mismatch"),
+    KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.size.mismatch.with.key.constraint"),
+    KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.mismatch.with.key.constraint"),
+    INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("invalid.key.constraint.provided.for.access"),
+    MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("member.access.not.supported.keyless.table"),
+    INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("invalid.field.name.in.key.specifier"),
+    MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("multi.key.member.access.not.supported"),
+    KEY_SPECIFIER_FIELD_MUST_BE_READONLY("key.specifier.field.must.be.readonly"),
+    KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED("key.specifier.field.must.be.required"),
+    KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA("key.specifier.field.must.be.anydata"),
+    KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("key.specifier.field.value.must.be.constant"),
+    KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT
+            ("key.constraint.not.supported.for.table.with.map.constraint"),
+    CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("cannot.infer.member.type.for.table"),
 
 
     // Taint checking related codes

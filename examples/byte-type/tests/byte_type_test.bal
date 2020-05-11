@@ -1,6 +1,6 @@
 import ballerina/test;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 int count = 0;
 
 // This is the mock function which will replace the real function
@@ -8,7 +8,7 @@ int count = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     outputs[count] = s[0];
     count += 1;
 }

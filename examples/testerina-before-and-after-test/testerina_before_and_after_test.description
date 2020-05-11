@@ -1,3 +1,4 @@
 // The `before` attribute allows you to execute a function before a test function.
 // This capability can be used for setting up prerequisites that need to be executed before executing a test.
-// Similarly, the `after` attribute can be used to execute a function after a test function. 
+// Similarly, the `after` attribute can be used to execute a function after a test function.<br/><br/>
+// For more information, see [How to Test Ballerina Code](https://ballerina.io/learn/how-to-test-ballerina-code/).

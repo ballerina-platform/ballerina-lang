@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 

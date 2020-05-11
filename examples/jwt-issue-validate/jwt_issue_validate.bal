@@ -54,7 +54,7 @@ public function main() {
         issuer: "wso2",
         audience: "ballerina",
         clockSkewInSeconds: 60,
-        trustStoreConfig: {
+        signatureConfig: {
             certificateAlias: "ballerina",
             trustStore: trustStore
         }

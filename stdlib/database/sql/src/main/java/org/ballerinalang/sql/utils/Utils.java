@@ -18,13 +18,16 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.BXMLType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -32,6 +35,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
@@ -54,7 +58,9 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
@@ -83,7 +89,7 @@ class Utils {
     private static final BArrayType floatArrayType = new BArrayType(BTypes.typeFloat);
     private static final BArrayType decimalArrayType = new BArrayType(BTypes.typeDecimal);
 
-    public static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
+    static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
         if (resultSet != null) {
             try {
                 resultSet.close();
@@ -128,7 +134,9 @@ class Utils {
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
             int index = i + 1;
-            if (object instanceof String) {
+            if (object == null) {
+                preparedStatement.setNull(index, Types.NULL);
+            } else if (object instanceof String) {
                 preparedStatement.setString(index, object.toString());
             } else if (object instanceof Long) {
                 preparedStatement.setLong(index, (Long) object);
@@ -136,6 +144,8 @@ class Utils {
                 preparedStatement.setDouble(index, (Double) object);
             } else if (object instanceof DecimalValue) {
                 preparedStatement.setBigDecimal(index, ((DecimalValue) object).decimalValue());
+            } else if (object instanceof Boolean) {
+                preparedStatement.setBoolean(index, (Boolean) object);
             } else if (object instanceof ArrayValue) {
                 ArrayValue objectArray = (ArrayValue) object;
                 if (objectArray.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
@@ -146,7 +156,19 @@ class Utils {
                 }
             } else if (object instanceof MapValue) {
                 MapValue<String, Object> recordValue = (MapValue<String, Object>) object;
-                setSqlTypedParam(connection, preparedStatement, index, recordValue);
+                if ((recordValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
+                    setSqlTypedParam(connection, preparedStatement, index, recordValue);
+                } else if (recordValue.getType() instanceof BMapType &&
+                        ((BMapType) recordValue.getType()).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
+                    preparedStatement.setString(index, ((MapValueImpl) recordValue).getJSONString());
+                } else {
+                    throw new ApplicationError("Unsupported type:" +
+                            recordValue.getType().getQualifiedName() + " in column index: " + index);
+                }
+            } else if (object instanceof XMLValue) {
+                preparedStatement.setObject(index, ((XMLValue) object).getTextValue(), Types.SQLXML);
+            } else {
+                throw new ApplicationError("Unsupported type passed in column index: " + index);
             }
         }
     }
@@ -158,18 +180,27 @@ class Utils {
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
             case Constants.SqlTypes.VARCHAR:
-            case Constants.SqlTypes.LONGVARCHAR:
             case Constants.SqlTypes.CHAR:
-                preparedStatement.setString(index, value.toString());
+            case Constants.SqlTypes.TEXT:
+                if (value == null) {
+                    preparedStatement.setString(index, null);
+                } else {
+                    preparedStatement.setString(index, value.toString());
+                }
                 break;
-            case Constants.SqlTypes.LONGNVARCHAR:
             case Constants.SqlTypes.NCHAR:
             case Constants.SqlTypes.NVARCHAR:
-                preparedStatement.setNString(index, value.toString());
+                if (value == null) {
+                    preparedStatement.setNString(index, null);
+                } else {
+                    preparedStatement.setNString(index, value.toString());
+                }
                 break;
             case Constants.SqlTypes.BIT:
             case Constants.SqlTypes.BOOLEAN:
-                if (value instanceof String) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.BOOLEAN);
+                } else if (value instanceof String) {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value.toString()));
                 } else if (value instanceof Integer || value instanceof Long) {
                     long lVal = ((Number) value).longValue();
@@ -185,29 +216,28 @@ class Utils {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
-            case Constants.SqlTypes.TINYINT:
-                if (value instanceof Integer || value instanceof Long) {
-                    preparedStatement.setByte(index, ((Number) value).byteValue());
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
-                }
-                break;
             case Constants.SqlTypes.INTEGER:
-                if (value instanceof Integer || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.INTEGER);
+                } else if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setInt(index, ((Number) value).intValue());
                 } else {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.BIGINT:
-                if (value instanceof Integer || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.BIGINT);
+                } else if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setLong(index, ((Number) value).longValue());
                 } else {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.SMALLINT:
-                if (value instanceof Integer || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.SMALLINT);
+                } else if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setShort(index, ((Number) value).shortValue());
                 } else {
                     throw throwInvalidParameterError(value, sqlType);
@@ -215,7 +245,9 @@ class Utils {
                 break;
             case Constants.SqlTypes.FLOAT:
             case Constants.SqlTypes.REAL:
-                if (value instanceof Double || value instanceof Long ||
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.FLOAT);
+                } else if (value instanceof Double || value instanceof Long ||
                         value instanceof Float || value instanceof Integer) {
                     preparedStatement.setFloat(index, ((Number) value).floatValue());
                 } else if (value instanceof DecimalValue) {
@@ -225,7 +257,9 @@ class Utils {
                 }
                 break;
             case Constants.SqlTypes.DOUBLE:
-                if (value instanceof Double || value instanceof Long ||
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.DOUBLE);
+                } else if (value instanceof Double || value instanceof Long ||
                         value instanceof Float || value instanceof Integer) {
                     preparedStatement.setDouble(index, ((Number) value).doubleValue());
                 } else if (value instanceof DecimalValue) {
@@ -236,7 +270,9 @@ class Utils {
                 break;
             case Constants.SqlTypes.NUMERIC:
             case Constants.SqlTypes.DECIMAL:
-                if (value instanceof Double || value instanceof Long) {
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.DECIMAL);
+                } else if (value instanceof Double || value instanceof Long) {
                     preparedStatement.setBigDecimal(index, new BigDecimal(((Number) value).doubleValue(),
                             MathContext.DECIMAL64));
                 } else if (value instanceof Integer || value instanceof Float) {
@@ -249,10 +285,11 @@ class Utils {
                 }
                 break;
             case Constants.SqlTypes.BINARY:
-            case Constants.SqlTypes.LONGVARBINARY:
             case Constants.SqlTypes.VARBINARY:
             case Constants.SqlTypes.BLOB:
-                if (value instanceof ArrayValue) {
+                if (value == null) {
+                    preparedStatement.setBytes(index, null);
+                } else if (value instanceof ArrayValue) {
                     ArrayValue arrayValue = (ArrayValue) value;
                     if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
                         preparedStatement.setBytes(index, arrayValue.getBytes());
@@ -276,87 +313,103 @@ class Utils {
             case Constants.SqlTypes.CLOB:
             case Constants.SqlTypes.NCLOB:
                 Clob clob;
-                if (sqlType.equalsIgnoreCase(Constants.SqlTypes.NCLOB)) {
-                    clob = connection.createNClob();
+                if (value == null) {
+                    preparedStatement.setNull(index, Types.CLOB);
                 } else {
-                    clob = connection.createClob();
-                }
-                if (value instanceof String) {
-                    clob.setString(1, value.toString());
-                    preparedStatement.setClob(index, clob);
-                } else if (value instanceof ObjectValue) {
-                    ObjectValue objectValue = (ObjectValue) value;
-                    if (objectValue.getType().getName().equalsIgnoreCase(Constants.READ_CHAR_CHANNEL_STRUCT) &&
-                            objectValue.getType().getPackage().toString()
-                                    .equalsIgnoreCase(IOConstants.IO_PACKAGE_ID.toString())) {
-                        CharacterChannel charChannel = (CharacterChannel) objectValue.getNativeData(
-                                IOConstants.CHARACTER_CHANNEL_NAME);
-                        preparedStatement.setCharacterStream(index, new CharacterChannelReader(charChannel));
+                    if (sqlType.equalsIgnoreCase(Constants.SqlTypes.NCLOB)) {
+                        clob = connection.createNClob();
                     } else {
-                        throw throwInvalidParameterError(value, sqlType);
+                        clob = connection.createClob();
+                    }
+                    if (value instanceof String) {
+                        clob.setString(1, value.toString());
+                        preparedStatement.setClob(index, clob);
+                    } else if (value instanceof ObjectValue) {
+                        ObjectValue objectValue = (ObjectValue) value;
+                        if (objectValue.getType().getName().equalsIgnoreCase(Constants.READ_CHAR_CHANNEL_STRUCT) &&
+                                objectValue.getType().getPackage().toString()
+                                        .equalsIgnoreCase(IOConstants.IO_PACKAGE_ID.toString())) {
+                            CharacterChannel charChannel = (CharacterChannel) objectValue.getNativeData(
+                                    IOConstants.CHARACTER_CHANNEL_NAME);
+                            preparedStatement.setCharacterStream(index, new CharacterChannelReader(charChannel));
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     }
                 }
                 break;
             case Constants.SqlTypes.DATE:
                 Date date;
-                if (value instanceof String) {
-                    date = Date.valueOf(value.toString());
-                } else if (value instanceof Long) {
-                    date = new Date((Long) value);
-                } else if (value instanceof MapValue) {
+                if (value == null) {
+                    preparedStatement.setDate(index, null);
+                } else {
+                    if (value instanceof String) {
+                        date = Date.valueOf(value.toString());
+                    } else if (value instanceof Long) {
+                        date = new Date((Long) value);
+                    } else if (value instanceof MapValue) {
                     MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
-                    if (dateTimeStruct.getType().getName()
-                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
-                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
-                        date = new Date(zonedDateTime.toInstant().toEpochMilli());
+                        if (dateTimeStruct.getType().getName()
+                                .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                            ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                            date = new Date(zonedDateTime.toInstant().toEpochMilli());
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     } else {
                         throw throwInvalidParameterError(value, sqlType);
                     }
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
+                    preparedStatement.setDate(index, date);
                 }
-                preparedStatement.setDate(index, date);
                 break;
             case Constants.SqlTypes.TIME:
-                Time time = null;
-                if (value instanceof String) {
-                    time = Time.valueOf(value.toString());
-                } else if (value instanceof Long) {
-                    time = new Time((Long) value);
-                } else if (value instanceof MapValue) {
+                if (value == null) {
+                    preparedStatement.setTime(index, null);
+                } else {
+                    Time time;
+                    if (value instanceof String) {
+                        time = Time.valueOf(value.toString());
+                    } else if (value instanceof Long) {
+                        time = new Time((Long) value);
+                    } else if (value instanceof MapValue) {
                     MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
-                    if (dateTimeStruct.getType().getName()
-                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
-                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
-                        time = new Time(zonedDateTime.toInstant().toEpochMilli());
+                        if (dateTimeStruct.getType().getName()
+                                .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                            ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                            time = new Time(zonedDateTime.toInstant().toEpochMilli());
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     } else {
                         throw throwInvalidParameterError(value, sqlType);
                     }
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
+                    preparedStatement.setTime(index, time);
                 }
-                preparedStatement.setTime(index, time);
                 break;
             case Constants.SqlTypes.TIMESTAMP:
             case Constants.SqlTypes.DATETIME:
-                Timestamp timestamp = null;
-                if (value instanceof String) {
-                    timestamp = Timestamp.valueOf(value.toString());
-                } else if (value instanceof Long) {
-                    timestamp = new Timestamp((Long) value);
-                } else if (value instanceof MapValue) {
+                if (value == null) {
+                    preparedStatement.setTimestamp(index, null);
+                } else {
+                    Timestamp timestamp;
+                    if (value instanceof String) {
+                        timestamp = Timestamp.valueOf(value.toString());
+                    } else if (value instanceof Long) {
+                        timestamp = new Timestamp((Long) value);
+                    } else if (value instanceof MapValue) {
                     MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
-                    if (dateTimeStruct.getType().getName()
-                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
-                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
-                        timestamp = new Timestamp(zonedDateTime.toInstant().toEpochMilli());
+                        if (dateTimeStruct.getType().getName()
+                                .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                            ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                            timestamp = new Timestamp(zonedDateTime.toInstant().toEpochMilli());
+                        } else {
+                            throw throwInvalidParameterError(value, sqlType);
+                        }
                     } else {
                         throw throwInvalidParameterError(value, sqlType);
                     }
-                } else {
-                    throw throwInvalidParameterError(value, sqlType);
+                    preparedStatement.setTimestamp(index, timestamp);
                 }
-                preparedStatement.setTimestamp(index, timestamp);
                 break;
             case Constants.SqlTypes.ARRAY:
                 Object[] arrayData = getArrayData(value);
@@ -364,18 +417,34 @@ class Utils {
                     Array array = connection.createArrayOf((String) arrayData[1], (Object[]) arrayData[0]);
                     preparedStatement.setArray(index, array);
                 } else {
-                    preparedStatement.setObject(index, null);
+                    preparedStatement.setArray(index, null);
                 }
                 break;
+            case Constants.SqlTypes.REF:
             case Constants.SqlTypes.STRUCT:
                 Object[] structData = getStructData(value, connection);
                 Object[] dataArray = (Object[]) structData[0];
                 String structuredSQLType = (String) structData[1];
                 if (dataArray == null) {
-                    preparedStatement.setNull(index + 1, Types.STRUCT);
+                    preparedStatement.setNull(index, Types.STRUCT);
                 } else {
                     Struct struct = connection.createStruct(structuredSQLType, dataArray);
-                    preparedStatement.setObject(index + 1, struct);
+                    preparedStatement.setObject(index, struct);
+                }
+                break;
+            case Constants.SqlTypes.ROW:
+                if (value == null) {
+                    preparedStatement.setRowId(index, null);
+                } else if (value instanceof ArrayValue) {
+                    ArrayValue arrayValue = (ArrayValue) value;
+                    if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
+                        RowId rowId = arrayValue::getBytes;
+                        preparedStatement.setRowId(index, rowId);
+                    } else {
+                        throw throwInvalidParameterError(value, sqlType);
+                    }
+                } else {
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             default:
@@ -676,13 +745,18 @@ class Utils {
         return returnResult;
     }
 
-    static Object convert(String value, int sqlType, BType bType) throws ApplicationError {
+    static String convert(String value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL String");
         return value;
     }
 
-    static Object convert(byte[] value, int sqlType, BType bType) throws ApplicationError {
-        validatedInvalidFieldAssignment(sqlType, bType, "SQL Binary");
+    static Object convert(String value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
+        validatedInvalidFieldAssignment(sqlType, bType, sqlTypeName);
+        return value;
+    }
+
+    static Object convert(byte[] value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
+        validatedInvalidFieldAssignment(sqlType, bType, sqlTypeName);
         if (value != null) {
             return BValueCreator.createArrayValue(value);
         } else {
@@ -775,6 +849,20 @@ class Utils {
         if (value != null) {
             if (bType instanceof BRecordType) {
                 return createUserDefinedType(value, (BRecordType) bType);
+            } else {
+                throw new ApplicationError("The ballerina type that can be used for SQL struct should be record type," +
+                        " but found " + bType.getName() + " .");
+            }
+        } else {
+            return null;
+        }
+    }
+
+    static Object convert(SQLXML value, int sqlType, BType bType) throws ApplicationError, SQLException {
+        validatedInvalidFieldAssignment(sqlType, bType, "SQL XML");
+        if (value != null) {
+            if (bType instanceof BXMLType) {
+                return XMLFactory.parse(value.getBinaryStream());
             } else {
                 throw new ApplicationError("The ballerina type that can be used for SQL struct should be record type," +
                         " but found " + bType.getName() + " .");
@@ -970,7 +1058,7 @@ class Utils {
         }
     }
 
-    public static BType validFieldConstraint(int sqlType, BType bType) {
+    static BType validFieldConstraint(int sqlType, BType bType) {
         if (bType.getTag() == TypeTags.UNION_TAG && bType instanceof BUnionType) {
             BUnionType bUnionType = (BUnionType) bType;
             for (BType memberType : bUnionType.getMemberTypes()) {
@@ -1014,7 +1102,6 @@ class Utils {
             case Types.LONGNVARCHAR:
             case Types.CLOB:
             case Types.NCLOB:
-            case Types.ROWID:
                 return bType.getTag() == TypeTags.STRING_TAG ||
                         bType.getTag() == TypeTags.JSON_TAG;
             case Types.DATE:
@@ -1051,15 +1138,31 @@ class Utils {
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
+            case Types.ROWID:
                 if (bType.getTag() == TypeTags.ARRAY_TAG) {
                     int elementTypeTag = ((BArrayType) bType).getElementType().getTag();
                     return elementTypeTag == TypeTags.BYTE_TAG;
                 }
-                return bType.getTag() == TypeTags.BYTE_ARRAY_TAG;
+                return bType.getTag() == TypeTags.STRING_TAG || bType.getTag() == TypeTags.BYTE_ARRAY_TAG;
+            case Types.REF:
             case Types.STRUCT:
                 return bType.getTag() == TypeTags.RECORD_TYPE_TAG;
+            case Types.SQLXML:
+                return bType.getTag() == TypeTags.XML_TAG;
             default:
-                return bType.getTag() == TypeTags.ANY_TAG;
+                //If user is passing the intended type variable for the sql types, then it will use
+                // those types to resolve the result.
+                return bType.getTag() == TypeTags.ANY_TAG ||
+                        bType.getTag() == TypeTags.ANYDATA_TAG ||
+                        (bType.getTag() == TypeTags.ARRAY_TAG &&
+                                ((BArrayType) bType).getElementType().getTag() == TypeTags.BYTE_TAG) ||
+                        bType.getTag() == TypeTags.STRING_TAG ||
+                        bType.getTag() == TypeTags.INT_TAG ||
+                        bType.getTag() == TypeTags.BOOLEAN_TAG ||
+                        bType.getTag() == TypeTags.XML_TAG ||
+                        bType.getTag() == TypeTags.FLOAT_TAG ||
+                        bType.getTag() == TypeTags.DECIMAL_TAG ||
+                        bType.getTag() == TypeTags.JSON_TAG;
         }
     }
 }

@@ -143,11 +143,12 @@ public class ConstructFrom {
 
     private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
+
         if (unresolvedValues.contains(typeValuePair)) {
             throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR,
-                                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                                                                              value.getType()));
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, value.getType()));
         }
+
         unresolvedValues.add(typeValuePair);
 
         Object newValue;
@@ -166,7 +167,7 @@ public class ConstructFrom {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.ERROR_TAG:
-                newValue = value.copy(new HashMap<Object, Object>());
+                newValue = value.copy(new HashMap<>());
                 break;
             default:
                 // should never reach here

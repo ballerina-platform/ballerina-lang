@@ -294,7 +294,7 @@ public type Entity object {
 # ```
 #
 # + jsonContent - JSON content, which needs to be set to the entity
-# + contentType - Content type to be used with the payload. This is an optional parameter. 
+# + contentType - Content type to be used with the payload. This is an optional parameter.
 #                The default value is `application/json`
     public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") {
         return externSetJson(self, jsonContent, java:fromString(contentType));
@@ -315,8 +315,8 @@ public type Entity object {
 # ```
 #
 # + xmlContent - XML content, which needs to be set to the entity
-# + contentType - Content type to be used with the payload. This is an optional parameter. 
-#               The default value is `application/xml` 
+# + contentType - Content type to be used with the payload. This is an optional parameter.
+#               The default value is `application/xml`
     public function setXml(@untainted xml xmlContent, @untainted public string contentType = "application/xml") {
         return externSetXml(self, xmlContent, java:fromString(contentType));
     }
@@ -336,8 +336,8 @@ public type Entity object {
 # ```
 #
 # + textContent - Text content, which needs to be set to the entity
-# + contentType - Content type to be used with the payload. This is an optional parameter. 
-#                The default value is `text/plain` 
+# + contentType - Content type to be used with the payload. This is an optional parameter.
+#                The default value is `text/plain`
     public function setText(@untainted string textContent, @untainted public string contentType = "text/plain") {
         return externSetText(self, java:fromString(textContent), java:fromString(contentType));
     }
@@ -356,12 +356,12 @@ public type Entity object {
     }
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
-    # with the default content-type, which is `application/octet-stream`. This default value 
+    # with the default content-type, which is `application/octet-stream`. This default value
     # can be overridden by passing the content type as an optional parameter.
     #
     # + blobContent - byte[] content that needs to be set to the entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
-    #                 The default value is `application/octet-stream` 
+    #                 The default value is `application/octet-stream`
     public function setByteArray(@untainted byte[] blobContent, @untainted public string contentType =
                                                                 "application/octet-stream") {
         return externSetByteArray(self, blobContent, java:fromString(contentType));
@@ -474,7 +474,7 @@ public type Entity object {
         return headers;
     }
 
-# Adds the given header value against the given header.
+# Adds the given header value against the given header. Panic if an illegal header is passed.
 # ```ballerina
 # mimeEntity.addHeader("custom-header", "header-value");
 # ```
@@ -487,7 +487,7 @@ public type Entity object {
     }
 
 # Sets the given header value against the existing header. If a header already exists, its value is replaced
-# with the given header value.
+# with the given header value. Panic if an illegal header is passed.
 # ```ballerina
 # mimeEntity.setHeader("custom-header", "header-value");
 # ```

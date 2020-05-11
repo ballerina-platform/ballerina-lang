@@ -70,4 +70,10 @@ function testMultipleSelectClausesWithSimpleVariable() {
 
     1 ..< 10;
     10 ... 20;
+
+    start testAsync();
+}
+
+public function testAsync() {
+    // do something
 }

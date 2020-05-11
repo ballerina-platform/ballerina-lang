@@ -1,3 +1,4 @@
 // Testerina has in-built assertions that enable users to
 // assert an outcome against an expected outcome. 
-// This example illustrates how to use different assertions.
+// This example illustrates how to use different assertions.<br/><br/>
+// For more information, see [How to Test Ballerina Code](https://ballerina.io/learn/how-to-test-ballerina-code/).

@@ -126,5 +126,6 @@ branches:
     - packerina-dev
     - next-release
     - release-stage
+    - new-table-impl
     - stage
     - /^ballerina-\d*[.]\d*[.]x$/

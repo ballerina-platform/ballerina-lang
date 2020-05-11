@@ -207,6 +207,21 @@ public class AssignStmtTest {
                 "invalid record binding pattern with type 'error'", 92, 9);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid record variable; expecting a record type but found 'error' in type definition", 92, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'any[]', found 'error[]'", 98, 15);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'error[]', found 'any[]'", 100, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 118, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 119, 11);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(error|int[])', found 'error[]'", 127, 21);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(int|error[])', found 'error'", 132, 21);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'function ((any|error)...) returns ()', found " +
+                                          "'function (any...) returns ()'", 136, 47);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -246,5 +261,25 @@ public class AssignStmtTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'bar'", 73, 19);
         BAssertUtil.validateError(result, i++, "unknown type 'X'", 79, 5);
         BAssertUtil.validateError(result, i, "unknown type 'V'", 81, 5);
+    }
+
+    @Test()
+    public void testAssignErrorArrayToAny() {
+        BRunUtil.invoke(result, "testAssignErrorArrayToAny");
+    }
+
+    @Test()
+    public void testAssignIntArrayToJson() {
+        BRunUtil.invoke(result, "testAssignIntArrayToJson");
+    }
+
+    @Test()
+    public void testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
+        BRunUtil.invoke(result, "testAssignIntOrStringArrayIntOrFloatOrStringUnionArray");
+    }
+
+    @Test()
+    public void assignAnyToUnionWithErrorAndAny() {
+        BRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
     }
 }

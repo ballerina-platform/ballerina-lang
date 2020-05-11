@@ -23,10 +23,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -42,6 +45,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -50,6 +54,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -68,7 +73,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -129,6 +133,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
@@ -162,38 +167,27 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator.visitInvokeDyn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.visitInvokeDyn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitReportErrorInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStartObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.getFullQualifiedRemoteFunctionName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.JavaClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.cleanupObjectTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.isExternStaticFunctionCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.loadChannelDetails;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.genJMethodForBExternalFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JInstruction;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getJTypeSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getSignatureForJType;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
@@ -206,6 +200,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -219,6 +214,9 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAcce
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
+import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.ASYNC_CALL;
+import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.CALL;
+import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -227,35 +225,1224 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
  */
 public class JvmMethodGen {
 
-    public static int nextId = -1;
-    public static int nextVarId = -1;
-
     private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
-    static BUnionType errorOrNilType;
+    private int nextId = -1;
+    private int nextVarId = -1;
+    private JvmPackageGen jvmPackageGen;
+    private SymbolTable symbolTable;
+    private BUnionType errorOrNilType;
 
-    static void generateMethod(BIRFunction birFunc,
-                               ClassWriter cw,
-                               BIRPackage birModule,
-                               @Nilable BType attachedType /* = () */,
-                               boolean isService /* = false */,
-                               String serviceName /* = "" */) {
+    public JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
-        if (isExternFunc(birFunc)) {
-            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType);
+        this.jvmPackageGen = jvmPackageGen;
+        this.symbolTable = jvmPackageGen.symbolTable;
+        this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
+    }
+
+    private static int[] toIntArray(List<Integer> states) {
+
+        int[] ints = new int[states.size()];
+        for (int i = 0; i < states.size(); i++) {
+            ints[i] = states.get(i);
+        }
+        return ints;
+    }
+
+    private static void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
+                                                    BIRVarToJVMIndexMap indexMap, String frameName) {
+
+        int k = 0;
+        while (k < localVars.size()) {
+            BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
+            int index = indexMap.getIndex(localVar);
+            BType bType = localVar.type;
+            mv.visitInsn(DUP);
+
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                mv.visitVarInsn(LSTORE, index);
+            } else if (bType.tag == TypeTags.BYTE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitVarInsn(ISTORE, index);
+            } else if (bType.tag == TypeTags.FLOAT) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                mv.visitVarInsn(DSTORE, index);
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                  String.format("L%s;", JvmConstants.B_STRING_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.DECIMAL) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", DECIMAL_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.BOOLEAN) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                mv.visitVarInsn(ISTORE, index);
+            } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", MAP_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.STREAM) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", STREAM_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE_IMPL));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.ARRAY ||
+                    bType.tag == TypeTags.TUPLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", ARRAY_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.OBJECT) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", OBJECT_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.ERROR) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", ERROR_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.FUTURE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", FUTURE_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE_IMPL));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.INVOKABLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", FUNCTION_POINTER));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.TYPEDESC) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TYPEDESC_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.NIL ||
+                    bType.tag == TypeTags.ANY ||
+                    bType.tag == TypeTags.ANYDATA ||
+                    bType.tag == TypeTags.UNION ||
+                    bType.tag == TypeTags.JSON ||
+                    bType.tag == TypeTags.FINITE ||
+                    bType.tag == TypeTags.READONLY) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", OBJECT));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", XML_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.HANDLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", HANDLE_VALUE));
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == JTypeTags.JTYPE) {
+                generateFrameClassJFieldLoad(localVar, mv, index, frameName);
+            } else {
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
+            }
+            k = k + 1;
+        }
+
+    }
+
+    private static void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
+                                                     int index, String frameName) {
+
+        JType jType = (JType) localVar.type;
+
+        if (jType.jTag == JTypeTags.JBYTE) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JCHAR) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JSHORT) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JINT) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JLONG) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+            mv.visitVarInsn(LSTORE, index);
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
+            mv.visitVarInsn(FSTORE, index);
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+            mv.visitVarInsn(DSTORE, index);
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), getJTypeSignature(jType));
+            mv.visitVarInsn(ASTORE, index);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType);
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
         }
     }
 
-    public static void genJMethodForBFunc(BIRFunction func,
-                                          ClassWriter cw,
-                                          BIRPackage module,
-                                          boolean isService,
-                                          String serviceName,
-                                          @Nilable BType attachedType /* = () */) {
+    private static void generateFrameClassFieldUpdate(List<BIRVariableDcl> localVars, MethodVisitor mv,
+                                                      BIRVarToJVMIndexMap indexMap, String frameName) {
+
+        int k = 0;
+        while (k < localVars.size()) {
+            BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
+            int index = indexMap.getIndex(localVar);
+            mv.visitInsn(DUP);
+
+            BType bType = localVar.type;
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
+                mv.visitVarInsn(LLOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+            } else if (bType.tag == TypeTags.BYTE) {
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+            } else if (bType.tag == TypeTags.FLOAT) {
+                mv.visitVarInsn(DLOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                  String.format("L%s;", JvmConstants.B_STRING_VALUE));
+            } else if (bType.tag == TypeTags.DECIMAL) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", DECIMAL_VALUE));
+            } else if (bType.tag == TypeTags.BOOLEAN) {
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+            } else if (bType.tag == TypeTags.MAP ||
+                    bType.tag == TypeTags.RECORD) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", MAP_VALUE));
+            } else if (bType.tag == TypeTags.STREAM) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", STREAM_VALUE));
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE_IMPL));
+            } else if (bType.tag == TypeTags.ARRAY ||
+                    bType.tag == TypeTags.TUPLE) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", ARRAY_VALUE));
+            } else if (bType.tag == TypeTags.ERROR) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", ERROR_VALUE));
+            } else if (bType.tag == TypeTags.FUTURE) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", FUTURE_VALUE));
+            } else if (bType.tag == TypeTags.TYPEDESC) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TYPEDESC_VALUE));
+            } else if (bType.tag == TypeTags.OBJECT) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", OBJECT_VALUE));
+            } else if (bType.tag == TypeTags.INVOKABLE) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", FUNCTION_POINTER));
+            } else if (bType.tag == TypeTags.NIL ||
+                    bType.tag == TypeTags.ANY ||
+                    bType.tag == TypeTags.ANYDATA ||
+                    bType.tag == TypeTags.UNION ||
+                    bType.tag == TypeTags.JSON ||
+                    bType.tag == TypeTags.FINITE ||
+                    bType.tag == TypeTags.READONLY) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", OBJECT));
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", XML_VALUE));
+            } else if (bType.tag == TypeTags.HANDLE) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", HANDLE_VALUE));
+            } else if (bType.tag == JTypeTags.JTYPE) {
+                generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
+            } else {
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
+            }
+            k = k + 1;
+        }
+    }
+
+    private static void generateFrameClassJFieldUpdate(BIRVariableDcl localVar, MethodVisitor mv,
+                                                       int index, String frameName) {
+
+        JType jType = (JType) localVar.type;
+        if (jType.jTag == JTypeTags.JBYTE) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "B");
+        } else if (jType.jTag == JTypeTags.JCHAR) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "C");
+        } else if (jType.jTag == JTypeTags.JSHORT) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "S");
+        } else if (jType.jTag == JTypeTags.JINT) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+        } else if (jType.jTag == JTypeTags.JLONG) {
+            mv.visitVarInsn(LLOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
+            mv.visitVarInsn(FLOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            mv.visitVarInsn(DLOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+        } else if (jType.jTag == JTypeTags.JARRAY || jType.jTag == JTypeTags.JREF) {
+            String classSig = getJTypeSignature(jType);
+            String className = getSignatureForJType(jType);
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitTypeInsn(CHECKCAST, className);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        }
+    }
+
+    private static String getJVMTypeSign(BType bType) {
+
+        String jvmType = "";
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            jvmType = "J";
+        } else if (bType.tag == TypeTags.BYTE) {
+            jvmType = "I";
+        } else if (bType.tag == TypeTags.FLOAT) {
+            jvmType = "D";
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            jvmType = "Z";
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            jvmType = String.format("L%s;", STRING_VALUE);
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            jvmType = String.format("L%s;", DECIMAL_VALUE);
+        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
+            jvmType = String.format("L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            jvmType = String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
+        } else if (bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.TUPLE) {
+            jvmType = String.format("L%s;", ARRAY_VALUE);
+        } else if (bType.tag == TypeTags.OBJECT) {
+            jvmType = String.format("L%s;", OBJECT_VALUE);
+        } else if (bType.tag == TypeTags.ERROR) {
+            jvmType = String.format("L%s;", ERROR_VALUE);
+        } else if (bType.tag == TypeTags.FUTURE) {
+            jvmType = String.format("L%s;", FUTURE_VALUE);
+        } else if (bType.tag == TypeTags.INVOKABLE) {
+            jvmType = String.format("L%s;", FUNCTION_POINTER);
+        } else if (bType.tag == TypeTags.HANDLE) {
+            jvmType = String.format("L%s;", HANDLE_VALUE);
+        } else if (bType.tag == TypeTags.TYPEDESC) {
+            jvmType = String.format("L%s;", TYPEDESC_VALUE);
+        } else if (bType.tag == TypeTags.NIL
+                || bType.tag == TypeTags.ANY
+                || bType.tag == TypeTags.ANYDATA
+                || bType.tag == TypeTags.UNION
+                || bType.tag == TypeTags.JSON
+                || bType.tag == TypeTags.FINITE
+                || bType.tag == TypeTags.READONLY) {
+            jvmType = String.format("L%s;", OBJECT);
+        } else if (bType.tag == JTypeTags.JTYPE) {
+            jvmType = getJTypeSignature((JType) bType);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+            jvmType = String.format("L%s;", XML_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM code generation is not supported for type " +
+                    String.format("%s", bType));
+        }
+        return jvmType;
+    }
+
+    private static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRBasicBlock thenBB, String funcName,
+                                      int localVarOffset) {
+
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
+        Label yieldLabel = labelGen.getLabel(funcName + "yield");
+        mv.visitJumpInsn(IFNE, yieldLabel);
+
+        // goto thenBB
+        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
+        mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    private static void generateObjectArgs(MethodVisitor mv, int paramIndex) {
+
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, paramIndex - 2);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitIntInsn(BIPUSH, paramIndex + 1);
+        mv.visitInsn(AALOAD);
+        mv.visitInsn(AASTORE);
+    }
+
+    private static void handleErrorFromFutureValue(MethodVisitor mv) {
+
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+
+        // handle any runtime errors
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
+                String.format("(L%s;)V", THROWABLE), false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(labelIf);
+    }
+
+    private static void initConfigurations(MethodVisitor mv) {
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS,
+                "initConfigurations", String.format("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
+        mv.visitVarInsn(ASTORE, 0);
+    }
+
+    private static void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+
+        mv.visitLdcInsn(isServiceEPAvailable);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
+    }
+
+    private static void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
+
+        mv.visitLdcInsn(isServiceEPAvailable);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
+    }
+
+    private static void registerShutdownListener(MethodVisitor mv, String initClass) {
+
+        String shutdownClassName = initClass + "$SignalListener";
+        mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", String.format("()L%s;", JAVA_RUNTIME), false);
+        mv.visitTypeInsn(NEW, shutdownClassName);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", String.format("(L%s;)V", JAVA_THREAD),
+                false);
+    }
+
+    private static void loadCLIArgsForMain(MethodVisitor mv, List<BIRFunctionParameter> params,
+                                           boolean hasRestParam,
+                                           List<BIRAnnotationAttachment> annotAttachments) {
+
+        // get defaultable arg names from function annotation
+        List<String> defaultableNames = new ArrayList<>();
+        int defaultableIndex = 0;
+        for (BIRAnnotationAttachment attachment : annotAttachments) {
+            if (attachment == null || !attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
+                continue;
+            }
+            BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) attachment.annotValues.get(0);
+            Map<String, BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
+            BIRAnnotationArrayValue annotArrayValue =
+                    (BIRAnnotationArrayValue) annotFieldMap.get(DEFAULTABLE_ARGS_ANOT_FIELD);
+            for (BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
+                BIRAnnotationLiteralValue argValue = (BIRAnnotationLiteralValue) entryOptional;
+                defaultableNames.add(defaultableIndex, (String) argValue.value);
+                defaultableIndex += 1;
+            }
+            break;
+        }
+        // create function info array
+        mv.visitIntInsn(BIPUSH, params.size());
+        mv.visitTypeInsn(ANEWARRAY, String.format("%s$ParamInfo", RUNTIME_UTILS));
+        int index = 0;
+        defaultableIndex = 0;
+        for (BIRFunctionParameter param : params) {
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, index);
+            index += 1;
+            mv.visitTypeInsn(NEW, String.format("%s$ParamInfo", RUNTIME_UTILS));
+            mv.visitInsn(DUP);
+            if (param != null) {
+                if (param.hasDefaultExpr) {
+                    mv.visitInsn(ICONST_1);
+                } else {
+                    mv.visitInsn(ICONST_0);
+                }
+                mv.visitLdcInsn(defaultableNames.get(defaultableIndex));
+                defaultableIndex += 1;
+                // var varIndex = indexMap.getIndex(param);
+                loadType(mv, param.type);
+            }
+            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), "<init>",
+                    String.format("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
+            mv.visitInsn(AASTORE);
+        }
+
+        // load string[] that got parsed into to java main
+        mv.visitVarInsn(ALOAD, 0);
+        if (hasRestParam) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+
+        // invoke ArgumentParser.extractEntryFuncArgs()
+        mv.visitMethodInsn(INVOKESTATIC, ARGUMENT_PARSER, "extractEntryFuncArgs",
+                String.format("([L%s$ParamInfo;[L%s;Z)[L%s;", RUNTIME_UTILS, STRING_VALUE, OBJECT), false);
+    }
+
+    private static void generateLambdaForDepModStopFunc(ClassWriter cw, String funcName, String initClass) {
+
+        MethodVisitor mv;
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
+                String.format("$lambda$%s", funcName),
+                String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
+        mv.visitCode();
+
+        //load strand as first arg
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND);
+
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private static boolean hasInitFunction(BIRPackage pkg) {
+
+        for (BIRFunction func : pkg.functions) {
+            if (func != null && isModuleInitFunction(pkg, func)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isModuleInitFunction(BIRPackage module, BIRFunction func) {
+
+        String moduleInit = getModuleInitFuncName(module);
+        return func.name.value.equals(moduleInit);
+    }
+
+    // TODO: remove and use calculateModuleInitFuncName
+    private static String getModuleInitFuncName(BIRPackage module) {
+
+        return calculateModuleInitFuncName(packageToModuleId(module));
+    }
+
+    private static String calculateModuleInitFuncName(PackageID id) {
+
+        return calculateModuleSpecialFuncName(id, "<init>");
+    }
+
+    private static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
+
+        String orgName = id.orgName.value;
+        String moduleName = id.name.value;
+        String version = id.version.value;
+
+        String funcName;
+        if (moduleName.equals(".")) {
+            funcName = ".." + funcSuffix;
+        } else if (version.equals("")) {
+            funcName = moduleName + "." + funcSuffix;
+        } else {
+            funcName = moduleName + ":" + version + "." + funcSuffix;
+        }
+
+        if (!orgName.equalsIgnoreCase("$anon")) {
+            funcName = orgName + "/" + funcName;
+        }
+
+        return funcName;
+    }
+
+    private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
+                                           int schedulerIndex, int futureIndex) {
+
+        String lambdaFuncName = "$lambda$" + stopFuncName;
+        // Create a schedular. A new schedular is used here, to make the stop function to not to
+        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
+
+        mv.visitVarInsn(ALOAD, schedulerIndex);
+
+        mv.visitIntInsn(BIPUSH, 1);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+
+        // create FP value
+        createFunctionPointer(mv, initClass, lambdaFuncName, 0);
+
+        // no parent strand
+        mv.visitInsn(ACONST_NULL);
+
+        loadType(mv, new BNilType());
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+
+        mv.visitVarInsn(ASTORE, futureIndex);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
+        mv.visitIntInsn(BIPUSH, 100);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+
+        // handle any runtime errors
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFNULL, labelIf);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, String.format("(L%s;)V", THROWABLE),
+                false);
+        mv.visitLabel(labelIf);
+    }
+
+    private static void generateJavaCompatibilityCheck(MethodVisitor mv) {
+
+        mv.visitLdcInsn(getJavaVersion());
+        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
+                String.format("(L%s;)V", STRING_VALUE), false);
+    }
+
+    private static String getJavaVersion() {
+
+        String versionProperty = "java.version";
+        String javaVersion = System.getProperty(versionProperty);
+        if (javaVersion != null) {
+            return javaVersion;
+        } else {
+            return "";
+        }
+    }
+
+    private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            mv.visitInsn(LCONST_0);
+            mv.visitVarInsn(LSTORE, index);
+        } else if (bType.tag == TypeTags.BYTE) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (bType.tag == TypeTags.FLOAT) {
+            mv.visitInsn(DCONST_0);
+            mv.visitVarInsn(DSTORE, index);
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (bType.tag == TypeTags.MAP ||
+                bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
+                bType.tag == TypeTags.ERROR ||
+                bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.OBJECT ||
+                bType.tag == TypeTags.CHAR_STRING ||
+                bType.tag == TypeTags.DECIMAL ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.RECORD ||
+                bType.tag == TypeTags.TUPLE ||
+                bType.tag == TypeTags.FUTURE ||
+                bType.tag == TypeTags.JSON ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
+                bType.tag == TypeTags.INVOKABLE ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.HANDLE ||
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType.tag == JTypeTags.JTYPE) {
+            genJDefaultValue(mv, (JType) bType, index);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+    }
+
+    private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
+
+        if (jType.jTag == JTypeTags.JBYTE) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JCHAR) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JSHORT) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JINT) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JLONG) {
+            mv.visitInsn(LCONST_0);
+            mv.visitVarInsn(LSTORE, index);
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
+            mv.visitInsn(FCONST_0);
+            mv.visitVarInsn(FSTORE, index);
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            mv.visitInsn(DCONST_0);
+            mv.visitVarInsn(DSTORE, index);
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, index);
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, index);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        }
+    }
+
+    static void loadDefaultValue(MethodVisitor mv, BType bType) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
+            mv.visitInsn(LCONST_0);
+        } else if (bType.tag == TypeTags.FLOAT) {
+            mv.visitInsn(DCONST_0);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            mv.visitInsn(ICONST_0);
+        } else if (TypeTags.isStringTypeTag(bType.tag) ||
+                bType.tag == TypeTags.MAP ||
+                bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.ERROR ||
+                bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.OBJECT ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.RECORD ||
+                bType.tag == TypeTags.TUPLE ||
+                bType.tag == TypeTags.FUTURE ||
+                bType.tag == TypeTags.JSON ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
+                bType.tag == TypeTags.INVOKABLE ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.HANDLE ||
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
+            mv.visitInsn(ACONST_NULL);
+        } else if (bType.tag == JTypeTags.JTYPE) {
+            loadDefaultJValue(mv, (JType) bType);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+    }
+
+    private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
+
+        if (jType.jTag == JTypeTags.JBYTE) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JCHAR) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JSHORT) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JINT) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JLONG) {
+            mv.visitInsn(LCONST_0);
+        } else if (jType.jTag == JTypeTags.JFLOAT) {
+            mv.visitInsn(FCONST_0);
+        } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            mv.visitInsn(DCONST_0);
+        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            mv.visitInsn(ICONST_0);
+        } else if (jType.jTag == JTypeTags.JARRAY ||
+                jType.jTag == JTypeTags.JREF) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        }
+    }
+
+    public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType, boolean isExtern) {
+
+        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+
+        if (attachedType != null) {
+            desc.append(getArgTypeSignature(attachedType));
+        }
+
+        int i = 0;
+        while (i < paramTypes.size()) {
+            BType paramType = getType(paramTypes.get(i));
+            desc.append(getArgTypeSignature(paramType));
+            i += 1;
+        }
+        String returnType = generateReturnType(retType, isExtern);
+        desc.append(returnType);
+
+        return desc.toString();
+    }
+
+    private static String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
+
+        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+        int j = 0;
+        while (j < closureMapsCount) {
+            j += 1;
+            desc.append("L").append(MAP_VALUE).append(";").append("Z");
+        }
+
+        int i = 0;
+        while (i < paramTypes.size()) {
+            BType paramType = getType(paramTypes.get(i));
+            desc.append(getArgTypeSignature(paramType));
+            i += 1;
+        }
+        String returnType = generateReturnType(retType, false);
+        desc.append(returnType);
+
+        return desc.toString();
+    }
+
+    private static String getArgTypeSignature(BType bType) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            return "J";
+        } else if (bType.tag == TypeTags.BYTE) {
+            return "I";
+        } else if (bType.tag == TypeTags.FLOAT) {
+            return "D";
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            return String.format("L%s;", B_STRING_VALUE);
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            return String.format("L%s;", DECIMAL_VALUE);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            return "Z";
+        } else if (bType.tag == TypeTags.NIL) {
+            return String.format("L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
+            return String.format("L%s;", ARRAY_VALUE);
+        } else if (bType.tag == TypeTags.ERROR) {
+            return String.format("L%s;", ERROR_VALUE);
+        } else if (bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.JSON ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.READONLY) {
+            return String.format("L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
+            return String.format("L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.FUTURE) {
+            return String.format("L%s;", FUTURE_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            return String.format("L%s;", TABLE_VALUE_IMPL);
+        } else if (bType.tag == TypeTags.INVOKABLE) {
+            return String.format("L%s;", FUNCTION_POINTER);
+        } else if (bType.tag == TypeTags.TYPEDESC) {
+            return String.format("L%s;", TYPEDESC_VALUE);
+        } else if (bType.tag == TypeTags.OBJECT) {
+            return String.format("L%s;", OBJECT_VALUE);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+            return String.format("L%s;", XML_VALUE);
+        } else if (bType.tag == TypeTags.HANDLE) {
+            return String.format("L%s;", HANDLE_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+    }
+
+    private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
+
+        if (bType == null || bType.tag == TypeTags.NIL) {
+            if (isExtern) {
+                return ")V";
+            }
+            return String.format(")L%s;", OBJECT);
+        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            return ")J";
+        } else if (bType.tag == TypeTags.BYTE) {
+            return ")I";
+        } else if (bType.tag == TypeTags.FLOAT) {
+            return ")D";
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            return String.format(")L%s;", B_STRING_VALUE);
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            return String.format(")L%s;", DECIMAL_VALUE);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            return ")Z";
+        } else if (bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.TUPLE) {
+            return String.format(")L%s;", ARRAY_VALUE);
+        } else if (bType.tag == TypeTags.MAP ||
+                bType.tag == TypeTags.RECORD) {
+            return String.format(")L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.ERROR) {
+            return String.format(")L%s;", ERROR_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            return String.format(")L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            return String.format(")L%s;", TABLE_VALUE_IMPL);
+        } else if (bType.tag == TypeTags.FUTURE) {
+            return String.format(")L%s;", FUTURE_VALUE);
+        } else if (bType.tag == TypeTags.TYPEDESC) {
+            return String.format(")L%s;", TYPEDESC_VALUE);
+        } else if (bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.JSON ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
+            return String.format(")L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.OBJECT) {
+            return String.format(")L%s;", OBJECT_VALUE);
+        } else if (bType.tag == TypeTags.INVOKABLE) {
+            return String.format(")L%s;", FUNCTION_POINTER);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+            return String.format(")L%s;", XML_VALUE);
+        } else if (bType.tag == TypeTags.HANDLE) {
+            return String.format(")L%s;", HANDLE_VALUE);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " +
+                    String.format("%s", bType));
+        }
+    }
+
+    static BIRFunction getMainFunc(List<BIRFunction> funcs) {
+
+        BIRFunction userMainFunc = null;
+        for (BIRFunction func : funcs) {
+            if (func != null && func.name.value.equals("main")) {
+                userMainFunc = func;
+                break;
+            }
+        }
+
+        return userMainFunc;
+    }
+
+    static void createFunctionPointer(MethodVisitor mv, String klass, String lambdaName, int closureMapCount) {
+
+        mv.visitTypeInsn(NEW, FUNCTION_POINTER);
+        mv.visitInsn(DUP);
+        visitInvokeDyn(mv, klass, cleanupFunctionName(lambdaName), closureMapCount);
+
+        // load null here for type, since these are fp's created for internal usages.
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
+    }
+
+    private static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
+
+        String frameClassName = pkgName;
+        if (attachedType != null) {
+            if (attachedType.tag == TypeTags.OBJECT) {
+                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
+            } else if (attachedType instanceof BServiceType) {
+                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
+            } else if (attachedType.tag == TypeTags.RECORD) {
+                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
+            }
+        }
+
+        return frameClassName + cleanupFunctionName(funcName) + "Frame";
+    }
+
+    /**
+     * Cleanup type name by replacing '$' with '_'.
+     *
+     * @param name name to be replaced and cleaned
+     * @return cleaned name
+     */
+    static String cleanupTypeName(String name) {
+
+        return name.replace("$", "_");
+    }
+
+    static String cleanupBalExt(String name) {
+
+        return name.replace(BAL_EXTENSION, "");
+    }
+
+    static String cleanupPathSeperators(String name) {
+        //TODO: should use file_path:getPathSeparator();
+        return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
+    }
+
+    static void generateField(ClassWriter cw, BType bType, String fieldName, boolean isPackage) {
+
+        String typeSig;
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            typeSig = "J";
+        } else if (bType.tag == TypeTags.BYTE) {
+            typeSig = "I";
+        } else if (bType.tag == TypeTags.FLOAT) {
+            typeSig = "D";
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            typeSig = String.format("L%s;", B_STRING_VALUE);
+        } else if (bType.tag == TypeTags.DECIMAL) {
+            typeSig = String.format("L%s;", DECIMAL_VALUE);
+        } else if (bType.tag == TypeTags.BOOLEAN) {
+            typeSig = "Z";
+        } else if (bType.tag == TypeTags.NIL) {
+            typeSig = String.format("L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.MAP) {
+            typeSig = String.format("L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.STREAM) {
+            typeSig = String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            typeSig = String.format("L%s;", TABLE_VALUE_IMPL);
+        } else if (bType.tag == TypeTags.RECORD) {
+            typeSig = String.format("L%s;", MAP_VALUE);
+        } else if (bType.tag == TypeTags.ARRAY ||
+                bType.tag == TypeTags.TUPLE) {
+            typeSig = String.format("L%s;", ARRAY_VALUE);
+        } else if (bType.tag == TypeTags.ERROR) {
+            typeSig = String.format("L%s;", ERROR_VALUE);
+        } else if (bType.tag == TypeTags.FUTURE) {
+            typeSig = String.format("L%s;", FUTURE_VALUE);
+        } else if (bType.tag == TypeTags.OBJECT) {
+            typeSig = String.format("L%s;", OBJECT_VALUE);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+            typeSig = String.format("L%s;", XML_VALUE);
+        } else if (bType.tag == TypeTags.TYPEDESC) {
+            typeSig = String.format("L%s;", TYPEDESC_VALUE);
+        } else if (bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.ANYDATA ||
+                bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.JSON ||
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
+            typeSig = String.format("L%s;", OBJECT);
+        } else if (bType.tag == TypeTags.INVOKABLE) {
+            typeSig = String.format("L%s;", FUNCTION_POINTER);
+        } else if (bType.tag == TypeTags.HANDLE) {
+            typeSig = String.format("L%s;", HANDLE_VALUE);
+        } else if (bType.tag == JTypeTags.JTYPE) {
+            typeSig = getJTypeSignature((JType) bType);
+        } else {
+            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+
+        FieldVisitor fv;
+        if (isPackage) {
+            fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, fieldName, typeSig, null, null);
+        } else {
+            fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig, null, null);
+        }
+        fv.visitEnd();
+    }
+
+    static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, ownerClass, "<init>", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(1, 1);
+        mv.visitEnd();
+    }
+
+    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
+
+        if (pos != null && pos.sLine != 0x80000000) {
+            Label label = new Label();
+            mv.visitLabel(label);
+            mv.visitLineNumber(pos.sLine, label);
+        }
+    }
+
+    static String cleanupFunctionName(String functionName) {
+
+        return functionName.replaceAll("[\\.:/<>]", "_");
+    }
+
+    public static BIRVariableDcl getVariableDcl(BIRVariableDcl localVar) {
+
+        if (localVar == null) {
+            throw new BLangCompilerException("Invalid variable declarion");
+        }
+
+        return localVar;
+    }
+
+    static BIRFunctionParameter getFunctionParam(BIRFunctionParameter localVar) {
+
+        if (localVar == null) {
+            throw new BLangCompilerException("Invalid function parameter");
+        }
+
+        return localVar;
+    }
+
+    static BIRBasicBlock getBasicBlock(BIRBasicBlock bb) {
+
+        if (bb == null) {
+            throw new BLangCompilerException("Invalid basic block");
+        }
+
+        return bb;
+    }
+
+    static BIRFunction getFunction(BIRFunction bfunction) {
+
+        if (bfunction == null) {
+            throw new BLangCompilerException("Invalid function");
+        }
+
+        return bfunction;
+    }
+
+    static BIRTypeDefinition getTypeDef(BIRTypeDefinition typeDef) {
+
+        if (typeDef == null) {
+            throw new BLangCompilerException("Invalid type definition");
+        }
+
+        return typeDef;
+    }
+
+    static BField getObjectField(BField objectField) {
+
+        if (objectField == null) {
+            throw new BLangCompilerException("Invalid object field");
+        }
+
+        return objectField;
+    }
+
+    static BField getRecordField(BField recordField) {
+
+        if (recordField != null) {
+            return recordField;
+        } else {
+            throw new BLangCompilerException("Invalid record field");
+        }
+    }
+
+    static boolean isExternFunc(BIRFunction func) {
+
+        return (func.flags & Flags.NATIVE) == Flags.NATIVE;
+    }
+
+    private static BIROperand getVarRef(BIROperand varRef) {
+
+        if (varRef == null) {
+            throw new BLangCompilerException("Invalid variable reference");
+        } else {
+            return varRef;
+        }
+    }
+
+    static BType getType(BType bType) {
+
+        if (bType == null) {
+            throw new BLangCompilerException("Invalid type");
+        } else {
+            return bType;
+        }
+    }
+
+    private static String getMapValueDesc(int count) {
+
+        int i = count;
+        StringBuilder desc = new StringBuilder();
+        while (i > 0) {
+            desc.append("L").append(MAP_VALUE).append(";");
+            i -= 1;
+        }
+
+        return desc.toString();
+    }
+
+    static List<BIRFunction> getFunctions(List<BIRFunction> functions) {
+
+        if (functions == null) {
+            throw new BLangCompilerException(String.format("Invalid functions: %s", functions));
+        } else {
+            return functions;
+        }
+    }
+
+    private static void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {
+
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
+        Label notCancelledLabel = new Label();
+        mv.visitJumpInsn(IFEQ, notCancelledLabel);
+        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError",
+                String.format("()L%s;", ERROR_VALUE), false);
+        mv.visitInsn(ATHROW);
+
+        mv.visitLabel(notCancelledLabel);
+    }
+
+    public void resetIds() {
+
+        nextId = -1;
+        nextVarId = -1;
+    }
+
+    int incrementAndGetNextId() {
+
+        return nextId++;
+    }
+
+    void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
+                        boolean isService, String serviceName, LambdaMetadata lambdaMetadata) {
+
+        if (isExternFunc(birFunc)) {
+            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen, lambdaMetadata);
+        } else {
+            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType, lambdaMetadata);
+        }
+    }
+
+    public void genJMethodForBFunc(BIRFunction func,
+                                   ClassWriter cw,
+                                   BIRPackage module,
+                                   boolean isService,
+                                   String serviceName,
+                                   BType attachedType,
+                                   LambdaMetadata lambdaMetadata) {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value);
-        BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         String funcName = cleanupFunctionName(func.name.value);
         int returnVarRefIndex = -1;
 
@@ -281,13 +1468,13 @@ public class JvmMethodGen {
         }
 
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
-        InstructionGenerator instGen = new InstructionGenerator(mv, indexMap, module);
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, currentPackageName);
+        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module, jvmPackageGen);
+        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName, instGen);
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
 
-        @Nilable Label tryStart = null;
+        Label tryStart = null;
         boolean isObserved = false;
         boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
         boolean isRemote = (func.flags & Flags.REMOTE) == Flags.REMOTE;
@@ -319,7 +1506,7 @@ public class JvmMethodGen {
 
         func.localVars.sort(FUNCTION_PARAM_COMPARATOR);
 
-        @Nilable List<BIRVariableDcl> localVars = func.localVars;
+        List<BIRVariableDcl> localVars = func.localVars;
         while (k < localVars.size()) {
             BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
             int index = indexMap.getIndex(localVar);
@@ -356,7 +1543,7 @@ public class JvmMethodGen {
         // mv.visitFieldInsn(PUTSTATIC, className, "i", "I");
 
         // process basic blocks
-        @Nilable List<BIRBasicBlock> basicBlocks = func.basicBlocks;
+        List<BIRBasicBlock> basicBlocks = func.basicBlocks;
 
         List<Label> lables = new ArrayList<>();
         List<Integer> states = new ArrayList<>();
@@ -376,7 +1563,8 @@ public class JvmMethodGen {
             i = i + 1;
         }
 
-        TerminatorGenerator termGen = new TerminatorGenerator(mv, indexMap, labelGen, errorGen, module);
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module, instGen,
+                jvmPackageGen);
 
         // uncomment to test yield
         // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -394,8 +1582,8 @@ public class JvmMethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService,
-                serviceName);
+                stateVarIndex, localVarOffset, false, module, attachedType, isObserved, isService,
+                serviceName, lambdaMetadata);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
         mv.visitLabel(resumeLable);
@@ -523,7 +1711,7 @@ public class JvmMethodGen {
                                 || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))
                                 || metaVarName.startsWith("_$$_"))) {
                     mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.type), null,
-                                          startLabel, endLabel, indexMap.getIndex(localVar));
+                            startLabel, endLabel, indexMap.getIndex(localVar));
                 }
             }
             k = k + 1;
@@ -533,338 +1721,13 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    private static int[] toIntArray(List<Integer> states) {
-
-        int[] ints = new int[states.size()];
-        for (int i = 0; i < states.size(); i++) {
-            ints[i] = states.get(i);
-        }
-        return ints;
-    }
-
-    private static void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
-                                                    BalToJVMIndexMap indexMap, String frameName) {
-
-        int k = 0;
-        while (k < localVars.size()) {
-            BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
-            int index = indexMap.getIndex(localVar);
-            BType bType = localVar.type;
-            mv.visitInsn(DUP);
-
-            if (TypeTags.isIntegerTypeTag(bType.tag)) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-                mv.visitVarInsn(LSTORE, index);
-            } else if (bType.tag == TypeTags.BYTE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-                mv.visitVarInsn(ISTORE, index);
-            } else if (bType.tag == TypeTags.FLOAT) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-                mv.visitVarInsn(DSTORE, index);
-            } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", B_STRING_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.DECIMAL) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", DECIMAL_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-                mv.visitVarInsn(ISTORE, index);
-            } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", MAP_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.STREAM) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", STREAM_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.ARRAY ||
-                    bType.tag == TypeTags.TUPLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ARRAY_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.OBJECT) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.ERROR) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ERROR_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.FUTURE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUTURE_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.INVOKABLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUNCTION_POINTER));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.TYPEDESC) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TYPEDESC_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.NIL ||
-                    bType.tag == TypeTags.ANY ||
-                    bType.tag == TypeTags.ANYDATA ||
-                    bType.tag == TypeTags.UNION ||
-                    bType.tag == TypeTags.JSON ||
-                    bType.tag == TypeTags.FINITE ||
-                    bType.tag == TypeTags.READONLY) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", XML_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.HANDLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", HANDLE_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == JTypeTags.JTYPE) {
-                generateFrameClassJFieldLoad(localVar, mv, index, frameName);
-            } else {
-                throw new BLangCompilerException("JVM generation is not supported for type " +
-                        String.format("%s", bType));
-            }
-            k = k + 1;
-        }
-
-    }
-
-    private static void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
-                                                     int index, String frameName) {
-
-        JType jType = (JType) localVar.type;
-
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-            mv.visitVarInsn(LSTORE, index);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
-            mv.visitVarInsn(FSTORE, index);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-            mv.visitVarInsn(DSTORE, index);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), getJTypeSignature(jType));
-            mv.visitVarInsn(ASTORE, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
-        }
-    }
-
-    private static void generateFrameClassFieldUpdate(@Nilable List<BIRVariableDcl> localVars, MethodVisitor mv,
-                                                      BalToJVMIndexMap indexMap, String frameName) {
-
-        int k = 0;
-        while (k < localVars.size()) {
-            BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
-            int index = indexMap.getIndex(localVar);
-            mv.visitInsn(DUP);
-
-            BType bType = localVar.type;
-            if (TypeTags.isIntegerTypeTag(bType.tag)) {
-                mv.visitVarInsn(LLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-            } else if (bType.tag == TypeTags.BYTE) {
-                mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            } else if (bType.tag == TypeTags.FLOAT) {
-                mv.visitVarInsn(DLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-            } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", B_STRING_VALUE));
-            } else if (bType.tag == TypeTags.DECIMAL) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", DECIMAL_VALUE));
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-            } else if (bType.tag == TypeTags.MAP ||
-                    bType.tag == TypeTags.RECORD) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", MAP_VALUE));
-            } else if (bType.tag == TypeTags.STREAM) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", STREAM_VALUE));
-            } else if (bType.tag == TypeTags.ARRAY ||
-                    bType.tag == TypeTags.TUPLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ARRAY_VALUE));
-            } else if (bType.tag == TypeTags.ERROR) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ERROR_VALUE));
-            } else if (bType.tag == TypeTags.FUTURE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUTURE_VALUE));
-            } else if (bType.tag == TypeTags.TYPEDESC) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TYPEDESC_VALUE));
-            } else if (bType.tag == TypeTags.OBJECT) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT_VALUE));
-            } else if (bType.tag == TypeTags.INVOKABLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUNCTION_POINTER));
-            } else if (bType.tag == TypeTags.NIL ||
-                    bType.tag == TypeTags.ANY ||
-                    bType.tag == TypeTags.ANYDATA ||
-                    bType.tag == TypeTags.UNION ||
-                    bType.tag == TypeTags.JSON ||
-                    bType.tag == TypeTags.FINITE ||
-                    bType.tag == TypeTags.READONLY) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT));
-            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", XML_VALUE));
-            } else if (bType.tag == TypeTags.HANDLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", HANDLE_VALUE));
-            } else if (bType.tag == JTypeTags.JTYPE) {
-                generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
-            } else {
-                throw new BLangCompilerException("JVM generation is not supported for type " +
-                        String.format("%s", bType));
-            }
-            k = k + 1;
-        }
-    }
-
-    private static void generateFrameClassJFieldUpdate(BIRVariableDcl localVar, MethodVisitor mv,
-                                                       int index, String frameName) {
-
-        JType jType = (JType) localVar.type;
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "B");
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "C");
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "S");
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitVarInsn(LLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitVarInsn(FLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitVarInsn(DLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-        } else if (jType.jTag == JTypeTags.JARRAY || jType.jTag == JTypeTags.JREF) {
-            String classSig = getJTypeSignature(jType);
-            String className = getSignatureForJType(jType);
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitTypeInsn(CHECKCAST, className);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
-        }
-    }
-
-    private static String getJVMTypeSign(BType bType) {
-
-        String jvmType = "";
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            jvmType = "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            jvmType = "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            jvmType = "D";
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            jvmType = "Z";
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            jvmType = String.format("L%s;", STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            jvmType = String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-            jvmType = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            jvmType = String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            jvmType = String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            jvmType = String.format("L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            jvmType = String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            jvmType = String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            jvmType = String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            jvmType = String.format("L%s;", HANDLE_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            jvmType = String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.NIL
-                || bType.tag == TypeTags.ANY
-                || bType.tag == TypeTags.ANYDATA
-                || bType.tag == TypeTags.UNION
-                || bType.tag == TypeTags.JSON
-                || bType.tag == TypeTags.FINITE
-                || bType.tag == TypeTags.READONLY) {
-            jvmType = String.format("L%s;", OBJECT);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            jvmType = getJTypeSignature((JType) bType);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            jvmType = String.format("L%s;", XML_VALUE);
-        } else {
-            throw new BLangCompilerException("JVM code generation is not supported for type " +
-                    String.format("%s", bType));
-        }
-        return jvmType;
-    }
-
-    public static void generateBasicBlocks(MethodVisitor mv, @Nilable List<BIRBasicBlock> basicBlocks,
-                                           LabelGenerator labelGen, ErrorHandlerGenerator errorGen,
-                                           InstructionGenerator instGen, TerminatorGenerator termGen,
-                                           BIRFunction func, int returnVarRefIndex, int stateVarIndex,
-                                           int localVarOffset, boolean isArg, BIRPackage module,
-                                           String currentPackageName, @Nilable BType attachedType,
-                                           boolean isObserved /* = false */,
-                                           boolean isService /* = false */, String serviceName /* = "" */) {
+    public void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks,
+                                    LabelGenerator labelGen, JvmErrorGen errorGen,
+                                    JvmInstructionGen instGen, JvmTerminatorGen termGen,
+                                    BIRFunction func, int returnVarRefIndex, int stateVarIndex,
+                                    int localVarOffset, boolean isArg, BIRPackage module, BType attachedType,
+                                    boolean isObserved, boolean isService, String serviceName,
+                                    LambdaMetadata lambdaMetadata) {
 
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
@@ -907,7 +1770,7 @@ public class JvmMethodGen {
             while (m < insCount) {
                 Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m);
                 mv.visitLabel(insLabel);
-                @Nilable BIRInstruction inst = bb.instructions.get(m);
+                BIRInstruction inst = bb.instructions.get(m);
                 if (inst == null) {
                     continue;
                 } else {
@@ -933,6 +1796,15 @@ public class JvmMethodGen {
                             break;
                         case MAP_STORE:
                             instGen.generateMapStoreIns((FieldAccess) inst);
+                            break;
+                        case NEW_TABLE:
+                            instGen.generateTableNewIns((NewTable) inst);
+                            break;
+                        case TABLE_STORE:
+                            instGen.generateTableStoreIns((FieldAccess) inst);
+                            break;
+                        case TABLE_LOAD:
+                            instGen.generateTableLoadIns((FieldAccess) inst);
                             break;
                         case NEW_ARRAY:
                             instGen.generateArrayNewIns((NewArray) inst);
@@ -1001,7 +1873,7 @@ public class JvmMethodGen {
                             instGen.generateXMLAttrLoadIns((FieldAccess) inst);
                             break;
                         case FP_LOAD:
-                            instGen.generateFPLoadIns((FPLoad) inst);
+                            instGen.generateFPLoadIns((FPLoad) inst, lambdaMetadata);
                             break;
                         case STRING_LOAD:
                             instGen.generateStringLoadIns((FieldAccess) inst);
@@ -1047,35 +1919,22 @@ public class JvmMethodGen {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                        isObserved);
+                        isObserved, lambdaMetadata);
             }
 
-            errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
+                genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset);
             }
             j += 1;
         }
     }
 
-    private static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRBasicBlock thenBB, String funcName,
-                                      int localVarOffset) {
+    void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
 
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
-        Label yieldLabel = labelGen.getLabel(funcName + "yield");
-        mv.visitJumpInsn(IFNE, yieldLabel);
-
-        // goto thenBB
-        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
-        mv.visitJumpInsn(GOTO, gotoLabel);
-    }
-
-    static void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
-
-        @Nilable BType lhsType;
+        BType lhsType;
         String orgName;
         String moduleName;
         String funcName;
@@ -1153,11 +2012,11 @@ public class JvmMethodGen {
 
             mv.visitLabel(blockedOnExternLabel);
         }
-        @Nilable List<BType> paramBTypes = new ArrayList<>();
+        List<BType> paramBTypes = new ArrayList<>();
 
         if (kind == InstructionKind.ASYNC_CALL) {
             AsyncCall asyncIns = (AsyncCall) ins;
-            @Nilable List<BIROperand> paramTypes = asyncIns.args;
+            List<BIROperand> paramTypes = asyncIns.args;
             if (isVirtual) {
                 genLoadDataForObjectAttachedLambdas(asyncIns, mv, closureMapsCount, paramTypes, isBuiltinModule);
                 int paramTypeIndex = 1;
@@ -1179,7 +2038,7 @@ public class JvmMethodGen {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitIntInsn(BIPUSH, argIndex);
                     mv.visitInsn(AALOAD);
-                    addUnboxInsn(mv, ref.variableDcl.type);
+                    JvmInstructionGen.addUnboxInsn(mv, ref.variableDcl.type);
                     paramBTypes.add(paramIndex - 1, paramType.variableDcl.type);
                     paramIndex += 1;
 
@@ -1201,7 +2060,7 @@ public class JvmMethodGen {
                 i += 1;
             }
 
-            @Nilable List<BIRVariableDcl> paramTypes = ((FPLoad) ins).params;
+            List<BIRVariableDcl> paramTypes = ((FPLoad) ins).params;
             // load and cast param values
 
             int argIndex = 1;
@@ -1210,7 +2069,7 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, closureMapsCount);
                 mv.visitIntInsn(BIPUSH, argIndex);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, dcl.type);
+                JvmInstructionGen.addUnboxInsn(mv, dcl.type);
                 paramBTypes.add(paramIndex - 1, dcl.type);
                 paramIndex += 1;
                 i += 1;
@@ -1231,12 +2090,12 @@ public class JvmMethodGen {
         } else {
             String jvmClass;
             String lookupKey = getPackageName(orgName, moduleName) + funcName;
-            JvmPackageGen.BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
+            BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
             } else {
-                BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+                BPackageSymbol symbol = jvmPackageGen.packageCache.getSymbol(orgName + "/" + moduleName);
                 BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(funcName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
@@ -1260,23 +2119,23 @@ public class JvmMethodGen {
         }
 
         if (!isVirtual) {
-            addBoxInsn(mv, returnType);
+            JvmInstructionGen.addBoxInsn(mv, returnType);
         }
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private static void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
-                                                            @Nilable List<BIROperand> paramTypes,
-                                                            boolean isBuiltinModule) {
+    private void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
+                                                     List<BIROperand> paramTypes,
+                                                     boolean isBuiltinModule) {
 
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_1);
         BIROperand ref = getVarRef(ins.args.get(0));
         mv.visitInsn(AALOAD);
-        addUnboxInsn(mv, ref.variableDcl.type);
+        JvmInstructionGen.addUnboxInsn(mv, ref.variableDcl.type);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
@@ -1292,341 +2151,49 @@ public class JvmMethodGen {
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
     }
 
-    private static void generateObjectArgs(MethodVisitor mv, int paramIndex) {
+    private boolean isExternStaticFunctionCall(BIRInstruction callIns) {
 
-        mv.visitInsn(DUP);
-        mv.visitIntInsn(BIPUSH, paramIndex - 2);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        mv.visitInsn(AALOAD);
-        mv.visitInsn(AASTORE);
+        String methodName;
+        InstructionKind kind = callIns.getKind();
+
+        PackageID packageID;
+
+        if (kind == CALL) {
+            BIRTerminator.Call call = (BIRTerminator.Call) callIns;
+            if (call.isVirtual) {
+                return false;
+            }
+            methodName = call.name.value;
+            packageID = call.calleePkg;
+        } else if (kind == ASYNC_CALL) {
+            BIRTerminator.AsyncCall asyncCall = (BIRTerminator.AsyncCall) callIns;
+            methodName = asyncCall.name.value;
+            packageID = asyncCall.calleePkg;
+        } else if (kind == FP_LOAD) {
+            BIRNonTerminator.FPLoad fpLoad = (BIRNonTerminator.FPLoad) callIns;
+            methodName = fpLoad.funcName.value;
+            packageID = fpLoad.pkgId;
+        } else {
+            throw new BLangCompilerException("JVM static function call generation is not supported for instruction " +
+                    String.format("%s", callIns));
+        }
+
+        String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
+
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
+        return functionWrapper != null && isExternFunc(functionWrapper.func);
     }
 
-    private static void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
+    private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
 
         mv.visitVarInsn(ALOAD, arrayIndex);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        addUnboxInsn(mv, symbolTable.booleanType);
+        JvmInstructionGen.addUnboxInsn(mv, symbolTable.booleanType);
     }
 
-    private static void genDefaultValue(MethodVisitor mv, BType bType, int index) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            mv.visitInsn(LCONST_0);
-            mv.visitVarInsn(LSTORE, index);
-        } else if (bType.tag == TypeTags.BYTE) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(DCONST_0);
-            mv.visitVarInsn(DSTORE, index);
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.STREAM ||
-                bType.tag == TypeTags.ERROR ||
-                bType.tag == TypeTags.NIL ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.CHAR_STRING ||
-                bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.FUTURE ||
-                bType.tag == TypeTags.JSON ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            genJDefaultValue(mv, (JType) bType, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-    }
-
-    private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
-
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(LCONST_0);
-            mv.visitVarInsn(LSTORE, index);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(FCONST_0);
-            mv.visitVarInsn(FSTORE, index);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitInsn(DCONST_0);
-            mv.visitVarInsn(DSTORE, index);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
-        }
-    }
-
-    static void loadDefaultValue(MethodVisitor mv, BType bType) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
-            mv.visitInsn(LCONST_0);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(DCONST_0);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            mv.visitInsn(ICONST_0);
-        } else if (TypeTags.isStringTypeTag(bType.tag) ||
-                bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.ERROR ||
-                bType.tag == TypeTags.NIL ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.FUTURE ||
-                bType.tag == TypeTags.JSON ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
-            mv.visitInsn(ACONST_NULL);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            loadDefaultJValue(mv, (JType) bType);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-    }
-
-    private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
-
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(LCONST_0);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(FCONST_0);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitInsn(DCONST_0);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
-        }
-    }
-
-    public static String getMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType,
-                                       @Nilable BType attachedType /* = () */, boolean isExtern /* = false */) {
-
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
-
-        if (attachedType != null) {
-            desc.append(getArgTypeSignature(attachedType));
-        }
-
-        int i = 0;
-        while (i < paramTypes.size()) {
-            BType paramType = getType(paramTypes.get(i));
-            desc.append(getArgTypeSignature(paramType));
-            i += 1;
-        }
-        String returnType = generateReturnType(retType, isExtern);
-        desc.append(returnType);
-
-        return desc.toString();
-    }
-
-    private static String getLambdaMethodDesc(@Nilable List<BType> paramTypes, @Nilable BType retType,
-                                              int closureMapsCount) {
-
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
-        int j = 0;
-        while (j < closureMapsCount) {
-            j += 1;
-            desc.append("L").append(MAP_VALUE).append(";").append("Z");
-        }
-
-        int i = 0;
-        while (i < paramTypes.size()) {
-            BType paramType = getType(paramTypes.get(i));
-            desc.append(getArgTypeSignature(paramType));
-            i += 1;
-        }
-        String returnType = generateReturnType(retType, false);
-        desc.append(returnType);
-
-        return desc.toString();
-    }
-
-    private static String getArgTypeSignature(BType bType) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            return "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return "D";
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return "Z";
-        } else if (bType.tag == TypeTags.NIL) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
-            return String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-            return String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format("L%s;", OBJECT_VALUE);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format("L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format("L%s;", HANDLE_VALUE);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-    }
-
-    private static String generateReturnType(@Nilable BType bType, boolean isExtern /* = false */) {
-
-        if (bType == null || bType.tag == TypeTags.NIL) {
-            if (isExtern) {
-                return ")V";
-            }
-            return String.format(")L%s;", OBJECT);
-        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            return ")J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return ")I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return ")D";
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format(")L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format(")L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return ")Z";
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            return String.format(")L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.RECORD) {
-            return String.format(")L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format(")L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format(")L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format(")L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format(")L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format(")L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format(")L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format(")L%s;", FUNCTION_POINTER);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            return String.format(")L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format(")L%s;", HANDLE_VALUE);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", bType));
-        }
-    }
-
-    static @Nilable
-    BIRFunction getMainFunc(@Nilable List<BIRFunction> funcs) {
-
-        @Nilable BIRFunction userMainFunc = null;
-        for (BIRFunction func : funcs) {
-            if (func != null && func.name.value.equals("main")) {
-                userMainFunc = func;
-                break;
-            }
-        }
-
-        return userMainFunc;
-    }
-
-    static void createFunctionPointer(MethodVisitor mv, String klass, String lambdaName, int closureMapCount) {
-
-        mv.visitTypeInsn(NEW, FUNCTION_POINTER);
-        mv.visitInsn(DUP);
-        visitInvokeDyn(mv, klass, cleanupFunctionName(lambdaName), closureMapCount);
-
-        // load null here for type, since these are fp's created for internal usages.
-        mv.visitInsn(ACONST_NULL);
-        mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
-    }
-
-    static void generateMainMethod(@Nilable BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
-                                   String initClass, boolean serviceEPAvailable) {
+    void generateMainMethod(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
+                            String initClass, boolean serviceEPAvailable) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mv.visitCode();
@@ -1647,7 +2214,8 @@ public class JvmMethodGen {
         // register a shutdown hook to call package stop() method.
         registerShutdownListener(mv, initClass);
 
-        BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        String pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
         // add main string[] args param first
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
@@ -1765,57 +2333,8 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    private static void handleErrorFromFutureValue(MethodVisitor mv) {
-        mv.visitInsn(DUP);
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
-        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-
-        // handle any runtime errors
-        Label labelIf = new Label();
-        mv.visitJumpInsn(IFNULL, labelIf);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
-                String.format("(L%s;)V", THROWABLE), false);
-        mv.visitInsn(RETURN);
-        mv.visitLabel(labelIf);
-    }
-
-    private static void initConfigurations(MethodVisitor mv) {
-
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS,
-                "initConfigurations", String.format("([L%s;)[L%s;", STRING_VALUE, STRING_VALUE), false);
-        mv.visitVarInsn(ASTORE, 0);
-    }
-
-    private static void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
-
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
-    }
-
-    private static void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
-
-        mv.visitLdcInsn(isServiceEPAvailable);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
-    }
-
-    private static void registerShutdownListener(MethodVisitor mv, String initClass) {
-
-        String shutdownClassName = initClass + "$SignalListener";
-        mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", String.format("()L%s;", JAVA_RUNTIME), false);
-        mv.visitTypeInsn(NEW, shutdownClassName);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", String.format("(L%s;)V", JAVA_THREAD),
-                false);
-    }
-
-    private static void scheduleStartMethod(MethodVisitor mv, String initClass, boolean serviceEPAvailable,
-                                            BalToJVMIndexMap indexMap, int schedulerVarIndex) {
+    private void scheduleStartMethod(MethodVisitor mv, String initClass, boolean serviceEPAvailable,
+                                     BIRVarToJVMIndexMap indexMap, int schedulerVarIndex) {
 
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         // schedule the start method
@@ -1866,13 +2385,13 @@ public class JvmMethodGen {
      * Generate a lambda function to invoke ballerina main.
      *
      * @param userMainFunc ballerina main function
-     * @param cw class visitor
-     * @param pkg bir package instance
-     * @param mainClass main class that contains the user main
-     * @param initClass module init class
+     * @param cw           class visitor
+     * @param pkg          bir package instance
+     * @param mainClass    main class that contains the user main
+     * @param initClass    module init class
      */
-    static void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
-                                      String mainClass, String initClass) {
+    void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
+                               String mainClass, String initClass) {
 
         BType returnType = userMainFunc.type.retType;
 
@@ -1887,7 +2406,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         // load and cast param values
-        @Nilable List<BType> paramTypes = userMainFunc.type.paramTypes;
+        List<BType> paramTypes = userMainFunc.type.paramTypes;
 
         int paramIndex = 1;
         for (BType paramType : paramTypes) {
@@ -1895,91 +2414,29 @@ public class JvmMethodGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitIntInsn(BIPUSH, paramIndex);
             mv.visitInsn(AALOAD);
-            addUnboxInsn(mv, pType);
+            JvmInstructionGen.addUnboxInsn(mv, pType);
             paramIndex += 1;
         }
 
         mv.visitMethodInsn(INVOKESTATIC, mainClass, userMainFunc.name.value,
-                           getMethodDesc(paramTypes, returnType, null, false), false);
-        addBoxInsn(mv, returnType);
+                getMethodDesc(paramTypes, returnType, null, false), false);
+        JvmInstructionGen.addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private static void loadCLIArgsForMain(MethodVisitor mv, @Nilable List<BIRFunctionParameter> params,
-                                           boolean hasRestParam,
-                                           @Nilable List<BIRAnnotationAttachment> annotAttachments) {
-
-        // get defaultable arg names from function annotation
-        List<String> defaultableNames = new ArrayList<>();
-        int defaultableIndex = 0;
-        for (BIRAnnotationAttachment attachment : annotAttachments) {
-            if (attachment == null || !attachment.annotTagRef.value.equals(DEFAULTABLE_ARGS_ANOT_NAME)) {
-                continue;
-            }
-            BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) attachment.annotValues.get(0);
-            Map<String, BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
-            BIRAnnotationArrayValue annotArrayValue =
-                    (BIRAnnotationArrayValue) annotFieldMap.get(DEFAULTABLE_ARGS_ANOT_FIELD);
-            for (BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
-                BIRAnnotationLiteralValue argValue = (BIRAnnotationLiteralValue) entryOptional;
-                defaultableNames.add(defaultableIndex, (String) argValue.value);
-                defaultableIndex += 1;
-            }
-            break;
-        }
-        // create function info array
-        mv.visitIntInsn(BIPUSH, params.size());
-        mv.visitTypeInsn(ANEWARRAY, String.format("%s$ParamInfo", RUNTIME_UTILS));
-        int index = 0;
-        defaultableIndex = 0;
-        for (BIRFunctionParameter param : params) {
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
-            mv.visitTypeInsn(NEW, String.format("%s$ParamInfo", RUNTIME_UTILS));
-            mv.visitInsn(DUP);
-            if (param != null) {
-                if (param.hasDefaultExpr) {
-                    mv.visitInsn(ICONST_1);
-                } else {
-                    mv.visitInsn(ICONST_0);
-                }
-                mv.visitLdcInsn(defaultableNames.get(defaultableIndex));
-                defaultableIndex += 1;
-                // var varIndex = indexMap.getIndex(param);
-                loadType(mv, param.type);
-            }
-            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), "<init>",
-                    String.format("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
-            mv.visitInsn(AASTORE);
-        }
-
-        // load string[] that got parsed into to java main
-        mv.visitVarInsn(ALOAD, 0);
-        if (hasRestParam) {
-            mv.visitInsn(ICONST_1);
-        } else {
-            mv.visitInsn(ICONST_0);
-        }
-
-        // invoke ArgumentParser.extractEntryFuncArgs()
-        mv.visitMethodInsn(INVOKESTATIC, ARGUMENT_PARSER, "extractEntryFuncArgs",
-                String.format("([L%s$ParamInfo;[L%s;Z)[L%s;", RUNTIME_UTILS, STRING_VALUE, OBJECT), false);
-    }
-
     /**
      * Generate a lambda function to invoke ballerina main.
      *
-     * @param cw class visitor
-     * @param pkg bir package
+     * @param cw        class visitor
+     * @param pkg       bir package
      * @param mainClass mains class that conatins the user main
      * @param initClass module init class
-     * @param depMods dependent module list
+     * @param depMods   dependent module list
      */
-    static void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String mainClass, String initClass,
-                                              List<PackageID> depMods) {
+    void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String mainClass, String initClass,
+                                       List<PackageID> depMods) {
         //need to generate lambda for package Init as well, if exist
         if (!hasInitFunction(pkg)) {
             return;
@@ -2005,8 +2462,8 @@ public class JvmMethodGen {
         }
     }
 
-    private static void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
-                                                        boolean voidReturn /* = true */) {
+    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
+                                                 boolean voidReturn /* = true */) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                 String.format("$lambda$%s$", funcName),
@@ -2020,84 +2477,15 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        addBoxInsn(mv, errorOrNilType);
+        JvmInstructionGen.addBoxInsn(mv, errorOrNilType);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private static void generateLambdaForDepModStopFunc(ClassWriter cw, String funcName, String initClass) {
+    void addInitAndTypeInitInstructions(BIRPackage pkg, BIRFunction func) {
 
-        MethodVisitor mv;
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
-                String.format("$lambda$%s", funcName),
-                String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
-        mv.visitCode();
-
-        //load strand as first arg
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND);
-
-        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND, OBJECT), false);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    private static boolean hasInitFunction(BIRPackage pkg) {
-
-        for (BIRFunction func : pkg.functions) {
-            if (func != null && isModuleInitFunction(pkg, func)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isModuleInitFunction(BIRPackage module, BIRFunction func) {
-
-        String moduleInit = getModuleInitFuncName(module);
-        return func.name.value.equals(moduleInit);
-    }
-
-    // TODO: remove and use calculateModuleInitFuncName
-    private static String getModuleInitFuncName(BIRPackage module) {
-
-        return calculateModuleInitFuncName(packageToModuleId(module));
-    }
-
-    private static String calculateModuleInitFuncName(PackageID id) {
-
-        return calculateModuleSpecialFuncName(id, "<init>");
-    }
-
-    private static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
-
-        String orgName = id.orgName.value;
-        String moduleName = id.name.value;
-        String version = id.version.value;
-
-        String funcName;
-        if (moduleName.equals(".")) {
-            funcName = ".." + funcSuffix;
-        } else if (version.equals("")) {
-            funcName = moduleName + "." + funcSuffix;
-        } else {
-            funcName = moduleName + ":" + version + "." + funcSuffix;
-        }
-
-        if (!orgName.equalsIgnoreCase("$anon")) {
-            funcName = orgName + "/" + funcName;
-        }
-
-        return funcName;
-    }
-
-    static void addInitAndTypeInitInstructions(BIRPackage pkg, BIRFunction func) {
-
-        @Nilable List<BIRBasicBlock> basicBlocks = new ArrayList<>();
+        List<BIRBasicBlock> basicBlocks = new ArrayList<>();
         nextId = -1;
         BIRBasicBlock nextBB = new BIRBasicBlock(getNextBBId());
         basicBlocks.add(nextBB);
@@ -2122,22 +2510,22 @@ public class JvmMethodGen {
         func.basicBlocks = basicBlocks;
     }
 
-    static void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                          BIRPackage pkg, List<PackageID> depModArray) {
+    void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
+                                   BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(depModArray, pkg, MODULE_INIT, "<init>");
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, "<init>");
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
-        BIRFunction startFunc = generateDepModInit(depModArray, pkg, MODULE_START, "<start>");
+        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, "<start>");
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
 
     }
 
-    private static BIRFunction generateDepModInit(List<PackageID> imprtMods, BIRPackage pkg, String funcName,
-                                                  String initName) {
+    private BIRFunction generateDepModInit(List<PackageID> imprtMods, BIRPackage pkg, String funcName,
+                                           String initName) {
 
         nextId = -1;
         nextVarId = -1;
@@ -2168,22 +2556,22 @@ public class JvmMethodGen {
         return modInitFunc;
     }
 
-    private static Name getNextBBId() {
+    private Name getNextBBId() {
 
         String bbIdPrefix = "genBB";
         nextId += 1;
         return new Name(bbIdPrefix + nextId);
     }
 
-    static Name getNextVarId() {
+    private Name getNextVarId() {
 
         String varIdPrefix = "%";
         nextVarId += 1;
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private static BIRBasicBlock addCheckedInvocation(BIRFunction func, PackageID modId, String initFuncName,
-                                                      BIROperand retVar, BIROperand boolRef) {
+    private BIRBasicBlock addCheckedInvocation(BIRFunction func, PackageID modId, String initFuncName,
+                                               BIROperand retVar, BIROperand boolRef) {
 
         BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
@@ -2209,21 +2597,21 @@ public class JvmMethodGen {
         return falseBB;
     }
 
-    private static BIRBasicBlock addAndGetNextBasicBlock(BIRFunction func) {
+    private BIRBasicBlock addAndGetNextBasicBlock(BIRFunction func) {
 
         BIRBasicBlock nextbb = new BIRBasicBlock(getNextBBId());
         func.basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    private static BIRVariableDcl addAndGetNextVar(BIRFunction func, BType typeVal) {
+    private BIRVariableDcl addAndGetNextVar(BIRFunction func, BType typeVal) {
 
         BIRVariableDcl nextLocalVar = new BIRVariableDcl(typeVal, getNextVarId(), VarScope.FUNCTION, VarKind.LOCAL);
         func.localVars.add(nextLocalVar);
         return nextLocalVar;
     }
 
-    private static void generateAnnotLoad(MethodVisitor mv, @Nilable List<BIRTypeDefinition> typeDefs, String pkgName) {
+    private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName) {
 
         String typePkgName = ".";
         if (!"".equals(pkgName)) {
@@ -2245,26 +2633,26 @@ public class JvmMethodGen {
         }
     }
 
-    private static void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
+    private void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
 
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
+                jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
                 String.format("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
     }
 
-    static void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
+    void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
 
-        for (BIRFunction func : pkg.functions) {
+        pkg.functions.parallelStream().forEach(func -> {
             generateFrameClassForFunction(pkg, func, pkgEntries, null);
-        }
+        });
 
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            @Nilable List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
+            List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
             if (attachedFuncs != null) {
-                @Nilable BType attachedType;
+                BType attachedType;
                 if (typeDef.type.tag == TypeTags.RECORD) {
                     // Only attach function of records is the record init. That should be
                     // generated as a static function.
@@ -2272,16 +2660,16 @@ public class JvmMethodGen {
                 } else {
                     attachedType = typeDef.type;
                 }
-                for (BIRFunction func : attachedFuncs) {
+                attachedFuncs.parallelStream().forEach(func -> {
                     generateFrameClassForFunction(pkg, func, pkgEntries, attachedType);
-                }
+                });
             }
         }
     }
 
-    private static void generateFrameClassForFunction(BIRPackage pkg, @Nilable BIRFunction func,
-                                                      Map<String, byte[]> pkgEntries,
-                                                      @Nilable BType attachedType /* = () */) {
+    private void generateFrameClassForFunction(BIRPackage pkg, BIRFunction func,
+                                               Map<String, byte[]> pkgEntries,
+                                               BType attachedType) {
 
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
         BIRFunction currentFunc = getFunction(func);
@@ -2290,12 +2678,11 @@ public class JvmMethodGen {
         if (currentFunc.pos != null && currentFunc.pos.src != null) {
             cw.visitSource(currentFunc.pos.src.cUnitName, null);
         }
-        currentClass = frameClassName;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT, null);
         generateDefaultConstructor(cw, OBJECT);
 
         int k = 0;
-        @Nilable List<BIRVariableDcl> localVars = currentFunc.localVars;
+        List<BIRVariableDcl> localVars = currentFunc.localVars;
         while (k < localVars.size()) {
             BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
             BType bType = localVar.type;
@@ -2314,251 +2701,7 @@ public class JvmMethodGen {
         pkgEntries.put(frameClassName + ".class", cw.toByteArray());
     }
 
-    private static String getFrameClassName(String pkgName, String funcName, @Nilable BType attachedType) {
-
-        String frameClassName = pkgName;
-        if (attachedType != null) {
-            if (attachedType.tag == TypeTags.OBJECT) {
-                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
-            } else if (attachedType instanceof BServiceType) {
-                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
-            } else if (attachedType.tag == TypeTags.RECORD) {
-                frameClassName += cleanupTypeName(toNameString(attachedType)) + "_";
-            }
-        }
-
-        return frameClassName + cleanupFunctionName(funcName) + "Frame";
-    }
-
-    /**
-     * Cleanup type name by replacing '$' with '_'.
-     *
-     * @param name name to be replaced and cleaned
-     * @return cleaned name
-     */
-    static String cleanupTypeName(String name) {
-
-        return name.replace("$", "_");
-    }
-
-    static String cleanupBalExt(String name) {
-
-        return name.replace(BAL_EXTENSION, "");
-    }
-
-    static String cleanupPathSeperators(String name) {
-        //TODO: should use file_path:getPathSeparator();
-        return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
-    }
-
-    static void generateField(ClassWriter cw, BType bType, String fieldName, boolean isPackage) {
-
-        String typeSig;
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            typeSig = "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            typeSig = "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            typeSig = "D";
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            typeSig = String.format("L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            typeSig = String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            typeSig = "Z";
-        } else if (bType.tag == TypeTags.NIL) {
-            typeSig = String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.MAP) {
-            typeSig = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            typeSig = String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.RECORD) {
-            typeSig = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            typeSig = String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            typeSig = String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            typeSig = String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            typeSig = String.format("L%s;", OBJECT_VALUE);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            typeSig = String.format("L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            typeSig = String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.READONLY) {
-            typeSig = String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            typeSig = String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            typeSig = String.format("L%s;", HANDLE_VALUE);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            typeSig = getJTypeSignature((JType) bType);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
-        }
-
-        FieldVisitor fv;
-        if (isPackage) {
-            fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, fieldName, typeSig, null, null);
-        } else {
-            fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig, null, null);
-        }
-        fv.visitEnd();
-    }
-
-    static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, ownerClass, "<init>", "()V", false);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
-    }
-
-    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
-
-        if (pos != null && pos.sLine != 0x80000000) {
-            Label label = new Label();
-            mv.visitLabel(label);
-            mv.visitLineNumber(pos.sLine, label);
-        }
-    }
-
-    static String cleanupFunctionName(String functionName) {
-
-        return functionName.replaceAll("[\\.:/<>]", "_");
-    }
-
-    public static BIRVariableDcl getVariableDcl(@Nilable BIRVariableDcl localVar) {
-
-        if (localVar == null) {
-            throw new BLangCompilerException("Invalid variable declarion");
-        }
-
-        return localVar;
-    }
-
-    static BIRFunctionParameter getFunctionParam(@Nilable BIRFunctionParameter localVar) {
-
-        if (localVar == null) {
-            throw new BLangCompilerException("Invalid function parameter");
-        }
-
-        return localVar;
-    }
-
-    static BIRBasicBlock getBasicBlock(@Nilable BIRBasicBlock bb) {
-
-        if (bb == null) {
-            throw new BLangCompilerException("Invalid basic block");
-        }
-
-        return bb;
-    }
-
-    static BIRFunction getFunction(@Nilable BIRFunction bfunction) {
-
-        if (bfunction == null) {
-            throw new BLangCompilerException("Invalid function");
-        }
-
-        return bfunction;
-    }
-
-    static BIRTypeDefinition getTypeDef(@Nilable BIRTypeDefinition typeDef) {
-
-        if (typeDef == null) {
-            throw new BLangCompilerException("Invalid type definition");
-        }
-
-        return typeDef;
-    }
-
-    static BField getObjectField(@Nilable BField objectField) {
-
-        if (objectField == null) {
-            throw new BLangCompilerException("Invalid object field");
-        }
-
-        return objectField;
-    }
-
-    static BField getRecordField(@Nilable BField recordField) {
-
-        if (recordField != null) {
-            return recordField;
-        } else {
-            throw new BLangCompilerException("Invalid record field");
-        }
-    }
-
-    static boolean isExternFunc(BIRFunction func) {
-
-        return (func.flags & Flags.NATIVE) == Flags.NATIVE;
-    }
-
-    private static BIROperand getVarRef(@Nilable BIROperand varRef) {
-
-        if (varRef == null) {
-            throw new BLangCompilerException("Invalid variable reference");
-        } else {
-            return varRef;
-        }
-    }
-
-    static BType getType(@Nilable BType bType) {
-
-        if (bType == null) {
-            throw new BLangCompilerException("Invalid type");
-        } else {
-            return bType;
-        }
-    }
-
-    private static String getMapValueDesc(int count) {
-
-        int i = count;
-        StringBuilder desc = new StringBuilder();
-        while (i > 0) {
-            desc.append("L").append(MAP_VALUE).append(";");
-            i -= 1;
-        }
-
-        return desc.toString();
-    }
-
-    static List<BIRFunction> getFunctions(List<BIRFunction> functions) {
-
-        if (functions == null) {
-            throw new BLangCompilerException(String.format("Invalid functions: %s", functions));
-        } else {
-            return functions;
-        }
-    }
-
-    private static void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {
-
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
-        Label notCancelledLabel = new Label();
-        mv.visitJumpInsn(IFEQ, notCancelledLabel);
-        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError",
-                String.format("()L%s;", ERROR_VALUE), false);
-        mv.visitInsn(ATHROW);
-
-        mv.visitLabel(notCancelledLabel);
-    }
-
-    static void generateModuleInitializer(ClassWriter cw, BIRPackage module) {
+    void generateModuleInitializer(ClassWriter cw, BIRPackage module, String typeOwnerClass) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -2589,17 +2732,10 @@ public class JvmMethodGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        //Adding this java method to the function map because this is getting called from a bir instruction.
-        BIRFunction func = new BIRFunction(null, new Name(CURRENT_MODULE_INIT),
-                0, new BInvokableType(Collections.emptyList(), null, new BNilType(), null)
-                , new Name(""), 0, null);
-        birFunctionMap.put(pkgName + CURRENT_MODULE_INIT, getFunctionWrapper(func, orgName, moduleName,
-                version, typeOwnerClass));
     }
 
-    static void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage
-            module, List<PackageID> imprtMods) {
+    void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
+                                     String typeOwnerClass) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -2608,8 +2744,7 @@ public class JvmMethodGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, MODULE_STOP, "()V", null, null);
         mv.visitCode();
 
-        BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
 
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("schedulerVar"),
                 VarScope.FUNCTION, VarKind.ARG);
@@ -2631,7 +2766,7 @@ public class JvmMethodGen {
         PackageID currentModId = packageToModuleId(module);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
-        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex,
+        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
                 futureIndex);
 
         int i = imprtMods.size() - 1;
@@ -2640,135 +2775,13 @@ public class JvmMethodGen {
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
 
-            scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), errorGen, indexMap, schedulerIndex,
+            scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
                     futureIndex);
         }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        //Adding this java method to the function map because this is getting called from a bir instruction.
-        BIRFunction func = new BIRFunction(null, new Name(MODULE_STOP), 0, new BInvokableType(Collections.emptyList(),
-                null, new BNilType(), null), new Name(""), 0, null);
-        birFunctionMap.put(pkgName + MODULE_STOP, getFunctionWrapper(func, orgName, moduleName,
-                version, typeOwnerClass));
     }
 
-    private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                           ErrorHandlerGenerator errorGen, BalToJVMIndexMap indexMap,
-                                           int schedulerIndex, int futureIndex) {
-
-        String lambdaFuncName = "$lambda$" + stopFuncName;
-        // Create a schedular. A new schedular is used here, to make the stop function to not to
-        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
-
-        mv.visitVarInsn(ALOAD, schedulerIndex);
-
-        mv.visitIntInsn(BIPUSH, 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
-        // create FP value
-        createFunctionPointer(mv, initClass, lambdaFuncName, 0);
-
-        // no parent strand
-        mv.visitInsn(ACONST_NULL);
-
-        loadType(mv, new BNilType());
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-
-        mv.visitVarInsn(ASTORE, futureIndex);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
-        mv.visitIntInsn(BIPUSH, 100);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
-        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-
-        // handle any runtime errors
-        Label labelIf = new Label();
-        mv.visitJumpInsn(IFNULL, labelIf);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, String.format("(L%s;)V", THROWABLE),
-                false);
-        mv.visitLabel(labelIf);
-    }
-
-    private static void generateJavaCompatibilityCheck(MethodVisitor mv) {
-
-        mv.visitLdcInsn(getJavaVersion());
-        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
-                String.format("(L%s;)V", STRING_VALUE), false);
-    }
-
-    private static String getJavaVersion() {
-
-        String versionProperty = "java.version";
-        @Nilable String javaVersion = System.getProperty(versionProperty);
-        if (javaVersion != null) {
-            return javaVersion;
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * A map that keeps JVM stack the index values against the variables.
-     *
-     * @since 1.2.0
-     */
-    public static class BalToJVMIndexMap {
-
-        private int localVarIndex = 0;
-        private Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
-
-        void add(BIRVariableDcl varDcl) {
-
-            String varRefName = this.getVarRefName(varDcl);
-            this.jvmLocalVarIndexMap.put(varRefName, this.localVarIndex);
-
-            BType bType = varDcl.type;
-
-            if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.FLOAT) {
-                this.localVarIndex = this.localVarIndex + 2;
-            } else if (bType.tag == JTypeTags.JTYPE) {
-                JType jType = (JType) bType;
-                if (jType.jTag == JTypeTags.JLONG || jType.jTag == JTypeTags.JDOUBLE) {
-                    this.localVarIndex = this.localVarIndex + 2;
-                } else {
-                    this.localVarIndex = this.localVarIndex + 1;
-                }
-            } else {
-                this.localVarIndex = this.localVarIndex + 1;
-            }
-        }
-
-        private String getVarRefName(BIRVariableDcl varDcl) {
-
-            return varDcl.name.value;
-        }
-
-        public int getIndex(BIRVariableDcl varDcl) {
-
-            String varRefName = this.getVarRefName(varDcl);
-            if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
-                this.add(varDcl);
-            }
-
-            Integer index = this.jvmLocalVarIndexMap.get(varRefName);
-            return index != null ? index : -1;
-        }
-    }
 }

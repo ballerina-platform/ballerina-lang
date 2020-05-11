@@ -588,6 +588,29 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     }
 
     /**
+     * The new table instruction.
+     */
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand keyColOp;
+        public BIROperand dataOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyColOp,
+                        BIROperand dataOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.keyColOp = keyColOp;
+            this.dataOp = dataOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A type cast expression.
      * <p>
      * e.g., int a = cast(int) b;
@@ -595,10 +618,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.995.0
      */
     public static class NewTypeDesc extends BIRNonTerminator {
+        public final List<BIROperand> closureVars;
         public BType type;
 
-        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type) {
+        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars) {
             super(pos, InstructionKind.NEW_TYPEDESC);
+            this.closureVars = closureVars;
             this.lhsOp = lhsOp;
             this.type = type;
         }

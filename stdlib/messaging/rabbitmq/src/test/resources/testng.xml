@@ -20,10 +20,11 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <!-- Ballerina language Test Cases. -->
-    <test name="ballerina-lang-test-suite" parallel="false">
-        <packages>
-
-        </packages>
+    <!-- RabbitMQ Compilation Tests. -->
+    <test name="rabbitmq-compilation-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.rabbitmq.RabbitMQServiceCompilationTest"/>
+        </classes>
     </test>
 </suite>

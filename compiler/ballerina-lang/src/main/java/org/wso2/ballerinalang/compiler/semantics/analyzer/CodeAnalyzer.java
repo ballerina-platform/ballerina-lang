@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -110,6 +111,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -177,6 +180,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -1312,6 +1316,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) symbol.type;
+                if (tableType.constraint != null) {
+                    checkForExportableType(tableType.constraint.tsymbol, pos);
+                }
+                return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
@@ -1863,6 +1873,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(listConstructorExpr.exprs);
     }
 
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        analyzeExprs(tableConstructorExpr.recordLiteralList);
+    }
+
     public void visit(BLangRecordLiteral recordLiteral) {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
 
@@ -1985,6 +2000,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
+    }
+
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        analyzeExprs(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -2396,6 +2415,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         analyzeTypeNode(streamType.constraint, env);
         analyzeTypeNode(streamType.error, env);
+    }
+
+    public void visit(BLangTableTypeNode tableType) {
+
+        analyzeTypeNode(tableType.constraint, env);
+
+        if (tableType.tableKeyTypeConstraint != null) {
+            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, env);
+        }
     }
 
     public void visit(BLangErrorType errorType) {

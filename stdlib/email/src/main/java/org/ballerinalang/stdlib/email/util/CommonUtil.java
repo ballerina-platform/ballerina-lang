@@ -102,7 +102,7 @@ public class CommonUtil {
                 if (propertyName instanceof String) {
                     properties.put(propertyName,
                                    customProperties.getStringValue(StringUtils.fromString((String) propertyName)));
-                    log.debug("Added custom SMTP property with Name: " + propertyName + ", Value: "
+                    log.debug("Added custom protocol property with Name: " + propertyName + ", Value: "
                                       + customProperties.getStringValue(StringUtils.fromString((String) propertyName)));
                 }
             }

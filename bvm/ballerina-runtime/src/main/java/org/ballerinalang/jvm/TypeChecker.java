@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
@@ -624,6 +625,8 @@ public class TypeChecker {
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.STREAM_TAG:
                 return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
+            case TypeTags.TABLE_TAG:
+                return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsJSONType(sourceType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
@@ -693,12 +696,12 @@ public class TypeChecker {
         BType targetConstrainedType = targetType.getConstrainedType();
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
-                return checkContraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
+                return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
                         unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recType = (BRecordType) sourceType;
                 BUnionType wideTypeUnion = new BUnionType(getWideTypeComponents(recType));
-                return checkContraints(wideTypeUnion, targetConstrainedType, unresolvedTypes);
+                return checkConstraints(wideTypeUnion, targetConstrainedType, unresolvedTypes);
             default:
                 return false;
         }
@@ -739,8 +742,24 @@ public class TypeChecker {
         if (sourceType.getTag() != TypeTags.STREAM_TAG) {
             return false;
         }
-        return checkContraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+        return checkConstraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                                unresolvedTypes);
+    }
+
+    private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.TABLE_TAG) {
+            return false;
+        }
+        BTableType srcTableType  = (BTableType) sourceType;
+        boolean isTableType = checkConstraints(srcTableType.getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
+
+        String[] targetKeySpecifier = targetType.getFieldNames();
+        if (targetKeySpecifier == null || targetKeySpecifier.length == 0) {
+            return isTableType;
+        }
+
+        return isTableType && Arrays.equals(srcTableType.getFieldNames(), targetKeySpecifier);
     }
 
     private static boolean checkIsJSONType(BType sourceType, List<TypePair> unresolvedTypes) {
@@ -985,7 +1004,7 @@ public class TypeChecker {
         if (sourceType.getTag() != TypeTags.FUTURE_TAG) {
             return false;
         }
-        return checkContraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+        return checkConstraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes);
     }
 
@@ -1132,8 +1151,8 @@ public class TypeChecker {
         return false;
     }
 
-    private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
-                                           List<TypePair> unresolvedTypes) {
+    private static boolean checkConstraints(BType sourceConstraint, BType targetConstraint,
+                                            List<TypePair> unresolvedTypes) {
         if (sourceConstraint == null) {
             sourceConstraint = BTypes.typeAny;
         }
