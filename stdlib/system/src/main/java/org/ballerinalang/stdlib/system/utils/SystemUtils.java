@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.system.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -90,7 +91,7 @@ public class SystemUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                lastModified.toMillis(), zonedDateTime.getZone().toString());
+                lastModified.toMillis(), StringUtils.fromString(zonedDateTime.getZone().toString()));
         return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE, inputFile.getName(),
                 inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
     }

@@ -60,7 +60,7 @@ public class ExternMethods {
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
 
     public static BString toString(MapValue<BString, Object> timeRecord) {
-        return StringUtils.fromString(getDefaultString(timeRecord));
+        return getDefaultString(timeRecord);
     }
 
     public static Object format(MapValue<BString, Object> timeRecord, BString pattern) {
@@ -69,7 +69,7 @@ public class ExternMethods {
                 ZonedDateTime zonedDateTime = getZonedDateTime(timeRecord);
                 return StringUtils.fromString(zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME));
             } else {
-                return StringUtils.fromString(getFormattedString(timeRecord, pattern.getValue()));
+                return getFormattedString(timeRecord, pattern);
             }
         } catch (IllegalArgumentException e) {
             return TimeUtils.getTimeError("Invalid Pattern: " + pattern.getValue());
@@ -157,7 +157,7 @@ public class ExternMethods {
 
     public static Object toTimeZone(MapValue<BString, Object> timeRecord, BString zoneId) {
         try {
-            return changeTimezone(timeRecord, zoneId.getValue());
+            return changeTimezone(timeRecord, zoneId);
         } catch (ErrorValue e) {
             return e;
         }
@@ -166,14 +166,14 @@ public class ExternMethods {
     public static MapValue<BString, Object> currentTime() {
         long currentTime = Instant.now().toEpochMilli();
         return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), currentTime,
-                                          ZoneId.systemDefault().toString());
+                                          StringUtils.fromString(ZoneId.systemDefault().toString()));
     }
 
     public static Object createTime(long years, long months, long dates, long hours, long minutes,
                                     long seconds, long milliSeconds, BString zoneId) {
         try {
             return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
-                                  (int) milliSeconds, zoneId.getValue());
+                                  (int) milliSeconds, zoneId);
         } catch (ErrorValue e) {
             return e;
         }
@@ -184,9 +184,9 @@ public class ExternMethods {
             TemporalAccessor parsedDateTime;
             if ("RFC_1123".equals(pattern.getValue())) {
                 parsedDateTime = DateTimeFormatter.RFC_1123_DATE_TIME.parse(dateString.getValue());
-                return getTimeRecord(parsedDateTime, dateString.getValue(), pattern.getValue());
+                return getTimeRecord(parsedDateTime, dateString, pattern);
             }
-            return parseTime(dateString.getValue(), pattern.getValue());
+            return parseTime(dateString, pattern);
         } catch (ErrorValue e) {
             return e;
         }
