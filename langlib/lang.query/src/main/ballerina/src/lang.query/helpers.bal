@@ -15,7 +15,7 @@
 // under the License.
 
 public function createPipeline(
-        (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection,
+        (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
         typedesc<Type> resType)
             returns _StreamPipeline {
     return new _StreamPipeline(collection, resType);
@@ -54,7 +54,7 @@ public function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _S
     pipeline.addStreamFunction(streamFunction);
 }
 
-public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<any|error, error?> {
+public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, error?> {
     return pipeline.getStream();
 }
 
@@ -71,7 +71,7 @@ public function toArray(stream<Type, error?> strm) returns Type[]|error {
     return arr;
 }
 
-public function consumeStream(stream<any|error, error?> strm) returns error? {
+public function consumeStream(stream<Type, error?> strm) returns error? {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
         v = strm.next();
