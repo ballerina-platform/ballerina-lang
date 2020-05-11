@@ -766,18 +766,18 @@ public class HttpUtil {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = inboundResponseMsg.getHttpStatusCode();
         inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
-        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
-                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD, org.ballerinalang.jvm.StringUtils
+                .fromString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
-            inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,
-                    inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
+            inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD, org.ballerinalang.jvm.StringUtils
+                    .fromString(inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString())));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
         if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
-            inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD,
-                    inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
+            inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD, org.ballerinalang.jvm.StringUtils
+                    .fromString(inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString()));
         }
 
         String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
