@@ -1,29 +1,35 @@
-import ballerina/io;
 import ballerina/test;
 
-any[] outputs = [];
-int counter = 0;
+(any|error)[] outputs = [];
 
 // This is the mock function which will replace the real function
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+public function mockPrint(any|error... s) {
+    foreach var entry in s {
+        outputs.push(entry);
+    }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
+    map<anydata|error> mp1 = {info: "Detail Msg", fatal: true};
+    map<anydata|error> mp2 = {fatal: true};
     test:assertEquals(outputs[0], "Reason String: Sample Error");
-    test:assertEquals(outputs[1], "Detail Mapping: {\"detail\":\"Detail Msg\", \"fatal\":true}");
-    test:assertEquals(outputs[2], "Reason String: Sample Error");
-    test:assertEquals(outputs[3], "Detail Mapping Field One: Detail Msg");
-    test:assertEquals(outputs[4], "Detail Mapping Field Two: true");
-    test:assertEquals(outputs[5], "Reason String: Sample Error");
-    test:assertEquals(outputs[6], "Detail Mapping: {\"detail\":\"Detail Msg\", \"fatal\":true}");
-    test:assertEquals(outputs[7], "Detail Mapping: {detailMsg:\"Failed Message\", isFatal:true}");
+    test:assertEquals(outputs[1], "Info: ");
+    test:assertEquals(outputs[2], "Detail Msg");
+    test:assertEquals(outputs[3], "Fatal: ");
+    test:assertEquals(outputs[4], true);
+    test:assertEquals(outputs[5], "Reason String: ");
+    test:assertEquals(outputs[6], "Sample Error");
+    test:assertEquals(outputs[7], "Detail Mapping: ");
+    test:assertEquals(outputs[8], mp1);
+    test:assertEquals(outputs[9], "Detail Mapping: ");
+    test:assertEquals(outputs[10], mp2);
+    test:assertEquals(outputs[11], "Detail Message: ");
+    test:assertEquals(outputs[12], "Failed Message");
 }

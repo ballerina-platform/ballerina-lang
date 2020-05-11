@@ -12,10 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Error reason to specify the time error that occurs in the module"
+          "value": "Specifies the time error, which occurs in the module."
         }
       },
-      "sortText": "221",
+      "sortText": "130",
       "insertText": "TIME_ERROR_REASON",
       "insertTextFormat": "Snippet"
     },
@@ -26,10 +26,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "Specifies the time format defined by the RFC-1123"
+          "value": "Specifies the time format defined by the RFC-1123."
         }
       },
-      "sortText": "221",
+      "sortText": "130",
       "insertText": "TIME_FORMAT_RFC_1123",
       "insertTextFormat": "Snippet"
     },
@@ -38,9 +38,9 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Record type to hold the details of an error.\n"
+        "left": "Details of an error.\n"
       },
-      "sortText": "221",
+      "sortText": "180",
       "insertText": "Detail",
       "insertTextFormat": "Snippet"
     },
@@ -49,9 +49,9 @@
       "kind": "Event",
       "detail": "Error",
       "documentation": {
-        "left": "Represents Time module related error"
+        "left": "Represents the Time module related error."
       },
-      "sortText": "221",
+      "sortText": "200",
       "insertText": "Error",
       "insertTextFormat": "Snippet"
     },
@@ -62,7 +62,7 @@
       "documentation": {
         "left": "The time format defined by the RFC-1123."
       },
-      "sortText": "221",
+      "sortText": "170",
       "insertText": "TimeFormat",
       "insertTextFormat": "Snippet"
     },
@@ -71,9 +71,9 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Ballerina TimeZone represents the time-zone information associated with a particular time.\n"
+        "left": "Represents the time-zone information associated with a particular time.\n"
       },
-      "sortText": "221",
+      "sortText": "180",
       "insertText": "TimeZone",
       "insertTextFormat": "Snippet"
     },
@@ -82,9 +82,9 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Ballerina Time represents a particular time with its associated time-zone.\n"
+        "left": "Represents a particular time with its associated time-zone.\n"
       },
-      "sortText": "221",
+      "sortText": "180",
       "insertText": "Time",
       "insertTextFormat": "Snippet"
     },
@@ -95,10 +95,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns ISO 8601 string representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to be converted to string  \n  \n**Returns** `string`   \n- The ISO 8601 formatted string of the given time  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the ISO 8601 string representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  string timeString = time:toString(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to be converted to string  \n  \n**Returns** `string`   \n- The ISO 8601-formatted string of the given time  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "toString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -113,10 +113,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns formatted string representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to be formatted  \n- `string` timeFormat: The format which is used to format the time represented by this object  \n  \n**Returns** `(string|time:Error)`   \n- The formatted string of the given time or an `time:Error` if failed to format the time  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the formatted string representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  string|error timeString = time:format(time, time:TIME_FORMAT_RFC_1123);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to be formatted  \n- `string` timeFormat: The format, which is used to format the time represented by this object  \n  \n**Returns** `(string|time:Error)`   \n- The formatted string of the given time or else a `time:Error` if failed to format the time  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "format(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -131,10 +131,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the year representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to retrieve the year representation from  \n  \n**Returns** `int`   \n- The year representation  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the year representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int year = time:getYear(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to retrieve the year representation  \n  \n**Returns** `int`   \n- The year representation  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getYear(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -149,10 +149,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the month representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the month representation from  \n  \n**Returns** `int`   \n- The month-of-year, from 1 (January) to 12 (December)  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the month representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int month = time:getMonth(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the month representation from  \n  \n**Returns** `int`   \n- The month-of-year from 1 (January) to 12 (December)  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getMonth(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -167,10 +167,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the date representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the date representation from  \n  \n**Returns** `int`   \n- The day-of-month, from 1 to 31  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the date representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int day = time:getDay(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the date representation  \n  \n**Returns** `int`   \n- The day-of-month from 1 to 31  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getDay(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -185,10 +185,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the weekday representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the weekday representation from  \n  \n**Returns** `string`   \n- The weekday representation from SUNDAY to SATURDAY  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the weekday representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  string weekDay = time:getWeekday(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the weekday representation  \n  \n**Returns** `string`   \n- The weekday representation from SUNDAY to SATURDAY  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getWeekday(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -203,10 +203,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the hour representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the  hour representation from  \n  \n**Returns** `int`   \n- The hour-of-day, from 0 to 23  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the hour representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int hour = time:getHour(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the hour representation  \n  \n**Returns** `int`   \n- The hour-of-day from 0 to 23  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getHour(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -221,10 +221,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the minute representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the  minute representation from  \n  \n**Returns** `int`   \n- The minute-of-hour to represent, from 0 to 59  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the minute representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int minute = time:getMinute(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the minute representation  \n  \n**Returns** `int`   \n- The minute-of-hour to represent from 0 to 59  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getMinute(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -239,10 +239,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the second representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the second representation from  \n  \n**Returns** `int`   \n- The second-of-minute, from 0 to 59  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the second representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int second = time:getSecond(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the second representation  \n  \n**Returns** `int`   \n- The second-of-minute from 0 to 59  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getSecond(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -257,10 +257,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the millisecond representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the millisecond representation from  \n  \n**Returns** `int`   \n- The milli-of-second, from 0 to 999  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the millisecond representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  int milliSecond = time:getMilliSecond(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the millisecond representation  \n  \n**Returns** `int`   \n- The milli-of-second from 0 to 999  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getMilliSecond(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -275,10 +275,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the date representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to get the date representation from  \n  \n**Returns** `[int,int,int]`   \n- The year representation.  \n           The month-of-year, from 1 (January) to 12 (December).  \n           The day-of-month, from 1 to 31.  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the date representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  [int, int, int] date = time:getDate(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to get the date representation  \n  \n**Returns** `[int,int,int]`   \n- The year representation with  \n           the month-of-year from 1 (January) to 12 (December) and   \n           the day-of-month from 1 to 31  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getDate(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -293,10 +293,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the time representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record  \n  \n**Returns** `[int,int,int,int]`   \n- The hour-of-day, from 0 to 23.  \n           The minute-of-hour to represent, from 0 to 59.  \n           The second-of-minute, from 0 to 59.  \n           The milli-of-second, from 0 to 999.  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the time representation of the given time.\n```ballerina\n#  time:TimeZone zoneValue = {id: \"America/Panama\"};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  [int, int, int, int] timeGenerated = time:getTime(time);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record  \n  \n**Returns** `[int,int,int,int]`   \n- The hour-of-day to represent from 0 to 23,  \n           the minute-of-hour to represent from 0 to 59,  \n           the second-of-minute from 0 to 59,  \n           and the milli-of-second from 0 to 999  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "getTime(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -311,10 +311,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nAdd specified durations to the given time value.\n  \n**Params**  \n- `time:Time` time: The Time record to add the duration to  \n- `int` years: The year representation  \n- `int` months: The month-of-year to represent, from 1 (January) to 12 (December)  \n- `int` days: The day-of-month to represent, from 1 to 31  \n- `int` hours: The hour-of-day to represent, from 0 to 23  \n- `int` minutes: The minute-of-hour to represent, from 0 to 59  \n- `int` seconds: The second-of-minute to represent, from 0 to 59  \n- `int` milliSeconds: The milli-of-second to represent, from 0 to 999  \n  \n**Returns** `time:Time`   \n- Time object containing time and zone information after the addition  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nAdd specified durations to the given time value.\n```ballerina\n#  string timeText = \"2020-06-26T09:46:22.444-0500\";\n#  string timeFormat = \"yyyy-MM-dd'T'HH:mm:ss.SSSZ\";\n#  time:Time|error originalTime = time:parse(timeText, timeFormat);\n#  if (originalTime is time:Time) {\n#      time:Time newTime = time:addDuration(originalTime, 1, 1, 1, 1, 1, 1, 1);\n#  }\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to add the duration   \n- `int` years: The year representation  \n- `int` months: The month-of-year to represent, from 1 (January) to 12 (December)  \n- `int` days: The day-of-month to represent, from 1 to 31  \n- `int` hours: The hour-of-day to represent, from 0 to 23  \n- `int` minutes: The minute-of-hour to represent, from 0 to 59  \n- `int` seconds: The second-of-minute to represent, from 0 to 59  \n- `int` milliSeconds: The milli-of-second to represent, from 0 to 999  \n  \n**Returns** `time:Time`   \n- Time object containing time and zone information after the addition  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "addDuration(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -329,10 +329,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nSubtract specified durations from the given time value.\n  \n**Params**  \n- `time:Time` time: The Time record to subtract the duration from  \n- `int` years: The year representation  \n- `int` months: The month-of-year to represent, from 1 (January) to 12 (December)  \n- `int` days: The day-of-month to represent, from 1 to 31  \n- `int` hours: The hour-of-day to represent, from 0 to 23  \n- `int` minutes: The minute-of-hour to represent, from 0 to 59  \n- `int` seconds: The second-of-minute to represent, from 0 to 59  \n- `int` milliSeconds: The milli-of-second to represent, from 0 to 999  \n  \n**Returns** `time:Time`   \n- Time object containing time and zone information after the subtraction  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nSubtract specified durations from the given time value.\n```ballerina\n#  string timeText = \"2020-06-26T09:46:22.444-0500\";\n#  string timeFormat = \"yyyy-MM-dd'T'HH:mm:ss.SSSZ\";\n#  time:Time|error originalTime = time:parse(timeText, timeFormat);\n#  if (originalTime is time:Time) {\n#      time:Time newTime = time:subtractDuration(originalTime, 1, 1, 1, 1, 1, 1, 1);\n#  }\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record to subtract the duration from  \n- `int` years: The year representation  \n- `int` months: The month-of-year to represent, from 1 (January) to 12 (December)  \n- `int` days: The day-of-month to represent, from 1 to 31  \n- `int` hours: The hour-of-day to represent, from 0 to 23  \n- `int` minutes: The minute-of-hour to represent, from 0 to 59  \n- `int` seconds: The second-of-minute to represent, from 0 to 59  \n- `int` milliSeconds: The milli-of-second to represent, from 0 to 999  \n  \n**Returns** `time:Time`   \n- Time object containing time and zone information after the subtraction  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "subtractDuration(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -347,10 +347,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nChange the time-zone of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record of which the time-zone to be changed  \n- `string` zoneId: The new time-zone id  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing time and zone information after the conversion  \n           or an `time:Error` if failed to format the time  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nChange the time-zone of the given time.\n```ballerina\n#  string zoneId = \"America/Panama\";\n#  time:TimeZone zoneValue = {id: zoneId};\n#  time:Time time = {time: 1578488382444, zone: zoneValue};\n#  time:Time|time:Error newTime = time:toTimeZone(time, zoneId);\n# ```\n  \n**Params**  \n- `time:Time` time: The Time record of which the time-zone is to be changed  \n- `string` zoneId: The new time-zone ID  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing the time and zone information after the conversion  \n           or else a `time:Error` if failed to format the time  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "toTimeZone(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -365,10 +365,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the current time value with the system default time-zone.\n  \n  \n  \n**Returns** `time:Time`   \n- Time object containing the time and zone information  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the current time value with the default system time-zone.\n```ballerina\n#  time:Time now = time:currentTime();\n# ```\n  \n  \n  \n**Returns** `time:Time`   \n- Time object containing the time and the zone information  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "currentTime()",
       "insertTextFormat": "Snippet"
     },
@@ -379,10 +379,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the current system time in nano seconds.\n  \n  \n  \n**Returns** `int`   \n- Int value of the current system time in nano seconds  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the current system time in nano seconds.\n```ballerina\n#  int now = time:nanoTime();\n# ```\n  \n  \n  \n**Returns** `int`   \n- Integer value of the current system time in nano seconds  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "nanoTime()",
       "insertTextFormat": "Snippet"
     },
@@ -393,10 +393,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the Time object correspoding to the given time components and time-zone.\n  \n**Params**  \n- `int` year: The year representation  \n- `int` month: The month-of-year to represent, from 1 (January) to 12 (December)  \n- `int` date: The day-of-month to represent, from 1 to 31  \n- `int` hour: The hour-of-day to represent, from 0 to 23  \n- `int` minute: The minute-of-hour to represent, from 0 to 59  \n- `int` second: The second-of-minute to represent, from 0 to 59  \n- `int` milliSecond: The milli-of-second to represent, from 0 to 999  \n- `string` zoneId: The zone id of the required time-zone.If empty the system local time-zone will be used  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing time and zone information or an `time:Error` if failed to create the time  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the Time object correspoding to the given time components and time-zone.\n```ballerina\n#  time:Time|error dateTime = time:createTime(2020, 3, 28, 23, 42, 45, 554, \"America/Panama\");\n# ```\n  \n**Params**  \n- `int` year: The year representation  \n- `int` month: The month-of-year to represent from 1 (January) to 12 (December)  \n- `int` date: The day-of-month to represent from 1 to 31  \n- `int` hour: The hour-of-day to represent from 0 to 23  \n- `int` minute: The minute-of-hour to represent from 0 to 59  \n- `int` second: The second-of-minute to represent, from 0 to 59  \n- `int` milliSecond: The milli-of-second to represent, from 0 to 999  \n- `string` zoneId: The zone id of the required time-zone.If empty the system local time-zone will be used  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing time and zone information or an `time:Error` if failed to create the time  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "createTime(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -411,10 +411,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the time for the given string representation based on the given format string.\n  \n**Params**  \n- `string` data: The time text to parse  \n- `string` timeFormat: The format which is used to parse the given text  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing time and zone information or an `time:Error` if failed to parse the given string  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the time for the given string representation based on the given format string.\n```ballerina\n#  string timeFormat = \"yyyy-MM-dd'T'HH:mm:ss.SSSZ\";\n#  time:Time|error time = time:parse(\"2020-06-26T09:46:22.444-0500\", timeFormat);\n# ```\n  \n**Params**  \n- `string` data: The time text to parse  \n- `string` timeFormat: The format, which is used to parse the given text  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing the time and zone information or else  a `time:Error` if failed to parse the given string  \n  \n"
         }
       },
-      "sortText": "121",
+      "sortText": "120",
       "insertText": "parse(${1})",
       "insertTextFormat": "Snippet",
       "command": {

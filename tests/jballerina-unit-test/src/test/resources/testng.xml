@@ -33,7 +33,6 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
-                <exclude name="brokenOnXMLLangLibChange"/>
             </run>
         </groups>
         <packages>
@@ -63,6 +62,7 @@
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.stream.*"/>
+            <package name="org.ballerinalang.test.types.table.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>

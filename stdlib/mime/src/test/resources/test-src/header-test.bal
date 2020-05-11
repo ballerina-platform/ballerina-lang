@@ -153,9 +153,9 @@ function testSetTrailingHeaderAfterAddHeader() returns @tainted [string[], strin
     return [entity.getHeaders("header1", position = "trailing"), entity.getHeader("header2", position = "trailing")];
 }
 
-function testNonExistenceTrailingHeader() returns @tainted string {
+function testNonExistenceTrailingHeader(string headerName, string headerValue) returns @tainted string {
     mime:Entity entity = new;
-    entity.addHeader("heAder1", "value1", position = mime:TRAILING);
+    entity.addHeader(headerName, headerValue, position = mime:TRAILING);
     return entity.getHeader("header", position = mime:TRAILING);
 }
 
@@ -171,9 +171,9 @@ function testGetTrailingHeaderNames() returns @tainted string[] {
     return entity.getHeaderNames(position = mime:TRAILING);
 }
 
-function testTrailingHasHeader() returns boolean{
+function testTrailingHasHeader(string headerName, string headerValue) returns boolean{
     mime:Entity entity = new;
-    entity.addHeader("heAder1", "value1", position = mime:TRAILING);
+    entity.setHeader(headerName, headerValue, position = mime:TRAILING);
     return entity.hasHeader("header1", position = mime:TRAILING);
 }
 

@@ -423,14 +423,10 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].toString(), "{\"home\":\"SriLanka\"}");
     }
 
-    //TODO Table remove - Fix
-//    @Test(description = "Test casting a any to table")
-//    public void testAnyToTable() {
-//        BValue[] returns = BRunUtil.invoke(result, "testAnyToTable");
-//        Assert.assertTrue(returns[0] instanceof BTable);
-//        Assert.assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
-//                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
-//    }
+    @Test(description = "Test casting a any to table")
+    public void testAnyToTable() {
+        BRunUtil.invoke(result, "testAnyToTable");
+    }
 
     @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
@@ -489,7 +485,9 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a null stored as any to xml",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'xml'.*")
+          expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to " +
+                  "'xml\\<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                  "lang\\.xml:Text\\>'.*")
     public void testAnyNullToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToXml");
         Assert.assertNull(returns[0]);

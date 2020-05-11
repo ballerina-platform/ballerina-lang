@@ -1,1 +1,3 @@
-// The HTTP Client Connector can be used to connect to and interact with an HTTP server.
+// The HTTP Client Connector can be used to connect to and interact with an HTTP server.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

@@ -102,14 +102,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/bir",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/bir",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Module",
@@ -179,14 +171,6 @@
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/oauth2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/jvm",
       "insertTextFormat": "Snippet"
     },
     {
@@ -323,6 +307,14 @@
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.table",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/lang.'table;",
       "insertTextFormat": "Snippet"
     },
     {

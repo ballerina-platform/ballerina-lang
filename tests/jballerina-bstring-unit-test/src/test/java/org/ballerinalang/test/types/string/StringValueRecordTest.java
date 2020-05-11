@@ -53,6 +53,11 @@ public class StringValueRecordTest {
         testAndAssert("testMapToKeys", 28);
     }
 
+    @Test
+    public void testOpenRecord() {
+        testAndAssert("testOpenRecord", 18);
+    }
+
     private void testAndAssert(String funcName, int i) {
         BValue[] returns = BRunUtil.invoke(result, funcName);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);

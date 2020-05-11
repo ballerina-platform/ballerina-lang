@@ -1,3 +1,5 @@
 // This example demonstrates an HTTP redirect. 
 // To follow redirects when calling an external HTTP server using the Ballerina HTTP client connector, set `followRedirect`
-// to true.
+// to true.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

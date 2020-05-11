@@ -17,30 +17,24 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -48,10 +42,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 /**
  * Code Action provider for implementing functions of an object.
@@ -135,39 +127,23 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         }
 
         if (!edits.isEmpty()) {
-            List<Diagnostic> diagnostics = new ArrayList<>();
-            diagnostics.add(diagnostic);
             String commandTitle = CommandConstants.IMPLEMENT_FUNCS_TITLE;
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-            action.setDiagnostics(diagnostics);
-            return action;
+            return createQuickFixCodeAction(commandTitle, edits, uri);
         }
         return null;
     }
 
     private static List<TextEdit> getNewFunctionEditText(BAttachedFunction function, BLangTypeDefinition object,
                                                          BLangPackage packageNode, LSContext context) {
-        String returnType;
-        String returnValue;
         String funcArgs = "";
         PackageID currentPkgId = packageNode.packageID;
         List<TextEdit> edits = new ArrayList<>();
-        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-            boolean notFound = packageNode.getImports().stream().noneMatch(
-                    pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
-            );
-            if (notFound) {
-                String pkgName = orgName + "/" + alias;
-                edits.add(createPackageImportTextEdit(pkgName, context));
-            }
-        };
-        returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, function.type.retType);
-        returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type.retType,
-                                                            "        return {%1};");
-        List<String> arguments = getFuncArguments(importsAcceptor, currentPkgId, function.symbol);
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+                                                                     function.type.retType, context);
+        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type.retType,
+                                                                   "        return {%1};", context);
+        List<String> arguments = getFuncArguments(importsAcceptor, currentPkgId, function.symbol, context);
         if (arguments != null) {
             funcArgs = String.join(", ", arguments);
         }
@@ -181,6 +157,7 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         String editText = FunctionGenerator.createFunction(function.funcName.value, funcArgs, returnType, returnValue,
                                                            modifiers, false, StringUtils.repeat(' ', 4));
         Position editPos = new Position(object.pos.eLine - 1, 0);
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         return edits;
     }
@@ -191,42 +168,28 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
      * @param importsAcceptor imports accepter
      * @param currentPkgId    current package ID
      * @param bLangInvocation {@link BInvokableSymbol}
+     * @param context         {@link LSContext}
      * @return {@link List} List of arguments
      */
-    private static List<String> getFuncArguments(BiConsumer<String, String> importsAcceptor,
-                                                 PackageID currentPkgId, BInvokableSymbol bLangInvocation) {
+    private static List<String> getFuncArguments(ImportsAcceptor importsAcceptor,
+                                                 PackageID currentPkgId, BInvokableSymbol bLangInvocation,
+                                                 LSContext context) {
         List<String> list = new ArrayList<>();
         if (bLangInvocation.params.isEmpty()) {
             return null;
         }
         for (BVarSymbol bVarSymbol : bLangInvocation.params) {
-            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type);
+            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type,
+                                                                      context);
             String argName = bVarSymbol.name.value;
             list.add(argType + " " + argName);
         }
         BVarSymbol restParam = bLangInvocation.restParam;
         if (restParam != null && (restParam.type instanceof BArrayType)) {
             String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                      ((BArrayType) restParam.type).eType);
+                                                                      ((BArrayType) restParam.type).eType, context);
             list.add(argType + "... " + restParam.getName().getValue());
         }
         return (!list.isEmpty()) ? list : null;
-    }
-
-    private static TextEdit createPackageImportTextEdit(String pkgName, LSContext context) {
-        DiagnosticPos pos = null;
-        // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
-        if (!imports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-            pos = lastImport.getPosition();
-        }
-
-        int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
-
-        String editText = "import " + pkgName + ";\n";
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        return new TextEdit(range, editText);
     }
 }

@@ -40,4 +40,7 @@ public class IsFinite {
     public static boolean isFinite(Strand strand, double x) {
         return Double.isFinite(x);
     }
+    public static boolean isFinite_bstring(Strand strand, double x) {
+        return isFinite(strand, x);
+    }
 }

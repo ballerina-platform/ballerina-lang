@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -606,13 +607,13 @@ public final class XMLItem extends XMLValue {
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {
-        QName qname;
-        if (prefix != null) {
-            qname = new QName(namespaceUri, localName, prefix);
+        if (namespaceUri == null || namespaceUri.isEmpty()) {
+            return new QName(localName);
+        } else if (prefix == null || prefix.isEmpty()) {
+            return new QName(namespaceUri, localName);
         } else {
-            qname = new QName(namespaceUri, localName);
+            return new QName(namespaceUri, localName, prefix);
         }
-        return qname;
     }
 
     public XMLSequence getChildrenSeq() {
@@ -666,6 +667,11 @@ public final class XMLItem extends XMLValue {
             return other.children.size() == 1 && this.equals(other.children.get(0));
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, children, attributes, probableParents);
     }
 
     @Override

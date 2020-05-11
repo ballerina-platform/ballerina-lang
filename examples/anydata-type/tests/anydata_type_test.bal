@@ -1,19 +1,18 @@
 import ballerina/test;
-import ballerina/io;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 int count = 0;
 // This is the mock function which will replace the real function
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     outputs[count] = s[0];
     count += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Calling the main fuction with ampty args array
     main();

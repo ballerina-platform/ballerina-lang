@@ -1,33 +1,32 @@
 import ballerina/test;
-import ballerina/io;
 
-any[] outputs = [];
-int counter = 0;
+(any|error)[] outputs = [];
 
 // This is the mock function which will replace the real function
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+public function mockPrint(any|error... s) {
+    foreach var entry in s {
+        outputs.push(entry);
+    }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs.length(), 11);
     test:assertEquals(outputs[0], 10);
-    test:assertEquals(outputs[1], 20.0);
-    test:assertEquals(outputs[2], true);
-    test:assertEquals(outputs[3], true);
-    test:assertEquals(outputs[4], true);
-    test:assertEquals(outputs[5], 27.5d);
-    test:assertEquals(outputs[6], 23);
-    test:assertEquals(outputs[7], "Ballerina");
-    test:assertEquals(outputs[8], true);
-    test:assertEquals(outputs[9], ());
-    test:assertEquals(outputs[10], ());
+    test:assertEquals(outputs[1], 100);
+    test:assertEquals(outputs[2], 20.0);
+    test:assertEquals(outputs[3], "Max float: ");
+    test:assertEquals(outputs[4], 22.0);
+    test:assertEquals(outputs[5], true);
+    test:assertEquals(outputs[6], true);
+    test:assertEquals(outputs[7], true);
+    test:assertEquals(outputs[8], 27.5d);
+    test:assertEquals(outputs[9], 23);
+    test:assertEquals(outputs[10], "Ballerina");
+    test:assertEquals(outputs[11], true);
 }

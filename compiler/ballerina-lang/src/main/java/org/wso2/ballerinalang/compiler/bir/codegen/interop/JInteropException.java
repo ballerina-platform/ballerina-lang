@@ -29,16 +29,19 @@ public class JInteropException extends RuntimeException {
     private DiagnosticCode code;
 
     JInteropException(DiagnosticCode code, String message) {
+
         super(message);
         this.code = code;
     }
 
     JInteropException(DiagnosticCode code, String message, Throwable cause) {
+
         super(message, cause);
         this.code = code;
     }
 
     public DiagnosticCode getCode() {
+
         return this.code;
     }
 }

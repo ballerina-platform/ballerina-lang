@@ -20,4 +20,8 @@
         <class name="org.ballerinalang.sql.utils.Utils"/>
         <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
     </Match>
+    <Match>
+        <class name="org.ballerinalang.sql.utils.QueryUtils"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
+    </Match>
 </FindBugsFilter>

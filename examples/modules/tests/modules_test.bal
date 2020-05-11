@@ -1,18 +1,17 @@
 import ballerina/test;
-import ballerina/io;
 
-any output = "";
+(any|error) output = "";
 
 // This is the mock function which will replace the real function
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     output = s[0];
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();

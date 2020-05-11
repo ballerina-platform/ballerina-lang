@@ -1,7 +1,6 @@
 import ballerina/test;
-import ballerina/io;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -9,26 +8,26 @@ int counter = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     foreach var v in s {
         outputs[counter] = v;
         counter += 1;
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(outputs[0], "m1 === m2: ");
-    test:assertEquals(outputs[1], true);
-    test:assertEquals(outputs[2], "Frozen status of m1: ");
-    test:assertEquals(outputs[3], true);
-    test:assertEquals(outputs[4], "Error occurred on update: ");
-    test:assertEquals(outputs[5], "Invalid map insertion: modification not allowed on frozen value");
-    test:assertEquals(outputs[6], "'.freeze()' successful for m3");
-    test:assertEquals(outputs[7], "'.freeze()' failed for m4: ");
-    string output8 = <string> outputs[8];
-    test:assertTrue(output8.hasPrefix("'freeze()' not allowed on '") && output8.hasSuffix("Employee'"));
-    test:assertEquals(outputs[9], "frozenVal is map<string>");
+    test:assertEquals(outputs[1], false);
+    test:assertEquals(outputs[2], "m1 is immutable: ");
+    test:assertEquals(outputs[3], false);
+    test:assertEquals(outputs[4], "m2 is immutable: ");
+    test:assertEquals(outputs[5], true);
+    test:assertEquals(outputs[6], "Error occurred on update: ");
+    test:assertEquals(outputs[7], "Invalid map insertion: modification not allowed on readonly value");
+    test:assertEquals(outputs[8], "m2 === m3: ");
+    test:assertEquals(outputs[9], true);
+    test:assertEquals(outputs[10], "frozenVal is map<string>");
 }

@@ -56,9 +56,14 @@
                 {{else}}
                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
                 {{/if}}
-                 : <span class="records">{{ record.name }}</span>
+                 : <span class="records {{#if record.isDeprecated}}strike{{/if}}">{{ record.name }}</span>
             </h1>
-            <p>{{{ record.description }}}</p>
+            <p>
+                {{#if record.isDeprecated}}
+                    <span class="stab">Deprecated</span>
+                {{/if}}
+                {{{ record.description }}}
+            </p>
             <div class="constants">
                 {{#if record.fields}}
                     {{#record}}

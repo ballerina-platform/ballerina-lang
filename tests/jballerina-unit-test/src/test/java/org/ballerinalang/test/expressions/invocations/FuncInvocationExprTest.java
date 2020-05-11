@@ -20,13 +20,14 @@ package org.ballerinalang.test.expressions.invocations;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Local function invocation test.
@@ -35,14 +36,15 @@ import org.testng.annotations.Test;
  */
 public class FuncInvocationExprTest {
 
-    CompileResult funcInvocationExpResult;
-    CompileResult funcInvocationNegative;
+    private CompileResult funcInvocationExpResult;
+    private CompileResult funcInvocationNegative;
+    private CompileResult methodInvocationNegative;
 
     @BeforeClass
     public void setup() {
         funcInvocationExpResult = BCompileUtil.compile("test-src/expressions/invocations/function-invocation-expr.bal");
-        funcInvocationNegative = BCompileUtil
-                .compile("test-src/expressions/invocations/function-invocation-negative.bal");
+        funcInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/function_call_negative.bal");
+        methodInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/method_call_negative.bal");
     }
 
     @Test
@@ -133,13 +135,59 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test uanry statement with errors")
-    public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(funcInvocationNegative.getErrorCount(), 3);
-        BAssertUtil
-                .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 23);
-        BAssertUtil.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
-        BAssertUtil.validateError(funcInvocationNegative, 2, "function 'testMyFunc' can not have private visibility",
-                14, 1);
+    @Test
+    public void testInvocationWithArgVarargMix() {
+        BRunUtil.invoke(funcInvocationExpResult, "testInvocationWithArgVarargMix");
+    }
+
+    @Test
+    public void testFunctionCallNegativeCases() {
+        int i = 0;
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'int', found 'string'", 3, 16);
+        validateError(funcInvocationNegative, i++, "undefined function 'foo'", 11, 5);
+        validateError(funcInvocationNegative, i++, "function 'testMyFunc' can not have private visibility", 14, 1);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 22, 16);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean[]', found '[int,boolean," +
+                "boolean]'", 22, 26);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'string'", 24, 24);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'int'", 26, 27);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'string'", 26, 30);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 28, 5);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected '[int,boolean...]', found '[float," +
+                "string...]'", 28, 12);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 31, 9);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
+                "boolean,boolean]'", 31, 15);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected '[string,float,boolean...]', found " +
+                "'[float,string...]'", 33, 12);
+        validateError(funcInvocationNegative, i++, "rest argument not allowed after named arguments", 39, 20);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
+                "'boolean[]'", 41, 23);
+        validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 47, 20);
+        Assert.assertEquals(i,  funcInvocationNegative.getErrorCount());
+    }
+
+    @Test
+    public void testMethodCallNegativeCases() {
+        int i = 0;
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 23, 16);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean[]', found '[int,boolean," +
+                "boolean]'", 23, 28);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'string'", 25, 26);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'int'", 27, 29);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'string'", 27, 32);
+        validateError(methodInvocationNegative, i++, "variable assignment is required", 29, 5);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected '[int,boolean...]', found '[float," +
+                "string...]'", 29, 14);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 32, 12);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
+                "boolean,boolean]'", 32, 18);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected '[string,float,boolean...]', " +
+                "found '[float,string...]'", 34, 15);
+        validateError(methodInvocationNegative, i++, "rest argument not allowed after named arguments", 42, 22);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
+                "'boolean[]'", 44, 26);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 50, 22);
+        Assert.assertEquals(i,  methodInvocationNegative.getErrorCount());
     }
 }

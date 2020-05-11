@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.model.values.BBoolean;
@@ -473,7 +473,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static int useFunctionPointer(org.ballerinalang.jvm.values.api.BFunctionPointer fp) {
-        return ((Long) fp.call(new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
     }
 
     public static org.ballerinalang.jvm.values.api.BFunctionPointer getFunctionPointer(Object fp) {
@@ -485,7 +485,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static org.ballerinalang.jvm.values.api.BTypedesc getTypeDesc() {
-        return new TypedescValue(BTypes.typeXML);
+        return new TypedescValueImpl(BTypes.typeXML);
     }
 
     public static Object useFuture(org.ballerinalang.jvm.values.api.BFuture future) {

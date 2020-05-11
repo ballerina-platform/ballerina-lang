@@ -19,18 +19,6 @@ apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
-if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
-
-    dependencies {
-        testRuntime project(':ballerina-jvm')
-        testRuntime project(':ballerina-bir')
-        testRuntime project(':ballerina-backend-jvm')
-
-        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-    }
-}
 
 configurations {
     testLibs {
@@ -45,6 +33,9 @@ configurations {
         transitive false
     }
     observeTestUtils {
+        transitive false
+    }
+    launchListenerTestUtils {
         transitive false
     }
 }
@@ -77,8 +68,6 @@ dependencies {
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-task')
-    implementation project(':ballerina-backend-jvm')
-    implementation project(':ballerina-jvm')
     implementation project(':ballerina-stringutils')
     implementation project(':ballerina-java')
     implementation project(':ballerina-jsonutils')
@@ -125,7 +114,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
@@ -151,6 +139,11 @@ dependencies {
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
+
+    launchListenerTestUtils project(':test-launch-listener-01')
+    launchListenerTestUtils project(':test-launch-listener-02')
+    launchListenerTestUtils project(':test-launch-listener-03')
+    launchListenerTestUtils project(':test-launch-listener-04')
 
     testLibs 'org.hsqldb:hsqldb:2.4.1'
 }
@@ -196,3 +189,10 @@ task copyToLib(type: Copy) {
 }
 
 test.dependsOn(copyToLib)
+
+task createLaunchListenerUtilsLib(type: Copy) {
+    from configurations.launchListenerTestUtils
+    into "${buildDir}/launch-listener/libs"
+}
+
+test.dependsOn(createLaunchListenerUtilsLib)

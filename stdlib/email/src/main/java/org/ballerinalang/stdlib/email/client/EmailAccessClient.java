@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.email.client;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.email.util.EmailAccessUtil;
@@ -47,6 +46,7 @@ import javax.mail.search.FlagTerm;
 public class EmailAccessClient {
 
     private static final Logger log = LoggerFactory.getLogger(EmailAccessClient.class);
+    private static final FlagTerm UNSEEN_FLAG = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 
     private EmailAccessClient() {
         // A Singleton class.
@@ -74,8 +74,7 @@ public class EmailAccessClient {
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(
-                    EmailConstants.READ_CLIENT_INIT_ERROR), e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
         }
     }
 
@@ -101,8 +100,7 @@ public class EmailAccessClient {
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(
-                    EmailConstants.READ_CLIENT_INIT_ERROR), e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
         }
     }
 
@@ -117,26 +115,31 @@ public class EmailAccessClient {
         String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME);
         String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD);
         try (Store store = (Store) clientConnector.getNativeData(EmailConstants.PROPS_STORE)) {
+            log.debug("Access email server with properties, host: " + host + " username: " + username
+                    + " folder: " + folder);
             store.connect(host, username, password);
             Folder emailFolder = store.getFolder(folder);
-            emailFolder.open(Folder.READ_WRITE);
-            Message[] messages = emailFolder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
             MapValue mapValue = null;
-            if (messages.length > 0) {
-                Flags flags = new Flags();
-                flags.add(Flags.Flag.SEEN);
-                emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
-                mapValue = EmailAccessUtil.getMapValue(messages[0]);
+            if (emailFolder == null) {
+                log.error("Email store folder, " + folder + " is not found.");
+            } else {
+                emailFolder.open(Folder.READ_WRITE);
+                Message[] messages = emailFolder.search(UNSEEN_FLAG);
+                if (messages.length > 0) {
+                    Flags flags = new Flags();
+                    flags.add(Flags.Flag.SEEN);
+                    emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
+                    mapValue = EmailAccessUtil.getMapValue(messages[0]);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Got the messages. Email count = " + messages.length);
+                }
+                emailFolder.close(false);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("[EmailAccessClient][Read] Got the messages. Email count = " + messages.length);
-            }
-            emailFolder.close(false);
             return mapValue;
         } catch (MessagingException | IOException e) {
             log.error("Failed to read message : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.READ_ERROR),
-                    e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.READ_ERROR, e.getMessage());
         }
     }
 

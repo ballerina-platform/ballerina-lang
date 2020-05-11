@@ -1,7 +1,6 @@
 import ballerina/test;
-import ballerina/io;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -9,26 +8,26 @@ int counter = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     if (counter < 6) {
-        outputs[counter] = string.convert(s[0]) + string.convert(s[1]) + string.convert(s[2]) + string.convert(s[3]) +
-                            string.convert(s[4]);
+        outputs[counter] = s[0].toString() + s[1].toString() + s[2].toString() + s[3].toString() +
+                            s[4].toString();
     } else {
-        outputs[counter] = string.convert(s[0]) + string.convert(s[1]);
+        outputs[counter] = s[0].toString() + s[1].toString();
     }
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(outputs[0], "1 == 1 is true");
     test:assertEquals(outputs[1], "1 != 2 is true");
-    test:assertEquals(outputs[2], "(1, 1.0, false) == (1, 1.0, false) is true");
-    test:assertEquals(outputs[3], "(1, 1.0, false) != (11, 1.0, true) is true");
-    test:assertEquals(outputs[4], "{name:\"Jane\", id:1100} != {name:\"Jane\", id:1100} is false");
-    test:assertEquals(outputs[5], "{name:\"Jane\", id:1100} == {name:\"Anne\", id:1100} is false");
+    test:assertEquals(outputs[2], "1 1.0 false == 1 1.0 false is true");
+    test:assertEquals(outputs[3], "1 1.0 false != 11 1.0 true is true");
+    test:assertEquals(outputs[4], "name=Jane id=1100 != name=Jane id=1100 is false");
+    test:assertEquals(outputs[5], "name=Jane id=1100 == name=Anne id=1100 is false");
     test:assertEquals(outputs[6], "e4 === e5 is true");
     test:assertEquals(outputs[7], "e4 !== e5 is true");
     test:assertEquals(outputs[8], "f1 === f2 is true");

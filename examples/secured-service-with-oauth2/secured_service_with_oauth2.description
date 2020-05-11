@@ -5,4 +5,6 @@
 // Ballerina uses the concept of scopes for authorization. A resource declared
 // in a service can be bound to one/more scope(s). The scopes are included in
 // the introspection response and the scopes of the resource are compared
-// against those for at least one match between the two sets.
+// against those for at least one match between the two sets.<br/><br/>
+// For more information on the underlying module, 
+// see the [OAuth2 module](https://ballerina.io/learn/api-docs/ballerina/oauth2/index.html).

@@ -1,3 +1,5 @@
 // The gRPC Server Connector exposes the gRPC service over http2.
 // This sample demonstrates how the gRPC unary service interacts with the gRPC blocking client, and how
-// header values are handled.
+// header values are handled.<br/><br/>
+// For more information on the underlying module, 
+// see the [GRPC module](https://ballerina.io/learn/api-docs/ballerina/grpc/index.html).
