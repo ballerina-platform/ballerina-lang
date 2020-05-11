@@ -8,8 +8,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class ModuleLoaderTests {
 
@@ -25,13 +27,14 @@ public class ModuleLoaderTests {
                 "\"foo/firstMod\" = \"2.0.0\"\n" +
                 "\"foo/secondMod\" = \"\"");
 
-        tomlModuleLoader = new ModuleLoaderImpl(tomlProject);
+        tomlModuleLoader = new ModuleLoaderImpl(tomlProject, new ArrayList<>());
+        tomlModuleLoader.generateRepoHierarchy();
     }
 
     @Test(description = "Get module version from module ID")
-    public void testGetModuleVersionFromModuleId() {
+    public void testGetModuleVersionFromModuleId() throws IOException {
         Project project = new Project();
-        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project);
+        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project, new ArrayList<>());
 
         ModuleId moduleId = new ModuleId();
         moduleId.version = "1.0.0";
@@ -41,7 +44,7 @@ public class ModuleLoaderTests {
     }
 
     @Test(description = "Get module version from lock file")
-    public void testGetModuleVersionFromLockFile() {
+    public void testGetModuleVersionFromLockFile() throws IOException {
         Project project = new Project();
         // Can set the model w/o giving the toml
         String lockFile = "org_name = \"bar\"\n" +
@@ -55,7 +58,7 @@ public class ModuleLoaderTests {
         InputStream stream = new ByteArrayInputStream(lockFile.getBytes(StandardCharsets.UTF_8));
         project.parseLockFile(stream);
 
-        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project);
+        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project, new ArrayList<>());
 
         ModuleId moduleId = new ModuleId();
         moduleId.orgName = "foo";
@@ -71,7 +74,7 @@ public class ModuleLoaderTests {
     }
 
     @Test(description = "Get module version from Ballerina Toml when specific version is given")
-    public void testGetModuleVersionFromSpecificVersionInBallerinaToml() {
+    public void testGetModuleVersionFromSpecificVersionInBallerinaToml() throws IOException {
         ModuleId moduleId = new ModuleId();
         moduleId.orgName = "foo";
         moduleId.moduleName = "firstMod";
@@ -81,7 +84,7 @@ public class ModuleLoaderTests {
     }
 
     @Test(description = "Get module version from Ballerina Toml when range of version is given")
-    public void testGetModuleVersionFromRangeOfVersionsInBallerinaToml() { // => ask from Hemika
+    public void testGetModuleVersionFromRangeOfVersionsInBallerinaToml() throws IOException { // => ask from Hemika
         ModuleId moduleId = new ModuleId();
         moduleId.orgName = "foo";
         moduleId.moduleName = "secondMod";

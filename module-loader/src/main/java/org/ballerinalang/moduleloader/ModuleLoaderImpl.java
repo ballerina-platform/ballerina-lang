@@ -19,10 +19,9 @@ import java.util.regex.Pattern;
 public class ModuleLoaderImpl implements ModuleLoader {
 
     private Project project;
-    private List<Cache> repos;
+    private List<Repo> repos;
 
-    public ModuleLoaderImpl(Project project, List<Cache> repos) {
-        // define repo list
+    public ModuleLoaderImpl(Project project, List<Repo> repos) {
         this.project = project;
         this.repos = repos;
     }
@@ -35,13 +34,19 @@ public class ModuleLoaderImpl implements ModuleLoader {
         }
 
         // if not transitive and lock file exists
-        if (enclModuleId != null && this.project.hasLockFile()) {
+        if (this.project.hasLockFile()) { // enclModuleId != null &&
             // not a top level module or bal
             String lockFileVersion = resolveVersionFromLockFile(moduleId, enclModuleId);
             if (lockFileVersion != null) {
                  moduleId.version = lockFileVersion;
                 return moduleId;
             }
+        }
+
+        // If module is in the current project
+        if (this.repos.get(0).isModuleExists(moduleId)) {
+            moduleId.version = this.project.manifest.getProject().getVersion();
+            return moduleId;
         }
 
         // If it is an immediate import check the Ballerina.toml
@@ -61,16 +66,11 @@ public class ModuleLoaderImpl implements ModuleLoader {
             }
         }
 
-        // If module is in the current project
-        if (this.repos.get(0).isModuleExists(moduleId)) {
-            moduleId.version = this.project.manifest.getProject().getVersion();
-            return moduleId;
-        }
-
         // If enclosing module is not a project module, module is transitive
         // If it is a transitive we need to check the toml file of the dependent module
         if (!this.repos.get(0).isModuleExists(enclModuleId)) {
-            Module parentModule = this.repos.get(4).getModule(enclModuleId);
+            BaloCache homeBaloCache = (BaloCache) this.repos.get(4);
+            Module parentModule = homeBaloCache.getModule(enclModuleId);
             Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
             String versionFromManifest = resolveVersionFromManifest(moduleId, parentManifest);
             // If exact version
@@ -122,7 +122,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
         return null;
     }
 
-    private void generateRepoHierarchy() {
+    public void generateRepoHierarchy() {
         // 1. product modules
         ProjectModules projectModules = new ProjectModules(Paths.get(System.getProperty("user.dir")),
                 this.project.manifest.getProject().getOrgName(), this.project.manifest.getProject().getVersion());
@@ -148,18 +148,17 @@ public class ModuleLoaderImpl implements ModuleLoader {
         BaloCache homeBaloCache = new BaloCache(
                 RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
         repos.add(homeBaloCache);
+
+        // 6. central repo
+        Central central = new Central();
+        repos.add(central);
     }
 
-    private String resolveModuleVersion(List<Cache> repos, ModuleId moduleId, String filter) throws IOException {
+    private String resolveModuleVersion(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
         TreeSet<String> versions = new TreeSet<>();
-        for (Cache cache : repos) {
-            versions.addAll(cache.resolveVersions(moduleId, filter));
+        for (Repo repo : repos) {
+            versions.addAll(repo.resolveVersions(moduleId, filter));
         }
-
-        // get central versions
-        Central central = new Central();
-        versions.addAll(central.resolveVersions(moduleId, filter));
-
         return versions.last();
     }
 

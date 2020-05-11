@@ -8,7 +8,7 @@ import java.nio.file.Path;
 /**
  * Balo Cache representation for Home Balo Cache and Distribution Balo Cache.
  */
-public class BaloCache extends FileSystemCache implements Cache {
+public class BaloCache extends FileSystemCache {
 
     private Path fileSystemCachePath;
 

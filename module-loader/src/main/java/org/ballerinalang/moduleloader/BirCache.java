@@ -8,7 +8,7 @@ import java.nio.file.Path;
 /**
  * BIR Cache representation for Home BIR Cache and Distribution BIR Cache.
  */
-public class BirCache extends FileSystemCache implements Cache {
+public class BirCache extends FileSystemCache {
 
     private Path fileSystemCachePath;
 

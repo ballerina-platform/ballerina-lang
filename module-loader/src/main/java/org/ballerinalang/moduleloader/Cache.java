@@ -5,12 +5,16 @@ import org.ballerinalang.moduleloader.model.ModuleId;
 
 import java.util.List;
 
-public interface Cache {
+public abstract class Cache implements Repo {
 
-    List<String> resolveVersions(ModuleId moduleId, String filter);
+    public abstract List<String> resolveVersions(ModuleId moduleId, String filter);
 
     // if exact version is there, use this method
-    boolean isModuleExists(ModuleId moduleId);
+    public abstract boolean isModuleExists(ModuleId moduleId);
 
-    Module getModule(ModuleId moduleId);
+    public void pullModule(ModuleId moduleId, Cache cache) {
+        throw new UnsupportedOperationException("pullModule is not supported in Cache implementation");
+    }
+
+    abstract Module getModule(ModuleId moduleId);
 }

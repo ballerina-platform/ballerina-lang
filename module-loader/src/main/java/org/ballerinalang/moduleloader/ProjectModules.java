@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.ballerinalang.moduleloader.Util.isValidVersion;
 
-public class ProjectModules implements Cache {
+public class ProjectModules extends Cache {
 
     private Path projectPath;
     private String orgName;

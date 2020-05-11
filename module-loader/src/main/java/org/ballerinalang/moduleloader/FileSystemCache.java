@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.ballerinalang.moduleloader.Util.isValidVersion;
 
-public abstract class FileSystemCache implements Cache {
+public abstract class FileSystemCache extends Cache {
 
     private Path fileSystemCachePath;
 
