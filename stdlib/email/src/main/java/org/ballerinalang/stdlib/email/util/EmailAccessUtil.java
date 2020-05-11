@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.email.util;
 import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.pop3.POP3Message;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
@@ -29,6 +31,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
@@ -130,6 +133,7 @@ public class EmailAccessUtil {
         BArray replyToAddressArrayValue = getAddressBArrayList(message.getReplyTo());
         String subject = getStringNullChecked(message.getSubject());
         String messageBody = extractBodyFromMessage(message);
+        String messageContentType = message.getContentType();
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
         BArray attachments = extractAttachmentsFromMessage(message);
@@ -138,13 +142,34 @@ public class EmailAccessUtil {
         valueMap.put(EmailConstants.MESSAGE_BCC, bccAddressArrayValue);
         valueMap.put(EmailConstants.MESSAGE_REPLY_TO, replyToAddressArrayValue);
         valueMap.put(EmailConstants.MESSAGE_SUBJECT, subject);
-        valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, messageBody);
+        if (CommonUtil.isJsonBased(message.getContentType())) {
+            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, getJsonContent(messageBody));
+        } else if (CommonUtil.isXmlBased(message.getContentType())) {
+            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, parseToXml(messageBody));
+        } else {
+            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, messageBody);
+        }
+        if (messageContentType != null && !messageContentType.equals("")) {
+            valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE, messageContentType);
+        }
         valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
         valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
         if (attachments != null && attachments.size() > 0) {
             valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS, attachments);
         }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
+    }
+
+    private static XMLSequence parseToXml(String xmlStr) {
+        return (XMLSequence) XMLFactory.parse(xmlStr);
+    }
+
+    private static Object getJsonContent(String messageContent) {
+        Object json = JSONParser.parse(messageContent);
+        if (json instanceof String) {
+            return StringUtils.fromString((String) json);
+        }
+        return json;
     }
 
     private static String extractBodyFromMessage(Message message) throws MessagingException, IOException {

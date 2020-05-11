@@ -27,19 +27,35 @@ public type SmtpClient client object {
     # + clientConfig - Configurations for SMTP Client
     public function __init(@untainted string host, @untainted string username, @untainted string password,
             SmtpConfig clientConfig = {}) {
-        return initSmtpClientEndpoint(self, java:fromString(host), java:fromString(username),
+        initSmtpClientEndpoint(self, java:fromString(host), java:fromString(username),
             java:fromString(password), clientConfig);
     }
 
-# Sends a message.
-# ```ballerina
-# email:Error? response = smtpClient->send(email);
-# ```
-#
-# + email - An `email:Email` message, which needs to be sent to the recipient
-# + return - An `email:SendError` if failed to send the message to the recipient or else `()`
+    # Sends a message.
+    # ```ballerina
+    # email:Error? response = smtpClient->send(email);
+    # ```
+    #
+    # + email - An `email:Email` message, which needs to be sent to the recipient
+    # + return - An `email:Error` if failed to send the message to the recipient or else `()`
     public remote function send(Email email) returns Error? {
-        return send(self, email);
+        var body = email.body;
+        if (body is xml) {
+            if (email.contentType == "") {
+                email.contentType = "application/xml";
+            }
+            body = body.toString();
+        } else if (body is string) {
+            if (email.contentType == "") {
+                email.contentType = "text/plain";
+            }
+            return send(self, email);
+        } else {
+            if (email.contentType == "") {
+                email.contentType = "application/json";
+            }
+            body = body.toJsonString();
+        }
     }
 
 };

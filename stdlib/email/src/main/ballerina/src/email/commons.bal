@@ -33,8 +33,8 @@ public type Email record {|
     string[] cc?;
     string[] bcc?;
     string subject;
-    string body;
-    string contentType = "text/plain";
+    string|xml|json body;
+    string contentType = "";
     string 'from;
     string sender?;
     string[] replyTo?;
