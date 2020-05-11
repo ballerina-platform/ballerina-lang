@@ -195,7 +195,7 @@ public class KafkaConstants {
 
     // SASL Configuration parameters
     public static final String AUTHENTICATION_CONFIGURATION = "authenticationConfiguration";
-    public static final String AUTHENTICATION_MECHANISM = "authenticationMechanism";
+    public static final String AUTHENTICATION_MECHANISM = "mechanism";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 

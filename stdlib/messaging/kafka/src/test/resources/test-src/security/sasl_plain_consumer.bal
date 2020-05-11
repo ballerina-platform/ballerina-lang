@@ -17,13 +17,13 @@
 import ballerina/kafka;
 
 kafka:AuthenticationConfiguration authConfigValid = {
-    authenticationMechanism: kafka:AUTH_SASL_PLAIN,
+    mechanism: kafka:AUTH_SASL_PLAIN,
     username: "ballerina",
     password: "ballerina-secret"
 };
 
 kafka:AuthenticationConfiguration authConfigInvalidPassword = {
-    authenticationMechanism: kafka:AUTH_SASL_PLAIN,
+    mechanism: kafka:AUTH_SASL_PLAIN,
     username: "ballerina",
     password: "invalid-secret"
 };

@@ -359,8 +359,8 @@ public class KafkaUtils {
     private static void processSaslProperties(MapValue<String, Object> configurations, Properties properties) {
         MapValue<String, Object> authenticationConfig =
                 (MapValue<String, Object>) configurations.getMapValue(AUTHENTICATION_CONFIGURATION);
-        String authenticationMechanism = authenticationConfig.getStringValue(AUTHENTICATION_MECHANISM);
-        if (SASL_PLAIN.equals(authenticationMechanism)) {
+        String mechanism = authenticationConfig.getStringValue(AUTHENTICATION_MECHANISM);
+        if (SASL_PLAIN.equals(mechanism)) {
             String username = authenticationConfig.getStringValue(USERNAME);
             String password = authenticationConfig.getStringValue(PASSWORD);
             String jaasConfigValue =
