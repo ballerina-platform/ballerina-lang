@@ -1,1 +1,3 @@
-table () [{k1:v1}]
+function foo() {
+    io:println();
+}
