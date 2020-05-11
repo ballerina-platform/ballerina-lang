@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.__internal as internal;
 import ballerina/lang.'array as lang_array;
 import ballerina/lang.'map as lang_map;
 import ballerina/lang.'string as lang_string;
@@ -56,7 +57,7 @@ public type _StreamPipeline object {
     typedesc<Type> resType;
 
     public function __init(
-            (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection,
+            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -81,9 +82,11 @@ public type _StreamPipeline object {
     public function getStream() returns stream<Type, error?> {
         object {
             public _StreamPipeline pipeline;
+            public typedesc<Type> outputType;
 
-            public function __init(_StreamPipeline pipeline) {
+            public function __init(_StreamPipeline pipeline, typedesc<Type> outputType) {
                 self.pipeline = pipeline;
+                self.outputType = outputType;
             }
 
             public function next() returns record {|Type value;|}|error? {
@@ -91,30 +94,25 @@ public type _StreamPipeline object {
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
                     Type v = <Type> f["$value$"];
-                    // record {|Type value;|} res = {value: v};
-                    return self.pipeline.nextValue(v);
+                    return internal:setNarrowType(self.outputType, {value : v});
                 } else {
                     return f;
                 }
             }
-        } itrObj = new(self);
-        var strm = new stream<Type, error?>(itrObj);
+        } itrObj = new(self, self.resType);
+        var strm = internal:construct(self.resType, itrObj);
         return strm;
     }
-
-    public function nextValue(Type value) returns record {|
-        Type value;
-    |}? = external;
 };
 
 public type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection;
+    (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection;
 
     public function __init(
-            (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection) {
+            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -140,7 +138,7 @@ public type _InitFunction object {
     }
 
     function _getIterator(
-            (any|error)[]|map<any|error>|record{}|string|xml|table<map<any|error>>|stream|_Iterable collection)
+            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection)
                 returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
