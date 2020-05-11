@@ -60,4 +60,82 @@ public class QueryExpressionTest extends AbstractExpressionsTest{
     public void testQueryWithStreamKeyword() {
         test("stream from int a in b select e", "query-expr/query_expr_assert_09.json");
     }
+
+    @Test
+    public void testQueryWithTableKeyword() {
+        test("table key() from int a in b select e", "query-expr/query_expr_assert_10.json");
+        test("table key(name, age) from int a in b select e", "query-expr/query_expr_assert_11.json");
+    }
+
+    // Recovery tests
+
+    @Test
+    public void testQueryWithMissingKeySpecifier() {
+        test("table from int a in b select c", "query-expr/query_expr_assert_12.json");
+    }
+
+    @Test
+    public void testQueryWithMissingTableKeyword() {
+        test("key() from int a in b select c", "query-expr/query_expr_assert_13.json");
+    }
+
+    @Test
+    public void testQueryFromClauseWithMissingFromKeyword() {
+        test("int a in b select c", "query-expr/query_expr_assert_14.json");
+        test("from int a in b int c in d select e", "query-expr/query_expr_assert_15.json");
+        test("from int a in b where c int d in e select f", "query-expr/query_expr_assert_16.json");
+        test("from int a in b let int c = d int d in e select f", "query-expr/query_expr_assert_17.json");
+    }
+
+    @Test
+    public void testQueryFromClauseWithMissingVarName() {
+        test("from int in b select c", "query-expr/query_expr_assert_18.json");
+    }
+
+    @Test
+    public void testQueryFromClauseWithMissingInKeyword() {
+        test("from int a b select c", "query-expr/query_expr_assert_19.json");
+    }
+
+    @Test
+    public void testQueryFromClauseWithMissingExpression() {
+        test("from int a in select c", "query-expr/query_expr_assert_20.json");
+        test("from int a in b from int c in where d select e", "query-expr/query_expr_assert_21.json");
+    }
+
+    @Test
+    public void testQuerySelectClauseWithMissingSelectKeyword() {
+        test("from int a in b c", "query-expr/query_expr_assert_22.json");
+    }
+
+    @Test
+    public void testQuerySelectClauseWithMissingExpression() {
+        test("from int a in b select", "query-expr/query_expr_assert_23.json");
+    }
+
+    @Test
+    public void testQueryWhereClauseWithMissingExpression() {
+        test("from int a in b where select d", "query-expr/query_expr_assert_24.json");
+    }
+
+    @Test
+    public void testQueryLetClauseWithMissingLetKeyword() {
+        test("from int a in b int c = d select e", "query-expr/query_expr_assert_25.json");
+        test("from int a in b @A{} int c = d select e", "query-expr/query_expr_assert_26.json");
+    }
+
+    @Test
+    public void testQueryLetClauseWithMissingVarName() {
+        test("from int a in b let int = d select e", "query-expr/query_expr_assert_27.json");
+    }
+
+    @Test
+    public void testQueryLetClauseWithMissingEqualToken() {
+        test("from int a in b let int c d select e", "query-expr/query_expr_assert_28.json");
+    }
+
+    @Test
+    public void testQueryLetClauseWithMissingComma() {
+        test("from int a in b let int c = d int e = f select g", "query-expr/query_expr_assert_29.json");
+    }
 }
