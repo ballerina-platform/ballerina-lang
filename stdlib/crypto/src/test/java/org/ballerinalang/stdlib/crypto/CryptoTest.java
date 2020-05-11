@@ -305,8 +305,8 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha256WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Uninitialized private key: No installed provider supports this key: (null)");
+        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
+                                  .contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-SHA384 signing with an invalid private key")
@@ -315,8 +315,8 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha384WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Uninitialized private key: No installed provider supports this key: (null)");
+        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
+                                  .contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-SHA512 signing with an invalid private key")
@@ -325,8 +325,8 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testSignRsaSha512WithInvalidKey",
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "Uninitialized private key: No installed provider supports this key: (null)");
+        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
+                                  .contains("Uninitialized private key:"));
     }
 
     @Test(description = "Test RSA-MD5 signing with an invalid private key")
