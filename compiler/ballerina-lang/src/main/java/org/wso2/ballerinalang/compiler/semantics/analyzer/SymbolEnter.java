@@ -1441,7 +1441,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     defineNode(f, objMethodsEnv);
                 });
 
-                Set<String> includedFunctionNames = new HashSet<>();
+                List<String> referencedFunctions = new ArrayList<>();
                 // Add the attached functions of the referenced types to this object.
                 // Here it is assumed that all the attached functions of the referred type are
                 // resolved by the time we reach here. It is achieved by ordering the typeDefs
@@ -1862,34 +1862,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
-//            List<BSymbol> referenceSymbols = new ArrayList<>();
-//            getAllReferences((BLangType) referredType.tsymbol.type, referenceSymbols);
-
             // Check for duplicate type references
-            if (referencedTypes.contains(referredType.tsymbol)) {
+            if (!referencedTypes.add(referredType.tsymbol)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_TYPE_REFERENCE, typeRef);
                 invalidTypeRefs.add(typeRef);
                 return Stream.empty();
             }
 
-            referencedTypes.add(referredType.tsymbol);
-
             // Here it is assumed that all the fields of the referenced types are resolved
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream().filter(f -> {
+            return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
-                    boolean isAssignable = types.isAssignable(f.type, existingVariable.type);
-                    if (!isAssignable) {
-                        // TODO : give an error message - Rukshan
-                    }
-                    return !isAssignable;
+                    return !types.isAssignable(f.type, existingVariable.type);
                 }
                 return true;
             }).map(field -> {
-            return ((BStructureType) referredType).fields.values().stream().map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
                 return var;
@@ -1899,14 +1889,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames) {
+                                          BAttachedFunction referencedFunc, List<String> referencedFunctions) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
-            if (!includedFunctionNames.add(referencedFuncName)) {
+            if (referencedFunctions.contains(referencedFuncName)) {
                 dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_SYMBOL, referencedFuncName);
                 return;
             }
@@ -1920,7 +1910,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                            referencedFunc.funcName, typeRef);
             }
 
-            if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
+            if (!isFunctionAssignable((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
                 Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
                         .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
                 DiagnosticPos pos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
@@ -1959,12 +1949,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
     }
 
-    private boolean hasSameFunctionSignature(BInvokableSymbol attachedFuncSym, BInvokableSymbol referencedFuncSym) {
+    private boolean isFunctionAssignable(BInvokableSymbol attachedFuncSym, BInvokableSymbol referencedFuncSym) {
         if (!hasSameVisibilityModifier(referencedFuncSym.flags, attachedFuncSym.flags)) {
             return false;
         }
 
-        if (!types.isSameType(referencedFuncSym.type, attachedFuncSym.type)) {
+        if (!types.isAssignable(referencedFuncSym.type, attachedFuncSym.type)) {
             return false;
         }
 
