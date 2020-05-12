@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.security;
 
+import kafka.server.KafkaConfig;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
@@ -40,6 +41,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SASL_PL
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_DESERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
@@ -128,14 +130,13 @@ public class SaslPlainAuthenticationTest {
                 "  user_admin=\"admin-secret\"" +
                 "  user_ballerina=\"ballerina-secret\";";
         Properties properties = new Properties();
-        properties.setProperty("listeners", "SASL_PLAINTEXT://localhost:14121");
+        properties.setProperty(KafkaConfig.ListenersProp(), "SASL_PLAINTEXT://localhost:14121");
         properties.setProperty("listener.name.sasl_plaintext.plain.sasl.jaas.config", jaasConfig);
         properties.setProperty("advertised.listeners", "SASL_PLAINTEXT://localhost:14121");
         properties.setProperty("security.inter.broker.protocol", "SASL_PLAINTEXT");
         properties.setProperty("sasl.mechanism.inter.broker.protocol", "PLAIN");
         properties.setProperty("sasl.enabled.mechanisms", "PLAIN");
-        properties.setProperty("zookeeper.session.timeout.ms", "60000");
-        properties.setProperty("zookeeper.connection.timeout.ms", "60000");
+        properties.setProperty(KafkaConfig.ZkConnectionTimeoutMsDoc(), ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
         return properties;
     }
 
