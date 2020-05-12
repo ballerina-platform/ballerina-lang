@@ -217,40 +217,39 @@ function testTypeGuardInElse_5() returns string {
     }
 }
 
-//TODO Table remove - Fix
-//function testTypeGuardInElse_6() returns string {
-//    int|string|table<record {}> x = 5;
-//    if (x is table<record {}>) {
-//        table<record {}> t = x;
-//        return "table";
-//    } else {
-//        int|string y = x;
-//        if (y is string) {
-//            string s = y;
-//            return "string: " + y;
-//        } else {
-//            int i = y;
-//            return "int: " + i.toString();
-//        }
-//    }
-//}
-//
-//function testTypeGuardInElse_7() returns string {
-//    int|string|table<A> x = 5;
-//    if (x is table<A>) {
-//        table<A> t = x;
-//        return "table";
-//    } else {
-//        int|string y = x;
-//        if (y is string) {
-//            string s = y;
-//            return "string: " + y;
-//        } else {
-//            int i = y;
-//            return "int: " + i.toString();
-//        }
-//    }
-//}
+function testTypeGuardInElse_6() returns string {
+    int|string|table<record {}> x = 5;
+    if (x is table<record {}>) {
+        table<record {}> t = x;
+        return "table";
+    } else {
+        int|string y = x;
+        if (y is string) {
+            string s = y;
+            return "string: " + y;
+        } else {
+            int i = y;
+            return "int: " + i.toString();
+        }
+    }
+}
+
+function testTypeGuardInElse_7() returns string {
+    int|string|table<A> x = 5;
+    if (x is table<A>) {
+        table<A> t = x;
+        return "table";
+    } else {
+        int|string y = x;
+        if (y is string) {
+            string s = y;
+            return "string: " + y;
+        } else {
+            int i = y;
+            return "int: " + i.toString();
+        }
+    }
+}
 
 function testComplexTernary_1() returns string {
     int|string|float|boolean|int[] x = "string";

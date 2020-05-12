@@ -21,6 +21,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.FUTURE_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.TYPEDESC_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.VALUE_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
@@ -78,6 +79,14 @@ public class BallerinaErrorReasons {
     public static final String XML_OPERATION_ERROR = getModulePrefixedReason(XML_LANG_LIB, "XMLOperationError");
     public static final String MAP_KEY_NOT_FOUND_ERROR = getModulePrefixedReason(MAP_LANG_LIB,
                                                                                  KEY_NOT_FOUND_ERROR_IDENTIFIER);
+    public static final String TABLE_KEY_NOT_FOUND_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
+            KEY_NOT_FOUND_ERROR_IDENTIFIER);
+    public static final String TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR =
+            getModulePrefixedReason(TABLE_LANG_LIB, "CyclicValueReferenceError");
+    public static final String TABLE_HAS_A_VALUE_FOR_KEY_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
+            "KeyConstraintViolation");
+    public static final String VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
+            "ValueInconsistentError");
     public static final String ILLEGAL_LIST_INSERTION_ERROR = getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                                       "IllegalListInsertion");
     public static final String FUTURE_CANCELLED = getModulePrefixedReason(FUTURE_LANG_LIB, "FutureAlreadyCancelled");

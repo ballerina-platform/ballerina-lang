@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
- * Implementation of {@link WorkerSendNode}.
+ * Models the async-send-action.
  *
  * @since 0.94
  */

@@ -6,4 +6,4 @@
 // The stream type provides methods similar to lists such as `map`, `foreach`, `filter`, `reduce`, and `iterator`.
 // The stream type does not provide a length method. This is a preview feature.<br/><br/>
 // For more information on the underlying module, 
-// see [the lang.stream module](https://ballerina.io/learn/api-docs/ballerina/lang.stream/index.html).
+// see the [lang.stream module](https://ballerina.io/learn/api-docs/ballerina/lang.stream/index.html).

@@ -1,1 +1,3 @@
-// Ballerina supports extracting values using the `PathParam`, `QueryParam` and `MatrixParam` parameters.
+// Ballerina supports extracting values using the `PathParam`, `QueryParam` and `MatrixParam` parameters.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

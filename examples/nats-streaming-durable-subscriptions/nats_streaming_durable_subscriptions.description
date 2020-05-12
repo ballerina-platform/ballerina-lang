@@ -2,4 +2,6 @@
 // in the NATS Streaming server. Regular subscriptions remember
 // their position while the client is connected. If the client
 // disconnects, the position is lost. Durable subscriptions
-// remember their position even if the client is disconnected.
+// remember their position even if the client is disconnected.<br/><br/>
+// For more information on the underlying module, 
+// see the [NATS module](https://ballerina.io/learn/api-docs/ballerina/nats/index.html).

@@ -1,1 +1,3 @@
-// The HTTP trace logs can be used to monitor the HTTP traffic that goes in and out of Ballerina.
+// The HTTP trace logs can be used to monitor the HTTP traffic that goes in and out of Ballerina.<br/><br/>
+// For more information on the underlying module, 
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

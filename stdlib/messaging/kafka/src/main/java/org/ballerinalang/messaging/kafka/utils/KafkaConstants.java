@@ -193,6 +193,15 @@ public class KafkaConstants {
     public static final String SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG = "sslEndpointIdentificationAlgorithm";
     public static final String SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG = "sslSecureRandomImplementation";
 
+    // SASL Configuration parameters
+    public static final String AUTHENTICATION_CONFIGURATION = "authenticationConfiguration";
+    public static final String AUTHENTICATION_MECHANISM = "mechanism";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+
+    // Authentication Mechanisms
+    public static final String SASL_PLAIN = "PLAIN";
+
     // Serializer - Deserializer names
     // Ballerina String Names
     public static final String SERDES_BYTE_ARRAY = "BYTE_ARRAY";

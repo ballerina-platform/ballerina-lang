@@ -1,4 +1,6 @@
 // This sample demonstrates the basic usage of the NATS Streaming client
 // to publish data to a subject and consume data from that subject.
 // In order to run this sample, a NATS Streaming server should be
-// running on the corresponding port used in the sample.
+// running on the corresponding port used in the sample.<br/><br/>
+// For more information on the underlying module, 
+// see the [NATS module](https://ballerina.io/learn/api-docs/ballerina/nats/index.html).

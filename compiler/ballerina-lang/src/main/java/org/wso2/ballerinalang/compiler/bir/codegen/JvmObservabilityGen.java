@@ -59,6 +59,7 @@ class JvmObservabilityGen {
     }
 
     private static String cleanUpServiceName(String serviceName) {
+
         final String serviceIdentifier = "$$service$";
         if (serviceName.contains(serviceIdentifier)) {
             if (serviceName.contains("$anonService$")) {

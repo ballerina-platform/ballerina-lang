@@ -32,14 +32,14 @@ public type PopClient client object {
             java:fromString(password), clientConfig);
     }
 
-# Reads a message.
-# ```ballerina
-# email:Email|email:Error? emailResponse = popClient->read();
-# ```
-#
-# + folder - Folder to read emails. The default value is `INBOX`
-# + return - An`email:Email` if reading the message is successful, `()` if there are no emails in the specified folder,
-#            or else an `email:Error` if the recipient failed to receive the message
+    # Reads a message.
+    # ```ballerina
+    # email:Email|email:Error? emailResponse = popClient->read();
+    # ```
+    #
+    # + folder - Folder to read emails. The default value is `INBOX`
+    # + return - An`email:Email` if reading the message is successful, `()` if there are no emails in the specified folder,
+    #            or else an `email:Error` if the recipient failed to receive the message
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return popRead(self, java:fromString(folder));
     }
@@ -61,8 +61,10 @@ function popRead(PopClient clientEndpoint, handle folder) returns Email|Error? =
 #
 # + port - Port number of the POP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               The default value is true for the "pop3s" protocol and false for the "pop3" protocol.
+#               The default value is true for the "pops" protocol and false for the "pop" protocol
+# + properties - POP3 properties to override the existing configuration
 public type PopConfig record {|
     int port = 995;
     boolean enableSsl = true;
+    map<string>? properties = ();
 |};
