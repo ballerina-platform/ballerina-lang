@@ -463,6 +463,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keyTypeConstraintNode);
     }
 
+    public void visit(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        visitSyntaxNode(functionTypeDescriptorNode);
+    }
+
+    public void visit(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
+        visitSyntaxNode(anonymousFunctionExpressionNode);
+    }
+
+    public void visit(FunctionSignatureNode functionSignatureNode) {
+        visitSyntaxNode(functionSignatureNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

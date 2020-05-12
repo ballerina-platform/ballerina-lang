@@ -32,10 +32,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode visibilityQualifier;
     public final STNode functionKeyword;
     public final STNode functionName;
-    public final STNode openParenToken;
-    public final STNode parameters;
-    public final STNode closeParenToken;
-    public final STNode returnTypeDesc;
+    public final STNode functionSignature;
     public final STNode functionBody;
 
     STFunctionDefinitionNode(
@@ -43,20 +40,14 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode visibilityQualifier,
             STNode functionKeyword,
             STNode functionName,
-            STNode openParenToken,
-            STNode parameters,
-            STNode closeParenToken,
-            STNode returnTypeDesc,
+            STNode functionSignature,
             STNode functionBody) {
         super(SyntaxKind.FUNCTION_DEFINITION);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
-        this.openParenToken = openParenToken;
-        this.parameters = parameters;
-        this.closeParenToken = closeParenToken;
-        this.returnTypeDesc = returnTypeDesc;
+        this.functionSignature = functionSignature;
         this.functionBody = functionBody;
 
         addChildren(
@@ -64,10 +55,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc,
+                functionSignature,
                 functionBody);
     }
 

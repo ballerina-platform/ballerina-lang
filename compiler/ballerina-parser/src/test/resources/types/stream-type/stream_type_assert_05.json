@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -21,14 +22,20 @@
             "value": "foo"
         },
         {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+            "kind": "FUNCTION_SIGNATURE",
+            "children": [
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
         },
         {
             "kind": "FUNCTION_BODY_BLOCK",
@@ -44,7 +51,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -83,7 +91,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -107,7 +116,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -157,7 +167,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -202,7 +213,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -252,7 +264,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -291,7 +304,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",
@@ -329,7 +343,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "PARAMETERIZED_TYPE_DESC",
@@ -346,7 +361,8 @@
                                             "children": [
                                                 {
                                                     "kind": "LIST",
-                                                    "children": []
+                                                    "children": [
+                                                    ]
                                                 },
                                                 {
                                                     "kind": "OBJECT_KEYWORD"
@@ -356,7 +372,8 @@
                                                 },
                                                 {
                                                     "kind": "LIST",
-                                                    "children": []
+                                                    "children": [
+                                                    ]
                                                 },
                                                 {
                                                     "kind": "CLOSE_BRACE_TOKEN"
@@ -382,7 +399,8 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": []
+                                    "children": [
+                                    ]
                                 },
                                 {
                                     "kind": "STREAM_TYPE_DESC",

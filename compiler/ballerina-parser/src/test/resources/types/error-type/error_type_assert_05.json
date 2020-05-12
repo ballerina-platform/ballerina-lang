@@ -1,47 +1,47 @@
 {
-    "kind": "TYPE_DEFINITION",
-    "children": [
+  "kind": "TYPE_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "TYPE_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "InvalidAccountTypeError"
-        },
-        {
-            "kind": "ERROR_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "ERROR_KEYWORD"
-                },
-                {
-                    "kind": "ERROR_TYPE_PARAMS",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "INVALID_ACC_TYPE"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPE_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "InvalidAccountTypeError"
+    },
+    {
+      "kind": "ERROR_TYPE_DESC",
+      "children": [
+        {
+          "kind": "ERROR_KEYWORD"
+        },
+        {
+          "kind": "ERROR_TYPE_PARAMS",
+          "children": [
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "INVALID_ACC_TYPE"
+            },
+            {
+              "kind": "GT_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

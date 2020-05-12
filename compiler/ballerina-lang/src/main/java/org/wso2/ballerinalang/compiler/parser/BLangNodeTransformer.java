@@ -32,6 +32,7 @@ import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
@@ -539,7 +540,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
 
-        getFuncSignature(bLFunction, funcDefNode);
+        getFuncSignature(bLFunction, funcDefNode.functionSignature());
 
         // Set the function body
         if (funcDefNode.functionBody() == null) {
@@ -890,9 +891,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
-    private void getFuncSignature(BLangFunction bLFunction, FunctionDefinitionNode funcDefNode) {
+    private void getFuncSignature(BLangFunction bLFunction, FunctionSignatureNode funcSignature) {
         // Set Parameters
-        for (ParameterNode child : funcDefNode.parameters()) {
+        for (ParameterNode child : funcSignature.parameters()) {
             SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
             if (child instanceof RestParameterNode) {
                 bLFunction.setRestParameter(param);
@@ -902,13 +903,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         // Set Return Type
-        Optional<Node> retNode = funcDefNode.returnTypeDesc();
+        Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
         if (retNode.isPresent()) {
             ReturnTypeDescriptorNode returnType = (ReturnTypeDescriptorNode) retNode.get();
             bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.pos = getPosition(funcDefNode);
+            bLValueType.pos = getPosition(funcSignature);
             bLValueType.typeKind = TypeKind.NIL;
             bLFunction.setReturnTypeNode(bLValueType);
         }

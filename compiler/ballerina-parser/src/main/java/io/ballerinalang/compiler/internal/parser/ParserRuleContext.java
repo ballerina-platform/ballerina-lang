@@ -31,17 +31,21 @@ public enum ParserRuleContext {
     TOP_LEVEL_NODE("top-level-node"),
     TOP_LEVEL_NODE_WITHOUT_METADATA("top-level-node-without-metadata"),
     TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
-    FUNC_DEFINITION("func-definition"),
+    FUNC_DEF("func-def"),
+    FUNC_DEF_OR_FUNC_TYPE("func-def-or-func-type"),
     PARAM_LIST("parameters"),
-    PARAMETER("parameter"),
+    PARAMETER_START("parameter"),
     PARAMETER_WITHOUT_ANNOTS("parameter-without-annots"),
     REQUIRED_PARAM("parameter"),
     DEFAULTABLE_PARAM("defaultable-parameter"),
     REST_PARAM("rest-parameter"),
     AFTER_PARAMETER_TYPE("after-parameter-type"),
-    PARAMETER_RHS("parameter-rhs"),
-    RETURN_TYPE_DESCRIPTOR("return-type-desc"),
+    PARAMETER_NAME_RHS("parameter-name-rhs"),
+    FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
+    FUNC_TYPE_OR_DEF_SIGNATURE_RHS("func-signature-rhs"),
+    ANNON_FUNC_BODY("annon-func-body"),
+
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
@@ -58,6 +62,9 @@ public enum ParserRuleContext {
     TYPE_REFERENCE("type-reference"),
     ARG_LIST("arguments"),
     ARG_START("argument-start"),
+    ARG_LIST_START("("),
+    ARG_LIST_END(")"),
+    ARG_START_OR_ARG_LIST_END("arg-start-or-args-list-end"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
@@ -100,7 +107,6 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
-    PARAMETERIZED_TYPE_DESCRIPTOR("parameterized-type-descriptor"),
     ANNOTATION_DECL("annotation-decl"),
     ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
     ANNOT_DECL_RHS("annot-decl-rhs"),
@@ -114,15 +120,18 @@ public enum ParserRuleContext {
     XML_NAMESPACE_PREFIX_DECL("namespace-prefix-decl"),
     DEFAULT_WORKER_INIT("default-worker-init"),
     NAMED_WORKERS("named-workers"),
+    WORKER_NAME_RHS("worker-name-rhs"),
     DEFAULT_WORKER("default-worker-init"),
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
-    ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
     LET_VAR_DECL("let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
-    STREAM_TYPE_DESCRIPTOR("stream-type-descriptor"),
     TABLE_TYPE_DESCRIPTOR("table-type-descriptor"),
+    FUNC_TYPE_DESC("func-type-desc"),
+    FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
+    END_OF_TYPE_DESC("end-of-type-desc"),
+    INFERRED_TYPE_DESC("*"),
 
     // Statements
     STATEMENT("statement"),
@@ -234,6 +243,7 @@ public enum ParserRuleContext {
     TEMPLATE_END("`"),
     LT_TOKEN("<"),
     GT_TOKEN(">"),
+    ERROR_TYPE_PARAM_START("<"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -257,7 +267,6 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
-    ARG_LIST_START("arg-list-start"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -277,7 +286,6 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
-    TYPE_TEST_EXPRESSION("type-test-expr"),
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
@@ -294,6 +302,20 @@ public enum ParserRuleContext {
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
     LET_EXPRESSION("let-expr"),
+    ANON_FUNC_EXPRESSION("anon-func-expression"),
+
+    // Contexts that expect a type
+    TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
+    TYPE_DESC_BEFORE_IDENTIFIER("type-desc-before-identifier"), // object/record fields, params, const, listener
+    TYPE_DESC_IN_RECORD_FIELD("type-desc-in-record-field"),
+    TYPE_DESC_IN_PARAM("type-desc-in-param"),
+    TYPE_DESC_IN_TYPE_BINDING_PATTERN("type-desc-in-type-binding-pattern"), // foreach, let-var-decl, var-decl
+    TYPE_DESC_IN_TYPE_DEF("type-def-type-desc"),                            // local/mdule type defitions
+    TYPE_DESC_IN_ANGLE_BRACKETS("type-desc-in-angle-bracket"),              // type-cast, parameterized-type
+    TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
+    TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
+    TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
+    VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML 
     XML_CONTENT("xml-content"),
@@ -325,7 +347,6 @@ public enum ParserRuleContext {
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
-    NON_RECURSIVE_TYPE("non-recursive-type"),
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),

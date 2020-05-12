@@ -30,8 +30,14 @@ public class AbstractTypesTest {
     void test(String source, String filePath) {
         ParserTestUtils.test(source, ParserRuleContext.TOP_LEVEL_NODE, Paths.get("types/", filePath));
     }
-    void testFile(String sourceFilePath, String filePath) {
+
+    void testTopLevelNode(String sourceFilePath, String filePath) {
         ParserTestUtils.test(Paths.get("types/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
+                Paths.get("types/", filePath));
+    }
+
+    void testFile(String sourceFilePath, String filePath) {
+        ParserTestUtils.test(Paths.get("types/", sourceFilePath), ParserRuleContext.COMP_UNIT,
                 Paths.get("types/", filePath));
     }
 }
