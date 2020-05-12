@@ -18,110 +18,102 @@
 
 package org.ballerinalang.messaging.kafka.consumer;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
-import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Test cases for ballerina.net.kafka consumer ( with Pause ) native functions.
  */
 public class TopicPauseResumeTest {
     private CompileResult result;
-    private static File dataDir;
     private static KafkaCluster kafkaCluster;
+    private static final String topic = "consumer-pause-resume-test-topic";
+    private static final String dataDir = getDataDirectoryName(TopicPauseResumeTest.class.getSimpleName());
 
-    @BeforeClass
-    public void setup() throws IOException {
-        result = BCompileUtil
-                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "topic_pause_resume.bal")));
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14003, 14103).addBrokers(1).startup();
-        kafkaCluster.createTopic("test", 1, 1);
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws Throwable {
+        String balFile = "topic_pause_resume.bal";
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14004)
+                .withBroker(PROTOCOL_PLAINTEXT, 14104, getZookeeperTimeoutProperty())
+                .withAdminClient()
+                .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
+                .start();
+        kafkaCluster.createTopic(topic, 1, 1);
+        result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
     }
 
     // This test has to be a large single method to maintain the state of the consumer.
     @Test(description = "Test Basic consumer with seek")
     @SuppressWarnings("unchecked")
-    public void testKafkaConsumeWithPause() {
-        produceToKafkaCluster(kafkaCluster, "test", "test_string");
-        await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPoll");
-            Assert.assertEquals(returnBValues.length, 1);
-            Assert.assertTrue(returnBValues[0] instanceof BInteger);
-            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == 10);
-        });
+    public void testPauseAndResume() throws ExecutionException, InterruptedException {
+        // First poll to create a connection with the server. Otherwise pause and resume will fail.
+        BRunUtil.invoke(result, "testPoll");
 
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetPausedPartitions");
+        BValue[] returnBValues = BRunUtil.invoke(result, "testGetPausedPartitions");
         Assert.assertEquals(returnBValues.length, 0);
 
-        returnBValues = BRunUtil.invoke(result, "funcKafkaPause");
+        returnBValues = BRunUtil.invoke(result, "testPause");
         Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertNull(returnBValues[0]);
+        if (returnBValues[0] != null) {
+            Assert.assertNull(returnBValues[0], getErrorMessageFromReturnValue(returnBValues[0]));
+        }
 
-        returnBValues = BRunUtil.invoke(result, "funcKafkaGetPausedPartitions");
+        returnBValues = BRunUtil.invoke(result, "testGetPausedPartitions");
         Assert.assertEquals(returnBValues.length, 1);
         BMap<String, BValue> tpReturned = (BMap<String, BValue>) returnBValues[0];
-        Assert.assertEquals(tpReturned.get("topic").stringValue(), "test");
+        Assert.assertEquals(tpReturned.get("topic").stringValue(), topic);
         Assert.assertEquals(((BByte) tpReturned.get("partition")).value().intValue(), 0);
 
-        returnBValues = BRunUtil.invoke(result, "funcKafkaResume");
+        returnBValues = BRunUtil.invoke(result, "testResume");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertNull(returnBValues[0]);
 
-        returnBValues = BRunUtil.invoke(result, "funcKafkaGetPausedPartitions");
+        returnBValues = BRunUtil.invoke(result, "testGetPausedPartitions");
         Assert.assertEquals(returnBValues.length, 0);
 
-        returnBValues = BRunUtil.invoke(result, "funcKafkaPauseInvalidTopicPartitions");
+        returnBValues = BRunUtil.invoke(result, "testPauseInvalidTopicPartitions");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertNotNull(returnBValues[0]);
         Assert.assertTrue(returnBValues[0] instanceof BError);
         Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]),
                             "Failed to pause topic partitions for the consumer: " +
-                        "No current assignment for partition test_negative-1000");
+                                    "No current assignment for partition test_negative-1000");
 
-        returnBValues = BRunUtil.invoke(result, "funcKafkaResumeInvalidTopicPartitions");
+        returnBValues = BRunUtil.invoke(result, "testResumeInvalidTopicPartitions");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertNotNull(returnBValues[0]);
         Assert.assertTrue(returnBValues[0] instanceof BError);
         Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]),
                             "Failed to resume topic partitions for the consumer: " +
-                        "No current assignment for partition test_negative-1000");
+                                    "No current assignment for partition test_negative-1000");
     }
 
-    @AfterClass
+    @AfterTest(alwaysRun = true)
     public void tearDown() {
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
+        finishTest(kafkaCluster, dataDir);
     }
 }

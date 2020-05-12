@@ -20,8 +20,8 @@ import ballerina/kafka;
 string topic = "service-test";
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14110",
-    groupId: "service-test-group",
+    bootstrapServers: "localhost:14141",
+    groupId: "ballerina-service-test-group",
     clientId: "service-consumer",
     offsetReset: "earliest",
     topics: [topic]
@@ -39,6 +39,6 @@ service kafkaTestService on kafkaConsumer {
     }
 }
 
-public function funcKafkaGetResult() returns int {
+public function testGetResult() returns int {
     return count;
 }

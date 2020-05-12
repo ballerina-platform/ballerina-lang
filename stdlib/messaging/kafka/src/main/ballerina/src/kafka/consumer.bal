@@ -72,7 +72,7 @@ import ballerina/java;
 public type ConsumerConfiguration record {|
     string bootstrapServers;
     string groupId?;
-    string offsetReset?;
+    string offsetReset?; // TODO: Introduce a type instead of `string`.
     string partitionAssignmentStrategy?;
     string metricsRecordingLevel?;
     string metricsReporterClasses?;

@@ -16,43 +16,54 @@
 
 import ballerina/kafka;
 
-const POSITIVE_DURATION = 1000;
+const duration = 1000;
 
-const TOPIC_1 = "test-1";
-const TOPIC_2 = "test-2";
+const topic1 = "test-topic-1";
+const topic2 = "test-topic-2";
+const topic3 = "test-topic-3";
 
-function funcKafkaGetAvailableTopics() returns string[]|error {
-    kafka:ConsumerConfiguration consumerConfigs = {
-        bootstrapServers: "localhost:14108",
-        groupId: "get-topics-group-1",
-        clientId: "available-topic-consumer-1",
-        offsetReset: "earliest",
-        topics: [TOPIC_1, TOPIC_2]
-    };
-    kafka:Consumer kafkaConsumer = new(consumerConfigs);
-    return kafkaConsumer->getAvailableTopics();
+kafka:ConsumerConfiguration configs = {
+    bootstrapServers: "localhost:14105",
+    groupId: "topics-test-consumer-group-1",
+    clientId: "topics-test-consumer-1",
+    topics: [topic1, topic2]
+};
+
+kafka:ConsumerConfiguration topicPartitionConfigs = {
+    bootstrapServers: "localhost:14105",
+    groupId: "topics-test-consumer-group-2",
+    clientId: "topics-test-consumer-2",
+    topics: [topic1]
+};
+
+kafka:ConsumerConfiguration assignConsumerConfigs = {
+    bootstrapServers: "localhost:14105",
+    groupId: "topics-test-consumer-group-3",
+    clientId: "topics-test-consumer-3"
+};
+
+kafka:Consumer consumer = new(configs);
+kafka:Consumer topicPartitionConsumer = new(topicPartitionConfigs);
+kafka:Consumer topicAssignConsumer = new(assignConsumerConfigs);
+
+function testGetAvailableTopics() returns string[]|error {
+    return consumer->getAvailableTopics();
 }
 
-function funcKafkaGetAvailableTopicsWithDuration() returns string[]|error {
-    kafka:ConsumerConfiguration consumerConfigs = {
-        bootstrapServers: "localhost:14108",
-        groupId: "get-topics-group-2",
-        clientId: "available-topic-consumer-2",
-        offsetReset: "earliest",
-        topics: [TOPIC_1, TOPIC_2]
-    };
-    kafka:Consumer kafkaConsumer = new(consumerConfigs);
-    return kafkaConsumer->getAvailableTopics(POSITIVE_DURATION);
+function testGetAvailableTopicsWithDuration() returns string[]|error {
+    return consumer->getAvailableTopics(duration);
 }
 
-function funcKafkaGetTopicPartitions() returns kafka:TopicPartition[]|error {
-    kafka:ConsumerConfiguration consumerConfigs = {
-        bootstrapServers: "localhost:14108",
-        groupId: "get-topics-group-4",
-        clientId: "available-topic-consumer-4",
-        offsetReset: "earliest",
-        topics: [TOPIC_1]
-    };
-    kafka:Consumer kafkaConsumer = new(consumerConfigs);
-    return kafkaConsumer->getTopicPartitions(TOPIC_1);
+function testGetTopicPartitions() returns kafka:TopicPartition[]|error {
+    return topicPartitionConsumer->getTopicPartitions(topic1);
+}
+
+function testAssign() returns kafka:ConsumerError? {
+    kafka:TopicPartition partition = { topic: topic3, partition: 0 };
+    kafka:TopicPartition[] partitions = [partition];
+    return topicAssignConsumer->assign(partitions);
+}
+
+function testGetAssignment() returns kafka:TopicPartition[]|error {
+    return topicAssignConsumer->getAssignment();
 }

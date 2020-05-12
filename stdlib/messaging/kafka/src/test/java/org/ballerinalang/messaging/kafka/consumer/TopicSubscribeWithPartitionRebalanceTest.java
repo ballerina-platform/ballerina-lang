@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -18,72 +19,83 @@
 
 package org.ballerinalang.messaging.kafka.consumer;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Tests for ballerina Kafka subscribeWithPartitionRebalance function.
  */
 @Test(singleThreaded = true)
-public class TopicSubscribePartitionRebalanceTest {
+public class TopicSubscribeWithPartitionRebalanceTest {
 
-    private static File dataDir;
+    private static final String dataDir = getDataDirectoryName(
+            TopicSubscribeWithPartitionRebalanceTest.class.getSimpleName());
+
     private static KafkaCluster kafkaCluster;
 
-    @BeforeClass
-    public void setup() throws IOException {
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-subscribe-to-pattern-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14005, 14105).addBrokers(1).startup();
+    private static String topic1 = "rebalance-topic-1";
+    private static String topic2 = "rebalance-topic-2";
+
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws Throwable {
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14107)
+                .withBroker(PROTOCOL_PLAINTEXT, 14107, getZookeeperTimeoutProperty())
+                .withAdminClient()
+                .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
+                .start();
     }
 
     @Test(description = "Test functionality of subscribeWithPartitionRebalance() function")
-    public void testKafkaConsumerSubscribeWithPartitionRebalance() {
-        CompileResult result = BCompileUtil.compileOffline(true, getFilePath(
-                Paths.get(TEST_SRC, TEST_CONSUMER, "topic_subscribe_with_partition_rebalance.bal")));
-        BValue[] returnBValuesRevoked = BRunUtil.invoke(result, "funcKafkaGetRebalanceInvokedPartitionsCount");
+    public void testSubscribeWithPartitionRebalance() {
+        String balFile = "topic_subscribe_with_partition_rebalance.bal";
+        CompileResult result = BCompileUtil.compileOffline(true, getResourcePath(
+                Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
+        BValue[] returnBValuesRevoked = BRunUtil.invoke(result, "testGetRebalanceInvokedPartitionsCount");
         Assert.assertEquals(returnBValuesRevoked.length, 1);
         Assert.assertTrue(returnBValuesRevoked[0] instanceof BInteger);
         long revokedPartitionCount = ((BInteger) returnBValuesRevoked[0]).intValue();
 
-        BValue[] returnBValuesAssigned = BRunUtil.invoke(result, "funcKafkaGetRebalanceAssignedPartitionsCount");
+        BValue[] returnBValuesAssigned = BRunUtil.invoke(result, "testGetRebalanceAssignedPartitionsCount");
         Assert.assertEquals(returnBValuesAssigned.length, 1);
         Assert.assertTrue(returnBValuesAssigned[0] instanceof BInteger);
         long assignedPartitionCount = ((BInteger) returnBValuesAssigned[0]).intValue();
         Assert.assertEquals(revokedPartitionCount, -1);
         Assert.assertEquals(assignedPartitionCount, -1);
 
-        kafkaCluster.createTopic("rebalance-topic-1", 3, 1);
-        kafkaCluster.createTopic("rebalance-topic-2", 2, 1);
+        kafkaCluster.createTopic(topic1, 3, 1);
+        kafkaCluster.createTopic(topic2, 2, 1);
 
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            produceToKafkaCluster(kafkaCluster, "test", "test-message");
-            BValue[] revoked = BRunUtil.invoke(result, "funcKafkaGetRebalanceInvokedPartitionsCount");
+            produceToKafkaCluster(kafkaCluster, "test", "test-message", 1);
+            BValue[] revoked = BRunUtil.invoke(result, "testGetRebalanceInvokedPartitionsCount");
             Assert.assertEquals(revoked.length, 1);
             Assert.assertTrue(revoked[0] instanceof BInteger);
             long revokedCount = ((BInteger) revoked[0]).intValue();
 
-            BValue[] assigned = BRunUtil.invoke(result, "funcKafkaGetRebalanceAssignedPartitionsCount");
+            BValue[] assigned = BRunUtil.invoke(result, "testGetRebalanceAssignedPartitionsCount");
             Assert.assertEquals(assigned.length, 1);
             Assert.assertTrue(assigned[0] instanceof BInteger);
             long assignedCount = ((BInteger) assigned[0]).intValue();
@@ -92,16 +104,8 @@ public class TopicSubscribePartitionRebalanceTest {
         });
     }
 
-    @AfterClass
+    @AfterTest(alwaysRun = true)
     public void tearDown() {
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
+        finishTest(kafkaCluster, dataDir);
     }
 }

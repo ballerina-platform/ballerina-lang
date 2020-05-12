@@ -16,18 +16,20 @@
 
 import ballerina/kafka;
 
+string topic = "consumer-pause-resume-test-topic";
+
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14103",
+    bootstrapServers: "localhost:14104",
     groupId: "test-group",
     clientId: "pause-consumer",
     offsetReset: "earliest",
-    topics: ["test"]
+    topics: [topic]
 };
 
 kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
 kafka:TopicPartition topicPartition = {
-    topic: "test",
+    topic: topic,
     partition: 0
 };
 
@@ -39,47 +41,26 @@ kafka:TopicPartition invalidTopicPartition = {
 kafka:TopicPartition[] topicPartitions = [topicPartition];
 kafka:TopicPartition[] invalidTopicPartitions = [invalidTopicPartition];
 
-function funcKafkaPoll() returns int|error {
-    var records = kafkaConsumer->poll(1000);
-    if (records is error) {
-        return records;
-    } else {
-        return records.length();
-    }
+function testPoll() returns kafka:ConsumerRecord[]|kafka:ConsumerError {
+    return kafkaConsumer->poll(1000);
 }
 
-function funcKafkaPause() returns error? {
-    var result = kafkaConsumer->pause(topicPartitions);
-    if (result is error) {
-        return result;
-    }
-    return;
+function testPause() returns kafka:ConsumerError? {
+    return kafkaConsumer->pause(topicPartitions);
 }
 
-function funcKafkaPauseInvalidTopicPartitions() returns error? {
-    var result = kafkaConsumer->pause(invalidTopicPartitions);
-    if (result is error) {
-        return result;
-    }
-    return;
+function testPauseInvalidTopicPartitions() returns kafka:ConsumerError? {
+    return kafkaConsumer->pause(invalidTopicPartitions);
 }
 
-function funcKafkaResume() returns error? {
-    var result = kafkaConsumer->resume(topicPartitions);
-    if (result is error) {
-        return result;
-    }
-    return;
+function testResume() returns kafka:ConsumerError? {
+    return kafkaConsumer->resume(topicPartitions);
 }
 
-function funcKafkaResumeInvalidTopicPartitions() returns error? {
-    var result = kafkaConsumer->resume(invalidTopicPartitions);
-    if (result is error) {
-        return result;
-    }
-    return;
+function testResumeInvalidTopicPartitions() returns kafka:ConsumerError? {
+    return kafkaConsumer->resume(invalidTopicPartitions);
 }
 
-function funcKafkaGetPausedPartitions() returns kafka:TopicPartition[]|error {
+function testGetPausedPartitions() returns kafka:TopicPartition[]|error {
     return kafkaConsumer->getPausedPartitions();
 }
