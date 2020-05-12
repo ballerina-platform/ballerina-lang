@@ -478,15 +478,7 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_PREFIX_DECL:
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
-            case LIST_CONSTRUCTOR_RHS:
-            case TYPE_CAST_PARAM:
-            case TYPE_CAST_PARAM_RHS:
             case TABLE_KEYWORD_RHS:
-            case ROW_LIST_RHS:
-            case TABLE_ROW_END:
-            case KEY_SPECIFIER_RHS:
-            case TABLE_KEY_RHS:
-            case LET_VAR_DECL_START:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
             case QUERY_EXPRESSION_RHS:

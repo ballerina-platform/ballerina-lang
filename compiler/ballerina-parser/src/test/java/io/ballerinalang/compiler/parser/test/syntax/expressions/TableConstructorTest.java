@@ -119,7 +119,7 @@ public class TableConstructorTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testTableWithTwoKeySpecifiersWithExtraTokenInBetween() {
-        test("table key(a) foo key(b) []", "table-constructor/table_constructor_assert_26.json");
+    public void testTableWithTwoKeySpecifiers() {
+        test("table key(a) key(b) []", "table-constructor/table_constructor_assert_26.json");
     }
 }

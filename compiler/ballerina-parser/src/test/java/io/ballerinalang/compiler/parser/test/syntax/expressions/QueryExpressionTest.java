@@ -138,4 +138,15 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testQueryLetClauseWithMissingComma() {
         test("from int a in b let int c = d int e = f select g", "query-expr/query_expr_assert_29.json");
     }
+
+    @Test
+    public void testQueryWithExtraToken() {
+        test("table foo key() from int a in b select g", "query-expr/query_expr_assert_30.json");
+        test("table key() foo from int a in b select g", "query-expr/query_expr_assert_31.json");
+    }
+
+    @Test
+    public void testQueryWithTwoKeySpecifiersWithExtraTokenInBetween() {
+        test("table key(a) foo key(b) []", "query-expr/query_expr_assert_32.json");
+    }
 }

@@ -7509,6 +7509,10 @@ public class BallerinaParser {
                 case SELECT_KEYWORD:
                     break;
                 default:
+                    if (nextTokenKind == SyntaxKind.EOF_TOKEN) {
+                        return parseQueryPipeline(SyntaxKind.SELECT_KEYWORD, fromClause, clauses);
+                    }
+
                     Solution solution = recover(peek(), ParserRuleContext.QUERY_EXPRESSION_RHS, fromClause, clauses);
 
                     // If the parser recovered by inserting a token, then try to re-parse the same
