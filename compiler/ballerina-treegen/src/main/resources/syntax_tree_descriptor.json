@@ -2459,14 +2459,14 @@
             ]
         },
         {
-            "name": "NewExpression",
+            "name": "NewExpressionNode",
             "base": "ExpressionNode",
             "isAbstract": true
         },
         {
-            "name": "ExplicitNewExpression",
-            "base": "NewExpression",
-            "kind": "EXPLICIT_NEW",
+            "name": "ExplicitNewExpressionNode",
+            "base": "NewExpressionNode",
+            "kind": "EXPLICIT_NEW_EXPRESSION",
             "attributes": [
                 {
                     "name": "NewKeyword",
@@ -2474,7 +2474,7 @@
                 },
                 {
                     "name": "TypeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "ParenthesizedArgList",
@@ -2483,9 +2483,9 @@
             ]
         },
         {
-            "name": "ImplicitNewExpression",
-            "base": "NewExpression",
-            "kind": "IMPLICIT_NEW",
+            "name": "ImplicitNewExpressionNode",
+            "base": "NewExpressionNode",
+            "kind": "IMPLICIT_NEW_EXPRESSION",
             "attributes": [
                 {
                     "name": "NewKeyword",
@@ -2493,7 +2493,7 @@
                 },
                 {
                     "name": "ParenthesizedArgList",
-                    "type": "Node",
+                    "type": "ParenthesizedArgList",
                     "isOptional": true
                 }
             ]

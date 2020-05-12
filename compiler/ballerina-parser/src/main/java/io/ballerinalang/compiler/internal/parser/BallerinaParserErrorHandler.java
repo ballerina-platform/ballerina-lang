@@ -324,8 +324,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.END_OF_TYPE_DESC, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
                     ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
 
-    private static final ParserRuleContext[] NEW_EXPR =
-            { ParserRuleContext.EXPLICIT_NEW_RHS, ParserRuleContext.EXPRESSION_RHS };
+    private static final ParserRuleContext[] NEW_KEYWORD_RHS =
+            { ParserRuleContext.TYPE_DESC_IN_NEW_EXPR, ParserRuleContext.EXPRESSION_RHS };
 
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
@@ -1113,7 +1113,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.NEW_KEYWORD;
                     break;
                 case NEW_KEYWORD_RHS:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NEW_EXPR, isEntryPoint);
+                    return seekInAlternativesPaths(lookahead, currentDepth,
+                            matchingRulesCount, NEW_KEYWORD_RHS, isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1179,7 +1180,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
-                case EXPLICIT_NEW_RHS:
                 case LET_VAR_DECL:
                 case LET_EXPRESSION:
                 case END_OF_TYPE_DESC:
@@ -1203,6 +1203,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_IN_EXPRESSION:
                 case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 case TYPE_DESC_IN_PARENTHESIS:
+                case TYPE_DESC_IN_NEW_EXPR:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1462,7 +1463,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_EXPRESSION:
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
-            case EXPLICIT_NEW_RHS:
+            case TYPE_DESC_IN_NEW_EXPR:
                 startContext(currentCtx);
                 break;
             default:
@@ -1939,7 +1940,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST_START:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
-            case EXPLICIT_NEW_RHS:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
@@ -1955,6 +1955,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_EXPRESSION:
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
+            case TYPE_DESC_IN_NEW_EXPR:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_DECL_STARTED_WITH_DENTIFIER:
                 // We come here trying to recover statement started with identifier,
@@ -2238,6 +2239,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 return ParserRuleContext.CLOSE_PARENTHESIS;
+            case TYPE_DESC_IN_NEW_EXPR:
+                endContext();
+                return ParserRuleContext.ARG_LIST_START;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
                 // Then the rhs of this is definitely an expression-rhs
@@ -2258,6 +2262,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_EXPRESSION:
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
+            case TYPE_DESC_IN_NEW_EXPR:
                 return true;
             default:
                 return false;
@@ -2420,8 +2425,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERPOLATION:
                 endContext();
                 return ParserRuleContext.TEMPLATE_MEMBER;
-            case EXPLICIT_NEW_RHS:
-                return ParserRuleContext.OPEN_PARENTHESIS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }

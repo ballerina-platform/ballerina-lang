@@ -131,6 +131,7 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
+    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
 
     // Statements
     STATEMENT("statement"),
@@ -355,7 +356,6 @@ public enum ParserRuleContext {
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
-    EXPLICIT_NEW_RHS("explicit-new-rhs"),
     ;
 
     private String value;

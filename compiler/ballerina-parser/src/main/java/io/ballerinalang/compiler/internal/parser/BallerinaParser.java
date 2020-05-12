@@ -3551,7 +3551,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
                 // TODO: Support `stream` keyword once introduced
-                return parseExplicitNewRhs(newKeyword);
+                return parseTypeDescriptorInNewExpr(newKeyword);
             default:
                 break;
         }
@@ -3570,8 +3570,8 @@ public class BallerinaParser extends AbstractParser {
      * @param newKeyword Parsed `new` keyword.
      * @return the Parsed Explicit New Expression.
      */
-    private STNode parseExplicitNewRhs(STNode newKeyword) {
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.EXPLICIT_NEW_RHS);
+    private STNode parseTypeDescriptorInNewExpr(STNode newKeyword) {
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_NEW_EXPR);
         STNode parenthesizedArgsList = parseParenthesizedArgList();
 
         return STNodeFactory.createExplicitNewExpression(newKeyword, typeDescriptor, parenthesizedArgsList);
