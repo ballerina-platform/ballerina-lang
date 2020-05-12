@@ -27,7 +27,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,7 +36,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,11 +61,11 @@ public class SslConsumerAndProducerTest {
     private static KafkaCluster kafkaCluster;
     private static final String balFile = "ssl_producer_consumer.bal";
     private static final String balFilePath = getResourcePath(Paths.get(TEST_SRC, TEST_SECURITY, balFile));
-    private static final String dataDir = getDataDirectoryName(SslConsumerAndProducerTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(SslConsumerAndProducerTest.class.getSimpleName());
     private static final String filePath = "<FILE_PATH>";
     private static final String keystoreAndTruststore = getResourcePath(Paths.get("data-files", "keystore-truststore"));
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14022)
@@ -81,7 +80,7 @@ public class SslConsumerAndProducerTest {
     }
 
     @Test(description = "Test SSL producer and consumer")
-    public void testKafkaProducerWithSsl() {
+    public void testWithValidSslConfigs() {
         String message = "Hello World SSL Test";
         BValue[] args = new BValue[1];
         args[0] = new BString(message);
@@ -102,7 +101,7 @@ public class SslConsumerAndProducerTest {
 
     @SuppressWarnings(UNCHECKED)
     @Test(description = "Test kafka consumer connect with no SSL config values")
-    public void testKafkaConsumerSslConnectNegative() {
+    public void testWithInvalidSslConfigs() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testSslConnectNegative");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BError);
@@ -174,8 +173,8 @@ public class SslConsumerAndProducerTest {
         return properties;
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         // Reverting the keystore and trust-store file paths
         setFilePath(Paths.get(balFilePath).toAbsolutePath().toString(),
                     Paths.get(keystoreAndTruststore).toAbsolutePath().toString(), filePath);

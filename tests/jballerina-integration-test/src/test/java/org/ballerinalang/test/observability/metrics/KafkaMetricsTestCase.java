@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 
 /**
@@ -57,6 +58,7 @@ public class KafkaMetricsTestCase extends BaseTest {
     private static final String propertyResources =
             "messaging" + File.separator + "kafka" + File.separator + "resources" + File.separator + "properties" +
                     File.separator;
+    private static final String dataDir = getDataDirectoryName(KafkaMetricsTestCase.class.getSimpleName());
     private static KafkaCluster kafkaCluster;
     private static final String TOPIC1 = "t1";
     private static final String TOPIC2 = "t2";
@@ -67,7 +69,6 @@ public class KafkaMetricsTestCase extends BaseTest {
     private void setup() throws Throwable {
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
         args.add("--b7a.log.console.loglevel=ERROR");
-        String dataDir = getDataDirectoryName("cluster-kafka-producer-metrics-test");
         Properties brokerProperties = new Properties();
         brokerProperties.setProperty(KafkaConfig.ZkSessionTimeoutMsProp(), Integer.toString(20000));
         brokerProperties.setProperty(KafkaConfig.AutoCreateTopicsEnableProp(), "false");
@@ -112,13 +113,6 @@ public class KafkaMetricsTestCase extends BaseTest {
         countDownLatch.await(20, TimeUnit.SECONDS);
         readAndValidateMetrics(getErrorMetrics());
         serverInstance.shutdownServer();
-    }
-
-    @AfterGroups(value = "kafka-metrics-test", alwaysRun = true)
-    private void cleanup() {
-        if (kafkaCluster != null) {
-            kafkaCluster.stop();
-        }
     }
 
     private BServerInstance startBalServer(String fileName) throws Exception {
@@ -217,5 +211,10 @@ public class KafkaMetricsTestCase extends BaseTest {
         for (int i = 0; i < 10; i++) {
             kafkaCluster.sendMessage(topic, KafkaMetricsTestCase.MESSAGE);
         }
+    }
+
+    @AfterGroups(value = "kafka-metrics-test", alwaysRun = true)
+    private void cleanup() {
+        finishTest(kafkaCluster, dataDir);
     }
 }

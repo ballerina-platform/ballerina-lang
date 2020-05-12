@@ -92,7 +92,11 @@ jobs:
         - export PATH="$PATH;$JAVA_HOME\\bin"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+<<<<<<< HEAD
         - ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --rerun-tasks
+=======
+        - ./gradlew :jballerina-integration-test:test :examples-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon  --rerun-tasks --no-build-cache
+>>>>>>> 3ca987a95d7... Fix log directories not deleting issues
         # Killing background sleep loop
         - kill %1
       os: linux

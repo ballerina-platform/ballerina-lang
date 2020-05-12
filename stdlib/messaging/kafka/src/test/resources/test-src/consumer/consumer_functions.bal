@@ -21,44 +21,57 @@ kafka:ConsumerConfiguration consumerConfig = {
     groupId: "test-group",
     clientId: "basic-consumer",
     offsetReset: "earliest",
+    valueDeserializerType: kafka:DES_STRING,
+    autoCommit: true,
     topics: ["consumer-functions-test-topic"]
 };
 
+int retrievedRecordsCount = 0;
+string receivedMessage = "";
+
 function testCreateConsumer() returns kafka:Consumer {
-    kafka:Consumer consumer= new(consumerConfig);
+    kafka:Consumer consumer = new (consumerConfig);
     return consumer;
 }
 
 function testClose() returns kafka:ConsumerError? {
-    kafka:Consumer consumer= new(consumerConfig);
+    kafka:Consumer consumer = new (consumerConfig);
     return consumer->close();
 }
 
 function testGetSubscription() returns string[]|error {
-    kafka:Consumer consumer= new(consumerConfig);
+    kafka:Consumer consumer = new (consumerConfig);
     return consumer->getSubscription();
 }
 
-function testPoll() returns int|error {
-    kafka:Consumer consumer= new(consumerConfig);
-    var results = consumer->poll(2000);
+function testPoll() returns int|kafka:ConsumerError {
+    kafka:Consumer consumer = new (consumerConfig);
+    var results = consumer->poll(1000);
     if (results is error) {
         return results;
     } else {
-        return results.length();
+        if (results.length() > 0) {
+            retrievedRecordsCount += results.length();
+            receivedMessage = <string> results[0].value;
+        }
     }
+    return retrievedRecordsCount;
+}
+
+function getReceivedMessage() returns string {
+    return receivedMessage;
 }
 
 string topic1 = "consumer-unsubscribe-test-1";
 string topic2 = "consumer-unsubscribe-test-2";
 
 function testTestUnsubscribe() returns boolean {
-    kafka:Consumer kafkaConsumer = new({
-            bootstrapServers: "localhost:14101",
-            groupId: "test-group",
-            clientId: "unsubscribe-consumer",
-            topics: [topic1, topic2]
-        });
+    kafka:Consumer kafkaConsumer = new ({
+        bootstrapServers: "localhost:14101",
+        groupId: "test-group",
+        clientId: "unsubscribe-consumer",
+        topics: [topic1, topic2]
+    });
     var subscribedTopics = kafkaConsumer->getSubscription();
     if (subscribedTopics is error) {
         return false;

@@ -29,11 +29,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +46,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.kafka consumer native functions.
@@ -58,8 +58,8 @@ public class ConsumerFunctionsTest {
     private static KafkaCluster kafkaCluster;
 
     private static final String topic = "consumer-functions-test-topic";
-    private static final String dataDir = getDataDirectoryName(ConsumerFunctionsTest.class.getName());
-    private static final String message = "test_string";
+    private static final String dataDir = getDataDirectoryName(ConsumerFunctionsTest.class.getSimpleName());
+    private static final String message = "test message";
 
     @BeforeClass
     public void setup() throws Throwable {
@@ -74,28 +74,44 @@ public class ConsumerFunctionsTest {
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
     }
 
-    @Test(description = "Checks Kafka consumer creation", groups = {"initial-tests"})
+    @Test(
+            description = "Checks Kafka consumer creation",
+            groups = {"initializing-test"}
+    )
     public void testCreateConsumer() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testCreateConsumer");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BMap);
     }
 
-    @Test(description = "Test kafka consumer poll function", groups = {"initial-tests"})
-    public void testKafkaPoll() throws ExecutionException, InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            kafkaCluster.sendMessage(topic, message);
-        }
-        await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
+    @Test(
+            description = "Test kafka consumer poll function",
+            groups = {"first-tests"},
+            dependsOnGroups = {"initializing-test"}
+    )
+    public void testPoll() throws ExecutionException, InterruptedException {
+        int messageCount = 10;
+        produceToKafkaCluster(kafkaCluster, topic, message, messageCount);
+        // Test all the 10 messages retrieved from poll
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "testPoll");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BInteger);
-            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == 10);
+            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == messageCount);
         });
+
+        // Test the message received successfully.
+        BValue[] receivedMessage = BRunUtil.invoke(result, "getReceivedMessage");
+        Assert.assertEquals(receivedMessage.length, 1);
+        Assert.assertEquals(receivedMessage[0].stringValue(), message);
     }
 
-    @Test(description = "Test Kafka getSubscription function", groups = {"initial-tests"})
-    public void testKafkaConsumerGetSubscription() {
+    @Test(
+            description = "Test Kafka getSubscription function",
+            groups = {"secondary-tests"},
+            dependsOnGroups = {"initializing-test", "first-tests"}
+    )
+    public void testGetSubscription() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetSubscription");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
@@ -103,23 +119,31 @@ public class ConsumerFunctionsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), topic);
     }
 
-    @Test(description = "Test functionality of unsubscribe() function", groups = {"secondary-tests"})
-    public void testKafkaConsumerUnsubscribe() {
+    @Test(
+            description = "Test functionality of unsubscribe() function",
+            groups = {"secondary-tests"},
+            dependsOnGroups = {"initializing-test", "first-tests"}
+    )
+    public void testUnsubscribe() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testTestUnsubscribe");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returnBValues[0]).booleanValue());
     }
 
-    @Test(description = "Test Kafka consumer close function", dependsOnGroups = {"initial-tests", "secondary-tests"})
-    public void testKafkaConsumerClose() {
+    @Test(
+            description = "Test Kafka consumer close function",
+            groups = {"final-tests"},
+            dependsOnGroups = {"initializing-test", "first-tests", "secondary-tests"}
+    )
+    public void testClose() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testClose");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertFalse(returnBValues[0] instanceof BError);
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

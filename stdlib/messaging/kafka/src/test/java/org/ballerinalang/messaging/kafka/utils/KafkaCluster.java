@@ -261,9 +261,14 @@ public class KafkaCluster {
         if (this.kafkaProducer != null) {
             this.kafkaProducer.close();
         }
+        if (this.kafkaAdminClient != null) {
+            this.kafkaAdminClient.close();
+        }
         for (KafkaLocal kafkaServer : brokerList) {
             kafkaServer.stop();
         }
+
+        this.zookeeper.stop();
         deleteDirectory(new File(dataDir));
 
         console.println("Stopped ZooKeeper at: " + this.host + ":" + this.zookeeperPort);

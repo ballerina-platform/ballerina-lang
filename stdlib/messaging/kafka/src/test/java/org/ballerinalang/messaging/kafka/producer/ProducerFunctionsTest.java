@@ -28,11 +28,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +53,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTime
  */
 public class ProducerFunctionsTest {
 
-    private static final String dataDir = getDataDirectoryName(ProducerFunctionsTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(ProducerFunctionsTest.class.getSimpleName());
 
     private CompileResult result;
     private KafkaCluster kafkaCluster;
@@ -65,9 +64,8 @@ public class ProducerFunctionsTest {
     String topic = "producer-test-topic";
     String groupId = "producer-group";
 
-    @BeforeTest
+    @BeforeTest(alwaysRun = true)
     public void setup() throws Throwable {
-        String dataDir = Paths.get("build", "kafka-logs-producer").toString();
         String balFile = "producer_functions.bal";
         kafkaCluster = new KafkaCluster(dataDir, null)
                 .withZookeeper(14011, null)
@@ -96,7 +94,7 @@ public class ProducerFunctionsTest {
           dependsOnMethods = {"testKafkaProducer", "testKafkaProducerFlushRecords", "testKafkaTopicPartitionRetrieval"},
           enabled = false
     )
-    public void testKafkaProducerClose() {
+    public void testClose() {
         String expMsg = "Failed to send data to Kafka server: Cannot perform operation after producer has been closed";
         BValue[] returnBValue = BRunUtil.invoke(result, "testKafkaClose");
         Assert.assertEquals(returnBValue.length, 1);
@@ -105,14 +103,14 @@ public class ProducerFunctionsTest {
     }
 
     @Test(description = "Test producer flush function")
-    public void testKafkaProducerFlushRecords() {
+    public void testFlushRecords() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testFlush");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertFalse(returnBValues[0] instanceof BError);
     }
 
     @Test(description = "Test producer topic partition retrieval")
-    public void testKafkaTopicPartitionRetrieval() {
+    public void testTopicPartitionRetrieval() {
         String topic1 = "partition-retrieval-topic-1";
         String topic2 = "partition-retrieval-topic-2";
         String topicNegative = "partition-retrieval-topic-negative";
@@ -154,8 +152,8 @@ public class ProducerFunctionsTest {
 
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

@@ -27,11 +27,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
@@ -52,13 +51,13 @@ public class TopicsTest {
     private CompileResult result;
     private static KafkaCluster kafkaCluster;
 
-    private static final String dataDir = getDataDirectoryName(TopicsTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(TopicsTest.class.getSimpleName());
 
     private static final String topic1 = "test-topic-1";
     private static final String topic2 = "test-topic-2";
     private static final String topic3 = "test-topic-3";
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "topics.bal";
         kafkaCluster = new KafkaCluster(dataDir)
@@ -73,7 +72,7 @@ public class TopicsTest {
     }
 
     @Test(description = "Test Kafka getAvailableTopics function")
-    public void testKafkaGetAvailableTopics() throws ExecutionException, InterruptedException {
+    public void testGetAvailableTopics() throws ExecutionException, InterruptedException {
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetAvailableTopics");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
@@ -82,7 +81,7 @@ public class TopicsTest {
     }
 
     @Test(description = "Test Kafka getAvailableTopics with duration parameter")
-    public void testKafkaGetAvailableTopicsWithDuration() throws ExecutionException, InterruptedException {
+    public void testGetAvailableTopicsWithDuration() throws ExecutionException, InterruptedException {
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetAvailableTopicsWithDuration");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
@@ -91,7 +90,7 @@ public class TopicsTest {
     }
 
     @Test(description = "Test functionality of getTopicPartitions() function")
-    public void testKafkaConsumerGetTopicPartitions() {
+    public void testGetTopicPartitions() {
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetTopicPartitions");
         Assert.assertEquals(returnBValues.length, 1);
         validateTopicsFromMap(returnBValues[0], topic1);
@@ -99,7 +98,7 @@ public class TopicsTest {
 
     @Test(description = "Test assign functions functionality")
     @SuppressWarnings("unchecked")
-    public void testKafkaConsumerAssign() {
+    public void testAssign() {
         // Invoke assign to assign topic partitions to the consumer
         BValue[] returnValues = BRunUtil.invoke(result, "testAssign");
         Assert.assertEquals(returnValues.length, 1);
@@ -122,8 +121,8 @@ public class TopicsTest {
         Assert.assertEquals(topicMap.get("topic").stringValue(), topic);
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

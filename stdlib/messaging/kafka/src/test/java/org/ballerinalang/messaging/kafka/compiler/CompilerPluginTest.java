@@ -36,14 +36,14 @@ public class CompilerPluginTest {
     private CompileResult compileResult;
 
     @Test(description = "Test endpoint bind to a service returning custom error type")
-    public void testKafkaServiceValidateCustomErrorType() {
+    public void testServiceValidateCustomErrorType() {
         String balFile = "custom_error_return_type_validation.bal";
         compileResult = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_COMPILER, balFile)));
         Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
     @Test(description = "Test endpoint bind to a service with invalid number of arguments in resource function")
-    public void testKafkaServiceInvalidNumberOfArguments() {
+    public void testServiceInvalidNumberOfArguments() {
         String msg = "Invalid number of input parameters found in resource onMessage";
         String balFile = "invalid_number_of_arguments.bal";
         compileResult = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_COMPILER, balFile)));
@@ -51,7 +51,7 @@ public class CompilerPluginTest {
     }
 
     @Test(description = "Test kafka service with an invalid input parameter type")
-    public void testKafkaServiceInvalidParameterType() {
+    public void testServiceInvalidParameterType() {
         String msg = "Resource parameter ballerina/kafka:ConsumerConfiguration is invalid. " +
                 "Expected: ballerina/kafka:ConsumerRecord[].";
         String balFile = "invalid_parameter_type.bal";
@@ -60,7 +60,7 @@ public class CompilerPluginTest {
     }
 
     @Test(description = "Test kafka service with an invalid resource name")
-    public void testKafkaServiceInvalidResourceName() {
+    public void testServiceInvalidResourceName() {
         String msg = "Kafka service has invalid resource: onMessageReceived. Valid resource name:onMessage";
         String balFile = "invalid_resource_name.bal";
         compileResult = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_COMPILER, balFile)));
@@ -68,7 +68,7 @@ public class CompilerPluginTest {
     }
 
     @Test(description = "Test endpoint bind to a service returning invalid return type")
-    public void testKafkaServiceInvalidReturnType() {
+    public void testServiceInvalidReturnType() {
         String msg = "invalid resource function return type 'int', expected a subtype of 'error?' containing '()'";
         String balFile = "invalid_return_type.bal";
         compileResult = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_COMPILER, balFile)));
@@ -76,7 +76,7 @@ public class CompilerPluginTest {
     }
 
     @Test(description = "Test endpoint bind to a service with more than one resource")
-    public void testKafkaServiceMoreThanOneResource() {
+    public void testServiceMoreThanOneResource() {
         String msg = "More than one resources found in Kafka service kafkaTestService. " +
                 "Kafka Service should only have one resource";
         String balFile = "more_than_one_resource.bal";

@@ -60,9 +60,9 @@ public class TestUtils {
         return TEST_PATH.resolve(filePath).toAbsolutePath().toString();
     }
 
-    public static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic, String message)
+    public static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic, String message, int messageCount)
             throws ExecutionException, InterruptedException {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < messageCount; i++) {
             kafkaCluster.sendMessage(topic, message);
         }
     }
@@ -81,16 +81,28 @@ public class TestUtils {
         if (kafkaCluster != null) {
             kafkaCluster.stop();
         }
-        File file = new File(dataDir);
-        String[] entries = file.list();
-        if (entries != null) {
-            for (String entry: entries) {
-                File currentFile = new File(file.getPath(), entry);
-                boolean deleted = currentFile.delete();
-                if (!deleted) {
-                    currentFile.deleteOnExit();
+        File directory = new File(dataDir);
+        if (directory.exists()) {
+            deleteDirectory(directory);
+        }
+    }
+
+    public static void deleteDirectory(File entry) {
+        if (entry.isDirectory()) {
+            File[] fileList = entry.listFiles();
+            if (fileList != null) {
+                for (File file : fileList) {
+                    deleteDirectory(file);
                 }
             }
+        }
+        deleteFile(entry);
+    }
+
+    private static void deleteFile(File file) {
+        boolean deleted = file.delete();
+        if (!deleted) {
+            file.deleteOnExit();
         }
     }
 
