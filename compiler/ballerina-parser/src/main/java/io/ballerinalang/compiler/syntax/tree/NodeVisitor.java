@@ -467,6 +467,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(tupleTypeDescriptorNode);
     }
 
+    public void visit(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        visitSyntaxNode(parenthesisedTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

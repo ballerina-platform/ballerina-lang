@@ -2008,7 +2008,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseObjectTypeDescriptor();
             case OPEN_PAREN_TOKEN:
                 // nil type descriptor '()'
-                return parseNilTypeDescriptor();
+                if (getNextNextToken(tokenKind).kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return parseNilTypeDescriptor();
+                }
+
+                return parseParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
@@ -8101,7 +8105,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>tuple-type-descriptor := [ tuple-member-type-descriptors ]
      * <br/><br/>
      * tuple-member-type-descriptors := member-type-descriptor (, member-type-descriptor)* [, tuple-rest-descriptor]
-                                           | [ tuple-rest-descriptor ]
+     *                                     | [ tuple-rest-descriptor ]
      * <br/><br/>
      * tuple-rest-descriptor := type-descriptor ...
      * </code>
@@ -8109,12 +8113,10 @@ public class BallerinaParser extends AbstractParser {
      * @return
      */
     private STNode parseTupleTypeDesc() {
-        startContext(ParserRuleContext.TUPLE_TYPE_DESC);
         STNode openBracket = parseOpenBracket();
-        STNode memberTypeDesc = parseTupleMemberTupeDescList();
+        STNode memberTypeDesc = parseTupleMemberTypeDescList();
         STNode restTypeDesc = parseTupleRestTypeDesc();
         STNode closeBracket = parseCloseBracket();
-        endContext();
         return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, restTypeDesc, closeBracket);
     }
 
@@ -8123,7 +8125,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseTupleMemberTupeDescList() {
+    private STNode parseTupleMemberTypeDescList() {
         List<STNode> typeDescList = new ArrayList<>();
         STToken nextToken = peek();
 
@@ -8168,5 +8170,12 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTupleRestTypeDesc() {
         return STNodeFactory.createEmptyNode();
+    }
+
+    private STNode parseParenthesisedTypeDesc() {
+        STNode openParen = parseOpenParenthesis();
+        STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
+        STNode closeParen = parseCloseParenthesis();
+        return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
     }
 }

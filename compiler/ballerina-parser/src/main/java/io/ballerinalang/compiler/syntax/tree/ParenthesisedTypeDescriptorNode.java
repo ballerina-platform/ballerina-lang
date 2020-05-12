@@ -24,26 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class TupleTypeDescriptorNode extends TypeDescriptorNode {
+public class ParenthesisedTypeDescriptorNode extends TypeDescriptorNode {
 
-    public TupleTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ParenthesisedTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token openBracketToken() {
+    public Token openParenToken() {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<TypeDescriptorNode> memberTypeDesc() {
-        return new SeparatedNodeList<>(childInBucket(1));
+    public TypeDescriptorNode typedesc() {
+        return childInBucket(1);
     }
 
-    public Node restTypeDesc() {
+    public Token closeParenToken() {
         return childInBucket(2);
-    }
-
-    public Token closeBracketToken() {
-        return childInBucket(3);
     }
 
     @Override
@@ -59,29 +55,25 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "openBracketToken",
-                "memberTypeDesc",
-                "restTypeDesc",
-                "closeBracketToken"};
+                "openParenToken",
+                "typedesc",
+                "closeParenToken"};
     }
 
-    public TupleTypeDescriptorNode modify(
-            Token openBracketToken,
-            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
-            Node restTypeDesc,
-            Token closeBracketToken) {
+    public ParenthesisedTypeDescriptorNode modify(
+            Token openParenToken,
+            TypeDescriptorNode typedesc,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                openBracketToken,
-                memberTypeDesc.underlyingListNode(),
-                restTypeDesc,
-                closeBracketToken)) {
+                openParenToken,
+                typedesc,
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createTupleTypeDescriptorNode(
-                openBracketToken,
-                memberTypeDesc,
-                restTypeDesc,
-                closeBracketToken);
+        return NodeFactory.createParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken);
     }
 }
