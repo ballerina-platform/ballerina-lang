@@ -398,20 +398,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(FunctionalConstructorExpressionNode functionalConstructorExpressionNode) {
-        Token functionallyConstructibleTypeReference = modifyToken(functionalConstructorExpressionNode.functionallyConstructibleTypeReference());
-        Token openParenToken = modifyToken(functionalConstructorExpressionNode.openParenToken());
-        NodeList<FunctionArgumentNode> arguments = modifyNodeList(functionalConstructorExpressionNode.arguments());
-        Token closeParenToken = modifyToken(functionalConstructorExpressionNode.closeParenToken());
-        return functionalConstructorExpressionNode.modify(
-                functionalConstructorExpressionNode.kind(),
-                functionallyConstructibleTypeReference,
-                openParenToken,
-                arguments,
-                closeParenToken);
-    }
-
-    @Override
     public Node transform(MethodCallExpressionNode methodCallExpressionNode) {
         ExpressionNode expression = modifyNode(methodCallExpressionNode.expression());
         Token dotToken = modifyToken(methodCallExpressionNode.dotToken());

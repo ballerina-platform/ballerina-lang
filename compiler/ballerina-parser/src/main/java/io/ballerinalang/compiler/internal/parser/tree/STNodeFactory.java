@@ -406,21 +406,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createFunctionalConstructorExpressionNode(
-            SyntaxKind kind,
-            STNode functionallyConstructibleTypeReference,
-            STNode openParenToken,
-            STNode arguments,
-            STNode closeParenToken) {
-
-        return new STFunctionalConstructorExpressionNode(
-                kind,
-                functionallyConstructibleTypeReference,
-                openParenToken,
-                arguments,
-                closeParenToken);
-    }
-
     public static STNode createMethodCallExpressionNode(
             STNode expression,
             STNode dotToken,

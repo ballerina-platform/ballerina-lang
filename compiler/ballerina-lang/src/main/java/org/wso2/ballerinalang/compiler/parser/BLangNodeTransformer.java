@@ -29,12 +29,10 @@ import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionalConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
@@ -656,30 +654,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(FunctionCallExpressionNode functionCallNode) {
-        return createBLangInvocation(functionCallNode.arguments(),
-                getBLangNameReference(functionCallNode.functionName()),
-                getPosition(functionCallNode));
-    }
-
-    @Override
-    public BLangNode transform(FunctionalConstructorExpressionNode functionalConstructorExpressionNode) {
-        return createBLangInvocation(functionalConstructorExpressionNode.arguments(),
-                getBLangNameReference(functionalConstructorExpressionNode.functionallyConstructibleTypeReference()),
-                getPosition(functionalConstructorExpressionNode));
-    }
-
-    private BLangInvocation createBLangInvocation(NodeList<FunctionArgumentNode> arguments,
-                                                  BLangNameReference reference, DiagnosticPos pos) {
         BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangNameReference reference = getBLangNameReference(functionCallNode.functionName());
         bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
         bLInvocation.name = (BLangIdentifier) reference.name;
 
         List<BLangExpression> args = new ArrayList<>();
-        arguments.iterator().forEachRemaining(arg -> {
+        functionCallNode.arguments().iterator().forEachRemaining(arg -> {
             args.add((BLangExpression) arg.apply(this));
         });
         bLInvocation.argExprs = args;
-        bLInvocation.pos = pos;
+        bLInvocation.pos = getPosition(functionCallNode);
 
         return bLInvocation;
     }

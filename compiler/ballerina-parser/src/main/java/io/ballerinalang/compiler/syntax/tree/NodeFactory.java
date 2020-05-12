@@ -532,26 +532,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionCallExpressionNode.createUnlinkedFacade();
     }
 
-    public static FunctionalConstructorExpressionNode createFunctionalConstructorExpressionNode(
-            SyntaxKind kind,
-            Token functionallyConstructibleTypeReference,
-            Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
-            Token closeParenToken) {
-        Objects.requireNonNull(functionallyConstructibleTypeReference, "functionallyConstructibleTypeReference must not be null");
-        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
-        Objects.requireNonNull(arguments, "arguments must not be null");
-        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
-
-        STNode stFunctionalConstructorExpressionNode = STNodeFactory.createFunctionalConstructorExpressionNode(
-                kind,
-                functionallyConstructibleTypeReference.internalNode(),
-                openParenToken.internalNode(),
-                arguments.underlyingListNode().internalNode(),
-                closeParenToken.internalNode());
-        return stFunctionalConstructorExpressionNode.createUnlinkedFacade();
-    }
-
     public static MethodCallExpressionNode createMethodCallExpressionNode(
             ExpressionNode expression,
             Token dotToken,

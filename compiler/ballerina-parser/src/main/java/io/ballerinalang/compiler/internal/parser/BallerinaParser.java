@@ -3418,7 +3418,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
             case ERROR_KEYWORD:
-                return parseFunctionalConstructorExpr(SyntaxKind.ERROR_CONSTRUCTOR_EXPRESSION);
+                return parseFunctionalConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
             case BACKTICK_TOKEN:
@@ -3779,25 +3779,19 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * <p>
      * Parse error constructor expression.
-     * <code>functional-constructor-expr := functionally-constructible-type-reference ( arg-list )
-     * functionally-constructible-type-reference := error | type-reference</code>
+     * </p>
+     * <code>
+     * functional-constructor-expr := functionally-constructible-type-reference ( arg-list )
+     * functionally-constructible-type-reference := error | type-reference
+     * </code>
      *
-     * @param kind Syntax kind
      * @return Functional constructor expression
      */
-    private STNode parseFunctionalConstructorExpr(SyntaxKind kind) {
-        STNode functionallyConstructibleTypeReference;
-        if (kind == SyntaxKind.ERROR_CONSTRUCTOR_EXPRESSION) {
-            functionallyConstructibleTypeReference = parseErrorKeyWord();
-        } else {
-            functionallyConstructibleTypeReference = parseTypeReference();
-        }
-        STNode openParen = parseOpenParenthesis();
-        STNode args = parseArgsList();
-        STNode closeParen = parseCloseParenthesis();
-        return STNodeFactory.createFunctionalConstructorExpressionNode(kind,
-                functionallyConstructibleTypeReference, openParen, args, closeParen);
+    private STNode parseFunctionalConstructorExpr() {
+        STNode functionallyConstructibleTypeReference = parseErrorKeyWord();
+        return parseFuncCall(functionallyConstructibleTypeReference);
     }
 
     /**

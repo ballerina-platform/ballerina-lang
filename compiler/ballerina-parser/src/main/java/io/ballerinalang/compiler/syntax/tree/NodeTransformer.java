@@ -152,10 +152,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionCallExpressionNode);
     }
 
-    public T transform(FunctionalConstructorExpressionNode functionalConstructorExpressionNode) {
-        return transformSyntaxNode(functionalConstructorExpressionNode);
-    }
-
     public T transform(MethodCallExpressionNode methodCallExpressionNode) {
         return transformSyntaxNode(methodCallExpressionNode);
     }
