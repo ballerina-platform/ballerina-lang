@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
+import kafka.server.KafkaConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.ballerinalang.model.values.BError;
@@ -38,6 +39,8 @@ public class TestUtils {
     private TestUtils() {
     }
 
+    private static final int ZOOKEEPER_CONNECTION_TIMEOUT = 30000;
+
     public static final Path TEST_PATH = Paths.get("src", "test", "resources");
     public static final String TEST_SRC = "test-src";
     public static final String TEST_CONSUMER = "consumer";
@@ -53,8 +56,7 @@ public class TestUtils {
     public static final String PROTOCOL_SASL_PLAIN = "SASL_PLAINTEXT";
     public static final String STRING_SERIALIZER = StringSerializer.class.getName();
     public static final String STRING_DESERIALIZER = StringDeserializer.class.getName();
-
-    private static final int ZOOKEEPER_CONNECTION_TIMEOUT = 30000;
+    public static final String ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG = Integer.toString(ZOOKEEPER_CONNECTION_TIMEOUT);
 
     public static String getResourcePath(Path filePath) {
         return TEST_PATH.resolve(filePath).toAbsolutePath().toString();
@@ -69,7 +71,7 @@ public class TestUtils {
 
     public static Properties getZookeeperTimeoutProperty() {
         Properties properties = new Properties();
-        properties.setProperty("zookeeper.connection.timeout.ms", Integer.toString(ZOOKEEPER_CONNECTION_TIMEOUT));
+        properties.setProperty(KafkaConfig.ZkConnectionTimeoutMsProp(), ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
         return properties;
     }
 

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.security;
 
+import kafka.server.KafkaConfig;
 import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -47,6 +48,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SSL;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
@@ -170,7 +172,7 @@ public class SslConsumerAndProducerTest {
                        keystoreAndTruststore + File.separator + "kafka.server.truststore.jks");
         properties.put("ssl.truststore.password", "test1234");
         properties.put("zookeeper.session.timeout.ms", "30000");
-        properties.put("zookeeper.connection.timeout.ms", "30000");
+        properties.put(KafkaConfig.ZkConnectionTimeoutMsProp(), ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
 
         return properties;
     }
