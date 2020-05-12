@@ -1349,5 +1349,76 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken,
                 returnTypeDesc);
     }
+
+    public static STNode createQueryConstructTypeNode(
+            STNode tableKeyword,
+            STNode KeySpecifier) {
+
+        return new STQueryConstructTypeNode(
+                tableKeyword,
+                KeySpecifier);
+    }
+
+    public static STNode createFromClauseNode(
+            STNode fromKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode inKeyword,
+            STNode expression) {
+
+        return new STFromClauseNode(
+                fromKeyword,
+                typeName,
+                variableName,
+                inKeyword,
+                expression);
+    }
+
+    public static STNode createWhereClauseNode(
+            STNode whereKeyword,
+            STNode expression) {
+
+        return new STWhereClauseNode(
+                whereKeyword,
+                expression);
+    }
+
+    public static STNode createLetClauseNode(
+            STNode letKeyword,
+            STNode letVarDeclarations) {
+
+        return new STLetClauseNode(
+                letKeyword,
+                letVarDeclarations);
+    }
+
+    public static STNode createQueryPipelineNode(
+            STNode fromClause,
+            STNode intermediateClauses) {
+
+        return new STQueryPipelineNode(
+                fromClause,
+                intermediateClauses);
+    }
+
+    public static STNode createSelectClauseNode(
+            STNode selectKeyword,
+            STNode expression) {
+
+        return new STSelectClauseNode(
+                selectKeyword,
+                expression);
+    }
+
+    public static STNode createQueryExpressionNode(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause) {
+
+        return new STQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause);
+    }
 }
 
