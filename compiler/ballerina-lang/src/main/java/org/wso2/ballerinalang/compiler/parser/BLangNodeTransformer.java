@@ -42,6 +42,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -667,6 +668,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLInvocation;
     }
 
+    public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
+        BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangNameReference reference = getBLangNameReference(methodCallExprNode.methodName());
+        bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
+        bLInvocation.name = (BLangIdentifier) reference.name;
+
+        List<BLangExpression> args = new ArrayList<>();
+        methodCallExprNode.arguments().iterator().forEachRemaining(arg -> {
+            args.add((BLangExpression) arg.apply(this));
+        });
+        bLInvocation.argExprs = args;
+        bLInvocation.expr = createExpression(methodCallExprNode.expression());
+        bLInvocation.pos = getPosition(methodCallExprNode);
+
+        return bLInvocation;
+    }
+
     // -----------------------------------------------Statements--------------------------------------------------------
     @Override
     public BLangNode transform(ReturnStatementNode returnStmtNode) {
@@ -919,6 +937,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isSimpleLiteral(expression.kind())) {
             return createSimpleLiteral(expression);
         } else if (expression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
                 expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             // Variable References
             BLangNameReference nameReference = getBLangNameReference(expression);
