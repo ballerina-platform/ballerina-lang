@@ -131,11 +131,11 @@ public class Decode {
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD),
                                     TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
                                                                x509Certificate.getNotBefore().getTime(),
-                                                               Constants.TIMEZONE_GMT));
+                                                               StringUtils.fromString(Constants.TIMEZONE_GMT)));
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD),
                                     TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
                                                                x509Certificate.getNotAfter().getTime(),
-                                                               Constants.TIMEZONE_GMT));
+                                                               StringUtils.fromString(Constants.TIMEZONE_GMT)));
 
                 certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD),
                                     new ArrayValueImpl(x509Certificate.getSignature()));
