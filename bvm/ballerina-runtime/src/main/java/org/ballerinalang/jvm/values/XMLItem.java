@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -91,9 +90,9 @@ public final class XMLItem extends XMLValue {
         this.type = BTypes.typeElement;
     }
 
-    public XMLItem(QName name, BType type) {
+    public XMLItem(QName name, boolean readonly) {
         this(name, new XMLSequence(new ArrayList<>()));
-        this.type = type;
+        this.type = readonly ? BTypes.typeReadonlyElement : BTypes.typeElement;
     }
 
     private void addDefaultNamespaceAttribute(QName name, MapValue<String, String> attributes) {

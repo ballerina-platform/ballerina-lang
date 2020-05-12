@@ -1833,8 +1833,10 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand defaultNsURIVarRef = generateNamespaceRef(xmlElementLiteral.defaultNsSymbol, xmlElementLiteral.pos);
 
         // Create xml element
-        BIRNonTerminator.NewXMLElement newXMLElement = new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos,
-                toVarRef, startTagNameIndex, defaultNsURIVarRef, xmlElementLiteral.type);
+        BIRNonTerminator.NewXMLElement newXMLElement =
+                new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos, toVarRef, startTagNameIndex,
+                                                   defaultNsURIVarRef,
+                                                   Symbols.isFlagOn(xmlElementLiteral.type.flags, Flags.READONLY));
         emit(newXMLElement);
 
         // Populate the XML by adding namespace declarations, attributes and children
@@ -1883,7 +1885,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewXMLComment newXMLComment =
                 new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex,
-                                                   xmlCommentLiteral.type);
+                                                   Symbols.isFlagOn(xmlCommentLiteral.type.flags, Flags.READONLY));
         emit(newXMLComment);
         this.env.targetOperand = toVarRef;
     }
@@ -1903,7 +1905,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewXMLProcIns newXMLProcIns =
                 new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex,
-                                                   xmlProcInsLiteral.type);
+                                                   Symbols.isFlagOn(xmlProcInsLiteral.type.flags, Flags.READONLY));
         emit(newXMLProcIns);
         this.env.targetOperand = toVarRef;
     }

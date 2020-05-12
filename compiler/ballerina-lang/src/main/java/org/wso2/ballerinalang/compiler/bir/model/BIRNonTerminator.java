@@ -407,15 +407,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLElement extends BIRNonTerminator {
         public BIROperand startTagOp;
         public BIROperand defaultNsURIOp;
-        public BType type;
+        public boolean readonly;
 
         public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp,
-                             BType type) {
+                             boolean readonly) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
-            this.type = type;
+            this.readonly = readonly;
         }
 
         @Override
@@ -501,14 +501,14 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLProcIns extends BIRNonTerminator {
         public BIROperand dataOp;
         public BIROperand targetOp;
-        public BType type;
+        public boolean readonly;
 
-        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp, BType type) {
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp, boolean readonly) {
             super(pos, InstructionKind.NEW_XML_PI);
             this.lhsOp = lhsOp;
             this.dataOp = dataOp;
             this.targetOp = targetOp;
-            this.type = type;
+            this.readonly = readonly;
         }
 
         @Override
@@ -524,13 +524,13 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewXMLComment extends BIRNonTerminator {
         public BIROperand textOp;
-        public BType type;
+        public boolean readonly;
 
-        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp, BType type) {
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp, boolean readonly) {
             super(pos, InstructionKind.NEW_XML_COMMENT);
             this.lhsOp = lhsOp;
             this.textOp = textOp;
-            this.type = type;
+            this.readonly = readonly;
         }
 
         @Override

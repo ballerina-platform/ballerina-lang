@@ -1633,11 +1633,15 @@ public class JvmInstructionGen {
         this.loadVar(newXMLElement.startTagOp.variableDcl);
         this.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         this.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
-        loadType(this.mv, newXMLElement.type);
+        if (newXMLElement.readonly) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                String.format("(L%s;L%s;L%s;)L%s;", XML_QNAME, JvmPackageGen.IS_BSTRING ?
-                                        JvmConstants.B_STRING_VALUE : STRING_VALUE, BTYPE, XML_VALUE), false);
+                                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmPackageGen.IS_BSTRING ?
+                                        JvmConstants.B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         this.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
 
@@ -1678,11 +1682,15 @@ public class JvmInstructionGen {
 
         this.loadVar(newXMLComment.textOp.variableDcl);
 
-        loadType(this.mv, newXMLComment.type);
+        if (newXMLComment.readonly) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                                String.format("(L%s;L%s;)L%s;", JvmPackageGen.IS_BSTRING ?
-                                        JvmConstants.B_STRING_VALUE : STRING_VALUE, BTYPE, XML_VALUE), false);
+                                String.format("(L%s;Z)L%s;", JvmPackageGen.IS_BSTRING ?
+                                        JvmConstants.B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         this.storeToVar(newXMLComment.lhsOp.variableDcl);
     }
 
@@ -1690,11 +1698,16 @@ public class JvmInstructionGen {
 
         this.loadVar(newXMLPI.targetOp.variableDcl);
         this.loadVar(newXMLPI.dataOp.variableDcl);
-        loadType(this.mv, newXMLPI.type);
+
+        if (newXMLPI.readonly) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
 
         String consVal = JvmPackageGen.IS_BSTRING ? JvmConstants.B_STRING_VALUE : STRING_VALUE;
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                                String.format("(L%s;L%s;L%s;)L%s;", consVal, consVal, BTYPE, XML_VALUE), false);
+                                String.format("(L%s;L%s;Z)L%s;", consVal, consVal, XML_VALUE), false);
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 

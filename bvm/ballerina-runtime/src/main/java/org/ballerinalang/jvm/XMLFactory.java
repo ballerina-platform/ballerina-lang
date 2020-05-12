@@ -254,7 +254,7 @@ public class XMLFactory {
      */
     @Deprecated
     public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri) {
-        return createXMLElement(startTagName, defaultNsUri, BTypes.typeElement);
+        return createXMLElement(startTagName, defaultNsUri, false);
     }
 
     public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal) {
@@ -267,11 +267,11 @@ public class XMLFactory {
      *
      * @param startTagName  Name of the start tag of the element
      * @param defaultNsUri  Default namespace URI
-     * @param type          The type for element comment
+     * @param readonly      Whether the element is immutable
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri, BType type) {
+    public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri, boolean readonly) {
         // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
         XMLValidator.validateXMLQName(startTagName);
 
@@ -283,9 +283,9 @@ public class XMLFactory {
         String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
 
         if (nsUri == null) {
-            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix), type);
+            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix), readonly);
         } else {
-            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix), type);
+            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix), readonly);
             if (defaultNsUri != null && !defaultNsUri.isEmpty()) {
                 xmlItem.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
             }
@@ -293,9 +293,10 @@ public class XMLFactory {
         }
     }
 
-    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal, BType type) {
+    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal, boolean readonly) {
         return createXMLElement(startTagName,
-                                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue(), type);
+                                defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue(),
+                                readonly);
     }
 
     /**
@@ -323,23 +324,23 @@ public class XMLFactory {
      * Create a comment type XMLValue, specifying the type which will indicate mutability.
      *
      * @param content   Comment content
-     * @param type      The type for the comment
+     * @param readonly  Whether the comment is immutable
      * @return XMLValue Comment type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLComment(String content, BType type) {
-        return new XMLComment(content, type);
+    public static XMLValue createXMLComment(String content, boolean readonly) {
+        return new XMLComment(content, readonly);
     }
 
     /**
      * Create a comment type XMLValue, specifying the type which will indicate mutability.
      *
      * @param content   Comment content
-     * @param type      The type for the comment
+     * @param readonly  Whether the comment is immutable
      * @return XMLValue Comment type XMLValue
      */
-    public static XMLValue createXMLComment(BString content, BType type) {
-        return createXMLComment(content.getValue(), type);
+    public static XMLValue createXMLComment(BString content, boolean readonly) {
+        return createXMLComment(content.getValue(), readonly);
     }
 
     /**
@@ -391,12 +392,12 @@ public class XMLFactory {
      *
      * @param target    PI target
      * @param data      PI data
-     * @param type      The type for the PI
+     * @param readonly  Whether the PI is immutable
      * @return XMLValue Processing instruction type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLProcessingInstruction(String target, String data, BType type) {
-        return new XMLPi(data, target, type);
+    public static XMLValue createXMLProcessingInstruction(String target, String data, boolean readonly) {
+        return new XMLPi(data, target, readonly);
     }
 
     /**
@@ -404,11 +405,11 @@ public class XMLFactory {
      *
      * @param target    PI target
      * @param data      PI data
-     * @param type      The type for the PI
+     * @param readonly  Whether the PI is immutable
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XMLValue createXMLProcessingInstruction(BString target, BString data, BType type) {
-        return createXMLProcessingInstruction(target.getValue(), data.getValue(), type);
+    public static XMLValue createXMLProcessingInstruction(BString target, BString data, boolean readonly) {
+        return createXMLProcessingInstruction(target.getValue(), data.getValue(), readonly);
     }
 
     /**

@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
@@ -42,10 +41,10 @@ public class XMLPi extends XMLNonElementItem {
         this.type = BTypes.typeProcessingInstruction;
     }
 
-    public XMLPi(String data, String target, BType type) {
+    public XMLPi(String data, String target, boolean readonly) {
         this.data = data;
         this.target = target;
-        this.type = type;
+        this.type = readonly ? BTypes.typeReadonlyProcessingInstruction : BTypes.typeProcessingInstruction;
     }
 
     @Override
