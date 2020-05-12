@@ -350,7 +350,7 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
                 return parseLetKeyword();
             case STREAM_KEYWORD:
-                return parseStreamKeyWord();
+                return parseStreamKeyword();
             case STREAM_TYPE_FIRST_PARAM_RHS:
                 return parseStreamTypeParamsNode((STNode) args[0], (STNode) args[1]);
             case TEMPLATE_START:
@@ -368,7 +368,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseWhereKeyword();
             case SELECT_KEYWORD:
                 return parseSelectKeyword();
-            case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
+            case TABLE_CONSTRUCTOR_OR_QUERY_START:
                 return parseTableConstructorOrQuery();
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
                 return parseTableConstructorOrQueryRhs((STNode) args[0], (STNode) args[1]);
@@ -7422,7 +7422,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseTableConstructorExprRhs(STNode tableKeyword, STNode keySpecifier) {
-        startContext(ParserRuleContext.TABLE_CONSTRUCTOR);
+        switchContext(ParserRuleContext.TABLE_CONSTRUCTOR);
         STNode openBracket = parseOpenBracket();
         STNode rowList = parseRowList();
         STNode closeBracket = parseCloseBracket();
@@ -7638,7 +7638,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed stream type descriptor node
      */
     private STNode parseStreamTypeDescriptor() {
-        STNode streamKeywordToken = parseStreamKeyWord();
+        STNode streamKeywordToken = parseStreamKeyword();
         STNode streamTypeParamsNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
@@ -7705,7 +7705,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed stream-keyword node
      */
-    private STNode parseStreamKeyWord() {
+    private STNode parseStreamKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.STREAM_KEYWORD) {
             return consume();
@@ -8065,7 +8065,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
                 return parseFunctionBodyBlock();
             case EQUAL_GT_TOKEN:
-                // EXpression func body
+                // Expression func body
                 return null;
             default:
                 return null;
@@ -8089,6 +8089,7 @@ public class BallerinaParser extends AbstractParser {
      */
 
     private STNode parseTableConstructorOrQuery() {
+        startContext(ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION);
         return parseTableConstructorOrQuery(peek().kind);
     }
 
@@ -8106,7 +8107,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode keySpecifier = STNodeFactory.createEmptyNode();
                 return parseTableConstructorOrQuery(tableKeyword, keySpecifier);
             default:
-                Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION);
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -8178,7 +8179,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseQueryExprRhs(STNode queryConstructType) {
-        startContext(ParserRuleContext.QUERY_EXPRESSION);
+        switchContext(ParserRuleContext.QUERY_EXPRESSION);
         STNode queryPipeline = parseQueryPipeline();
         STNode selectClause = parseSelectClause();;
         endContext();
@@ -8270,8 +8271,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFromClause() {
         STNode fromKeyword = parseFromKeyword();
-        //TODO: Replace type and varName with typed-binding-pattern
-        STNode type = parseTypeDescriptor();
+        // TODO: Replace type and varName with typed-binding-pattern
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         STNode varName = parseVariableName();
         STNode inKeyword = parseInKeyword();
         STNode expression = parseExpression();

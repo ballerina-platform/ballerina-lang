@@ -311,6 +311,7 @@ public enum ParserRuleContext {
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
     TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
+    TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
