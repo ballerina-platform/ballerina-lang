@@ -212,7 +212,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR,
             ParserRuleContext.TYPE_CAST_EXPRESSION, ParserRuleContext.OPEN_PARENTHESIS,
             ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START,
-            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION };
+            ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION,
+            ParserRuleContext.ERROR_KEYWORD };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -1865,9 +1866,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_KEYWORD:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.ERROR_TYPE_PARAM_START;
+                } else {
+                    return ParserRuleContext.ARG_LIST_START;
                 }
-                return ParserRuleContext.ARG_LIST_START;
-//                throw new IllegalStateException();
             case ERROR_TYPE_PARAM_START:
                 return ParserRuleContext.ERROR_TYPE_PARAMS;
             case LET_EXPRESSION:
