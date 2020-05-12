@@ -2427,7 +2427,7 @@
                 {
                     "name": "memberTypeDesc",
                     "type": "TypeDescriptorNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "restTypeDesc",
@@ -2435,6 +2435,25 @@
                 },
                 {
                     "name": "closeBracketToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ParenthesisedTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "PARENTHESISED_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedesc",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "closeParenToken",
                     "type": "Token"
                 }
             ]

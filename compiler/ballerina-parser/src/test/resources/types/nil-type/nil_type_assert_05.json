@@ -12,24 +12,19 @@
             ]
         },
         {
-            "kind": "PARENTHESISED_TYPE_DESC",
+            "kind": "NIL_TYPE_DESC",
             "children": [
                 {
                     "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN",
-                    "isMissing": true
+                    "kind": "CLOSE_PAREN_TOKEN"
                 }
             ]
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
+            "value": "a"
         },
         {
             "kind": "SEMICOLON_TOKEN"

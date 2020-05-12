@@ -131,7 +131,6 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
-    TUPLE_TYPE_DESC("tuple-type-desc"),
 
     // Statements
     STATEMENT("statement"),
@@ -244,6 +243,7 @@ public enum ParserRuleContext {
     LT_TOKEN("<"),
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
+    PARENTHESISED_TYPE_DESC_START("("),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -316,6 +316,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
     TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
     TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
+    TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML 

@@ -19,17 +19,16 @@
                 },
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
+                    "value": "t"
                 },
                 {
-                    "kind": "CLOSE_PAREN_TOKEN",
-                    "isMissing": true
+                    "kind": "CLOSE_PAREN_TOKEN"
                 }
             ]
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
+            "value": "a"
         },
         {
             "kind": "SEMICOLON_TOKEN"
