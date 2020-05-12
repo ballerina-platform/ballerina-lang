@@ -745,8 +745,7 @@ public class Types {
             return true;
         }
         unresolvedTypes.add(pair);
-        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) && 
-                isAssignable(source.detailType, target.detailType, unresolvedTypes);
+        return isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
     // TODO: Recheck this to support finite types
@@ -1981,10 +1980,6 @@ public class Types {
                 return false;
             }
             BErrorType source = (BErrorType) s;
-
-            if (!isSameType(source.reasonType, t.reasonType, this.unresolvedTypes)) {
-                return false;
-            }
 
             if (source.detailType == t.detailType) {
                 return true;

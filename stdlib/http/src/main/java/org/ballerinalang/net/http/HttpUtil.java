@@ -420,7 +420,7 @@ public class HttpUtil {
         if (!errorDetails.isEmpty()) {
             return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
-        return error.getReason();
+        return error.getMessage();
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -1714,9 +1714,9 @@ public class HttpUtil {
         Set<Object> valueSpace = new HashSet<>();
         valueSpace.add(reason);
         return BallerinaErrors.createError(
-                new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION),
-                               new BFiniteType(REASON_RECORD, valueSpace, mask), detailType),
+                new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION), detailType),
                 reasonType, errorMsg);
+        // todo: this need to fixed
     }
 
     private HttpUtil() {

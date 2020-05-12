@@ -1903,7 +1903,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType errorDetailType = getCompatibleDetailType(errorRefRestFieldType);
-        resultType = new BErrorType(symTable.errorType.tsymbol, varRefExpr.reason.type, errorDetailType);
+        resultType = new BErrorType(symTable.errorType.tsymbol, errorDetailType);
     }
 
     private void checkIndirectErrorVarRef(BLangErrorVarRef varRefExpr) {
@@ -3982,8 +3982,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && iExpr.requiredArgs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError,
-                iExpr.name, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && iExpr.requiredArgs.isEmpty()) {
             return;
         }
 
@@ -3993,11 +3992,9 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        boolean reasonArgGiven = checkErrorReasonArg(iExpr, expectedError);
-
         if (expectedError.detailType.tag == TypeTags.RECORD) {
             BRecordType targetErrorDetailRec = (BRecordType) expectedError.detailType;
-            BRecordType recordType = createErrorDetailRecordType(iExpr, reasonArgGiven, targetErrorDetailRec);
+            BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec);
             if (resultType == symTable.semanticError) {
                 return;
             }
@@ -4011,7 +4008,6 @@ public class TypeChecker extends BLangNodeVisitor {
             // This is when there is a semantic error in error type, bail out!
             return;
         }
-        setErrorReasonParam(iExpr, reasonArgGiven, expectedError);
         setErrorDetailArgsToNamedArgsList(iExpr);
 
         resultType = expectedError;
@@ -4048,59 +4044,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return iExpr.argExprs.stream().anyMatch(arg -> arg.getKind() != NodeKind.NAMED_ARGS_EXPR);
     }
 
-    private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
-        // User defined error
-        if (iExpr.type != symTable.errorType) {
-            if (ctorType.reasonType.getKind() != TypeKind.FINITE) {
-                dlog.error(iExpr.pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                           iExpr.type);
-                return false;
-            } else {
-                BFiniteType reasonType = (BFiniteType) ctorType.reasonType;
-                if (reasonType.getValueSpace().size() > 1) {
-                    dlog.error(iExpr.pos,
-                               DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                               iExpr.type);
-                    return false;
-                }
-            }
-        }
-        if (iExpr.argExprs.isEmpty()) {
-            return false;
-        }
-
-        // if present, error reason should be the first and only positional argument to error constructor.
-        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
-        if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
-            checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
-            return true;
-        } else if (iExpr.type == symTable.errorType) {
-            dlog.error(iExpr.pos, DiagnosticCode.DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED);
-        }
-        return false;
-    }
-
-    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, BLangIdentifier name, DiagnosticPos pos) {
-        if (errorType.reasonType.tag != TypeTags.FINITE) {
-            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON, name);
-            resultType = symTable.semanticError;
-            return true;
-        } else {
-            BFiniteType finiteType = (BFiniteType) errorType.reasonType;
-            if (finiteType.getValueSpace().size() != 1) {
-                if (errorType == symTable.errorType) {
-                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
-                } else {
-                    dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                               expType.tsymbol.name);
-                }
-                resultType = symTable.semanticError;
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
         List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
         for (int i = 0; i < iExpr.argExprs.size(); i++) {
@@ -4121,32 +4064,18 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void setErrorReasonParam(BLangInvocation iExpr, boolean reasonArgGiven, BErrorType ctorType) {
-        if (!reasonArgGiven && ctorType.reasonType.getKind() == TypeKind.FINITE) {
-            BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
-            BLangExpression reasonExpr = (BLangExpression) finiteType.getValueSpace().toArray()[0];
-            iExpr.requiredArgs.add(reasonExpr);
-            return;
-        }
-        if (!iExpr.argExprs.isEmpty()) {
-            iExpr.requiredArgs.add(iExpr.argExprs.get(0));
-            iExpr.argExprs.remove(0);
-        }
-    }
-
     /**
      * Create a error detail record using all metadata from {@code targetErrorDetailsType} and put actual error details
      * from {@code iExpr} expression.
      *
      * @param iExpr error constructor invocation
-     * @param reasonArgGiven error reason is provided as first argument
      * @param targetErrorDetailsType target error details type to extract metadata such as pkgId from
      * @return error detail record
      */
     // todo: try to re-use recrod literal checking
-    private BRecordType createErrorDetailRecordType(BLangInvocation iExpr, boolean reasonArgGiven,
+    private BRecordType createErrorDetailRecordType(BLangInvocation iExpr,
                                                     BRecordType targetErrorDetailsType) {
-        List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr, reasonArgGiven);
+        List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr);
         if (namedArgs == null) {
             // error in provided error details
             return null;
@@ -4178,9 +4107,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType;
     }
 
-    private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr, boolean reasonArgGiven) {
+    private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        for (int i = reasonArgGiven ? 1 : 0; i < iExpr.argExprs.size(); i++) {
+        // todo: as reason arg is removed and message and cause need to check here
+        assert false;
+        for (int i = 0; i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
             checkExpr(argExpr, env);
             if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {

@@ -47,13 +47,13 @@ type StringType string;
 #
 # + e - the error value
 # + return - error reason
-public function reason(error<StringType> e) returns StringType = external;
+public function message(error e) returns string = external;
 
 # Returns the error's detail record.
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public function detail(error<string,DetailType> e) returns DetailType = external;
+public function detail(error<DetailType> e) returns DetailType = external;
 
 # Returns an object representing the stack trace of the error.
 #

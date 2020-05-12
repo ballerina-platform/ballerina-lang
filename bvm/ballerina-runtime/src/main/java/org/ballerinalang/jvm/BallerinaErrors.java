@@ -96,23 +96,23 @@ public class BallerinaErrors {
     }
 
     @Deprecated
-    public static ErrorValue createError(BType type, String reason, String detail) {
+    public static ErrorValue createError(BType type, String message, String detail) {
         if (USE_BSTRING) {
-            createError(type, StringUtils.fromString(reason), StringUtils.fromString(detail));
+            createError(type, StringUtils.fromString(message), StringUtils.fromString(detail));
         }
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
-        return new ErrorValue(type, reason, detailMap);
+        return new ErrorValue(type, message, null, detailMap);
     }
 
-    public static ErrorValue createError(BType type, BString reason, BString detail) {
+    public static ErrorValue createError(BType type, BString message, BString detail) {
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
-        return new ErrorValue(type, reason, detailMap);
+        return new ErrorValue(type, message, null, detailMap);
     }
 
     @Deprecated

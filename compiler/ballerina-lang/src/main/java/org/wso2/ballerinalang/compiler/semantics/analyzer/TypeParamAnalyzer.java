@@ -236,8 +236,7 @@ public class TypeParamAnalyzer {
                 return false;
             case TypeTags.ERROR:
                 BErrorType errorType = (BErrorType) type;
-                return containsTypeParam(errorType.reasonType, resolvedTypes)
-                        || containsTypeParam(errorType.detailType, resolvedTypes);
+                return containsTypeParam(errorType.detailType, resolvedTypes);
             case TypeTags.TYPEDESC:
                 return containsTypeParam(((BTypedescType) type).constraint, resolvedTypes);
             default:
@@ -539,7 +538,6 @@ public class TypeParamAnalyzer {
             return;
         }
         findTypeParam(pos, expType.detailType, actualType.detailType, env, resolvedTypes, result);
-        findTypeParam(pos, expType.reasonType, actualType.reasonType, env, resolvedTypes, result);
     }
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
@@ -696,14 +694,13 @@ public class TypeParamAnalyzer {
         if (expType == symTable.errorType) {
             return expType;
         }
-        BType reasonType = getMatchingBoundType(expType.reasonType, env, resolvedTypes);
         BType detailType = getMatchingBoundType(expType.detailType, env, resolvedTypes);
         BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR,
                 symTable.errorType.tsymbol.flags,
                 symTable.errorType.tsymbol.name,
                 symTable.errorType.tsymbol.pkgID,
                 null, null);
-        BErrorType errorType = new BErrorType(typeSymbol, reasonType, detailType);
+        BErrorType errorType = new BErrorType(typeSymbol, detailType);
         typeSymbol.type = errorType;
         return errorType;
     }

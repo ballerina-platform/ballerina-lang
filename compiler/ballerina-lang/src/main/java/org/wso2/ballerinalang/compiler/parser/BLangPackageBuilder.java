@@ -569,16 +569,16 @@ public class BLangPackageBuilder {
         this.isInErrorType--;
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsTypeExists, boolean isErrorTypeInfer,
                       boolean isAnonymous) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (detailsTypeExists) {
+
+        if (isErrorTypeInfer) {
+            errorType.inferErrorType = true;
+        } else if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
-        }
-        if (reasonTypeExists) {
-            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
 
         endErrorType();
@@ -587,6 +587,7 @@ public class BLangPackageBuilder {
             addType(errorType);
             return;
         }
+
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         // Generate a name for the anonymous error
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);

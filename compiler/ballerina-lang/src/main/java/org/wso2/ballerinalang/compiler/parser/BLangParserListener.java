@@ -1010,11 +1010,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        boolean reasonTypeExists = !ctx.typeName().isEmpty();
-        boolean detailsTypeExists = ctx.typeName().size() > 1;
+        boolean detailsTypeExists = ctx.typeName() != null;
+        boolean isErrorTypeInfer = ctx.MUL() != null;
         boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
-                                        instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
-        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), reasonTypeExists, detailsTypeExists, isAnonymous);
+                                        instanceof BallerinaParser.FiniteTypeContext) && detailsTypeExists;
+        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), detailsTypeExists, isErrorTypeInfer, isAnonymous);
     }
 
     @Override

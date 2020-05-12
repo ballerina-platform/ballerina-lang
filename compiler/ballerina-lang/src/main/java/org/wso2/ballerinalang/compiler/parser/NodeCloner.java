@@ -1514,7 +1514,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangErrorType clone = new BLangErrorType();
         source.cloneRef = clone;
-        clone.reasonType = clone(source.reasonType);
         clone.detailType = clone(source.detailType);
         cloneBLangType(source, clone);
     }

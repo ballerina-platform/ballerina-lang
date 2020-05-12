@@ -38,12 +38,12 @@ import java.util.StringJoiner;
  * @since 0.985.0
  */
 public class BLangErrorVariable extends BLangVariable implements ErrorVariableNode {
-    public BLangSimpleVariable reason;
+    public BLangSimpleVariable reason; // todo: remove
     public List<BLangErrorDetailEntry> detail;
     public BLangSimpleVariable restDetail;
     public BLangInvocation detailExpr;
     public boolean reasonVarPrefixAvailable;
-    public BLangLiteral reasonMatchConst;
+    public BLangLiteral reasonMatchConst; // todo: no longer needed remove
     public boolean isInMatchStmt;
 
     public BLangErrorVariable() {

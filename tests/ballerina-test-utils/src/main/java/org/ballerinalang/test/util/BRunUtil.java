@@ -1156,7 +1156,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
                 BRefType<?> details = getBVMValue(errorValue.getDetails(), bvmValueMap);
-                bvmValue = new BError(getBVMType(errorValue.getType(), new Stack<>()), errorValue.getReason(), details);
+                bvmValue = new BError(getBVMType(errorValue.getType(), new Stack<>()), errorValue.getMessage(), details);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 bvmValue = null;
@@ -1274,10 +1274,10 @@ public class BRunUtil {
                     return BTypes.typeError;
                 }
 
-                BType reasonType = getBVMType(errorType.reasonType, selfTypeStack);
                 BType detailType = getBVMType(errorType.detailType, selfTypeStack);
                 BErrorType bvmErrorType =
-                        new BErrorType(errorType.getName(), reasonType, detailType, errorType.getPackage().name);
+                        // todo: using reason type as string is just a hack to get the code compile after removing error reason type.
+                        new BErrorType(errorType.getName(), BTypes.typeString, detailType, errorType.getPackage().name);
                 return bvmErrorType;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;

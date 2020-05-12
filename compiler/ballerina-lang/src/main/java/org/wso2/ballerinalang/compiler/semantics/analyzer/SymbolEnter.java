@@ -1315,20 +1315,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
             SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
 
-            BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
-                                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
                                         .orElse(symTable.detailType);
 
-            if (reasonType == symTable.stringType && detailType == symTable.detailType) {
+            if (detailType == symTable.detailType) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }
 
             BErrorType errorType = (BErrorType) typeDef.symbol.type;
-            errorType.reasonType = reasonType;
             errorType.detailType = detailType;
         }
     }

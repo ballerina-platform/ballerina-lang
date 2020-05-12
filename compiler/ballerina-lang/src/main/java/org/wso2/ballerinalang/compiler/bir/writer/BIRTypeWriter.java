@@ -126,7 +126,6 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(pkgIndex);
         buff.writeInt(addStringCPEntry(bErrorType.tsymbol.name.value));
         // Write reason and detail types.
-        writeTypeCpIndex(bErrorType.reasonType);
         writeTypeCpIndex(bErrorType.detailType);
     }
 

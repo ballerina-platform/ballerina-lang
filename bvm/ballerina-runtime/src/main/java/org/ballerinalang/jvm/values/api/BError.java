@@ -32,19 +32,19 @@ import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 public abstract class BError extends RuntimeException implements BRefValue {
 
     @Deprecated
-    public BError(String reason) {
-        super(reason);
+    public BError(String message) {
+        super(message);
     }
 
-    public BError(BString reason) {
-        super(reason.getValue());
+    public BError(BString message) {
+        super(message.getValue());
     }
     /**
      * Returns error reason.
      *
      * @return reason string
      */
-    public abstract String getReason();
+    public abstract String getMessage();
 
     /**
      * Returns error details.

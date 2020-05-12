@@ -1022,8 +1022,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorTypeNode) {
-        BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
 
@@ -1037,7 +1035,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (reasonType == symTable.stringType && detailType == symTable.detailType) {
+        if (detailType == symTable.detailType) {
             resultType = symTable.errorType;
             return;
         }
@@ -1046,7 +1044,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BErrorTypeSymbol errorTypeSymbol = Symbols
                 .createErrorSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID,
                         null, env.scope.owner);
-        BErrorType errorType = new BErrorType(errorTypeSymbol, reasonType, detailType);
+        BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorTypeSymbol.type = errorType;
 
         resultType = errorType;

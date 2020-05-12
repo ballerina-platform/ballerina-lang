@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -480,14 +479,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        BType reasonType = getReasonType(errorType);
-
-        if (!types.isAssignable(reasonType, symTable.stringType)) {
-            dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
-        } else if (errorType.reasonType != null) {
-            validateModuleQualifiedReasons(errorType.reasonType.pos, reasonType);
-        }
-
         if (errorType.detailType == null) {
             return;
         }
@@ -496,29 +487,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!types.isValidErrorDetailType(detailType)) {
             dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, errorType.detailType,
                     symTable.detailType);
-        }
-    }
-
-    private BType getReasonType(BLangErrorType errorType) {
-        // Reason type not specified take default reason type.
-        if (errorType.reasonType == null) {
-            return symTable.stringType;
-        }
-        return errorType.reasonType.type;
-    }
-
-    private void validateModuleQualifiedReasons(DiagnosticPos pos, BType reasonType) {
-        switch (reasonType.tag) {
-            case TypeTags.STRING:
-                return;
-            case TypeTags.FINITE:
-                BFiniteType finiteType = (BFiniteType) reasonType;
-                for (BLangExpression expr : finiteType.getValueSpace()) {
-                    validateModuleQualifiedReason(pos, (String) ((BLangLiteral) expr).value);
-                }
-                return;
-            case TypeTags.UNION:
-                ((BUnionType) reasonType).getMemberTypes().forEach(type -> validateModuleQualifiedReasons(pos, type));
         }
     }
 
@@ -764,7 +732,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // reason must be a const of subtype of string.
         // then we match the error with this specific reason.
         if (!varNode.reasonVarPrefixAvailable && varNode.type == null) {
-            BErrorType errorType = new BErrorType(varNode.type.tsymbol, null, null);
+            BErrorType errorType = new BErrorType(varNode.type.tsymbol, null);
 
             if (varNode.type.tag == TypeTags.UNION) {
                 Set<BType> members = types.expandAndGetMemberTypesRecursive(varNode.type);
@@ -778,30 +746,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 } else if (errorMembers.size() == 1) {
                     errorType.detailType = errorMembers.get(0).detailType;
-                    errorType.reasonType = errorMembers.get(0).reasonType;
                 } else {
                     errorType.detailType = symTable.detailType;
-                    errorType.reasonType = symTable.stringType;
                 }
                 varNode.type = errorType;
             } else if (varNode.type.tag == TypeTags.ERROR) {
                 errorType.detailType = ((BErrorType) varNode.type).detailType;
-            }
-
-            // Set error reason type.
-            // For var error binding pattern, set reason type to string.
-            // For error match pattern with const reason, set the reason type to provided const type.
-            if (varNode.reasonMatchConst != null) {
-                BTypeSymbol reasonConstTypeSymbol = new BTypeSymbol(SymTag.FINITE_TYPE,
-                        Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID, null, this.env.scope.owner);
-                varNode.reasonMatchConst.type = symTable.stringType;
-                typeChecker.checkExpr(varNode.reasonMatchConst, env);
-
-                LinkedHashSet<BLangExpression> members = new LinkedHashSet<>();
-                members.add(varNode.reasonMatchConst);
-                errorType.reasonType = new BFiniteType(reasonConstTypeSymbol, members);
-            } else {
-                errorType.reasonType = symTable.stringType;
             }
         }
         if (!validateErrorVariable(varNode)) {
@@ -1340,8 +1290,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BType errorDetailType = detailType.size() > 1
                                     ? BUnionType.create(null, detailType)
                                     : detailType.iterator().next();
-                    errorType = new BErrorType(null, symTable.stringType,
-                            errorDetailType);
+                    errorType = new BErrorType(null, errorDetailType);
                 } else {
                     errorType = possibleTypes.get(0);
                 }
@@ -1354,22 +1303,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return false;
         }
         errorVariable.type = errorType;
-        boolean isReasonIgnored = false;
-        BLangSimpleVariable reasonVariable = errorVariable.reason;
-        if (Names.IGNORE == names.fromIdNode(reasonVariable.name)) {
-            reasonVariable.type = symTable.noType;
-            isReasonIgnored = true;
-        } else {
-            errorVariable.reason.type = errorType.reasonType;
-            errorVariable.reason.accept(this);
-        }
 
         if (errorVariable.detail == null || (errorVariable.detail.isEmpty()
                 && !isRestDetailBindingAvailable(errorVariable))) {
-            if (isReasonIgnored) {
-                dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-                return false;
-            }
             return validateErrorReasonMatchPatternSyntax(errorVariable);
         }
 
@@ -1379,7 +1315,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType, env.scope.owner);
             // todo: need to support string subtypes as reason type.
-            errorVariable.type = new BErrorType(errorTypeSymbol, symTable.stringType, symTable.detailType);
+            errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
             return validateErrorVariable(errorVariable);
         }
 
@@ -1766,7 +1702,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeChecker.checkExpr(errorDeStmt.expr, this.env);
-        checkErrorVarRefEquivalency(errorDeStmt.pos, errorDeStmt.varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
+        checkErrorVarRefEquivalency(errorDeStmt.varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
     }
 
     /**
@@ -1849,7 +1785,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 checkTupleVarRefEquivalency(pos, (BLangTupleVarRef) variableReference, rhsField.type, rhsPos);
             } else if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
-                checkErrorVarRefEquivalency(pos, (BLangErrorVarRef) variableReference, rhsField.type, rhsPos);
+                checkErrorVarRefEquivalency((BLangErrorVarRef) variableReference, rhsField.type, rhsPos);
             } else if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
                 if (varName == Names.IGNORE) {
@@ -1938,7 +1874,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 checkTupleVarRefEquivalency(pos, tupleVarRef, souceElementType, rhsPos);
             } else if (NodeKind.ERROR_VARIABLE_REF == expression.getKind()) {
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expression;
-                checkErrorVarRefEquivalency(pos, errorVarRef, souceElementType, rhsPos);
+                checkErrorVarRefEquivalency(errorVarRef, souceElementType, rhsPos);
             } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
                 Name varName = names.fromIdNode(simpleVarRef.variableName);
@@ -2003,7 +1939,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 checkTupleVarRefEquivalency(pos, tupleVarRef, sourceType, rhsPos);
             } else if (NodeKind.ERROR_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRefExpr;
-                checkErrorVarRefEquivalency(pos, errorVarRef, sourceType, rhsPos);
+                checkErrorVarRefEquivalency(errorVarRef, sourceType, rhsPos);
             } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
                 Name varName = names.fromIdNode(simpleVarRef.variableName);
@@ -2030,7 +1966,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkErrorVarRefEquivalency(DiagnosticPos pos, BLangErrorVarRef lhsRef, BType rhsType,
+    private void checkErrorVarRefEquivalency(BLangErrorVarRef lhsRef, BType rhsType,
                                              DiagnosticPos rhsPos) {
         if (rhsType.tag != TypeTags.ERROR) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
@@ -2041,16 +1977,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BErrorType expErrorType = (BErrorType) lhsRef.type;
-
         BErrorType rhsErrorType = (BErrorType) rhsType;
-        if (lhsRef.reason.type.tag != TypeTags.NONE) {
-            resetTypeNarrowing(lhsRef.reason, rhsErrorType.reasonType);
-            if (!types.isAssignable(rhsErrorType.reasonType, expErrorType.reasonType)) {
-                dlog.error(lhsRef.reason.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expErrorType.reasonType,
-                        rhsErrorType.reasonType);
-            }
-        }
 
         // Wrong error detail type in error type def, error already emitted  to dlog.
         if (rhsErrorType.detailType.tag != TypeTags.RECORD) {

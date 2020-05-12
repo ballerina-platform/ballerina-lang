@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.error",
-        functionName = "reason",
+        functionName = "message",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.STRING)})
 public class Reason {
@@ -40,10 +40,10 @@ public class Reason {
 
     @Deprecated
     public static String reason(Strand strand, ErrorValue value) {
-        return value.getReason();
+        return value.getMessage();
     }
 
     public static BString reason_bstring(Strand strand, ErrorValue value) {
-        return value.getErrorReason();
+        return value.getErrorMessageBString();
     }
 }
