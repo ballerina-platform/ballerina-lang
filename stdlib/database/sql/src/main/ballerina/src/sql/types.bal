@@ -63,7 +63,7 @@ public type NCharValue object {
 public type TextValue object {
    *TypedValue;
 
-   public function __init(string? value = ()) {
+   public function __init(io:ReadableCharacterChannel|string? value = ()) {
        self.value = value;
    }
 };

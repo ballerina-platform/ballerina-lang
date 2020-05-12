@@ -54,15 +54,15 @@ function insertIntoDataTable3() returns sql:ExecuteResult|sql:Error? {
 }
 
 function insertIntoDataTable4() returns sql:ExecuteResult|sql:Error? {
-    sql:TypedValue rowId = {sqlType: sql:INTEGER, value: 7};
-    sql:TypedValue intType = {sqlType: sql:INTEGER, value: 2};
-    sql:TypedValue longType = {sqlType: sql:BIGINT, value: 9372036854774807};
-    sql:TypedValue floatType = {sqlType: sql:FLOAT, value:  124.34};
-    sql:TypedValue doubleType = {sqlType: sql:DOUBLE, value:  29095039};
-    sql:TypedValue boolType = {sqlType: sql:BOOLEAN, value:  "false"};
-    sql:TypedValue stringType = {sqlType: sql:VARCHAR, value:  "stringvalue"};
+    sql:IntegerValue rowId = new (7);
+    sql:IntegerValue intType = new (2);
+    sql:BigIntValue longType = new (9372036854774807);
+    sql:FloatValue floatType = new (124.34);
+    sql:DoubleValue doubleType = new (29095039);
+    sql:BooleanValue boolType = new(false);
+    sql:VarcharValue stringType = new ("stringvalue");
     decimal decimalVal = 25.45;
-    sql:TypedValue decimalType = {sqlType: sql:DECIMAL, value: decimalVal};
+    sql:DecimalValue decimalType = new (decimalVal);
 
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO DataTable (row_id, int_type, long_type, " +
@@ -92,15 +92,15 @@ function deleteDataTable2() returns sql:ExecuteResult|sql:Error? {
 }
 
 function deleteDataTable3() returns sql:ExecuteResult|sql:Error? {
-    sql:TypedValue rowId = {sqlType: sql:INTEGER, value: 3};
-    sql:TypedValue intType = {sqlType: sql:INTEGER, value: 1};
-    sql:TypedValue longType = {sqlType: sql:BIGINT, value: 9372036854774807};
-    sql:TypedValue floatType = {sqlType: sql:FLOAT, value:  124.34};
-    sql:TypedValue doubleType = {sqlType: sql:DOUBLE, value:  29095039};
-    sql:TypedValue boolType = {sqlType: sql:BOOLEAN, value:  false};
-    sql:TypedValue stringType = {sqlType: sql:VARCHAR, value:  "1"};
+    sql:IntegerValue rowId = new (3);
+    sql:IntegerValue intType = new (1);
+    sql:BigIntValue longType = new (9372036854774807);
+    sql:FloatValue floatType = new (124.34);
+    sql:DoubleValue doubleType = new (29095039);
+    sql:BooleanValue boolType = new (false);
+    sql:VarcharValue stringType = new ("1");
     decimal decimalVal = 25.45;
-    sql:TypedValue decimalType = {sqlType: sql:DECIMAL, value: decimalVal};
+    sql:DecimalValue decimalType = new (decimalVal);
 
     sql:ParameterizedString sqlQuery = {
         parts: ["DELETE FROM DataTable where row_id=" , "AND int_type=", " AND long_type=", " AND double_type=",
@@ -127,9 +127,9 @@ function insertIntoComplexTable2() returns sql:ExecuteResult|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
 
-    sql:TypedValue blobType = {sqlType: sql:BLOB, value: blobChannel};
-    sql:TypedValue textType = {sqlType: sql:TEXT, value: "very long text"};
-    sql:TypedValue binaryType = {sqlType: sql:BLOB, value: byteChannel};
+    sql:BlobValue blobType = new (blobChannel);
+    sql:TextValue textType = new (clobChannel);
+    sql:BlobValue binaryType = new (byteChannel);
 
     sql:ParameterizedString sqlQuery = {
                 parts: ["INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) " +
@@ -160,10 +160,10 @@ function deleteComplexTable() returns sql:ExecuteResult|sql:Error? {
 }
 
 function deleteComplexTable2() returns sql:ExecuteResult|sql:Error|error? {
-    sql:TypedValue blobType = {sqlType: sql:BLOB, value: ()};
-    sql:TypedValue textType = {sqlType: sql:TEXT, value: ()};
-    sql:TypedValue binaryType = {sqlType: sql:BINARY, value: ()};
-    sql:TypedValue varBinaryType = {sqlType: sql:VARBINARY, value: ()};
+    sql:BlobValue blobType = new();
+    sql:TextValue textType = new();
+    sql:BinaryValue binaryType = new();
+    sql:VarBinaryValue varBinaryType = new();
 
     sql:ParameterizedString sqlQuery = {
        parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND text_type=", ""],
@@ -173,7 +173,7 @@ function deleteComplexTable2() returns sql:ExecuteResult|sql:Error|error? {
 }
 
 function insertIntoNumericTable() returns sql:ExecuteResult|sql:Error? {
-    sql:TypedValue bitType = {sqlType: sql:BIT, value: 1};
+    sql:BitValue bitType = new (1);
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
                 " decimal_type, numeric_type, float_type, real_type) " +
@@ -194,17 +194,17 @@ function insertIntoNumericTable2() returns sql:ExecuteResult|sql:Error? {
 }
 
 function insertIntoNumericTable3() returns sql:ExecuteResult|sql:Error? {
-    sql:TypedValue id = {sqlType: sql:INTEGER, value: 5};
-    sql:TypedValue intType = {sqlType: sql:INTEGER, value: 2147483647};
-    sql:TypedValue bigIntType = {sqlType: sql:BIGINT, value: 9223372036854774807};
-    sql:TypedValue smallIntType = {sqlType: sql:SMALLINT, value: 32767};
-    sql:TypedValue tinyIntType = {sqlType: sql:SMALLINT, value: 127};
-    sql:TypedValue bitType = {sqlType: sql:BIT, value: 1};
+    sql:IntegerValue id = new (5);
+    sql:IntegerValue intType = new (2147483647);
+    sql:BigIntValue bigIntType = new (9223372036854774807);
+    sql:SmallIntValue smallIntType = new (32767);
+    sql:SmallIntValue tinyIntType = new (127);
+    sql:BitValue bitType = new (1);
     decimal decimalVal = 1234.567;
-    sql:TypedValue decimalType = {sqlType: sql:DECIMAL, value: decimalVal};
-    sql:TypedValue numbericType = {sqlType: sql:NUMERIC, value: 1234.567};
-    sql:TypedValue floatType = {sqlType: sql:FLOAT, value: 1234.567};
-    sql:TypedValue realType = {sqlType: sql:REAL, value: 1234.567};
+    sql:DecimalValue decimalType = new (decimalVal);
+    sql:NumericValue numbericType = new (1234.567);
+    sql:FloatValue floatType = new (1234.567);
+    sql:RealValue realType = new (1234.567);
 
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
@@ -226,10 +226,10 @@ function insertIntoDateTimeTable() returns sql:ExecuteResult|sql:Error? {
 }
 
 function insertIntoDateTimeTable2() returns sql:ExecuteResult|error? {
-    sql:TypedValue dateVal = {sqlType: sql:DATE, value: "2017-02-03"};
-    sql:TypedValue timeVal = {sqlType: sql:TIME, value: "11:35:45"};
-    sql:TypedValue dateTimeVal = {sqlType: sql:DATETIME, value: "2017-02-03 11:53:00"};
-    sql:TypedValue timestampVal = {sqlType: sql:TIMESTAMP, value: "2017-02-03 11:53:00"};
+    sql:DateValue dateVal = new ("2017-02-03");
+    sql:TimeValue timeVal = new ("11:35:45");
+    sql:DateTimeValue dateTimeVal = new ("2017-02-03 11:53:00");
+    sql:TimestampValue timestampVal = new ("2017-02-03 11:53:00");
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)" +
                 " VALUES(", ", ", ", ", ", ", " ,", ")"],
@@ -239,10 +239,10 @@ function insertIntoDateTimeTable2() returns sql:ExecuteResult|error? {
 }
 
 function insertIntoDateTimeTable3() returns sql:ExecuteResult|error? {
-    sql:TypedValue dateVal = {sqlType: sql:DATE, value: ()};
-    sql:TypedValue timeVal = {sqlType: sql:TIME, value: ()};
-    sql:TypedValue dateTimeVal = {sqlType: sql:DATETIME, value: ()};
-    sql:TypedValue timestampVal = {sqlType: sql:TIMESTAMP, value: ()};
+    sql:DateValue dateVal = new ();
+    sql:TimeValue timeVal = new ();
+    sql:DateTimeValue dateTimeVal = new ();
+    sql:TimestampValue timestampVal = new ();
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)" +
                 "VALUES(", ", ", ", ", ", ", " ,", ")"],
