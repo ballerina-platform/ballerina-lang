@@ -42,6 +42,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Test cases for ballerina.net.kafka consumer ( with Pause ) native functions.
@@ -57,7 +58,7 @@ public class TopicPauseResumeTest {
         String balFile = "topic_pause_resume.bal";
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14004)
-                .withBroker(PROTOCOL_PLAINTEXT, 14104)
+                .withBroker(PROTOCOL_PLAINTEXT, 14104, getZookeeperTimeoutProperty())
                 .withAdminClient()
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
                 .start();
@@ -77,7 +78,9 @@ public class TopicPauseResumeTest {
 
         returnBValues = BRunUtil.invoke(result, "testPause");
         Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertNull(returnBValues[0]);
+        if (returnBValues[0] != null) {
+            Assert.assertNull(returnBValues[0], getErrorMessageFromReturnValue(returnBValues[0]));
+        }
 
         returnBValues = BRunUtil.invoke(result, "testGetPausedPartitions");
         Assert.assertEquals(returnBValues.length, 1);

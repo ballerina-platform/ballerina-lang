@@ -37,6 +37,7 @@ import java.util.Map;
 
 import static java.io.File.separator;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Test class for test the functionality of Ballerina Kafka serializers and deserializers.
@@ -61,7 +62,7 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
         String dataDir = "cluster-kafka-serdes-test";
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14002)
-                .withBroker(PROTOCOL_PLAINTEXT, 14102)
+                .withBroker(PROTOCOL_PLAINTEXT, 14102, getZookeeperTimeoutProperty())
                 .start();
     }
 

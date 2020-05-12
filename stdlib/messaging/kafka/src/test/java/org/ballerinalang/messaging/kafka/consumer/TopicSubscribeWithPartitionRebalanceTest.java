@@ -40,6 +40,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
@@ -60,7 +61,7 @@ public class TopicSubscribeWithPartitionRebalanceTest {
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14107)
-                .withBroker(PROTOCOL_PLAINTEXT, 14107)
+                .withBroker(PROTOCOL_PLAINTEXT, 14107, getZookeeperTimeoutProperty())
                 .withAdminClient()
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
                 .start();
