@@ -41,21 +41,36 @@ public type SmtpClient client object {
     public remote function send(Email email) returns Error? {
         var body = email.body;
         if (body is xml) {
-            if (email.contentType == "") {
+            if (email?.contentType == ()) {
                 email.contentType = "application/xml";
+            } else if (!self.containsType(email?.contentType, "xml")) {
+                return SendError(message = "Content type of the email should be XML.");
             }
             body = body.toString();
         } else if (body is string) {
-            if (email.contentType == "") {
+            if (email?.contentType == ()) {
                 email.contentType = "text/plain";
+            } else if (!self.containsType(email?.contentType, "text")) {
+                return SendError(message = "Content type of the email should be text.");
             }
-            return send(self, email);
         } else {
-            if (email.contentType == "") {
+            if (email?.contentType == ()) {
                 email.contentType = "application/json";
+            } else if (!self.containsType(email?.contentType, "json")) {
+                return SendError(message = "Content type of the email should be json.");
             }
             body = body.toJsonString();
         }
+        return send(self, email);
+    }
+
+    private function containsType(string? contentType, string typeString) returns boolean {
+        if (contentType is string) {
+            string canonicalizedCtype = contentType.toLowerAscii();
+            int? stringIndex = canonicalizedCtype.indexOf(typeString);
+            return stringIndex is int;
+        }
+        return false;
     }
 
 };

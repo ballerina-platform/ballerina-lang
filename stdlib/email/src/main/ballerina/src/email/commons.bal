@@ -34,7 +34,7 @@ public type Email record {|
     string[] bcc?;
     string subject;
     string|xml|json body;
-    string contentType = "";
+    string contentType?;
     string 'from;
     string sender?;
     string[] replyTo?;
