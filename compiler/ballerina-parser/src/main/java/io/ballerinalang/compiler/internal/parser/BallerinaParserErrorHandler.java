@@ -1931,7 +1931,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.LET_EXPR_LET_VAR_DECL;
             case LET_EXPR_LET_VAR_DECL:
-            case LET_CLAUSE_LET_VAR_DECL
+            case LET_CLAUSE_LET_VAR_DECL:
                 return ParserRuleContext.LET_VAR_DECL_START;
             case STREAM_KEYWORD:
                 parentCtx = getParentContext();
