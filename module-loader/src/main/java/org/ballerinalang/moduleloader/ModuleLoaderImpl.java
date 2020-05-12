@@ -28,25 +28,25 @@ public class ModuleLoaderImpl implements ModuleLoader {
 
     @Override
     public ModuleId resolveVersion(ModuleId moduleId, ModuleId enclModuleId) throws IOException {
-        // return if version exists in moduleId
+        // if version already exists in moduleId
         if (moduleId.version != null && !"".equals(moduleId.version.trim())) {
             return moduleId;
         }
 
-        // if not transitive and lock file exists
-        if (this.project.hasLockFile()) { // enclModuleId != null &&
+        // if module is in the current project
+        if (this.repos.get(0).isModuleExists(moduleId)) {
+            moduleId.version = this.project.manifest.getProject().getVersion();
+            return moduleId;
+        }
+
+        // if lock file exists
+        if (enclModuleId != null && this.project.hasLockFile()) {
             // not a top level module or bal
             String lockFileVersion = resolveVersionFromLockFile(moduleId, enclModuleId);
             if (lockFileVersion != null) {
                  moduleId.version = lockFileVersion;
                 return moduleId;
             }
-        }
-
-        // If module is in the current project
-        if (this.repos.get(0).isModuleExists(moduleId)) {
-            moduleId.version = this.project.manifest.getProject().getVersion();
-            return moduleId;
         }
 
         // If it is an immediate import check the Ballerina.toml
@@ -58,7 +58,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
                 moduleId.version = versionFromManifest;
                 return moduleId;
             }
-            // If not exact version, look in caches and repos
+            // if not exact version, look in caches and repos
             String moduleIdFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
             if (moduleIdFromRepos != null) {
                 moduleId.version = moduleIdFromRepos;
@@ -66,19 +66,19 @@ public class ModuleLoaderImpl implements ModuleLoader {
             }
         }
 
-        // If enclosing module is not a project module, module is transitive
-        // If it is a transitive we need to check the toml file of the dependent module
-        if (!this.repos.get(0).isModuleExists(enclModuleId)) {
+        // if enclosing module is not a project module, module is transitive
+        // if it is a transitive we need to check the toml file of the dependent module
+        if (enclModuleId != null && !this.repos.get(0).isModuleExists(enclModuleId)) {
             BaloCache homeBaloCache = (BaloCache) this.repos.get(4);
             Module parentModule = homeBaloCache.getModule(enclModuleId);
             Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
             String versionFromManifest = resolveVersionFromManifest(moduleId, parentManifest);
-            // If exact version
+            // if exact version
             if (isExactVersion(versionFromManifest)) {
                 moduleId.version = versionFromManifest;
                 return moduleId;
             }
-            // If not exact version, look in caches and repos
+            // if not exact version, look in caches and repos
             String moduleIdFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
             if (moduleIdFromRepos != null) {
                 moduleId.version = moduleIdFromRepos;
