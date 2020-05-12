@@ -69,8 +69,8 @@ public class ProducerFunctionsTest {
     public void setup() throws Throwable {
         String balFile = "producer_functions.bal";
         deleteDirectory(dataDir);
-        kafkaCluster = new KafkaCluster(dataDir, null)
-                .withZookeeper(14011, null)
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14011)
                 .withBroker(PROTOCOL_PLAINTEXT, 14111, getZookeeperTimeoutProperty())
                 .withConsumer(STRING_DESERIALIZER, STRING_DESERIALIZER, groupId, Collections.singletonList(topic))
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
