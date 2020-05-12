@@ -1363,8 +1363,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LET_CLAUSE_LET_VAR_DECL:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.SELECT_KEYWORD,
-                        ParserRuleContext.WHERE_KEYWORD, ParserRuleContext.FROM_KEYWORD, ParserRuleContext.LET_KEYWORD,
+                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.QUERY_EXPRESSION_RHS,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case QUERY_EXPRESSION:

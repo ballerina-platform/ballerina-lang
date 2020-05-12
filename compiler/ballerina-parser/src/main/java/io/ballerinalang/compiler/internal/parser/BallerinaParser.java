@@ -1877,6 +1877,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse return type descriptor of a function. A return type descriptor has the following structure.
      *
      * <code>return-type-descriptor := [ returns annots type-descriptor ]</code>
+     *
      * @param isInExprContext
      * @return Parsed node
      */
