@@ -566,7 +566,7 @@
                 },
                 {
                     "name": "typedBindingPattern",
-                    "type": "Node"
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "inKeyword",
@@ -2348,16 +2348,6 @@
             ]
         },
         {
-<<<<<<< HEAD
-            "name": "BindingPatternNode",
-            "base": "Node",
-            "kind": "BINDING_PATTERN",
-            "attributes": [
-                {
-                    "name": "variableName",
-                    "type": "Token",
-                    "isOptional": true
-=======
             "name": "FunctionTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "FUNCTION_TYPE_DESC",
@@ -2369,24 +2359,10 @@
                 {
                     "name": "functionSignature",
                     "type": "FunctionSignatureNode"
->>>>>>> 39c16a0472beaf960b6b8aa06854a192f357a55d
                 }
             ]
         },
         {
-<<<<<<< HEAD
-            "name": "TypedBindingPattern",
-            "base": "Node",
-            "kind": "TYPED_BINDING_PATTERN",
-            "attributes": [
-                {
-                    "name": "typeDescriptor",
-                    "type": "Node"
-                },
-                {
-                    "name": "bindingPattern",
-                    "type": "BindingPatternNode"
-=======
             "name": "AnonymousFunctionExpressionNode",
             "base": "ExpressionNode",
             "kind": "ANONYMOUS_FUNCTION_EXPRESSION",
@@ -2432,7 +2408,45 @@
                     "name": "returnTypeDesc",
                     "type": "ReturnTypeDescriptorNode",
                     "isOptional": true
->>>>>>> 39c16a0472beaf960b6b8aa06854a192f357a55d
+                }
+            ]
+        },
+        {
+            "name": "TypedBindingPatternNode",
+            "base": "Node",
+            "kind": "TYPED_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "BindingPatternNode",
+            "base": "Node",
+            "kind": "BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "captureBindingPattern",
+                    "type": "CaptureBindingPatternNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "CaptureBindingPatternNode",
+            "base": "Node",
+            "kind": "BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }
