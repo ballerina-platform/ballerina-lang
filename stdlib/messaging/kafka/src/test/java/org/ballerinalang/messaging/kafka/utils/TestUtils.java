@@ -54,7 +54,7 @@ public class TestUtils {
     public static final String STRING_SERIALIZER = StringSerializer.class.getName();
     public static final String STRING_DESERIALIZER = StringDeserializer.class.getName();
 
-    private static final int ZOOKEEPER_CONNECTION_TIMEOUT = 10000;
+    private static final int ZOOKEEPER_CONNECTION_TIMEOUT = 30000;
 
     public static String getResourcePath(Path filePath) {
         return TEST_PATH.resolve(filePath).toAbsolutePath().toString();

@@ -33,7 +33,9 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
@@ -52,6 +54,7 @@ public class TopicPauseResumeTest {
     private static KafkaCluster kafkaCluster;
     private static final String topic = "consumer-pause-resume-test-topic";
     private static final String dataDir = getDataDirectoryName(TopicPauseResumeTest.class.getSimpleName());
+    private static final String message = "sample message";
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
@@ -70,8 +73,14 @@ public class TopicPauseResumeTest {
     @Test(description = "Test Basic consumer with seek")
     @SuppressWarnings("unchecked")
     public void testPauseAndResume() throws ExecutionException, InterruptedException {
+        kafkaCluster.sendMessage(topic, message);
         // First poll to create a connection with the server. Otherwise pause and resume will fail.
-        BRunUtil.invoke(result, "testPoll");
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] results = BRunUtil.invoke(result, "testPoll");
+            Assert.assertEquals(results.length, 1);
+            Assert.assertFalse(results[0] instanceof BError);
+            return message.equals(results[0].stringValue());
+        });
 
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetPausedPartitions");
         Assert.assertEquals(returnBValues.length, 0);
