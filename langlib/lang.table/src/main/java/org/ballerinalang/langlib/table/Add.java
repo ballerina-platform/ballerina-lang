@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "add",
+        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "add",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "val", type = TypeKind.ANYDATA)},
         isPublic = true
 )
