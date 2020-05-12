@@ -3783,8 +3783,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse error constructor expression.
      * </p>
      * <code>
-     * functional-constructor-expr := functionally-constructible-type-reference ( arg-list )
-     * functionally-constructible-type-reference := error | type-reference
+     * error-constructor-expr := error ( arg-list )
      * </code>
      *
      * @return Error constructor expression
