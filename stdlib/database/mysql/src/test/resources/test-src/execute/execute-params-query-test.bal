@@ -59,7 +59,7 @@ function insertIntoDataTable4() returns sql:ExecuteResult|sql:Error? {
     sql:BigIntValue longType = new (9372036854774807);
     sql:FloatValue floatType = new (124.34);
     sql:DoubleValue doubleType = new (29095039);
-    sql:BooleanValue boolType = new(false);
+    sql:BooleanValue boolType = new (false);
     sql:VarcharValue stringType = new ("stringvalue");
     decimal decimalVal = 25.45;
     sql:DecimalValue decimalType = new (decimalVal);
@@ -160,10 +160,10 @@ function deleteComplexTable() returns sql:ExecuteResult|sql:Error? {
 }
 
 function deleteComplexTable2() returns sql:ExecuteResult|sql:Error|error? {
-    sql:BlobValue blobType = new();
-    sql:TextValue textType = new();
-    sql:BinaryValue binaryType = new();
-    sql:VarBinaryValue varBinaryType = new();
+    sql:BlobValue blobType = new ();
+    sql:TextValue textType = new ();
+    sql:BinaryValue binaryType = new ();
+    sql:VarBinaryValue varBinaryType = new ();
 
     sql:ParameterizedString sqlQuery = {
        parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND text_type=", ""],

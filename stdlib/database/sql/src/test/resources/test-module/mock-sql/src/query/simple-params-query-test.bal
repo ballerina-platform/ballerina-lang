@@ -119,7 +119,7 @@ function getUntaintedData(record {}|error? value, string fieldName) returns @unt
 }
 
 function queryTypeVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:VarcharValue typeVal = new("Hello");
+    sql:VarcharValue typeVal = new ("Hello");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
@@ -128,7 +128,7 @@ function queryTypeVarcharStringParam(string url, string user, string password) r
 }
 
 function queryTypeCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:CharValue typeVal = new("Hello");
+    sql:CharValue typeVal = new ("Hello");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
@@ -137,7 +137,7 @@ function queryTypeCharStringParam(string url, string user, string password) retu
 }
 
 function queryTypeNCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:NCharValue typeVal = new("Hello");
+    sql:NCharValue typeVal = new ("Hello");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
@@ -146,7 +146,7 @@ function queryTypeNCharStringParam(string url, string user, string password) ret
 }
 
 function queryTypeNVarCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:NVarcharValue typeVal = new("Hello");
+    sql:NVarcharValue typeVal = new ("Hello");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
@@ -156,7 +156,7 @@ function queryTypeNVarCharStringParam(string url, string user, string password) 
 
 function queryTypeVarCharIntegerParam(string url, string user, string password) returns @tainted record {}|error? {
     int intVal = 1;
-    sql:NCharValue typeVal = new(intVal.toString());
+    sql:NCharValue typeVal = new (intVal.toString());
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
@@ -165,7 +165,7 @@ function queryTypeVarCharIntegerParam(string url, string user, string password) 
 }
 
 function queryTypBooleanBooleanParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:BooleanValue typeVal = new(true);
+    sql:BooleanValue typeVal = new (true);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
@@ -174,7 +174,7 @@ function queryTypBooleanBooleanParam(string url, string user, string password) r
 }
 
 function queryTypBitIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:BitValue typeVal = new(1);
+    sql:BitValue typeVal = new (1);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
@@ -183,7 +183,7 @@ function queryTypBitIntParam(string url, string user, string password) returns @
 }
 
 function queryTypBitStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:BitValue typeVal = new(true);
+    sql:BitValue typeVal = new (true);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
@@ -192,7 +192,7 @@ function queryTypBitStringParam(string url, string user, string password) return
 }
 
 function queryTypBitInvalidIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:BitValue typeVal = new(12);
+    sql:BitValue typeVal = new (12);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
@@ -201,7 +201,7 @@ function queryTypBitInvalidIntParam(string url, string user, string password) re
 }
 
 function queryTypeIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:IntegerValue typeVal = new(2147483647);
+    sql:IntegerValue typeVal = new (2147483647);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE int_type = ", ""],
         insertions: [typeVal]
@@ -210,7 +210,7 @@ function queryTypeIntIntParam(string url, string user, string password) returns 
 }
 
 function queryTypeTinyIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:IntegerValue typeVal = new(127);
+    sql:IntegerValue typeVal = new (127);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE tinyint_type = ", ""],
         insertions: [typeVal]
@@ -219,7 +219,7 @@ function queryTypeTinyIntIntParam(string url, string user, string password) retu
 }
 
 function queryTypeSmallIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:IntegerValue typeVal = new(32767);
+    sql:IntegerValue typeVal = new (32767);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE smallint_type = ", ""],
         insertions: [typeVal]
@@ -228,7 +228,7 @@ function queryTypeSmallIntIntParam(string url, string user, string password) ret
 }
 
 function queryTypeBigIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:BigIntValue typeVal = new(9223372036854774807);
+    sql:BigIntValue typeVal = new (9223372036854774807);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE bigint_type = ", ""],
         insertions: [typeVal]
@@ -237,7 +237,7 @@ function queryTypeBigIntIntParam(string url, string user, string password) retur
 }
 
 function queryTypeDoubleDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DoubleValue typeVal = new(1234.567);
+    sql:DoubleValue typeVal = new (1234.567);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
@@ -246,7 +246,7 @@ function queryTypeDoubleDoubleParam(string url, string user, string password) re
 }
 
 function queryTypeDoubleIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DoubleValue typeVal = new(1234);
+    sql:DoubleValue typeVal = new (1234);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
@@ -256,7 +256,7 @@ function queryTypeDoubleIntParam(string url, string user, string password) retur
 
 function queryTypeDoubleDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
-    sql:DoubleValue typeVal = new(decimalVal);
+    sql:DoubleValue typeVal = new (decimalVal);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
@@ -265,7 +265,7 @@ function queryTypeDoubleDecimalParam(string url, string user, string password) r
 }
 
 function queryTypeFloatDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DoubleValue typeVal = new(1234.567);
+    sql:DoubleValue typeVal = new (1234.567);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
@@ -274,7 +274,7 @@ function queryTypeFloatDoubleParam(string url, string user, string password) ret
 }
 
 function queryTypeRealDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DoubleValue typeVal = new(1234.567);
+    sql:DoubleValue typeVal = new (1234.567);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE real_type = ", ""],
         insertions: [typeVal]
@@ -283,7 +283,7 @@ function queryTypeRealDoubleParam(string url, string user, string password) retu
 }
 
 function queryTypeNumericDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:NumericValue typeVal = new(1234.567);
+    sql:NumericValue typeVal = new (1234.567);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
         insertions: [typeVal]
@@ -292,7 +292,7 @@ function queryTypeNumericDoubleParam(string url, string user, string password) r
 }
 
 function queryTypeNumericIntParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:NumericValue typeVal = new(1234);
+    sql:NumericValue typeVal = new (1234);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
         insertions: [typeVal]
@@ -302,7 +302,7 @@ function queryTypeNumericIntParam(string url, string user, string password) retu
 
 function queryTypeNumericDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
-    sql:NumericValue typeVal = new(decimalVal);
+    sql:NumericValue typeVal = new (decimalVal);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
         insertions: [typeVal]
@@ -311,7 +311,7 @@ function queryTypeNumericDecimalParam(string url, string user, string password) 
 }
 
 function queryTypeDecimalDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DecimalValue typeVal = new(1234.567);
+    sql:DecimalValue typeVal = new (1234.567);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
         insertions: [typeVal]
@@ -321,7 +321,7 @@ function queryTypeDecimalDoubleParam(string url, string user, string password) r
 
 function queryTypeDecimalDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
-    sql:DecimalValue typeVal = new(decimalVal);
+    sql:DecimalValue typeVal = new (decimalVal);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
         insertions: [typeVal]
@@ -332,7 +332,7 @@ function queryTypeDecimalDecimalParam(string url, string user, string password) 
 function queryTypeBinaryByteParam(string url, string user, string password) returns @tainted record {}|error? {
     record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BINARY_TYPE");
-    sql:BinaryValue typeVal = new(binaryData);
+    sql:BinaryValue typeVal = new (binaryData);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
         insertions: [typeVal]
@@ -343,7 +343,7 @@ function queryTypeBinaryByteParam(string url, string user, string password) retu
 function queryTypeBinaryReadableByteChannelParam(string url, string user, string password)
 returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
-    sql:BinaryValue typeVal = new(byteChannel);
+    sql:BinaryValue typeVal = new (byteChannel);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
         insertions: [typeVal]
@@ -354,7 +354,7 @@ returns @tainted record {}|error? {
 function queryTypeVarBinaryReadableByteChannelParam(string url, string user, string password)
 returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
-    sql:VarBinaryValue typeVal = new(byteChannel);
+    sql:VarBinaryValue typeVal = new (byteChannel);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE var_binary_type = ", ""],
         insertions: [typeVal]
@@ -365,7 +365,7 @@ returns @tainted record {}|error? {
 function queryTypeBlobByteParam(string url, string user, string password) returns @tainted record {}|error? {
     record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BLOB_TYPE");
-    sql:BinaryValue typeVal = new(binaryData);
+    sql:BinaryValue typeVal = new (binaryData);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
         insertions: [typeVal]
@@ -376,7 +376,7 @@ function queryTypeBlobByteParam(string url, string user, string password) return
 function queryTypeBlobReadableByteChannelParam(string url, string user, string password)
 returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getBlobColumnChannel();
-    sql:BlobValue typeVal = new(byteChannel);
+    sql:BlobValue typeVal = new (byteChannel);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
         insertions: [typeVal]
@@ -385,7 +385,7 @@ returns @tainted record {}|error? {
 }
 
 function queryTypeClobStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:ClobValue typeVal = new("very long text");
+    sql:ClobValue typeVal = new ("very long text");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
         insertions: [typeVal]
@@ -396,7 +396,7 @@ function queryTypeClobStringParam(string url, string user, string password) retu
 function queryTypeClobReadableCharChannelParam(string url, string user, string password)
 returns @tainted record {}|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
-    sql:ClobValue typeVal = new(clobChannel);
+    sql:ClobValue typeVal = new (clobChannel);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
         insertions: [typeVal]
@@ -407,7 +407,7 @@ returns @tainted record {}|error? {
 function queryTypeNClobReadableCharChannelParam(string url, string user, string password)
 returns @tainted record {}|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
-    sql:NClobValue typeVal = new(clobChannel);
+    sql:NClobValue typeVal = new (clobChannel);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
         insertions: [typeVal]
@@ -416,7 +416,7 @@ returns @tainted record {}|error? {
 }
 
 function queryDateStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DateValue typeVal = new("2017-02-03");
+    sql:DateValue typeVal = new ("2017-02-03");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
@@ -425,7 +425,7 @@ function queryDateStringParam(string url, string user, string password) returns 
 }
 
 function queryDateString2Param(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DateValue typeVal = new("2017-2-3");
+    sql:DateValue typeVal = new ("2017-2-3");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
@@ -434,7 +434,7 @@ function queryDateString2Param(string url, string user, string password) returns
 }
 
 function queryDateStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:DateValue typeVal = new("2017/2/3");
+    sql:DateValue typeVal = new ("2017/2/3");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
@@ -444,7 +444,7 @@ function queryDateStringInvalidParam(string url, string user, string password) r
 
 function queryDateLongParam(string url, string user, string password) returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03", "yyyy-MM-dd");
-    sql:DateValue typeVal = new(date.time);
+    sql:DateValue typeVal = new (date.time);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
@@ -454,7 +454,7 @@ function queryDateLongParam(string url, string user, string password) returns @t
 
 function queryDateTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03", "yyyy-MM-dd");
-    sql:DateValue typeVal = new(date);
+    sql:DateValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
@@ -465,7 +465,7 @@ function queryDateTimeRecordParam(string url, string user, string password) retu
 function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password)
 returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    sql:DateValue typeVal = new(date);
+    sql:DateValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
@@ -474,7 +474,7 @@ returns @tainted record {}|error? {
 }
 
 function queryTimeStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:TimeValue typeVal = new("11:35:45");
+    sql:TimeValue typeVal = new ("11:35:45");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
@@ -483,7 +483,7 @@ function queryTimeStringParam(string url, string user, string password) returns 
 }
 
 function queryTimeStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:TimeValue typeVal = new("11-35-45");
+    sql:TimeValue typeVal = new ("11-35-45");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
@@ -493,7 +493,7 @@ function queryTimeStringInvalidParam(string url, string user, string password) r
 
 function queryTimeLongParam(string url, string user, string password) returns @tainted record {}|error? {
     time:Time date = check time:parse("11:35:45", "HH:mm:ss");
-    sql:TimeValue typeVal = new(date.time);
+    sql:TimeValue typeVal = new (date.time);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
@@ -503,7 +503,7 @@ function queryTimeLongParam(string url, string user, string password) returns @t
 
 function queryTimeTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
     time:Time date = check time:parse("11:35:45", "HH:mm:ss");
-    sql:TimeValue typeVal = new(date);
+    sql:TimeValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
@@ -514,7 +514,7 @@ function queryTimeTimeRecordParam(string url, string user, string password) retu
 function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password)
 returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03T11:35:45", "yyyy-MM-dd'T'HH:mm:ss");
-    sql:TimeValue typeVal = new(date);
+    sql:TimeValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
@@ -523,7 +523,7 @@ returns @tainted record {}|error? {
 }
 
 function queryTimestampStringParam(string url, string user, string password) returns @tainted record {}|error? {
-    sql:TimestampValue typeVal = new("2017-02-03 11:53:00");
+    sql:TimestampValue typeVal = new ("2017-02-03 11:53:00");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
@@ -533,7 +533,7 @@ function queryTimestampStringParam(string url, string user, string password) ret
 
 function queryTimestampStringInvalidParam(string url, string user, string password)
 returns @tainted record {}|error? {
-    sql:TimestampValue typeVal = new("2017/02/03 11:53:00");
+    sql:TimestampValue typeVal = new ("2017/02/03 11:53:00");
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
@@ -543,7 +543,7 @@ returns @tainted record {}|error? {
 
 function queryTimestampLongParam(string url, string user, string password) returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
-    sql:TimestampValue typeVal = new(date.time);
+    sql:TimestampValue typeVal = new (date.time);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
@@ -553,7 +553,7 @@ function queryTimestampLongParam(string url, string user, string password) retur
 
 function queryTimestampTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
-    sql:TimestampValue typeVal = new(date);
+    sql:TimestampValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
@@ -564,7 +564,7 @@ function queryTimestampTimeRecordParam(string url, string user, string password)
 function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, string password)
 returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
-    sql:TimestampValue typeVal = new(date);
+    sql:TimestampValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
@@ -575,7 +575,7 @@ returns @tainted record {}|error? {
 function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, string password)
 returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
-    sql:TimestampValue typeVal = new(date);
+    sql:TimestampValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE datetime_type= ", ""],
         insertions: [typeVal]
@@ -586,7 +586,7 @@ returns @tainted record {}|error? {
 function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, string password)
 returns @tainted record {}|error? {
     time:Time date = check time:parse("2008-08-08 20:08:08+0800", "yyyy-MM-dd HH:mm:ssZ");
-    sql:TimestampValue typeVal = new(date);
+    sql:TimestampValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type2= ", ""],
         insertions: [typeVal]
@@ -597,7 +597,7 @@ returns @tainted record {}|error? {
 function queryTimeTimeRecordWithTimeZone2Param(string url, string user, string password)
 returns @tainted record {}|error? {
     time:Time date = check time:parse("20:08:08-0800", "HH:mm:ssZ");
-    sql:TimestampValue typeVal = new(date);
+    sql:TimestampValue typeVal = new (date);
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DateTimeTypes WHERE time_type2 = ", ""],
         insertions: [typeVal]
@@ -622,8 +622,16 @@ function queryArrayBasicParams(string url, string user, string password) returns
     sql:ArrayValue paraBool = new (databoolean);
 
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ", "AND float_array = ",
-        "AND double_array = ", "AND decimal_array = ", "AND string_array = ", "AND boolean_array = ", ""],
+        parts: [
+                "SELECT * from ArrayTypes WHERE int_array = ",
+                "AND long_array = ",
+                "AND float_array = ",
+                "AND double_array = ",
+                "AND decimal_array = ",
+                "AND string_array = ",
+                "AND boolean_array = ",
+                ""
+            ],
         insertions: [paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraString, paraBool]
     };
 
@@ -632,11 +640,13 @@ function queryArrayBasicParams(string url, string user, string password) returns
 
 function queryArrayBasicNullParams(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array " +
-            "is null AND double_array is null AND decimal_array is null AND string_array is null" +
-            " AND boolean_array is null"],
-            insertions: []
-     };
+        parts: [
+                "SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array " +
+                    "is null AND double_array is null AND decimal_array is null AND string_array is null" +
+                    " AND boolean_array is null"
+            ],
+        insertions: []
+    };
     return queryMockClient(url, user, password, sqlQuery);
 }
 

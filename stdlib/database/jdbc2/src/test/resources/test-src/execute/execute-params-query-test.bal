@@ -53,7 +53,7 @@ function insertIntoDataTable4(string url, string user, string password) returns 
     sql:BigIntValue longType = new (9372036854774807);
     sql:FloatValue floatType = new (124.34);
     sql:DoubleValue doubleType = new (29095039);
-    sql:BooleanValue boolType = new(false);
+    sql:BooleanValue boolType = new (false);
     sql:VarcharValue stringType = new ("stringvalue");
     decimal decimalVal = 25.45;
     sql:DecimalValue decimalType = new (decimalVal);
@@ -153,10 +153,10 @@ function deleteComplexTable(string url, string user, string password) returns sq
 }
 
 function deleteComplexTable2(string url, string user, string password) returns sql:ExecuteResult|sql:Error|error? {
-    sql:BlobValue blobType = new();
-    sql:ClobValue clobType = new();
-    sql:BinaryValue binaryType = new();
-    sql:VarBinaryValue varBinaryType = new();
+    sql:BlobValue blobType = new ();
+    sql:ClobValue clobType = new ();
+    sql:BinaryValue binaryType = new ();
+    sql:VarBinaryValue varBinaryType = new ();
 
     sql:ParameterizedString sqlQuery = {
        parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND clob_type=", ""],
@@ -166,7 +166,7 @@ function deleteComplexTable2(string url, string user, string password) returns s
 }
 
 function insertIntoNumericTable(string url, string user, string password) returns sql:ExecuteResult|sql:Error? {
-    sql:BitValue bitType = new(1);
+    sql:BitValue bitType = new (1);
     sql:ParameterizedString sqlQuery = {
         parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
                 " decimal_type, numeric_type, float_type, real_type) " +
