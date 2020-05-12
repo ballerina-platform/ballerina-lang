@@ -101,7 +101,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
@@ -379,12 +378,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangLock lock) {
         lock.body = rewrite(lock.body);
         result = lock;
-    }
-
-    @Override
-    public void visit(BLangBlock blockNode) {
-        blockNode.body = rewrite(blockNode.body);
-        result = blockNode;
     }
 
     @Override

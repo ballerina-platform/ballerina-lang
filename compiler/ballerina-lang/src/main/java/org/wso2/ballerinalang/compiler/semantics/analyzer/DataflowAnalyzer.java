@@ -130,7 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -527,11 +526,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
             }
         }
-    }
-
-    @Override
-    public void visit(BLangBlock blockNode) {
-        analyzeNode(blockNode.body, this.env);
     }
 
     @Override

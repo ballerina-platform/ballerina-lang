@@ -155,7 +155,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -3041,13 +3040,10 @@ public class BLangPackageBuilder {
     }
 
     void addBlockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangBlock blockNode = (BLangBlock) TreeBuilder.createStatementBlockNode();
-        blockNode.pos = pos;
-        blockNode.addWS(ws);
         BLangBlockStmt block = (BLangBlockStmt) this.blockNodeStack.pop();
         block.pos = pos;
-        blockNode.setBody(block);
-        addStmtToCurrentBlock(blockNode);
+        block.addWS(ws);
+        addStmtToCurrentBlock(block);
     }
 
     void startLockStmt() {

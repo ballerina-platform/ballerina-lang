@@ -137,7 +137,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -1339,9 +1338,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclLoopEndBB = currentEnclLoopEndBB;
     }
 
-    public void visit(BLangBlock astBlockStmt) {
-        astBlockStmt.body.accept(this);
-    }
 
     // Expressions
 
