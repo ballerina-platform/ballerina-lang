@@ -63,6 +63,24 @@ public function iterator(table<Type> t) returns abstract object {
 # + return - member with key `k`
 public function get(table<Type> key<KeyType> t, KeyType k) returns Type = external;
 
+# Adds a member `val` to table `t`, replacing any member with the same key value.
+# If `val` replaces an existing member, it will have the same position
+# in the order of the members as the existing member;
+# otherwise, it will be added as the last member.
+# It panics if `val` is inconsistent with the inherent type of `t`.
+#
+# + t - the table
+# + val - the member
+public function put(table<Type> t, Type val) = external;
+
+# Adds a member `val` to table `t`.
+# It will be added as the last member.
+# It panics if `val` has the same key as an existing member of `t`,
+# or if `val` is inconsistent with the inherent type of `t`.
+#
+# + t - the table
+# + val - the member
+public function add(table<Type> t, Type val) = external;
 
 // Functional iteration
 
