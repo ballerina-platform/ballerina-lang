@@ -1177,7 +1177,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_CAST_EXPRESSION:
                 case TABLE_CONSTRUCTOR:
                 case KEY_SPECIFIER:
-                case NEW_EXPR_ARGS:
                 case EXPLICIT_NEW_RHS:
                 case LET_VAR_DECL:
                 case LET_EXPRESSION:
@@ -1459,7 +1458,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_RETURN_TYPE_DESC:
             case TYPE_DESC_IN_EXPRESSION:
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
-            case NEW_EXPR_ARGS:
             case EXPLICIT_NEW_RHS:
                 startContext(currentCtx);
                 break;
@@ -1897,8 +1895,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LT;
             case NEW_KEYWORD:
                 return ParserRuleContext.NEW_KEYWORD_RHS;
-            case NEW_EXPR_ARGS:
-                return ParserRuleContext.OPEN_PARENTHESIS;
             case LT:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
@@ -1937,6 +1933,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST_START:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
+            case EXPLICIT_NEW_RHS:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:

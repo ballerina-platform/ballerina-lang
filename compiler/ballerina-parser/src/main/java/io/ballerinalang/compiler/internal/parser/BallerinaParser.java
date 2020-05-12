@@ -3563,10 +3563,8 @@ public class BallerinaParser extends AbstractParser {
      * @return the Parsed Explicit New Expression.
      */
     private STNode parseExplicitNewRhs(STNode newKeyword) {
-        startContext(ParserRuleContext.EXPLICIT_NEW_RHS);
-        STNode typeDescriptor = parseTypeDescriptor();
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.EXPLICIT_NEW_RHS);
         STNode parenthesizedArgsList = parseParenthesizedArgList();
-        endContext();
 
         return STNodeFactory.createExplicitNewExpression(newKeyword, typeDescriptor, parenthesizedArgsList);
     }
@@ -3592,11 +3590,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed parenthesized rhs of <code>new-expr</code>.
      */
     private STNode parseParenthesizedArgList() {
-        startContext(ParserRuleContext.NEW_EXPR_ARGS);
         STNode openParan = parseOpenParenthesis();
         STNode arguments = parseArgsList();
         STNode closeParan = parseCloseParenthesis();
-        endContext();
 
         return STNodeFactory.createParenthesizedArgList(openParan, arguments, closeParan);
     }
