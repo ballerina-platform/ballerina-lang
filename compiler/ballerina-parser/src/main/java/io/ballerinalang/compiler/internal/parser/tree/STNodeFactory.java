@@ -1324,19 +1324,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 functionSignature);
     }
 
-    public static STNode createAnonymousFunctionExpressionNode(
-            STNode annotations,
-            STNode functionKeyword,
-            STNode functionSignature,
-            STNode functionBody) {
-
-        return new STAnonymousFunctionExpressionNode(
-                annotations,
-                functionKeyword,
-                functionSignature,
-                functionBody);
-    }
-
     public static STNode createFunctionSignatureNode(
             STNode openParenToken,
             STNode parameters,
@@ -1348,6 +1335,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    public static STNode createExplicitAnonymousFunctionExpressionNode(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody) {
+
+        return new STExplicitAnonymousFunctionExpressionNode(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
+    }
+
+    public static STNode createExpressionFunctionBodyNode(
+            STNode rightDoubleArrow,
+            STNode expression) {
+
+        return new STExpressionFunctionBodyNode(
+                rightDoubleArrow,
+                expression);
     }
 }
 

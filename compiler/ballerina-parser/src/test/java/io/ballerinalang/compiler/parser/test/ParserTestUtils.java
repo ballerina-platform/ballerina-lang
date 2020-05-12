@@ -493,7 +493,7 @@ public class ParserTestUtils {
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
-                return SyntaxKind.EQUAL_GT_TOKEN;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
             case "LT_EQUAL_TOKEN":

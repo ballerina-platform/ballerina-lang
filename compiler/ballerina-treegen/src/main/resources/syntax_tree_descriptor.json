@@ -66,7 +66,7 @@
                 },
                 {
                     "name": "functionBody",
-                    "type": "Node"
+                    "type": "FunctionBodyNode"
                 }
             ]
         },
@@ -369,7 +369,7 @@
         },
         {
             "name": "ExternalFunctionBodyNode",
-            "base": "StatementNode",
+            "base": "FunctionBodyNode",
             "kind": "EXTERNAL_FUNCTION_BODY",
             "attributes": [
                 {
@@ -1656,7 +1656,7 @@
         },
         {
             "name": "FunctionBodyBlockNode",
-            "base": "StatementNode",
+            "base": "FunctionBodyNode",
             "kind": "FUNCTION_BODY_BLOCK",
             "attributes": [
                 {
@@ -2367,30 +2367,6 @@
             ]
         },
         {
-            "name": "AnonymousFunctionExpressionNode",
-            "base": "ExpressionNode",
-            "kind": "ANONYMOUS_FUNCTION_EXPRESSION",
-            "attributes": [
-                {
-                    "name": "annotations",
-                    "type": "AnnotationNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "functionSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "Node"
-                }
-            ]
-        },
-        {
             "name": "FunctionSignatureNode",
             "base": "Node",
             "kind": "FUNCTION_SIGNATURE",
@@ -2412,6 +2388,55 @@
                     "name": "returnTypeDesc",
                     "type": "ReturnTypeDescriptorNode",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "AnonymousFunctionExpressionNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ExplicitAnonymousFunctionExpressionNode",
+            "base": "AnonymousFunctionExpressionNode",
+            "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "FunctionBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "FunctionBodyNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ExpressionFunctionBodyNode",
+            "base": "FunctionBodyNode",
+            "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "rightDoubleArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         }

@@ -43,8 +43,9 @@ public enum ParserRuleContext {
     PARAMETER_NAME_RHS("parameter-name-rhs"),
     FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
-    FUNC_TYPE_OR_DEF_SIGNATURE_RHS("func-signature-rhs"),
-    ANNON_FUNC_BODY("annon-func-body"),
+    FUNC_BODY_OR_TYPE_DESC_RHS("func-body-or-type-desc-rhs"),
+    ANON_FUNC_BODY("annon-func-body"),
+    FUNC_TYPE_DESC_END("func-type-desc-end"),
 
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
@@ -131,6 +132,7 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
+    AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -243,6 +245,7 @@ public enum ParserRuleContext {
     LT_TOKEN("<"),
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
+    EXPR_FUNC_BODY_START("=>"),
 
     // Other terminals
     FUNC_NAME("function-name"),

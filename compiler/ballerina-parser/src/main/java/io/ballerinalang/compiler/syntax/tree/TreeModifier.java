@@ -49,7 +49,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token functionKeyword = modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName = modifyNode(functionDefinitionNode.functionName());
         FunctionSignatureNode functionSignature = modifyNode(functionDefinitionNode.functionSignature());
-        Node functionBody = modifyNode(functionDefinitionNode.functionBody());
+        FunctionBodyNode functionBody = modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -1313,19 +1313,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        NodeList<AnnotationNode> annotations = modifyNodeList(anonymousFunctionExpressionNode.annotations());
-        Token functionKeyword = modifyToken(anonymousFunctionExpressionNode.functionKeyword());
-        FunctionSignatureNode functionSignature = modifyNode(anonymousFunctionExpressionNode.functionSignature());
-        Node functionBody = modifyNode(anonymousFunctionExpressionNode.functionBody());
-        return anonymousFunctionExpressionNode.modify(
-                annotations,
-                functionKeyword,
-                functionSignature,
-                functionBody);
-    }
-
-    @Override
     public Node transform(FunctionSignatureNode functionSignatureNode) {
         Token openParenToken = modifyToken(functionSignatureNode.openParenToken());
         NodeList<ParameterNode> parameters = modifyNodeList(functionSignatureNode.parameters());
@@ -1336,6 +1323,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    @Override
+    public Node transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(explicitAnonymousFunctionExpressionNode.annotations());
+        Token functionKeyword = modifyToken(explicitAnonymousFunctionExpressionNode.functionKeyword());
+        FunctionSignatureNode functionSignature = modifyNode(explicitAnonymousFunctionExpressionNode.functionSignature());
+        FunctionBodyNode functionBody = modifyNode(explicitAnonymousFunctionExpressionNode.functionBody());
+        return explicitAnonymousFunctionExpressionNode.modify(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
+    }
+
+    @Override
+    public Node transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        Token rightDoubleArrow = modifyToken(expressionFunctionBodyNode.rightDoubleArrow());
+        ExpressionNode expression = modifyNode(expressionFunctionBodyNode.expression());
+        return expressionFunctionBodyNode.modify(
+                rightDoubleArrow,
+                expression);
     }
 
     // Tokens

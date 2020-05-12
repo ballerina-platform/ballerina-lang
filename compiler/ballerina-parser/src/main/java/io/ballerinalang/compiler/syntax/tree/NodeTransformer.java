@@ -456,12 +456,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     // Tokens
