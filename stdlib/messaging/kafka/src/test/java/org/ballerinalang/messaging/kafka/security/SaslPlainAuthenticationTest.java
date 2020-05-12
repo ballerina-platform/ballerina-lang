@@ -40,6 +40,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SASL_PL
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_DESERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -60,6 +61,7 @@ public class SaslPlainAuthenticationTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
+        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14021)
                 .withBroker(PROTOCOL_SASL_PLAIN, 14121, getKafkaBrokerProperties())
