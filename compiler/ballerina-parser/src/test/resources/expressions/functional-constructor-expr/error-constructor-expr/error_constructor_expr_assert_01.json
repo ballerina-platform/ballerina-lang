@@ -62,7 +62,7 @@
                                     "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "ERROR_CONSTRUCTOR_EXPRESSION",
+                                    "kind": "FUNCTION_CALL",
                                     "children": [
                                         {
                                             "kind": "ERROR_KEYWORD"
