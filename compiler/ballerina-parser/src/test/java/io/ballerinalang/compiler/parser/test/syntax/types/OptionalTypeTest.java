@@ -39,12 +39,12 @@ public class OptionalTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidOptionalTypeDescriptorAsReturnType() {
-        testFile("optional-type/optional_type_assert_01.bal", "optional-type/optional_type_assert_02.json");
+        testTopLevelNode("optional-type/optional_type_assert_01.bal", "optional-type/optional_type_assert_02.json");
     }
 
     @Test
     public void testLocalValidOptionalTypeDescriptor() {
-        testFile("optional-type/optional_type_assert_02.bal", "optional-type/optional_type_assert_06.json");
+        testTopLevelNode("optional-type/optional_type_assert_02.bal", "optional-type/optional_type_assert_06.json");
     }
 
     //Recovery test
@@ -61,6 +61,6 @@ public class OptionalTypeTest extends AbstractTypesTest {
 
     @Test
     public void testLocalInValidOptionalTypeDescriptor() {
-        testFile("optional-type/optional_type_assert_03.bal", "optional-type/optional_type_assert_05.json");
+        testTopLevelNode("optional-type/optional_type_assert_03.bal", "optional-type/optional_type_assert_05.json");
     }
 }

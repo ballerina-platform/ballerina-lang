@@ -48,24 +48,12 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(3);
     }
 
-    public Token openParenToken() {
+    public FunctionSignatureNode functionSignature() {
         return childInBucket(4);
     }
 
-    public NodeList<ParameterNode> parameters() {
-        return new NodeList<>(childInBucket(5));
-    }
-
-    public Token closeParenToken() {
-        return childInBucket(6);
-    }
-
-    public Optional<Node> returnTypeDesc() {
-        return optionalChildInBucket(7);
-    }
-
     public Node functionBody() {
-        return childInBucket(8);
+        return childInBucket(5);
     }
 
     @Override
@@ -85,10 +73,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 "visibilityQualifier",
                 "functionKeyword",
                 "functionName",
-                "openParenToken",
-                "parameters",
-                "closeParenToken",
-                "returnTypeDesc",
+                "functionSignature",
                 "functionBody"};
     }
 
@@ -97,20 +82,14 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             Token visibilityQualifier,
             Token functionKeyword,
             IdentifierToken functionName,
-            Token openParenToken,
-            NodeList<ParameterNode> parameters,
-            Token closeParenToken,
-            Node returnTypeDesc,
+            FunctionSignatureNode functionSignature,
             Node functionBody) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
-                openParenToken,
-                parameters.underlyingListNode(),
-                closeParenToken,
-                returnTypeDesc,
+                functionSignature,
                 functionBody)) {
             return this;
         }
@@ -120,10 +99,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc,
+                functionSignature,
                 functionBody);
     }
 }

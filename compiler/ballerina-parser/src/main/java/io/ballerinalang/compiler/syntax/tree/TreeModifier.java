@@ -48,20 +48,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token visibilityQualifier = modifyToken(functionDefinitionNode.visibilityQualifier().orElse(null));
         Token functionKeyword = modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName = modifyNode(functionDefinitionNode.functionName());
-        Token openParenToken = modifyToken(functionDefinitionNode.openParenToken());
-        NodeList<ParameterNode> parameters = modifyNodeList(functionDefinitionNode.parameters());
-        Token closeParenToken = modifyToken(functionDefinitionNode.closeParenToken());
-        Node returnTypeDesc = modifyNode(functionDefinitionNode.returnTypeDesc().orElse(null));
+        FunctionSignatureNode functionSignature = modifyNode(functionDefinitionNode.functionSignature());
         Node functionBody = modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc,
+                functionSignature,
                 functionBody);
     }
 
@@ -1110,6 +1104,30 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        Token streamKeywordToken = modifyToken(streamTypeDescriptorNode.streamKeywordToken());
+        Node streamTypeParamsNode = modifyNode(streamTypeDescriptorNode.streamTypeParamsNode());
+        return streamTypeDescriptorNode.modify(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
+    @Override
+    public Node transform(StreamTypeParamsNode streamTypeParamsNode) {
+        Token ltToken = modifyToken(streamTypeParamsNode.ltToken());
+        Node leftTypeDescNode = modifyNode(streamTypeParamsNode.leftTypeDescNode());
+        Token commaToken = modifyToken(streamTypeParamsNode.commaToken());
+        Node rightTypeDescNode = modifyNode(streamTypeParamsNode.rightTypeDescNode());
+        Token gtToken = modifyToken(streamTypeParamsNode.gtToken());
+        return streamTypeParamsNode.modify(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
+    }
+
+    @Override
     public Node transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = modifyToken(letExpressionNode.letKeyword());
         SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letExpressionNode.letVarDeclarations());
@@ -1283,6 +1301,41 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 target,
                 data,
                 piEnd);
+    }
+
+    @Override
+    public Node transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        Token functionKeyword = modifyToken(functionTypeDescriptorNode.functionKeyword());
+        FunctionSignatureNode functionSignature = modifyNode(functionTypeDescriptorNode.functionSignature());
+        return functionTypeDescriptorNode.modify(
+                functionKeyword,
+                functionSignature);
+    }
+
+    @Override
+    public Node transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(anonymousFunctionExpressionNode.annotations());
+        Token functionKeyword = modifyToken(anonymousFunctionExpressionNode.functionKeyword());
+        FunctionSignatureNode functionSignature = modifyNode(anonymousFunctionExpressionNode.functionSignature());
+        Node functionBody = modifyNode(anonymousFunctionExpressionNode.functionBody());
+        return anonymousFunctionExpressionNode.modify(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
+    }
+
+    @Override
+    public Node transform(FunctionSignatureNode functionSignatureNode) {
+        Token openParenToken = modifyToken(functionSignatureNode.openParenToken());
+        NodeList<ParameterNode> parameters = modifyNodeList(functionSignatureNode.parameters());
+        Token closeParenToken = modifyToken(functionSignatureNode.closeParenToken());
+        ReturnTypeDescriptorNode returnTypeDesc = modifyNode(functionSignatureNode.returnTypeDesc().orElse(null));
+        return functionSignatureNode.modify(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc);
     }
 
     @Override

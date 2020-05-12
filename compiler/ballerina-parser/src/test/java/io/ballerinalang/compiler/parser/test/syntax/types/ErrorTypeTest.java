@@ -27,7 +27,7 @@ public class ErrorTypeTest extends AbstractTypesTest {
     //Valid source tests
     @Test
     public void testValidLocalLevelErrorType() {
-        testFile("error-type/error_type_assert_01.bal", "error-type/error_type_assert_01.json");
+        testTopLevelNode("error-type/error_type_assert_01.bal", "error-type/error_type_assert_01.json");
     }
 
     @Test
@@ -42,12 +42,12 @@ public class ErrorTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidMErrorTypeAsReturnType() {
-        testFile("error-type/error_type_assert_02.bal", "error-type/error_type_assert_04.json");
+        testTopLevelNode("error-type/error_type_assert_02.bal", "error-type/error_type_assert_04.json");
     }
 
     @Test
     public void testValidMErrorTypeAsTypeDefinition() {
-        testFile("error-type/error_type_assert_03.bal", "error-type/error_type_assert_05.json");
+        testTopLevelNode("error-type/error_type_assert_03.bal", "error-type/error_type_assert_05.json");
     }
 
     //Recovery tests

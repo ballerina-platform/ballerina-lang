@@ -39,7 +39,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidArrayTypeDescriptorAsReturnType() {
-        testFile("array-type/array_type_assert_01.bal", "array-type/array_type_assert_02.json");
+        testTopLevelNode("array-type/array_type_assert_01.bal", "array-type/array_type_assert_02.json");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidTwoDimensionalArrayTypeDescriptorAsReturnType() {
-        testFile("array-type/array_type_assert_02.bal", "array-type/array_type_assert_08.json");
+        testTopLevelNode("array-type/array_type_assert_02.bal", "array-type/array_type_assert_08.json");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testLocalValidArrayType() {
-        testFile("array-type/array_type_assert_03.bal", "array-type/array_type_assert_16.json");
+        testTopLevelNode("array-type/array_type_assert_03.bal", "array-type/array_type_assert_16.json");
     }
 
     //Recovery test
@@ -121,7 +121,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testLocalInValidArrayType() {
-        testFile("array-type/array_type_assert_04.bal", "array-type/array_type_assert_17.json");
+        testTopLevelNode("array-type/array_type_assert_04.bal", "array-type/array_type_assert_17.json");
     }
 
 }

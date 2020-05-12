@@ -383,6 +383,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorTypeParamsNode);
     }
 
+    public void visit(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        visitSyntaxNode(streamTypeDescriptorNode);
+    }
+
+    public void visit(StreamTypeParamsNode streamTypeParamsNode) {
+        visitSyntaxNode(streamTypeParamsNode);
+    }
+
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
     }
@@ -441,6 +449,18 @@ public abstract class NodeVisitor {
 
     public void visit(XMLProcessingInstruction xMLProcessingInstruction) {
         visitSyntaxNode(xMLProcessingInstruction);
+    }
+
+    public void visit(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        visitSyntaxNode(functionTypeDescriptorNode);
+    }
+
+    public void visit(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
+        visitSyntaxNode(anonymousFunctionExpressionNode);
+    }
+
+    public void visit(FunctionSignatureNode functionSignatureNode) {
+        visitSyntaxNode(functionSignatureNode);
     }
 
     public void visit(ExplicitNewExpression explicitNewExpression) {

@@ -384,6 +384,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(errorTypeParamsNode);
     }
 
+    public T transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        return transformSyntaxNode(streamTypeDescriptorNode);
+    }
+
+    public T transform(StreamTypeParamsNode streamTypeParamsNode) {
+        return transformSyntaxNode(streamTypeParamsNode);
+    }
+
     public T transform(LetExpressionNode letExpressionNode) {
         return transformSyntaxNode(letExpressionNode);
     }
@@ -442,6 +450,18 @@ public abstract class NodeTransformer<T> {
 
     public T transform(XMLProcessingInstruction xMLProcessingInstruction) {
         return transformSyntaxNode(xMLProcessingInstruction);
+    }
+
+    public T transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        return transformSyntaxNode(functionTypeDescriptorNode);
+    }
+
+    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
+        return transformSyntaxNode(anonymousFunctionExpressionNode);
+    }
+
+    public T transform(FunctionSignatureNode functionSignatureNode) {
+        return transformSyntaxNode(functionSignatureNode);
     }
 
     public T transform(ExplicitNewExpression explicitNewExpression) {

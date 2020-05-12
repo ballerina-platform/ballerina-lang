@@ -54,17 +54,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token visibilityQualifier,
             Token functionKeyword,
             IdentifierToken functionName,
-            Token openParenToken,
-            NodeList<ParameterNode> parameters,
-            Token closeParenToken,
-            Node returnTypeDesc,
+            FunctionSignatureNode functionSignature,
             Node functionBody) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionName, "functionName must not be null");
-        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
-        Objects.requireNonNull(parameters, "parameters must not be null");
-        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
         Objects.requireNonNull(functionBody, "functionBody must not be null");
 
         STNode stFunctionDefinitionNode = STNodeFactory.createFunctionDefinitionNode(
@@ -72,10 +67,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(visibilityQualifier),
                 functionKeyword.internalNode(),
                 functionName.internalNode(),
-                openParenToken.internalNode(),
-                parameters.underlyingListNode().internalNode(),
-                closeParenToken.internalNode(),
-                getOptionalSTNode(returnTypeDesc),
+                functionSignature.internalNode(),
                 functionBody.internalNode());
         return stFunctionDefinitionNode.createUnlinkedFacade();
     }
@@ -1505,6 +1497,39 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stErrorTypeParamsNode.createUnlinkedFacade();
     }
 
+    public static StreamTypeDescriptorNode createStreamTypeDescriptorNode(
+            Token streamKeywordToken,
+            Node streamTypeParamsNode) {
+        Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
+        Objects.requireNonNull(streamTypeParamsNode, "streamTypeParamsNode must not be null");
+
+        STNode stStreamTypeDescriptorNode = STNodeFactory.createStreamTypeDescriptorNode(
+                streamKeywordToken.internalNode(),
+                streamTypeParamsNode.internalNode());
+        return stStreamTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static StreamTypeParamsNode createStreamTypeParamsNode(
+            Token ltToken,
+            Node leftTypeDescNode,
+            Token commaToken,
+            Node rightTypeDescNode,
+            Token gtToken) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
+        Objects.requireNonNull(commaToken, "commaToken must not be null");
+        Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stStreamTypeParamsNode = STNodeFactory.createStreamTypeParamsNode(
+                ltToken.internalNode(),
+                leftTypeDescNode.internalNode(),
+                commaToken.internalNode(),
+                rightTypeDescNode.internalNode(),
+                gtToken.internalNode());
+        return stStreamTypeParamsNode.createUnlinkedFacade();
+    }
+
     public static LetExpressionNode createLetExpressionNode(
             Token letKeyword,
             SeparatedNodeList<Node> letVarDeclarations,
@@ -1745,6 +1770,53 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 data.underlyingListNode().internalNode(),
                 piEnd.internalNode());
         return stXMLProcessingInstruction.createUnlinkedFacade();
+    }
+
+    public static FunctionTypeDescriptorNode createFunctionTypeDescriptorNode(
+            Token functionKeyword,
+            FunctionSignatureNode functionSignature) {
+        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+
+        STNode stFunctionTypeDescriptorNode = STNodeFactory.createFunctionTypeDescriptorNode(
+                functionKeyword.internalNode(),
+                functionSignature.internalNode());
+        return stFunctionTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static AnonymousFunctionExpressionNode createAnonymousFunctionExpressionNode(
+            NodeList<AnnotationNode> annotations,
+            Token functionKeyword,
+            FunctionSignatureNode functionSignature,
+            Node functionBody) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+        Objects.requireNonNull(functionBody, "functionBody must not be null");
+
+        STNode stAnonymousFunctionExpressionNode = STNodeFactory.createAnonymousFunctionExpressionNode(
+                annotations.underlyingListNode().internalNode(),
+                functionKeyword.internalNode(),
+                functionSignature.internalNode(),
+                functionBody.internalNode());
+        return stAnonymousFunctionExpressionNode.createUnlinkedFacade();
+    }
+
+    public static FunctionSignatureNode createFunctionSignatureNode(
+            Token openParenToken,
+            NodeList<ParameterNode> parameters,
+            Token closeParenToken,
+            ReturnTypeDescriptorNode returnTypeDesc) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(parameters, "parameters must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stFunctionSignatureNode = STNodeFactory.createFunctionSignatureNode(
+                openParenToken.internalNode(),
+                parameters.underlyingListNode().internalNode(),
+                closeParenToken.internalNode(),
+                getOptionalSTNode(returnTypeDesc));
+        return stFunctionSignatureNode.createUnlinkedFacade();
     }
 
     public static ExplicitNewExpression createExplicitNewExpression(

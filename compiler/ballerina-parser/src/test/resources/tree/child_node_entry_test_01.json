@@ -20,31 +20,36 @@
                     "kind": "IDENTIFIER_TOKEN",
                     "value": "getName"
                 },
-                "openParenToken": {
-                    "kind": "OPEN_PAREN_TOKEN",
-                    "value": "("
-                },
-                "parameters": [
-                ],
-                "closeParenToken": {
-                    "kind": "CLOSE_PAREN_TOKEN",
-                    "value": ")"
-                },
-                "returnTypeDesc": {
-                    "kind": "RETURN_TYPE_DESCRIPTOR",
+                "functionSignature": {
+                    "kind": "FUNCTION_SIGNATURE",
                     "value": {
-                        "returnsKeyword": {
-                            "kind": "RETURNS_KEYWORD",
-                            "value": "returns"
+                        "openParenToken": {
+                            "kind": "OPEN_PAREN_TOKEN",
+                            "value": "("
                         },
-                        "annotations": [
+                        "parameters": [
                         ],
-                        "type": {
-                            "kind": "STRING_TYPE_DESC",
+                        "closeParenToken": {
+                            "kind": "CLOSE_PAREN_TOKEN",
+                            "value": ")"
+                        },
+                        "returnTypeDesc": {
+                            "kind": "RETURN_TYPE_DESCRIPTOR",
                             "value": {
-                                "name": {
-                                    "kind": "STRING_KEYWORD",
-                                    "value": "string"
+                                "returnsKeyword": {
+                                    "kind": "RETURNS_KEYWORD",
+                                    "value": "returns"
+                                },
+                                "annotations": [
+                                ],
+                                "type": {
+                                    "kind": "STRING_TYPE_DESC",
+                                    "value": {
+                                        "name": {
+                                            "kind": "STRING_KEYWORD",
+                                            "value": "string"
+                                        }
+                                    }
                                 }
                             }
                         }
