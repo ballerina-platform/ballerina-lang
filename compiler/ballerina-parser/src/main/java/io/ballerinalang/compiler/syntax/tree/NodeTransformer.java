@@ -464,6 +464,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionSignatureNode);
     }
 
+    public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        return transformSyntaxNode(tupleTypeDescriptorNode);
+    }
+
     public T transform(ExplicitNewExpression explicitNewExpression) {
         return transformSyntaxNode(explicitNewExpression);
     }

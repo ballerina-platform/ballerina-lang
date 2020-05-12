@@ -463,6 +463,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionSignatureNode);
     }
 
+    public void visit(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        visitSyntaxNode(tupleTypeDescriptorNode);
+    }
+
     public void visit(ExplicitNewExpression explicitNewExpression) {
         visitSyntaxNode(explicitNewExpression);
     }
