@@ -22,6 +22,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14104",
     groupId: "test-group",
     clientId: "pause-consumer",
+    valueDeserializerType: kafka:DES_STRING,
     offsetReset: "earliest",
     topics: [topic]
 };
@@ -41,8 +42,17 @@ kafka:TopicPartition invalidTopicPartition = {
 kafka:TopicPartition[] topicPartitions = [topicPartition];
 kafka:TopicPartition[] invalidTopicPartitions = [invalidTopicPartition];
 
-function testPoll() returns kafka:ConsumerRecord[]|kafka:ConsumerError {
-    return kafkaConsumer->poll(1000);
+function testPoll() returns string|kafka:ConsumerError {
+    var result = kafkaConsumer->poll(1000);
+    if (result is kafka:ConsumerError) {
+        return result;
+    } else {
+        if (result.length() == 0) {
+            return "";
+        } else {
+            return <string> result[0].value;
+        }
+    }
 }
 
 function testPause() returns kafka:ConsumerError? {
