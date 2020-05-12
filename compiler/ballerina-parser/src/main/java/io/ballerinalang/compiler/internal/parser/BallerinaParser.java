@@ -3232,15 +3232,16 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseImplicitNewRhs(newKeyword);
             case SEMICOLON_TOKEN:
-                return STNodeFactory.createImplicitNewExpression(newKeyword, STNodeFactory.createEmptyNode());
+                break;
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
                 // TODO: Support `stream` keyword once introduced
                 return parseExplicitNewRhs(newKeyword);
             default:
-                Solution sol = recover(peek(), ParserRuleContext.NEW_KEYWORD_RHS, newKeyword);
-                return parseNewKeywordRhs(sol.recoveredNode.kind, newKeyword);
+                break;
         }
+
+        return STNodeFactory.createImplicitNewExpression(newKeyword, STNodeFactory.createEmptyNode());
     }
 
     /**

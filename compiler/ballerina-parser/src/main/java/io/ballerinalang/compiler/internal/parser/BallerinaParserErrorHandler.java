@@ -292,7 +292,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
     private static final ParserRuleContext[] NEW_EXPR =
-            { ParserRuleContext.NEW_EXPR_ARGS, ParserRuleContext.EXPLICIT_NEW_RHS };
+            { ParserRuleContext.EXPLICIT_NEW_RHS, ParserRuleContext.EXPRESSION_RHS };
+
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
