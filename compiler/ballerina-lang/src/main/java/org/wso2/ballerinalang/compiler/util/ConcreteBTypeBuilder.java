@@ -19,11 +19,13 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -42,12 +44,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Util class for building concrete BType types from parameterized types.
@@ -57,16 +62,22 @@ import java.util.Map;
 public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
     private Map<String, BType> paramValueTypes;
+    private Set<BType> visitedTypes;
     private boolean isInvocation;
 
     public BType buildType(BType originalType, BLangInvocation invocation) {
         this.isInvocation = invocation != null;
+        this.visitedTypes = new HashSet<>();
         if (this.isInvocation) {
             createParamMap(invocation);
         }
         BType newType = originalType.accept(this, null);
         this.paramValueTypes = null;
         return newType;
+    }
+
+    public BType buildType(BType originalType) {
+        return buildType(originalType, null);
     }
 
     @Override
@@ -140,6 +151,36 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BRecordType originalType, BType newType) {
+        if (!Symbols.isFlagOn(originalType.tsymbol.flags, Flags.PARAMETERIZED)) {
+            return originalType;
+        }
+
+        List<BField> newFields = new ArrayList<>();
+        for (BField field : originalType.fields) {
+            if (this.visitedTypes.contains(field.type)) {
+                continue;
+            }
+
+            this.visitedTypes.add(field.type);
+            BType newFType = field.type.accept(this, null);
+            this.visitedTypes.remove(field.type);
+
+            if (newFType == field.type) {
+                newFields.add(field);
+                continue;
+            }
+
+            BField newField = new BField(field.name, field.pos, field.symbol);
+            newField.type = newFType;
+            newFields.add(newField);
+        }
+
+        BType newRestType = originalType.restFieldType.accept(this, null);
+
+        BRecordType newRecordType = new BRecordType(null);
+        newRecordType.fields = newFields;
+        newRecordType.flags = originalType.flags;
+        newRecordType.restFieldType = newRestType;
         return originalType;
     }
 

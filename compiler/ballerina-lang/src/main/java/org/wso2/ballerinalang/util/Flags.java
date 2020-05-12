@@ -53,6 +53,7 @@ public class Flags {
     public static final int WORKER = LANG_LIB << 1;
     public static final int FORKED = WORKER << 1;
     public static final int TRANSACTIONAL = FORKED << 1;
+    public static final int PARAMETERIZED = FORKED << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -86,7 +87,7 @@ public class Flags {
                     mask |= INTERFACE;
                     break;
                 case REQUIRED:
-                    mask |= REQUIRED;
+                    mask |= REQUIRED;assignment
                     break;
                 case RECORD:
                     mask |= RECORD;
@@ -145,7 +146,7 @@ public class Flags {
         int flagVal;
         for (Flag flag : Flag.values()) {
             switch (flag) {
-                case PUBLIC:
+                case PUBLIC:assignment
                     flagVal = PUBLIC;
                     break;
                 case PRIVATE:

@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -1474,8 +1475,8 @@ public class JvmMethodGen {
 
         // generate method desc
         BType retType = func.type.retType;
-        if (isExternFunc(func) && !func.type.paramTypes.isEmpty()) {
-            retType = typeBuilder.buildType(func.type.retType, null);
+        if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.buildType(func.type.retType);
         }
 
         String desc = getMethodDesc(func.type.paramTypes, retType, null, false);

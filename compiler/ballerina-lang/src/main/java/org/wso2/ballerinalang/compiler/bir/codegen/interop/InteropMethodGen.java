@@ -39,11 +39,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,8 +141,8 @@ public class InteropMethodGen {
         BIRFunction birFunc = jFieldFuncWrapper.func;
         BType retType = birFunc.type.retType;
 
-        if (!birFunc.parameters.isEmpty()) {
-            retType = typeBuilder.buildType(birFunc.type.retType, null);
+        if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.buildType(birFunc.type.retType);
         }
 
         String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false);
@@ -294,8 +296,8 @@ public class InteropMethodGen {
                                     JvmMethodGen jvmMethodGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
-        if (!birFunc.type.paramTypes.isEmpty()) {
-            retType = typeBuilder.buildType(birFunc.type.retType, null);
+        if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.buildType(birFunc.type.retType);
         }
         JMethod jMethod = extFuncWrapper.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
