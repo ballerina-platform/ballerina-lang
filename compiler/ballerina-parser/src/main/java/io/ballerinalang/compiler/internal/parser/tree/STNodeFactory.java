@@ -1349,5 +1349,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken,
                 returnTypeDesc);
     }
+
+    public static STNode createTupleTypeDescriptorNode(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode restTypeDesc,
+            STNode closeBracketToken) {
+
+        return new STTupleTypeDescriptorNode(
+                openBracketToken,
+                memberTypeDesc,
+                restTypeDesc,
+                closeBracketToken);
+    }
 }
 

@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class StreamTypeDescriptorNode extends NonTerminalNode {
+public class StreamTypeDescriptorNode extends TypeDescriptorNode {
 
     public StreamTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

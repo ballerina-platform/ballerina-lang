@@ -2019,6 +2019,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseStreamTypeDescriptor();
             case FUNCTION_KEYWORD:
                 return parseFunctionTypeDesc();
+            case OPEN_BRACKET_TOKEN:
+                return parseTupleTypeDesc();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -7055,6 +7057,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // error type desc
             case STREAM_KEYWORD: // stream type desc
             case FUNCTION_KEYWORD:
+            case OPEN_BRACKET_TOKEN:
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -8090,5 +8093,80 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return null;
         }
+    }
+
+    /**
+     * Parse tuple type descriptor.
+     * <p>
+     * <code>tuple-type-descriptor := [ tuple-member-type-descriptors ]
+     * <br/><br/>
+     * tuple-member-type-descriptors := member-type-descriptor (, member-type-descriptor)* [, tuple-rest-descriptor]
+                                           | [ tuple-rest-descriptor ]
+     * <br/><br/>
+     * tuple-rest-descriptor := type-descriptor ...
+     * </code>
+     * 
+     * @return
+     */
+    private STNode parseTupleTypeDesc() {
+        startContext(ParserRuleContext.TUPLE_TYPE_DESC);
+        STNode openBracket = parseOpenBracket();
+        STNode memberTypeDesc = parseTupleMemberTupeDescList();
+        STNode restTypeDesc = parseTupleRestTypeDesc();
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, restTypeDesc, closeBracket);
+    }
+
+    /**
+     * Parse tuple member type descriptors.
+     *
+     * @return Parsed node
+     */
+    private STNode parseTupleMemberTupeDescList() {
+        List<STNode> typeDescList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list
+        if (isEndOfTypeList(nextToken.kind)) {
+            this.errorHandler.reportMissingTokenError("missing type-desc");
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first typedesc, that has no leading comma
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        typeDescList.add(typeDesc);
+
+        // Parse the remaining type descs
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfTypeList(nextToken.kind)) {
+            leadingComma = parseComma();
+            typeDescList.add(leadingComma);
+            typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            typeDescList.add(typeDesc);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(typeDescList);
+    }
+
+    private boolean isEndOfTypeList(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case CLOSE_BRACKET_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case EOF_TOKEN:
+            case EQUAL_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseTupleRestTypeDesc() {
+        return STNodeFactory.createEmptyNode();
     }
 }
