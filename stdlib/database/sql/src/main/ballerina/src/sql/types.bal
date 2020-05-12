@@ -28,6 +28,8 @@ public type TypedValue abstract object {
 # Possible type of parameters that can be passed into the SQL query.
 public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
 
+# Represents Varchar SQL field.
+#
 public type VarcharValue object {
    *TypedValue;
 
@@ -36,6 +38,8 @@ public type VarcharValue object {
    }
 };
 
+# Represents NVarchar SQL field.
+#
 public type NVarcharValue object {
    *TypedValue;
 
@@ -44,6 +48,8 @@ public type NVarcharValue object {
    }
 };
 
+# Represents Char SQL field.
+#
 public type CharValue object {
    *TypedValue;
 
@@ -52,6 +58,8 @@ public type CharValue object {
    }
 };
 
+# Represents NChar SQL field.
+#
 public type NCharValue object {
    *TypedValue;
 
@@ -60,6 +68,8 @@ public type NCharValue object {
    }
 };
 
+# Represents Text SQL field.
+#
 public type TextValue object {
    *TypedValue;
 
@@ -68,6 +78,8 @@ public type TextValue object {
    }
 };
 
+# Represents Clob SQL field.
+#
 public type ClobValue object {
    *TypedValue;
 
@@ -76,6 +88,8 @@ public type ClobValue object {
    }
 };
 
+# Represents NClob SQL field.
+#
 public type NClobValue object {
    *TypedValue;
 
@@ -84,6 +98,8 @@ public type NClobValue object {
    }
 };
 
+# Represents SmallInt SQL field.
+#
 public type SmallIntValue object {
    *TypedValue;
 
@@ -92,6 +108,8 @@ public type SmallIntValue object {
    }
 };
 
+# Represents Integer SQL field.
+#
 public type IntegerValue object {
    *TypedValue;
 
@@ -100,6 +118,8 @@ public type IntegerValue object {
    }
 };
 
+# Represents BigInt SQL field.
+#
 public type BigIntValue object {
    *TypedValue;
 
@@ -108,6 +128,8 @@ public type BigIntValue object {
    }
 };
 
+# Represents Numeric SQL field.
+#
 public type NumericValue object {
    *TypedValue;
 
@@ -116,6 +138,8 @@ public type NumericValue object {
    }
 };
 
+# Represents Decimal SQL field.
+#
 public type DecimalValue object {
    *TypedValue;
 
@@ -124,6 +148,8 @@ public type DecimalValue object {
    }
 };
 
+# Represents Real SQL field.
+#
 public type RealValue object {
    *TypedValue;
 
@@ -132,6 +158,8 @@ public type RealValue object {
    }
 };
 
+# Represents Float SQL field.
+#
 public type FloatValue object {
    *TypedValue;
 
@@ -140,6 +168,8 @@ public type FloatValue object {
    }
 };
 
+# Represents Double SQL field.
+#
 public type DoubleValue object {
    *TypedValue;
 
@@ -148,6 +178,8 @@ public type DoubleValue object {
    }
 };
 
+# Represents Bit SQL field.
+#
 public type BitValue object {
    *TypedValue;
 
@@ -156,6 +188,8 @@ public type BitValue object {
    }
 };
 
+# Represents Boolean SQL field.
+#
 public type BooleanValue object {
    *TypedValue;
 
@@ -164,6 +198,8 @@ public type BooleanValue object {
    }
 };
 
+# Represents Binary SQL field.
+#
 public type BinaryValue object {
    *TypedValue;
 
@@ -172,6 +208,8 @@ public type BinaryValue object {
    }
 };
 
+# Represents VarBinary SQL field.
+#
 public type VarBinaryValue object {
    *TypedValue;
 
@@ -180,6 +218,8 @@ public type VarBinaryValue object {
    }
 };
 
+# Represents Blob SQL field.
+#
 public type BlobValue object {
    *TypedValue;
 
@@ -188,6 +228,8 @@ public type BlobValue object {
    }
 };
 
+# Represents Date SQL field.
+#
 public type DateValue object {
    *TypedValue;
 
@@ -196,6 +238,8 @@ public type DateValue object {
    }
 };
 
+# Represents Time SQL field.
+#
 public type TimeValue object {
    *TypedValue;
 
@@ -204,6 +248,8 @@ public type TimeValue object {
    }
 };
 
+# Represents DateTime SQL field.
+#
 public type DateTimeValue object {
    *TypedValue;
 
@@ -212,6 +258,8 @@ public type DateTimeValue object {
    }
 };
 
+# Represents Timestamp SQL field.
+#
 public type TimestampValue object {
    *TypedValue;
 
@@ -220,6 +268,8 @@ public type TimestampValue object {
    }
 };
 
+# Represents ArrayValue SQL field.
+#
 public type ArrayValue object {
    *TypedValue;
 
@@ -228,6 +278,8 @@ public type ArrayValue object {
    }
 };
 
+# Represents Ref SQL field.
+#
 public type RefValue object {
    *TypedValue;
 
@@ -236,6 +288,8 @@ public type RefValue object {
    }
 };
 
+# Represents Struct SQL field.
+#
 public type StructValue object {
    *TypedValue;
 
@@ -244,6 +298,8 @@ public type StructValue object {
    }
 };
 
+# Represents Row SQL field.
+#
 public type RowValue object {
    *TypedValue;
 
