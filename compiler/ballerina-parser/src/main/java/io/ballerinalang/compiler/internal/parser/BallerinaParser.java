@@ -7117,10 +7117,7 @@ public class BallerinaParser extends AbstractParser {
 
         switch (nextTokenKind) {
             case KEY_KEYWORD:
-                startContext(ParserRuleContext.KEY_SPECIFIER);
-                STNode keyKeyword = parseKeyKeyword();
-                keySpecifier = parseKeySpecifier(keyKeyword);
-                endContext();
+                keySpecifier = parseKeySpecifier();
                 break;
             case OPEN_BRACKET_TOKEN:
                 break;
@@ -7211,10 +7208,13 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseKeySpecifier(STNode keyKeyword) {
+    private STNode parseKeySpecifier() {
+        startContext(ParserRuleContext.KEY_SPECIFIER);
+        STNode keyKeyword = parseKeyKeyword();
         STNode openParen = parseOpenParenthesis();
         STNode fieldNames = parseFieldNames();
         STNode closeParen = parseCloseParenthesis();
+        endContext();
         return STNodeFactory.createKeySpecifierNode(keyKeyword, openParen, fieldNames, closeParen);
     }
 
@@ -7795,6 +7795,22 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse key specifier given parsed key keyword token
+     * <p>
+     * <code>key-specifier := key ( [ field-name (, field-name)* ] )</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseKeySpecifier(STNode keyKeywordToken) {
+        startContext(ParserRuleContext.KEY_SPECIFIER);
+        STNode openParenToken = parseOpenParenthesis();
+        STNode fieldNamesNode = parseFieldNames();
+        STNode closeParenToken = parseCloseParenthesis();
+        endContext();
+        return STNodeFactory.createKeySpecifierNode(keyKeywordToken, openParenToken, fieldNamesNode, closeParenToken);
+    }
+
+    /**
      * Parse type parameter node.
      * <p>type-parameter := < type-descriptor > </p>
      *
@@ -7814,7 +7830,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseKeyTypeConstraint(STNode keyKeywordToken) {
-        startContext(ParserRuleContext.KEY_TYPE_CONSTRAINTS_RHS);
+        startContext(ParserRuleContext.KEY_TYPE_CONSTRAINT_RHS);
         STNode typeParameterNode = parseTypeParameter();
         endContext();
         return STNodeFactory.createKeyTypeConstraintNode(keyKeywordToken, typeParameterNode);

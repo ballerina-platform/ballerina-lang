@@ -295,7 +295,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
     private static final ParserRuleContext[] KEY_CONSTRAINTS_RHS =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.KEY_TYPE_CONSTRAINTS_RHS };
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.KEY_TYPE_CONSTRAINT_RHS };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
