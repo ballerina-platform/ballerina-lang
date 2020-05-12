@@ -18,8 +18,14 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
+import kafka.metrics.KafkaMetricsReporter;
+import kafka.metrics.KafkaMetricsReporter$;
 import kafka.server.KafkaConfig;
-import kafka.server.KafkaServerStartable;
+import kafka.server.KafkaServer;
+import kafka.utils.VerifiableProperties;
+import org.apache.kafka.common.utils.Time;
+import scala.Option;
+import scala.collection.Seq;
 
 import java.util.Properties;
 
@@ -27,20 +33,21 @@ import java.util.Properties;
  * Creates a local Kafka server instance for testing Kafka.
  */
 public class KafkaLocal {
-    public KafkaServerStartable kafka;
+    private static final String prefix = "kafka-thread";
+    private KafkaServer kafkaServer;
+    private Seq<KafkaMetricsReporter> reporters;
 
     public KafkaLocal(Properties properties) {
         KafkaConfig kafkaConfig = KafkaConfig.fromProps(properties);
-
-        // start local kafka broker
-        kafka = new KafkaServerStartable(kafkaConfig);
+        reporters = KafkaMetricsReporter$.MODULE$.startReporters(new VerifiableProperties(properties));
+        this.kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(prefix), reporters);
     }
 
-    public void start() throws Exception {
-        kafka.startup();
+    public void start() {
+        this.kafkaServer.startup();
     }
 
     public void stop() {
-        kafka.shutdown();
+        this.kafkaServer.shutdown();
     }
 }

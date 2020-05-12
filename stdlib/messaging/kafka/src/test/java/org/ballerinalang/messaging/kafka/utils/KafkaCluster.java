@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
+import kafka.server.KafkaConfig;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
@@ -67,12 +68,6 @@ public class KafkaCluster {
     // Suffixes
     private static final String zookeeperSuffix = "zookeeper";
     private static final String kafkaSuffix = "kafka";
-
-    // Broker configs
-    private static final String zookeeperConnectConfig = "zookeeper.connect";
-    private static final String logDirConfig = "log.dirs";
-    private static final String listenersConfig = "listeners";
-    private static final String brokerIdConfig = "broker.id";
 
     // Zookeeper configs
     private static final String dataDirConfig = "dataDir";
@@ -159,17 +154,18 @@ public class KafkaCluster {
             properties.putAll(customProperties);
         }
 
-        if (properties.getProperty(listenersConfig) == null) {
+        if (properties.getProperty(KafkaConfig.ListenersProp()) == null) {
             String listeners = protocol + "://" + this.host + ":" + port;
-            properties.setProperty(listenersConfig, listeners);
+            properties.setProperty(KafkaConfig.ListenersProp(), listeners);
         }
 
         String kafkaDataDir = Paths.get(dataDir, kafkaSuffix).toString();
         String zookeeperConfig = this.host + ":" + this.zookeeperPort;
-        properties.setProperty(zookeeperConnectConfig, zookeeperConfig);
-        properties.setProperty(logDirConfig, kafkaDataDir);
+        properties.setProperty(KafkaConfig.ZkConnectProp(), zookeeperConfig);
+        properties.setProperty(KafkaConfig.LogDirProp(), kafkaDataDir);
+        properties.setProperty(KafkaConfig.LogDirsProp(), kafkaDataDir);
         // Assign next broker index as the broker ID
-        properties.setProperty(brokerIdConfig, Integer.toString(brokerList.size()));
+        properties.setProperty(KafkaConfig.BrokerIdProp(), Integer.toString(brokerList.size()));
         KafkaLocal kafkaServer = new KafkaLocal(properties);
         this.brokerList.add(kafkaServer);
         this.brokerPort = port;
@@ -240,7 +236,7 @@ public class KafkaCluster {
         return withAdminClient(null);
     }
 
-    public KafkaCluster start() throws Throwable {
+    public KafkaCluster start() throws IllegalStateException {
         if (this.zookeeper == null) {
             throw new IllegalStateException("Zookeeper is not started");
         } else if (this.brokerList.isEmpty()) {

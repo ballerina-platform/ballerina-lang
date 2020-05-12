@@ -58,8 +58,8 @@ public class ServiceTest {
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         deleteDirectory(dataDir);
-        kafkaCluster = new KafkaCluster(dataDir, null)
-                .withZookeeper(14041, null)
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14041)
                 .withBroker(PROTOCOL_PLAINTEXT, 14141, getZookeeperTimeoutProperty())
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
                 .withAdminClient(null)
