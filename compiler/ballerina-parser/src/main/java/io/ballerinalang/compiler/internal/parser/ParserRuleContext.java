@@ -131,8 +131,6 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
-    ANNON_FUNC_OR_FUNC_TYPE("annon-func-or-func-type"),
-    STREAM_TYPE_DESCRIPTOR("stream-type-descriptor"),
     TYPED_BINDING_PATTERN("typed-binding-pattern"),
     BINDING_PATTERN("binding-pattern"),
     CAPTURE_BINDING_PATTERN("capture-binding-pattern"),
