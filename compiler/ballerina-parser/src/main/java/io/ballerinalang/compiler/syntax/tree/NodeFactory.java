@@ -829,7 +829,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NamedArgumentNode createNamedArgumentNode(
             Token leadingComma,
-            Token argumentName,
+            SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -1819,100 +1819,22 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionSignatureNode.createUnlinkedFacade();
     }
 
-    public static QueryConstructTypeNode createQueryConstructTypeNode(
-            Token tableKeyword,
-            KeySpecifierNode KeySpecifier) {
-        Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+    public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
+            Token openBracketToken,
+            NodeList<TypeDescriptorNode> memberTypeDesc,
+            Node restTypeDesc,
+            Token closeBracketToken) {
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+        Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
-        STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
-                tableKeyword.internalNode(),
-                KeySpecifier.internalNode());
-        return stQueryConstructTypeNode.createUnlinkedFacade();
-    }
-
-    public static FromClauseNode createFromClauseNode(
-            Token fromKeyword,
-            Node typeName,
-            Token variableName,
-            Token inKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(fromKeyword, "fromKeyword must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
-        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stFromClauseNode = STNodeFactory.createFromClauseNode(
-                fromKeyword.internalNode(),
-                typeName.internalNode(),
-                variableName.internalNode(),
-                inKeyword.internalNode(),
-                expression.internalNode());
-        return stFromClauseNode.createUnlinkedFacade();
-    }
-
-    public static WhereClauseNode createWhereClauseNode(
-            Token whereKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(whereKeyword, "whereKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stWhereClauseNode = STNodeFactory.createWhereClauseNode(
-                whereKeyword.internalNode(),
-                expression.internalNode());
-        return stWhereClauseNode.createUnlinkedFacade();
-    }
-
-    public static LetClauseNode createLetClauseNode(
-            Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations) {
-        Objects.requireNonNull(letKeyword, "letKeyword must not be null");
-        Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
-
-        STNode stLetClauseNode = STNodeFactory.createLetClauseNode(
-                letKeyword.internalNode(),
-                letVarDeclarations.underlyingListNode().internalNode());
-        return stLetClauseNode.createUnlinkedFacade();
-    }
-
-    public static QueryPipelineNode createQueryPipelineNode(
-            FromClauseNode fromClause,
-            NodeList<Node> intermediateClauses) {
-        Objects.requireNonNull(fromClause, "fromClause must not be null");
-        Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
-
-        STNode stQueryPipelineNode = STNodeFactory.createQueryPipelineNode(
-                fromClause.internalNode(),
-                intermediateClauses.underlyingListNode().internalNode());
-        return stQueryPipelineNode.createUnlinkedFacade();
-    }
-
-    public static SelectClauseNode createSelectClauseNode(
-            Token selectKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(selectKeyword, "selectKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stSelectClauseNode = STNodeFactory.createSelectClauseNode(
-                selectKeyword.internalNode(),
-                expression.internalNode());
-        return stSelectClauseNode.createUnlinkedFacade();
-    }
-
-    public static QueryExpressionNode createQueryExpressionNode(
-            QueryConstructTypeNode queryConstructType,
-            QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause) {
-        Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
-        Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(selectClause, "selectClause must not be null");
-
-        STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
-                queryConstructType.internalNode(),
-                queryPipeline.internalNode(),
-                selectClause.internalNode());
-        return stQueryExpressionNode.createUnlinkedFacade();
+        STNode stTupleTypeDescriptorNode = STNodeFactory.createTupleTypeDescriptorNode(
+                openBracketToken.internalNode(),
+                memberTypeDesc.underlyingListNode().internalNode(),
+                restTypeDesc.internalNode(),
+                closeBracketToken.internalNode());
+        return stTupleTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

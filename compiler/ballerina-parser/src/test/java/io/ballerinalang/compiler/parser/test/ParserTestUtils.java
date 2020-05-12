@@ -720,6 +720,8 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_DESC;
             case "FUNCTION_TYPE_DESC":
                 return SyntaxKind.FUNCTION_TYPE_DESC;
+            case "TUPLE_TYPE_DESC":
+                return SyntaxKind.TUPLE_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

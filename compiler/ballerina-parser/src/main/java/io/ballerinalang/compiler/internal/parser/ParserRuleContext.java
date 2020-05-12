@@ -132,6 +132,7 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
+    TUPLE_TYPE_DESC("tuple-type-desc"),
     SELECT_CLAUSE("select-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
@@ -322,11 +323,12 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_RECORD_FIELD("type-desc-in-record-field"),
     TYPE_DESC_IN_PARAM("type-desc-in-param"),
     TYPE_DESC_IN_TYPE_BINDING_PATTERN("type-desc-in-type-binding-pattern"), // foreach, let-var-decl, var-decl
-    TYPE_DESC_IN_TYPE_DEF("type-def-type-desc"),                            // local/module type definitions
+    TYPE_DESC_IN_TYPE_DEF("type-def-type-desc"),                         // local/mdule type defitions
     TYPE_DESC_IN_ANGLE_BRACKETS("type-desc-in-angle-bracket"),              // type-cast, parameterized-type
     TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
     TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
+    TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML

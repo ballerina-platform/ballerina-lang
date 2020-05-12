@@ -34,7 +34,7 @@ public class NamedArgumentNode extends FunctionArgumentNode {
         return childInBucket(0);
     }
 
-    public Token argumentName() {
+    public SimpleNameReferenceNode argumentName() {
         return childInBucket(1);
     }
 
@@ -67,7 +67,7 @@ public class NamedArgumentNode extends FunctionArgumentNode {
 
     public NamedArgumentNode modify(
             Token leadingComma,
-            Token argumentName,
+            SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
         if (checkForReferenceEquality(

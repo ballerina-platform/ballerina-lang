@@ -24,18 +24,26 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
+public class TupleTypeDescriptorNode extends TypeDescriptorNode {
 
-    public ErrorTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public TupleTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token errorKeywordToken() {
+    public Token openBracketToken() {
         return childInBucket(0);
     }
 
-    public Node errorTypeParamsNode() {
-        return childInBucket(1);
+    public NodeList<TypeDescriptorNode> memberTypeDesc() {
+        return new NodeList<>(childInBucket(1));
+    }
+
+    public Node restTypeDesc() {
+        return childInBucket(2);
+    }
+
+    public Token closeBracketToken() {
+        return childInBucket(3);
     }
 
     @Override
@@ -51,21 +59,29 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "errorKeywordToken",
-                "errorTypeParamsNode"};
+                "openBracketToken",
+                "memberTypeDesc",
+                "restTypeDesc",
+                "closeBracketToken"};
     }
 
-    public ErrorTypeDescriptorNode modify(
-            Token errorKeywordToken,
-            Node errorTypeParamsNode) {
+    public TupleTypeDescriptorNode modify(
+            Token openBracketToken,
+            NodeList<TypeDescriptorNode> memberTypeDesc,
+            Node restTypeDesc,
+            Token closeBracketToken) {
         if (checkForReferenceEquality(
-                errorKeywordToken,
-                errorTypeParamsNode)) {
+                openBracketToken,
+                memberTypeDesc.underlyingListNode(),
+                restTypeDesc,
+                closeBracketToken)) {
             return this;
         }
 
-        return NodeFactory.createErrorTypeDescriptorNode(
-                errorKeywordToken,
-                errorTypeParamsNode);
+        return NodeFactory.createTupleTypeDescriptorNode(
+                openBracketToken,
+                memberTypeDesc,
+                restTypeDesc,
+                closeBracketToken);
     }
 }
