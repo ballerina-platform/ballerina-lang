@@ -1866,9 +1866,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_KEYWORD:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.ERROR_TYPE_PARAM_START;
-                } else {
-                    return ParserRuleContext.ARG_LIST_START;
                 }
+                return ParserRuleContext.ARG_LIST_START;
             case ERROR_TYPE_PARAM_START:
                 return ParserRuleContext.ERROR_TYPE_PARAMS;
             case LET_EXPRESSION:

@@ -3418,7 +3418,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
             case ERROR_KEYWORD:
-                return parseFunctionalConstructorExpr();
+                return parseErrorConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
             case BACKTICK_TOKEN:
@@ -3787,11 +3787,10 @@ public class BallerinaParser extends AbstractParser {
      * functionally-constructible-type-reference := error | type-reference
      * </code>
      *
-     * @return Functional constructor expression
+     * @return Error constructor expression
      */
-    private STNode parseFunctionalConstructorExpr() {
-        STNode functionallyConstructibleTypeReference = parseErrorKeyWord();
-        return parseFuncCall(functionallyConstructibleTypeReference);
+    private STNode parseErrorConstructorExpr() {
+        return parseFuncCall(parseErrorKeyWord());
     }
 
     /**
