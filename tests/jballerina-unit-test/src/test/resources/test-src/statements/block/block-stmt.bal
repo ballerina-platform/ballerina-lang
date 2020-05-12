@@ -117,7 +117,6 @@ function returnStmtLocation2InBlock() returns int {
         a = 10;
         return a;
     }
-    return a;
 }
 
 int a = 10;
@@ -134,10 +133,10 @@ function testStmtInBlock() {
     {
         while(a < 4) {
             a = a + 1;
-            if (a == 3) {
+            if(a == 3) {
                 b = 8;
-                }
             }
+        }
     }
     assertEquality(8, b);
 }
