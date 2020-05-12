@@ -54,6 +54,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR;
 
 /**
  * The runtime representation of table.
@@ -167,6 +168,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     @Override
     public V get(Object key) {
         return valueHolder.getData((K) key);
+    }
+
+    //Generates the key from the given data
+    public V put(V value) {
+        handleFrozenTableValue();
+        return valueHolder.putData(value);
     }
 
     @Override
@@ -329,8 +336,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.type;
     }
 
-
-
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type.getConstrainedType());
@@ -385,6 +390,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(K key, V data) {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+        }
+
+        public V putData(V data) {
+            throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR, "value type inconsistent "
+                    + "with the inherent table type");
         }
 
         public V remove(K key) {
@@ -450,6 +460,16 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             entries.put(hash, entry);
             keys.put(hash, key);
+            return values.put(hash, data);
+        }
+
+        public V putData(V data) {
+            MapValue dataMap = (MapValue) data;
+            Object key = this.keyWrapper.wrapKey(dataMap);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>((K) key, data);
+            Integer hash = TableUtils.hash(key, null);
+            entries.put(hash, entry);
+            keys.put(hash, (K) key);
             return values.put(hash, data);
         }
 
