@@ -63,7 +63,7 @@ public class TopicSubscribeWithPartitionRebalanceTest {
     public void setup() throws Throwable {
         deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
-                .withZookeeper(14107)
+                .withZookeeper(14007)
                 .withBroker(PROTOCOL_PLAINTEXT, 14107, getZookeeperTimeoutProperty())
                 .withAdminClient()
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
