@@ -20,9 +20,9 @@ import com.sun.jdi.VirtualMachine;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 /**
- * Debugging Context.
+ * Debugging session context.
  */
-public class Context {
+public class DebugContext {
 
     private Process launchedProcess;
     private VirtualMachine debuggee;
