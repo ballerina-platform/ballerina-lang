@@ -3425,6 +3425,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeCastExpr();
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
+            case ERROR_KEYWORD:
+                return parseErrorConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
             case BACKTICK_TOKEN:
@@ -3894,6 +3896,20 @@ public class BallerinaParser extends AbstractParser {
         STNode args = parseArgsList();
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
+    }
+
+    /**
+     * <p>
+     * Parse error constructor expression.
+     * </p>
+     * <code>
+     * error-constructor-expr := error ( arg-list )
+     * </code>
+     *
+     * @return Error constructor expression
+     */
+    private STNode parseErrorConstructorExpr() {
+        return parseFuncCall(parseErrorKeyWord());
     }
 
     /**

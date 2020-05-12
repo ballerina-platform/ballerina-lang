@@ -124,6 +124,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -659,6 +660,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createExpression(brcExprOut.expression());
     }
 
+    @Override
     public BLangNode transform(FunctionCallExpressionNode functionCallNode) {
         BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangNameReference reference = getBLangNameReference(functionCallNode.functionName());
@@ -895,7 +897,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(NamedArgumentNode namedArgumentNode) {
-        return namedArgumentNode.expression().apply(this);
+        BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
+        namedArg.pos = getPosition(namedArgumentNode);
+        namedArg.name = this.createIdentifier(getPosition(namedArgumentNode.argumentName()),
+                namedArgumentNode.argumentName().name().text());
+        namedArg.expr = createExpression(namedArgumentNode.expression());
+        return namedArg;
     }
 
     @Override
@@ -1273,11 +1280,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangIdentifier pkgAlias = this.createIdentifier(getPosition(modulePrefix), modulePrefix.text());
             BLangIdentifier name = this.createIdentifier(getPosition(identifier), identifier.text());
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
-        } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+        } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN || node.kind() == SyntaxKind.ERROR_KEYWORD) {
             // simple identifier
-            IdentifierToken iToken = (IdentifierToken) node;
-            BLangIdentifier pkgAlias = this.createIdentifier(getPosition(iToken), "");
-            BLangIdentifier name = this.createIdentifier(getPosition(iToken), iToken.text());
+            Token token = (Token) node;
+            BLangIdentifier pkgAlias = this.createIdentifier(getPosition(token), "");
+            BLangIdentifier name = this.createIdentifier(getPosition(token), token.text());
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
         } else if (node.kind() == SyntaxKind.NEW_KEYWORD) {
             Token iToken = (Token) node;
