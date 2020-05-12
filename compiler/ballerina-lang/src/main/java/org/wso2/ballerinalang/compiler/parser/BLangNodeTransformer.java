@@ -81,7 +81,6 @@ import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
@@ -758,7 +757,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 argumentsIter = argList.arguments().iterator();
             }
         } else {
-            ParenthesizedArgList argList = (ParenthesizedArgList) ((ExplicitNewExpression) expression).ParenthesizedArgList();
+            ParenthesizedArgList argList =
+                    (ParenthesizedArgList) ((ExplicitNewExpression) expression).ParenthesizedArgList();
             argumentsIter = argList.arguments().iterator();
         }
 
