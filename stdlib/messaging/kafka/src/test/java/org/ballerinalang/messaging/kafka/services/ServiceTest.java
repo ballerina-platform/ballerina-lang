@@ -26,11 +26,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -50,12 +49,12 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTime
  */
 public class ServiceTest {
 
-    private static final String dataDir = getDataDirectoryName(ServiceTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(ServiceTest.class.getSimpleName());
 
     private CompileResult compileResult;
     private static KafkaCluster kafkaCluster;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir, null)
                 .withZookeeper(14041, null)
@@ -66,7 +65,7 @@ public class ServiceTest {
     }
 
     @Test(description = "Test endpoint bind to a service")
-    public void testKafkaService() throws ExecutionException, InterruptedException {
+    public void testSimpleService() throws ExecutionException, InterruptedException {
         String balFile = "simple_service.bal";
         compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
         String topic = "service-test";
@@ -89,7 +88,7 @@ public class ServiceTest {
     }
 
     @Test(description = "Test endpoint bind to a service")
-    public void testKafkaAdvancedService() {
+    public void testAdvancedService() {
         String balFile = "advanced_service.bal";
         compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
         BRunUtil.invoke(compileResult, "testProduce");
@@ -107,7 +106,7 @@ public class ServiceTest {
     }
 
     @Test(description = "Test kafka service stop() function")
-    public void testKafkaServiceStop() {
+    public void testServiceStop() {
         String balFile = "stop_service.bal";
         compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
         BRunUtil.invoke(compileResult, "testProduce");
@@ -123,8 +122,8 @@ public class ServiceTest {
         }
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

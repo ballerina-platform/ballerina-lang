@@ -27,11 +27,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -53,13 +52,13 @@ public class SaslPlainAuthenticationTest {
     private CompileResult producerResult;
     private CompileResult consumerResult;
     private static KafkaCluster kafkaCluster;
-    private static final String dataDir = getDataDirectoryName(SaslPlainAuthenticationTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(SaslPlainAuthenticationTest.class.getSimpleName());
     private static final String producerBalFile = "sasl_plain_producer.bal";
     private static final String consumerBalFile = "sasl_plain_consumer.bal";
     private static final String topic = "test-1";
     private static final List<String> topicsList = Collections.singletonList(topic);
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14021)
@@ -138,8 +137,8 @@ public class SaslPlainAuthenticationTest {
         return properties;
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

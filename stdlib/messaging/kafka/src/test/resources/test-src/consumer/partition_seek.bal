@@ -21,6 +21,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     groupId: "test-group",
     clientId: "seek-consumer",
     offsetReset: "earliest",
+    autoCommit: true,
     topics: ["test"]
 };
 
@@ -38,13 +39,16 @@ kafka:PartitionOffset partitionOffset = {
 
 kafka:TopicPartition[] topicPartitions = [topicPartition];
 
+int retrievedRecordsCount = 0;
+
 function testPoll() returns int|error {
     var records = kafkaConsumer->poll(1000);
     if (records is error) {
         return records;
     } else {
-        return records.length();
+        retrievedRecordsCount += records.length();
     }
+    return retrievedRecordsCount;
 }
 
 function testGetPositionOffset() returns int|error {

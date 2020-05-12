@@ -25,11 +25,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -50,14 +49,14 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCl
 public class TopicSubscribeWithPartitionRebalanceTest {
 
     private static final String dataDir = getDataDirectoryName(
-            TopicSubscribeWithPartitionRebalanceTest.class.getName());
+            TopicSubscribeWithPartitionRebalanceTest.class.getSimpleName());
 
     private static KafkaCluster kafkaCluster;
 
     private static String topic1 = "rebalance-topic-1";
     private static String topic2 = "rebalance-topic-2";
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14107)
@@ -68,7 +67,7 @@ public class TopicSubscribeWithPartitionRebalanceTest {
     }
 
     @Test(description = "Test functionality of subscribeWithPartitionRebalance() function")
-    public void testKafkaConsumerSubscribeWithPartitionRebalance() {
+    public void testSubscribeWithPartitionRebalance() {
         String balFile = "topic_subscribe_with_partition_rebalance.bal";
         CompileResult result = BCompileUtil.compileOffline(true, getResourcePath(
                 Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
@@ -88,7 +87,7 @@ public class TopicSubscribeWithPartitionRebalanceTest {
         kafkaCluster.createTopic(topic2, 2, 1);
 
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            produceToKafkaCluster(kafkaCluster, "test", "test-message");
+            produceToKafkaCluster(kafkaCluster, "test", "test-message", 1);
             BValue[] revoked = BRunUtil.invoke(result, "testGetRebalanceInvokedPartitionsCount");
             Assert.assertEquals(revoked.length, 1);
             Assert.assertTrue(revoked[0] instanceof BInteger);
@@ -103,8 +102,8 @@ public class TopicSubscribeWithPartitionRebalanceTest {
         });
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

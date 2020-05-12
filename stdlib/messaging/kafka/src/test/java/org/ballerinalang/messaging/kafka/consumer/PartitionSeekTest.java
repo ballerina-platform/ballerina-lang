@@ -26,11 +26,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -52,9 +51,11 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCl
 public class PartitionSeekTest {
     private CompileResult result;
     private static KafkaCluster kafkaCluster;
-    private static final String dataDir = getDataDirectoryName(PartitionSeekTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(PartitionSeekTest.class.getSimpleName());
+    private static final String topic = "test";
+    private static final String message = "test message";
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "partition_seek.bal";
         kafkaCluster = new KafkaCluster(dataDir)
@@ -63,26 +64,27 @@ public class PartitionSeekTest {
                 .withAdminClient()
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
                 .start();
-        kafkaCluster.createTopic("test", 1, 1);
+        kafkaCluster.createTopic(topic, 1, 1);
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
     }
 
     @Test(description = "Test Basic consumer with seek")
     @SuppressWarnings("unchecked")
-    public void testKafkaConsumeWithSeek() throws ExecutionException, InterruptedException {
-        produceToKafkaCluster(kafkaCluster, "test", "test_string");
+    public void testSeek() throws ExecutionException, InterruptedException {
+        int messageCount = 10;
+        produceToKafkaCluster(kafkaCluster, topic, message, messageCount);
         await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "testPoll");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BInteger);
-            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == 10);
+            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == messageCount);
         });
 
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetPositionOffset");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertNotNull(returnBValues[0]);
         Assert.assertTrue(returnBValues[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returnBValues[0]).intValue(), 10);
+        Assert.assertEquals(((BInteger) returnBValues[0]).intValue(), messageCount);
 
         // Seek to offset 5
         BRunUtil.invoke(result, "testSeekOffset");
@@ -103,7 +105,7 @@ public class PartitionSeekTest {
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BMap);
         off = (BMap<String, BValue>) returnBValues[0];
-        Assert.assertEquals(((BInteger) off.get("offset")).intValue(), 10);
+        Assert.assertEquals(((BInteger) off.get("offset")).intValue(), messageCount);
 
         // Seek to beginning
         BRunUtil.invoke(result, "testSeekToBegin");
@@ -124,8 +126,8 @@ public class PartitionSeekTest {
         Assert.assertEquals(((BInteger) returnBValues[0]).intValue(), 10);
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

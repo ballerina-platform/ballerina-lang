@@ -30,7 +30,6 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -49,12 +48,12 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTime
  */
 public class TransactionalProducerTest {
 
-    private static final String dataDir = getDataDirectoryName(TransactionalProducerTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(TransactionalProducerTest.class.getSimpleName());
 
     private static KafkaCluster kafkaCluster;
     private CompileResult result;
 
-    @BeforeTest
+    @BeforeTest(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14051)
@@ -63,7 +62,7 @@ public class TransactionalProducerTest {
     }
 
     @Test(description = "Test Kafka producer send function within transaction")
-    public void testKafkaSend() {
+    public void testSendFromTransactionalProducer() {
         String balFile = "transactional_send.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
         BValue[] returnBValues = BRunUtil.invoke(result, "testTransactionSendTest");
@@ -80,7 +79,7 @@ public class TransactionalProducerTest {
     }
 
     @Test(description = "Test kafka producer commitConsumerOffsets() function")
-    public void testKafkaCommitConsumerOffsetsTest() {
+    public void testCommitConsumerOffsetsTest() {
         String balFile = "commit_consumer_offsets.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
         BRunUtil.invoke(result, "testProduce");
@@ -108,7 +107,7 @@ public class TransactionalProducerTest {
     }
 
     @Test(description = "Test producer commit consumer functionality")
-    public void testKafkaCommitConsumerTest() {
+    public void testCommitConsumerTest() {
         String balFile = "commit_consumer.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_TRANSACTIONS, balFile)));
         BRunUtil.invoke(result, "testProduce");
@@ -125,7 +124,7 @@ public class TransactionalProducerTest {
     }
 
     @Test(description = "Test transactional producer with idempotence false")
-    public void testKafkaTransactionalProducerWithoutIdempotenceTest() {
+    public void testTransactionalProducerWithoutIdempotenceTest() {
         String message = "Failed to initialize the producer: configuration enableIdempotence must be set to true to " +
                 "enable transactional producer";
         String balFile = "transactional_producer_without_idempotence.bal";
@@ -136,8 +135,8 @@ public class TransactionalProducerTest {
         Assert.assertEquals(getErrorMessageFromReturnValue(returnValues[0]), message);
     }
 
-    @AfterTest
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

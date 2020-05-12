@@ -25,11 +25,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -46,11 +45,11 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
  */
 public class TopicSubscribeToPatternTest {
 
-    private static final String dataDir = getDataDirectoryName(TopicSubscribeToPatternTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(TopicSubscribeToPatternTest.class.getSimpleName());
 
     private static KafkaCluster kafkaCluster;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14006)
@@ -60,7 +59,7 @@ public class TopicSubscribeToPatternTest {
     }
 
     @Test(description = "Test functionality of getAvailableTopics() function")
-    public void testKafkaConsumerSubscribeToPattern() {
+    public void testSubscribeToPattern() {
         String balFile = "topic_subscribe_to_pattern.bal";
         CompileResult result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
         await().atMost(15000, TimeUnit.MILLISECONDS).until(() -> {
@@ -100,8 +99,8 @@ public class TopicSubscribeToPatternTest {
         }
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

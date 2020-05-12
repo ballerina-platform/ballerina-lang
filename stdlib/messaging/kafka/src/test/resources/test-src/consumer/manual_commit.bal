@@ -16,7 +16,7 @@
 
 import ballerina/kafka;
 
-const TOPIC = "manual-commit-test-topic";
+const topic = "manual-commit-test-topic";
 
 kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14102",
@@ -24,13 +24,15 @@ kafka:ConsumerConfiguration consumerConfigs = {
     clientId: "manual-commit-consumer",
     offsetReset: "earliest",
     autoCommit: false,
-    topics: [TOPIC]
+    topics: [topic]
 };
 
 kafka:Consumer consumer = new(consumerConfigs);
 
+int retrievedRecordsCount = 0;
+
 kafka:TopicPartition topicPartition = {
-    topic: TOPIC,
+    topic: topic,
     partition: 0
 };
 
@@ -44,8 +46,9 @@ function testPoll() returns int|error {
     if (records is error) {
         return records;
     } else {
-        return records.length();
+        retrievedRecordsCount += records.length();
     }
+    return retrievedRecordsCount;
 }
 
 function testGetCommittedOffset() returns kafka:PartitionOffset|error {

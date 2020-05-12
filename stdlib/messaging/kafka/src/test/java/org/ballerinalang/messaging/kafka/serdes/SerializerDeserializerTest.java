@@ -41,7 +41,7 @@ public class SerializerDeserializerTest {
 
     private CompileResult result;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() {
         String balFile = "invalid_producers.bal";
         result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_SERDES, balFile)));

@@ -27,11 +27,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -57,10 +56,10 @@ public class ManualCommitTest {
     private static KafkaCluster kafkaCluster;
 
     private static final String topic = "manual-commit-test-topic";
-    private static final String message = "test-message";
-    private static final String dataDir = getDataDirectoryName(ManualCommitTest.class.getName());
+    private static final String message = "test message";
+    private static final String dataDir = getDataDirectoryName(ManualCommitTest.class.getSimpleName());
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "manual_commit.bal";
         kafkaCluster = new KafkaCluster(dataDir)
@@ -74,13 +73,14 @@ public class ManualCommitTest {
     // This test has to be a large single method to maintain the state of the consumer.
     @SuppressWarnings("unchecked")
     @Test(description = "Test Kafka consumer polling with manual offset commit")
-    public void testKafkaConsumerPollWithManualOffsetCommit() throws ExecutionException, InterruptedException {
-        produceToKafkaCluster(kafkaCluster, topic, message);
-        await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
+    public void testPollWithManualOffsetCommit() throws ExecutionException, InterruptedException {
+        int messageCount = 10;
+        produceToKafkaCluster(kafkaCluster, topic, message, messageCount);
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "testPoll");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BInteger);
-            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == 10);
+            return ((BInteger) returnBValues[0]).intValue() == messageCount;
         });
 
         BValue[] returnBValues = BRunUtil.invoke(result, "testGetCommittedOffset");
@@ -94,7 +94,7 @@ public class ManualCommitTest {
         BRunUtil.invoke(result, "testCommit");
         returnBValues = BRunUtil.invoke(result, "testGetCommittedOffset");
         Assert.assertNotNull(returnBValues[0]);
-        validateCommittedOffset(returnBValues);
+        validateCommittedOffset(returnBValues, messageCount);
 
         returnBValues = BRunUtil.invoke(result, "testGetPositionOffset");
         validatePositionOffset(returnBValues);
@@ -118,15 +118,16 @@ public class ManualCommitTest {
         Assert.assertEquals(((BInteger) returnBValues[0]).intValue(), 10);
     }
 
-    private static void validateCommittedOffset(BValue[] returnBValues) {
+    private static void validateCommittedOffset(BValue[] returnBValues, int offset) {
         Assert.assertTrue(returnBValues[0] instanceof BMap);
+        BMap<String, BValue> partitionOffset = (BMap) returnBValues[0];
         Assert.assertEquals(returnBValues.length, 1, "Committed partitions map is empty: ");
-        Assert.assertEquals(((BMap) ((BMap) returnBValues[0]).get("partition")).get("topic").stringValue(), topic);
-        Assert.assertEquals(((BInteger) ((BMap) (returnBValues[0])).get("offset")).intValue(), 10);
+        Assert.assertEquals(((BMap) partitionOffset.get("partition")).get("topic").stringValue(), topic);
+        Assert.assertEquals(((BInteger) partitionOffset.get("offset")).intValue(), offset);
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }

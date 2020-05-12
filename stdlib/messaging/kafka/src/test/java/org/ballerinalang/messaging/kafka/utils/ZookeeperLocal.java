@@ -31,6 +31,7 @@ import java.util.Properties;
 public class ZookeeperLocal {
     PrintStream console = System.out;
     private final ZooKeeperServerMain zooKeeperServer;
+    private Thread thread;
 
     public ZookeeperLocal(Properties properties) {
         QuorumPeerConfig quorumConfiguration = new QuorumPeerConfig();
@@ -44,13 +45,22 @@ public class ZookeeperLocal {
         final ServerConfig configuration = new ServerConfig();
         configuration.readFrom(quorumConfiguration);
 
-        new Thread(() -> {
+        this.thread = new Thread(() -> {
             try {
                 zooKeeperServer.runFromConfig(configuration);
                 console.println("Zookeeper started");
             } catch (Exception e) {
                 console.println("Zookeeper startup failed." + e.getMessage());
             }
-        }).start();
+        });
+        this.thread.start();
+    }
+
+    public void stop() {
+        this.thread = null;
+    }
+
+    public Thread getThread() {
+        return this.thread;
     }
 }

@@ -27,11 +27,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
@@ -51,9 +50,9 @@ public class TopicPauseResumeTest {
     private CompileResult result;
     private static KafkaCluster kafkaCluster;
     private static final String topic = "consumer-pause-resume-test-topic";
-    private static final String dataDir = getDataDirectoryName(TopicPauseResumeTest.class.getName());
+    private static final String dataDir = getDataDirectoryName(TopicPauseResumeTest.class.getSimpleName());
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "topic_pause_resume.bal";
         kafkaCluster = new KafkaCluster(dataDir)
@@ -69,7 +68,7 @@ public class TopicPauseResumeTest {
     // This test has to be a large single method to maintain the state of the consumer.
     @Test(description = "Test Basic consumer with seek")
     @SuppressWarnings("unchecked")
-    public void testKafkaConsumeWithPause() throws ExecutionException, InterruptedException {
+    public void testPauseAndResume() throws ExecutionException, InterruptedException {
         // First poll to create a connection with the server. Otherwise pause and resume will fail.
         BRunUtil.invoke(result, "testPoll");
 
@@ -110,8 +109,8 @@ public class TopicPauseResumeTest {
                                     "No current assignment for partition test_negative-1000");
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
 }
