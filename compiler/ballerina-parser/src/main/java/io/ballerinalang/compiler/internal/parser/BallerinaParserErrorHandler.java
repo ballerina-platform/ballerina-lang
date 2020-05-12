@@ -2673,7 +2673,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private ParserRuleContext getNextRuleForGt(int nextLookahead) {
         ParserRuleContext parentCtx = getParentContext();
-        STToken nextToken = this.tokenReader.peek(nextLookahead);
         if (parentCtx == ParserRuleContext.TYPE_DESC_IN_STREAM_TYPE_DESC) {
             // Since type-desc in a stream-type can have alternate endings,
             // we haven't end the context. So if its '>', then end the ctx here.
@@ -2687,10 +2686,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
         if (parentCtx == ParserRuleContext.KEY_TYPE_CONSTRAINT_RHS) {
             endContext(); // end key type constraint.
+            endContext(); // end table type desc
             return ParserRuleContext.TYPEDESC_RHS;
         }
 
         if (parentCtx == ParserRuleContext.TABLE_TYPE_DESCRIPTOR) {
+            STToken nextToken = this.tokenReader.peek(nextLookahead);
             if (nextToken.kind == SyntaxKind.KEY_KEYWORD) {
                 return ParserRuleContext.KEY_KEYWORD;
             }

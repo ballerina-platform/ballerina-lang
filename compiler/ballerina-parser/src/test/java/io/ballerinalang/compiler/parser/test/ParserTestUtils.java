@@ -834,6 +834,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TEMPLATE_STRING;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
+            case "KEY_TYPE_CONSTRAINT":
+                return SyntaxKind.KEY_TYPE_CONSTRAINT;
 
             // Trivia
             case "EOF_TOKEN":
