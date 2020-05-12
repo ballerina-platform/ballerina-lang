@@ -45,6 +45,7 @@ function testReadonlyType() {
     testSimpleAssignmentForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
+    testImmutableTypedRecordFields();
 }
 
 function testSimpleAssignmentForSelectivelyImmutableTypes() {
@@ -365,6 +366,52 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an7 is 'xml:Element & readonly);
     assertFalse(an7 is readonly);
     assertFalse(a7.isReadOnly());
+}
+
+type Foo record {|
+    Bar & readonly b;
+|};
+
+type Bar record {|
+    int i;
+    Baz & readonly...;
+|};
+
+type Baz record {|
+    float f;
+|};
+
+function testImmutableTypedRecordFields() {
+    Baz & readonly immBaz = {f: 2};
+
+    Bar & readonly immBar = {
+        i: 1,
+        "c": {
+            f: 2
+        }
+    };
+
+    Foo f1 = {
+        b: immBar
+    };
+
+    assertFalse(f1.isReadOnly());
+    assertTrue(f1.b.isReadOnly());
+    anydata val = f1.b["c"];
+    assertTrue(val is Baz & readonly);
+    assertTrue(val.isReadOnly());
+    assertEquality(immBaz, val);
+
+    Foo & readonly f2 = {
+        b: immBar
+    };
+
+    assertTrue(f2.isReadOnly());
+    assertTrue(f2.b.isReadOnly());
+    val = f2.b["c"];
+    assertTrue(val is Baz & readonly);
+    assertTrue(val.isReadOnly());
+    assertEquality(immBaz, val);
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

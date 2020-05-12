@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -255,6 +256,62 @@ public class ImmutableTypeCloner {
         }
     }
 
+    public static void defineUndefinedImmutableRecordFields(BLangTypeDefinition typeDefinition, Types types,
+                                                            SymbolEnv pkgEnv, SymbolTable symTable,
+                                                            BLangAnonymousModelHelper anonymousModelHelper,
+                                                            Names names) {
+        BRecordType immutableRecordType = (BRecordType) typeDefinition.type;
+        BRecordType origRecordType = immutableRecordType.mutableType;
+        DiagnosticPos pos = typeDefinition.pos;
+        SymbolEnv env = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, pkgEnv);
+        PackageID packageID = env.enclPkg.symbol.pkgID;
+
+        if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
+            // The fields have already been defined.
+            List<BField> fields = new ArrayList<>();
+
+
+            for (BField origField : origRecordType.fields) {
+                BType immutableFieldType = setImmutableType(pos, types, origField.type, env, symTable,
+                                                            anonymousModelHelper, names);
+
+                Name origFieldName = origField.name;
+                BTypeSymbol recordSymbol = immutableRecordType.tsymbol;
+                BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY,
+                                                                 origFieldName, packageID, immutableFieldType,
+                                                                 recordSymbol);
+                if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
+                    BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
+                    BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
+                    invokableSymbol.params = tsymbol.params;
+                    invokableSymbol.restParam = tsymbol.restParam;
+                    invokableSymbol.retType = tsymbol.returnType;
+                    invokableSymbol.flags = tsymbol.flags;
+                }
+                fields.add(new BField(origFieldName, null, immutableFieldSymbol));
+                recordSymbol.scope.define(origFieldName, immutableFieldSymbol);
+            }
+
+            immutableRecordType.fields = fields;
+        }
+
+        BType currentRestFieldType = immutableRecordType.restFieldType;
+        if (currentRestFieldType != null && currentRestFieldType != symTable.noType) {
+            return;
+        }
+
+        immutableRecordType.sealed = origRecordType.sealed;
+
+        BType origRestFieldType = origRecordType.restFieldType;
+
+        if (origRestFieldType == null || origRestFieldType == symTable.noType) {
+            immutableRecordType.restFieldType = origRestFieldType;
+        } else {
+            immutableRecordType.restFieldType = setImmutableType(pos, types, origRestFieldType, env, symTable,
+                                                                 anonymousModelHelper, names);
+        }
+    }
+
     private static BRecordType defineImmutableRecordType(DiagnosticPos pos, BRecordType origRecordType, SymbolEnv env,
                                                          SymbolTable symTable,
                                                          BLangAnonymousModelHelper anonymousModelHelper,
@@ -279,6 +336,7 @@ public class ImmutableTypeCloner {
 
         BRecordType immutableRecordType = new BRecordType(recordSymbol, origRecordType.flags | Flags.READONLY);
         origRecordType.immutableType = immutableRecordType;
+        immutableRecordType.mutableType = origRecordType;
 
         List<BField> fields = new ArrayList<>();
 

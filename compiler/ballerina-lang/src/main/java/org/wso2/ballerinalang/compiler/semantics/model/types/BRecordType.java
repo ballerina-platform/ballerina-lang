@@ -49,7 +49,9 @@ public class BRecordType extends BStructureType implements RecordType {
     public BType restFieldType;
     private Optional<Boolean> isAnyData = Optional.empty();
     private boolean resolving = false;
+
     public BRecordType immutableType;
+    public BRecordType mutableType;
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
