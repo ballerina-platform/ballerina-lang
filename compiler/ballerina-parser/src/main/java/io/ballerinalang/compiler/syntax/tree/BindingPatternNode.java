@@ -32,7 +32,7 @@ public class BindingPatternNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> variableName() {
+    public Optional<CaptureBindingPatternNode> captureBindingPattern() {
         return optionalChildInBucket(0);
     }
 
@@ -49,17 +49,17 @@ public class BindingPatternNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "variableName"};
+                "captureBindingPattern"};
     }
 
     public BindingPatternNode modify(
-            Token variableName) {
+            CaptureBindingPatternNode captureBindingPattern) {
         if (checkForReferenceEquality(
-                variableName)) {
+                captureBindingPattern)) {
             return this;
         }
 
         return NodeFactory.createBindingPatternNode(
-                variableName);
+                captureBindingPattern);
     }
 }

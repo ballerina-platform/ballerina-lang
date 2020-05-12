@@ -60,8 +60,13 @@
                       "kind": "BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "v"
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "v"
+                            }
+                          ]
                         }
                       ]
                     }

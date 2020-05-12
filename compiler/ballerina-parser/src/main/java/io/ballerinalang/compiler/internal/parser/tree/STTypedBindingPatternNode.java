@@ -20,18 +20,18 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPattern;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STTypedBindingPattern extends STNode {
+public class STTypedBindingPatternNode extends STNode {
     public final STNode typeDescriptor;
     public final STNode bindingPattern;
 
-    STTypedBindingPattern(
+    STTypedBindingPatternNode(
             STNode typeDescriptor,
             STNode bindingPattern) {
         super(SyntaxKind.TYPED_BINDING_PATTERN);
@@ -44,6 +44,6 @@ public class STTypedBindingPattern extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new TypedBindingPattern(this, position, parent);
+        return new TypedBindingPatternNode(this, position, parent);
     }
 }

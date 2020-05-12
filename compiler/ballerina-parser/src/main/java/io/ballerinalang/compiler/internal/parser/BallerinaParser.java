@@ -347,8 +347,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseTableConstructorExpr((STNode) args[0], (STNode) args[1]);
             case ERROR_KEYWORD:
                 return parseErrorKeyWord();
-            case ERROR_TYPE_DESCRIPTOR:
-                return parseErrorTypeDescriptor();
             case LET_KEYWORD:
                 return parseLetKeyword();
             case STREAM_KEYWORD:
@@ -3436,7 +3434,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case FUNCTION_KEYWORD:
-                return parseFunctionTypeOrAnonFunc(null);
+                return parseFunctionExpression(null);
             case AT_TOKEN:
                 // Annon-func can have annotations. Check for other expressions
                 // that van start with annots.
@@ -7602,8 +7600,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseErrorTypeDescriptor() {
-        startContext(ParserRuleContext.ERROR_TYPE_DESCRIPTOR);
-
         STNode errorKeywordToken = parseErrorKeyWord();
         STNode errorTypeParamsNode;
         STToken nextToken = peek();
@@ -7613,7 +7609,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             errorTypeParamsNode = STNodeFactory.createEmptyNode();
         }
-        endContext();
         return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
     }
 
@@ -8072,8 +8067,8 @@ public class BallerinaParser extends AbstractParser {
      * @param annots
      * @return
      */
-    private STNode parseFunctionTypeOrAnonFunc(STNode annots) {
-        startContext(ParserRuleContext.ANNON_FUNC_OR_FUNC_TYPE);
+    private STNode parseFunctionExpression(STNode annots) {
+        startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
         STNode funcKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(true, false);
         STNode funcBody = parseFunctionTypeOrAnonFuncBody();
@@ -8142,10 +8137,31 @@ public class BallerinaParser extends AbstractParser {
 
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-                STNode varName = parseVariableName();
-                return STNodeFactory.createBindingPatternNode(varName);
+                STNode captureBindingPattern = parseCaptureBindingPattern();
+                return STNodeFactory.createBindingPatternNode(captureBindingPattern);
             default:
                 Solution sol = recover(token, ParserRuleContext.BINDING_PATTERN);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse binding-patterns.
+     *
+     * capture-binding-pattern := variable-name
+     * variable-name := identifier
+     *
+     * @return capture-binding-pattern node
+     */
+    private STNode parseCaptureBindingPattern() {
+        STToken token = peek();
+
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+                STNode varName = parseVariableName();
+                return STNodeFactory.createCaptureBindingPatternNode(varName);
+            default:
+                Solution sol = recover(token, ParserRuleContext.CAPTURE_BINDING_PATTERN);
                 return sol.recoveredNode;
         }
     }
@@ -8161,6 +8177,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPattern() {
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         STNode bindingPattern = parseBindingPattern();
-        return STNodeFactory.createTypedBindingPattern(typeDesc, bindingPattern);
+        return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
     }
 }

@@ -429,7 +429,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ForEachStatementNode createForEachStatementNode(
             Token forEachKeyword,
-            Node typedBindingPattern,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node ActionOrExpressionNode,
             StatementNode blockStatement) {
@@ -1816,23 +1816,32 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionSignatureNode.createUnlinkedFacade();
     }
 
-    public static TypedBindingPattern createTypedBindingPattern(
+    public static TypedBindingPatternNode createTypedBindingPatternNode(
             Node typeDescriptor,
             BindingPatternNode bindingPattern) {
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
 
-        STNode stTypedBindingPattern = STNodeFactory.createTypedBindingPattern(
+        STNode stTypedBindingPatternNode = STNodeFactory.createTypedBindingPatternNode(
                 typeDescriptor.internalNode(),
                 bindingPattern.internalNode());
-        return stTypedBindingPattern.createUnlinkedFacade();
+        return stTypedBindingPatternNode.createUnlinkedFacade();
     }
 
     public static BindingPatternNode createBindingPatternNode(
-            Token variableName) {
+            CaptureBindingPatternNode captureBindingPattern) {
 
         STNode stBindingPatternNode = STNodeFactory.createBindingPatternNode(
-                getOptionalSTNode(variableName));
+                getOptionalSTNode(captureBindingPattern));
         return stBindingPatternNode.createUnlinkedFacade();
     }
+
+    public static CaptureBindingPatternNode createCaptureBindingPatternNode(
+            Token variableName) {
+
+        STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
+                getOptionalSTNode(variableName));
+        return stCaptureBindingPatternNode.createUnlinkedFacade();
+    }
 }
+

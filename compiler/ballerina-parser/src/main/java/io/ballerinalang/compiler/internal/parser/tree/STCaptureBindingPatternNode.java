@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,19 +27,19 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STBindingPatternNode extends STNode {
-    public final STNode captureBindingPattern;
+public class STCaptureBindingPatternNode extends STNode {
+    public final STNode variableName;
 
-    STBindingPatternNode(
-            STNode captureBindingPattern) {
-        super(SyntaxKind.BINDING_PATTERN);
-        this.captureBindingPattern = captureBindingPattern;
+    STCaptureBindingPatternNode(
+            STNode variableName) {
+        super(SyntaxKind.CAPTURE_BINDING_PATTERN);
+        this.variableName = variableName;
 
         addChildren(
-                captureBindingPattern);
+                variableName);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BindingPatternNode(this, position, parent);
+        return new CaptureBindingPatternNode(this, position, parent);
     }
 }

@@ -464,12 +464,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionSignatureNode);
     }
 
-    public T transform(TypedBindingPattern typedBindingPattern) {
-        return transformSyntaxNode(typedBindingPattern);
+    public T transform(TypedBindingPatternNode typedBindingPatternNode) {
+        return transformSyntaxNode(typedBindingPatternNode);
     }
 
     public T transform(BindingPatternNode bindingPatternNode) {
         return transformSyntaxNode(bindingPatternNode);
+    }
+
+    public T transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        return transformSyntaxNode(captureBindingPatternNode);
     }
 
     // Tokens

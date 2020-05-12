@@ -1348,19 +1348,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 returnTypeDesc);
     }
 
-    public static STNode createTypedBindingPattern(
+    public static STNode createTypedBindingPatternNode(
             STNode typeDescriptor,
             STNode bindingPattern) {
 
-        return new STTypedBindingPattern(
+        return new STTypedBindingPatternNode(
                 typeDescriptor,
                 bindingPattern);
     }
 
     public static STNode createBindingPatternNode(
-            STNode variableName) {
+            STNode captureBindingPattern) {
 
         return new STBindingPatternNode(
+                captureBindingPattern);
+    }
+
+    public static STNode createCaptureBindingPatternNode(
+            STNode variableName) {
+
+        return new STCaptureBindingPatternNode(
                 variableName);
     }
 }
+

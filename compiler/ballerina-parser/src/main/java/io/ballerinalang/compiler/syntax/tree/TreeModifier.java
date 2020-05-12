@@ -325,7 +325,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ForEachStatementNode forEachStatementNode) {
         Token forEachKeyword = modifyToken(forEachStatementNode.forEachKeyword());
-        Node typedBindingPattern = modifyNode(forEachStatementNode.typedBindingPattern());
+        TypedBindingPatternNode typedBindingPattern = modifyNode(forEachStatementNode.typedBindingPattern());
         Token inKeyword = modifyToken(forEachStatementNode.inKeyword());
         Node ActionOrExpressionNode = modifyNode(forEachStatementNode.ActionOrExpressionNode());
         StatementNode blockStatement = modifyNode(forEachStatementNode.blockStatement());
@@ -1336,20 +1336,26 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 returnTypeDesc);
     }
 
-
     @Override
-    public Node transform(TypedBindingPattern typedBindingPattern) {
-        Node typeDescriptor = modifyNode(typedBindingPattern.typeDescriptor());
-        BindingPatternNode bindingPattern = modifyNode(typedBindingPattern.bindingPattern());
-        return typedBindingPattern.modify(
+    public Node transform(TypedBindingPatternNode typedBindingPatternNode) {
+        Node typeDescriptor = modifyNode(typedBindingPatternNode.typeDescriptor());
+        BindingPatternNode bindingPattern = modifyNode(typedBindingPatternNode.bindingPattern());
+        return typedBindingPatternNode.modify(
                 typeDescriptor,
                 bindingPattern);
     }
 
     @Override
     public Node transform(BindingPatternNode bindingPatternNode) {
-        Token variableName = modifyToken(bindingPatternNode.variableName().orElse(null));
+        CaptureBindingPatternNode captureBindingPattern = modifyNode(bindingPatternNode.captureBindingPattern().orElse(null));
         return bindingPatternNode.modify(
+                captureBindingPattern);
+    }
+
+    @Override
+    public Node transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        Token variableName = modifyToken(captureBindingPatternNode.variableName().orElse(null));
+        return captureBindingPatternNode.modify(
                 variableName);
     }
 
