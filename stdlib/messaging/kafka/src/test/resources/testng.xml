@@ -30,7 +30,7 @@
             <class name="org.ballerinalang.messaging.kafka.consumer.ConsumerFunctionsTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.ManualCommitTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.PartitionSeekTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.TopicPauseResumeTest" />
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.TopicPauseResumeTest" />-->
             <class name="org.ballerinalang.messaging.kafka.consumer.TopicsTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeToPatternTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeWithPartitionRebalanceTest" />
