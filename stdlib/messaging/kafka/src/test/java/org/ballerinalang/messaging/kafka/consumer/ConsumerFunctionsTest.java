@@ -42,6 +42,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTE
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
@@ -64,6 +65,7 @@ public class ConsumerFunctionsTest {
     @BeforeClass
     public void setup() throws Throwable {
         String balFile = "consumer_functions.bal";
+        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14001)
                 .withBroker(PROTOCOL_PLAINTEXT, 14101, getZookeeperTimeoutProperty())

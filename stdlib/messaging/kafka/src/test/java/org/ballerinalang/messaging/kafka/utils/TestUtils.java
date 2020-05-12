@@ -87,6 +87,13 @@ public class TestUtils {
         }
     }
 
+    public static void deleteDirectory(String name) {
+        File directory = new File(name);
+        if (directory.exists()) {
+            deleteDirectory(directory);
+        }
+    }
+
     public static void deleteDirectory(File entry) {
         if (entry.isDirectory()) {
             File[] fileList = entry.listFiles();

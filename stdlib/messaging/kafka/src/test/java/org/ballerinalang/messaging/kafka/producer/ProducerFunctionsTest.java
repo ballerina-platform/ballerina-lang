@@ -42,6 +42,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_DESERIALI
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -67,6 +68,7 @@ public class ProducerFunctionsTest {
     @BeforeTest(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "producer_functions.bal";
+        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir, null)
                 .withZookeeper(14011, null)
                 .withBroker(PROTOCOL_PLAINTEXT, 14111, getZookeeperTimeoutProperty())

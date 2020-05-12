@@ -47,6 +47,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SSL;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -67,6 +68,7 @@ public class SslConsumerAndProducerTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
+        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14022)
                 .withBroker(PROTOCOL_SSL, 14122, getKafkaBrokerProperties())
