@@ -8156,7 +8156,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCaptureBindingPattern() {
         STToken token = peek();
-
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 STNode varName = parseVariableName();
@@ -8178,20 +8177,21 @@ public class BallerinaParser extends AbstractParser {
      * @return list-binding-pattern node
      */
     private STNode parseListBindingPattern() {
+        startContext(ParserRuleContext.LIST_BINDING_PATTERN);
         STToken token = peek();
         ArrayList<STNode> bindingPatterns = new ArrayList<>();
-        STNode openBrace = parseOpenBrace();
+        STNode openBracket = parseOpenBracket();
     
         while (token.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
             switch (token.kind) {
                 case ELLIPSIS_TOKEN:
                     STNode restBindingPattern = parseRestBindingPattern();
-                    STNode closeBrace = parseCloseBrace();
+                    STNode closeBracket = parseCloseBracket();
                     STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
-                    return STNodeFactory.createListBindingPatternNode(openBrace,
+                    return STNodeFactory.createListBindingPatternNode(openBracket,
                                                                         bindingPatternsNode,
                                                                         restBindingPattern,
-                                                                        closeBrace);
+                                                                        closeBracket);
                 case COMMA_TOKEN:
                     if (bindingPatterns.isEmpty()) {
                         this.errorHandler.reportInvalidNode(null,
@@ -8211,12 +8211,13 @@ public class BallerinaParser extends AbstractParser {
             }
             token = peek();
         }
-        STNode closeBrace = parseCloseBrace();
+        STNode closeBracket = parseCloseBracket();
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
-        return STNodeFactory.createListBindingPatternNode(openBrace,
+        endContext();
+        return STNodeFactory.createListBindingPatternNode(openBracket,
                                                     bindingPatternsNode,
                                                     STNodeFactory.createEmptyNode(),
-                                                    closeBrace);
+                                                    closeBracket);
     }
 
     /**
@@ -8231,8 +8232,10 @@ public class BallerinaParser extends AbstractParser {
 
         switch (token.kind) {
             case ELLIPSIS_TOKEN:
+                startContext(ParserRuleContext.REST_BINDING_PATTERN);
                 STNode ellipsis = parseEllipsis();
                 STNode varName = parseVariableName();
+                endContext();
                 return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
             default:
                 Solution sol = recover(token, ParserRuleContext.REST_BINDING_PATTERN);
@@ -8249,8 +8252,10 @@ public class BallerinaParser extends AbstractParser {
      * @return Fork statement
      */
     private STNode parseTypedBindingPattern() {
+        startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         STNode bindingPattern = parseBindingPattern();
+        endContext();
         return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
     }
 }
