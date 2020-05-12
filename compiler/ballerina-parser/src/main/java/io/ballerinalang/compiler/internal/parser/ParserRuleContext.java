@@ -323,7 +323,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_RECORD_FIELD("type-desc-in-record-field"),
     TYPE_DESC_IN_PARAM("type-desc-in-param"),
     TYPE_DESC_IN_TYPE_BINDING_PATTERN("type-desc-in-type-binding-pattern"), // foreach, let-var-decl, var-decl
-    TYPE_DESC_IN_TYPE_DEF("type-def-type-desc"),                         // local/mdule type defitions
+    TYPE_DESC_IN_TYPE_DEF("type-def-type-desc"),                            // local/mdule type defitions
     TYPE_DESC_IN_ANGLE_BRACKETS("type-desc-in-angle-bracket"),              // type-cast, parameterized-type
     TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),

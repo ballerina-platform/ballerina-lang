@@ -7448,7 +7448,7 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBracket = parseCloseBracket();
         endContext();
         return STNodeFactory.createTableConstructorExpressionNode(tableKeyword, keySpecifier, openBracket, rowList,
-            closeBracket);
+                closeBracket);
     }
 
     /**
@@ -8097,8 +8097,8 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>tuple-type-descriptor := [ tuple-member-type-descriptors ]
      * <br/><br/>
-     * tuple-member-type-descriptors := member-type-descriptor (, member-type-descriptor)* [, tuple-rest-descriptor]
-     | [ tuple-rest-descriptor ]
+     * tuple-member-type-descriptors :=
+     * member-type-descriptor (, member-type-descriptor)* [, tuple-rest-descriptor] | [ tuple-rest-descriptor ]
      * <br/><br/>
      * tuple-rest-descriptor := type-descriptor ...
      * </code>

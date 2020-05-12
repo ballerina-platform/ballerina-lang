@@ -207,13 +207,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
     private static final ParserRuleContext[] EXPRESSION_START = { ParserRuleContext.BASIC_LITERAL,
-        ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
-        ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
-        ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR,
-        ParserRuleContext.TYPE_CAST_EXPRESSION, ParserRuleContext.OPEN_PARENTHESIS,
-        ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION, ParserRuleContext.LET_EXPRESSION,
-        ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD,
-        ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD };
+            ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
+            ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
+            ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR,
+            ParserRuleContext.TYPE_CAST_EXPRESSION, ParserRuleContext.OPEN_PARENTHESIS,
+            ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION, ParserRuleContext.LET_EXPRESSION,
+            ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD, ParserRuleContext.STRING_KEYWORD,
+            ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -287,7 +287,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, ParserRuleContext.GT };
 
     private static final ParserRuleContext[] TABLE_KEYWORD_RHS =
-        { ParserRuleContext.KEY_SPECIFIER, ParserRuleContext.TABLE_CONSTRUCTOR };
+            { ParserRuleContext.KEY_SPECIFIER, ParserRuleContext.TABLE_CONSTRUCTOR };
 
     private static final ParserRuleContext[] ROW_LIST_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.MAPPING_CONSTRUCTOR };
@@ -324,13 +324,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_START =
-        { ParserRuleContext.TABLE_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.QUERY_EXPRESSION };
+            { ParserRuleContext.TABLE_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.QUERY_EXPRESSION };
 
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_RHS =
-        { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
+            { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
 
     private static final ParserRuleContext[] QUERY_EXPRESSION_RHS =
-        { ParserRuleContext.SELECT_CLAUSE, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
+            { ParserRuleContext.SELECT_CLAUSE, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
             ParserRuleContext.LET_CLAUSE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
@@ -1119,13 +1119,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case TABLE_CONSTRUCTOR_OR_QUERY_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                        TABLE_CONSTRUCTOR_OR_QUERY_START, isEntryPoint);
+                            TABLE_CONSTRUCTOR_OR_QUERY_START, isEntryPoint);
                 case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                        TABLE_CONSTRUCTOR_OR_QUERY_RHS, isEntryPoint);
+                            TABLE_CONSTRUCTOR_OR_QUERY_RHS, isEntryPoint);
                 case QUERY_EXPRESSION_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, QUERY_EXPRESSION_RHS,
-                        isEntryPoint);
+                            isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
