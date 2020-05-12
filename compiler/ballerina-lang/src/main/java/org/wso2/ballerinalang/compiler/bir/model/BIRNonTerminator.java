@@ -503,7 +503,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand targetOp;
         public boolean readonly;
 
-        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp, boolean readonly) {
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp,
+                             boolean readonly) {
             super(pos, InstructionKind.NEW_XML_PI);
             this.lhsOp = lhsOp;
             this.dataOp = dataOp;
