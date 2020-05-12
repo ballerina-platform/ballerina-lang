@@ -61,8 +61,10 @@ function imapRead(ImapClient clientEndpoint, handle folder) returns Email|Error?
 #
 # + port - Port number of the IMAP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               The default value is true for the "imaps" protocol and false for the "imap" protocol.
+#               The default value is true for the "imaps" protocol and false for the "imap" protocol
+# + properties - IMAP properties to override the existing configuration
 public type ImapConfig record {|
     int port = 993;
     boolean enableSsl = true;
+    map<string>? properties = ();
 |};

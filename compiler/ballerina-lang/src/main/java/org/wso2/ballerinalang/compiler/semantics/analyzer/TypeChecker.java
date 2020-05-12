@@ -809,7 +809,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType inferTableMemberType(List<BType> memTypes) {
 
         if (memTypes.isEmpty()) {
-            return symTable.semanticError;
+            return ((BTableType) expType).constraint;
         }
 
         LinkedHashSet<BType> result = new LinkedHashSet<>();

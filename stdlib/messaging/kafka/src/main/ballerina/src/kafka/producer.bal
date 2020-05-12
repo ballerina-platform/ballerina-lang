@@ -56,8 +56,9 @@ import ballerina/java;
 # + maxInFlightRequestsPerConnection - Maximum number of unacknowledged requests on a single connection
 # + connectionsMaxIdleTimeInMillis - Close the idle connections after this number of milliseconds
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer
-# + enableIdempotence - Exactly one copy of each message is written in the stream when enabled
-# + secureSocket - Configurations related to SSL/TLS
+# + enableIdempotence - Exactly one copy of each message is written to the stream when enabled
+# + secureSocket - Configurations related to SSL/TLS encryption
+# + authenticationConfiguration - Authentication-related configurations for the Kafka producer
 public type ProducerConfiguration record {|
     string bootstrapServers;
     ProducerAcks acks = ACKS_SINGLE;
@@ -97,9 +98,10 @@ public type ProducerConfiguration record {|
     boolean enableIdempotence = false;
 
     SecureSocket secureSocket?;
+    AuthenticationConfiguration authenticationConfiguration?;
 |};
 
-# Defines a records to send data using Avro serialization.
+# Defines a record to send data using Avro serialization.
 #
 # + schemaString - The string, which defines the Avro schema
 # + dataRecord - Records, which should be serialized using Avro
@@ -174,12 +176,12 @@ public type Producer client object {
 
     public string connectorId = system:uuid();
 
-# Closes the producer connection to the external Kafka broker.
-# ```ballerina
-# kafka:ProducerError? result = producer->close();
-# ```
-#
-# + return - A `kafka:ProducerError` if closing the producer is failed or else ()
+    # Closes the producer connection to the external Kafka broker.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->close();
+    # ```
+    #
+    # + return - A `kafka:ProducerError` if closing the producer failed or else '()'
     public remote function close() returns ProducerError? {
         return producerClose(self);
     }
@@ -201,38 +203,38 @@ public type Producer client object {
         return producerCommitConsumerOffsets(self, offsets, java:fromString(groupID));
     }
 
-# Flushes the batch of records already sent to the broker by the producer.
-# ```ballerina
-# kafka:ProducerError? result = producer->flushRecords();
-# ```
-#
-# + return - A `kafka:ProducerError` if records couldn't be flushed or else ()
+    # Flushes the batch of records already sent to the broker by the producer.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->flushRecords();
+    # ```
+    #
+    # + return - A `kafka:ProducerError` if records couldn't be flushed or else '()'
     public remote function flushRecords() returns ProducerError? {
         return producerFlushRecords(self);
     }
 
-# Retrieves the topic partition information for the provided topic.
-# ```ballerina
-# kafka:TopicPartition[]|kafka:ProducerError result = producer->getTopicPartitions("kafka-topic");
-# ```
-#
-# + topic - Topic of which the partition information is given
-# + return - A `kafka:TopicPartition` array for the given topic or else a `kafka:ProducerError` if the operation fails
+    # Retrieves the topic partition information for the provided topic.
+    # ```ballerina
+    # kafka:TopicPartition[]|kafka:ProducerError result = producer->getTopicPartitions("kafka-topic");
+    # ```
+    #
+    # + topic - Topic of which the partition information is given
+    # + return - A `kafka:TopicPartition` array for the given topic or else a `kafka:ProducerError` if the operation fails
     public remote function getTopicPartitions(string topic) returns TopicPartition[]|ProducerError {
         return producerGetTopicPartitions(self, java:fromString(topic));
     }
 
-# Produces records to the Kafka server.
-# ```ballerina
-# kafka:ProducerError? result = producer->send("Hello World, Ballerina", "kafka-topic");
-# ```
-#
-# + value - Record contents
-# + topic - Topic to which the record will be appended
-# + key - Key that will be included in the record
-# + partition - Partition to which the record should be sent
-# + timestamp - Timestamp of the record in milliseconds since epoch
-# + return -  A `kafka:ProducerError` if send action fails to send data or else ()
+    # Produces records to the Kafka server.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->send("Hello World, Ballerina", "kafka-topic");
+    # ```
+    #
+    # + value - Record contents
+    # + topic - Topic to which the record will be appended
+    # + key - Key, which will be included in the record
+    # + partition - Partition to which the record should be sent
+    # + timestamp - Timestamp of the record in milliseconds since epoch
+    # + return -  A `kafka:ProducerError` if send action fails to send data or else '()'
     public remote function send(anydata value, string topic, public anydata? key = (), public int? partition = (),
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);

@@ -21,6 +21,7 @@ import org.ballerinalang.openapi.cmd.OpenAPICommandTest;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
+import org.ballerinalang.openapi.utils.TypeExtractorUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
@@ -148,6 +149,24 @@ public class CodeGeneratorTest {
             Assert.fail("Error while generating the ballerina content for the openapi definition: "
                     + yamlFile + " " + e.getMessage());
         }
+    }
+    
+    @Test
+    public void escapeIdentifierTest() {
+        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("abc"), "abc");
+        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("string"), "'string");
+        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("int"), "'int");
+        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("io.foo.bar"), "'io\\.foo\\.bar");
+        Assert.assertEquals(TypeExtractorUtil.escapeIdentifier("getV1CoreVersion"), "getV1CoreVersion");
+    }
+    
+    @Test
+    public void escapeTypeTest() {
+        Assert.assertEquals(TypeExtractorUtil.escapeType("abc"), "abc");
+        Assert.assertEquals(TypeExtractorUtil.escapeType("string"), "string");
+        Assert.assertEquals(TypeExtractorUtil.escapeType("int"), "int");
+        Assert.assertEquals(TypeExtractorUtil.escapeType("io.foo.bar"), "'io\\.foo\\.bar");
+        Assert.assertEquals(TypeExtractorUtil.escapeType("getV1CoreVersion"), "getV1CoreVersion");
     }
 
     @DataProvider(name = "fileProvider")
