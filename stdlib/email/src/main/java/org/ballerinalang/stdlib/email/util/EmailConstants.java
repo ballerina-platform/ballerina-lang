@@ -39,6 +39,7 @@ public class EmailConstants {
     public static final String MESSAGE_BCC = "bcc";
     public static final String MESSAGE_SUBJECT = "subject";
     public static final String MESSAGE_MESSAGE_BODY = "body";
+    public static final String MESSAGE_BODY_CONTENT_TYPE = "contentType";
     public static final String MESSAGE_FROM = "from";
     public static final String MESSAGE_SENDER = "sender";
     public static final String MESSAGE_REPLY_TO = "replyTo";
