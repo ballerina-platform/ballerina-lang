@@ -264,35 +264,12 @@ public class ImmutableTypeCloner {
         BRecordType origRecordType = immutableRecordType.mutableType;
         DiagnosticPos pos = typeDefinition.pos;
         SymbolEnv env = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, pkgEnv);
-        PackageID packageID = env.enclPkg.symbol.pkgID;
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
 
         if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
-            // The fields have already been defined.
-            List<BField> fields = new ArrayList<>();
-
-
-            for (BField origField : origRecordType.fields) {
-                BType immutableFieldType = setImmutableType(pos, types, origField.type, env, symTable,
-                                                            anonymousModelHelper, names);
-
-                Name origFieldName = origField.name;
-                BTypeSymbol recordSymbol = immutableRecordType.tsymbol;
-                BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY,
-                                                                 origFieldName, packageID, immutableFieldType,
-                                                                 recordSymbol);
-                if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
-                    BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
-                    BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
-                    invokableSymbol.params = tsymbol.params;
-                    invokableSymbol.restParam = tsymbol.restParam;
-                    invokableSymbol.retType = tsymbol.returnType;
-                    invokableSymbol.flags = tsymbol.flags;
-                }
-                fields.add(new BField(origFieldName, null, immutableFieldSymbol));
-                recordSymbol.scope.define(origFieldName, immutableFieldSymbol);
-            }
-
-            immutableRecordType.fields = fields;
+            immutableRecordType.fields = getImmutableFields(types, symTable, anonymousModelHelper, names,
+                                                            immutableRecordType.tsymbol, origRecordType, pos, env,
+                                                            pkgID);
         }
 
         BType currentRestFieldType = immutableRecordType.restFieldType;
@@ -300,6 +277,41 @@ public class ImmutableTypeCloner {
             return;
         }
 
+        setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
+                    new HashSet<>());
+    }
+
+    private static List<BField> getImmutableFields(Types types, SymbolTable symTable,
+                                                   BLangAnonymousModelHelper anonymousModelHelper, Names names,
+                                                   BTypeSymbol immutableRecordSymbol, BRecordType origRecordType,
+                                                   DiagnosticPos pos, SymbolEnv env, PackageID pkgID) {
+        List<BField> fields = new ArrayList<>();
+
+        for (BField origField : origRecordType.fields) {
+            BType immutableFieldType = setImmutableType(pos, types, origField.type, env, symTable,
+                                                        anonymousModelHelper, names);
+
+            Name origFieldName = origField.name;
+            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY,
+                                                             origFieldName, pkgID, immutableFieldType,
+                                                             immutableRecordSymbol);
+            if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
+                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            }
+            fields.add(new BField(origFieldName, null, immutableFieldSymbol));
+            immutableRecordSymbol.scope.define(origFieldName, immutableFieldSymbol);
+        }
+        return fields;
+    }
+
+    private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
+                                    Names names, BRecordType immutableRecordType, BRecordType origRecordType,
+                                    DiagnosticPos pos, SymbolEnv env, Set<BType> unresolvedTypes) {
         immutableRecordType.sealed = origRecordType.sealed;
 
         BType origRestFieldType = origRecordType.restFieldType;
@@ -308,7 +320,7 @@ public class ImmutableTypeCloner {
             immutableRecordType.restFieldType = origRestFieldType;
         } else {
             immutableRecordType.restFieldType = setImmutableType(pos, types, origRestFieldType, env, symTable,
-                                                                 anonymousModelHelper, names);
+                                                                 anonymousModelHelper, names, unresolvedTypes);
         }
     }
 
@@ -338,38 +350,12 @@ public class ImmutableTypeCloner {
         origRecordType.immutableType = immutableRecordType;
         immutableRecordType.mutableType = origRecordType;
 
-        List<BField> fields = new ArrayList<>();
+        immutableRecordType.fields = getImmutableFields(types, symTable, anonymousModelHelper, names,
+                                                        immutableRecordType.tsymbol, origRecordType, pos, env,
+                                                        pkgID);
 
-        for (BField origField : origRecordType.fields) {
-            BType immutableFieldType = setImmutableType(pos, types, origField.type, env, symTable,
-                                                        anonymousModelHelper, names, unresolvedTypes);
-
-            Name origFieldName = origField.name;
-            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY, origFieldName,
-                                                             pkgID, immutableFieldType, recordSymbol);
-            if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
-                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
-                invokableSymbol.params = tsymbol.params;
-                invokableSymbol.restParam = tsymbol.restParam;
-                invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
-            }
-            fields.add(new BField(origFieldName, null, immutableFieldSymbol));
-            recordSymbol.scope.define(origFieldName, immutableFieldSymbol);
-        }
-
-        immutableRecordType.fields = fields;
-        immutableRecordType.sealed = origRecordType.sealed;
-
-        BType origRestFieldType = origRecordType.restFieldType;
-
-        if (origRestFieldType == null || origRestFieldType == symTable.noType) {
-            immutableRecordType.restFieldType = origRestFieldType;
-        } else {
-            immutableRecordType.restFieldType = setImmutableType(pos, types, origRestFieldType, env, symTable,
-                                                                 anonymousModelHelper, names, unresolvedTypes);
-        }
+        setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
+                    unresolvedTypes);
 
         recordSymbol.type = immutableRecordType;
         immutableRecordType.tsymbol = recordSymbol;

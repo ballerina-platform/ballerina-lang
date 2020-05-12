@@ -481,7 +481,7 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
-        if (isSelectivelyImmutableType(target, unresolvedReadonlyTypes) &&
+        if (!isInherentlyImmutableType(target) &&
                 Symbols.isFlagOn(target.flags, Flags.READONLY) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
             return false;
         }
@@ -2831,6 +2831,55 @@ public class Types {
                 return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
             default:
                 return originalType;
+        }
+    }
+
+    BType getTypeIntersection(BType lhsType, BType rhsType) {
+        List<BType> narrowingTypes = getAllTypes(rhsType);
+        LinkedHashSet<BType> intersection = narrowingTypes.stream().map(type -> {
+            if (isAssignable(type, lhsType)) {
+                return type;
+            } else if (isAssignable(lhsType, type)) {
+                return lhsType;
+            } else if (lhsType.tag == TypeTags.FINITE) {
+                BType intersectionType = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) lhsType, type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.FINITE) {
+                BType intersectionType = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) type, lhsType);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (lhsType.tag == TypeTags.UNION) {
+                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) lhsType, type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.UNION) {
+                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) type, lhsType);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.NULL_SET) {
+                return type;
+            }
+            return null;
+        }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (intersection.isEmpty()) {
+            if (lhsType.tag == TypeTags.NULL_SET) {
+                return lhsType;
+            }
+            return symTable.semanticError;
+        }
+
+        if (intersection.contains(symTable.semanticError)) {
+            return symTable.semanticError;
+        } else if (intersection.size() == 1) {
+            return intersection.toArray(new BType[0])[0];
+        } else {
+            return BUnionType.create(null, intersection);
         }
     }
 

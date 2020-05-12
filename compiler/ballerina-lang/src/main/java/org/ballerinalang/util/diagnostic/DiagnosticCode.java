@@ -51,6 +51,7 @@ public enum DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
     INVALID_INTERSECTION_TYPE("invalid.intersection.type"),
+    INVALID_NON_READONLY_INTERSECTION_TYPE("invalid.non.readonly.intersection.type"),
     INVALID_READONLY_INTERSECTION_TYPE("invalid.readonly.intersection.type"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
