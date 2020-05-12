@@ -132,6 +132,7 @@ dependencies {
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')
+    testCompile project(':ballerina-kafka').sourceSets.test.output
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec-http'
@@ -145,8 +146,6 @@ dependencies {
     testCompile 'org.apache.directory.server:apacheds-all'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
-    testCompile 'io.debezium:debezium-core'
-    testCompile group: 'io.debezium', name: 'debezium-core', classifier: 'tests'
 
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')

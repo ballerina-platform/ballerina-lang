@@ -61,9 +61,8 @@ public class KafkaCluster {
     private static PrintStream console = System.out;
 
     // Default properties file paths
-    private static final String propertiesPath = Paths.get("data-files", "properties").toString();
-    private static final Path zookeeperPropFile = Paths.get(propertiesPath, "zookeeper.properties");
-    private static final Path kafkaPropFile = Paths.get(propertiesPath, "server.properties");
+    private static final String zookeeperProp = "zookeeper.properties";
+    private static final String kafkaProp = "server.properties";
 
     // Suffixes
     private static final String zookeeperSuffix = "zookeeper";
@@ -93,6 +92,22 @@ public class KafkaCluster {
     private int brokerPort = 9092;
     private String host = "localhost";
     private String bootstrapServer = host + ":" + brokerPort;
+    private String propertiesPath = Paths.get("data-files", "properties").toString();
+
+    public KafkaCluster(String dataDir, String host, String resourceDirectory) throws IOException {
+        if (dataDir == null) {
+            throw new IllegalArgumentException("Data directory cannot be null");
+        }
+        this.dataDir = dataDir;
+        if (host != null) {
+            this.host = host;
+        }
+        if (resourceDirectory != null) {
+            this.propertiesPath = resourceDirectory;
+        }
+        initializeDefaultProperties(resourceDirectory);
+        this.brokerList = new ArrayList<>();
+    }
 
     public KafkaCluster(String dataDir, String host) throws IOException {
         if (dataDir == null) {
@@ -303,23 +318,37 @@ public class KafkaCluster {
     }
 
     private void deleteDirectory(File file) {
-        File[] contents = file.listFiles();
-        if (contents != null) {
-            for (File content : contents) {
-                deleteDirectory(content);
+        String[] entries = file.list();
+        if (entries != null) {
+            for (String s : entries) {
+                File currentFile = new File(file.getPath(), s);
+                boolean deleted = currentFile.delete();
+                if (!deleted) {
+                    currentFile.deleteOnExit();
+                }
             }
-        }
-        if (!file.delete()) {
-            file.deleteOnExit();
         }
     }
 
     private void initializeDefaultProperties() throws IOException {
+        Path zookeeperPropFile = Paths.get(propertiesPath, zookeeperProp);
+        Path kafkaPropFile = Paths.get(propertiesPath, kafkaProp);
         defaultZookeeperProperties = new Properties();
         defaultKafkaProperties = new Properties();
         InputStream zookeeperPropertiesStream = new FileInputStream(getResourcePath(zookeeperPropFile));
         defaultZookeeperProperties.load(zookeeperPropertiesStream);
         InputStream kafkaPropertiesStream = new FileInputStream(getResourcePath(kafkaPropFile));
+        defaultKafkaProperties.load(kafkaPropertiesStream);
+    }
+
+    private void initializeDefaultProperties(String resourceDirectory) throws IOException {
+        defaultZookeeperProperties = new Properties();
+        defaultKafkaProperties = new Properties();
+        InputStream zookeeperPropertiesStream = new FileInputStream(
+                getResourcePath(Paths.get(resourceDirectory, "zookeeper.properties")));
+        defaultZookeeperProperties.load(zookeeperPropertiesStream);
+        InputStream kafkaPropertiesStream = new FileInputStream(getResourcePath(Paths.get(resourceDirectory, "server" +
+                ".properties")));
         defaultKafkaProperties.load(kafkaPropertiesStream);
     }
 }
