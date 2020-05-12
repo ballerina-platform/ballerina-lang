@@ -32,7 +32,7 @@ public class STCaptureBindingPatternNode extends STNode {
 
     STCaptureBindingPatternNode(
             STNode variableName) {
-        super(SyntaxKind.BINDING_PATTERN);
+        super(SyntaxKind.CAPTURE_BINDING_PATTERN);
         this.variableName = variableName;
 
         addChildren(
