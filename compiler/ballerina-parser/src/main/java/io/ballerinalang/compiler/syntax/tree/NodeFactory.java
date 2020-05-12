@@ -1821,7 +1821,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
             Token openBracketToken,
-            NodeList<TypeDescriptorNode> memberTypeDesc,
+            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
             Node restTypeDesc,
             Token closeBracketToken) {
         Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
@@ -1835,6 +1835,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 restTypeDesc.internalNode(),
                 closeBracketToken.internalNode());
         return stTupleTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ParenthesisedTypeDescriptorNode createParenthesisedTypeDescriptorNode(
+            Token openParenToken,
+            TypeDescriptorNode typedesc,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(typedesc, "typedesc must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stParenthesisedTypeDescriptorNode = STNodeFactory.createParenthesisedTypeDescriptorNode(
+                openParenToken.internalNode(),
+                typedesc.internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesisedTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static ExplicitNewExpression createExplicitNewExpression(

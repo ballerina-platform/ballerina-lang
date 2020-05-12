@@ -1363,6 +1363,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBracketToken);
     }
 
+    public static STNode createParenthesisedTypeDescriptorNode(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken) {
+
+        return new STParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken);
+    }
+
     public static STNode createExplicitNewExpression(
             STNode NewKeyword,
             STNode TypeDescriptor,

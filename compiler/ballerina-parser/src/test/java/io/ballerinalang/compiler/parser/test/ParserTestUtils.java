@@ -714,6 +714,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTION_TYPE_DESC;
             case "TUPLE_TYPE_DESC":
                 return SyntaxKind.TUPLE_TYPE_DESC;
+            case "PARENTHESISED_TYPE_DESC":
+                return SyntaxKind.PARENTHESISED_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

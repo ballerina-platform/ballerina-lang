@@ -468,6 +468,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(tupleTypeDescriptorNode);
     }
 
+    public T transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        return transformSyntaxNode(parenthesisedTypeDescriptorNode);
+    }
+
     public T transform(ExplicitNewExpression explicitNewExpression) {
         return transformSyntaxNode(explicitNewExpression);
     }
