@@ -17,6 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -24,9 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public abstract class STBindingPatternNode extends STNode {
+public class STRestBindingPatternNode extends STNode {
+    public final STNode ellipsisToken;
+    public final STNode variableName;
 
-    STBindingPatternNode(SyntaxKind kind) {
-        super(kind);
+    STRestBindingPatternNode(
+            STNode ellipsisToken,
+            STNode variableName) {
+        super(SyntaxKind.REST_BINDING_PATTERN);
+        this.ellipsisToken = ellipsisToken;
+        this.variableName = variableName;
+
+        addChildren(
+                ellipsisToken,
+                variableName);
+    }
+
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new RestBindingPatternNode(this, position, parent);
     }
 }

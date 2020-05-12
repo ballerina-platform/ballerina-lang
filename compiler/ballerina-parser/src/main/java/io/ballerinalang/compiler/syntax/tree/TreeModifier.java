@@ -1346,16 +1346,31 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(BindingPatternNode bindingPatternNode) {
-        CaptureBindingPatternNode captureBindingPattern = modifyNode(bindingPatternNode.captureBindingPattern().orElse(null));
-        return bindingPatternNode.modify(
-                captureBindingPattern);
-    }
-
-    @Override
     public Node transform(CaptureBindingPatternNode captureBindingPatternNode) {
         Token variableName = modifyToken(captureBindingPatternNode.variableName().orElse(null));
         return captureBindingPatternNode.modify(
+                variableName);
+    }
+
+    @Override
+    public Node transform(ListBindingPatternNode listBindingPatternNode) {
+        Token openBracket = modifyToken(listBindingPatternNode.openBracket());
+        SeparatedNodeList<BindingPatternNode> bindingPatterns = modifySeparatedNodeList(listBindingPatternNode.bindingPatterns());
+        RestBindingPatternNode restBindingPattern = modifyNode(listBindingPatternNode.restBindingPattern().orElse(null));
+        Token closeBracket = modifyToken(listBindingPatternNode.closeBracket());
+        return listBindingPatternNode.modify(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket);
+    }
+
+    @Override
+    public Node transform(RestBindingPatternNode restBindingPatternNode) {
+        Token ellipsisToken = modifyToken(restBindingPatternNode.ellipsisToken());
+        Token variableName = modifyToken(restBindingPatternNode.variableName());
+        return restBindingPatternNode.modify(
+                ellipsisToken,
                 variableName);
     }
 

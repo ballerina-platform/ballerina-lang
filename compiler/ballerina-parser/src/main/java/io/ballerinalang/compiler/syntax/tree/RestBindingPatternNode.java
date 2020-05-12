@@ -19,21 +19,23 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Optional;
-
 /**
  * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
-public class CaptureBindingPatternNode extends BindingPatternNode {
+public class RestBindingPatternNode extends NonTerminalNode {
 
-    public CaptureBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public RestBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> variableName() {
-        return optionalChildInBucket(0);
+    public Token ellipsisToken() {
+        return childInBucket(0);
+    }
+
+    public Token variableName() {
+        return childInBucket(1);
     }
 
     @Override
@@ -49,17 +51,21 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "ellipsisToken",
                 "variableName"};
     }
 
-    public CaptureBindingPatternNode modify(
+    public RestBindingPatternNode modify(
+            Token ellipsisToken,
             Token variableName) {
         if (checkForReferenceEquality(
+                ellipsisToken,
                 variableName)) {
             return this;
         }
 
-        return NodeFactory.createCaptureBindingPatternNode(
+        return NodeFactory.createRestBindingPatternNode(
+                ellipsisToken,
                 variableName);
     }
 }

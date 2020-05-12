@@ -26,14 +26,26 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class CaptureBindingPatternNode extends BindingPatternNode {
+public class ListBindingPatternNode extends BindingPatternNode {
 
-    public CaptureBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ListBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> variableName() {
-        return optionalChildInBucket(0);
+    public Token openBracket() {
+        return childInBucket(0);
+    }
+
+    public SeparatedNodeList<BindingPatternNode> bindingPatterns() {
+        return new SeparatedNodeList<>(childInBucket(1));
+    }
+
+    public Optional<RestBindingPatternNode> restBindingPattern() {
+        return optionalChildInBucket(2);
+    }
+
+    public Token closeBracket() {
+        return childInBucket(3);
     }
 
     @Override
@@ -49,17 +61,29 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "variableName"};
+                "openBracket",
+                "bindingPatterns",
+                "restBindingPattern",
+                "closeBracket"};
     }
 
-    public CaptureBindingPatternNode modify(
-            Token variableName) {
+    public ListBindingPatternNode modify(
+            Token openBracket,
+            SeparatedNodeList<BindingPatternNode> bindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBracket) {
         if (checkForReferenceEquality(
-                variableName)) {
+                openBracket,
+                bindingPatterns.underlyingListNode(),
+                restBindingPattern,
+                closeBracket)) {
             return this;
         }
 
-        return NodeFactory.createCaptureBindingPatternNode(
-                variableName);
+        return NodeFactory.createListBindingPatternNode(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket);
     }
 }

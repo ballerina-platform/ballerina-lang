@@ -467,12 +467,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typedBindingPatternNode);
     }
 
-    public void visit(BindingPatternNode bindingPatternNode) {
-        visitSyntaxNode(bindingPatternNode);
-    }
-
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
         visitSyntaxNode(captureBindingPatternNode);
+    }
+
+    public void visit(ListBindingPatternNode listBindingPatternNode) {
+        visitSyntaxNode(listBindingPatternNode);
+    }
+
+    public void visit(RestBindingPatternNode restBindingPatternNode) {
+        visitSyntaxNode(restBindingPatternNode);
     }
 
     // Tokens

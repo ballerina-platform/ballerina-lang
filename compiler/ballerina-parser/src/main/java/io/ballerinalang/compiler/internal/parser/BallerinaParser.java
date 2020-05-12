@@ -7145,7 +7145,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return named-worker-declarations node array
      */
-    private STNode parseMultileNamedWorkerDeclarations() {
+    private STNode parseMultipleNamedWorkerDeclarations() {
         STToken token = peek();
         ArrayList<STNode> workers = new ArrayList<>();
 
@@ -7183,7 +7183,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.FORK_STMT);
         STNode forkKeyword = parseForkKeyword();
         STNode openBrace = parseOpenBrace();
-        STNode namedWorkerDeclarations = parseMultileNamedWorkerDeclarations();
+        STNode namedWorkerDeclarations = parseMultipleNamedWorkerDeclarations();
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
@@ -8136,9 +8136,10 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
 
         switch (token.kind) {
+            case OPEN_BRACE_TOKEN:
+                return parseListBindingPattern();
             case IDENTIFIER_TOKEN:
-                STNode captureBindingPattern = parseCaptureBindingPattern();
-                return STNodeFactory.createBindingPatternNode(captureBindingPattern);
+                return parseCaptureBindingPattern();
             default:
                 Solution sol = recover(token, ParserRuleContext.BINDING_PATTERN);
                 return sol.recoveredNode;
@@ -8146,7 +8147,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse binding-patterns.
+     * Parse capture-binding-pattern.
      *
      * capture-binding-pattern := variable-name
      * variable-name := identifier
@@ -8162,6 +8163,79 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createCaptureBindingPatternNode(varName);
             default:
                 Solution sol = recover(token, ParserRuleContext.CAPTURE_BINDING_PATTERN);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse list-binding-patterns.
+     *
+     * list-binding-pattern := [ list-member-binding-patterns ]
+     * list-member-binding-patterns :=
+     *      binding-pattern (, binding-pattern)* [, rest-binding-pattern]
+     *      | [ rest-binding-pattern ]
+     *
+     * @return list-binding-pattern node
+     */
+    private STNode parseListBindingPattern() {
+        STToken token = peek();
+        ArrayList<STNode> bindingPatterns = new ArrayList<>();
+        STNode openBrace = parseOpenBrace();
+    
+        while (token.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
+            switch (token.kind) {
+                case ELLIPSIS_TOKEN:
+                    STNode restBindingPattern = parseRestBindingPattern();
+                    STNode closeBrace = parseCloseBrace();
+                    STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
+                    return STNodeFactory.createListBindingPatternNode(openBrace,
+                                                                        bindingPatternsNode,
+                                                                        restBindingPattern,
+                                                                        closeBrace);
+                case COMMA_TOKEN:
+                    if (bindingPatterns.isEmpty()) {
+                        this.errorHandler.reportInvalidNode(null,
+                            "comma must be preceded by binding-pattern in list-binding-pattern");
+                    } else {
+                        bindingPatterns.add(parseComma());
+                        bindingPatterns.add(parseBindingPattern());
+                    }
+                    break;
+                default:
+                    if (bindingPatterns.isEmpty()) {
+                        bindingPatterns.add(parseBindingPattern());
+                    } else {
+                        bindingPatterns.add(parseComma());
+                        bindingPatterns.add(parseBindingPattern());
+                    }
+            }
+            token = peek();
+        }
+        STNode closeBrace = parseCloseBrace();
+        STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
+        return STNodeFactory.createListBindingPatternNode(openBrace,
+                                                    bindingPatternsNode,
+                                                    STNodeFactory.createEmptyNode(),
+                                                    closeBrace);
+    }
+
+    /**
+     * Parse rest-binding-pattern.
+     *
+     * rest-binding-pattern := ... variable-name
+     *
+     * @return rest-binding-pattern node
+     */
+    private STNode parseRestBindingPattern() {
+        STToken token = peek();
+
+        switch (token.kind) {
+            case ELLIPSIS_TOKEN:
+                STNode ellipsis = parseEllipsis();
+                STNode varName = parseVariableName();
+                return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
+            default:
+                Solution sol = recover(token, ParserRuleContext.REST_BINDING_PATTERN);
                 return sol.recoveredNode;
         }
     }

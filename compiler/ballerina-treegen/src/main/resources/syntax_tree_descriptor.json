@@ -2429,24 +2429,57 @@
         {
             "name": "BindingPatternNode",
             "base": "Node",
-            "kind": "BINDING_PATTERN",
-            "attributes": [
-                {
-                    "name": "captureBindingPattern",
-                    "type": "CaptureBindingPatternNode",
-                    "isOptional": true
-                }
-            ]
+            "isAbstract": true
         },
         {
             "name": "CaptureBindingPatternNode",
-            "base": "Node",
-            "kind": "BINDING_PATTERN",
+            "base": "BindingPatternNode",
+            "kind": "CAPTURE_BINDING_PATTERN",
             "attributes": [
                 {
                     "name": "variableName",
                     "type": "Token",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ListBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "LIST_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPatterns",
+                    "type": "BindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restBindingPattern",
+                    "type": "RestBindingPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestBindingPatternNode",
+            "base": "Node",
+            "kind": "REST_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "variableName",
+                    "type": "Token"
                 }
             ]
         }

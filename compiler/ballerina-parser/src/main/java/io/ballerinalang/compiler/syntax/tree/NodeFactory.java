@@ -1828,20 +1828,41 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypedBindingPatternNode.createUnlinkedFacade();
     }
 
-    public static BindingPatternNode createBindingPatternNode(
-            CaptureBindingPatternNode captureBindingPattern) {
-
-        STNode stBindingPatternNode = STNodeFactory.createBindingPatternNode(
-                getOptionalSTNode(captureBindingPattern));
-        return stBindingPatternNode.createUnlinkedFacade();
-    }
-
     public static CaptureBindingPatternNode createCaptureBindingPatternNode(
             Token variableName) {
 
         STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
                 getOptionalSTNode(variableName));
         return stCaptureBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static ListBindingPatternNode createListBindingPatternNode(
+            Token openBracket,
+            SeparatedNodeList<BindingPatternNode> bindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(bindingPatterns, "bindingPatterns must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stListBindingPatternNode = STNodeFactory.createListBindingPatternNode(
+                openBracket.internalNode(),
+                bindingPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restBindingPattern),
+                closeBracket.internalNode());
+        return stListBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static RestBindingPatternNode createRestBindingPatternNode(
+            Token ellipsisToken,
+            Token variableName) {
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stRestBindingPatternNode = STNodeFactory.createRestBindingPatternNode(
+                ellipsisToken.internalNode(),
+                variableName.internalNode());
+        return stRestBindingPatternNode.createUnlinkedFacade();
     }
 }
 

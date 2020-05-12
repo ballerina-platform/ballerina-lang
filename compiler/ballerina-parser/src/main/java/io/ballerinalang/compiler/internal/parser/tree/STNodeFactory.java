@@ -1357,17 +1357,32 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 bindingPattern);
     }
 
-    public static STNode createBindingPatternNode(
-            STNode captureBindingPattern) {
-
-        return new STBindingPatternNode(
-                captureBindingPattern);
-    }
-
     public static STNode createCaptureBindingPatternNode(
             STNode variableName) {
 
         return new STCaptureBindingPatternNode(
+                variableName);
+    }
+
+    public static STNode createListBindingPatternNode(
+            STNode openBracket,
+            STNode bindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBracket) {
+
+        return new STListBindingPatternNode(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket);
+    }
+
+    public static STNode createRestBindingPatternNode(
+            STNode ellipsisToken,
+            STNode variableName) {
+
+        return new STRestBindingPatternNode(
+                ellipsisToken,
                 variableName);
     }
 }
