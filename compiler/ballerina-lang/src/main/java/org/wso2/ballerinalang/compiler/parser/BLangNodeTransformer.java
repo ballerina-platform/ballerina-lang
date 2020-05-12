@@ -32,6 +32,7 @@ import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
@@ -41,6 +42,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -539,7 +541,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
 
-        getFuncSignature(bLFunction, funcDefNode);
+        getFuncSignature(bLFunction, funcDefNode.functionSignature());
 
         // Set the function body
         if (funcDefNode.functionBody() == null) {
@@ -662,6 +664,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
         bLInvocation.argExprs = args;
         bLInvocation.pos = getPosition(functionCallNode);
+
+        return bLInvocation;
+    }
+
+    public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
+        BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangNameReference reference = getBLangNameReference(methodCallExprNode.methodName());
+        bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
+        bLInvocation.name = (BLangIdentifier) reference.name;
+
+        List<BLangExpression> args = new ArrayList<>();
+        methodCallExprNode.arguments().iterator().forEachRemaining(arg -> {
+            args.add((BLangExpression) arg.apply(this));
+        });
+        bLInvocation.argExprs = args;
+        bLInvocation.expr = createExpression(methodCallExprNode.expression());
+        bLInvocation.pos = getPosition(methodCallExprNode);
 
         return bLInvocation;
     }
@@ -890,9 +909,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
-    private void getFuncSignature(BLangFunction bLFunction, FunctionDefinitionNode funcDefNode) {
+    private void getFuncSignature(BLangFunction bLFunction, FunctionSignatureNode funcSignature) {
         // Set Parameters
-        for (ParameterNode child : funcDefNode.parameters()) {
+        for (ParameterNode child : funcSignature.parameters()) {
             SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
             if (child instanceof RestParameterNode) {
                 bLFunction.setRestParameter(param);
@@ -902,13 +921,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         // Set Return Type
-        Optional<Node> retNode = funcDefNode.returnTypeDesc();
+        Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
         if (retNode.isPresent()) {
             ReturnTypeDescriptorNode returnType = (ReturnTypeDescriptorNode) retNode.get();
             bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.pos = getPosition(funcDefNode);
+            bLValueType.pos = getPosition(funcSignature);
             bLValueType.typeKind = TypeKind.NIL;
             bLFunction.setReturnTypeNode(bLValueType);
         }
@@ -918,6 +937,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isSimpleLiteral(expression.kind())) {
             return createSimpleLiteral(expression);
         } else if (expression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
                 expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             // Variable References
             BLangNameReference nameReference = getBLangNameReference(expression);

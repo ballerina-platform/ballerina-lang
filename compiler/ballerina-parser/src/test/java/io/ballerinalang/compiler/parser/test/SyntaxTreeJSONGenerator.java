@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.parser.test;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,6 +31,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.io.IOException;
@@ -68,18 +71,20 @@ public class SyntaxTreeJSONGenerator {
 
         // Using a file source as input
         String path = "test1.bal";
-        generateJSON(Paths.get(path));
+        String jsonString = generateJSON(Paths.get(path), PARSER_CONTEXT);
+        STANDARD_OUT.println(jsonString);
     }
 
-    private static void generateJSON(Path sourceFilePath) throws IOException {
+    public static String generateJSON(Path sourceFilePath, ParserRuleContext context) throws IOException {
         byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath));
         String content = new String(bytes, StandardCharsets.UTF_8);
-        generateJSON(content, PARSER_CONTEXT);
+        return generateJSON(content, context);
     }
 
-    private static void generateJSON(String source, ParserRuleContext context) {
+    private static String generateJSON(String source, ParserRuleContext context) {
         STNode tree = getParserTree(source, context);
-        STANDARD_OUT.println(getJSON(tree));
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(getJSON(tree));
     }
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
@@ -95,6 +100,8 @@ public class SyntaxTreeJSONGenerator {
             treeNode = ((STSimpleNameReferenceNode) treeNode).name;
         } else if (treeNode instanceof STBuiltinSimpleNameReferenceNode) {
             treeNode = ((STBuiltinSimpleNameReferenceNode) treeNode).name;
+        } else if (treeNode instanceof STXMLTextNode) {
+            treeNode = ((STXMLTextNode) treeNode).content;
         }
 
         JsonObject jsonNode = new JsonObject();

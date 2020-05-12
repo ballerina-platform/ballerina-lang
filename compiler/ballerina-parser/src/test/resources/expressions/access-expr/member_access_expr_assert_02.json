@@ -1,5 +1,5 @@
 {
-    "kind": "MEMBER_ACCESS",
+    "kind": "INDEXED_EXPRESSION",
     "children": [
         {
             "kind": "FIELD_ACCESS",

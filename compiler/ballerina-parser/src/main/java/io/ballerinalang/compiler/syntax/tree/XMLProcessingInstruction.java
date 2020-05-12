@@ -24,25 +24,25 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
+public class XMLProcessingInstruction extends XMLItemNode {
 
-    public ArrayTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public XMLProcessingInstruction(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node typeDescriptorNode() {
+    public Token piStart() {
         return childInBucket(0);
     }
 
-    public Token openBracketToken() {
+    public XMLNameNode target() {
         return childInBucket(1);
     }
 
-    public Node arrayLengthNode() {
-        return childInBucket(2);
+    public NodeList<Node> data() {
+        return new NodeList<>(childInBucket(2));
     }
 
-    public Token closeBracketToken() {
+    public Token piEnd() {
         return childInBucket(3);
     }
 
@@ -59,29 +59,29 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "typeDescriptorNode",
-                "openBracketToken",
-                "arrayLengthNode",
-                "closeBracketToken"};
+                "piStart",
+                "target",
+                "data",
+                "piEnd"};
     }
 
-    public ArrayTypeDescriptorNode modify(
-            Node typeDescriptorNode,
-            Token openBracketToken,
-            Node arrayLengthNode,
-            Token closeBracketToken) {
+    public XMLProcessingInstruction modify(
+            Token piStart,
+            XMLNameNode target,
+            NodeList<Node> data,
+            Token piEnd) {
         if (checkForReferenceEquality(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken)) {
+                piStart,
+                target,
+                data.underlyingListNode(),
+                piEnd)) {
             return this;
         }
 
-        return NodeFactory.createArrayTypeDescriptorNode(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
+        return NodeFactory.createXMLProcessingInstruction(
+                piStart,
+                target,
+                data,
+                piEnd);
     }
 }

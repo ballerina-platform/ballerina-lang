@@ -52,10 +52,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode visibilityQualifier,
             STNode functionKeyword,
             STNode functionName,
-            STNode openParenToken,
-            STNode parameters,
-            STNode closeParenToken,
-            STNode returnTypeDesc,
+            STNode functionSignature,
             STNode functionBody) {
 
         return new STFunctionDefinitionNode(
@@ -63,10 +60,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
-                openParenToken,
-                parameters,
-                closeParenToken,
-                returnTypeDesc,
+                functionSignature,
                 functionBody);
     }
 
@@ -440,13 +434,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createMemberAccessExpressionNode(
+    public static STNode createIndexedExpressionNode(
             STNode containerExpression,
             STNode openBracket,
             STNode keyExpression,
             STNode closeBracket) {
 
-        return new STMemberAccessExpressionNode(
+        return new STIndexedExpressionNode(
                 containerExpression,
                 openBracket,
                 keyExpression,
@@ -851,19 +845,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor);
     }
 
-    public static STNode createArrayTypeDescriptorNode(
-            STNode typeDescriptorNode,
-            STNode openBracketToken,
-            STNode arrayLengthNode,
-            STNode closeBracketToken) {
-
-        return new STArrayTypeDescriptorNode(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
-    }
-
     public static STNode createRemoteMethodCallActionNode(
             STNode expression,
             STNode rightArrowToken,
@@ -1113,6 +1094,50 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
+    public static STNode createErrorTypeDescriptorNode(
+            STNode errorKeywordToken,
+            STNode errorTypeParamsNode) {
+
+        return new STErrorTypeDescriptorNode(
+                errorKeywordToken,
+                errorTypeParamsNode);
+    }
+
+    public static STNode createErrorTypeParamsNode(
+            STNode ltToken,
+            STNode parameter,
+            STNode gtToken) {
+
+        return new STErrorTypeParamsNode(
+                ltToken,
+                parameter,
+                gtToken);
+    }
+
+    public static STNode createStreamTypeDescriptorNode(
+            STNode streamKeywordToken,
+            STNode streamTypeParamsNode) {
+
+        return new STStreamTypeDescriptorNode(
+                streamKeywordToken,
+                streamTypeParamsNode);
+    }
+
+    public static STNode createStreamTypeParamsNode(
+            STNode ltToken,
+            STNode leftTypeDescNode,
+            STNode commaToken,
+            STNode rightTypeDescNode,
+            STNode gtToken) {
+
+        return new STStreamTypeParamsNode(
+                ltToken,
+                leftTypeDescNode,
+                commaToken,
+                rightTypeDescNode,
+                gtToken);
+    }
+
     public static STNode createLetExpressionNode(
             STNode letKeyword,
             STNode letVarDeclarations,
@@ -1141,75 +1166,188 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createQueryConstructTypeNode(
-            STNode tableKeyword,
-            STNode KeySpecifier) {
+    public static STNode createTemplateExpressionNode(
+            SyntaxKind kind,
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
 
-        return new STQueryConstructTypeNode(
-                tableKeyword,
-                KeySpecifier);
+        return new STTemplateExpressionNode(
+                kind,
+                type,
+                startBacktick,
+                content,
+                endBacktick);
     }
 
-    public static STNode createFromClauseNode(
-            STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
-            STNode inKeyword,
-            STNode expression) {
+    public static STNode createXMLElementNode(
+            STNode startTag,
+            STNode content,
+            STNode endTag) {
 
-        return new STFromClauseNode(
-                fromKeyword,
-                typeName,
-                variableName,
-                inKeyword,
-                expression);
+        return new STXMLElementNode(
+                startTag,
+                content,
+                endTag);
     }
 
-    public static STNode createWhereClauseNode(
-            STNode whereKeyword,
-            STNode expression) {
+    public static STNode createXMLStartTagNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode getToken) {
 
-        return new STWhereClauseNode(
-                whereKeyword,
-                expression);
+        return new STXMLStartTagNode(
+                ltToken,
+                name,
+                attributes,
+                getToken);
     }
 
-    public static STNode createLetClauseNode(
-            STNode letKeyword,
-            STNode letVarDeclarations) {
+    public static STNode createXMLEndTagNode(
+            STNode ltToken,
+            STNode slashToken,
+            STNode name,
+            STNode getToken) {
 
-        return new STLetClauseNode(
-                letKeyword,
-                letVarDeclarations);
+        return new STXMLEndTagNode(
+                ltToken,
+                slashToken,
+                name,
+                getToken);
     }
 
-    public static STNode createQueryPipelineNode(
-            STNode fromClause,
-            STNode intermediateClauses) {
+    public static STNode createXMLSimpleNameNode(
+            STNode name) {
 
-        return new STQueryPipelineNode(
-                fromClause,
-                intermediateClauses);
+        return new STXMLSimpleNameNode(
+                name);
     }
 
-    public static STNode createSelectClauseNode(
-            STNode selectKeyword,
-            STNode expression) {
+    public static STNode createXMLQualifiedNameNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
 
-        return new STSelectClauseNode(
-                selectKeyword,
-                expression);
+        return new STXMLQualifiedNameNode(
+                prefix,
+                colon,
+                name);
     }
 
-    public static STNode createQueryExpressionNode(
-            STNode queryConstructType,
-            STNode queryPipeline,
-            STNode selectClause) {
+    public static STNode createXMLEmptyElementNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode slashToken,
+            STNode getToken) {
 
-        return new STQueryExpressionNode(
-                queryConstructType,
-                queryPipeline,
-                selectClause);
+        return new STXMLEmptyElementNode(
+                ltToken,
+                name,
+                attributes,
+                slashToken,
+                getToken);
+    }
+
+    public static STNode createInterpolationNode(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken) {
+
+        return new STInterpolationNode(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken);
+    }
+
+    public static STNode createXMLTextNode(
+            STNode content) {
+
+        return new STXMLTextNode(
+                content);
+    }
+
+    public static STNode createXMLAttributeNode(
+            STNode attributeName,
+            STNode equalToken,
+            STNode value) {
+
+        return new STXMLAttributeNode(
+                attributeName,
+                equalToken,
+                value);
+    }
+
+    public static STNode createXMLAttributeValue(
+            STNode startQuote,
+            STNode value,
+            STNode endQuote) {
+
+        return new STXMLAttributeValue(
+                startQuote,
+                value,
+                endQuote);
+    }
+
+    public static STNode createXMLComment(
+            STNode commentStart,
+            STNode content,
+            STNode commentEnd) {
+
+        return new STXMLComment(
+                commentStart,
+                content,
+                commentEnd);
+    }
+
+    public static STNode createXMLProcessingInstruction(
+            STNode piStart,
+            STNode target,
+            STNode data,
+            STNode piEnd) {
+
+        return new STXMLProcessingInstruction(
+                piStart,
+                target,
+                data,
+                piEnd);
+    }
+
+    public static STNode createFunctionTypeDescriptorNode(
+            STNode functionKeyword,
+            STNode functionSignature) {
+
+        return new STFunctionTypeDescriptorNode(
+                functionKeyword,
+                functionSignature);
+    }
+
+    public static STNode createAnonymousFunctionExpressionNode(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody) {
+
+        return new STAnonymousFunctionExpressionNode(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
+    }
+
+    public static STNode createFunctionSignatureNode(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc) {
+
+        return new STFunctionSignatureNode(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc);
     }
 }
 

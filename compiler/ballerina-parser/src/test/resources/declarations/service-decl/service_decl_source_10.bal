@@ -1,5 +1,5 @@
 service echoService on someListner {
-    function foo()
+    function foo() {
     
     
     resource function bar() {

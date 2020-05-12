@@ -23,7 +23,6 @@
                 {
                     "kind": "INT_KEYWORD"
                 },
-
                 {
                     "kind": "GT_TOKEN"
                 }

@@ -1,141 +1,144 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": [
-            ]
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "LISTENER_DECLARATION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "LISTENER_DECLARATION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LISTENER_KEYWORD"
-                        }, {"kind":"STRING_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "s1"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "http://hello1.com"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
-                },
-                {
-                    "kind": "MODULE_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        }, {"kind":"STRING_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "s2"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "http://hello2.com"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
-                },
-                {
-                    "kind": "CONST_DECLARATION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CONST_KEYWORD"
-                        }, {"kind":"STRING_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "s2"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "http://hello3.com"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
-                },
-                {
-                    "kind": "MODULE_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                    ]
-                                }
-                            ]
-                        }, {"kind":"STRING_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "s2"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
+                  "kind": "LIST",
+                  "children": []
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "LISTENER_KEYWORD"
+            },
+            {
+              "kind": "STRING_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "s1"
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "http://hello1.com"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
         },
         {
-            "kind": "EOF_TOKEN"
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "STRING_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "s2"
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "http://hello2.com"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
+        },
+        {
+          "kind": "CONST_DECLARATION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "CONST_KEYWORD"
+            },
+            {
+              "kind": "STRING_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "s2"
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "http://hello3.com"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "STRING_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "s2"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }
