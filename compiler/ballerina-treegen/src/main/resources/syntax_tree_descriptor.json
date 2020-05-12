@@ -1096,7 +1096,7 @@
                 },
                 {
                     "name": "argumentName",
-                    "type": "Token"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "equalsToken",
