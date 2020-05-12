@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -79,14 +77,20 @@ public class TestUtils {
         return ((BMap) ((BError) value).getDetails()).get("message").stringValue();
     }
 
-    public static void finishTest(KafkaCluster kafkaCluster, String dataDir) throws IOException {
+    public static void finishTest(KafkaCluster kafkaCluster, String dataDir) {
         if (kafkaCluster != null) {
             kafkaCluster.stop();
         }
-        boolean deleted = Files.deleteIfExists(Paths.get(dataDir));
-        if (!deleted) {
-            File file = new File(dataDir);
-            file.deleteOnExit();
+        File file = new File(dataDir);
+        String[] entries = file.list();
+        if (entries != null) {
+            for (String entry: entries) {
+                File currentFile = new File(file.getPath(), entry);
+                boolean deleted = currentFile.delete();
+                if (!deleted) {
+                    currentFile.deleteOnExit();
+                }
+            }
         }
     }
 
