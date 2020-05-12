@@ -39,6 +39,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Tests for ballerina kafka subscribeToPattern function.
@@ -53,7 +54,7 @@ public class TopicSubscribeToPatternTest {
     public void setup() throws Throwable {
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14006)
-                .withBroker(PROTOCOL_PLAINTEXT, 14106)
+                .withBroker(PROTOCOL_PLAINTEXT, 14106, getZookeeperTimeoutProperty())
                 .withAdminClient()
                 .start();
     }

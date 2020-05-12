@@ -41,6 +41,7 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Test cases for ballerina.net.kafka consumer for get list of available topics using getAvailableTopics() native
@@ -62,7 +63,7 @@ public class TopicsTest {
         String balFile = "topics.bal";
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14005)
-                .withBroker(PROTOCOL_PLAINTEXT, 14105)
+                .withBroker(PROTOCOL_PLAINTEXT, 14105, getZookeeperTimeoutProperty())
                 .withAdminClient()
                 .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
                 .start();
