@@ -592,6 +592,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
+        if (fieldAccessExpr.impConversionExpr != null) {
+            fieldAccessExpr.impConversionExpr.expr.accept(this);
+        }
     }
 
     @Override
@@ -700,6 +703,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                         types.getSafeType(frameAccessExpr.expr.type, true, false));
 
                 if (symbol instanceof BVarSymbol) {
+                    ((BVarSymbol) symbol).originalSymbol = null;
                     BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
                             desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                     BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
