@@ -25,7 +25,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     topics: ["test"]
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfigs);
+kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 kafka:TopicPartition topicPartition = {
     topic: "test",

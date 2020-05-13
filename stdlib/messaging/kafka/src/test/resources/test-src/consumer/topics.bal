@@ -42,9 +42,9 @@ kafka:ConsumerConfiguration assignConsumerConfigs = {
     clientId: "topics-test-consumer-3"
 };
 
-kafka:Consumer consumer = new(configs);
-kafka:Consumer topicPartitionConsumer = new(topicPartitionConfigs);
-kafka:Consumer topicAssignConsumer = new(assignConsumerConfigs);
+kafka:Consumer consumer = new (configs);
+kafka:Consumer topicPartitionConsumer = new (topicPartitionConfigs);
+kafka:Consumer topicAssignConsumer = new (assignConsumerConfigs);
 
 function testGetAvailableTopics() returns string[]|error {
     return consumer->getAvailableTopics();

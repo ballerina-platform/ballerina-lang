@@ -29,7 +29,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,7 +42,6 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTE
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
@@ -65,7 +64,6 @@ public class ConsumerFunctionsTest {
     @BeforeClass
     public void setup() throws Throwable {
         String balFile = "consumer_functions.bal";
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14001)
                 .withBroker(PROTOCOL_PLAINTEXT, 14101, getZookeeperTimeoutProperty())
@@ -144,7 +142,7 @@ public class ConsumerFunctionsTest {
         Assert.assertFalse(returnBValues[0] instanceof BError);
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }

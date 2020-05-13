@@ -36,7 +36,7 @@ function testTransactionSendTest() returns boolean {
 }
 
 function kafkaAdvancedTransactionalProduce(byte[] msg) returns error? {
-    kafka:Producer kafkaProducer = new(producerConfigs);
+    kafka:Producer kafkaProducer = new (producerConfigs);
     error? returnValue = ();
     error err = error("custom error");
     transaction {
