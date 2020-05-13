@@ -85,13 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -281,6 +275,8 @@ public class BLangPackageBuilder {
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
     private Stack<BLangNode> queryClauseStack = new Stack<>();
+
+    private Stack<BLangOnClause> onClauseNodeStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
@@ -1941,6 +1937,7 @@ public class BLangPackageBuilder {
         Collections.reverse(queryClauseStack);
         while (queryClauseStack.size() > 0) {
             queryExpr.addQueryClause(queryClauseStack.pop());
+
         }
         addExpressionNode(queryExpr);
     }
@@ -2017,12 +2014,52 @@ public class BLangPackageBuilder {
         queryClauseStack.push(fromClause);
     }
 
+    void createJoinClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
+                false, false, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.var.addWS(this.bindingPatternIdentifierWS.pop());
+        } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
+        }
+
+        addJoinClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void createJoinClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                        boolean isDeclaredWithVar) {
+        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, false,
+                isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
+        }
+
+        addJoinClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    private void addJoinClause(DiagnosticPos pos, Set<Whitespace> ws,
+                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
+        BLangJoinClause joinClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
+        joinClause.addWS(ws);
+        joinClause.pos = pos;
+        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
+        joinClause.setVariableDefinitionNode(variableDefinitionNode);
+        joinClause.isDeclaredWithVar = isDeclaredWithVar;
+        joinClause.setExpression(this.exprNodeStack.pop());
+        joinClause.setOnClauseNode(onClauseNodeStack.pop());
+        joinClause.setCollection(this.exprNodeStack.pop());
+        queryClauseStack.push(joinClause);
+    }
+
     void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.addWS(ws);
         onClause.pos = pos;
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        queryClauseStack.push(onClause);
+        onClauseNodeStack.push(onClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

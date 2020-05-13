@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -2808,6 +2807,26 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     isDeclaredWithVar);
         } else {
             this.pkgBuilder.createFromClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar);
+        }
+    }
+
+    @Override
+    public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+
+        if (ctx.bindingPattern().Identifier() != null) {
+            String identifier = ctx.bindingPattern().Identifier().getText();
+            DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
+            this.pkgBuilder.createJoinClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    identifier, identifierPos,
+                    isDeclaredWithVar);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.createJoinClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar);
         }
     }

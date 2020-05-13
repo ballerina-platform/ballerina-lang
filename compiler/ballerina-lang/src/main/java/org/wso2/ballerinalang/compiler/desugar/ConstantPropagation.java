@@ -41,13 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -808,6 +802,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         fromClause.collection = rewrite(fromClause.collection);
         result = fromClause;
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        joinClause.collection = rewrite(joinClause.collection);
+        joinClause.onClause = rewrite(joinClause.onClause);
+        joinClause.expression = rewrite(joinClause.expression);
+        result = joinClause;
     }
 
     @Override

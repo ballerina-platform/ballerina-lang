@@ -19,13 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -333,6 +327,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangFromClause fromClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangJoinClause joinClause) {
         throw new AssertionError();
     }
 

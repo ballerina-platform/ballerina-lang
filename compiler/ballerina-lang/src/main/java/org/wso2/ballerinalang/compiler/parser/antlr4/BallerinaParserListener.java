@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /Users/wso2/Desktop/StreamDesugar/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -2615,6 +2615,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLetClause(BallerinaParser.LetClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#joinOnCondition}.
+	 * @param ctx the parse tree
+	 */
+	void enterJoinOnCondition(BallerinaParser.JoinOnConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#joinOnCondition}.
+	 * @param ctx the parse tree
+	 */
+	void exitJoinOnCondition(BallerinaParser.JoinOnConditionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#joinClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterJoinClause(BallerinaParser.JoinClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#joinClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitJoinClause(BallerinaParser.JoinClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#fromClause}.
 	 * @param ctx the parse tree
