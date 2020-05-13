@@ -319,20 +319,20 @@ class JvmValueGen {
         }
     }
 
-        private void createObjectFields(ClassWriter cw, Map<String, BField> fields) {
+    private void createObjectFields(ClassWriter cw, Map<String, BField> fields) {
 
-            for (BField field : fields.values()) {
-                if (field == null) {
-                    continue;
-                }
-                FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
-                fvb.visitEnd();
-                String lockClass = "L" + LOCK_VALUE + ";";
-                FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
-                                                lockClass, null, null);
-                fv.visitEnd();
+        for (BField field : fields.values()) {
+            if (field == null) {
+                continue;
             }
+            FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
+            fvb.visitEnd();
+            String lockClass = "L" + LOCK_VALUE + ";";
+            FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
+                                            lockClass, null, null);
+            fv.visitEnd();
         }
+    }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
                                      String typeName, BObjectType currentObjectType,
@@ -346,7 +346,7 @@ class JvmValueGen {
         }
     }
 
-        private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
+private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", OBJECT_TYPE), null, null);
         mv.visitCode();
@@ -450,7 +450,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-        private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         String signature = String.format("(L%s;)L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
@@ -491,7 +491,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-        private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                 String.format("(L%s;L%s;)V", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE,
@@ -1028,8 +1028,7 @@ class JvmValueGen {
 
     }
 
-        private void createRecordContainsKeyMethod(ClassWriter cw, Map<String, BField> fields,
-                                                   String className) {
+    private void createRecordContainsKeyMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", String.format("(L%s;)Z", OBJECT), null, null);
         mv.visitCode();
@@ -1133,7 +1132,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-        void createGetSizeMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    void createGetSizeMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "size", "()I", null, null);
         mv.visitCode();
@@ -1180,11 +1179,11 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-        private void createRecordClearMethod(ClassWriter cw, Map<String, BField> fields, String className) {
-            // throw an UnsupportedOperationException, since remove is not supported by for records.
-            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                                              String.format("(L%s;)TV;", OBJECT), null);
-            mv.visitCode();
+    private void createRecordClearMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+        // throw an UnsupportedOperationException, since remove is not supported by for records.
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
+                                          String.format("(L%s;)TV;", OBJECT), null);
+        mv.visitCode();
 
         int fieldNameRegIndex = 1;
         int strKeyVarIndex = 2;
@@ -1271,7 +1270,7 @@ class JvmValueGen {
         }
     }
 
-        void createRecordGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    void createRecordGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", String.format("()[L%s;", OBJECT), "()[TK;", null);
         mv.visitCode();
