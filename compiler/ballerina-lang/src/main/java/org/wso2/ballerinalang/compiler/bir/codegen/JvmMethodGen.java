@@ -1476,7 +1476,7 @@ public class JvmMethodGen {
         // generate method desc
         BType retType = func.type.retType;
         if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.buildType(func.type.retType);
+            retType = typeBuilder.buildType(func.type.retType, func.type.tsymbol);
         }
 
         String desc = getMethodDesc(func.type.paramTypes, retType, null, false);

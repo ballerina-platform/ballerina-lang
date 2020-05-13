@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -63,6 +65,7 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
     private Map<String, BType> paramValueTypes;
     private Set<BType> visitedTypes;
+    private BInvokableTypeSymbol funcTSymbol;
     private boolean isInvocation;
 
     public BType buildType(BType originalType, BLangInvocation invocation) {
@@ -72,12 +75,13 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
             createParamMap(invocation);
         }
         BType newType = originalType.accept(this, null);
-        this.paramValueTypes = null;
+        reset();
         return newType;
     }
 
-    public BType buildType(BType originalType) {
-        return buildType(originalType, null);
+    public BType buildType(BType originalType, BTypeSymbol invokableTypeSymbol) {
+        this.funcTSymbol = (BInvokableTypeSymbol) invokableTypeSymbol;
+        return buildType(originalType, (BLangInvocation) null);
     }
 
     @Override
@@ -354,6 +358,8 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         BType type;
         if (this.isInvocation) {
             type = ((BTypedescType) paramValueTypes.get(paramVarName)).constraint;
+        } else if (this.funcTSymbol != null && !this.funcTSymbol.paramDefaultValTypes.isEmpty()) {
+            type = ((BTypedescType) this.funcTSymbol.paramDefaultValTypes.get(paramVarName)).constraint;
         } else {
             type = originalType.paramValueType;
         }
@@ -378,5 +384,12 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
             paramValueTypes.put(param.name.value, invocation.requiredArgs.get(i).type);
         }
+    }
+
+    private void reset() {
+        this.funcTSymbol = null;
+        this.visitedTypes = null;
+        this.paramValueTypes = null;
+        this.isInvocation = false;
     }
 }

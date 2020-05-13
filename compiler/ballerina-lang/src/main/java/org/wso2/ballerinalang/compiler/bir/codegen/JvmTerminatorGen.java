@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -151,6 +152,7 @@ public class JvmTerminatorGen {
     private JvmInstructionGen jvmInstructionGen;
     private PackageCache packageCache;
     private SymbolTable symbolTable;
+    private ConcreteBTypeBuilder typeBuilder;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, BIRNode.BIRPackage module, JvmInstructionGen jvmInstructionGen,
@@ -165,6 +167,7 @@ public class JvmTerminatorGen {
         this.jvmInstructionGen = jvmInstructionGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
+        this.typeBuilder = new ConcreteBTypeBuilder();
     }
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
@@ -677,7 +680,6 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
 
-
     private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
         // load self
         BIRNode.BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
@@ -707,7 +709,6 @@ public class JvmTerminatorGen {
             // i + 1 is used since we skip the first argument (self)
             BIROperand arg = callIns.args.get(i + 1);
             boolean userProvidedArg = this.visitArg(arg);
-
 
             // Add the to the rest params array
             JvmInstructionGen.addBoxInsn(this.mv, arg.variableDcl.type);
@@ -1138,7 +1139,7 @@ public class JvmTerminatorGen {
         if (isObserved) {
             emitStopObservationInvocation(this.mv, localVarOffset);
         }
-        BType bType = func.type.retType;
+        BType bType = typeBuilder.buildType(func.type.retType, func.type.tsymbol);
         if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);

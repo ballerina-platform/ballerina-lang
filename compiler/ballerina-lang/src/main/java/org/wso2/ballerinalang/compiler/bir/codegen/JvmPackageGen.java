@@ -356,7 +356,7 @@ public class JvmPackageGen {
 
         BType retType = functionTypeDesc.retType;
         if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.buildType(retType);
+            retType = typeBuilder.buildType(retType, functionTypeDesc.tsymbol);
         }
 
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, retType, attachedType, false);
