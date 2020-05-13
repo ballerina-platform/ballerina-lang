@@ -508,6 +508,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addIntersectionType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
         if (isInErrorState) {
             return;

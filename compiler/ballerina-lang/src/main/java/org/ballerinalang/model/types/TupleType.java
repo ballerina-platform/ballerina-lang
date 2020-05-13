@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 0.966.0
  */
-public interface TupleType extends ReferenceType {
+public interface TupleType extends SelectivelyImmutableReferenceType {
 
     List<? extends Type> getTupleTypes();
 }

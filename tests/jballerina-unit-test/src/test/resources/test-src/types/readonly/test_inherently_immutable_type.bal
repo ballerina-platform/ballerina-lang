@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/lang.'xml;
 
 // readonly-type-descriptor := readonly
 // A shape belongs to the type readonly if its read-only bit is on.
@@ -44,7 +45,6 @@ import ballerina/java;
 function testReadonlyType() {
     testSimpleAssignmentForInherentlyImmutableBasicTypes();
     testRuntimeIsTypeForInherentlyImmutableBasicTypes();
-    testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeForNeverImmutableBasicTypes();
 }
 
@@ -111,6 +111,11 @@ function testSimpleAssignmentForInherentlyImmutableBasicTypes() {
     readonly m = handleVal;
     assertTrue(m is handle);
     assertEquality(handleVal, m);
+
+    'xml:Text xmlText = xml `xml text`;
+    readonly n = xmlText;
+    assertTrue(n is 'xml:Text);
+    assertEquality(n, xml `xml text`);
 }
 
 function testRuntimeIsTypeForInherentlyImmutableBasicTypes() {
@@ -162,40 +167,10 @@ function testRuntimeIsTypeForInherentlyImmutableBasicTypes() {
     handle handleVal = java:fromString("val");
     any m = handleVal;
     assertTrue(m is readonly);
-}
 
-function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
-    xml a = xml `<foo><bar>Text</bar></foo>`;
-    any b = a;
-    any c = a.cloneReadOnly();
-    assertFalse(b is readonly);
-    assertTrue(c is readonly);
-
-    int[] d = [1, 2];
-    any e = d;
-    any f = d.cloneReadOnly();
-    assertFalse(e is readonly);
-    assertTrue(f is readonly);
-
-    [boolean, int] g = [true, 2];
-    any h = g;
-    any i = g.cloneReadOnly();
-    assertFalse(h is readonly);
-    assertTrue(i is readonly);
-
-    map<string> j = {a: "a", b: "b"};
-    any k = j;
-    any l = j.cloneReadOnly();
-    assertFalse(k is readonly);
-    assertTrue(l is readonly);
-
-    Employee m = {name: "Maryam"};
-    any n = m;
-    any o = m.cloneReadOnly();
-    assertFalse(n is readonly);
-    assertTrue(o is readonly);
-
-    // TODO: table.
+    'xml:Text xmlText = xml `xml text`;
+    any n = xmlText;
+    assertTrue(n is readonly);
 }
 
 function testRuntimeIsTypeForNeverImmutableBasicTypes() {

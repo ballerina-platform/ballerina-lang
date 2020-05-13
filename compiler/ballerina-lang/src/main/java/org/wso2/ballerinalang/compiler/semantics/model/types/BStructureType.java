@@ -37,6 +37,11 @@ public abstract class BStructureType extends BType {
         this.fields = new ArrayList<>();
     }
 
+    public BStructureType(int tag, BTypeSymbol tSymbol, int flags) {
+        super(tag, tSymbol, flags);
+        this.fields = new ArrayList<>();
+    }
+
     public List<BField> getFields() {
         return fields;
     }

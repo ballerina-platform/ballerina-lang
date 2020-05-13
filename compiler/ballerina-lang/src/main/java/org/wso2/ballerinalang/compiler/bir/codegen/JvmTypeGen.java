@@ -75,6 +75,8 @@ import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -383,7 +385,7 @@ class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;)V", SCHEDULER), false);
             mv.visitInsn(SWAP);
             mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND, MAP_VALUE),
-                    false);
+                               false);
 
             mv.visitInsn(ARETURN);
             i += 1;
@@ -1002,20 +1004,21 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.BYTE) {
             typeFieldName = "typeByte";
         } else if (bType.tag == TypeTags.ANY) {
-            typeFieldName = "typeAny";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAny" : "typeAny";
         } else if (bType.tag == TypeTags.ANYDATA) {
-            typeFieldName = "typeAnydata";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAnydata" : "typeAnydata";
         } else if (bType.tag == TypeTags.JSON) {
-            typeFieldName = "typeJSON";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyJSON" : "typeJSON";
         } else if (bType.tag == TypeTags.XML) {
             loadXmlType(mv, (BXMLType) bType);
             return;
         } else if (bType.tag == TypeTags.XML_ELEMENT) {
-            typeFieldName = "typeElement";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyElement" : "typeElement";
         } else if (bType.tag == TypeTags.XML_PI) {
-            typeFieldName = "typeProcessingInstruction";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyProcessingInstruction" :
+                    "typeProcessingInstruction";
         } else if (bType.tag == TypeTags.XML_COMMENT) {
-            typeFieldName = "typeComment";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyComment" : "typeComment";
         } else if (bType.tag == TypeTags.XML_TEXT) {
             typeFieldName = "typeText";
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -1103,8 +1106,18 @@ class JvmTypeGen {
         mv.visitLdcInsn((long) arraySize);
         mv.visitInsn(L2I);
 
+        loadReadonlyFlag(mv, bType);
+
+        BArrayType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;I)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZL%s;)V", BTYPE, ARRAY_TYPE),
+                           false);
     }
 
     /**
@@ -1141,8 +1154,25 @@ class JvmTypeGen {
         // Load the constraint type
         loadType(mv, bType.constraint);
 
+        loadReadonlyFlag(mv, bType);
+
+        BMapType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, MAP_TYPE), false);
+    }
+
+    private static void loadReadonlyFlag(MethodVisitor mv, BType bType) {
+        if (Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
     }
 
     /**
@@ -1160,8 +1190,17 @@ class JvmTypeGen {
         // Load the constraint type
         loadType(mv, bType.constraint);
 
+        loadReadonlyFlag(mv, bType);
+
+        BXMLType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, XML_TYPE), false);
     }
 
     /**
@@ -1267,8 +1306,17 @@ class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
 
+        loadReadonlyFlag(mv, bType);
+
+        BType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;I)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;IZL%s;)V", BTYPE, BTYPE), false);
     }
 
     /**
@@ -1305,7 +1353,17 @@ class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
 
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;I)V", LIST, BTYPE), false);
+        loadReadonlyFlag(mv, bType);
+
+        BTupleType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>",
+                           String.format("(L%s;L%s;IZL%s;)V", LIST, BTYPE, TUPLE_TYPE), false);
     }
 
     /**

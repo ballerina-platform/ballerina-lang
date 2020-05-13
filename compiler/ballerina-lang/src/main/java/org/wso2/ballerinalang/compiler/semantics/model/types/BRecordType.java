@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.RecordType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -48,8 +50,16 @@ public class BRecordType extends BStructureType implements RecordType {
     private Optional<Boolean> isAnyData = Optional.empty();
     private boolean resolving = false;
 
+    public BRecordType immutableType;
+    public BRecordType mutableType;
+
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
+        this.fields = new ArrayList<>();
+    }
+
+    public BRecordType(BTypeSymbol tSymbol, int flags) {
+        super(TypeTags.RECORD, tSymbol, flags);
         this.fields = new ArrayList<>();
     }
 
@@ -81,10 +91,11 @@ public class BRecordType extends BStructureType implements RecordType {
             }
             if (sealed) {
                 sb.append(SPACE).append(CLOSE_RIGHT);
-                return sb.toString();
+                return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() :
+                        sb.toString().concat(" & readonly");
             }
             sb.append(SPACE).append(restFieldType).append(REST).append(SEMI).append(SPACE).append(CLOSE_RIGHT);
-            return sb.toString();
+            return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() : sb.toString().concat(" & readonly");
         }
         return this.tsymbol.toString();
     }
@@ -111,5 +122,10 @@ public class BRecordType extends BStructureType implements RecordType {
         }
 
         return (this.sealed || this.restFieldType.isPureType());
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
     }
 }

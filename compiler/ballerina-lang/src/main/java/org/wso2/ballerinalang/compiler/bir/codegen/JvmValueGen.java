@@ -87,6 +87,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -95,6 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_SIMPLE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
@@ -563,7 +565,7 @@ class JvmValueGen {
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
                                          BIRNode.BIRTypeDefinition typeDef) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "instantiate",
-                String.format("(L%s;)L%s;", STRAND, OBJECT), null, null);
+                String.format("(L%s;[L%s;)L%s;", STRAND, BINITIAL_VALUE_ENTRY, OBJECT), null, null);
         mv.visitCode();
 
         String className = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
@@ -572,7 +574,6 @@ class JvmValueGen {
         mv.visitInsn(DUP);
         loadType(mv, recordType);
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
-
 
         BAttachedFunction initializer = ((BRecordTypeSymbol) recordType.tsymbol).initializerFunc;
         StringBuilder closureParamSignature = calcClosureMapSignature(initializer.type.paramTypes.size());
@@ -631,6 +632,14 @@ class JvmValueGen {
                            false);
 
         mv.visitInsn(POP);
+
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(CHECKCAST, valueClassName);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitTypeInsn(CHECKCAST, String.format("[L%s;", MAPPING_INITIAL_VALUE_ENTRY));
+        mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValues",
+                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
+
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -676,6 +685,7 @@ class JvmValueGen {
         this.createRecordRemoveMethod(cw);
         this.createRecordClearMethod(cw, fields, className);
         this.createRecordGetKeysMethod(cw, fields, className);
+        this.createRecordPopulateInitialValuesMethod(cw);
 
         this.createRecordConstructor(cw, className);
         this.createRecordInitWrapper(cw, className, typeDef);
@@ -776,6 +786,7 @@ class JvmValueGen {
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
                            String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
         mv.visitInsn(POP);
+
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -1306,6 +1317,22 @@ class JvmValueGen {
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", String.format("([L%s;)[L%s;", OBJECT, OBJECT), true);
 
         mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void createRecordPopulateInitialValuesMethod(ClassWriter cw) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "populateInitialValues",
+                                          String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), null, null);
+        mv.visitCode();
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "populateInitialValues",
+                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
+
+        mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }

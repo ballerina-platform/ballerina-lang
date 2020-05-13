@@ -64,7 +64,7 @@ public class GlobalVarNegativeTest {
 
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "variable(s) 's, i' not initialized", 21, 9);
+        BAssertUtil.validateError(result, i++, "variable(s) 'i, s' not initialized", 21, 9);
         BAssertUtil.validateError(result, i, "variable(s) 's' not initialized", 22, 9);
     }
 }

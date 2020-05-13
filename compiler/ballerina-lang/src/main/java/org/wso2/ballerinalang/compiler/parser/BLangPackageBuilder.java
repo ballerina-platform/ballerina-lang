@@ -190,6 +190,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -385,6 +386,32 @@ public class BLangPackageBuilder {
         unionTypeNode.pos = pos;
         unionTypeNode.addWS(ws);
         this.typeNodeStack.push(unionTypeNode);
+    }
+
+    void addIntersectionType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangType rhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        BLangType lhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        addIntersectionType(lhsTypeNode, rhsTypeNode, pos, ws);
+    }
+
+    private void addIntersectionType(BLangType lhsTypeNode, BLangType rhsTypeNode, DiagnosticPos pos,
+                                     Set<Whitespace> ws) {
+        BLangIntersectionTypeNode intersectionTypeNode;
+        if (rhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionTypeNode = (BLangIntersectionTypeNode) rhsTypeNode;
+            intersectionTypeNode.constituentTypeNodes.add(0, lhsTypeNode);
+        } else if (lhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionTypeNode = (BLangIntersectionTypeNode) lhsTypeNode;
+            intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
+        } else {
+            intersectionTypeNode = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            intersectionTypeNode.constituentTypeNodes.add(lhsTypeNode);
+            intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
+        }
+
+        intersectionTypeNode.pos = pos;
+        intersectionTypeNode.addWS(ws);
+        this.typeNodeStack.push(intersectionTypeNode);
     }
 
     void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam) {

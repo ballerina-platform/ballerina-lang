@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -84,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -896,6 +898,65 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = unionType;
     }
 
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+
+        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
+
+        boolean validIntersection = true;
+
+        BType typeOne = resolveTypeNode(constituentTypeNodes.get(0), env);
+        BType typeTwo = resolveTypeNode(constituentTypeNodes.get(1), env);
+
+        boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
+
+        BType intersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
+
+        if (intersectionType == symTable.semanticError) {
+            validIntersection = false;
+        } else {
+            for (int i = 2; i < constituentTypeNodes.size(); i++) {
+                BType type = resolveTypeNode(constituentTypeNodes.get(i), env);
+
+                if (!hasReadOnlyType) {
+                    hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                intersectionType = getPotentialReadOnlyIntersection(intersectionType, type);
+                if (intersectionType == symTable.semanticError) {
+                    validIntersection = false;
+                    break;
+                }
+            }
+        }
+
+        if (!validIntersection) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!hasReadOnlyType) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
+                       intersectionTypeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (types.isInherentlyImmutableType(intersectionType)) {
+            resultType = intersectionType;
+            return;
+        }
+
+        if (!types.isSelectivelyImmutableType(intersectionType)) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE, intersectionType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types, intersectionType, env,
+                                                          symTable, anonymousModelHelper, names);
+    }
+
     public void visit(BLangObjectTypeNode objectTypeNode) {
         EnumSet<Flag> flags = EnumSet.copyOf(objectTypeNode.flagSet);
         if (objectTypeNode.isAnonymous) {
@@ -1398,5 +1459,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                     .addDefaultableParam("characters", symTable.stringType)
                     .build();
         xmlModuleSymbol.scope.define(textCtor.name, textCtor);
+    }
+
+    private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {
+        if (lhsType == symTable.readonlyType) {
+            return rhsType;
+        }
+
+        if (rhsType == symTable.readonlyType) {
+            return lhsType;
+        }
+
+        return types.getTypeIntersection(lhsType, rhsType);
     }
 }

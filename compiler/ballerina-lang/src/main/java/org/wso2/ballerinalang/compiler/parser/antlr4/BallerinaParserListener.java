@@ -1,4 +1,4 @@
-// Generated from /home/kavindu/WSO2-GIT/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -533,6 +533,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code intersectionTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code intersectionTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code groupTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.

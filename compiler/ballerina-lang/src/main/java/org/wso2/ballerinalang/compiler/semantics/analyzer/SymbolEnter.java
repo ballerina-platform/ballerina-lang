@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -107,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -166,6 +168,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<PackageID> importedPackages;
     private int typePrecedence;
     private final TypeParamAnalyzer typeParamAnalyzer;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private SymbolEnv env;
 
@@ -190,6 +193,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
     }
@@ -1334,7 +1338,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
-        for (BLangTypeDefinition typeDef : typeDefNodes) {
+        int originalSize = typeDefNodes.size();
+
+        for (int i = 0; i < originalSize; i++) {
+            BLangTypeDefinition typeDef = typeDefNodes.get(i);
             NodeKind nodeKind = typeDef.typeNode.getKind();
             if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
                 continue;
@@ -1378,6 +1385,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+        }
+
+        // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
+        // type-definitions we can revisit the newly added type-definitions and define the fields for them.
+        int newSize = typeDefNodes.size();
+
+        for (int i = originalSize; i < newSize; i++) {
+            BLangTypeDefinition typeDefinition = typeDefNodes.get(i);
+            ImmutableTypeCloner.defineUndefinedImmutableRecordFields(typeDefinition, types, pkgEnv, symTable,
+                                                                     anonymousModelHelper, names);
         }
     }
 

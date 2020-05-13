@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -152,6 +153,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
@@ -1185,11 +1187,17 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.TYPEDESC:
                 return type;
             case TypeTags.JSON:
-                return symTable.arrayJsonType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayJsonType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayJsonType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANYDATA:
-                return symTable.arrayAnydataType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAnydataType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayAnydataType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANY:
-                return symTable.arrayType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayType, env, symTable,
+                                                             anonymousModelHelper, names);
         }
         return symTable.semanticError;
     }
@@ -1395,11 +1403,17 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 return type;
             case TypeTags.JSON:
-                return symTable.mapJsonType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapJsonType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapJsonType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANYDATA:
-                return symTable.mapAnydataType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAnydataType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapAnydataType, env, symTable,
+                                                             anonymousModelHelper, names);
             case TypeTags.ANY:
-                return symTable.mapType;
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
+                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapType, env, symTable,
+                                                             anonymousModelHelper, names);
         }
         return symTable.semanticError;
     }
@@ -1471,6 +1485,8 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean hasAllRequiredFields = true;
         boolean hasValidReadonlyFields = true;
 
+        boolean mutableRecordType = !Symbols.isFlagOn(type.flags, Flags.READONLY);
+
         for (BField field : type.fields) {
             String fieldName = field.name.value;
 
@@ -1481,7 +1497,12 @@ public class TypeChecker extends BLangNodeVisitor {
                         types.isAssignable(typePosPair.type, symTable.readonlyType)) {
                     continue;
                 }
-                dlog.error(typePosPair.pos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, fieldName);
+
+                if (mutableRecordType && !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
+                    // If the expected field type itself is readonly, an error would be logged already.
+                    dlog.error(typePosPair.pos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, fieldName);
+                }
+
                 if (hasValidReadonlyFields) {
                     hasValidReadonlyFields = false;
                 }
@@ -1510,7 +1531,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
                 if (name.equals(getKeyValueFieldName(keyValueField))) {
-                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.key.expr.pos);
+                    return new FieldTypePosPair(keyValueField.valueExpr.type, keyValueField.valueExpr.pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
@@ -2088,13 +2109,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
 
                 if (actualType != symTable.semanticError &&
-                        (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) &&
-                        types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
-                    String name = fieldAccessExpr.field.value;
-                    if (allRecordsHaveRequiredReadonlyField(varRefType, name)) {
+                        (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
+                    if (isAllReadonlyTypes(varRefType)) {
+                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
+                                   varRefType);
+                        resultType = symTable.semanticError;
+                        return;
+                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
+                            isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
-                                   name, varRefType);
-                        types.checkType(fieldAccessExpr, actualType, this.expType);
+                                   fieldAccessExpr.field.value, varRefType);
                         resultType = symTable.semanticError;
                         return;
                     }
@@ -2105,7 +2129,20 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
-    private boolean allRecordsHaveRequiredReadonlyField(BType type, String fieldName) {
+    private boolean isAllReadonlyTypes(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return Symbols.isFlagOn(type.flags, Flags.READONLY);
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isAllReadonlyTypes(memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isInvalidReadonlyFieldUpdate(BType type, String fieldName) {
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
             for (BField field : recordType.fields) {
@@ -2113,23 +2150,26 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-                if (Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
-                        // allow updates at compile-time for optional fields since it could be the first update.
-                        Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
                     return true;
                 }
 
-                return false;
+                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
+                        // allow updates at compile-time for optional fields since it could be the first update.
+                        Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED);
             }
-            return false;
+            return recordType.sealed;
         }
 
+        // For unions, we consider this an invalid update only if it is invalid for all member types. If for at least
+        // one member this is valid, we allow this at compile time with the potential to fail at runtime.
+        boolean allInvalidUpdates = true;
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!allRecordsHaveRequiredReadonlyField(memberType, fieldName)) {
-                return false;
+            if (!isInvalidReadonlyFieldUpdate(memberType, fieldName)) {
+                allInvalidUpdates = false;
             }
         }
-        return true;
+        return allInvalidUpdates;
     }
 
     private boolean isXmlAccess(BLangFieldBasedAccess fieldAccessExpr) {
@@ -2168,14 +2208,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType exprType = indexBasedAccessExpr.expr.type;
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
+
         if (actualType != symTable.semanticError &&
-                types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) &&
-                (indexBasedAccessExpr.lhsVar || indexBasedAccessExpr.compoundAssignmentLhsVar) &&
-                (indexExpr.getKind() == NodeKind.LITERAL || isConst(indexExpr))) {
-            String name = getConstFieldName(indexExpr);
-            if (allRecordsHaveRequiredReadonlyField(exprType, name)) {
+                (indexBasedAccessExpr.lhsVar || indexBasedAccessExpr.compoundAssignmentLhsVar)) {
+            if (isAllReadonlyTypes(exprType)) {
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
+                           exprType);
+                resultType = symTable.semanticError;
+                return;
+            } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) &&
+                    (indexExpr.getKind() == NodeKind.LITERAL || isConst(indexExpr)) &&
+                    isInvalidReadonlyFieldUpdate(exprType, getConstFieldName(indexExpr))) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
-                           name, exprType);
+                           getConstFieldName(indexExpr), exprType);
                 resultType = symTable.semanticError;
                 return;
             }
@@ -3357,7 +3402,14 @@ public class TypeChecker extends BLangNodeVisitor {
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
-        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
+
+        if (expType == symTable.noType) {
+            resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
+            return;
+        }
+
+        resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLElementLiteral.pos, symTable.xmlElementType,
+                                                         this.expType);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -3374,13 +3426,23 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
+
+        if (expType == symTable.noType) {
+            resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
+            return;
+        }
+        resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLCommentLiteral.pos, symTable.xmlCommentType,
+                                                         this.expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
-        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
+        if (expType == symTable.noType) {
+            resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
+            return;
+        }
+        resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLProcInsLiteral.pos, symTable.xmlPIType, this.expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
@@ -6225,6 +6287,71 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private BType checkXmlSubTypeLiteralCompatibility(DiagnosticPos pos, BType mutableXmlSubType, BType expType) {
+        if (expType == symTable.semanticError) {
+            return expType;
+        }
+
+        boolean unionExpType = expType.tag == TypeTags.UNION;
+
+        if (expType == mutableXmlSubType) {
+            return expType;
+        }
+
+        if (!unionExpType && types.isAssignable(mutableXmlSubType, expType)) {
+            return mutableXmlSubType;
+        }
+
+        BXMLSubType immutableXmlSubType =
+                (BXMLSubType) ImmutableTypeCloner.setImmutableType(pos, types, mutableXmlSubType, env, symTable,
+                                                                   anonymousModelHelper, names);
+        if (expType == immutableXmlSubType) {
+            return expType;
+        }
+
+        if (!unionExpType && types.isAssignable(immutableXmlSubType, expType)) {
+            return immutableXmlSubType;
+        }
+
+        if (!unionExpType) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
+            return symTable.semanticError;
+        }
+
+        List<BType> compatibleTypes = new ArrayList<>();
+        for (BType memberType : ((BUnionType) expType).getMemberTypes()) {
+            if (compatibleTypes.contains(memberType)) {
+                continue;
+            }
+
+            if (memberType == mutableXmlSubType || memberType == immutableXmlSubType) {
+                compatibleTypes.add(memberType);
+                continue;
+            }
+
+            if (types.isAssignable(mutableXmlSubType, memberType) && !compatibleTypes.contains(mutableXmlSubType)) {
+                compatibleTypes.add(mutableXmlSubType);
+                continue;
+            }
+
+            if (types.isAssignable(immutableXmlSubType, memberType) && !compatibleTypes.contains(immutableXmlSubType)) {
+                compatibleTypes.add(immutableXmlSubType);
+            }
+        }
+
+        if (compatibleTypes.isEmpty()) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
+            return symTable.semanticError;
+        }
+
+        if (compatibleTypes.size() == 1) {
+            return compatibleTypes.get(0);
+        }
+
+        dlog.error(pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+        return symTable.semanticError;
     }
 
     private static class FieldInfo {
