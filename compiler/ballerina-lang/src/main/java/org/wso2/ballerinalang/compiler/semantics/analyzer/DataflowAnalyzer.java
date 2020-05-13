@@ -253,7 +253,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * @return Data-flow analyzed package
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.uninitializedVars = new HashMap<>();
+        this.uninitializedVars = new LinkedHashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
@@ -269,17 +269,62 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Rearrange the top level nodes so that global variables come on top
         List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
-        pkgNode.topLevelNodes.forEach(topLevelNode -> {
-            if (!sortedListOfNodes.contains(topLevelNode)) {
-                sortedListOfNodes.add(topLevelNode);
+        addModuleInitToSortedNodeList(pkgNode, sortedListOfNodes);
+        addNodesToSortedNodeList(pkgNode, sortedListOfNodes);
+
+        for (TopLevelNode topLevelNode : sortedListOfNodes) {
+            if (isModuleInitFunction((BLangNode) topLevelNode)) {
+                analyzeModuleInitFunc((BLangFunction) topLevelNode);
+            } else {
+                analyzeNode((BLangNode) topLevelNode, env);
             }
-        });
-        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        }
+        checkForUninitializedGlobalVars(pkgNode.globalVars);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
+    }
+
+    private void addModuleInitToSortedNodeList(BLangPackage pkgNode, List<TopLevelNode> sortedListOfNodes) {
+        for (TopLevelNode node : pkgNode.topLevelNodes) {
+            if (isModuleInitFunction((BLangNode) node)) {
+                sortedListOfNodes.add(node);
+                break;
+            }
+        }
+    }
+
+    private void addNodesToSortedNodeList(BLangPackage pkgNode, List<TopLevelNode> sortedListOfNodes) {
+        pkgNode.topLevelNodes.forEach(topLevelNode -> {
+            if (!sortedListOfNodes.contains(topLevelNode)) {
+                sortedListOfNodes.add(topLevelNode);
+            }
+        });
+    }
+
+    private boolean isModuleInitFunction(BLangNode node) {
+        return node.getKind() == NodeKind.FUNCTION &&
+                Names.USER_DEFINED_INIT_SUFFIX.value.equals(((BLangFunction) node).name.value);
+    }
+
+    private void analyzeModuleInitFunc(BLangFunction funcNode) {
+        this.currDependentSymbol.push(funcNode.symbol);
+        SymbolEnv moduleInitFuncEnv = SymbolEnv.createModuleInitFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        for (BLangAnnotationAttachment bLangAnnotationAttachment : funcNode.annAttachments) {
+            analyzeNode(bLangAnnotationAttachment.expr, env);
+        }
+        analyzeNode(funcNode.body, moduleInitFuncEnv);
+        this.currDependentSymbol.pop();
+    }
+
+    private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
+        for (BLangSimpleVariable globalVar : globalVars) {
+            if (this.uninitializedVars.containsKey(globalVar.symbol)) {
+                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, globalVar.name);
+            }
+        }
     }
 
     @Override
@@ -296,6 +341,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody body) {
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        bodyEnv.isModuleInit = env.isModuleInit;
         for (BLangStatement statement : body.stmts) {
             analyzeNode(statement, bodyEnv);
         }
@@ -773,6 +819,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
+        if (!isGlobalVarsInitialized(invocationExpr.pos)) {
+            return;
+        }
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
             return;
         }
@@ -873,6 +922,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                             uninitializedFields.toString());
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    private boolean isGlobalVarsInitialized(DiagnosticPos pos) {
+        if (env.isModuleInit) {
+            boolean isFirstUninitializedField = true;
+            StringBuilder uninitializedFields = new StringBuilder();
+            for (BSymbol symbol : this.uninitializedVars.keySet()) {
+                if (isFirstUninitializedField) {
+                    uninitializedFields = new StringBuilder(symbol.getName().value);
+                    isFirstUninitializedField = false;
+                } else {
+                    uninitializedFields.append(", ").append(symbol.getName().value);
+                }
+            }
+            if (uninitializedFields.length() != 0) {
+                this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_VARIABLES,
+                        uninitializedFields.toString());
+                return false;
             }
         }
         return true;
@@ -1160,7 +1230,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
             if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
-                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE,
                         closureVarSymbol.bSymbol);
             }
         });
@@ -1520,7 +1590,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         if (initStatus == InitStatus.UN_INIT) {
-            this.dlog.error(pos, DiagnosticCode.UNINITIALIZED_VARIABLE, symbol.name);
+            this.dlog.error(pos, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol.name);
             return;
         }
 

@@ -304,6 +304,10 @@ public class TypeParamAnalyzer {
                     findTypeParamInTupleForArray(pos, (BArrayType) expType, (BTupleType) actualType, env, resolvedTypes,
                                                  result);
                 }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnion(pos, ((BArrayType) expType).eType, (BUnionType) actualType, env, resolvedTypes,
+                                                 result);
+                }
                 return;
             case TypeTags.MAP:
                 if (actualType.tag == TypeTags.MAP) {
@@ -314,12 +318,17 @@ public class TypeParamAnalyzer {
                     findTypeParamInMapForRecord(pos, (BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
                                                 result);
                 }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnion(pos, ((BMapType) expType).constraint, (BUnionType) actualType, env,
+                                         resolvedTypes, result);
+                }
                 return;
             case TypeTags.STREAM:
                 if (actualType.tag == TypeTags.STREAM) {
                     findTypeParamInStream(pos, ((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
                                           result);
                 }
+                // TODO : Handle unions after - github.com/ballerina-platform/ballerina-lang/issues/22570
                 return;
             case TypeTags.TABLE:
                 if (actualType.tag == TypeTags.TABLE) {
@@ -332,11 +341,17 @@ public class TypeParamAnalyzer {
                     findTypeParamInTuple(pos, (BTupleType) expType, (BTupleType) actualType, env, resolvedTypes,
                                          result);
                 }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnion(pos, expType, (BUnionType) actualType, env, resolvedTypes, result);
+                }
                 return;
             case TypeTags.RECORD:
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInRecord(pos, (BRecordType) expType, (BRecordType) actualType, env, resolvedTypes,
                                           result);
+                }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnion(pos, expType, (BUnionType) actualType, env, resolvedTypes, result);
                 }
                 return;
             case TypeTags.INVOKABLE:
@@ -431,6 +446,30 @@ public class TypeParamAnalyzer {
         BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
         findTypeParam(pos, expType.eType, tupleElementType, env, resolvedTypes, result);
     }
+
+    private void findTypeParamInUnion(DiagnosticPos pos, BType expType, BUnionType actualType,
+                                              SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        for (BType type : actualType.getMemberTypes()) {
+            if (type.tag == TypeTags.ARRAY) {
+                members.add(((BArrayType) type).eType);
+            }
+            if (type.tag == TypeTags.MAP) {
+                members.add(((BMapType) type).constraint);
+            }
+            if (type.tag == TypeTags.RECORD) {
+                for (BField field : ((BRecordType) type).getFields()) {
+                    members.add(field.type);
+                }
+            }
+            if (type.tag == TypeTags.TUPLE) {
+                members.addAll(((BTupleType) type).getTupleTypes());
+            }
+        }
+        BUnionType tupleElementType = BUnionType.create(null, members);
+        findTypeParam(pos, expType, tupleElementType, env, resolvedTypes, result);
+    }
+
 
     private void findTypeParamInRecord(DiagnosticPos pos, BRecordType expType, BRecordType actualType, SymbolEnv env,
                                        HashSet<BType> resolvedTypes, FindTypeParamResult result) {

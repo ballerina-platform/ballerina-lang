@@ -46,10 +46,7 @@ public class XMLText extends XMLNonElementItem {
 
     @Override
     public boolean isEmpty() {
-        if (getNodeType() == XMLNodeType.TEXT) {
-            return data.isEmpty();
-        }
-        return false;
+        return data.isEmpty();
     }
 
     @Override

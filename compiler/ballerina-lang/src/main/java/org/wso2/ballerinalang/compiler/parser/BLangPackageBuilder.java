@@ -465,9 +465,9 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         recordTypeNode.isLocal = isInLocalDefinition();
-        this.varListStack.pop().forEach(variableNode -> {
+        for (BLangVariable variableNode : this.varListStack.pop()) {
             recordTypeNode.addField((SimpleVariableNode) variableNode);
-        });
+        }
         return recordTypeNode;
     }
 

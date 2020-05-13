@@ -164,11 +164,11 @@ public class XMLFactory {
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             concatenatedList.addAll(((XMLSequence) firstSeq).getChildrenList());
-        } else {
+        } else if (!firstSeq.isEmpty()) {
             concatenatedList.add(firstSeq);
         }
 
-        // When last item fo left seq and first item of right seq are both text nodes merge them into single consecutive
+        // When last item of left seq and first item of right seq are both text nodes merge them into single consecutive
         // text node.
         if (!concatenatedList.isEmpty()) {
             int lastIndexOFLeftChildren = concatenatedList.size() - 1;
@@ -195,7 +195,7 @@ public class XMLFactory {
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             concatenatedList.addAll(((XMLSequence) secondSeq).getChildrenList());
-        } else {
+        } else if (!secondSeq.isEmpty()) {
             concatenatedList.add(secondSeq);
         }
 
