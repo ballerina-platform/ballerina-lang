@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class LetClauseNode extends NonTerminalNode {
+public class LetClauseNode extends ClauseNode {
 
     public LetClauseNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

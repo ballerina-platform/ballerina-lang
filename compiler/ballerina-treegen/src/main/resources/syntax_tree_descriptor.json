@@ -2455,8 +2455,13 @@
             ]
         },
         {
-            "name": "FromClauseNode",
+            "name": "ClauseNode",
             "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "FromClauseNode",
+            "base": "ClauseNode",
             "kind": "FROM_CLAUSE",
             "attributes": [
                 {
@@ -2483,7 +2488,7 @@
         },
         {
             "name": "WhereClauseNode",
-            "base": "Node",
+            "base": "ClauseNode",
             "kind": "WHERE_CLAUSE",
             "attributes": [
                 {
@@ -2498,7 +2503,7 @@
         },
         {
             "name": "LetClauseNode",
-            "base": "Node",
+            "base": "ClauseNode",
             "kind": "LET_CLAUSE",
             "attributes": [
                 {
@@ -2530,7 +2535,7 @@
         },
         {
             "name": "SelectClauseNode",
-            "base": "Node",
+            "base": "ClauseNode",
             "kind": "SELECT_CLAUSE",
             "attributes": [
                 {

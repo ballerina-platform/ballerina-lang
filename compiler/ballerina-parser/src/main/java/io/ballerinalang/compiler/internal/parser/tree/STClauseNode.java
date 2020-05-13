@@ -17,33 +17,16 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STWhereClauseNode extends STClauseNode {
-    public final STNode whereKeyword;
-    public final STNode expression;
+public abstract class STClauseNode extends STNode {
 
-    STWhereClauseNode(
-            STNode whereKeyword,
-            STNode expression) {
-        super(SyntaxKind.WHERE_CLAUSE);
-        this.whereKeyword = whereKeyword;
-        this.expression = expression;
-
-        addChildren(
-                whereKeyword,
-                expression);
-    }
-
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new WhereClauseNode(this, position, parent);
+    STClauseNode(SyntaxKind kind) {
+        super(kind);
     }
 }

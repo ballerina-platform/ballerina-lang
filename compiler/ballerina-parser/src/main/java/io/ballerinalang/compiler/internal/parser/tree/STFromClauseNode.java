@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STFromClauseNode extends STNode {
+public class STFromClauseNode extends STClauseNode {
     public final STNode fromKeyword;
     public final STNode typeName;
     public final STNode variableName;

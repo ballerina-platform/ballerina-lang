@@ -8276,7 +8276,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseQueryExprRhs(STNode queryConstructType) {
         switchContext(ParserRuleContext.QUERY_EXPRESSION);
         STNode queryPipeline = parseQueryPipeline();
-        STNode selectClause = parseSelectClause();;
+        STNode selectClause = parseSelectClause();
         endContext();
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
     }
