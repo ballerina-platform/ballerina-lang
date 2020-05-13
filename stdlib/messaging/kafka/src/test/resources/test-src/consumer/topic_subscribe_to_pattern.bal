@@ -24,7 +24,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     defaultApiTimeoutInMillis: 100
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfigs);
+kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 function testSubscribeToPattern() {
     var result = kafkaConsumer->subscribeToPattern("test.*");

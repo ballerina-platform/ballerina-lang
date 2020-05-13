@@ -28,7 +28,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -42,7 +42,6 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_DESERIALI
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -68,7 +67,6 @@ public class ProducerFunctionsTest {
     @BeforeTest(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "producer_functions.bal";
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14011)
                 .withBroker(PROTOCOL_PLAINTEXT, 14111, getZookeeperTimeoutProperty())
@@ -154,7 +152,7 @@ public class ProducerFunctionsTest {
 
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }

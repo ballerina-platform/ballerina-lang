@@ -3564,7 +3564,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
-        return STNodeFactory.createImplicitNewExpression(newKeyword, STNodeFactory.createEmptyNode());
+        return STNodeFactory.createImplicitNewExpressionNode(newKeyword, STNodeFactory.createEmptyNode());
     }
 
     /**
@@ -3582,7 +3582,7 @@ public class BallerinaParser extends AbstractParser {
         STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_NEW_EXPR);
         STNode parenthesizedArgsList = parseParenthesizedArgList();
 
-        return STNodeFactory.createExplicitNewExpression(newKeyword, typeDescriptor, parenthesizedArgsList);
+        return STNodeFactory.createExplicitNewExpressionNode(newKeyword, typeDescriptor, parenthesizedArgsList);
     }
 
     /**
@@ -3595,7 +3595,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseImplicitNewRhs(STNode newKeyword) {
         STNode implicitNewArgList = parseParenthesizedArgList();
-        return STNodeFactory.createImplicitNewExpression(newKeyword, implicitNewArgList);
+        return STNodeFactory.createImplicitNewExpressionNode(newKeyword, implicitNewArgList);
     }
 
     /**

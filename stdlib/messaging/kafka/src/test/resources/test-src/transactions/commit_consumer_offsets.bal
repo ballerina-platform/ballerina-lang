@@ -28,7 +28,7 @@ kafka:ProducerConfiguration producerConfigs = {
     enableIdempotence: true
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 kafka:ConsumerConfiguration consumerConfigs1 = {
     bootstrapServers: "localhost:14151",
@@ -38,7 +38,7 @@ kafka:ConsumerConfiguration consumerConfigs1 = {
     autoCommit: false
 };
 
-kafka:Consumer kafkaConsumer1 = new(consumerConfigs1);
+kafka:Consumer kafkaConsumer1 = new (consumerConfigs1);
 
 kafka:ConsumerConfiguration consumerConfigs2 = {
     bootstrapServers: "localhost:14151",
@@ -48,7 +48,7 @@ kafka:ConsumerConfiguration consumerConfigs2 = {
     autoCommit: false
 };
 
-kafka:Consumer kafkaConsumer2 = new(consumerConfigs2);
+kafka:Consumer kafkaConsumer2 = new (consumerConfigs2);
 
 function testProduce() {
     string msg = "test-msg";

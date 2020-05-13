@@ -43,7 +43,7 @@ kafka:ProducerConfiguration producerConfigs = {
     }
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 kafka:ProducerConfiguration producerNegativeConfigs = {
     bootstrapServers: "localhost:14122",
@@ -81,7 +81,7 @@ kafka:ConsumerConfiguration consumerConfig = {
     }
 };
 
-kafka:Consumer consumer = new(consumerConfig);
+kafka:Consumer consumer = new (consumerConfig);
 
 function testProducerWithSsl(string message) returns boolean|error {
     var result = kafkaProducer->send(message, topic);

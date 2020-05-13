@@ -33,7 +33,7 @@
             <class name="org.ballerinalang.messaging.kafka.consumer.TopicPauseResumeTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.TopicsTest" />
             <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeToPatternTest" />
-<!--            <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeWithPartitionRebalanceTest" />-->
+            <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeWithPartitionRebalanceTest" />
         </classes>
     </test>
     <test name="ballerina-kafka-producer-tests">
