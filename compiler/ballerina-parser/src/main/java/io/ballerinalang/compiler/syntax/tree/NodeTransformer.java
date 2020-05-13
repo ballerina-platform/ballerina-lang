@@ -452,6 +452,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLProcessingInstruction);
     }
 
+    public T transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        return transformSyntaxNode(tableTypeDescriptorNode);
+    }
+
+    public T transform(TypeParameterNode typeParameterNode) {
+        return transformSyntaxNode(typeParameterNode);
+    }
+
+    public T transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        return transformSyntaxNode(keyTypeConstraintNode);
+    }
+
     public T transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
@@ -462,6 +474,26 @@ public abstract class NodeTransformer<T> {
 
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        return transformSyntaxNode(tupleTypeDescriptorNode);
+    }
+
+    public T transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        return transformSyntaxNode(parenthesisedTypeDescriptorNode);
+    }
+
+    public T transform(ExplicitNewExpression explicitNewExpression) {
+        return transformSyntaxNode(explicitNewExpression);
+    }
+
+    public T transform(ImplicitNewExpression implicitNewExpression) {
+        return transformSyntaxNode(implicitNewExpression);
+    }
+
+    public T transform(ParenthesizedArgList parenthesizedArgList) {
+        return transformSyntaxNode(parenthesizedArgList);
     }
 
     // Tokens

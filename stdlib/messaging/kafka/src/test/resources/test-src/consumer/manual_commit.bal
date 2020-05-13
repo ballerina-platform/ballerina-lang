@@ -27,7 +27,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     topics: [topic]
 };
 
-kafka:Consumer consumer = new(consumerConfigs);
+kafka:Consumer consumer = new (consumerConfigs);
 
 int retrievedRecordsCount = 0;
 

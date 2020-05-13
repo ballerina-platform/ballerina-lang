@@ -28,7 +28,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,7 +49,6 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SSL;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -70,7 +69,6 @@ public class SslConsumerAndProducerTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14022)
                 .withBroker(PROTOCOL_SSL, 14122, getKafkaBrokerProperties())
@@ -177,7 +175,7 @@ public class SslConsumerAndProducerTest {
         return properties;
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         // Reverting the keystore and trust-store file paths
         setFilePath(Paths.get(balFilePath).toAbsolutePath().toString(),

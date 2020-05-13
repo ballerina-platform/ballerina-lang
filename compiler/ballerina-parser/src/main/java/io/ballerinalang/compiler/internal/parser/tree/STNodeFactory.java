@@ -1315,6 +1315,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 piEnd);
     }
 
+    public static STNode createTableTypeDescriptorNode(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
+    public static STNode createTypeParameterNode(
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+
+        return new STTypeParameterNode(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    public static STNode createKeyTypeConstraintNode(
+            STNode keyKeywordToken,
+            STNode typeParameterNode) {
+
+        return new STKeyTypeConstraintNode(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
     public static STNode createFunctionTypeDescriptorNode(
             STNode functionKeyword,
             STNode functionSignature) {
@@ -1348,6 +1379,61 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    public static STNode createTupleTypeDescriptorNode(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode restTypeDesc,
+            STNode closeBracketToken) {
+
+        return new STTupleTypeDescriptorNode(
+                openBracketToken,
+                memberTypeDesc,
+                restTypeDesc,
+                closeBracketToken);
+    }
+
+    public static STNode createParenthesisedTypeDescriptorNode(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken) {
+
+        return new STParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken);
+    }
+
+    public static STNode createExplicitNewExpression(
+            STNode NewKeyword,
+            STNode TypeDescriptor,
+            STNode ParenthesizedArgList) {
+
+        return new STExplicitNewExpression(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
+    }
+
+    public static STNode createImplicitNewExpression(
+            STNode NewKeyword,
+            STNode ParenthesizedArgList) {
+
+        return new STImplicitNewExpression(
+                NewKeyword,
+                ParenthesizedArgList);
+    }
+
+    public static STNode createParenthesizedArgList(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STParenthesizedArgList(
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 }
 

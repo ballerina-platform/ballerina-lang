@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
 
 /**
@@ -33,11 +34,13 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTER
 public class JConstructor implements Cloneable {
 
     private String interopType;
+    private String exceptionName;
     private String shortClassName;
     private String initObjectName;
     private String constructorName;
     private String externalFunctionName;
 
+    private boolean returnError = false;
     private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
     private boolean handleException = false; // identifies if the Java constructor throws an error
 
@@ -52,9 +55,11 @@ public class JConstructor implements Cloneable {
 
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
-            parameters.add(new JParameter(param));
+            JParameter parameter = new JParameter(param);
+            parameters.add(parameter);
             paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
-            if (param.getType().isArray()) {
+            if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
+                returnError = true;
                 hasException = true;
             }
         }
@@ -70,6 +75,9 @@ public class JConstructor implements Cloneable {
             try {
                 if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
                         .isAssignableFrom(exceptionType)) {
+                    JError jError = new JError(exceptionType);
+                    exceptionName = jError.getShortExceptionName();
+                    setExceptionList(jError);
                     hasException = true;
                     handleException = true;
                     break;

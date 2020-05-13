@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
  *
  * @since 1.3.0
  */
-public class STUnionTypeDescriptorNode extends STNode {
+public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode leftTypeDesc;
     public final STNode pipeToken;
     public final STNode rightTypeDesc;

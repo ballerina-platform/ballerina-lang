@@ -44,16 +44,16 @@ public class NilTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInValidNilTypeWithExtraTokensInsideParentheses () {
-        test("(t 4) a;", "nil-type/nil_type_assert_01.json");
+        test("(t 4) a;", "nil-type/nil_type_assert_04.json");
     }
 
     @Test
     public void testInValidNilTypeWithExtraCloseParentheses () {
-        test("()) a;", "nil-type/nil_type_assert_01.json");
+        test("()) a;", "nil-type/nil_type_assert_05.json");
     }
 
     @Test
     public void testInValidNilTypeWithMultipleExtraOpenParentheses () {
-        test("(() a;", "nil-type/nil_type_assert_01.json");
+        test("(() a;", "nil-type/nil_type_assert_06.json");
     }
 }

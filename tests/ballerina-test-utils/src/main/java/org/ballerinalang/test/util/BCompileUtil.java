@@ -71,10 +71,12 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
+import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -562,6 +564,10 @@ public class BCompileUtil {
         return Boolean.parseBoolean(value);
     }
 
+    public static boolean newParserEnabled() {
+        return Boolean.parseBoolean(System.getProperty(ENABLE_NEW_PARSER_FOR_TESTS));
+    }
+
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
                                                      SourceDirectory sourceDirectory, boolean init, boolean withTests) {
         CompilerContext context = new CompilerContext();
@@ -601,6 +607,9 @@ public class BCompileUtil {
         if (withTests) {
             options.put(CompilerOptionName.SKIP_TESTS, "false");
             options.put(CompilerOptionName.TEST_ENABLED, "true");
+        }
+        if (newParserEnabled()) {
+            options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
         }
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, withTests);
