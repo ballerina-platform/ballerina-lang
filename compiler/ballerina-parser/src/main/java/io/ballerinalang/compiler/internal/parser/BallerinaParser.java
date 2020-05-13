@@ -356,6 +356,8 @@ public class BallerinaParser extends AbstractParser {
             case TEMPLATE_START:
             case TEMPLATE_END:
                 return parseBacktickToken(context);
+            case KEY_CONSTRAINTS_RHS:
+                return parseKeyConstraint((STNode) args[0]);
             case FUNCTION_KEYWORD_RHS:
                 return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
             case FUNC_OPTIONAL_RETURNS:
@@ -2027,6 +2029,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseErrorTypeDescriptor();
             case STREAM_KEYWORD: // stream type desc
                 return parseStreamTypeDescriptor();
+            case TABLE_KEYWORD: // table type desc
+                return parseTableTypeDescriptor();
             case FUNCTION_KEYWORD:
                 return parseFunctionTypeDesc();
             case OPEN_BRACKET_TOKEN:
@@ -7194,6 +7198,7 @@ public class BallerinaParser extends AbstractParser {
             case TYPEDESC_KEYWORD: // typedesc type desc
             case ERROR_KEYWORD: // error type desc
             case STREAM_KEYWORD: // stream type desc
+            case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
                 return true;
@@ -8185,7 +8190,113 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse function type descriptor.
+     * Parse table type descriptor.
+     * <p>
+     * table-type-descriptor := table row-type-parameter [key-constraint]
+     * row-type-parameter := type-parameter
+     * key-constraint := key-specifier | key-type-constraint
+     * key-specifier := key ( [ field-name (, field-name)* ] )
+     * key-type-constraint := key type-parameter
+     * </p>
+     *
+     * @return Parsed table type desc node.
+     */
+    private STNode parseTableTypeDescriptor() {
+        STNode tableKeywordToken = parseTableKeyword();
+        STNode rowTypeParameterNode = parseRowTypeParameter();
+        STNode keyConstraintNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.KEY_KEYWORD) {
+            STNode keyKeywordToken = parseKeyKeyword();
+            keyConstraintNode = parseKeyConstraint(keyKeywordToken);
+        } else {
+            keyConstraintNode = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createTableTypeDescriptorNode(tableKeywordToken, rowTypeParameterNode, keyConstraintNode);
+    }
+
+    /**
+     * Parse row type parameter node.
+     * <p>row-type-parameter := type-parameter</p>
+     *
+     * @return Parsed node.
+     */
+    private STNode parseRowTypeParameter() {
+        startContext(ParserRuleContext.ROW_TYPE_PARAM);
+        STNode rowTypeParameterNode = parseTypeParameter();
+        endContext();
+        return rowTypeParameterNode;
+    }
+
+    /**
+     * Parse type parameter node.
+     * <p>type-parameter := < type-descriptor > </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseTypeParameter() {
+        STNode ltToken = parseLTToken();
+        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createTypeParameterNode(ltToken, typeNode, gtToken);
+    }
+
+    /** Parse key constraint.
+     * <p> key-constraint := key-specifier | key-type-constraint</p>
+     *
+     * @return Parsed node.
+     */
+    private STNode parseKeyConstraint(STNode keyKeywordToken) {
+        return parseKeyConstraint(peek().kind, keyKeywordToken);
+    }
+
+    private STNode parseKeyConstraint(SyntaxKind nextTokenKind, STNode keyKeywordToken) {
+        switch (nextTokenKind) {
+            case OPEN_PAREN_TOKEN:
+                return parseKeySpecifier(keyKeywordToken);
+            case LT_TOKEN:
+                return parseKeyTypeConstraint(keyKeywordToken);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.KEY_CONSTRAINTS_RHS, keyKeywordToken);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseKeyConstraint(solution.tokenKind, keyKeywordToken);
+        }
+    }
+
+    /**
+     * Parse key specifier given parsed key keyword token.
+     * <p>
+     * <code>key-specifier := key ( [ field-name (, field-name)* ] )</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseKeySpecifier(STNode keyKeywordToken) {
+        startContext(ParserRuleContext.KEY_SPECIFIER);
+        STNode openParenToken = parseOpenParenthesis();
+        STNode fieldNamesNode = parseFieldNames();
+        STNode closeParenToken = parseCloseParenthesis();
+        endContext();
+        return STNodeFactory.createKeySpecifierNode(keyKeywordToken, openParenToken, fieldNamesNode, closeParenToken);
+    }
+
+    /**
+     * Parse key type constraint.
+     * <p>key-type-constraint := key type-parameter</p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseKeyTypeConstraint(STNode keyKeywordToken) {
+        STNode typeParameterNode = parseTypeParameter();
+        return STNodeFactory.createKeyTypeConstraintNode(keyKeywordToken, typeParameterNode);
+    }
+
+     /** Parse function type descriptor.
      * <p>
      * <code>function-type-descriptor := function function-signature</code>
      *

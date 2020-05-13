@@ -356,6 +356,9 @@ public enum ParserRuleContext {
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
+    KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
+    ROW_TYPE_PARAM("row-type-param"),
+    TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     ;
 
     private String value;

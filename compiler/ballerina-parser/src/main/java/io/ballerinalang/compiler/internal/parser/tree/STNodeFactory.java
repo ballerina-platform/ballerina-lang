@@ -1315,6 +1315,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 piEnd);
     }
 
+    public static STNode createTableTypeDescriptorNode(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
+    public static STNode createTypeParameterNode(
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+
+        return new STTypeParameterNode(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    public static STNode createKeyTypeConstraintNode(
+            STNode keyKeywordToken,
+            STNode typeParameterNode) {
+
+        return new STKeyTypeConstraintNode(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
     public static STNode createFunctionTypeDescriptorNode(
             STNode functionKeyword,
             STNode functionSignature) {

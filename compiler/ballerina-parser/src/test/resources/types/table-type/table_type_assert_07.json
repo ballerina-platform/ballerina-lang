@@ -1,5 +1,5 @@
 {
-    "kind": "MODULE_VAR_DECL",
+    "kind": "TYPE_DEFINITION",
     "children": [
         {
             "kind": "METADATA",
@@ -11,11 +11,17 @@
             ]
         },
         {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "myType"
+        },
+        {
             "kind": "TABLE_TYPE_DESC",
             "children": [
                 {
-                    "kind": "TABLE_KEYWORD",
-                    "isMissing": true
+                    "kind": "TABLE_KEYWORD"
                 },
                 {
                     "kind": "TYPE_PARAMETER",
@@ -24,8 +30,7 @@
                             "kind": "LT_TOKEN"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "NO_MATCHING_OBJECT"
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "GT_TOKEN"
@@ -33,10 +38,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
         },
         {
             "kind": "SEMICOLON_TOKEN"
