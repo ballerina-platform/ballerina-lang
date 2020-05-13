@@ -72,6 +72,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
         Boolean failOnErrors = true;
+        Diagnostic.Kind kind;
 
         for (AnnotationAttachmentNode ann : annotations) {
             if (Constants.PACKAGE.equals(ann.getPackageAlias().getValue())
@@ -185,15 +186,21 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 }
             }
 
+            if (failOnErrors) {
+                kind = Diagnostic.Kind.ERROR;
+            } else {
+                kind = Diagnostic.Kind.WARNING;
+            }
+
             if (contractURI != null) {
                 try {
                     OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
                     ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
                     ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
-                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, failOnErrors,
+                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind,
                                                                   this.resourceSummaryList, this.openAPISummaryList,
                                                                   this.openAPIComponentSummary, dLog);
-                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, failOnErrors,
+                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind,
                                                                   this.resourceSummaryList,
                                                                   this.openAPISummaryList, this.openAPIComponentSummary,
                                                                   dLog);
