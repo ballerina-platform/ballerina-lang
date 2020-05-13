@@ -1,0 +1,34 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "OPTIONAL_TYPE_DESC",
+            "children": [
+                {
+                    "kind": "INT_KEYWORD"
+                },
+                {
+                    "kind": "QUESTION_MARK_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
+        }
+    ]
+}

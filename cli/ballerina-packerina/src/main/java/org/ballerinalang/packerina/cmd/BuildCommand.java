@@ -57,6 +57,7 @@ import java.util.List;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -158,6 +159,9 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
+
+    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
+    private boolean newParserEnabled;
 
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
@@ -381,6 +385,7 @@ public class BuildCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, Boolean.toString(!this.skipTests));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         options.put(PRESERVE_WHITESPACE, "true");
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);

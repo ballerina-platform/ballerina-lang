@@ -1455,7 +1455,8 @@ public class JvmInstructionGen {
 
         this.loadVar(inst.lhsOp.variableDcl);
         this.loadVar(inst.keyOp.variableDcl);
-
+        BType keyType = inst.keyOp.variableDcl.type;
+        addBoxInsn(this.mv, keyType);
         BType valueType = inst.rhsOp.variableDcl.type;
         this.loadVar(inst.rhsOp.variableDcl);
         addBoxInsn(this.mv, valueType);

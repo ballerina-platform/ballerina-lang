@@ -1,0 +1,138 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "PUBLIC_KEYWORD"
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "REQUIRED_PARAM",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
+            },
+            {
+              "kind": "DEFAULTABLE_PARAM",
+              "children": [
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "7"
+                }
+              ]
+            },
+            {
+              "kind": "REQUIRED_PARAM",
+              "children": [
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            },
+            {
+              "kind": "REST_PARAM",
+              "children": [
+                {
+                  "kind": "COMMA_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "STRING_KEYWORD"
+                },
+                {
+                  "kind": "ELLIPSIS_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
+}
