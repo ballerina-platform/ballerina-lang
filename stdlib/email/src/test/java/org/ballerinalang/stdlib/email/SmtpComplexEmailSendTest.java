@@ -81,6 +81,7 @@ public class SmtpComplexEmailSendTest {
     private static final String EMAIL_SENDER = "someone2@localhost.com";
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
+    private static final String EMAIL_CONTENT_TYPE = "text/html";
     private static final String[] EMAIL_TO_ADDRESSES = {"hascode1@localhost", "hascode2@localhost"};
     private static final String[] EMAIL_CC_ADDRESSES = {"hascode3@localhost", "hascode4@localhost"};
     private static final String[] EMAIL_BCC_ADDRESSES = {"hascode5@localhost", "hascode6@localhost"};
@@ -104,9 +105,10 @@ public class SmtpComplexEmailSendTest {
     @Test(description = "Test for sending an email with all the parameters")
     public void testSendComplexEmail() throws MessagingException, IOException {
         BValue[] args = { new BString(HOST_NAME), new BString(USER_NAME), new BString(USER_PASSWORD),
-                new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_FROM), new BString(EMAIL_SENDER),
-                new BValueArray(EMAIL_TO_ADDRESSES), new BValueArray(EMAIL_CC_ADDRESSES),
-                new BValueArray(EMAIL_BCC_ADDRESSES), new BValueArray(EMAIL_REPLY_TO_ADDRESSES)};
+                new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_CONTENT_TYPE),
+                new BString(EMAIL_FROM), new BString(EMAIL_SENDER), new BValueArray(EMAIL_TO_ADDRESSES),
+                new BValueArray(EMAIL_CC_ADDRESSES), new BValueArray(EMAIL_BCC_ADDRESSES),
+                new BValueArray(EMAIL_REPLY_TO_ADDRESSES)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSendComplexEmail", args);
         assertNull(returns[0], "Error while sending email in complex use case.");
         // Fetch messages from the server
@@ -139,6 +141,7 @@ public class SmtpComplexEmailSendTest {
 
     private static void testMessageBody(MimeBodyPart bodyPart) throws IOException, MessagingException {
         assertEquals(EMAIL_TEXT, ((String) bodyPart.getContent()));
+        assertTrue(bodyPart.getContentType().startsWith(EMAIL_CONTENT_TYPE));
     }
 
     private static void testAttachment1(MimeBodyPart bodyPart) throws IOException, MessagingException {
