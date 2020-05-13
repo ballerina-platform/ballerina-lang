@@ -27,7 +27,6 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
-                <exclude name="brokenOnXMLLangLibChange"/>
             </run>
         </groups>
         <packages>
@@ -52,6 +51,7 @@
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.error.*"/>
+            <package name="org.ballerinalang.test.enums.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
             <package name="org.ballerinalang.test.types.future.*"/>

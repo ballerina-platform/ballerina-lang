@@ -44,6 +44,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   constantDefinition
+    |   enumDefinition
     ;
 
 serviceDefinition
@@ -154,6 +155,15 @@ annotationDefinition
 
 constantDefinition
     :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
+    ;
+
+enumDefinition
+    :   documentationString? annotationAttachment* PUBLIC? ENUM Identifier LEFT_BRACE
+            (enumMember (COMMA enumMember)*)? RIGHT_BRACE
+    ;
+
+enumMember
+    :   documentationString? annotationAttachment* Identifier (ASSIGN constantExpression)?
     ;
 
 globalVariableDefinition
