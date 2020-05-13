@@ -1,0 +1,24 @@
+{
+    "kind": "TYPE_CAST_EXPRESSION",
+    "children": [
+        {
+            "kind": "LT_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "TYPE_CAST_PARAM",
+            "children": [
+                {
+                    "kind": "INT_KEYWORD"
+                }
+            ]
+        },
+        {
+            "kind": "GT_TOKEN"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "b"
+        }
+    ]
+}

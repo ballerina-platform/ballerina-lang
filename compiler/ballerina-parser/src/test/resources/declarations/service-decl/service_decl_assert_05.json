@@ -1,0 +1,44 @@
+{
+  "kind": "SERVICE_DECLARATION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "SERVICE_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "someListner"
+    },
+    {
+      "kind": "ON_KEYWORD",
+      "isMissing": true
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "SERVICE_BODY",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
+}
