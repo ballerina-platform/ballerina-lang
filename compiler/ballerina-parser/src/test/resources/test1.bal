@@ -1,5 +1,3 @@
-public function foo(){
-    readonly a;
-    readonly<T> a;
-    readonly<int> a;
+function foo() {
+    io:println();
 }
