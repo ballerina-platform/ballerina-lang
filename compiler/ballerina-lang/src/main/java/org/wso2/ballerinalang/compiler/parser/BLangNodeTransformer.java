@@ -748,9 +748,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Iterator<FunctionArgumentNode> argumentsIter = null;
 
         if (expression.kind() == SyntaxKind.IMPLICIT_NEW) {
-            Optional<Node> parenthesizedArgsList = ((ImplicitNewExpression) expression).ParenthesizedArgList();
-            if (parenthesizedArgsList.isPresent()) {
-                ParenthesizedArgList argList = (ParenthesizedArgList) parenthesizedArgsList.get();
+            Optional<Node> argsList = ((ImplicitNewExpression) expression).ParenthesizedArgList();
+            if (argsList.isPresent()) {
+                ParenthesizedArgList argList = (ParenthesizedArgList) argsList.get();
                 argumentsIter = argList.arguments().iterator();
             }
         } else {
