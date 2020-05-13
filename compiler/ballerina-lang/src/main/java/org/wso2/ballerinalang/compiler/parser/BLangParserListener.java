@@ -2484,6 +2484,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterBlockStatement(BallerinaParser.BlockStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startBlockStmt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitBlockStatement(BallerinaParser.BlockStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addBlockStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
         if (isInErrorState) {
             return;

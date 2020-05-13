@@ -3081,6 +3081,17 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(whileNode);
     }
 
+    void startBlockStmt() {
+        startBlock();
+    }
+
+    void addBlockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangBlockStmt block = (BLangBlockStmt) this.blockNodeStack.pop();
+        block.pos = pos;
+        block.addWS(ws);
+        addStmtToCurrentBlock(block);
+    }
+
     void startLockStmt() {
         startBlock();
     }
