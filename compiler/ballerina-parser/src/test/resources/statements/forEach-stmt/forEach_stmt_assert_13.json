@@ -54,16 +54,26 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "VAR_KEYWORD"
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "kind": "INDEXED_EXPRESSION",
                       "children": [
                         {
+                          "kind": "VAR_KEYWORD"
+                        },
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "v"
+                          "value": "fruits"
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
                     }
                   ]
                 },
@@ -72,7 +82,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "fruits"
+                  "value": "test"
                 },
                 {
                   "kind": "BLOCK_STATEMENT",
@@ -134,8 +144,7 @@
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACE_TOKEN",
-                      "isMissing": true
+                      "kind": "CLOSE_BRACE_TOKEN"
                     }
                   ]
                 }
@@ -144,8 +153,7 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "kind": "CLOSE_BRACE_TOKEN"
         }
       ]
     }

@@ -1983,12 +1983,41 @@ public class BallerinaParser extends AbstractParser {
                 return parseComplexTypeDescriptor(parseOptionalTypeDescriptor(typeDesc), context);
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case OPEN_BRACKET_TOKEN:
-                return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context);
+                if (isListBindingPattern()) { // return typed binding attern if we find a list-b-p
+                    return STNodeFactory.createTypedBindingPatternNode(typeDesc, parseListBindingPattern());
+                }
+                return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context);                
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case PIPE_TOKEN:
                 return parseComplexTypeDescriptor(parseUnionTypeDescriptor(typeDesc, context), context);
             default:
                 return typeDesc;
+        }
+    }
+
+    /**
+     * Check if this could be list-binding-pattern components.
+     *
+     * @return Boolean
+     */
+    private Boolean isListBindingPattern() {
+        STToken token = peek(2);
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+                switch (peek(3).kind) {
+                    case COMMA_TOKEN:
+                    case ELLIPSIS_TOKEN: // if the first comma is missing
+                    case OPEN_BRACKET_TOKEN: // if the first comma is missing
+                    case IDENTIFIER_TOKEN: // if the first comma is missing
+                        return true;
+                    default:
+                        return false;
+                }
+            case ELLIPSIS_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -8186,10 +8215,10 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseListBindingPattern() {
         startContext(ParserRuleContext.LIST_BINDING_PATTERN);
-        STToken token = peek();
         ArrayList<STNode> bindingPatterns = new ArrayList<>();
         STNode openBracket = parseOpenBracket();
-    
+
+        STToken token = peek();
         while (token.kind != SyntaxKind.CLOSE_BRACKET_TOKEN) {
             switch (token.kind) {
                 case ELLIPSIS_TOKEN:
@@ -8267,6 +8296,11 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPattern() {
         startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+        //list binding patterned typed-binding-patterns are returned this way
+        if (typeDesc.kind == SyntaxKind.TYPED_BINDING_PATTERN) {
+            endContext();
+            return typeDesc;
+        }
         STNode bindingPattern = parseBindingPattern();
         endContext();
         return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);

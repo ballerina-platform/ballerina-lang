@@ -796,6 +796,10 @@ public class ParserTestUtils {
                 return SyntaxKind.BINDING_PATTERN;
             case "CAPTURE_BINDING_PATTERN":
                 return SyntaxKind.CAPTURE_BINDING_PATTERN;
+            case "LIST_BINDING_PATTERN":
+                return SyntaxKind.LIST_BINDING_PATTERN;
+            case "REST_BINDING_PATTERN":
+                return SyntaxKind.REST_BINDING_PATTERN;
 
             // XML template
             case "XML_ELEMENT":

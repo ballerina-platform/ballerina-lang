@@ -2697,6 +2697,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext getNextRuleForTypedBindingPattern() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
+            case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
             case TYPED_BINDING_PATTERN:
                 endContext();
                 return getNextRuleForTypedBindingPattern();

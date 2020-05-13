@@ -54,16 +54,12 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "VAR_KEYWORD"
+                      "kind": "TYPE_DESC",
+                      "isMissing": true
                     },
                     {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "v"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true
                     }
                   ]
                 },
@@ -134,8 +130,7 @@
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACE_TOKEN",
-                      "isMissing": true
+                      "kind": "CLOSE_BRACE_TOKEN"
                     }
                   ]
                 }
@@ -144,8 +139,7 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "kind": "CLOSE_BRACE_TOKEN"
         }
       ]
     }
