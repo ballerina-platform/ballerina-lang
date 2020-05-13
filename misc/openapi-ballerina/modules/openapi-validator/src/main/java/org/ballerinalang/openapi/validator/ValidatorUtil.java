@@ -290,14 +290,14 @@ class ValidatorUtil {
                                         if (schema != null) {
                                             isExist = validateResourceAgainstOpenAPIParams(parameter,
                                                     parameter.getParameter().symbol, schema, dLog, resourceMethod,
-                                                    resourceSummary.getPath(),failOnErrors);
+                                                    resourceSummary.getPath(), failOnErrors);
                                         }
                                     }
                                 } else if (openAPIParameter.getName().equals(parameter.getName())) {
                                     isExist = validateResourceAgainstOpenAPIParams(parameter,
                                             parameter.getParameter().symbol,
                                             openAPIParameter.getParameter().getSchema(), dLog, resourceMethod,
-                                            resourceSummary.getPath(),failOnErrors);
+                                            resourceSummary.getPath(), failOnErrors);
                                 }
                             }
 
@@ -544,12 +544,13 @@ class ValidatorUtil {
                             if (schema != null) {
                                 isExist = validateOpenAPIAgainResourceParams(parameter,
                                         parameter.getParameter().symbol, schema, dLog, method,
-                                        openApiSummary.getPath(),failOnErrors);
+                                        openApiSummary.getPath(), failOnErrors);
                             }
                         }
                     } else if (openAPIParameter.getName().equals(parameter.getName())) {
                         isExist = validateOpenAPIAgainResourceParams(parameter, parameter.getParameter().symbol,
-                                openAPIParameter.getParameter().getSchema(), dLog, method, openApiSummary.getPath(), failOnErrors);
+                                openAPIParameter.getParameter().getSchema(), dLog, method, openApiSummary.getPath(),
+                                failOnErrors);
                     }
 
                     if (!isExist) {
@@ -615,7 +616,7 @@ class ValidatorUtil {
                         isExist = true;
                         if (ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()).equals("record")) {
                             isExist = validateResourceAgainstOpenAPIParams(resourceParameter,
-                                    field.symbol, entry.getValue(), dLog, method, path,failOnErrors);
+                                    field.symbol, entry.getValue(), dLog, method, path, failOnErrors);
                         }
                     }
                 }
