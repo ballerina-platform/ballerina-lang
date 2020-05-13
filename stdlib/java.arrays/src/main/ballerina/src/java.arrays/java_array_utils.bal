@@ -82,7 +82,7 @@ public function getLength(public handle array) returns int = @java:Method {
 # + array - The `handle`, which refers to the Java array
 # + jType - The `string` parameter provided to specify the Java array element type
 # + bType - The optional `string` parameter provided to specify the Ballerina array element type
-# + return - Ballerina array `any[]|error` for the provided handle
+# + return - Ballerina `any[]|error` array for the provided handle
 public function fromHandle(handle array, string jType, string bType = "default") returns any[]|error {
     int count = getLength(array);
     any[] returnArray = [];
