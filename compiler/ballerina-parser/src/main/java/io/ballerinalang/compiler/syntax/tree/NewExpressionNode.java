@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public abstract class NewExpression extends ExpressionNode {
+public abstract class NewExpressionNode extends ExpressionNode {
 
-    public NewExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public NewExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 }

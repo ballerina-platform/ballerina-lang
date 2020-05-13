@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpression;
+import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
@@ -37,7 +37,7 @@ import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpression;
+import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
@@ -50,7 +50,7 @@ import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.NewExpression;
+import io.ballerinalang.compiler.syntax.tree.NewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
@@ -690,9 +690,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ImplicitNewExpression implicitNewExpression) {
-        BLangTypeInit initNode = createTypeInit(implicitNewExpression);
-        BLangInvocation invocationNode = createInvocation(implicitNewExpression, implicitNewExpression.NewKeyword());
+    public BLangNode transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        BLangTypeInit initNode = createTypeInit(implicitNewExpressionNode);
+        BLangInvocation invocationNode = createInvocation(implicitNewExpressionNode, implicitNewExpressionNode.NewKeyword());
         // Populate the argument expressions on initNode as well.
         initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
@@ -701,27 +701,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ExplicitNewExpression explicitNewExpression) {
-        BLangTypeInit initNode = createTypeInit(explicitNewExpression);
-        BLangInvocation invocationNode = createInvocation(explicitNewExpression, explicitNewExpression.NewKeyword());
+    public BLangNode transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        BLangTypeInit initNode = createTypeInit(explicitNewExpressionNode);
+        BLangInvocation invocationNode = createInvocation(explicitNewExpressionNode, explicitNewExpressionNode.NewKeyword());
         // Populate the argument expressions on initNode as well.
         initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
         return initNode;
     }
 
-    private BLangTypeInit createTypeInit(NewExpression expression) {
+    private BLangTypeInit createTypeInit(NewExpressionNode expression) {
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = getPosition(expression);
         if (expression.kind() == SyntaxKind.EXPLICIT_NEW) {
-            Node type = ((ExplicitNewExpression) expression).TypeDescriptor();
+            Node type = ((ExplicitNewExpressionNode) expression).TypeDescriptor();
             initNode.userDefinedType = createTypeNode(type);
         }
 
         return initNode;
     }
 
-    private BLangInvocation createInvocation(NewExpression expression, Token newKeyword) {
+    private BLangInvocation createInvocation(NewExpressionNode expression, Token newKeyword) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = getPosition(expression);
 
@@ -734,7 +734,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return invocationNode;
     }
 
-    private void populateArgsInvocation(NewExpression expression, BLangInvocation invocationNode) {
+    private void populateArgsInvocation(NewExpressionNode expression, BLangInvocation invocationNode) {
         Iterator<FunctionArgumentNode> argumentsIter = getArgumentNodesIterator(expression);
         if (argumentsIter != null) {
             while (argumentsIter.hasNext()) {
@@ -744,18 +744,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private Iterator<FunctionArgumentNode> getArgumentNodesIterator(NewExpression expression) {
+    private Iterator<FunctionArgumentNode> getArgumentNodesIterator(NewExpressionNode expression) {
         Iterator<FunctionArgumentNode> argumentsIter = null;
 
         if (expression.kind() == SyntaxKind.IMPLICIT_NEW) {
-            Optional<Node> argsList = ((ImplicitNewExpression) expression).ParenthesizedArgList();
+            Optional<ParenthesizedArgList> argsList = ((ImplicitNewExpressionNode) expression).ParenthesizedArgList();
             if (argsList.isPresent()) {
-                ParenthesizedArgList argList = (ParenthesizedArgList) argsList.get();
+                ParenthesizedArgList argList = argsList.get();
                 argumentsIter = argList.arguments().iterator();
             }
         } else {
             ParenthesizedArgList argList =
-                    (ParenthesizedArgList) ((ExplicitNewExpression) expression).ParenthesizedArgList();
+                    (ParenthesizedArgList) ((ExplicitNewExpressionNode) expression).ParenthesizedArgList();
             argumentsIter = argList.arguments().iterator();
         }
 
