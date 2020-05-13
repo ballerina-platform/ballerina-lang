@@ -38,7 +38,7 @@ import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
 
 /**
- * This class contains the implementation of the "cast" Ballerina function in ballerina/java module.
+ * This class contains the implementation of the "cast" Ballerina function in the `ballerina/java` module.
  *
  * @since 1.2.4
  */
