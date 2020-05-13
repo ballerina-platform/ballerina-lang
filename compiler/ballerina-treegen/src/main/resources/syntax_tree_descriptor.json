@@ -2457,6 +2457,66 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "NewExpressionNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "ExplicitNewExpressionNode",
+            "base": "NewExpressionNode",
+            "kind": "EXPLICIT_NEW_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "TypeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "ParenthesizedArgList",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ImplicitNewExpressionNode",
+            "base": "NewExpressionNode",
+            "kind": "IMPLICIT_NEW_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "ParenthesizedArgList",
+                    "type": "ParenthesizedArgList",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ParenthesizedArgList",
+            "base": "Node",
+            "kind": "PARENTHESIZED_ARG_LIST",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
