@@ -19,6 +19,7 @@ package org.ballerinalang.mysql;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
 
@@ -38,9 +39,12 @@ public class NativeImpl {
         if (portValue > 0) {
             url += ":" + portValue.intValue();
         }
-        String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
-        String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
-        String database = clientConfig.getStringValue(Constants.ClientConfiguration.DATABASE);
+        BString userVal = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
+        String user = userVal == null ? null : userVal.getValue();
+        BString passwordVal = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
+        String password = passwordVal == null ? null : passwordVal.getValue();
+        BString databaseVal = clientConfig.getStringValue(Constants.ClientConfiguration.DATABASE);
+        String database = databaseVal == null ? null : databaseVal.getValue();
         if (database != null && !database.isEmpty()) {
             url += "/" + database;
         }

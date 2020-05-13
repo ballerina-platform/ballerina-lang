@@ -76,15 +76,20 @@ public class ClientUtils {
                 poolProperties.setProperty(key.getValue(), connPoolProps.getStringValue(key).getValue());
             }
         }
+        BString userVal = sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.USER);
+        String user = userVal == null ? null : userVal.getValue();
+        BString passwordVal = sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.PASSWORD);
+        String password = passwordVal == null ? null : passwordVal.getValue();
+        BString dataSourceNamVal = sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.DATASOURCE_NAME);
+        String datasourceName = dataSourceNamVal == null ? null : dataSourceNamVal.getValue();
         return new SQLDatasource.SQLDatasourceParams()
                 .setUrl(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.URL).getValue())
-                .setUser(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.USER).getValue())
-                .setPassword(sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.PASSWORD).getValue())
-                .setDatasourceName(
-                        sqlDatasourceParams.getStringValue(Constants.SQLParamsFields.DATASOURCE_NAME).getValue())
+                .setUser(user)
+                .setPassword(password)
+                .setDatasourceName(datasourceName)
                 .setOptions(sqlDatasourceParams.getMapValue(Constants.SQLParamsFields.OPTIONS))
                 .setConnectionPool(sqlDatasourceParams.getMapValue(Constants.SQLParamsFields.CONNECTION_POOL),
-                        globalConnectionPool)
+                                   globalConnectionPool)
                 .setPoolProperties(poolProperties);
     }
 

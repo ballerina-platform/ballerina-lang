@@ -59,12 +59,12 @@ public class Decode {
         MapValue<BString, Object> keyStore = (MapValue<BString, Object>) keyStoreValue;
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
-                keyStore.get(StringUtils.fromString(Constants.KEY_STORE_RECORD_PATH_FIELD)).toString()));
+                keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
         try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
             KeyStore keystore = KeyStore.getInstance(Constants.KEYSTORE_TYPE_PKCS12);
             try {
-                keystore.load(fileInputStream, keyStore.get(StringUtils.fromString(
-                        Constants.KEY_STORE_RECORD_PASSWORD_FIELD)).toString().toCharArray());
+                keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).toString()
+                        .toCharArray());
             } catch (NoSuchAlgorithmException e) {
                 return CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
             }
@@ -101,12 +101,12 @@ public class Decode {
         MapValue<BString, Object> keyStore = (MapValue<BString, Object>) keyStoreValue;
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
-                keyStore.get(StringUtils.fromString(Constants.KEY_STORE_RECORD_PATH_FIELD)).toString()));
+                keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
         try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
             KeyStore keystore = KeyStore.getInstance(Constants.KEYSTORE_TYPE_PKCS12);
             try {
-                keystore.load(fileInputStream, keyStore.get(StringUtils.fromString(
-                        Constants.KEY_STORE_RECORD_PASSWORD_FIELD)).toString().toCharArray());
+                keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).toString()
+                        .toCharArray());
             } catch (NoSuchAlgorithmException e) {
                 throw CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
             }

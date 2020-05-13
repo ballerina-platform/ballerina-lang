@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.mysql;
 
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
+
 /**
  * Constants for JDBC client.
  *
@@ -27,21 +30,21 @@ public final class Constants {
      * Constants for Client Configs.
      */
     public static final class ClientConfiguration {
-        static final String HOST = "host";
-        static final String PORT = "port";
-        static final String USER = "user";
-        static final String PASSWORD = "password";
-        static final String DATABASE = "database";
-        static final String OPTIONS = "options";
-        static final String CONNECTION_POOL_OPTIONS = "connectionPool";
+        static final BString HOST = StringUtils.fromString("host");
+        static final BString PORT = StringUtils.fromString("port");
+        static final BString USER = StringUtils.fromString("user");
+        static final BString PASSWORD = StringUtils.fromString("password");
+        static final BString DATABASE = StringUtils.fromString("database");
+        static final BString OPTIONS = StringUtils.fromString("options");
+        static final BString CONNECTION_POOL_OPTIONS = StringUtils.fromString("connectionPool");
     }
 
     /**
      * Constants for database options.
      */
     public static final class Options {
-        static final String SSL = "ssl";
-        static final String USE_XA_DATASOURCE = "useXADatasource";
+        static final BString SSL = StringUtils.fromString("ssl");
+        static final BString USE_XA_DATASOURCE = StringUtils.fromString("useXADatasource");
         static final String CONNECT_TIMEOUT_SECONDS = "connectTimeoutInSeconds";
         static final String SOCKET_TIMEOUT_SECONDS = "socketTimeoutInSeconds";
     }
@@ -50,10 +53,10 @@ public final class Constants {
      * Constants for ssl configuration.
      */
     static final class SSLConfig {
-        static final String MODE = "mode";
+        static final BString MODE = StringUtils.fromString("mode");
         static final String VERIFY_CERT_MODE = "VERIFY_CERT";
-        static final String CLIENT_CERT_KEYSTORE = "clientCertKeystore";
-        static final String TRUST_CERT_KEYSTORE = "trustCertKeystore";
+        static final BString CLIENT_CERT_KEYSTORE = StringUtils.fromString("clientCertKeystore");
+        static final BString TRUST_CERT_KEYSTORE = StringUtils.fromString("trustCertKeystore");
     }
 
     static final class DatabaseProps {
