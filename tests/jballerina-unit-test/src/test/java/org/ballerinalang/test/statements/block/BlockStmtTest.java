@@ -113,6 +113,6 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, 11, "unreachable code", 126, 9);
         //testUninitializedVariableAssignInBlock
         BAssertUtil.validateError(resultNegative, 12, "variable 'a' is not initialized", 136, 17);
-        BAssertUtil.validateError(resultNegative, 13, "variable 'a' is not initialized", 144, 9);
+        BAssertUtil.validateError(resultNegative, 13, "variable 'a' is not initialized", 143, 9);
     }
 }
