@@ -370,6 +370,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseNewKeyword();
             case IMPLICIT_NEW:
                 return parseImplicitNewRhs((STNode) args[0]);
+            case READONLY_KEYWORD:
+                return parseReadonlyKeyword();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -7228,6 +7230,7 @@ public class BallerinaParser extends AbstractParser {
             case VAR_KEYWORD:
             case ERROR_KEYWORD: // This is for the recovery. <code>error a;</code> scenario recovered here.
             case STREAM_KEYWORD: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
+            case READONLY_KEYWORD:// This is for recovery logic. <code>readonly a;</code> scenario recovered here.
                 return true;
             case TYPE_DESC:
                 // This is a special case. TYPE_DESC is only return from

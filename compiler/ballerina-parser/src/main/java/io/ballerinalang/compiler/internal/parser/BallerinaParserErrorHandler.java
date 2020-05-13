@@ -333,7 +333,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NEW_KEYWORD_RHS =
             { ParserRuleContext.TYPE_DESC_IN_NEW_EXPR, ParserRuleContext.EXPRESSION_RHS };
 
-
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1129,6 +1128,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NEW_KEYWORD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth,
                             matchingRulesCount, NEW_KEYWORD_RHS, isEntryPoint);
+                case READONLY_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.READONLY_KEYWORD;
+                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1976,6 +1978,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LT;
             case PARENTHESISED_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_PARENTHESIS;
+            case READONLY_KEYWORD:
+                return ParserRuleContext.LT;
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:

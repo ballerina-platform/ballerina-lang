@@ -3,3 +3,4 @@ public function foo(){
     readonly<T> a;
     readonly<int> a;
 }
+
