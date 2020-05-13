@@ -380,6 +380,9 @@ public type BMapType record {|
 public type BTableType record {|
     TABLE_TYPE_NAME typeName = TABLE_TYPE_NAME;
     BType tConstraint;
+    boolean isTableKeySpecifier;
+    BType? tKeyTypeConstraint;
+    string?[] fieldNames = [];
 |};
 
 public type BStreamType record {|

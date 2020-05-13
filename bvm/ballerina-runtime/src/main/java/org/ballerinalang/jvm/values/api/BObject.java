@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.values.StringValue;
 
 import java.util.HashMap;
 
@@ -40,9 +39,6 @@ public interface BObject extends BRefValue {
 
     @Deprecated
     Object get(String fieldName);
-
-    @Deprecated
-    Object get(StringValue fieldName);
 
     Object get(BString fieldName);
 

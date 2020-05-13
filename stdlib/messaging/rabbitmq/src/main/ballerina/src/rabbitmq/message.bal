@@ -25,23 +25,29 @@ public type Message client object {
    private boolean ackStatus = false;
    private boolean autoAck = true;
 
-   # Acknowledge one or several received messages.
-   #
-   # + multiple - `true` to acknowledge all messages up to and including the message called on,
-   #                `false` to acknowledge just the message called on.
-   # + return - An error if an I/O error is encountered or nil if successful.
+# Acknowledges one or several received messages.
+# ```ballerina
+# rabbitmq:Error? ackResult = message->basicAck(true);
+# ```
+#
+# + multiple - `true` to acknowledge all messages up to and including the called on message and
+#              `false` to acknowledge just the called on message 
+# + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
    public remote function basicAck(boolean multiple = false) returns Error? {
         var result = nativeBasicAck(self.amqpChannel, self.deliveryTag, multiple, self.autoAck, self.ackStatus);
         self.ackStatus = true;
         return result;
    }
 
-   # Reject one or several received messages.
-   #
-   # + multiple - `true` to reject all messages up to and including the message called on;
-   #                `false` to reject just the message called on.
-   # + requeue - `true` if the rejected message(s) should be re-queued rather than discarded/dead-lettered.
-   # + return - An error if an I/O error is encountered or nil if successful.
+# Rejects one or several received messages.
+# ```ballerina
+# rabbitmq:Error? nackResult = message->basicNack(true, requeue = false);
+# ```
+#
+# + multiple - `true` to reject all messages up to and including the called on message and
+#              `false` to reject just the called on message 
+# + requeue - `true` if the rejected message(s) should be re-queued rather than discarded/dead-lettered
+# + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
    public remote function basicNack(boolean multiple = false, public boolean requeue = true)
                             returns Error? {
         var result = nativeBasicNack(self.amqpChannel, self.deliveryTag, self.autoAck, self.ackStatus,
@@ -50,9 +56,12 @@ public type Message client object {
         return result;
    }
 
-   # Retrieves the delivery tag of the message.
-   #
-   # + return - int containing the delivery tag of the message.
+# Retrieves the delivery tag of the message.
+# ```ballerina
+# int deliveryTag = message.getDeliveryTag();
+# ```
+#
+# + return - The delivery tag of the message
    public function getDeliveryTag() returns @tainted int {
         if (self.deliveryTag > -1) {
             return self.deliveryTag;
@@ -62,9 +71,12 @@ public type Message client object {
         }
    }
 
-   # Retrieves the properties of the message (i.e., routing headers etc.).
-   #
-   # + return - Properties of the message or error if an error is encountered.
+# Retrieves the properties of the message (i.e., routing headers etc.).
+# ```ballerina
+# rabbitmq:BasicProperties|rabbitmq:Error properties = message.getProperties();
+# ```
+#
+# + return - Properties of the message or else a `rabbitmq:Error` if an error is encountered
    public function getProperties() returns BasicProperties | Error {
         var basicProperties = self.properties;
         if (basicProperties is BasicProperties) {
@@ -74,9 +86,12 @@ public type Message client object {
         return e;
    }
 
-   # Retrieves the text content of the RabbitMQ message.
-   #
-   # + return - string containing message data or error if an error is encountered.
+# Retrieves the text content of the RabbitMQ message.
+# ```ballerina
+# string|rabbitmq:Error msgContent = message.getTextContent();
+# ```
+#
+# + return - Message data as string value or else a `rabbitmq:Error` if an error is encountered
    public function getTextContent() returns @tainted string | Error {
         var result =  nativeGetTextContent(self.messageContent);
         if (result is handle) {
@@ -92,37 +107,52 @@ public type Message client object {
         }
    }
 
-    # Retrieves the float content of the RabbitMQ message.
-    #
-    # + return - float containing message data or error if an error is encountered.
-    public function getFloatContent() returns @tainted float | Error {
+# Retrieves the float content of the RabbitMQ message.
+# ```ballerina
+# float|rabbitmq:Error msgContent = message.getFloatContent();
+# ```
+#
+# + return - Message data as a float value or else a `rabbitmq:Error` if an error is encountered
+   public function getFloatContent() returns @tainted float | Error {
         return  nativeGetFloatContent(self.messageContent);
-    }
+   }
 
-   # Retrieves the int content of the RabbitMQ message.
-   #
-   # + return - int containing message data or error if an error is encountered.
+# Retrieves the int content of the RabbitMQ message.
+# ```ballerina
+# int|rabbitmq:Error msgContent = message.getIntContent();
+# ```
+#
+# + return - Message data as an int value or else a `rabbitmq:Error` if an error is encountered
    public function getIntContent() returns @tainted int | Error {
        return nativeGetIntContent(self.messageContent);
    }
 
-   # Retrieves the byte array content of the RabbitMQ message.
-   #
-   # + return - byte array containing message data or error if an error is encountered.
+# Retrieves the byte array content of the RabbitMQ message.
+# ```ballerina
+# byte[] msgContent = message.getIntContent();
+# ```
+#
+# + return - Message data as a byte array
    public function getByteArrayContent() returns @tainted byte[] {
         return self.messageContent;
    }
 
-   # Retrieves the json content of the RabbitMQ message.
-   #
-   # + return - json containing message data or error if an error is encountered.
+# Retrieves the JSON content of the RabbitMQ message.
+# ```ballerina
+# json|rabbitmq:Error msgContent = message.getJSONContent();
+# ```
+#
+# + return - Message data as a JSON value or else a `rabbitmq:Error` if an error is encountered
    public function getJSONContent() returns @tainted json | Error {
         return nativeGetJSONContent(self.messageContent);
    }
 
-   # Retrieves the xml content of the RabbitMQ message.
-   #
-   # + return - xml containing message data or error if an error is encountered.
+# Retrieves the XML content of the RabbitMQ message.
+# ```ballerina
+# xml|rabbitmq:Error msgContent = message.getXMLContent();
+# ```
+#
+# + return - Message data as an XML value or else a `rabbitmq:Error` if an error is encountered
    public function getXMLContent() returns @tainted xml | Error {
         return nativeGetXMLContent(self.messageContent);
    }

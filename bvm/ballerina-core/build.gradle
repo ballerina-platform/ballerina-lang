@@ -47,6 +47,7 @@ dependencies {
     implementation 'org.awaitility:awaitility'
     implementation 'com.zaxxer:HikariCP'
     implementation 'org.slf4j:slf4j-jdk14'
+    implementation 'commons-codec:commons-codec'
 }
 
 description = 'Ballerina - Core'

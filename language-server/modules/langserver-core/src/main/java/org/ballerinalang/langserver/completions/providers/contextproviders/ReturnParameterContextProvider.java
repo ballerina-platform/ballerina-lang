@@ -68,6 +68,7 @@ public class ReturnParameterContextProvider extends AbstractCompletionProvider {
              */
             completionItems.addAll(this.getPackagesCompletionItems(ctx));
             completionItems.addAll(this.getBasicTypesItems(ctx, visibleSymbols));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_RECORD.get()));
         } else {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_RETURNS.get()));
         }

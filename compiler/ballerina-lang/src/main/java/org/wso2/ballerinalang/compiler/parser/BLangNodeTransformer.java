@@ -324,8 +324,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectTypeDescriptorNode objTypeDescNode) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        // TODO: Look when to false isFieldAnalyseRequired
-        objectTypeNode.isFieldAnalyseRequired = true;
 
         for (Token qualifier : objTypeDescNode.objectTypeQualifiers()) {
             if (qualifier.kind() == SyntaxKind.ABSTRACT_KEYWORD) {
@@ -457,8 +455,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ServiceBodyNode serviceBodyNode) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        // TODO: Look when to false isFieldAnalyseRequired
-        objectTypeNode.isFieldAnalyseRequired = true;
         objectTypeNode.flagSet.add(Flag.SERVICE);
         for (Node resourceNode : serviceBodyNode.resources()) {
             BLangNode bLangNode = resourceNode.apply(this);
@@ -487,7 +483,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 recordTypeNode.addTypeReference((BLangType) field.apply(this));
             }
         }
-        recordTypeNode.isFieldAnalyseRequired = true;
         recordTypeNode.sealed = !hasRestField;
         recordTypeNode.pos = getPosition(recordTypeDescriptorNode);
         return recordTypeNode;

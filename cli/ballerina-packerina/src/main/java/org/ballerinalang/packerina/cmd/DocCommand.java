@@ -25,7 +25,6 @@ import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CreateDocsTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -33,7 +32,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,16 +63,13 @@ public class DocCommand implements BLauncherCmd {
         this.outStream = System.out;
         this.errStream = System.err;
     }
-    
+
     @CommandLine.Option(names = {"--sourceroot"},
                         description = "Path to the directory containing source files and modules.")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--all", "-a"}, description = "Generate docs for all the modules of the project.")
     private boolean buildAll;
-
-    @CommandLine.Option(names = {"--output", "-o"}, description = "Path to folder to which API docs will be written.")
-    private String output;
 
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
                                                               "dependencies.")
@@ -103,19 +98,19 @@ public class DocCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina doc [-o <output>] [--sourceroot] [--offline]\n" +
-                           "                     {<ballerina-file | module-name> | -a | --all}",
+                    "ballerina doc [--sourceroot] [--offline]\n" +
+                           "                     {<module-name> | -a | --all}",
                     false);
             CommandUtil.exitError(true);
             return;
         }
     
-        // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
+        // if -a or --all flag is not given, then it is mandatory to give a module name.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
             CommandUtil.printError(this.errStream,
-                    "'doc' command requires a module name or a Ballerina file to continue. use '-a' or " +
+                    "'doc' command requires a module name. use '-a' or " +
                     "'--all' flag to generate api documentation for all the modules of the project.",
-                    "ballerina doc {<ballerina-file> | <module-name> | -a | --all}",
+                    "ballerina doc {<module-name> | -a | --all}",
                     false);
             CommandUtil.exitError(true);
             return;
@@ -147,66 +142,17 @@ public class DocCommand implements BLauncherCmd {
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            //// check if path given is an absolute path. update source root accordingly.
-            if (Paths.get(this.argList.get(0)).isAbsolute()) {
-                sourcePath = Paths.get(this.argList.get(0));
-                this.sourceRootPath = sourcePath.getParent();
-            } else {
-                sourcePath = this.sourceRootPath.resolve(this.argList.get(0));
-            }
-
-            //// check if the given file exists.
-            if (Files.notExists(sourcePath)) {
-                CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' Ballerina file does not exist.",
-                        null,
-                        false);
-                CommandUtil.exitError(true);
-                return;
-            }
-
-            //// check if the given file is a regular file and not a symlink.
-            if (!Files.isRegularFile(sourcePath)) {
-                CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' is not a Ballerina file. check if it is a symlink or a shortcut.",
-                        null,
-                        false);
-                CommandUtil.exitError(true);
-                return;
-            }
-
-            // when generating docs for a ballerina file
-            //// output path should be provided
-            if (null == this.output) {
-                CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is required for a single Ballerina file.",
-                        "ballerina doc -o <output-path> <ballerina-file>",
-                        false);
-                CommandUtil.exitError(true);
-                return;
-            }
-
-            try {
-                targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("error occurred when creating output folder.");
-            }
+            CommandUtil.printError(this.errStream,
+                    "generating API Documentation is not supported for a single Ballerina file.",
+                    null,
+                    false);
+            CommandUtil.exitError(true);
+            return;
         } else if (Files.exists(
                 this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
                    Files.isDirectory(
                this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0)))) {
-            
-            // when generating docs for a ballerina module
-            //// output flag cannot be set for projects
-            if (null != this.output) {
-                CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is only supported for a single Ballerina file.",
-                        null,
-                        false);
-                CommandUtil.exitError(true);
-                return;
-            }
-            
+
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 CommandUtil.printError(this.errStream,
@@ -250,10 +196,10 @@ public class DocCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid Ballerina source path. It should either be a name of a module in a Ballerina project or " +
-                    "a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension. Use the -a or --all " +
+                    "invalid Ballerina source path. It should be a name of a module in a Ballerina project." +
+                    " Use the -a or --all " +
                     "flag to generate docs for all modules.",
-                    "ballerina doc {<ballerina-file> | <module-name> | -a | --all}",
+                    "ballerina doc {<module-name> | -a | --all}",
                     true);
             CommandUtil.exitError(true);
             return;
@@ -263,7 +209,6 @@ public class DocCommand implements BLauncherCmd {
         this.sourceRootPath = this.sourceRootPath.normalize();
         sourcePath = sourcePath == null ? null : sourcePath.normalize();
         targetPath = targetPath.normalize();
-        Path outputPath = this.output != null ? Paths.get(this.output).toAbsolutePath().normalize() : null;
 
         // create compiler context
         CompilerContext compilerContext = new CompilerContext();
@@ -282,7 +227,7 @@ public class DocCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateDocsTask(outputPath)) // creates API documentation
+                .addTask(new CreateDocsTask()) // creates API documentation
                 .build();
         
         taskExecutor.executeTasks(buildContext);
@@ -303,7 +248,7 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina doc [-o <output-path>] {<ballerina-file | module-name> | -a | --all} \n");
+        out.append("  ballerina doc {<ballerina-file | module-name> | -a | --all} \n");
     }
 
     @Override

@@ -1,1 +1,0 @@
-// Ballerina users can configure multiple HTTP clients in a given failover group. If one of the HTTP clients (dependencies) fails, Ballerina automatically fails over to another endpoint.

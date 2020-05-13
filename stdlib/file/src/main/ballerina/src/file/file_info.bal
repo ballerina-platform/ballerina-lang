@@ -55,23 +55,23 @@ public type FileInfo object {
         return self.size;
     }
 
-    # Returns the last modified time of the file.
+    # Returns the last-modified time of the file.
     #
-    # + return - Last modified time of the file.
+    # + return - Last-modified time of the file
     public function getLastModifiedTime() returns time:Time {
         return self.modifiedTime;
     }
 
     # Returns whether the file is a directory or not.
     #
-    # + return - File is a directory or not.
+    # + return - File is a directory or not
     public function isDir() returns boolean {
         return self.dir;
     }
 
     # Returns the absolute file path.
     #
-    # + return - the file path
+    # + return - The file path
     public function getPath() returns string {
         return self.path;
     }

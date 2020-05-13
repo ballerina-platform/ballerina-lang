@@ -168,7 +168,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
                                                       "moduleName:\"ballerina.runtime.errors\"," +
-                                                      " fileName:\"errors.bal\", lineNumber:35}");
+                                                      " fileName:\"errors.bal\", lineNumber:38}");
     }
 
     @Test
@@ -274,6 +274,7 @@ public class ErrorTest {
                 "incompatible types: expected 'error<string, " +
                         "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
     }
+
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
         return new Object[][] {

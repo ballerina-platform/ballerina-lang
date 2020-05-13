@@ -69,6 +69,25 @@ public final class NumericLiteralSupport {
     }
 
     /**
+     * Check input for decimal indicator.
+     *
+     * @param literalValue literal to check
+     * @return true if Hex prefix is present, false otherwise
+     */
+    public static boolean hasHexIndicator(String literalValue) {
+        int length = literalValue.length();
+        // There should be at least 3 characters to form hex literal.
+        if (length < 3) {
+            return false;
+        }
+        // Check whether hex prefix is with positive and negative inputs.
+        char firstChar = literalValue.charAt(1);
+        char secondChar = literalValue.charAt(2);
+        return firstChar == 'x' || secondChar == 'x' || firstChar == 'X' || secondChar == 'X';
+    }
+
+
+    /**
      * Parse BigDecimal using DECIMAL128 math context.
      *
      * @param baseValue value to be parsed

@@ -1,0 +1,26 @@
+{
+  "range": {
+    "start": {
+      "line": 19,
+      "character": 9
+    },
+    "end": {
+      "line": 19,
+      "character": 20
+    }
+  },
+  "expected": {
+    "title":"Create service resource for the path '/pets/{petId}' in the OpenAPI contract",
+    "command":"CREATE_SERVICE_RESOURCE_IN_OPENAPI",
+    "arguments":[
+      {
+        "argumentK":"node.line",
+        "argumentV":"27"
+      },
+      {
+        "argumentK":"node.column",
+        "argumentV":"8"
+      }
+    ]
+  }
+}

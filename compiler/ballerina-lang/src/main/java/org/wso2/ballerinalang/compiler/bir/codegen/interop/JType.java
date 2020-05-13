@@ -38,14 +38,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JVOI
  */
 public class JType extends BType {
 
-    public int jTag;
-
-    public JType(int jTag) {
-
-        super(JTypeTags.JTYPE, null);
-        this.jTag = jTag;
-    }
-
     private static final String JBYTE_KIND = "byte";
     private static final String JCHAR_KIND = "char";
     private static final String JSHORT_KIND = "short";
@@ -58,49 +50,21 @@ public class JType extends BType {
     private static final String JARRAY_KIND = "array";
     private static final String JREF_KIND = "ref";
     private static final String JNO_KIND = "no";
-
-    static JType jByte = new JType(JBYTE);
-    static JType jChar = new JType(JCHAR);
-    static JType jShort = new JType(JSHORT);
-    static JType jInt = new JType(JINT);
-    static JType jLong = new JType(JLONG);
-    static JType jFloat = new JType(JFLOAT);
-    static JType jDouble = new JType(JDOUBLE);
-    static JType jBoolean = new JType(JBOOLEAN);
     static JType jVoid = new JType(JVOID);
+    private static JType jByte = new JType(JBYTE);
+    private static JType jChar = new JType(JCHAR);
+    private static JType jShort = new JType(JSHORT);
+    private static JType jInt = new JType(JINT);
+    private static JType jLong = new JType(JLONG);
+    private static JType jFloat = new JType(JFLOAT);
+    private static JType jDouble = new JType(JDOUBLE);
+    private static JType jBoolean = new JType(JBOOLEAN);
+    public int jTag;
 
-    /**
-     * Java array type.
-     *
-     * @since 1.2.0
-     */
-    public static class JArrayType extends JType {
+    JType(int jTag) {
 
-        JType elementType;
-
-        public JArrayType(JType elementType) {
-
-            super(JARRAY);
-            this.elementType = elementType;
-        }
-    }
-
-    /**
-     * Java referenced type.
-     *
-     * @since 1.2.0
-     */
-    public static class JRefType extends JType {
-
-        public String typeValue;
-        boolean isInterface = false;
-        boolean isArray = false;
-
-        public JRefType(String typeValue) {
-
-            super(JREF);
-            this.typeValue = typeValue;
-        }
+        super(JTypeTags.JTYPE, null);
+        this.jTag = jTag;
     }
 
     static JType getJTypeFromTypeName(String typeName) {
@@ -189,5 +153,39 @@ public class JType extends BType {
         }
 
         return arrayType;
+    }
+
+    /**
+     * Java array type.
+     *
+     * @since 1.2.0
+     */
+    public static class JArrayType extends JType {
+
+        JType elementType;
+
+        JArrayType(JType elementType) {
+
+            super(JARRAY);
+            this.elementType = elementType;
+        }
+    }
+
+    /**
+     * Java referenced type.
+     *
+     * @since 1.2.0
+     */
+    public static class JRefType extends JType {
+
+        public String typeValue;
+        boolean isInterface = false;
+        boolean isArray = false;
+
+        public JRefType(String typeValue) {
+
+            super(JREF);
+            this.typeValue = typeValue;
+        }
     }
 }

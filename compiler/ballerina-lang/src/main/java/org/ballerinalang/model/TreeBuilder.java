@@ -39,6 +39,7 @@ import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
@@ -59,6 +60,7 @@ import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.LetExpressionNode;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecatedParametersAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecationAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
@@ -74,6 +76,8 @@ import org.ballerinalang.model.tree.expressions.ServiceConstructorNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
 import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
+import org.ballerinalang.model.tree.expressions.TableConstructorExprNode;
+import org.ballerinalang.model.tree.expressions.TableMultiKeyExpressionNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
 import org.ballerinalang.model.tree.expressions.TupleVariableReferenceNode;
@@ -130,6 +134,7 @@ import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
 import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.model.tree.types.StreamTypeNode;
+import org.ballerinalang.model.tree.types.TableTypeNode;
 import org.ballerinalang.model.tree.types.TupleTypeNode;
 import org.ballerinalang.model.tree.types.UnionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
@@ -152,6 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -180,6 +186,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -197,6 +204,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -260,6 +269,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -492,12 +502,24 @@ public class TreeBuilder {
         return new BLangInvocation();
     }
 
+    public static InvocationNode createActionInvocation() {
+        return new BLangInvocation.BLangActionInvocation();
+    }
+
     public static FieldBasedAccessNode createFieldBasedAccessNode() {
         return new BLangFieldBasedAccess();
     }
 
     public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
         return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+    }
+
+    public static TableKeySpecifierNode createTableKeySpecifierNode() {
+        return new BLangTableKeySpecifier();
+    }
+
+    public static TableTypeNode createTableTypeNode() {
+        return new BLangTableTypeNode();
     }
 
     public static IndexBasedAccessNode createIndexBasedAccessNode() {
@@ -542,6 +564,14 @@ public class TreeBuilder {
 
     public static ListConstructorExprNode createListConstructorExpressionNode() {
         return new BLangListConstructorExpr();
+    }
+
+    public static TableConstructorExprNode createTableConstructorExpressionNode() {
+        return new BLangTableConstructorExpr();
+    }
+
+    public static TableMultiKeyExpressionNode createTableMultiKeyExpressionNode() {
+        return new BLangTableMultiKeyExpr();
     }
 
     public static LetExpressionNode createLetExpressionNode() {
@@ -646,6 +676,11 @@ public class TreeBuilder {
 
     public static MarkDownDocumentationDeprecationAttributeNode createMarkDownDeprecationAttributeNode() {
         return new BLangMarkDownDeprecationDocumentation();
+    }
+
+    public static MarkDownDocumentationDeprecatedParametersAttributeNode
+                                                                createMarkDownDeprecatedParametersAttributeNode() {
+        return new BLangMarkDownDeprecatedParametersDocumentation();
     }
 
     public static IfNode createIfElseStatementNode() {
