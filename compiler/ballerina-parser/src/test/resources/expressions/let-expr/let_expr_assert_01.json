@@ -1,0 +1,44 @@
+{
+    "kind": "LET_EXPRESSION",
+    "children": [
+        {
+            "kind": "LET_KEYWORD"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "LET_VAR_DECL",
+                    "children": [
+                        {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "T"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "B"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "E1"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "IN_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "E2"
+        }
+    ]
+}

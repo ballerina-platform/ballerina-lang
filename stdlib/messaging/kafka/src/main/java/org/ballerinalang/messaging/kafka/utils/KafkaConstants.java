@@ -84,7 +84,7 @@ public class KafkaConstants {
 
     public static final String KAFKA_RESOURCE_ON_MESSAGE = "onMessage";
 
-    public static final String PROPERTIES_ARRAY = "properties";
+    public static final String ADDITIONAL_PROPERTIES_MAP_FIELD = "properties";
 
     public static final String ALIAS_CONCURRENT_CONSUMERS = "concurrentConsumers";
     public static final String ALIAS_TOPICS = "topics";

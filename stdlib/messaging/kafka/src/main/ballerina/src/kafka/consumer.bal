@@ -21,6 +21,7 @@ import ballerina/java;
 #
 # + bootstrapServers - List of remote server endpoints of kafka brokers
 # + groupId - Unique string that identifies the consumer
+# + topics - Topics to be subscribed by the consumer
 # + offsetReset - Offset reset strategy if no initial offset
 # + partitionAssignmentStrategy - Strategy class for handling the partition assignment among consumers
 # + metricsRecordingLevel - Metrics recording level
@@ -36,8 +37,9 @@ import ballerina/java;
 #                       `kafka:Deserializer` object
 # + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url, if Avro serializer
 #                       is used
-# + topics - Topics to be subscribed by the consumer
-# + properties - Additional properties if required
+# + properties - Additional properties for the property fields not provided by Ballerina Kafka module. Use this with
+#                caution since this can override any of the fields. It is not recomendded to use this field except
+#                in an extreme situation
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached
 # + heartBeatIntervalInMillis - Expected time between heartbeats
 # + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata
@@ -72,7 +74,8 @@ import ballerina/java;
 public type ConsumerConfiguration record {|
     string bootstrapServers;
     string groupId?;
-    string offsetReset?;
+    string[] topics?;
+    string offsetReset?; // TODO: Introduce a type instead of `string`.
     string partitionAssignmentStrategy?;
     string metricsRecordingLevel?;
     string metricsReporterClasses?;
@@ -86,8 +89,7 @@ public type ConsumerConfiguration record {|
     Deserializer valueDeserializer?;
     string schemaRegistryUrl?;
 
-    string[] topics?;
-    string[] properties?;
+    map<string> properties?; // TODO: This should be renamed to additionalProperties in future releases.
 
     int sessionTimeoutInMillis?;
     int heartBeatIntervalInMillis?;
@@ -156,7 +158,7 @@ public type IsolationLevel ISOLATION_COMMITTED|ISOLATION_UNCOMMITTED;
 public type Consumer client object {
     *'object:Listener;
 
-    public ConsumerConfiguration? consumerConfig = ();
+    public ConsumerConfiguration consumerConfig;
     private string keyDeserializerType;
     private string valueDeserializerType;
     private Deserializer? keyDeserializer = ();
@@ -459,7 +461,11 @@ public type Consumer client object {
     # + topics - Array of topics to be subscribed to
     # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function subscribe(string[] topics) returns ConsumerError? {
-        return consumerSubscribe(self, topics);
+        if (self.consumerConfig?.groupId is string) {
+            return consumerSubscribe(self, topics);
+        } else {
+            panic error(CONSUMER_ERROR, message = "The groupId of the consumer must be set to subscribe to the topics");
+        }
     }
 
     # Subscribes the consumer to the topics, which match the provided pattern.

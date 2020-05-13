@@ -14,89 +14,299 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The SQL Datatype of the parameter.
-#
-# `VARCHAR` - Small, variable-length character string
-# `CHAR` - Small, fixed-length character string
-# `TEXT` -  Column with a maximum length of 65,535 characters.
-# `NCHAR` - Small, fixed-length character string with unicode support
-# `NVARCHAR` - Small, variable-length character string with unicode support
-#
-# `SMALLINT` - 16-bit signed integer value which may be unsigned or signed
-# `INTEGER` - 32-bit signed integer value which may be unsigned or signed
-# `BIGINT` - 64-bit signed integer value which may be unsigned or signed
-#
-# `NUMERIC` - Fixed-precision and scaled decimal values
-# `DECIMAL` - Fixed-precision and scaled decimal values
-# `REAL` - Single precision floating point number
-# `FLOAT` - Double precision floating point number
-# `DOUBLE` - Double precision floating point number
-#
-# `BIT` - Single bit value that can be zero or one, or nil
-# `BOOLEAN` - Boolean value either True or false
-#
-# `BINARY` - Small, fixed-length binary value
-# `BLOB` - Binary Large Object
-# `LONGVARBINARY` - Large, variable-length binary value
-# `VARBINARY` - Small, variable-length binary value
-#
-# `CLOB` - Character Large Object.
-# `NCLOB` - Character large objects in multibyte national character set
-#
-# `DATE` - Date consisting of day, month, and year
-# `TIME` - Time consisting of hours, minutes, and seconds
-# `DATETIME` - Both DATE and TIME with additional a nanosecond field
-# `TIMESTAMP` - Both DATE and TIME with additional a nanosecond field
-#
-# `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
-# `STRUCT` - User-defined structured type, consists of one or more attributes
-# `REF` - A value that references a row in a reference table
-# `ROW` - A value that uniquely identifies a row in a table
-#
-public type Type VARCHAR|CHAR|TEXT|CLOB|NCHAR|NVARCHAR|NCLOB|SMALLINT|INTEGER|BIGINT|NUMERIC|DECIMAL|REAL|FLOAT|DOUBLE|
-BIT|BOOLEAN|BINARY|VARBINARY|BLOB|DATE|TIME|DATETIME|TIMESTAMP|ARRAY|REF|ROW|STRUCT;
-
-public const VARCHAR = "VARCHAR";
-public const CHAR = "CHAR";
-public const TEXT = "TEXT";
-public const CLOB = "CLOB";
-public const NCHAR = "NCHAR";
-public const NVARCHAR = "NVARCHAR";
-public const NCLOB = "NCLOB";
-public const SMALLINT = "SMALLINT";
-public const INTEGER = "INTEGER";
-public const BIGINT = "BIGINT";
-public const NUMERIC = "NUMERIC";
-public const DECIMAL = "DECIMAL";
-public const REAL = "REAL";
-public const FLOAT = "FLOAT";
-public const DOUBLE = "DOUBLE";
-public const BIT = "BIT";
-public const BOOLEAN = "BOOLEAN";
-public const BINARY = "BINARY";
-public const VARBINARY = "VARBINARY";
-public const BLOB = "BLOB";
-public const DATE = "DATE";
-public const TIME = "TIME";
-public const DATETIME = "DATETIME";
-public const TIMESTAMP = "TIMESTAMP";
-public const ARRAY = "ARRAY";
-public const REF = "REF";
-public const ROW = "ROW";
-public const STRUCT = "STRUCT";
+import ballerina/io;
+import ballerina/time;
 
 # Represents a parameter for the SQL Client remote functions when a variable needs to be passed
 # to the remote function.
 #
-# + sqlType - The data type of the corresponding SQL parameter
 # + value - Value of paramter passed into the SQL statement
-public type TypedValue record {|
-   Type sqlType ;
-   anydata|object{}|record{} value;
-|};
+public type TypedValue abstract object {
+    public anydata|object{}|record{} value;
+};
 
 # Possible type of parameters that can be passed into the SQL query.
-public type Value string|int|boolean|float|decimal|byte[]|xml|json|TypedValue;
+public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue?;
+
+# Represents Varchar SQL field.
+#
+public type VarcharValue object {
+   *TypedValue;
+
+   public function __init(string? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents NVarchar SQL field.
+#
+public type NVarcharValue object {
+   *TypedValue;
+
+   public function __init(string? value = ()) {
+      self.value = value;
+   }
+};
+
+# Represents Char SQL field.
+#
+public type CharValue object {
+   *TypedValue;
+
+   public function __init(string? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents NChar SQL field.
+#
+public type NCharValue object {
+   *TypedValue;
+
+   public function __init(string? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Text SQL field.
+#
+public type TextValue object {
+   *TypedValue;
+
+   public function __init(io:ReadableCharacterChannel|string? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Clob SQL field.
+#
+public type ClobValue object {
+   *TypedValue;
+
+   public function __init(io:ReadableCharacterChannel|string? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents NClob SQL field.
+#
+public type NClobValue object {
+   *TypedValue;
+
+   public function __init(io:ReadableCharacterChannel|string? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents SmallInt SQL field.
+#
+public type SmallIntValue object {
+   *TypedValue;
+
+   public function __init(int? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Integer SQL field.
+#
+public type IntegerValue object {
+   *TypedValue;
+
+   public function __init(int? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents BigInt SQL field.
+#
+public type BigIntValue object {
+   *TypedValue;
+
+   public function __init(int? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Numeric SQL field.
+#
+public type NumericValue object {
+   *TypedValue;
+
+   public function __init(int|float|decimal? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Decimal SQL field.
+#
+public type DecimalValue object {
+   *TypedValue;
+
+   public function __init(int|decimal? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Real SQL field.
+#
+public type RealValue object {
+   *TypedValue;
+
+   public function __init(int|float|decimal? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Float SQL field.
+#
+public type FloatValue object {
+   *TypedValue;
+
+   public function __init(int|float? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Double SQL field.
+#
+public type DoubleValue object {
+   *TypedValue;
+
+   public function __init(int|float|decimal? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Bit SQL field.
+#
+public type BitValue object {
+   *TypedValue;
+
+   public function __init(boolean|int? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Boolean SQL field.
+#
+public type BooleanValue object {
+   *TypedValue;
+
+   public function __init(boolean? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Binary SQL field.
+#
+public type BinaryValue object {
+   *TypedValue;
+
+   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents VarBinary SQL field.
+#
+public type VarBinaryValue object {
+   *TypedValue;
+
+   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Blob SQL field.
+#
+public type BlobValue object {
+   *TypedValue;
+
+   public function __init(byte[]|io:ReadableByteChannel? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Date SQL field.
+#
+public type DateValue object {
+   *TypedValue;
+
+   public function __init(string|int|time:Time? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Time SQL field.
+#
+public type TimeValue object {
+   *TypedValue;
+
+   public function __init(string|int|time:Time? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents DateTime SQL field.
+#
+public type DateTimeValue object {
+   *TypedValue;
+
+   public function __init(string|int|time:Time? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Timestamp SQL field.
+#
+public type TimestampValue object {
+   *TypedValue;
+
+   public function __init(string|int|time:Time? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents ArrayValue SQL field.
+#
+public type ArrayValue object {
+   *TypedValue;
+
+   public function __init(string[]|int[]|boolean[]|float[]|decimal[]|byte[][]? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Ref SQL field.
+#
+public type RefValue object {
+   *TypedValue;
+
+   public function __init(record{}? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Struct SQL field.
+#
+public type StructValue object {
+   *TypedValue;
+
+   public function __init(record{}? value = ()) {
+       self.value = value;
+   }
+};
+
+# Represents Row SQL field.
+#
+public type RowValue object {
+   *TypedValue;
+
+   public function __init(byte[]? value = ()) {
+       self.value = value;
+   }
+};
 
 # Temporay solution util the language supports `Backtick string` natively as mentioned in
 # https://github.com/ballerina-platform/ballerina-spec/issues/442.

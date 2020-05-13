@@ -1,7 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina build` command.
-$ ballerina build client_generation.bal
-Compiling source
-        client_generation.bal 
-Generating executables
-        client_generation.jar

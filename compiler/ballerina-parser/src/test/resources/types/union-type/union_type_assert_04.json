@@ -1,0 +1,35 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "UNION_TYPE_DESC",
+            "children": [
+                {
+                    "kind": "INT_KEYWORD"
+                },
+                {
+                    "kind": "PIPE_TOKEN"
+                },
+                {
+                    "kind": "STRING_KEYWORD"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}
