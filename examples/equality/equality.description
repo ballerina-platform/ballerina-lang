@@ -1,4 +1,0 @@
-// Ballerina provides the below equality operators:
-// `==` for deep value equality of `anydata|error` typed values.
-// `===` for reference equality.
-// `!=` and `!==` as the negations.

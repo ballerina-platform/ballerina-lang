@@ -19,6 +19,16 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
@@ -41,8 +51,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile project(':ballerina-jvm')
+    testCompile 'org.testng:testng'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     interopImports project(':ballerina-crypto')
     interopImports 'com.rabbitmq:amqp-client:5.7.3'

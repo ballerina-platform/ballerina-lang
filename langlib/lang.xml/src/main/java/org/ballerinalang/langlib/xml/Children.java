@@ -57,4 +57,8 @@ public class Children {
         }
         return new XMLSequence();
     }
+
+    public static XMLValue children_bstring(Strand strand, XMLValue xmlVal) {
+        return children(strand, xmlVal);
+    }
 }

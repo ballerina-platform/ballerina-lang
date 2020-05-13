@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -73,6 +74,7 @@ public class EntityBodyHandler {
     private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
     private static final BType MIME_ENTITY_TYPE =
             BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY).getType();
+    private static final BArrayType mimeEntityArrayType = new BArrayType(MIME_ENTITY_TYPE);
 
     /**
      * Get a byte channel for a given text data.
@@ -403,7 +405,7 @@ public class EntityBodyHandler {
      */
     public static ArrayValue getBodyPartArray(ObjectValue entityObj) {
         return entityObj.getNativeData(BODY_PARTS) != null ? (ArrayValue) entityObj.getNativeData(BODY_PARTS)
-                : new ArrayValueImpl(new BArrayType(MIME_ENTITY_TYPE), 0);
+                : (ArrayValue) BValueCreator.createArrayValue(mimeEntityArrayType, 0);
     }
 
     public static Channel getByteChannel(ObjectValue entityObj) {

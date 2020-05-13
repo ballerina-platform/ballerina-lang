@@ -25,7 +25,7 @@ public type PushPromise object {
     public string path;
     public string method;
 
-    # Constructs a `PushPromise` from a given path and a method.
+    # Constructs an `http:PushPromise` from a given path and a method.
     #
     # + path - The resource path
     # + method - The HTTP method
@@ -66,7 +66,7 @@ public type PushPromise object {
         return headers;
     }
 
-    # Adds the specified key/value pair as an HTTP header to the `PushPromise`.
+    # Adds the specified key/value pair as an HTTP header to the `http:PushPromise`.
     #
     # + headerName - The header name
     # + headerValue - The header value
@@ -74,7 +74,7 @@ public type PushPromise object {
         return externPromiseAddHeader(self, java:fromString(headerName), java:fromString(headerValue));
     }
 
-    # Sets the value of a transport header in `PushPromise`.
+    # Sets the value of a transport header in the `http:PushPromise`.
     #
     # + headerName - The header name
     # + headerValue - The header value
@@ -82,19 +82,19 @@ public type PushPromise object {
         return externPromiseSetHeader(self, java:fromString(headerName), java:fromString(headerValue));
     }
 
-    # Removes a transport header from the `PushPromise`.
+    # Removes a transport header from the `http:PushPromise`.
     #
     # + headerName - The header name
     public function removeHeader(string headerName) {
         return externPromiseRemoveHeader(self, java:fromString(headerName));
     }
 
-    # Removes all transport headers from the `PushPromise`.
+    # Removes all transport headers from the `Phttp:ushPromise`.
     public function removeAllHeaders() {
         return externRemoveAllHeaders(self);
     }
 
-    # Gets all transport header names from the `PushPromise`.
+    # Gets all transport header names from the `http:PushPromise`.
     #
     # + return - An array of all transport header names
     public function getHeaderNames() returns string[] {

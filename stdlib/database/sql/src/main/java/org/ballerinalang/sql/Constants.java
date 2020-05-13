@@ -54,6 +54,9 @@ public final class Constants {
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
     public static final String LAST_INSERTED_ID_FIELD = "lastInsertId";
 
+    public static final String READ_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
+    public static final String READ_CHAR_CHANNEL_STRUCT = "ReadableCharacterChannel";
+
     /**
      * Constants related connection pool.
      */
@@ -77,6 +80,56 @@ public final class Constants {
         public static final String MESSAGE = "message";
         public static final String ERROR_CODE = "errorCode";
         public static final String SQL_STATE = "sqlState";
+
+    }
+
+    /**
+     * Constants related to parameterized string fields.
+     */
+    public static final class ParameterizedStingFields {
+        public static final String PARTS = "parts";
+        public static final String INSERTIONS = "insertions";
+    }
+
+    /**
+     * Constants related to TypedValue fields.
+     */
+    public static final class TypedValueFields {
+        public static final String VALUE = "value";
+    }
+
+    /**
+     * Constants related to SQL Types supported.
+     */
+    public static final class SqlTypes {
+        public static final String VARCHAR = "VarcharValue";
+        public static final String CHAR = "CharValue";
+        public static final String TEXT = "TextValue";
+        public static final String CLOB = "ClobValue";
+        public static final String NCHAR = "NCharValue";
+        public static final String NVARCHAR = "NVarcharValue";
+        public static final String NCLOB = "NClobValue";
+        public static final String SMALLINT = "SmallIntValue";
+        public static final String INTEGER = "IntegerValue";
+        public static final String BIGINT = "BigIntValue";
+        public static final String NUMERIC = "NumericValue";
+        public static final String DECIMAL = "DecimalValue";
+        public static final String REAL = "RealValue";
+        public static final String FLOAT = "FloatValue";
+        public static final String DOUBLE = "DoubleValue";
+        public static final String BIT = "BitValue";
+        public static final String BOOLEAN = "BooleanValue";
+        public static final String BINARY = "BinaryValue";
+        public static final String VARBINARY = "VarBinaryValue";
+        public static final String BLOB = "BlobValue";
+        public static final String DATE = "DateValue";
+        public static final String TIME = "TimeValue";
+        public static final String DATETIME = "DateTimeValue";
+        public static final String TIMESTAMP = "TimestampValue";
+        public static final String ARRAY = "ArrayValue";
+        public static final String REF = "RefValue";
+        public static final String ROW = "RowValue";
+        public static final String STRUCT = "StructValue";
 
     }
 

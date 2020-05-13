@@ -24,28 +24,37 @@ public type Caller client object {
         self.httpCaller = httpCaller;
     }
 
-    # Sends the response to the caller.
-    #
-    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
-    # + return - Returns an `error` on failure
+# Sends the response to the caller.
+# ```ballerina
+# error? response = caller->respond();
+# ```
+#
+# + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `error` on failure or else `()`
     public remote function respond(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->respond(message);
     }
 
-    # Sends the response to the caller with the status 200 OK.
-    #
-    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
-    # + return - Returns an `error` on failure
+# Sends the response to the caller with the "200 OK" status.
+# ```ballerina
+# error? response = caller->ok();
+# ```
+#
+# + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `error` on failure or else `()`
     public remote function ok(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->ok(message);
     }
 
-    # Sends the response to the caller with the status 202 Accepted.
-    #
-    # + message - The response or any payload of type `http:ResponseMessage`
-    # + return - Returns an `error` on failure
+# Sends the response to the caller with the "202 Accepted" status.
+# ```ballerina
+# error? response = caller->accepted();
+# ```
+#
+# + message - The response or any payload of the `http:ResponseMessage` type
+# + return - An `error` on failure or else `()`
     public remote function accepted(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->accepted(message);
     }

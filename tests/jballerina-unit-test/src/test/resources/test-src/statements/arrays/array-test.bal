@@ -201,3 +201,44 @@ function assertArrayLengthPanic(int expected, any[] arr, string message = "Array
         panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
     }
 }
+
+const TYPEDESC_ARRAY = "typedesc int[][2]";
+
+function testMultidimensionalArrayString() {
+    int[][2] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality(TYPEDESC_ARRAY, t.toString());
+
+}
+
+function testArrayMapString() {
+    map<Foo>[2][] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc map<Foo>[2][]", t.toString());
+
+}
+
+function testArrayUnionType() {
+    (int|string[4][3])[][2][4] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc (int|string[4][3])[][2][4]", t.toString());
+}
+
+function testArrayTupleType() {
+    [string[2],int,float[3][4]][][] arr = [];
+    typedesc<any> t = typeof arr;
+    assertEquality("typedesc [string[2],int,float[3][4]][][]", t.toString());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

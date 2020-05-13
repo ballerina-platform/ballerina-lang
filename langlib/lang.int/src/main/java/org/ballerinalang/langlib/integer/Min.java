@@ -47,4 +47,7 @@ public class Min {
         }
         return min;
     }
+    public static long min_bstring(Strand strand, long n, ArrayValue ns) {
+        return min(strand, n, ns);
+    }
 }

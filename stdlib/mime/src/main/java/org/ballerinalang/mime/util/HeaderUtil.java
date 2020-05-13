@@ -51,6 +51,8 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
  */
 public class HeaderUtil {
 
+    private static final BMapType stringMapType = new BMapType(BTypes.typeString);
+
     /**
      * Given a header value, get it's parameters.
      *
@@ -218,6 +220,6 @@ public class HeaderUtil {
     }
 
     private static MapValue<String, String> getEmptyMap() {
-        return new MapValueImpl<>(new BMapType(BTypes.typeString));
+        return new MapValueImpl<>(stringMapType);
     }
 }
