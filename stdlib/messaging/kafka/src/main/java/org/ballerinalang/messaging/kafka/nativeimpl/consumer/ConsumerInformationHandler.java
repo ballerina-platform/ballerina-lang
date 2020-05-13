@@ -22,6 +22,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -218,7 +219,7 @@ public class ConsumerInformationHandler {
             BArray arrayValue = BValueCreator.createArrayValue(stringArrayType);
             if (!subscriptions.isEmpty()) {
                 for (String subscription : subscriptions) {
-                    arrayValue.append(subscription);
+                    arrayValue.append(StringUtils.fromString(subscription));
                 }
             }
             return arrayValue;
@@ -239,7 +240,7 @@ public class ConsumerInformationHandler {
         BArray bArray = BValueCreator.createArrayValue(new BArrayType(BTypes.typeString));
         if (!map.keySet().isEmpty()) {
             for (String topic : map.keySet()) {
-                bArray.append(topic);
+                bArray.append(StringUtils.fromString(topic));
             }
         }
         return bArray;

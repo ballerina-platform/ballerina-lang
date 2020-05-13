@@ -45,8 +45,8 @@ public final class Constants {
     public static final class Options {
         static final BString SSL = StringUtils.fromString("ssl");
         static final BString USE_XA_DATASOURCE = StringUtils.fromString("useXADatasource");
-        static final String CONNECT_TIMEOUT_SECONDS = "connectTimeoutInSeconds";
-        static final String SOCKET_TIMEOUT_SECONDS = "socketTimeoutInSeconds";
+        static final BString CONNECT_TIMEOUT_SECONDS = StringUtils.fromString("connectTimeoutInSeconds");
+        static final BString SOCKET_TIMEOUT_SECONDS = StringUtils.fromString("socketTimeoutInSeconds");
     }
 
     /**
@@ -60,20 +60,20 @@ public final class Constants {
     }
 
     static final class DatabaseProps {
-        static final String SSL_MODE = "sslMode";
-        static final String SSL_MODE_DISABLED = "DISABLED";
+        static final BString SSL_MODE = StringUtils.fromString("sslMode");
+        static final BString SSL_MODE_DISABLED = StringUtils.fromString("DISABLED");
         static final String SSL_MODE_VERIFY_CA = "VERIFY_CA";
 
-        static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";
-        static final String CLIENT_KEYSTORE_URL = "clientCertificateKeyStoreUrl";
-        static final String CLIENT_KEYSTORE_PASSWORD = "clientCertificateKeyStorePassword";
-        static final String CLIENT_KEYSTORE_TYPE = "clientCertificateKeyStoreType";
-        static final String TRUST_KEYSTORE_URL = "trustCertificateKeyStoreUrl";
-        static final String TRUST_KEYSTORE_PASSWORD = "trustCertificateKeyStorePassword";
-        static final String TRUST_KEYSTORE_TYPE = "trustCertificateKeyStoreType";
+        static final BString KEYSTORE_TYPE_PKCS12 = StringUtils.fromString("PKCS12");
+        static final BString CLIENT_KEYSTORE_URL = StringUtils.fromString("clientCertificateKeyStoreUrl");
+        static final BString CLIENT_KEYSTORE_PASSWORD = StringUtils.fromString("clientCertificateKeyStorePassword");
+        static final BString CLIENT_KEYSTORE_TYPE = StringUtils.fromString("clientCertificateKeyStoreType");
+        static final BString TRUST_KEYSTORE_URL = StringUtils.fromString("trustCertificateKeyStoreUrl");
+        static final BString TRUST_KEYSTORE_PASSWORD = StringUtils.fromString("trustCertificateKeyStorePassword");
+        static final BString TRUST_KEYSTORE_TYPE = StringUtils.fromString("trustCertificateKeyStoreType");
 
-        static final String CONNECT_TIMEOUT = "connectTimeout";
-        static final String SOCKET_TIMEOUT = "socketTimeout";
+        static final BString CONNECT_TIMEOUT = StringUtils.fromString("connectTimeout");
+        static final BString SOCKET_TIMEOUT = StringUtils.fromString("socketTimeout");
     }
 
     static final String MYSQL_DATASOURCE_NAME = "com.mysql.cj.jdbc.MysqlDataSource";
