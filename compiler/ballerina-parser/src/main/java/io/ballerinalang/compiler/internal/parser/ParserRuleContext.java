@@ -44,7 +44,7 @@ public enum ParserRuleContext {
     FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
     FUNC_TYPE_OR_DEF_SIGNATURE_RHS("func-signature-rhs"),
-    ANNON_FUNC_OR_FUNC_TYPE_SIGNATURE_RHS("annon-func-or-func-type-rhs"),
+    ANNON_FUNC_BODY("annon-func-body"),
 
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
@@ -125,13 +125,13 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
-    ERROR_TYPE_DESCRIPTOR("error-type-descriptor"),
     LET_VAR_DECL("let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
     FUNC_TYPE_DESC("func-type-desc"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
-    ANNON_FUNC_OR_FUNC_TYPE("annon-func-or-func-type"),
+    INFERRED_TYPE_DESC("*"),
+    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
 
     // Statements
     STATEMENT("statement"),
@@ -215,6 +215,7 @@ public enum ParserRuleContext {
     STREAM_KEYWORD("stream"),
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
+    NEW_KEYWORD("new"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -243,6 +244,8 @@ public enum ParserRuleContext {
     TEMPLATE_END("`"),
     LT_TOKEN("<"),
     GT_TOKEN(">"),
+    ERROR_TYPE_PARAM_START("<"),
+    PARENTHESISED_TYPE_DESC_START("("),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -300,7 +303,10 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    NEW_KEYWORD_RHS("new-keyword-rhs"),
+    IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
+    ANON_FUNC_EXPRESSION("anon-func-expression"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -312,10 +318,12 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_ANGLE_BRACKETS("type-desc-in-angle-bracket"),              // type-cast, parameterized-type
     TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
-    TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-des"),
+    TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
+    TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
+    TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
-    // XML 
+    // XML
     XML_CONTENT("xml-content"),
     XML_TAG("xml-tag"),
     XML_START_OR_EMPTY_TAG("xml-start-or-empty-tag"),

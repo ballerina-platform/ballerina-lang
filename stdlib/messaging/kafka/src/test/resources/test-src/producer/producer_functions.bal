@@ -28,7 +28,7 @@ kafka:ProducerConfiguration producerConfigs = {
     retryCount: 3
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 public function testKafkaProduce() returns kafka:ProducerError? {
     string message1 = "Hello World";
