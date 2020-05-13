@@ -271,39 +271,39 @@ public type HttpCachingClient client object {
         return self.httpClient->submit(httpVerb, path, <Request>message);
     }
 
-    # Retrieves the `Response` for a previously submitted request.
+    # Retrieves the `http:Response` for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - A `http:Response` message, or else an `http:ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
 
-    # Checks whether a `PushPromise` exists for a previously submitted request.
+    # Checks whether an `http:PushPromise` exists for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - A `boolean` that represents whether a `PushPromise` exists
+    # + httpFuture - The `http:HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean`, which represents whether an `http:PushPromise` exists
     public remote function hasPromise(HttpFuture httpFuture) returns boolean {
         return self.httpClient->hasPromise(httpFuture);
     }
 
-    # Retrieves the next available `PushPromise` for a previously submitted request.
+    # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `http:ClientError` if the invocation fails
+    # + httpFuture - The `http:HttpFuture` relates to a previous asynchronous invocation
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
 
-    # Retrieves the promised server push `Response` message.
+    # Retrieves the promised server push `http:Response` message.
     #
-    # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `http:ClientError` if the invocation fails
+    # + promise - The related `http:PushPromise`
+    # + return - A promised HTTP `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
 
-    # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+    # Rejects an `http:PushPromise`. When an `http:PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
@@ -314,10 +314,11 @@ public type HttpCachingClient client object {
 
 # Creates an HTTP client capable of caching HTTP responses.
 #
-# + url - The URL of the HTTP endpoint to connect to
+# + url - The URL of the HTTP endpoint to connect
 # + config - The configurations for the client endpoint associated with the caching client
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-# + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
+# + return - An `http:HttpCachingClient` instance, which wraps the base `http:Client` with a caching layer 
+#            or else an `http:ClientError`
 public function createHttpCachingClient(string url, ClientConfiguration config, CacheConfig cacheConfig)
                                                                                       returns HttpClient|ClientError {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);

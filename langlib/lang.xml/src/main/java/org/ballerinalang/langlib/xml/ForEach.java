@@ -18,14 +18,15 @@
 
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).
@@ -43,14 +44,19 @@ public class ForEach {
 
     public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.call(new Object[]{strand, x, true});
+            func.asyncCall(new Object[]{strand, x, true});
             return;
         }
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, x.size(),
+                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
+                                                               true},
+                                                       result -> {
+                                                       }, () -> null);
+    }
 
-        IteratorValue iterator = ((XMLSequence) x).getIterator();
-        while (iterator.hasNext()) {
-            Object xmlOrStringVal = iterator.next();
-            func.call(new Object[]{strand, xmlOrStringVal, true});
-        }
+    public static void forEach_bstring(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+        forEach(strand, x, func);
     }
 }

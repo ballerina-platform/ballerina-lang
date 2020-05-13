@@ -17,6 +17,10 @@
 import ballerina/java;
 
 # Prints `any` or `error` value(s) to the STDOUT.
+#```ballerina
+#io:print("Start processing the CSV file from ", srcFileName);
+#```
+# 
 # + values - The value(s) to be printed.
 public function print((any|error)... values) = @java:Method {
     name: "print",
@@ -24,6 +28,10 @@ public function print((any|error)... values) = @java:Method {
 } external;
 
 # Prints `any` or `error` value(s) to the STDOUT followed by a new line.
+#```ballerina
+#io:println("Start processing the CSV file from ", srcFileName);
+#```
+#  
 # + values - The value(s) to be printed.
 public function println((any|error)... values) = @java:Method {
     name: "println",
@@ -46,10 +54,14 @@ public function println((any|error)... values) = @java:Method {
 #
 # s - string (This specifier is applicable for any of the supported types in Ballerina.
 #             These values will be converted to their string representation.)
+# 
+# ```ballerina
+# string s8 = io:sprintf("%s scored %d for %s and has an average of %.2f.", name, marks, subjects[0], average);
+# ```
 #
 # + format - A format string
-# + args   - Arguments referenced by the format specifiers in the format string.
-# + return - Formatted string
+# + args   - Arguments referred by the format specifiers in the format string
+# + return - The formatted string
 public function sprintf(string format, (any|error)... args) returns string {
     return <string>java:toString(sprintfExtern(java:fromString(format), ...args));
 }

@@ -40,6 +40,7 @@ import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
 import io.ballerina.plugins.idea.configuration.BallerinaProjectSettingsConfigurable;
+import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
@@ -94,7 +95,12 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         Module module = ModuleUtilCore.findModuleForPsiElement(psiFile);
         if (module == null) {
-            String sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
+            String sdkHomePath;
+            try {
+                sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
+            } catch (BallerinaCmdException e) {
+                return createMissingSdkPanel(myProject, null);
+            }
             if (Strings.isNullOrEmpty(sdkHomePath)) {
                 return createMissingSdkPanel(myProject, null);
             }
@@ -103,7 +109,11 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         String sdkHomePath = BallerinaSdkUtils.getBallerinaSdkFor(myProject, module).getSdkPath();
         if (Strings.isNullOrEmpty(sdkHomePath)) {
-            sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
+            try {
+                sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
+            } catch (BallerinaCmdException e) {
+                return createMissingSdkPanel(myProject, module);
+            }
         }
         if (Strings.isNullOrEmpty(sdkHomePath)) {
             return createMissingSdkPanel(myProject, module);

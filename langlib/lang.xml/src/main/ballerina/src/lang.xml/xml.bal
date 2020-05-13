@@ -183,11 +183,31 @@ public function slice(xml<ItemType> x, int startIndex, int endIndex = x.length()
 # + return - `x` with insignificant parts removed
 public function strip(xml x) returns xml = external;
 
-# Selects the elements from an xml value.
+# Selects elements from an xml value.
+# If `nm` is `()`, selects all elements;
+# otherwise, selects only elements whose expanded name is `nm`.
 #
 # + x - the xml value
-# + return - an xml sequence consisting of all the element items in `x`
-public function elements(xml x) returns xml<Element> = external;
+# + nm - the expanded name of the elements to be selected, or `()` for all elements
+# + return - an xml sequence consisting of all the element items in `x` whose expanded name is `nm`,
+#  or, if `nm` is `()`, all element items in `x`
+public function elements(xml x, string? nm = ()) returns xml<Element> = external;
+
+# Returns the children of elements in an xml value.
+# When `x` is of type Element, it is equivalent to `getChildren`.
+# + x - xml value
+# + return - xml sequence containing the children of each element x concatenated in order
+# This is equivalent to `elements(x).map(getChildren)`.
+public function children(xml x) returns xml = external;
+
+# Selects element children of an xml value
+# + x - the xml value
+# + nm - the expanded name of the elements to be selected, or `()` for all elements
+# + return - an xml sequence consisting of child elements of elements in `x`; if `nm`
+#  is `()`, returns a sequence of all such elements;
+#  otherwise, include only elements whose expanded name is `nm`
+# This is equivalent to `children(x).elements(nm)`.
+public function elementChildren(xml x, string? nm = ()) returns xml<Element> = external;
 
 // Functional programming methods
 

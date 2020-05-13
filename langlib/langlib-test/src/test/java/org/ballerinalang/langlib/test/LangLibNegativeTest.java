@@ -41,7 +41,7 @@ public class LangLibNegativeTest {
     @Test
     public void testTypeParamNegative() {
         int err = 0;
-        BAssertUtil.validateError(negativeResult, err++, "undefined function 'indexOf'", 19, 47);
+        BAssertUtil.validateError(negativeResult, err++, "undefined function 'indexOf' in type 'map<string>'", 19, 47);
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }
 

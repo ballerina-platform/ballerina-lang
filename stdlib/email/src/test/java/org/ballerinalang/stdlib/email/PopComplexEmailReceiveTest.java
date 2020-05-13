@@ -21,36 +21,33 @@ package org.ballerinalang.stdlib.email;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 /**
  * Test class for email receive using POP3 with all the parameters.
@@ -68,6 +65,12 @@ public class PopComplexEmailReceiveTest {
     private static final String EMAIL_SENDER = "someone2@localhost.com";
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
+    private static final String ATTACHMENT1_TEXT = "Sample attachment text";
+    private static final String ATTACHMENT2_TEXT = "{\"bodyPart\":\"jsonPart\"}";
+    private static final String ATTACHMENT3_TEXT = "<name>Ballerina xml file part</name>";
+    private static final byte[] ATTACHMENT4_BINARY = "This is a sample source of bytes.".getBytes();
+    private static final String ATTACHMENT1_HEADER1_NAME_TEXT = "H1";
+    private static final String ATTACHMENT1_HEADER1_VALUE_TEXT = "V1";
     private static final String[] EMAIL_TO_ADDRESSES = {"hascode1@localhost", "hascode2@localhost"};
     private static final String[] EMAIL_CC_ADDRESSES = {"hascode3@localhost", "hascode4@localhost"};
     private static final String[] EMAIL_BCC_ADDRESSES = {"hascode5@localhost", "hascode6@localhost"};
@@ -91,7 +94,25 @@ public class PopComplexEmailReceiveTest {
         message.addRecipients(Message.RecipientType.BCC, convertToAddressArray(EMAIL_BCC_ADDRESSES));
         message.setReplyTo(convertToAddressArray(EMAIL_REPLY_TO_ADDRESSES));
         message.setSubject(EMAIL_SUBJECT);
-        message.setText(EMAIL_TEXT);
+
+        Multipart multipartMessage = new MimeMultipart();
+        MimeBodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setContent(EMAIL_TEXT, MimeConstants.TEXT_PLAIN);
+        MimeBodyPart attachment1 = new MimeBodyPart();
+        MimeBodyPart attachment2 = new MimeBodyPart();
+        MimeBodyPart attachment3 = new MimeBodyPart();
+        MimeBodyPart attachment4 = new MimeBodyPart();
+        attachment1.setContent(ATTACHMENT1_TEXT, MimeConstants.TEXT_PLAIN);
+        attachment1.addHeader(ATTACHMENT1_HEADER1_NAME_TEXT, ATTACHMENT1_HEADER1_VALUE_TEXT);
+        attachment2.setContent(ATTACHMENT2_TEXT, MimeConstants.APPLICATION_JSON);
+        attachment3.setContent(ATTACHMENT3_TEXT, MimeConstants.APPLICATION_XML);
+        attachment4.setContent(ATTACHMENT4_BINARY, MimeConstants.OCTET_STREAM);
+        multipartMessage.addBodyPart(messageBodyPart);
+        multipartMessage.addBodyPart(attachment1);
+        multipartMessage.addBodyPart(attachment2);
+        multipartMessage.addBodyPart(attachment3);
+        multipartMessage.addBodyPart(attachment4);
+        message.setContent(multipartMessage);
 
         // Use greenmail to store the message
         user.deliver(message);
@@ -102,31 +123,33 @@ public class PopComplexEmailReceiveTest {
     }
 
     @Test(description = "Test for receiving an email with all the parameters")
-    public void testReceiveComplexEmail() throws MessagingException, IOException {
+    public void testReceiveComplexEmail() {
         BValue[] args = {new BString(HOST_NAME), new BString(USER_NAME), new BString(USER_PASSWORD)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReceiveComplexEmail", args);
-        assertNotNull("No messages received with complex POP configuration.", returns);
-        if (returns[0] instanceof BError) {
-            fail("POP Client could not read from server.");
-        } else if (returns[0] == null) {
-            fail("POP Client could read zero emails.");
-        } else {
-            BMap<String, BValue> email = (BMap<String, BValue>) returns[0];
-            String subject = email.get(EmailConstants.MESSAGE_SUBJECT).stringValue();
-            String messageBody = email.get(EmailConstants.MESSAGE_MESSAGE_BODY).stringValue();
-            String fromAddress = email.get(EmailConstants.MESSAGE_FROM).stringValue();
-            String senderAddress = email.get(EmailConstants.MESSAGE_SENDER).stringValue();
-            String[] toAddresses = ((BValueArray) email.get(EmailConstants.MESSAGE_TO)).getStringArray();
-            String[] ccAddresses = ((BValueArray) email.get(EmailConstants.MESSAGE_CC)).getStringArray();
-            String[] replyToAddresses = ((BValueArray) email.get(EmailConstants.MESSAGE_REPLY_TO)).getStringArray();
-            assertEquals(EMAIL_SUBJECT, subject);
-            assertEquals(EMAIL_TEXT.trim(), messageBody.trim());
-            assertEquals(EMAIL_FROM, fromAddress);
-            assertEquals(EMAIL_SENDER, senderAddress);
-            assertTrue(arraysMatchInContent(toAddresses, EMAIL_TO_ADDRESSES));
-            assertTrue(arraysMatchInContent(ccAddresses, EMAIL_CC_ADDRESSES));
-            assertTrue(arraysMatchInContent(replyToAddresses, EMAIL_REPLY_TO_ADDRESSES));
+
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        String[] result = ((BValueArray) returns[0]).getStringArray();
+        assertEquals(EMAIL_SUBJECT, result[0]);
+        assertEquals(EMAIL_TEXT.trim(), result[1].trim());
+        assertEquals(EMAIL_FROM, result[2]);
+        assertEquals(EMAIL_SENDER, result[3]);
+        assertEquals(concatAddresses(EMAIL_TO_ADDRESSES), result[4]);
+        assertEquals(concatAddresses(EMAIL_CC_ADDRESSES), result[5]);
+        assertEquals(concatAddresses(EMAIL_REPLY_TO_ADDRESSES), result[6]);
+        assertEquals(ATTACHMENT1_TEXT, result[7]);
+        assertEquals(ATTACHMENT2_TEXT, result[8]);
+        assertEquals(ATTACHMENT3_TEXT, result[9]);
+        assertEquals(new String(ATTACHMENT4_BINARY), result[10]);
+        assertEquals(ATTACHMENT1_HEADER1_VALUE_TEXT, result[11]);
+        Assert.assertTrue(result[12].startsWith(MimeConstants.TEXT_PLAIN));
+    }
+
+    private String concatAddresses(String[] addresses) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String address : addresses) {
+            stringBuilder.append(address);
         }
+        return stringBuilder.toString();
     }
 
     @AfterClass
@@ -145,13 +168,6 @@ public class PopComplexEmailReceiveTest {
         } else {
             return null;
         }
-    }
-
-    private boolean arraysMatchInContent(String[] receivedList, String[] realList) {
-        Arrays.sort(receivedList);
-        Arrays.sort(realList);
-        String[] newReceivedList = {receivedList[receivedList.length - 2], receivedList[receivedList.length - 1]};
-        return Arrays.equals(newReceivedList, realList);
     }
 
 }

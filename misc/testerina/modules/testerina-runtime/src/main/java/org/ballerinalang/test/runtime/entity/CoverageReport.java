@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
@@ -88,26 +89,35 @@ public class CoverageReport {
     }
 
     private void createReport(final IBundleCoverage bundleCoverage) {
+        boolean containsSourceFiles;
+
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-            if (packageCoverage.getName().contains(orgName + "/" + moduleName)) {
+            if (TesterinaConstants.DOT.equals(moduleName)) {
+                containsSourceFiles = packageCoverage.getName().isEmpty();
+            } else {
+                containsSourceFiles = packageCoverage.getName().contains(orgName + "/" + moduleName);
+            }
+            if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
-                    List<Integer> coveredLines = new ArrayList<>();
-                    List<Integer> missedLines = new ArrayList<>();
-                    for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
-                        ILine line = sourceFileCoverage.getLine(i);
-                        if (line.getInstructionCounter().getTotalCount() == 0
-                                && line.getBranchCounter().getTotalCount() == 0) {
-                            // do nothing. This is to capture the empty lines
-                        } else if ((line.getBranchCounter().getCoveredCount() == 0
-                                && line.getBranchCounter().getMissedCount() > 0)
-                                || line.getStatus() == NOT_COVERED) {
-                            missedLines.add(i);
-                        } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
-                            coveredLines.add(i);
+                    if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                        List<Integer> coveredLines = new ArrayList<>();
+                        List<Integer> missedLines = new ArrayList<>();
+                        for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
+                            ILine line = sourceFileCoverage.getLine(i);
+                            if (line.getInstructionCounter().getTotalCount() == 0
+                                    && line.getBranchCounter().getTotalCount() == 0) {
+                                // do nothing. This is to capture the empty lines
+                            } else if ((line.getBranchCounter().getCoveredCount() == 0
+                                    && line.getBranchCounter().getMissedCount() > 0)
+                                    || line.getStatus() == NOT_COVERED) {
+                                missedLines.add(i);
+                            } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                coveredLines.add(i);
+                            }
                         }
+                        ModuleCoverage.getInstance().addSourceFileCoverage(moduleName, sourceFileCoverage.getName(),
+                                coveredLines, missedLines);
                     }
-                    ModuleCoverage.getInstance().addSourceFileCoverage(moduleName, sourceFileCoverage.getName(),
-                            coveredLines, missedLines);
                 }
             }
         }

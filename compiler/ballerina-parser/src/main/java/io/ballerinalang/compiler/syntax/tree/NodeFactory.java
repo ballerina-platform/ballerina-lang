@@ -826,7 +826,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NamedArgumentNode createNamedArgumentNode(
             Token leadingComma,
-            Token argumentName,
+            SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -1769,6 +1769,48 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stXMLProcessingInstruction.createUnlinkedFacade();
     }
 
+    public static TableTypeDescriptorNode createTableTypeDescriptorNode(
+            Token tableKeywordToken,
+            Node rowTypeParameterNode,
+            Node keyConstraintNode) {
+        Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
+        Objects.requireNonNull(rowTypeParameterNode, "rowTypeParameterNode must not be null");
+        Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
+
+        STNode stTableTypeDescriptorNode = STNodeFactory.createTableTypeDescriptorNode(
+                tableKeywordToken.internalNode(),
+                rowTypeParameterNode.internalNode(),
+                keyConstraintNode.internalNode());
+        return stTableTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static TypeParameterNode createTypeParameterNode(
+            Token ltToken,
+            Node typeNode,
+            Token gtToken) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(typeNode, "typeNode must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stTypeParameterNode = STNodeFactory.createTypeParameterNode(
+                ltToken.internalNode(),
+                typeNode.internalNode(),
+                gtToken.internalNode());
+        return stTypeParameterNode.createUnlinkedFacade();
+    }
+
+    public static KeyTypeConstraintNode createKeyTypeConstraintNode(
+            Token keyKeywordToken,
+            Node typeParameterNode) {
+        Objects.requireNonNull(keyKeywordToken, "keyKeywordToken must not be null");
+        Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
+
+        STNode stKeyTypeConstraintNode = STNodeFactory.createKeyTypeConstraintNode(
+                keyKeywordToken.internalNode(),
+                typeParameterNode.internalNode());
+        return stKeyTypeConstraintNode.createUnlinkedFacade();
+    }
+
     public static FunctionTypeDescriptorNode createFunctionTypeDescriptorNode(
             Token functionKeyword,
             FunctionSignatureNode functionSignature) {
@@ -1814,6 +1856,80 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode(),
                 getOptionalSTNode(returnTypeDesc));
         return stFunctionSignatureNode.createUnlinkedFacade();
+    }
+
+    public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
+            Token openBracketToken,
+            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
+            Node restTypeDesc,
+            Token closeBracketToken) {
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+        Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
+
+        STNode stTupleTypeDescriptorNode = STNodeFactory.createTupleTypeDescriptorNode(
+                openBracketToken.internalNode(),
+                memberTypeDesc.underlyingListNode().internalNode(),
+                restTypeDesc.internalNode(),
+                closeBracketToken.internalNode());
+        return stTupleTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ParenthesisedTypeDescriptorNode createParenthesisedTypeDescriptorNode(
+            Token openParenToken,
+            TypeDescriptorNode typedesc,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(typedesc, "typedesc must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stParenthesisedTypeDescriptorNode = STNodeFactory.createParenthesisedTypeDescriptorNode(
+                openParenToken.internalNode(),
+                typedesc.internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesisedTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ExplicitNewExpression createExplicitNewExpression(
+            Token NewKeyword,
+            Node TypeDescriptor,
+            Node ParenthesizedArgList) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+        Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
+        Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
+
+        STNode stExplicitNewExpression = STNodeFactory.createExplicitNewExpression(
+                NewKeyword.internalNode(),
+                TypeDescriptor.internalNode(),
+                ParenthesizedArgList.internalNode());
+        return stExplicitNewExpression.createUnlinkedFacade();
+    }
+
+    public static ImplicitNewExpression createImplicitNewExpression(
+            Token NewKeyword,
+            Node ParenthesizedArgList) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+
+        STNode stImplicitNewExpression = STNodeFactory.createImplicitNewExpression(
+                NewKeyword.internalNode(),
+                getOptionalSTNode(ParenthesizedArgList));
+        return stImplicitNewExpression.createUnlinkedFacade();
+    }
+
+    public static ParenthesizedArgList createParenthesizedArgList(
+            Token openParenToken,
+            NodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stParenthesizedArgList = STNodeFactory.createParenthesizedArgList(
+                openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesizedArgList.createUnlinkedFacade();
     }
 
     public static TypedBindingPatternNode createTypedBindingPatternNode(

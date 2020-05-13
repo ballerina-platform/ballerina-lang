@@ -53,5 +53,5 @@ export function getBallerinaVersion() {
 }
 
 export function getBBEPath(): any {
-    return path.join(getBallerinaHome(),'examples');
+    return path.join(__dirname + '/../../resources/templates/');
 }

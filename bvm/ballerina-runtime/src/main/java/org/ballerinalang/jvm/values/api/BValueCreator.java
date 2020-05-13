@@ -38,7 +38,7 @@ import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -152,12 +152,11 @@ import javax.xml.namespace.QName;
      /**
       * Create a ref value array with given maximum length.
       *
-      * @param values initial array values
       * @param type {@code BArrayType} of the array.
       * @param length maximum length
       * @return fixed length ref value array
       */
-     public static BArray createArrayValue(Object[] values, BArrayType type, int length) {
+     public static BArray createArrayValue(BArrayType type, int length) {
          return new ArrayValueImpl(type, length);
      }
 
@@ -253,7 +252,7 @@ import javax.xml.namespace.QName;
       * @return type descriptor
       */
      public static BTypedesc createTypedescValue(BType describingType) {
-         return new TypedescValue(describingType);
+         return new TypedescValueImpl(describingType);
      }
 
      /**

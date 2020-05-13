@@ -25,14 +25,14 @@ public type Listener object {
 
     private Channel amqpChannel;
 
-    # Initializes a Listener object with the given `Connection` object or connection parameters.
-    # Creates a `Connection` object if only the connection configuration is given. Sets global QoS settings,
-    # which will be applied to the entire `Channel`.
+    # Initializes a Listener object with the given `rabbitmq:Connection` object or connection configurations.
+    # Creates a `rabbitmq:Connection` object if only the connection configuration is given. Sets the global QoS settings,
+    # which will be applied to the entire `rabbitmq:Channel`.
     #
-    # + connectionOrConnectionConfig - Holds a Ballerina RabbitMQ `Connection` object or the connection parameters.
-    # + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
-    #                      Unless explicitly given, this value is 10 by default.
-    # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
+    # + connectionOrConnectionConfig - A `rabbitmq:Connection` object or the connection configurations.
+    # + prefetchCount - Maximum number of messages that the server will deliver. Give the value as 0 if unlimited.
+    #                   Unless explicitly given, this value is 10 by default.
+    # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
     public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
                                     int? prefetchSize = ()) {
         self.amqpChannel = new Channel(connectionOrConnectionConfig);
@@ -43,48 +43,48 @@ public type Listener object {
         }
     }
 
-    # Attaches the service to the `Listener` endpoint.
+    # Attaches the service to the `rabbitmq:Listener` endpoint.
     #
-    # + s - Type descriptor of the service to bind to.
-    # + name - Name of the service.
-    # + return - Nil or error upon failure to register service.
+    # + s - Type descriptor of the service
+    # + name - Name of the service
+    # + return - `()` or else a `rabbitmq:Error` upon failure to register the service
     public function __attach(service s, string? name = ()) returns error? {
         return registerListener(self, s);
     }
 
-    # Starts the consuming messages on all attached services.
+    # Starts consuming the messages on all the attached services.
     #
-    # + return - Nil or error upon failure to start.
+    # + return - `()` or else a `rabbitmq:Error` upon failure to start
     public function __start() returns error? {
         return start(self);
     }
 
-    # Stops consuming messages and detaches the service from the `Listener` endpoint.
+    # Stops consuming messages and detaches the service from the `rabbitmq:Listener` endpoint.
     #
-    # + s - Type descriptor of the service to bind to.
-    # + return - Nil or error upon failure to detach service.
+    # + s - Type descriptor of the service
+    # + return - `()` or else  a `rabbitmq:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
         return detach(self, s);
     }
 
     # Stops consuming messages through all consumer services by terminating the connection and all its channels.
     #
-    # + return - Nil or error upon failure to close the `Listener`
+    # + return - `()` or else  a `rabbitmq:Error` upon failure to close the `ChannelListener`
     public function __gracefulStop() returns error? {
         return stop(self);
     }
 
-    # Stops consuming messages through all consumer services and terminate the connection
+    # Stops consuming messages through all the consumer services and terminates the connection
     # with the server.
     #
-    # + return - Nil or error upon failure to close ChannelListener.
+    # + return - `()` or else  a `rabbitmq:Error` upon failure to close ChannelListener.
     public function __immediateStop() returns error? {
         return abortConnection(self);
     }
 
-    # Retrieve the `Channel` which initializes this `Listener`.
+    # Retrieve the `rabbitmq:Channel`, which initializes this `rabbitmq:Listener`.
     #
-    # + return - RabbitMQ Channel object or error if an I/O problem is encountered.
+    # + return - A `rabbitmq:Channel` object or else  a `rabbitmq:Error` if an I/O problem is encountered.
     public function getChannel() returns Channel {
         return self.amqpChannel;
     }
@@ -94,13 +94,13 @@ public type Listener object {
     }
 };
 
-# Represents the list of parameters required to create a subscription.
+# Configurations required to create a subscription.
 #
-# + queueConfig - Specifies configuration details about the queue to be subscribed to.
-# + ackMode - Type of acknowledgement mode.
-# + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
-#                      Unless explicitly given, this value is 10 by default.
-# + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
+# + queueConfig - Configurations of the queue to be subscribed
+# + ackMode - Type of the acknowledgement mode
+# + prefetchCount - Maximum number of messages that the server will deliver and 0 if unlimited.
+#                   Unless explicitly given, this value is 10 by default.
+# + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
 public type RabbitMQServiceConfig record {|
     QueueConfiguration queueConfig;
     AcknowledgementMode ackMode = AUTO_ACK;
@@ -108,7 +108,7 @@ public type RabbitMQServiceConfig record {|
     int prefetchSize?;
 |};
 
-# Service descriptor data generated at compile time.
+# The annotation, which is used to configure the subscription.
 public annotation RabbitMQServiceConfig ServiceConfig on service;
 
 function externInit(Listener lis, handle amqpChannel) =

@@ -64,12 +64,7 @@ public class BFutureType extends BType {
 
     @Override
     public boolean equals(Object obj) {
-        //TODO Table remove - Fix
-//        if (!super.equals(obj) || !(obj instanceof BTableType)) {
-//            return false;
-//        }
-
-        if (!super.equals(obj)) {
+        if (!super.equals(obj) || !(obj instanceof BTableType)) {
             return false;
         }
 

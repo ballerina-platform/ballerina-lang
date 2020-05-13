@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "node.line": 15,
+    "node.column": 9,
+    "resource.path": "/pets/{petId}",
+    "resource.method": "GET"
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 17,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 17,
+                    "character": 0
+                  }
+                },
+                "newText": "\n    @http:ResourceConfig {\n        methods:[\"GET\"],\n        path:\"/pets/{petId}\"\n    }\n    resource function showPetById (http:Caller caller, http:Request req, string petId) returns error? {\n\n    }\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

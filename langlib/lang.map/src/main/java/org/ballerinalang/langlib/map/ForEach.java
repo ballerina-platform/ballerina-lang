@@ -18,12 +18,15 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.map:forEach(map&lt;Type&gt;, function).
@@ -38,6 +41,17 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class ForEach {
 
     public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        m.entrySet().forEach(entry -> func.call(new Object[]{strand, entry.getValue(), true}));
+        int size = m.size();
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       result -> {
+                                                       }, () -> null);
+    }
+
+    public static void forEach_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
+        forEach(strand, m, func);
     }
 }

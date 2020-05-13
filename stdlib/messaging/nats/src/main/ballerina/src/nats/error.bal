@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
+# Holds the details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;
@@ -31,9 +31,9 @@ public type Error error<NATS_ERROR, Detail>;
 
 # Prepare the `error` as a `Error`.
 #
-# + message - The error message.
-# + err - The `error` instance.
-# + return - Prepared `Error` instance.
+# + message - The error message
+# + err - The `error` instance
+# + return - Prepared `nats:Error` instance
 function prepareError(string message, error? err = ()) returns Error {
     Error natsError;
     if (err is error) {

@@ -1,15 +1,15 @@
-## Module overview
+## Module Overview
 
 This module provides the capability to connect with NATS and NATS Streaming servers and performs the 
-following functionality.
+below functionalities.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
 - Request/Reply
 
-## Basic Usage
+### Basic Usage
 
-### Setting up the connection
+#### Setting up the connection
 
 First step is setting up the connection with the NATS Basic/Streaming server. The following ways can be used to connect to a
 NATS Basic/Streaming server.
@@ -24,12 +24,12 @@ nats:Connection connection = new("nats://localhost:4222");
 nats:Connection connection = new("nats://serverone:4222, nats://servertwo:4222",  config);
 ```
 
-### Publishing messages
+#### Publishing messages
 
 Publishing messages is handled differently in the NATS Basic server and Streaming server. The 'ballerina/nats' module provides different 
 APIs to publish messages to each server.
 
-#### Publishing messages to the NATS basic server
+##### Publishing messages to the NATS basic server
 
 Once connected, publishing is accomplished via one of the below two methods.
 
@@ -66,43 +66,32 @@ service replyToService =
 service {
 
     resource function onMessage(nats:Message msg, string data) {
-        // Prints the incoming message in the console.
-        log:printInfo("Received reply message : " + data);
     }
 
     resource function onError(nats:Message msg, nats:Error err) {
-        log:printError("Error occurred in data binding", err);
     }
 };
 ```
 
-#### Publishing messages to a NATS streaming server
+##### Publishing messages to a NATS streaming server
 
 Once connected to a streaming server, publishing messages is accomplished using the following method.
 ```ballerina
 nats:StreamingProducer producer = new(connection);
 string|error result = producer->publish(subject, "hello world");
-if (result is error) {
-   io:println("Error occurred while publishing the message.");
-} else {
-   io:println("GUID "+result+" received for the produced message.");
-}
 ```
 
 > Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
 
 
-### Listening to incoming messages
+#### Listening to incoming messages
 
 The Ballerina NATS module provides the following mechanisms to listen to messages. Similar to message publishing, listening to messages
-is also handled differently in NATS basic and streaming servers.
+is also handled differently in the NATS basic and streaming servers.
 
-#### Listening to messages from a NATS server
+##### Listening to messages from a NATS server
 
 ```ballerina
-import ballerina/io;
-import ballerina/nats;
-
 // Initializes the NATS listener.
 listener nats:Listener subscription = new(connection);
 
@@ -113,24 +102,16 @@ listener nats:Listener subscription = new(connection);
 service demo on subscription {
 
     resource function onMessage(nats:Message msg, string data) {
-        // Prints the incoming message in the console.
-        io:println("Subject : " + msg.getSubject());
-        io:println("Message content : " + data));
     }
 
     resource function onError(nats:Message msg, nats:Error err) {
-        io:println(err);
     }
-
 }
 ```
 
-#### Listening to messages from a Streaming server
+##### Listening to messages from a Streaming server
 
 ```ballerina
-import ballerina/io;
-import ballerina/nats;
-
 // Initializes the NATS Streaming listener.
 listener nats:StreamingListener subscription = new(conn, "test-cluster", "c1");
 
@@ -141,21 +122,17 @@ listener nats:StreamingListener subscription = new(conn, "test-cluster", "c1");
 service demo on subscription {
 
     resource function onMessage(nats:StreamingMessage msg, string data) {
-        // Prints the incoming message in the console.
-        io:println("Subject : " + msg.getSubject());
-        io:println("Message content : " + data));
     }
 
     resource function onError(nats:StreamingMessage msg, nats:Error err) {
-        io:println(err);
     }
 
 }
 ```
 
-## Advanced Usage
+### Advanced Usage
 
-### Using the TLS protocol
+#### Using the TLS protocol
 
 The Ballerina NATS module allows the use of the tls:// protocol in its URLs. This setting expects a secure socket to be 
 set in the connection configuration as shown below.
@@ -173,4 +150,14 @@ nats:ConnectionConfig config = {
 // Initializes a connection.
 nats:Connection connection = new("tls://localhost:4222", config = config);
 ```
->**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+>**Note:** The default thread pool size used in Ballerina is the number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+
+For information on the operations, which you can perform with this module, see the below **Functions**. 
+
+For examples on the usage of the connector, see the following.
+* [Basic Publisher and Subscriber Example](https://ballerina.io/learn/by-example/nats-basic-client.html).
+* [Basic Streaming Publisher and Subscriber Example](https://ballerina.io/learn/by-example/nats-streaming-client.html)
+* [Streaming Publisher and Subscriber With Data Binding Example](https://ballerina.io/learn/by-example/nats-streaming-consumer-with-data-binding.html)
+* [Durable Subscriptions Example](https://ballerina.io/learn/by-example/nats-streaming-durable-subscriptions.html)
+* [Queue Groups Example](https://ballerina.io/learn/by-example/nats-streaming-queue-group.html)
+* [Historical Message Replay Example](https://ballerina.io/learn/by-example/nats-streaming-start-position.html)

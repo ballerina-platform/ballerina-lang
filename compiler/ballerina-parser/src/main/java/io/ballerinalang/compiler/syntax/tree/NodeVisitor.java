@@ -451,6 +451,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLProcessingInstruction);
     }
 
+    public void visit(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        visitSyntaxNode(tableTypeDescriptorNode);
+    }
+
+    public void visit(TypeParameterNode typeParameterNode) {
+        visitSyntaxNode(typeParameterNode);
+    }
+
+    public void visit(KeyTypeConstraintNode keyTypeConstraintNode) {
+        visitSyntaxNode(keyTypeConstraintNode);
+    }
+
     public void visit(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         visitSyntaxNode(functionTypeDescriptorNode);
     }
@@ -461,6 +473,26 @@ public abstract class NodeVisitor {
 
     public void visit(FunctionSignatureNode functionSignatureNode) {
         visitSyntaxNode(functionSignatureNode);
+    }
+
+    public void visit(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        visitSyntaxNode(tupleTypeDescriptorNode);
+    }
+
+    public void visit(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        visitSyntaxNode(parenthesisedTypeDescriptorNode);
+    }
+
+    public void visit(ExplicitNewExpression explicitNewExpression) {
+        visitSyntaxNode(explicitNewExpression);
+    }
+
+    public void visit(ImplicitNewExpression implicitNewExpression) {
+        visitSyntaxNode(implicitNewExpression);
+    }
+
+    public void visit(ParenthesizedArgList parenthesizedArgList) {
+        visitSyntaxNode(parenthesizedArgList);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {

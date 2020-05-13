@@ -19,10 +19,12 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -292,7 +294,7 @@ public class JSONGenerator {
                 this.writeEndArray();
                 break;
             case TypeTags.BOOLEAN_TAG:
-                this.writeBoolean(((Boolean) json).booleanValue());
+                this.writeBoolean((Boolean) json);
                 break;
             case TypeTags.FLOAT_TAG:
                 this.writeNumber(((Number) json).doubleValue());
@@ -309,9 +311,16 @@ public class JSONGenerator {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
                 this.startObject();
-                for (Entry<String, RefValue> entry : ((MapValueImpl<String, RefValue>) json).entrySet()) {
-                    this.writeFieldName(entry.getKey());
-                    serialize(entry.getValue());
+                if (ArrayValueImpl.USE_BSTRING) {
+                    for (Entry<BString, RefValue> entry : ((MapValueImpl<BString, RefValue>) json).entrySet()) {
+                        this.writeFieldName(entry.getKey().getValue());
+                        serialize(entry.getValue());
+                    }
+                } else {
+                    for (Entry<String, RefValue> entry : ((MapValueImpl<String, RefValue>) json).entrySet()) {
+                        this.writeFieldName(entry.getKey());
+                        serialize(entry.getValue());
+                    }
                 }
                 this.endObject();
                 break;

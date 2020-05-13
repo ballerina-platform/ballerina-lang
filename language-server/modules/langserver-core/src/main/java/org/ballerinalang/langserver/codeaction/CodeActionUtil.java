@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -130,7 +131,9 @@ public class CodeActionUtil {
                     return CodeActionNodeType.IMPORTS;
                 }
 
-                if (topLevelNode instanceof BLangFunction && cursorLine == diagnosticPos.sLine) {
+                if (topLevelNode instanceof BLangFunction
+                        && !((BLangFunction) topLevelNode).flagSet.contains(Flag.ANONYMOUS)
+                        && cursorLine == diagnosticPos.sLine) {
                     return CodeActionNodeType.FUNCTION;
                 }
 

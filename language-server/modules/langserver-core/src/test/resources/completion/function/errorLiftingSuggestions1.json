@@ -52,7 +52,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the response.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the response.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
         }
       },
       "sortText": "120",
@@ -120,7 +120,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. An exception is thrown if no header is found. Use  \n           `Response.hasHeader()` beforehand to check the existence of header.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. Panic if the header is not found. Use the  \n           `Response.hasHeader()` beforehand to check the existence of a header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -206,7 +206,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `boolean`   \n- `true` if the specified header key exists  \n  \n"
         }
       },
       "sortText": "120",
@@ -238,7 +238,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the response. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the response. Existing header values are not replaced. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
         }
       },
       "sortText": "120",
@@ -284,7 +284,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the response.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the response.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
         }
       },
       "sortText": "120",
@@ -386,7 +386,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the response. If the content type is not a composite media type, an error is returned.\n  \n  \n  \n**Returns** `(mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Returns the body parts as an array of entities or an `http:ClientError` if there were any errors in  \n           constructing the body parts from the response  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the response. If the content type is not a composite media type, an error is returned.\n  \n  \n  \n**Returns** `(mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The body parts as an array of entities or else an `http:ClientError` if there were any errors in  \n           constructing the body parts from the response  \n  \n"
         }
       },
       "sortText": "120",
@@ -418,7 +418,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specified header value. Panic if an illegal header is passed.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
         }
       },
       "sortText": "120",
@@ -494,7 +494,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string`   \n- The first header value for the specified header name. An exception is thrown if no header is found. Use  \n           `Response.hasHeader()` beforehand to check the existence of header.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)  \n  \n**Returns** `string`   \n- The first header value for the specified header name. Panic if the header is not found. Use the  \n           `Response.hasHeader()` beforehand to check the existence of a header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -512,7 +512,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the response.\n  \n**Params**  \n- `string` key: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the response.\n  \n**Params**  \n- `string` key: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,\n             the entity-body of the `Response` must be accessed initially.(Defaultable)"
         }
       },
       "sortText": "120",

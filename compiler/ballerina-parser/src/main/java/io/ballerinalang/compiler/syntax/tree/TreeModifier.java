@@ -613,7 +613,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(NamedArgumentNode namedArgumentNode) {
         Token leadingComma = modifyToken(namedArgumentNode.leadingComma());
-        Token argumentName = modifyToken(namedArgumentNode.argumentName());
+        SimpleNameReferenceNode argumentName = modifyNode(namedArgumentNode.argumentName());
         Token equalsToken = modifyToken(namedArgumentNode.equalsToken());
         ExpressionNode expression = modifyNode(namedArgumentNode.expression());
         return namedArgumentNode.modify(
@@ -1302,6 +1302,37 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        Token tableKeywordToken = modifyToken(tableTypeDescriptorNode.tableKeywordToken());
+        Node rowTypeParameterNode = modifyNode(tableTypeDescriptorNode.rowTypeParameterNode());
+        Node keyConstraintNode = modifyNode(tableTypeDescriptorNode.keyConstraintNode());
+        return tableTypeDescriptorNode.modify(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
+    @Override
+    public Node transform(TypeParameterNode typeParameterNode) {
+        Token ltToken = modifyToken(typeParameterNode.ltToken());
+        Node typeNode = modifyNode(typeParameterNode.typeNode());
+        Token gtToken = modifyToken(typeParameterNode.gtToken());
+        return typeParameterNode.modify(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    @Override
+    public Node transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        Token keyKeywordToken = modifyToken(keyTypeConstraintNode.keyKeywordToken());
+        Node typeParameterNode = modifyNode(keyTypeConstraintNode.typeParameterNode());
+        return keyTypeConstraintNode.modify(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
+    @Override
     public Node transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         Token functionKeyword = modifyToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature = modifyNode(functionTypeDescriptorNode.functionSignature());
@@ -1334,6 +1365,61 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    @Override
+    public Node transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        Token openBracketToken = modifyToken(tupleTypeDescriptorNode.openBracketToken());
+        SeparatedNodeList<TypeDescriptorNode> memberTypeDesc = modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
+        Node restTypeDesc = modifyNode(tupleTypeDescriptorNode.restTypeDesc());
+        Token closeBracketToken = modifyToken(tupleTypeDescriptorNode.closeBracketToken());
+        return tupleTypeDescriptorNode.modify(
+                openBracketToken,
+                memberTypeDesc,
+                restTypeDesc,
+                closeBracketToken);
+    }
+
+    @Override
+    public Node transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        Token openParenToken = modifyToken(parenthesisedTypeDescriptorNode.openParenToken());
+        TypeDescriptorNode typedesc = modifyNode(parenthesisedTypeDescriptorNode.typedesc());
+        Token closeParenToken = modifyToken(parenthesisedTypeDescriptorNode.closeParenToken());
+        return parenthesisedTypeDescriptorNode.modify(
+                openParenToken,
+                typedesc,
+                closeParenToken);
+    }
+
+    @Override
+    public Node transform(ExplicitNewExpression explicitNewExpression) {
+        Token NewKeyword = modifyToken(explicitNewExpression.NewKeyword());
+        Node TypeDescriptor = modifyNode(explicitNewExpression.TypeDescriptor());
+        Node ParenthesizedArgList = modifyNode(explicitNewExpression.ParenthesizedArgList());
+        return explicitNewExpression.modify(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
+    }
+
+    @Override
+    public Node transform(ImplicitNewExpression implicitNewExpression) {
+        Token NewKeyword = modifyToken(implicitNewExpression.NewKeyword());
+        Node ParenthesizedArgList = modifyNode(implicitNewExpression.ParenthesizedArgList().orElse(null));
+        return implicitNewExpression.modify(
+                NewKeyword,
+                ParenthesizedArgList);
+    }
+
+    @Override
+    public Node transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = modifyToken(parenthesizedArgList.openParenToken());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(parenthesizedArgList.arguments());
+        Token closeParenToken = modifyToken(parenthesizedArgList.closeParenToken());
+        return parenthesizedArgList.modify(
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
     @Override

@@ -60,11 +60,11 @@ public class SetChildren {
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
             XMLValue xmlText = XMLFactory.createXMLText((String) children);
             children = xmlText;
-        } else if (childrenType.getTag() != TypeTags.XML_TAG) {
+        } else if (TypeTags.isXMLTypeTag(childrenType.getTag())) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString),
-                            TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
-                    childrenType);
+                                   TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
+                                                     childrenType);
         }
 
         try {
@@ -72,5 +72,9 @@ public class SetChildren {
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
+    }
+
+    public static void setChildren_bstring(Strand strand, XMLValue xml, Object children) {
+        setChildren(strand, xml, children);
     }
 }

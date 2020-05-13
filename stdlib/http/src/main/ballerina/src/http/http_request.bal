@@ -26,7 +26,7 @@ import ballerina/time;
 # + method - The HTTP request method
 # + httpVersion - The HTTP version supported by the client
 # + userAgent - The user-agent. This value is used when setting the `user-agent` header
-# + extraPathInfo - Additional information associated with the URL provided by the client
+# + extraPathInfo - The part of the URL, which matched to '*' if the request is dispatched to a wildcard resource
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
@@ -74,8 +74,8 @@ public type Request object {
     # Gets the query param value associated with the given key.
     #
     # + key - Represents the query param key
-    # + return - Returns the query param value associated with the given key as a string. If multiple param values are
-    #            present, then the first value is returned. Nil is returned if no key is found.
+    # + return - The query param value associated with the given key as a string. If multiple param values are
+    #            present, then the first value is returned. `()` is returned if no key is found.
     public function getQueryParamValue(@untainted string key) returns @tainted string? {
         map<string[]> params = self.getQueryParams();
         var result = params[key];
@@ -85,7 +85,7 @@ public type Request object {
     # Gets all the query param values associated with the given key.
     #
     # + key - Represents the query param key
-    # + return - Returns all the query param values associated with the given key as a `string[]`. Nil is returned if no key
+    # + return - All the query param values associated with the given key as a `string[]`. `()` is returned if no key
     #            is found.
     public function getQueryParamValues(@untainted string key) returns @tainted string[]? {
         map<string[]> params = self.getQueryParams();
@@ -125,8 +125,8 @@ public type Request object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
-    #            `Request.hasHeader()` beforehand to check the existence of header.
+    # + return - The first header value for the specified header name. Panic if the header is not found. Use the
+    #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeader(headerName);
@@ -135,15 +135,15 @@ public type Request object {
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
-    #            `Request.hasHeader()` beforehand to check the existence of header.
+    # + return - The header values the specified header key maps to. Panic if the header is not found. Use the
+    #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
     }
 
     # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
-    # header value is replaced with the specified header value.
+    # header value is replaced with the specified header value. Panic if an illegal header is passed.
     #
     # + headerName - The header name
     # + headerValue - The header value
@@ -152,7 +152,7 @@ public type Request object {
         entity.setHeader(headerName, headerValue);
     }
 
-    # Adds the specified header to the request. Existing header values are not replaced.
+    # Adds the specified header to the request. Existing header values are not replaced. Panic if an illegal header is passed.
     #
     # + headerName - The header name
     # + headerValue - The header value
@@ -207,7 +207,7 @@ public type Request object {
 
     # Gets the type of the payload of the request (i.e: the `content-type` header value).
     #
-    # + return - Returns the `content-type` header value as a string
+    # + return - The `content-type` header value as a string
     public function getContentType() returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getContentType();
@@ -375,7 +375,7 @@ public type Request object {
     # Extracts body parts from the request. If the content type is not a composite media type, an error
     # is returned.
 
-    # + return - Returns the body parts as an array of entities or an `http:ClientError` if there were any errors in
+    # + return - The body parts as an array of entities or else an `http:ClientError` if there were any errors
     #            constructing the body parts from the request
     public function getBodyParts() returns mime:Entity[]|ClientError {
         var result = self.getEntity();
@@ -528,7 +528,7 @@ public type Request object {
 
     # Check whether the entity body is present.
     #
-    # + return - a boolean indicating entity body availability
+    # + return - A boolean indicating the availability of the entity body
     function checkEntityBodyAvailability() returns boolean {
         return externCheckReqEntityBodyAvailability(self);
     }

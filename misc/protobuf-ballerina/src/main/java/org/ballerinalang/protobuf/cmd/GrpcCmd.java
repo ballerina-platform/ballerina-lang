@@ -39,7 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
@@ -67,10 +67,14 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermi
         description = "generate Ballerina gRPC client stub for gRPC service for a given gRPC protoc " +
                 "definition.")
 public class GrpcCmd implements BLauncherCmd {
+
     private static final Logger LOG = LoggerFactory.getLogger(GrpcCmd.class);
-    
+
     private static final PrintStream outStream = System.out;
-    
+    private static final String PROTO_EXTENSION = "proto";
+    private static final String WHITESPACE_CHARACTOR = " ";
+    private static final String WHITESPACE_REPLACEMENT = "\\ ";
+
     private CommandLine parentCmdParser;
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
@@ -88,7 +92,7 @@ public class GrpcCmd implements BLauncherCmd {
             description = "Generated Ballerina source files location"
     )
     private String balOutPath;
-    
+
     private String protocExePath;
 
     @CommandLine.Option(names = {"--protocVersion"}, hidden = true)
@@ -104,7 +108,9 @@ public class GrpcCmd implements BLauncherCmd {
         }
 
         // check input protobuf file path
-        if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
+        Optional<String> pathExtension = getFileExtension(protoPath);
+        if (!pathExtension.isPresent() ||
+                !PROTO_EXTENSION.equalsIgnoreCase(pathExtension.get())) {
             String errorMessage = "Invalid proto file path. Please input valid proto file location.";
             outStream.println(errorMessage);
             return;
@@ -150,8 +156,8 @@ public class GrpcCmd implements BLauncherCmd {
                 return;
             }
             try {
-                root = DescriptorsGenerator.generateRootDescriptor(this.protocExePath, new File(protoPath)
-                        .getAbsolutePath(), descFile.getAbsolutePath());
+                root = DescriptorsGenerator.generateRootDescriptor(this.protocExePath,
+                        escapeSpaceCharacter(protoPath), descFile.getAbsolutePath());
             } catch (CodeGeneratorException e) {
                 String errorMessage = "Error occurred when generating proto descriptor. " + e.getMessage();
                 LOG.error("Error occurred when generating proto descriptor.", e);
@@ -166,8 +172,8 @@ public class GrpcCmd implements BLauncherCmd {
             }
             LOG.debug("Successfully generated root descriptor.");
             try {
-                dependant = DescriptorsGenerator.generateDependentDescriptor(this.protocExePath, new File(protoPath)
-                                .getAbsolutePath(), descFile.getAbsolutePath());
+                dependant = DescriptorsGenerator.generateDependentDescriptor(this.protocExePath,
+                        escapeSpaceCharacter(protoPath), descFile.getAbsolutePath());
             } catch (CodeGeneratorException e) {
                 String errorMessage = "Error occurred when generating dependent proto descriptor. " + e.getMessage();
                 LOG.error(errorMessage, e);
@@ -228,6 +234,16 @@ public class GrpcCmd implements BLauncherCmd {
         if (!dirName.exists() && !dirName.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + dirName);
         }
+    }
+
+    private Optional<String> getFileExtension(String filename) {
+        return Optional.ofNullable(filename)
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
+    }
+
+    private String escapeSpaceCharacter(String protoPath) {
+        return Paths.get(protoPath.replace(WHITESPACE_CHARACTOR, WHITESPACE_REPLACEMENT)).toAbsolutePath().toString();
     }
 
     /**

@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.internal;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStreamType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -50,8 +51,13 @@ public class GetElementType {
             return (TypedescValue) BValueCreator.createTypedescValue(((BArrayType) type).getElementType());
         } else if (type.getTag() == TypeTags.STREAM_TAG) {
             return (TypedescValue) BValueCreator.createTypedescValue(((BStreamType) type).getConstrainedType());
+        } else if (type.getTag() == TypeTags.TABLE_TAG) {
+            return (TypedescValue) BValueCreator.createTypedescValue(((BTableType) type).getConstrainedType());
         }
 
         return (TypedescValue) BValueCreator.createTypedescValue(BTypes.typeNull);
+    }
+    public static TypedescValue getElementType_bstring(Strand strand, Object td) {
+        return getElementType(strand, td);
     }
 }

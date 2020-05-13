@@ -33,9 +33,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
@@ -43,10 +43,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getBasicB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunctionParam;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
@@ -57,17 +54,17 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
  */
 public class JvmDesugarPhase {
 
-    public static void addDefaultableBooleanVarsToSignature(@Nilable BIRFunction func) {
+    public static void addDefaultableBooleanVarsToSignature(BIRFunction func, BType booleanType) {
 
         BIRFunction currentFunc = getFunction(func);
         currentFunc.type = new BInvokableType(currentFunc.type.paramTypes, currentFunc.type.restType,
                 currentFunc.type.retType, currentFunc.type.tsymbol);
         BInvokableType type = currentFunc.type;
         currentFunc.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.type.paramTypes,
-                type != null ? type.restType : type);
+                type != null ? type.restType : type, booleanType);
         int index = 0;
-        @Nilable List<BIRVariableDcl> updatedVars = new ArrayList<>();
-        @Nilable List<BIRVariableDcl> localVars = currentFunc.localVars;
+        List<BIRVariableDcl> updatedVars = new ArrayList<>();
+        List<BIRVariableDcl> localVars = currentFunc.localVars;
         int nameIndex = 0;
 
         for (BIRVariableDcl localVar : localVars) {
@@ -77,7 +74,7 @@ public class JvmDesugarPhase {
                 // An additional boolean arg is gen for each function parameter.
                 String argName = "%syn" + nameIndex;
                 nameIndex += 1;
-                BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, symbolTable.booleanType,
+                BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, booleanType,
                         new Name(argName), VarScope.FUNCTION, VarKind.ARG, "", false);
                 updatedVars.add(index, booleanVar);
                 index += 1;
@@ -86,11 +83,11 @@ public class JvmDesugarPhase {
         currentFunc.localVars = updatedVars;
     }
 
-    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc) {
+    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, JvmMethodGen jvmMethodGen) {
 
         int k = 1;
-        @Nilable List<BIRFunctionParameter> functionParams = new ArrayList<>();
-        @Nilable List<BIRVariableDcl> localVars = currentFunc.localVars;
+        List<BIRFunctionParameter> functionParams = new ArrayList<>();
+        List<BIRVariableDcl> localVars = currentFunc.localVars;
         while (k < localVars.size()) {
             BIRVariableDcl localVar = getVariableDcl(localVars.get(k));
             if (localVar instanceof BIRFunctionParameter) {
@@ -99,12 +96,11 @@ public class JvmDesugarPhase {
             k += 1;
         }
 
-        nextId = -1;
-        nextVarId = -1;
+        jvmMethodGen.resetIds();
 
-        @Nilable List<BIRBasicBlock> basicBlocks = new ArrayList<>();
+        List<BIRBasicBlock> basicBlocks = new ArrayList<>();
 
-        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB");
+        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB", jvmMethodGen);
 
         int paramCounter = 0;
         DiagnosticPos pos = currentFunc.pos;
@@ -116,12 +112,12 @@ public class JvmDesugarPhase {
                 BIROperand boolRef = new BIROperand(funcBooleanParam);
                 UnaryOP notOp = new UnaryOP(pos, InstructionKind.NOT, boolRef, boolRef);
                 nextBB.instructions.add(notOp);
-                @Nilable List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);
+                List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);
                 BIRBasicBlock trueBB = getBasicBlock(bbArray.get(0));
                 for (BIRBasicBlock defaultBB : bbArray) {
                     basicBlocks.add(getBasicBlock(defaultBB));
                 }
-                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB");
+                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, "desugaredBB", jvmMethodGen);
                 nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
 
                 BIRBasicBlock lastBB = getBasicBlock(bbArray.get(bbArray.size() - 1));
@@ -149,24 +145,24 @@ public class JvmDesugarPhase {
         currentFunc.basicBlocks = basicBlocks;
     }
 
-    public static BIRBasicBlock insertAndGetNextBasicBlock(@Nilable List<BIRBasicBlock> basicBlocks,
-                                                           String prefix /* = "desugaredBB" */) {
+    public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
+                                                           String prefix, JvmMethodGen jvmMethodGen) {
 
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix));
+        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, jvmMethodGen));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    public static Name getNextDesugarBBId(String prefix) {
+    public static Name getNextDesugarBBId(String prefix, JvmMethodGen jvmMethodGen) {
 
-        nextId += 1;
+        int nextId = jvmMethodGen.incrementAndGetNextId();
         return new Name(prefix + nextId);
     }
 
-    private static @Nilable
-    List<BType> updateParamTypesWithDefaultableBooleanVar(@Nilable List<BType> funcParams, @Nilable BType restType) {
+    private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType,
+                                                                         BType booleanType) {
 
-        @Nilable List<BType> paramTypes = new ArrayList<>();
+        List<BType> paramTypes = new ArrayList<>();
 
         int counter = 0;
         int index = 0;
@@ -175,25 +171,25 @@ public class JvmDesugarPhase {
         int size = funcParams == null ? 0 : funcParams.size();
         while (counter < size) {
             paramTypes.add(index, funcParams.get(counter));
-            paramTypes.add(index + 1, symbolTable.booleanType);
+            paramTypes.add(index + 1, booleanType);
             index += 2;
             counter += 1;
         }
         if (!(restType == null)) {
             paramTypes.add(index, restType);
-            paramTypes.add(index + 1, symbolTable.booleanType);
+            paramTypes.add(index + 1, booleanType);
         }
         return paramTypes;
     }
 
-    static void rewriteRecordInits(@Nilable List<BIRTypeDefinition> typeDefs) {
+    static void rewriteRecordInits(List<BIRTypeDefinition> typeDefs) {
 
-        for (@Nilable BIRTypeDefinition typeDef : typeDefs) {
-            @Nilable BType recordType = typeDef.type;
+        for (BIRTypeDefinition typeDef : typeDefs) {
+            BType recordType = typeDef.type;
             if (recordType.tag != TypeTags.RECORD) {
                 continue;
             }
-            @Nilable List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
+            List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
             for (BIRFunction func : attachFuncs) {
                 rewriteRecordInitFunction(func, (BRecordType) recordType);
             }
@@ -218,14 +214,14 @@ public class JvmDesugarPhase {
 
         // Inject an additional parameter to accept the self-record value into the init function
         BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
-                receiver.scope, VarKind.ARG, paramName, false);
+                                                                  receiver.scope, VarKind.ARG, paramName, false);
 
-        func.type = new BInvokableType(Collections.singletonList(receiver.type), func.type.restType, func.type.retType
-                , null);
-        func.type.paramTypes = Collections.singletonList(receiver.type);
+        List<BType> updatedParamTypes = Lists.of(receiver.type);
+        updatedParamTypes.addAll(func.type.paramTypes);
+        func.type = new BInvokableType(updatedParamTypes, func.type.restType, func.type.retType, null);
 
-        @Nilable List<BIRVariableDcl> localVars = func.localVars;
-        @Nilable List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();
+        List<BIRVariableDcl> localVars = func.localVars;
+        List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();
         updatedLocalVars.add(localVars.get(0));
         updatedLocalVars.add(selfParam);
         int index = 1;

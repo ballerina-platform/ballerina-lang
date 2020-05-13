@@ -55,7 +55,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 
 /**
  * Common utility methods used for JSON manipulation.
- * 
+ *
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
@@ -64,10 +64,13 @@ public class JSONUtils {
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";
 
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
+
     /**
      * Check whether JSON has particular field.
      *
-     * @param json JSON to be considered.
+     * @param json        JSON to be considered.
      * @param elementName String name json field to be considered.
      * @return Boolean 'true' if JSON has given field.
      */
@@ -218,7 +221,8 @@ public class JSONUtils {
      */
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
-            return BallerinaErrors.createError(JSON_OPERATION_ERROR, "JSON value is not a mapping");
+            return BallerinaErrors.createError(StringUtils.fromString(JSON_OPERATION_ERROR),
+                                               StringUtils.fromString("JSON value is not a mapping"));
         }
 
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
@@ -228,8 +232,9 @@ public class JSONUtils {
                 return null;
             }
 
-            return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    "Key '" + elementName + "' not found in JSON mapping");
+            return BallerinaErrors.createError(StringUtils.fromString(MAP_KEY_NOT_FOUND_ERROR),
+                                               StringUtils.fromString(
+                                                       "Key '" + elementName + "' not found in JSON mapping"));
         }
 
         try {
@@ -295,7 +300,8 @@ public class JSONUtils {
         }
 
         BType type = ((RefValue) json).getType();
-        return type.getTag() == TypeTags.JSON_TAG || type.getTag() == TypeTags.MAP_TAG;
+        int typeTag = type.getTag();
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
 
     /**
@@ -384,7 +390,7 @@ public class JSONUtils {
     public static MapValueImpl<String, Object> convertJSONToRecord(Object json, BStructureType structType) {
         if (json == null || !isJSONObject(json)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    getComplexObjectTypeName(OBJECT), getTypeName(json));
+                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<String, Object> bStruct = new MapValueImpl<>(structType);
@@ -409,6 +415,42 @@ public class JSONUtils {
         return bStruct;
     }
 
+    /**
+     * Convert a BJSON to a user defined record.
+     *
+     * @param json       JSON to convert
+     * @param structType Type (definition) of the target record
+     * @return If the provided JSON is of object-type, this method will return a {@link MapValueImpl} containing the
+     * values of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
+     */
+    public static MapValueImpl<BString, Object> convertJSONToRecord_bstring(Object json, BStructureType structType) {
+        if (json == null || !isJSONObject(json)) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
+        }
+
+        MapValueImpl<BString, Object> bStruct = new MapValueImpl<>(structType);
+        MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
+        for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
+            BType fieldType = field.getValue().type;
+            BString fieldName = StringUtils.fromString(field.getValue().name);
+            try {
+                // If the field does not exists in the JSON, set the default value for that struct field.
+                if (!jsonObject.containsKey(fieldName)) {
+                    bStruct.put(fieldName, fieldType.getZeroValue());
+                    continue;
+                }
+
+                Object jsonValue = jsonObject.get(fieldName);
+                bStruct.put(fieldName, convertJSON(jsonValue, fieldType));
+            } catch (Exception e) {
+                handleError(e, fieldName.getValue());
+            }
+        }
+
+        return bStruct;
+    }
+
     public static Object convertJSON(Object jsonValue, BType targetType) {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
@@ -418,13 +460,16 @@ public class JSONUtils {
             case TypeTags.DECIMAL_TAG:
                 return jsonNodeToDecimal(jsonValue);
             case TypeTags.STRING_TAG:
+                if (jsonValue instanceof BString) {
+                    return jsonValue;
+                }
                 return jsonValue.toString();
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                            getTypeName(jsonValue));
+                                                                   getTypeName(jsonValue));
                 }
                 // fall through
             case TypeTags.ANY_TAG:
@@ -442,6 +487,9 @@ public class JSONUtils {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
+                if (USE_BSTRING) {
+                    return convertJSONToRecord_bstring(jsonValue, (BStructureType) targetType);
+                }
                 return convertJSONToRecord(jsonValue, (BStructureType) targetType);
             case TypeTags.ARRAY_TAG:
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
@@ -664,7 +712,7 @@ public class JSONUtils {
                     BTypes.typeInt, getTypeName(json));
         }
 
-        return ((Long) json).longValue();
+        return (Long) json;
     }
 
     /**
@@ -677,7 +725,7 @@ public class JSONUtils {
         if (json instanceof Integer) {
             return ((Integer) json).longValue();
         } else if (json instanceof Double) {
-            return ((Double) json).doubleValue();
+            return (Double) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
@@ -691,11 +739,11 @@ public class JSONUtils {
      * @return BDecimal value of the JSON, if it's a valid convertible JSON node. Error, otherwise.
      */
     private static DecimalValue jsonNodeToDecimal(Object json) {
-        BigDecimal decimal = null;
+        BigDecimal decimal;
         if (json instanceof Integer) {
             decimal = new BigDecimal(((Integer) json).longValue());
         } else if (json instanceof Double) {
-            decimal = new BigDecimal(((Double) json).doubleValue());
+            decimal = BigDecimal.valueOf((Double) json);
         } else if (json instanceof BigDecimal) {
             decimal = (BigDecimal) json;
         } else {
@@ -717,7 +765,7 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeBoolean, getTypeName(json));
         }
-        return ((Boolean) json).booleanValue();
+        return (Boolean) json;
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
@@ -809,7 +857,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.getInt(i);
-            json.append(new Long(value));
+            json.append(value);
         }
         return json;
     }
@@ -824,7 +872,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.getFloat(i);
-            json.append(new Double(value));
+            json.append(value);
         }
         return json;
     }
@@ -853,7 +901,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             boolean value = booleanArray.getBoolean(i);
-            json.append(Boolean.valueOf(value));
+            json.append(value);
         }
         return json;
     }

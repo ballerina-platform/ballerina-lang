@@ -57,6 +57,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
@@ -127,8 +128,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    // --debug flag is handled by ballerina.sh/ballerina.bat. It will launch ballerina with java debug options.
-    @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
+    @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
@@ -139,6 +139,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
     private List<String> disableGroupList;
+
+    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    private boolean testReport;
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
@@ -157,8 +160,14 @@ public class TestCommand implements BLauncherCmd {
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
         }
-        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
 
+        // Sets the debug port as a system property, which will be used when setting up debug args before running the
+        // executable jar in a separate JVM process.
+        if (this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
+        }
+
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
         // check if there are too many arguments.
         if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream,
@@ -367,7 +376,8 @@ public class TestCommand implements BLauncherCmd {
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
-                .addTask(new RunTestsTask(coverage, args, groupList, disableGroupList), listGroups) // run tests
+                // run tests
+                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(buildContext);

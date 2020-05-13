@@ -19,7 +19,7 @@ import ballerina/java;
 # Represents an SMTP Client, which interacts with an SMTP Server.
 public type SmtpClient client object {
 
-    # Gets invoked during object initialization.
+    # Gets invoked during the `email:SmtpClient` initialization.
     #
     # + host - Host of the SMTP Client
     # + username - Username of the SMTP Client
@@ -27,16 +27,50 @@ public type SmtpClient client object {
     # + clientConfig - Configurations for SMTP Client
     public function __init(@untainted string host, @untainted string username, @untainted string password,
             SmtpConfig clientConfig = {}) {
-        return initSmtpClientEndpoint(self, java:fromString(host), java:fromString(username),
+        initSmtpClientEndpoint(self, java:fromString(host), java:fromString(username),
             java:fromString(password), clientConfig);
     }
 
-    # Send a message.
+    # Sends a message.
+    # ```ballerina
+    # email:Error? response = smtpClient->send(email);
+    # ```
     #
-    # + email - String message
-    # + return - An `SendError` if failed to send the message to the recipient
+    # + email - An `email:Email` message, which needs to be sent to the recipient
+    # + return - An `email:Error` if failed to send the message to the recipient or else `()`
     public remote function send(Email email) returns Error? {
+        var body = email.body;
+        if (body is xml) {
+            if (email?.contentType == ()) {
+                email.contentType = "application/xml";
+            } else if (!self.containsType(email?.contentType, "xml")) {
+                return SendError(message = "Content type of the email should be XML.");
+            }
+            body = body.toString();
+        } else if (body is string) {
+            if (email?.contentType == ()) {
+                email.contentType = "text/plain";
+            } else if (!self.containsType(email?.contentType, "text")) {
+                return SendError(message = "Content type of the email should be text.");
+            }
+        } else {
+            if (email?.contentType == ()) {
+                email.contentType = "application/json";
+            } else if (!self.containsType(email?.contentType, "json")) {
+                return SendError(message = "Content type of the email should be json.");
+            }
+            body = body.toJsonString();
+        }
         return send(self, email);
+    }
+
+    private function containsType(string? contentType, string typeString) returns boolean {
+        if (contentType is string) {
+            string canonicalizedCtype = contentType.toLowerAscii();
+            int? stringIndex = canonicalizedCtype.indexOf(typeString);
+            return stringIndex is int;
+        }
+        return false;
     }
 
 };
@@ -56,8 +90,10 @@ function send(SmtpClient clientEndpoint, Email email) returns Error? = @java:Met
 #
 # + port - Port number of the SMTP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#   Defaults to true for the "smtps" protocol and false for the "smtp" protocol.
+#               The default value is true for the "smtps" protocol and false for the "smtp" protocol
+# + properties - SMTP properties to override the existing configuration
 public type SmtpConfig record {|
     int port = 465;
     boolean enableSsl = true;
+    map<string>? properties = ();
 |};

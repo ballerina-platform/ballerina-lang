@@ -33,6 +33,7 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
+import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
@@ -40,6 +41,7 @@ import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -60,14 +62,14 @@ import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
  * Listens and publishes events from JVM.
  */
 public class EventBus {
+
     private final Context context;
+    private Path projectRoot;
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
-    AtomicInteger nextVariableReference = new AtomicInteger();
+    private AtomicInteger nextVariableReference = new AtomicInteger();
     private List<EventRequest> stepEventRequests = new ArrayList<>();
-
-    private Path projectRoot;
 
     public EventBus(Context context) {
         this.context = context;
@@ -144,7 +146,6 @@ public class EventBus {
                          */
                         if (event instanceof ClassPrepareEvent) {
                             ClassPrepareEvent evt = (ClassPrepareEvent) event;
-
                             this.breakpointsList.forEach((path, breakpoints) -> Arrays.stream(breakpoints)
                                     .forEach(breakpoint -> addBreakpoint(evt.referenceType(), breakpoint)));
                         }
@@ -193,30 +194,20 @@ public class EventBus {
 
     public void addBreakpoint(ReferenceType referenceType, Breakpoint breakpoint) {
         try {
-            List<String> paths = referenceType.sourcePaths("");
-            String balName = paths.size() > 0 ? paths.get(0) : "";
-            balName = balName.replaceFirst("tests" + File.separator + "tests", "tests");
-            Path path = Paths.get(breakpoint.getSource().getPath());
-            Path projectRoot = findProjectRoot(path);
-            String moduleName;
-            if (projectRoot == null) {
-                moduleName = breakpoint.getSource().getName();
-            } else {
-                moduleName = PackageUtils.getRelativeFilePath(path.toString());
-            }
-            if (moduleName.equals(balName)) {
-                List<Location> locations = referenceType.locationsOfLine(
-                        breakpoint.getLine().intValue());
-                if (locations.size() > 0) {
-                    Location location = locations.get(0);
-                    BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
-                            .createBreakpointRequest(location);
-                    bpReq.enable();
-                }
+            String sourceReference = getRelativeSourcePath(referenceType, breakpoint);
+            String breakpointSource = getSourcePath(breakpoint);
+            if (sourceReference.isEmpty() || breakpointSource.isEmpty() || !sourceReference.equals(breakpointSource)) {
+                return;
             }
 
+            List<Location> locations = referenceType.locationsOfLine(breakpoint.getLine().intValue());
+            if (!locations.isEmpty()) {
+                Location location = locations.get(0);
+                BreakpointRequest bpReq = context.getDebuggee().eventRequestManager().createBreakpointRequest(location);
+                bpReq.enable();
+            }
         } catch (AbsentInformationException e) {
-
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -294,4 +285,54 @@ public class EventBus {
             createStepRequest(threadId, StepRequest.STEP_OVER);
         }
     }
+
+    /**
+     * Extracts relative path of the source file location using JDI class-reference mappings.
+     */
+    private static String getRelativeSourcePath(ReferenceType refType, Breakpoint bp)
+            throws AbsentInformationException {
+
+        List<String> sourcePaths = refType.sourcePaths("");
+        List<String> sourceNames = refType.sourceNames("");
+        if (sourcePaths.isEmpty() || sourceNames.isEmpty()) {
+            return "";
+        }
+        String sourcePath = sourcePaths.get(0);
+        String sourceName = sourceNames.get(0);
+
+        // Some additional processing is required here to rectify the source path, as the source name will be the
+        // relative path instead of the file name, for the ballerina module sources.
+        //
+        // Note: Directly using file separator as a regex will fail on windows.
+        String[] srcNames = sourceName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+        String fileName = srcNames[srcNames.length - 1];
+        String relativePath = sourcePath.replace(sourceName, fileName);
+
+        // Replaces org name with the ballerina src directory name, as the JDI path is prepended with the org name
+        // for the bal files inside ballerina modules.
+        Path projectRoot = findProjectRoot(Paths.get(bp.getSource().getPath()));
+        if (projectRoot != null) {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            String orgName = manifest.getProject().getOrgName();
+            if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
+                relativePath = relativePath.replaceFirst(orgName, "src");
+            }
+        }
+        return relativePath;
+    }
+
+    /**
+     * Extracts relative path of the source file related to a given breakpoint.
+     */
+    private static String getSourcePath(Breakpoint breakpoint) {
+        Path path = Paths.get(breakpoint.getSource().getPath());
+        Path projectRoot = findProjectRoot(path);
+        if (projectRoot == null) {
+            return breakpoint.getSource().getName();
+        } else {
+            Path relativePath = projectRoot.relativize(path);
+            return relativePath.toString();
+        }
+    }
+
 }

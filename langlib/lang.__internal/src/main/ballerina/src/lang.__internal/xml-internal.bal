@@ -53,10 +53,3 @@ public function getAttribute(xml x, string attributeName, boolean isOptionalAcce
 # + x - The xml value
 # + return - Element name
 public function getElementNameNilLifting(xml x) returns string|error? = external;
-
-# lift getChildren over sequences
-# equivalent to elements(x).map(getChildren)
-#
-# + x - The xml value
-# + return - children of elements lifted over the sequence
-public function children(xml x) returns xml = external;
