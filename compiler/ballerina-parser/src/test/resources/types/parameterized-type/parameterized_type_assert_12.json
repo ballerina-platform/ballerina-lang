@@ -11,25 +11,20 @@
             ]
         },
         {
-            "kind": "ERROR_TYPE_DESC",
+            "kind": "PARAMETERIZED_TYPE_DESC",
             "children": [
                 {
-                    "kind": "ERROR_KEYWORD",
+                    "kind": "MAP_KEYWORD",
                     "isMissing": true
                 },
                 {
-                    "kind": "ERROR_TYPE_PARAMS",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
+                    "kind": "LT_TOKEN"
+                },
+                {
+                    "kind": "INT_KEYWORD"
+                },
+                {
+                    "kind": "GT_TOKEN"
                 }
             ]
         },
