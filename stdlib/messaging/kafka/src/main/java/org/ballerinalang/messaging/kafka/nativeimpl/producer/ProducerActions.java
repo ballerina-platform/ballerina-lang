@@ -25,6 +25,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -73,11 +74,13 @@ public class ProducerActions {
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
     public static Object init(ObjectValue producerObject) {
-        MapValue<String, Object> configs = producerObject.getMapValue(PRODUCER_CONFIG_FIELD_NAME);
+        MapValue<BString, Object> configs = producerObject.getMapValue(PRODUCER_CONFIG_FIELD_NAME);
         Properties producerProperties = processKafkaProducerConfig(configs);
         try {
-            if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
-                if (!((boolean) producerProperties.get(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG))) {
+            if (Objects.nonNull(
+                    producerProperties.get(StringUtils.fromString(ProducerConfig.TRANSACTIONAL_ID_CONFIG)))) {
+                if (!((boolean) producerProperties.get(
+                        StringUtils.fromString(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG)))) {
                     throw new IllegalStateException("configuration enableIdempotence must be set to true to enable " +
                                                             "transactional producer");
                 }
@@ -135,7 +138,7 @@ public class ProducerActions {
                                        new OffsetAndMetadata(position));
         }
         MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
-        String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
+        String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG).getValue();
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);

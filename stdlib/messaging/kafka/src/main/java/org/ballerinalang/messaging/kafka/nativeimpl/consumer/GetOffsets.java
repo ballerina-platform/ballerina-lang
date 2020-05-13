@@ -111,9 +111,9 @@ public class GetOffsets {
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
-        String topic = topicPartition.getStringValue(ALIAS_TOPIC);
+        String topic = topicPartition.getStringValue(ALIAS_TOPIC).getValue();
         Long partition = topicPartition.getIntValue(ALIAS_PARTITION);
-        TopicPartition tp = new TopicPartition(topic, getIntFromLong(partition, logger, ALIAS_PARTITION));
+        TopicPartition tp = new TopicPartition(topic, getIntFromLong(partition, logger, ALIAS_PARTITION.getValue()));
 
         try {
             OffsetAndMetadata offsetAndMetadata;
@@ -187,9 +187,9 @@ public class GetOffsets {
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
-        String topic = topicPartition.getStringValue(ALIAS_TOPIC);
+        String topic = topicPartition.getStringValue(ALIAS_TOPIC).getValue();
         Long partition = topicPartition.getIntValue(ALIAS_PARTITION);
-        TopicPartition tp = new TopicPartition(topic, getIntFromLong(partition, logger, ALIAS_PARTITION));
+        TopicPartition tp = new TopicPartition(topic, getIntFromLong(partition, logger, ALIAS_PARTITION.getValue()));
 
         try {
             long position;

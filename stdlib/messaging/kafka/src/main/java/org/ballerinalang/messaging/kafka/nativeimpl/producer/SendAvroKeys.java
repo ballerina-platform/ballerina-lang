@@ -152,7 +152,7 @@ public class SendAvroKeys {
     }
 
     protected static GenericRecord createRecord(MapValue value) {
-        String schemaString = value.getStringValue(KafkaConstants.AVRO_SCHEMA_STRING_NAME);
+        String schemaString = value.getStringValue(KafkaConstants.AVRO_SCHEMA_STRING_NAME).getValue();
         Schema avroSchema = new Schema.Parser().parse(schemaString);
         return new GenericData.Record(avroSchema);
     }

@@ -64,8 +64,8 @@ public class Poll {
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
-        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
+        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG).getValue();
+        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG).getValue();
         Duration duration = Duration.ofMillis(timeout);
         BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
@@ -75,7 +75,7 @@ public class Poll {
                     MapValue<BString, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
                                                                                    valueType);
                     consumerRecordsArray.append(recordValue);
-                    KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue(ALIAS_TOPIC),
+                    KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue(ALIAS_TOPIC).getValue(),
                                                    recordValue.get(ALIAS_VALUE));
                 }
             }
