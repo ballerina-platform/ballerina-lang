@@ -81,14 +81,15 @@ public class BlockStmtTest {
 
     @Test(description = "Test block statement with errors")
     public void testBlockStmtSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resultSemanticsNegative, 0, "redeclared symbol 'value'", 8, 9);
         BAssertUtil.validateError(resultSemanticsNegative, 1, "redeclared symbol 'value'", 19, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 2, "redeclared symbol 'value'", 31, 17);
     }
 
     @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         //testUnreachableStmtInIfFunction1
         BAssertUtil.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
@@ -109,5 +110,6 @@ public class BlockStmtTest {
         //testUnreachableThrow
         BAssertUtil.validateError(resultNegative, 9, "unreachable code", 107, 9);
         BAssertUtil.validateError(resultNegative, 10, "unreachable code", 116, 9);
+        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 126, 9);
     }
 }
