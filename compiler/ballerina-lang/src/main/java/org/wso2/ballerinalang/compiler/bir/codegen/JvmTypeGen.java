@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -565,13 +566,13 @@ class JvmTypeGen {
      * @param mv     method visitor
      * @param fields record fields to be added
      */
-    private static void addRecordFields(MethodVisitor mv, List<BField> fields) {
+    private static void addRecordFields(MethodVisitor mv, Map<String, BField> fields) {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
-        for (BField optionalField : fields) {
+        for (BField optionalField : fields.values()) {
             BField field = getRecordField(optionalField);
             mv.visitInsn(DUP);
 
@@ -757,13 +758,13 @@ class JvmTypeGen {
      * @param mv     method visitor
      * @param fields object fields to be added
      */
-    private static void addObjectFields(MethodVisitor mv, List<BField> fields) {
+    private static void addObjectFields(MethodVisitor mv, Map<String, BField> fields) {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
-        for (BField optionalField : fields) {
+        for (BField optionalField : fields.values()) {
             BField field = getObjectField(optionalField);
             mv.visitInsn(DUP);
 

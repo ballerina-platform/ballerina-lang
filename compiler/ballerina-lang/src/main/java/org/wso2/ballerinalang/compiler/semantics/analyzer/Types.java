@@ -80,12 +80,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -329,7 +329,7 @@ public class Types {
                 int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
                 if ((!(mapConstraintTypeTag == TypeTags.ANY || mapConstraintTypeTag == TypeTags.ANYDATA)) &&
                         ((BRecordType) target).sealed) {
-                    for (BField field : ((BStructureType) target).getFields()) {
+                    for (BField field : ((BStructureType) target).getFields().values()) {
                         if (field.getType().tag != mapConstraintTypeTag) {
                             return false;
                         }
@@ -399,21 +399,16 @@ public class Types {
 
     private boolean checkFieldEquivalencyForStamping(BStructureType lhsType, BStructureType rhsType,
                                                      Set<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
-                Collectors.toMap(BField::getName, field -> field));
-
-        for (BField lhsField : lhsType.fields) {
-            BField rhsField = rhsFields.get(lhsField.name);
+        for (BField lhsField : lhsType.fields.values()) {
+            BField rhsField = rhsType.fields.get(lhsField.name.value);
 
             if (rhsField == null || !isStampingAllowed(rhsField.type, lhsField.type)) {
                 return false;
             }
         }
 
-        Map<Name, BField> lhsFields = lhsType.fields.stream().collect(
-                Collectors.toMap(BField::getName, field -> field));
-        for (BField rhsField : rhsType.fields) {
-            BField lhsField = lhsFields.get(rhsField.name);
+        for (BField rhsField : rhsType.fields.values()) {
+            BField lhsField = lhsType.fields.get(rhsField.name.value);
 
             if (lhsField == null && !isStampingAllowed(rhsField.type, ((BRecordType) lhsType).restFieldType)) {
                 return false;
@@ -663,7 +658,7 @@ public class Types {
     }
 
     private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
-        for (BField field : recordType.fields) {
+        for (BField field : recordType.fields.values()) {
             if (!isAssignable(field.type, targetType)) {
                 return false;
             }
@@ -715,14 +710,8 @@ public class Types {
 
         switch (constraintType.tag) {
             case TypeTags.RECORD:
-                List<BField> fieldList = ((BRecordType) constraintType).getFields();
-
-                for (BField field : fieldList) {
-                    if (field.name.toString().equals(fieldName)) {
-                        return field;
-                    }
-                }
-                break;
+                Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
+                return fieldList.get(fieldName);
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) constraintType;
                 Set<BType> memTypes = unionType.getMemberTypes();
@@ -747,7 +736,7 @@ public class Types {
             return false;
         }
 
-        for (BField field : targetRecType.fields) {
+        for (BField field : targetRecType.fields.values()) {
             if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
                     isAssignable(sourceMapType.constraint, field.type))) {
                 return false;
@@ -1005,7 +994,7 @@ public class Types {
                         isSelectivelyImmutableType(tupRestType, unresolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields) {
+                for (BField field : recordType.fields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
                             !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
@@ -1160,16 +1149,20 @@ public class Types {
         }
 
         // The LHS type cannot have any private members. 
-        if (lhsType.getFields().stream().anyMatch(field -> Symbols.isPrivate(field.symbol)) ||
-                lhsFuncs.stream().anyMatch(func -> Symbols.isPrivate(func.symbol))) {
-            return false;
+        for (BField bField : lhsType.fields.values()) {
+            if (Symbols.isPrivate(bField.symbol)) {
+                return false;
+            }
         }
 
-        Map<Name, BField> rhsFields =
-                rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
+        for (BAttachedFunction func : lhsFuncs) {
+            if (Symbols.isPrivate(func.symbol)) {
+                return false;
+            }
+        }
 
-        for (BField lhsField : lhsType.fields) {
-            BField rhsField = rhsFields.get(lhsField.name);
+        for (BField lhsField : lhsType.fields.values()) {
+            BField rhsField = rhsType.fields.get(lhsField.name.value);
             if (rhsField == null || !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol)
                     || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes, unresolvedReadonlyTypes)) {
                 return false;
@@ -1275,7 +1268,7 @@ public class Types {
                 if (nextMethodReturnType != null) {
                     foreachNode.resultType = getRecordType(nextMethodReturnType);
                     BType valueType = (foreachNode.resultType != null)
-                            ? ((BRecordType) foreachNode.resultType).fields.get(0).type : null;
+                            ? ((BRecordType) foreachNode.resultType).fields.get("value").type : null;
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
@@ -1366,7 +1359,7 @@ public class Types {
                 if (nextMethodReturnType != null) {
                     fromClause.resultType = getRecordType(nextMethodReturnType);
                     fromClause.nillableResultType = nextMethodReturnType;
-                    fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
+                    fromClause.varType = ((BRecordType) fromClause.resultType).fields.get("value").type;
                     return;
                 }
                 dlogHelper.error(fromClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
@@ -1484,13 +1477,7 @@ public class Types {
             return false;
         }
 
-        for (BField field : recordType.fields) {
-            if (field.name.value.equals(BLangCompilerConstants.VALUE_FIELD)) {
-                return true;
-            }
-        }
-
-        return false;
+        return recordType.fields.containsKey(BLangCompilerConstants.VALUE_FIELD);
     }
 
     private BRecordType getRecordType(BUnionType type) {
@@ -1533,14 +1520,14 @@ public class Types {
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {
-        List<BField> fields = recordType.fields;
+        Map<String, BField> fields = recordType.fields;
         BUnionType unionType = BUnionType.create(null);
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
         }
 
-        for (BField field : fields) {
+        for (BField field : fields.values()) {
             if (isAssignable(field.type, unionType)) {
                 continue;
             }
@@ -2019,27 +2006,29 @@ public class Types {
 
         @Override
         public Boolean visit(BRecordType t, BType s) {
-
             if (t == s) {
                 return true;
             }
+
             if (s.tag != TypeTags.RECORD || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }
+
             BRecordType source = (BRecordType) s;
 
             if (source.fields.size() != t.fields.size()) {
                 return false;
             }
 
-            boolean notSameType = source.fields
-                    .stream()
-                    .map(fs -> t.fields.stream()
-                            .anyMatch(ft -> fs.name.equals(ft.name)
-                                    && isSameType(fs.type, ft.type, this.unresolvedTypes, this.unresolvedReadonlyTypes)
-                                    && hasSameOptionalFlag(fs.symbol, ft.symbol)))
-                    .anyMatch(foundSameType -> !foundSameType);
-            if (notSameType) {
+            for (BField sourceField : source.fields.values()) {
+                if (t.fields.containsKey(sourceField.name.value)) {
+                    BField targetField = t.fields.get(sourceField.name.value);
+                    if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes,
+                                   this.unresolvedReadonlyTypes) && hasSameOptionalFlag(sourceField.symbol,
+                                                                                        targetField.symbol)) {
+                        continue;
+                    }
+                }
                 return false;
             }
             return isSameType(source.restFieldType, t.restFieldType, this.unresolvedTypes,
@@ -2159,11 +2148,11 @@ public class Types {
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes,
                                           Set<BType> unresolvedReadonlyTypes) {
-        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
+        Map<String, BField> rhsFields = new LinkedHashMap<>(rhsType.fields);
 
         // Check if the RHS record has corresponding fields to those of the LHS record.
-        for (BField lhsField : lhsType.fields) {
-            BField rhsField = rhsFields.get(lhsField.name);
+        for (BField lhsField : lhsType.fields.values()) {
+            BField rhsField = rhsFields.get(lhsField.name.value);
 
             // There should be a corresponding RHS field
             if (rhsField == null) {
@@ -2180,7 +2169,7 @@ public class Types {
                 return false;
             }
 
-            rhsFields.remove(lhsField.name);
+            rhsFields.remove(lhsField.name.value);
         }
 
         // If there are any remaining RHS fields, the types of those should be assignable to the rest field type of
@@ -2740,17 +2729,15 @@ public class Types {
     }
 
     private boolean recordEqualityIntersectionExists(BRecordType lhsType, BRecordType rhsType) {
-        List<BField> lhsFields = lhsType.fields;
-        List<BField> rhsFields = rhsType.fields;
+        Map<String, BField> lhsFields = lhsType.fields;
+        Map<String, BField> rhsFields = rhsType.fields;
 
         List<Name> matchedFieldNames = new ArrayList<>();
-        for (BField lhsField : lhsFields) {
-            Optional<BField> match =
-                    rhsFields.stream().filter(rhsField -> lhsField.name.equals(rhsField.name)).findFirst();
-
-            if (match.isPresent()) {
+        for (BField lhsField : lhsFields.values()) {
+            if (rhsFields.containsKey(lhsField.name.value)) {
                 if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
-                                                expandAndGetMemberTypesRecursive(match.get().type))) {
+                                                expandAndGetMemberTypesRecursive(
+                                                        rhsFields.get(lhsField.name.value).type))) {
                     return false;
                 }
                 matchedFieldNames.add(lhsField.getName());
@@ -2770,7 +2757,7 @@ public class Types {
             }
         }
 
-        for (BField rhsField : rhsFields) {
+        for (BField rhsField : rhsFields.values()) {
             if (matchedFieldNames.contains(rhsField.getName())) {
                 continue;
             }
@@ -2793,9 +2780,14 @@ public class Types {
     private boolean mapRecordEqualityIntersectionExists(BMapType mapType, BRecordType recordType) {
         Set<BType> mapConstrTypes = expandAndGetMemberTypesRecursive(mapType.getConstraint());
 
-        return recordType.fields.stream()
-                .allMatch(field -> Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) ||
-                        equalityIntersectionExists(mapConstrTypes, expandAndGetMemberTypesRecursive(field.type)));
+        for (BField field : recordType.fields.values()) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                    !equalityIntersectionExists(mapConstrTypes, expandAndGetMemberTypesRecursive(field.type))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean jsonEqualityIntersectionExists(Set<BType> typeSet) {
@@ -2808,7 +2800,7 @@ public class Types {
                     break;
                 case TypeTags.RECORD:
                     BRecordType recordType = (BRecordType) type;
-                    if (recordType.fields.stream()
+                    if (recordType.fields.values().stream()
                             .allMatch(field -> Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) ||
                                     !isAssignable(field.type, symTable.errorType))) {
                         return true;
@@ -3303,7 +3295,7 @@ public class Types {
     }
 
     private boolean checkFillerValue(BRecordType type) {
-        for (BField field : type.fields) {
+        for (BField field : type.fields.values()) {
             if (Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
                 continue;
             }

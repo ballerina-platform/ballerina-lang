@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -281,13 +282,14 @@ public class ImmutableTypeCloner {
                     new HashSet<>());
     }
 
-    private static List<BField> getImmutableFields(Types types, SymbolTable symTable,
-                                                   BLangAnonymousModelHelper anonymousModelHelper, Names names,
-                                                   BTypeSymbol immutableRecordSymbol, BRecordType origRecordType,
-                                                   DiagnosticPos pos, SymbolEnv env, PackageID pkgID) {
-        List<BField> fields = new ArrayList<>();
+    private static LinkedHashMap<String, BField> getImmutableFields(Types types, SymbolTable symTable,
+                                                                    BLangAnonymousModelHelper anonymousModelHelper,
+                                                                    Names names, BTypeSymbol immutableRecordSymbol,
+                                                                    BRecordType origRecordType, DiagnosticPos pos,
+                                                                    SymbolEnv env, PackageID pkgID) {
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
-        for (BField origField : origRecordType.fields) {
+        for (BField origField : origRecordType.fields.values()) {
             BType immutableFieldType = setImmutableType(pos, types, origField.type, env, symTable,
                                                         anonymousModelHelper, names);
 
@@ -303,7 +305,7 @@ public class ImmutableTypeCloner {
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
             }
-            fields.add(new BField(origFieldName, null, immutableFieldSymbol));
+            fields.put(origFieldName.value, new BField(origFieldName, null, immutableFieldSymbol));
             immutableRecordSymbol.scope.define(origFieldName, immutableFieldSymbol);
         }
         return fields;
