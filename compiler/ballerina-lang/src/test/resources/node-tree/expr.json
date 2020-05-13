@@ -120,6 +120,7 @@
                     "typeNode": {
                         "sealed": true,
                         "restFieldType": null,
+                        "analyzed": false,
                         "fields": [
                             {
                                 "name": {
@@ -194,13 +195,10 @@
                                 },
                                 "expr": null,
                                 "flagSet": [
-                                    {
-                                    },
-                                    {
-                                    }
+                                    {},
+                                    {}
                                 ],
-                                "annAttachments": [
-                                ],
+                                "annAttachments": [],
                                 "markdownDocumentationAttachment": null,
                                 "isDeclaredWithVar": false,
                                 "symbol": {
@@ -217,8 +215,7 @@
                                     "closure": false,
                                     "markdownDocumentation": {
                                         "description": null,
-                                        "parameters": [
-                                        ],
+                                        "parameters": [],
                                         "returnValueDescription": null
                                     },
                                     "scope": null
@@ -239,12 +236,9 @@
                         "initFunction": null,
                         "isAnonymous": false,
                         "isLocal": false,
-                        "isFieldAnalyseRequired": true,
-                        "typeRefs": [
-                        ],
+                        "typeRefs": [],
                         "symbol": {
-                            "attachedFuncs": [
-                            ],
+                            "attachedFuncs": [],
                             "initializerFunc": null,
                             "isLabel": false,
                             "tag": 327772,
@@ -259,7 +253,7 @@
                                 "EMPTY": "",
                                 "sealed": true,
                                 "restFieldType": {
-                                    "tag": 21,
+                                    "tag": 22,
                                     "tsymbol": null,
                                     "name": "<Duplicated>",
                                     "flags": 0
@@ -272,7 +266,7 @@
                                         "pos": "<Duplicated>"
                                     }
                                 ],
-                                "tag": 11,
+                                "tag": 12,
                                 "tsymbol": "<Duplicated>",
                                 "name": "<Duplicated>",
                                 "flags": 1
@@ -281,8 +275,7 @@
                             "closure": false,
                             "markdownDocumentation": {
                                 "description": null,
-                                "parameters": [
-                                ],
+                                "parameters": [],
                                 "returnValueDescription": null
                             },
                             "scope": {
@@ -297,8 +290,7 @@
                                 }
                             }
                         },
-                        "referencedFields": [
-                        ],
+                        "referencedFields": [],
                         "nullable": false,
                         "grouped": false,
                         "type": "<Duplicated>",
@@ -313,8 +305,7 @@
                         },
                         "cloneAttempt": 0
                     },
-                    "annAttachments": [
-                    ],
+                    "annAttachments": [],
                     "markdownDocumentationAttachment": null,
                     "flagSet": [
                         "<Duplicated>"
@@ -339,16 +330,12 @@
                     "attachedFunction": false,
                     "objInitFunction": false,
                     "interfaceFunction": false,
-                    "paramClosureMap": {
-                    },
+                    "paramClosureMap": {},
                     "mapSymbol": null,
-                    "initFunctionStmts": {
-                    },
-                    "closureVarSymbols": [
-                    ],
+                    "initFunctionStmts": {},
+                    "closureVarSymbols": [],
                     "originalFuncSymbol": null,
-                    "sendsToThis": [
-                    ],
+                    "sendsToThis": [],
                     "anonForkName": null,
                     "DEFAULT_WORKER_NAME": "default",
                     "name": {
@@ -377,14 +364,13 @@
                         "pos": null,
                         "cloneAttempt": 0
                     },
-                    "requiredParams": [
-                    ],
+                    "requiredParams": [],
                     "returnTypeNode": {
                         "typeKind": "NIL",
                         "nullable": false,
                         "grouped": false,
                         "type": {
-                            "tag": 9,
+                            "tag": 10,
                             "tsymbol": {
                                 "isLabel": false,
                                 "tag": 12,
@@ -413,8 +399,7 @@
                         },
                         "cloneAttempt": 0
                     },
-                    "returnTypeAnnAttachments": [
-                    ],
+                    "returnTypeAnnAttachments": [],
                     "body": {
                         "stmts": [
                             {
@@ -436,21 +421,15 @@
                                         },
                                         "cloneAttempt": 0
                                     },
-                                    "argExprs": [
-                                    ],
+                                    "argExprs": [],
                                     "exprSymbol": null,
                                     "functionPointerInvocation": false,
-                                    "actionInvocation": false,
                                     "langLibInvocation": false,
                                     "async": false,
-                                    "flagSet": [
-                                    ],
-                                    "annAttachments": [
-                                    ],
-                                    "requiredArgs": [
-                                    ],
-                                    "restArgs": [
-                                    ],
+                                    "flagSet": [],
+                                    "annAttachments": [],
+                                    "requiredArgs": [],
+                                    "restArgs": [],
                                     "expr": null,
                                     "optionalFieldAccess": false,
                                     "errorSafeNavigation": false,
@@ -502,13 +481,10 @@
                     "flagSet": [
                         "<Duplicated>"
                     ],
-                    "annAttachments": [
-                    ],
+                    "annAttachments": [],
                     "markdownDocumentationAttachment": null,
-                    "endpoints": [
-                    ],
-                    "workers": [
-                    ],
+                    "endpoints": [],
+                    "workers": [],
                     "restParam": {
                         "name": {
                             "value": "args",
@@ -544,15 +520,14 @@
                                 "cloneAttempt": 0
                             },
                             "dimensions": 1,
-                            "sizes": [
-                            ],
+                            "sizes": [],
                             "nullable": false,
                             "grouped": false,
                             "type": {
                                 "eType": "<Duplicated>",
                                 "size": -1,
                                 "state": "UNSEALED",
-                                "tag": 18,
+                                "tag": 19,
                                 "tsymbol": {
                                     "isLabel": false,
                                     "tag": 8388636,
@@ -574,10 +549,8 @@
                             "cloneAttempt": 0
                         },
                         "expr": null,
-                        "flagSet": [
-                        ],
-                        "annAttachments": [
-                        ],
+                        "flagSet": [],
+                        "annAttachments": [],
                         "markdownDocumentationAttachment": null,
                         "isDeclaredWithVar": false,
                         "symbol": {
@@ -594,8 +567,7 @@
                             "closure": false,
                             "markdownDocumentation": {
                                 "description": null,
-                                "parameters": [
-                                ],
+                                "parameters": [],
                                 "returnValueDescription": null
                             },
                             "scope": null
@@ -613,8 +585,7 @@
                         "cloneAttempt": 0
                     },
                     "symbol": {
-                        "params": [
-                        ],
+                        "params": [],
                         "restParam": "<Duplicated>",
                         "retType": "<Duplicated>",
                         "taintTable": null,
@@ -623,6 +594,7 @@
                         "enclForkName": null,
                         "source": null,
                         "schedulerPolicy": "PARENT",
+                        "dependentGlobalVars": [],
                         "defaultableParam": false,
                         "taintabilityAllowance": "IGNORED",
                         "tag": 820,
@@ -633,14 +605,12 @@
                         "pkgID": "<Duplicated>",
                         "kind": "FUNCTION",
                         "type": {
-                            "paramTypes": [
-                            ],
+                            "paramTypes": [],
                             "restType": "<Duplicated>",
                             "retType": "<Duplicated>",
-                            "tag": 15,
+                            "tag": 16,
                             "tsymbol": {
-                                "params": [
-                                ],
+                                "params": [],
                                 "restParam": "<Duplicated>",
                                 "returnType": "<Duplicated>",
                                 "isLabel": false,
@@ -661,8 +631,7 @@
                         "closure": false,
                         "markdownDocumentation": {
                             "description": null,
-                            "parameters": [
-                            ],
+                            "parameters": [],
                             "returnValueDescription": null
                         },
                         "scope": {
@@ -679,8 +648,7 @@
                         "scope": {
                             "NOT_FOUND_ENTRY": "<Duplicated>",
                             "owner": "<Duplicated>",
-                            "entries": {
-                            }
+                            "entries": {}
                         },
                         "node": "<Duplicated>",
                         "enclPkg": {
@@ -690,16 +658,11 @@
                             "imports": [
                                 "<Duplicated>"
                             ],
-                            "xmlnsList": [
-                            ],
-                            "globalEndpoints": [
-                            ],
-                            "constants": [
-                            ],
-                            "globalVars": [
-                            ],
-                            "services": [
-                            ],
+                            "xmlnsList": [],
+                            "globalEndpoints": [],
+                            "constants": [],
+                            "globalVars": [],
+                            "services": [],
                             "functions": [
                                 "<Duplicated>",
                                 {
@@ -707,22 +670,17 @@
                                     "attachedFunction": false,
                                     "objInitFunction": false,
                                     "interfaceFunction": false,
-                                    "paramClosureMap": {
-                                    },
+                                    "paramClosureMap": {},
                                     "mapSymbol": null,
-                                    "initFunctionStmts": {
-                                    },
-                                    "closureVarSymbols": [
-                                    ],
+                                    "initFunctionStmts": {},
+                                    "closureVarSymbols": [],
                                     "originalFuncSymbol": null,
-                                    "sendsToThis": [
-                                    ],
+                                    "sendsToThis": [],
                                     "anonForkName": null,
                                     "DEFAULT_WORKER_NAME": "default",
                                     "name": "<Duplicated>",
                                     "defaultWorkerName": "<Duplicated>",
-                                    "requiredParams": [
-                                    ],
+                                    "requiredParams": [],
                                     "returnTypeNode": {
                                         "typeKind": "NIL",
                                         "nullable": false,
@@ -739,8 +697,7 @@
                                         },
                                         "cloneAttempt": 0
                                     },
-                                    "returnTypeAnnAttachments": [
-                                    ],
+                                    "returnTypeAnnAttachments": [],
                                     "body": {
                                         "stmts": [
                                             {
@@ -821,10 +778,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": true,
                                                     "symbol": null,
@@ -946,10 +901,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": false,
                                                     "symbol": null,
@@ -1021,17 +974,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -1103,17 +1051,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -1237,10 +1180,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": true,
                                                     "symbol": null,
@@ -1349,10 +1290,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": true,
                                                     "symbol": null,
@@ -1409,17 +1348,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -1491,17 +1425,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -1627,6 +1556,7 @@
                                                                     },
                                                                     "cloneAttempt": 0
                                                                 },
+                                                                "isReadonly": false,
                                                                 "type": null,
                                                                 "desugared": false,
                                                                 "constantPropagated": false,
@@ -1650,10 +1580,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": true,
                                                     "symbol": null,
@@ -1753,6 +1681,7 @@
                                                                     },
                                                                     "cloneAttempt": 0
                                                                 },
+                                                                "isReadonly": false,
                                                                 "type": null,
                                                                 "desugared": false,
                                                                 "constantPropagated": false,
@@ -1776,10 +1705,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": true,
                                                     "symbol": null,
@@ -1836,17 +1763,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -1918,17 +1840,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -1989,8 +1906,7 @@
                                                     "typeNode": {
                                                         "pkgAlias": "<Duplicated>",
                                                         "typeName": "<Duplicated>",
-                                                        "flagSet": [
-                                                        ],
+                                                        "flagSet": [],
                                                         "nullable": false,
                                                         "grouped": false,
                                                         "type": null,
@@ -2063,6 +1979,7 @@
                                                                     },
                                                                     "cloneAttempt": 0
                                                                 },
+                                                                "isReadonly": false,
                                                                 "type": null,
                                                                 "desugared": false,
                                                                 "constantPropagated": false,
@@ -2086,10 +2003,8 @@
                                                         },
                                                         "cloneAttempt": 0
                                                     },
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
                                                     "markdownDocumentationAttachment": null,
                                                     "isDeclaredWithVar": false,
                                                     "symbol": null,
@@ -2175,17 +2090,12 @@
                                                     ],
                                                     "exprSymbol": null,
                                                     "functionPointerInvocation": false,
-                                                    "actionInvocation": false,
                                                     "langLibInvocation": false,
                                                     "async": false,
-                                                    "flagSet": [
-                                                    ],
-                                                    "annAttachments": [
-                                                    ],
-                                                    "requiredArgs": [
-                                                    ],
-                                                    "restArgs": [
-                                                    ],
+                                                    "flagSet": [],
+                                                    "annAttachments": [],
+                                                    "requiredArgs": [],
+                                                    "restArgs": [],
                                                     "expr": null,
                                                     "optionalFieldAccess": false,
                                                     "errorSafeNavigation": false,
@@ -2234,19 +2144,14 @@
                                         "pos": null,
                                         "cloneAttempt": 0
                                     },
-                                    "flagSet": [
-                                    ],
-                                    "annAttachments": [
-                                    ],
+                                    "flagSet": [],
+                                    "annAttachments": [],
                                     "markdownDocumentationAttachment": null,
-                                    "endpoints": [
-                                    ],
-                                    "workers": [
-                                    ],
+                                    "endpoints": [],
+                                    "workers": [],
                                     "restParam": null,
                                     "symbol": {
-                                        "params": [
-                                        ],
+                                        "params": [],
                                         "restParam": null,
                                         "retType": "<Duplicated>",
                                         "taintTable": null,
@@ -2255,6 +2160,7 @@
                                         "enclForkName": null,
                                         "source": null,
                                         "schedulerPolicy": "PARENT",
+                                        "dependentGlobalVars": [],
                                         "defaultableParam": false,
                                         "taintabilityAllowance": "IGNORED",
                                         "tag": 820,
@@ -2265,14 +2171,12 @@
                                         "pkgID": "<Duplicated>",
                                         "kind": "FUNCTION",
                                         "type": {
-                                            "paramTypes": [
-                                            ],
+                                            "paramTypes": [],
                                             "restType": null,
                                             "retType": "<Duplicated>",
-                                            "tag": 15,
+                                            "tag": 16,
                                             "tsymbol": {
-                                                "params": [
-                                                ],
+                                                "params": [],
                                                 "restParam": null,
                                                 "returnType": "<Duplicated>",
                                                 "isLabel": false,
@@ -2293,23 +2197,20 @@
                                         "closure": false,
                                         "markdownDocumentation": {
                                             "description": null,
-                                            "parameters": [
-                                            ],
+                                            "parameters": [],
                                             "returnValueDescription": null
                                         },
                                         "scope": {
                                             "NOT_FOUND_ENTRY": "<Duplicated>",
                                             "owner": "<Duplicated>",
-                                            "entries": {
-                                            }
+                                            "entries": {}
                                         }
                                     },
                                     "clonedEnv": {
                                         "scope": {
                                             "NOT_FOUND_ENTRY": "<Duplicated>",
                                             "owner": "<Duplicated>",
-                                            "entries": {
-                                            }
+                                            "entries": {}
                                         },
                                         "node": "<Duplicated>",
                                         "enclPkg": "<Duplicated>",
@@ -2340,26 +2241,21 @@
                             "typeDefinitions": [
                                 "<Duplicated>"
                             ],
-                            "annotations": [
-                            ],
+                            "annotations": [],
                             "initFunction": null,
                             "startFunction": null,
                             "stopFunction": null,
                             "completedPhases": [
-                                {
-                                }
+                                {}
                             ],
-                            "objAttachedFunctions": [
-                            ],
+                            "objAttachedFunctions": [],
                             "topLevelNodes": [
                                 "<Duplicated>",
                                 "<Duplicated>",
                                 "<Duplicated>"
                             ],
-                            "testablePkgs": [
-                            ],
-                            "lambdaFunctions": [
-                            ],
+                            "testablePkgs": [],
+                            "lambdaFunctions": [],
                             "packageID": "<Duplicated>",
                             "symbol": {
                                 "initFunctionSymbol": null,
@@ -2368,13 +2264,11 @@
                                 "testInitFunctionSymbol": null,
                                 "testStartFunctionSymbol": null,
                                 "testStopFunctionSymbol": null,
-                                "imports": [
-                                ],
+                                "imports": [],
                                 "packageFile": null,
                                 "compiledPackage": {
                                     "pkgID": "<Duplicated>",
-                                    "srcEntries": [
-                                    ],
+                                    "srcEntries": [],
                                     "pkgMDEntry": null,
                                     "pkgBinaryEntry": null,
                                     "pkgBirEntry": null
@@ -2390,7 +2284,7 @@
                                 "name": "<Duplicated>",
                                 "pkgID": "<Duplicated>",
                                 "type": {
-                                    "tag": 20,
+                                    "tag": 21,
                                     "tsymbol": "<Duplicated>",
                                     "name": "<Duplicated>",
                                     "flags": 0
@@ -2414,14 +2308,10 @@
                                     }
                                 }
                             },
-                            "flagSet": [
-                            ],
-                            "jarBinaryContent": [
-                            ],
-                            "diagCollector": {
-                            },
-                            "repos": {
-                            },
+                            "flagSet": [],
+                            "jarBinaryContent": [],
+                            "diagCollector": {},
+                            "repos": {},
                             "type": null,
                             "desugared": false,
                             "constantPropagated": false,
@@ -2472,16 +2362,11 @@
     "imports": [
         "<Duplicated>"
     ],
-    "xmlnsList": [
-    ],
-    "globalEndpoints": [
-    ],
-    "constants": [
-    ],
-    "globalVars": [
-    ],
-    "services": [
-    ],
+    "xmlnsList": [],
+    "globalEndpoints": [],
+    "constants": [],
+    "globalVars": [],
+    "services": [],
     "functions": [
         "<Duplicated>",
         "<Duplicated>"
@@ -2489,31 +2374,25 @@
     "typeDefinitions": [
         "<Duplicated>"
     ],
-    "annotations": [
-    ],
+    "annotations": [],
     "initFunction": null,
     "startFunction": null,
     "stopFunction": null,
     "completedPhases": [
         "<Duplicated>"
     ],
-    "objAttachedFunctions": [
-    ],
+    "objAttachedFunctions": [],
     "topLevelNodes": [
         "<Duplicated>",
         "<Duplicated>",
         "<Duplicated>"
     ],
-    "testablePkgs": [
-    ],
-    "lambdaFunctions": [
-    ],
+    "testablePkgs": [],
+    "lambdaFunctions": [],
     "packageID": "<Duplicated>",
     "symbol": "<Duplicated>",
-    "flagSet": [
-    ],
-    "jarBinaryContent": [
-    ],
+    "flagSet": [],
+    "jarBinaryContent": [],
     "diagCollector": "<Duplicated>",
     "repos": "<Duplicated>",
     "type": null,
