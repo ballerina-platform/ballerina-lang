@@ -2428,7 +2428,7 @@
         {
             "name": "ExpressionFunctionBodyNode",
             "base": "FunctionBodyNode",
-            "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+            "kind": "EXPRESSION_FUNCTION_BODY",
             "attributes": [
                 {
                     "name": "rightDoubleArrow",

@@ -111,20 +111,8 @@
                                                     "kind": "RIGHT_DOUBLE_ARROW"
                                                 },
                                                 {
-                                                    "kind": "BINARY_EXPRESSION",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "PLUS_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "b"
-                                                        }
-                                                    ]
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "isMissing": true
                                                 }
                                             ]
                                         }
@@ -187,22 +175,18 @@
                                                     "kind": "RIGHT_DOUBLE_ARROW"
                                                 },
                                                 {
-                                                    "kind": "FUNCTION_CALL",
+                                                    "kind": "BINARY_EXPRESSION",
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "foo"
+                                                            "isMissing": true
                                                         },
                                                         {
-                                                            "kind": "OPEN_PAREN_TOKEN"
+                                                            "kind": "ASTERISK_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                            ]
-                                                        },
-                                                        {
-                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                                            "value": "5"
                                                         }
                                                     ]
                                                 }

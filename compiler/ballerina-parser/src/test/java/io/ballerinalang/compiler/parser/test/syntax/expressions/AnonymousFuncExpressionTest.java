@@ -28,17 +28,35 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
 
     // Valid source tests
 
-//    @Test
+    @Test
     public void testExplicitFuncWithEmptyBlockBody() {
-        test("anon-func/anon_func_source_01.bal", "anon-func/anon_func_assert_01.json");
-    }
-    
-//    @Test
-    public void testExplicitFuncWithBlockBody() {
-        test("anon-func/anon_func_source_02.bal", "anon-func/anon_func_assert_02.json");
+        testFile("anon-func/anon_func_source_01.bal", "anon-func/anon_func_assert_01.json");
     }
 
+    @Test
+    public void testExplicitFuncWithExpressionBody() {
+        testFile("anon-func/anon_func_source_02.bal", "anon-func/anon_func_assert_02.json");
+    }
+
+    @Test
+    public void testOpPrecedenceForExpressionBody() {
+        testFile("anon-func/anon_func_source_04.bal", "anon-func/anon_func_assert_04.json");
+    }
 
     // Recovery test
 
+    @Test
+    public void testErrorsInExplicitFuncWithEmptyBlockBody() {
+        testFile("anon-func/anon_func_source_03.bal", "anon-func/anon_func_assert_03.json");
+    }
+
+    @Test
+    public void testMissingExprInExpressionFuncBody() {
+        testFile("anon-func/anon_func_source_05.bal", "anon-func/anon_func_assert_05.json");
+    }
+
+    @Test
+    public void testMissingFUncBody() {
+        testFile("anon-func/anon_func_source_06.bal", "anon-func/anon_func_assert_06.json");
+    }
 }

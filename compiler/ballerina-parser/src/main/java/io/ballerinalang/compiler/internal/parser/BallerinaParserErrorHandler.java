@@ -399,6 +399,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_BODY:
             case FUNC_OPTIONAL_RETURNS:
             case TERMINAL_EXPRESSION:
+            case ANON_FUNC_BODY:
                 return true;
             default:
                 return false;

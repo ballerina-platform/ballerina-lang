@@ -34,7 +34,7 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
     STExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
             STNode expression) {
-        super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        super(SyntaxKind.EXPRESSION_FUNCTION_BODY);
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
 

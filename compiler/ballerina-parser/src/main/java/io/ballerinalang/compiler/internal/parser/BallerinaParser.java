@@ -1887,23 +1887,14 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseFuncReturnTypeDescriptor(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
-            case IDENTIFIER_TOKEN:
-                STToken nextNExtToken = getNextNextToken(nextTokenKind);
-                // If global var-decl
-                if (nextNExtToken.kind == SyntaxKind.EQUAL_TOKEN || nextNExtToken.kind == SyntaxKind.SEMICOLON_TOKEN) {
-                    return STNodeFactory.createEmptyNode();
-                }
-
-                // Otherwise could be missing 'returns' keyword
-                break;
             case OPEN_BRACE_TOKEN: // func-body block
             case EQUAL_TOKEN: // external func
                 return STNodeFactory.createEmptyNode();
             case RETURNS_KEYWORD:
                 break;
             default:
-                nextNExtToken = getNextNextToken(nextTokenKind);
-                if (nextNExtToken.kind == SyntaxKind.RETURNS_KEYWORD) {
+                STToken nextNextToken = getNextNextToken(nextTokenKind);
+                if (nextNextToken.kind == SyntaxKind.RETURNS_KEYWORD) {
                     break;
                 }
 
@@ -2202,8 +2193,23 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfFuncBodyBlock(SyntaxKind nextTokenKind, boolean isAnonFunc) {
-        if (isAnonFunc && isEndOfExpression(nextTokenKind, true)) {
-            return true;
+        if (isAnonFunc) {
+            switch (nextTokenKind) {
+                case CLOSE_BRACE_TOKEN:
+                case CLOSE_PAREN_TOKEN:
+                case CLOSE_BRACKET_TOKEN:
+                case OPEN_BRACE_TOKEN:
+                case SEMICOLON_TOKEN:
+                case COMMA_TOKEN:
+                case PUBLIC_KEYWORD:
+                case EOF_TOKEN:
+                case EQUAL_TOKEN:
+                case AT_TOKEN:
+                case BACKTICK_TOKEN:
+                    return true;
+                default:
+                    break;
+            }
         }
 
         return isEndOfStatements(nextTokenKind);
@@ -8224,7 +8230,6 @@ public class BallerinaParser extends AbstractParser {
         STNode funcKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(false);
         STNode funcBody = parseAnonFuncBody();
-        endContext();
         return STNodeFactory.createExplicitAnonymousFunctionExpressionNode(annots, funcKeyword, funcSignature,
                 funcBody);
     }
@@ -8243,8 +8248,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAnonFuncBody(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case OPEN_BRACE_TOKEN:
-                return parseFunctionBodyBlock(true);
+                STNode body = parseFunctionBodyBlock(true);
+                endContext();
+                return body;
             case RIGHT_DOUBLE_ARROW:
+                // we end the anon-func context here, before going for expressions.
+                // That is because we wouldn't know when will it end inside expressions.
+                endContext(); 
                 return parseExpressionFuncBody();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_BODY);

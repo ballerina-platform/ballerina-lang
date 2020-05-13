@@ -470,6 +470,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LET_KEYWORD;
             case "STREAM_KEYWORD":
                 return SyntaxKind.STREAM_KEYWORD;
+            case "NEW_KEYWORD":
+                return SyntaxKind.NEW_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -556,6 +558,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
+            case "RIGHT_DOUBLE_ARROW":
+                return SyntaxKind.RIGHT_DOUBLE_ARROW;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -620,6 +624,14 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
             case "STRING_TEMPLATE_EXPRESSION":
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
+            case "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
+                return SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
+            case "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
+                return SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
+            case "IMPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
+            case "EXPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -794,6 +806,10 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
                 return SyntaxKind.FUNCTION_SIGNATURE;
+            case "PARENTHESIZED_ARG_LIST":
+                return SyntaxKind.PARENTHESIZED_ARG_LIST;
+            case "EXPRESSION_FUNCTION_BODY":
+                return SyntaxKind.EXPRESSION_FUNCTION_BODY;
 
             // XML template
             case "XML_ELEMENT":
@@ -834,14 +850,6 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
-            case "IMPLICIT_NEW_EXPRESSION":
-                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
-            case "NEW_KEYWORD":
-                return SyntaxKind.NEW_KEYWORD;
-            case "PARENTHESIZED_ARG_LIST":
-                return SyntaxKind.PARENTHESIZED_ARG_LIST;
-            case "EXPLICIT_NEW_EXPRESSION":
-                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 
             // Trivia
             case "EOF_TOKEN":

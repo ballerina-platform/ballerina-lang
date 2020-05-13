@@ -1,5 +1,5 @@
 function foo(function() f = function() returns int {
-                                returns 5;
+                                return 5;
                             }) {
     x = function() {
         int a = 3;

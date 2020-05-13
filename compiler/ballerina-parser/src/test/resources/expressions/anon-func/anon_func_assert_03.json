@@ -84,7 +84,8 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
+                                                    "kind": "CLOSE_PAREN_TOKEN",
+                                                    "isMissing": true
                                                 },
                                                 {
                                                     "kind": "RETURN_TYPE_DESCRIPTOR",
@@ -114,14 +115,27 @@
                                                     "kind": "LIST",
                                                     "children": [
                                                         {
-                                                            "kind": "RETURN_STATEMENT",
+                                                            "kind": "CALL_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "RETURN_KEYWORD"
-                                                                },
-                                                                {
-                                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                                    "value": "5"
+                                                                    "kind": "FUNCTION_CALL",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                            "value": "baz"
+                                                                        },
+                                                                        {
+                                                                            "kind": "OPEN_PAREN_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "LIST",
+                                                                            "children": [
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                                        }
+                                                                    ]
                                                                 },
                                                                 {
                                                                     "kind": "SEMICOLON_TOKEN"
@@ -246,7 +260,8 @@
                                                                     "value": "4"
                                                                 },
                                                                 {
-                                                                    "kind": "SEMICOLON_TOKEN"
+                                                                    "kind": "SEMICOLON_TOKEN",
+                                                                    "isMissing": true
                                                                 }
                                                             ]
                                                         },
@@ -349,7 +364,8 @@
                                                             "kind": "REQUIRED_PARAM",
                                                             "children": [
                                                                 {
-                                                                    "kind": "COMMA_TOKEN"
+                                                                    "kind": "COMMA_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
@@ -369,7 +385,8 @@
                                                             "kind": "REST_PARAM",
                                                             "children": [
                                                                 {
-                                                                    "kind": "COMMA_TOKEN"
+                                                                    "kind": "COMMA_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
@@ -391,7 +408,8 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
+                                                    "kind": "CLOSE_PAREN_TOKEN",
+                                                    "isMissing": true
                                                 },
                                                 {
                                                     "kind": "RETURN_TYPE_DESCRIPTOR",
@@ -436,7 +454,8 @@
                                                                                     "kind": "REQUIRED_PARAM",
                                                                                     "children": [
                                                                                         {
-                                                                                            "kind": "COMMA_TOKEN"
+                                                                                            "kind": "COMMA_TOKEN",
+                                                                                            "isMissing": true
                                                                                         },
                                                                                         {
                                                                                             "kind": "LIST",
@@ -475,14 +494,27 @@
                                                     "kind": "LIST",
                                                     "children": [
                                                         {
-                                                            "kind": "RETURN_STATEMENT",
+                                                            "kind": "CALL_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "RETURN_KEYWORD"
-                                                                },
-                                                                {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "x"
+                                                                    "kind": "FUNCTION_CALL",
+                                                                    "children": [
+                                                                        {
+                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                            "value": "baz"
+                                                                        },
+                                                                        {
+                                                                            "kind": "OPEN_PAREN_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "LIST",
+                                                                            "children": [
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                                        }
+                                                                    ]
                                                                 },
                                                                 {
                                                                     "kind": "SEMICOLON_TOKEN"
