@@ -104,6 +104,7 @@ dependencies {
     dist project(':ballerina-bindgen')
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
+    dist project(':maven-resolver')
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
