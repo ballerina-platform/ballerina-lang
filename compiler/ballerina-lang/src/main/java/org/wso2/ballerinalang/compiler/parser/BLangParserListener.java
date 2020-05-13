@@ -866,9 +866,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        // Validate type AB "A"| record { string f; };
+        boolean isAnonymous = checkIfAnonymousInTypeDef(ctx);
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isAnonymous, false, false);
+    }
+
+    /**
+     * Validate if this is a anonymous record type describe in union with a type descriptor.
+     *
+     * @param ctx the current context to be validated. can be InclusiveRecordTypeDescriptor or ExclusiveRecordTypeDes.
+     * @return true if is part of a union type descriptor with on the fly definition
+     */
+    private boolean checkIfAnonymousInTypeDef(ParserRuleContext ctx) {
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        return isAnonymous ? isAnonymous : (ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext &&
+            ctx.parent.parent.parent.getChildCount() > 1);
     }
 
     @Override
@@ -886,7 +899,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        // Validate type AB "A"| record {| string f; |};
+        boolean isAnonymous = checkIfAnonymousInTypeDef(ctx);
 
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
