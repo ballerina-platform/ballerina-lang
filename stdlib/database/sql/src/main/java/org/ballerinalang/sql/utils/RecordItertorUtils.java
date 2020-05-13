@@ -19,6 +19,7 @@ package org.ballerinalang.sql.utils;
 
 
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
@@ -27,6 +28,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 
@@ -56,7 +58,7 @@ import java.util.TimeZone;
  * @since 1.2.0
  */
 public class RecordItertorUtils {
-    private static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
+    private static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC.getValue()));
 
     public static Object nextResult(ObjectValue recordIterator) {
         ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
@@ -64,13 +66,13 @@ public class RecordItertorUtils {
             if (resultSet.next()) {
                 BStructureType streamConstraint = (BStructureType) recordIterator.
                         getNativeData(Constants.RECORD_TYPE_DATA_FIELD);
-                MapValue<String, Object> bStruct = new MapValueImpl<>(streamConstraint);
+                MapValue<BString, Object> bStruct = new MapValueImpl<>(streamConstraint);
                 List<ColumnDefinition> columnDefinitions = (List<ColumnDefinition>) recordIterator
                         .getNativeData(Constants.COLUMN_DEFINITIONS_DATA_FIELD);
                 for (int i = 0; i < columnDefinitions.size(); i++) {
                     ColumnDefinition columnDefinition = columnDefinitions.get(i);
-                    bStruct.put(columnDefinition.getBallerinaFieldName(), getResult(resultSet, i + 1,
-                            columnDefinition));
+                    bStruct.put(StringUtils.fromString(columnDefinition.getBallerinaFieldName()),
+                                getResult(resultSet, i + 1, columnDefinition));
                 }
                 return bStruct;
             } else {
@@ -203,7 +205,8 @@ public class RecordItertorUtils {
                 } else if (ballerinaType.getTag() == TypeTags.XML_TAG) {
                     return Utils.convert(resultSet.getSQLXML(columnIndex), sqlType, ballerinaType);
                 } else if (ballerinaType.getTag() == TypeTags.JSON_TAG) {
-                    String jsonString = Utils.convert(resultSet.getString(columnIndex), sqlType, ballerinaType);
+                    String jsonString = Utils.convert(resultSet.getString(columnIndex), sqlType, ballerinaType)
+                            .getValue();
                     Reader reader = new StringReader(jsonString);
                     try {
                         return JSONParser.parse(reader);
