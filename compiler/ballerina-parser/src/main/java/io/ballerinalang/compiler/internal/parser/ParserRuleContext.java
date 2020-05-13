@@ -127,7 +127,6 @@ public enum ParserRuleContext {
     TABLE_KEY_RHS("table-key-rhs"),
     LET_VAR_DECL("let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
-    TABLE_TYPE_DESCRIPTOR("table-type-descriptor"),
     FUNC_TYPE_DESC("func-type-desc"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
@@ -353,7 +352,8 @@ public enum ParserRuleContext {
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
-    KEY_TYPE_CONSTRAINT_RHS("key-type-constraint-ths"),
+    ROW_TYPE_PARAM("row-type-param"),
+    TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     ;
 
     private String value;

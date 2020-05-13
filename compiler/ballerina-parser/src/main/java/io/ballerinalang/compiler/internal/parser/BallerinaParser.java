@@ -8061,12 +8061,11 @@ public class BallerinaParser extends AbstractParser {
      * key-type-constraint := key type-parameter
      * </p>
      *
-     * @return Parsed table type desc node
+     * @return Parsed table type desc node.
      */
     private STNode parseTableTypeDescriptor() {
-        startContext(ParserRuleContext.TABLE_TYPE_DESCRIPTOR);
         STNode tableKeywordToken = parseTableKeyword();
-        STNode typeParameterNode = parseTypeParameter();
+        STNode rowTypeParameterNode = parseRowTypeParameter();
         STNode keyConstraintNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.KEY_KEYWORD) {
@@ -8075,15 +8074,39 @@ public class BallerinaParser extends AbstractParser {
         } else {
             keyConstraintNode = STNodeFactory.createEmptyNode();
         }
+        return STNodeFactory.createTableTypeDescriptorNode(tableKeywordToken, rowTypeParameterNode, keyConstraintNode);
+    }
 
+    /**
+     * Parse row type parameter node.
+     * <p>row-type-parameter := type-parameter</p>
+     *
+     * @return Parsed node.
+     */
+    private STNode parseRowTypeParameter() {
+        startContext(ParserRuleContext.ROW_TYPE_PARAM);
+        STNode rowTypeParameterNode = parseTypeParameter();
         endContext();
-        return STNodeFactory.createTableTypeDescriptorNode(tableKeywordToken, typeParameterNode, keyConstraintNode);
+        return rowTypeParameterNode;
+    }
+
+    /**
+     * Parse type parameter node.
+     * <p>type-parameter := < type-descriptor > </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseTypeParameter() {
+        STNode ltToken = parseLTToken();
+        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createTypeParameterNode(ltToken, typeNode, gtToken);
     }
 
     /** Parse key constraint.
      * <p> key-constraint := key-specifier | key-type-constraint</p>
      *
-     * @return Parsed node
+     * @return Parsed node.
      */
     private STNode parseKeyConstraint(STNode keyKeywordToken) {
         return parseKeyConstraint(peek().kind, keyKeywordToken);
@@ -8125,28 +8148,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse type parameter node.
-     * <p>type-parameter := < type-descriptor > </p>
-     *
-     * @return Parsed node
-     */
-    private STNode parseTypeParameter() {
-        STNode ltToken = parseLTToken();
-        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
-        STNode gtToken = parseGTToken();
-        return STNodeFactory.createTypeParameterNode(ltToken, typeNode, gtToken);
-    }
-
-    /**
      * Parse key type constraint.
      * <p>key-type-constraint := key type-parameter</p>
      *
      * @return Parsed node
      */
     private STNode parseKeyTypeConstraint(STNode keyKeywordToken) {
-        startContext(ParserRuleContext.KEY_TYPE_CONSTRAINT_RHS);
         STNode typeParameterNode = parseTypeParameter();
-        endContext();
         return STNodeFactory.createKeyTypeConstraintNode(keyKeywordToken, typeParameterNode);
     }
 

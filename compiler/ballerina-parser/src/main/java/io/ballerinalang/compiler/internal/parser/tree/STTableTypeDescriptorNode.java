@@ -29,21 +29,21 @@ import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
  */
 public class STTableTypeDescriptorNode extends STNode {
     public final STNode tableKeywordToken;
-    public final STNode typeParameterNode;
+    public final STNode rowTypeParameterNode;
     public final STNode keyConstraintNode;
 
     STTableTypeDescriptorNode(
             STNode tableKeywordToken,
-            STNode typeParameterNode,
+            STNode rowTypeParameterNode,
             STNode keyConstraintNode) {
         super(SyntaxKind.TABLE_TYPE_DESC);
         this.tableKeywordToken = tableKeywordToken;
-        this.typeParameterNode = typeParameterNode;
+        this.rowTypeParameterNode = rowTypeParameterNode;
         this.keyConstraintNode = keyConstraintNode;
 
         addChildren(
                 tableKeywordToken,
-                typeParameterNode,
+                rowTypeParameterNode,
                 keyConstraintNode);
     }
 

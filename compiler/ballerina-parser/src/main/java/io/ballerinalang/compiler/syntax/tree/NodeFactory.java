@@ -1774,15 +1774,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TableTypeDescriptorNode createTableTypeDescriptorNode(
             Token tableKeywordToken,
-            Node typeParameterNode,
+            Node rowTypeParameterNode,
             Node keyConstraintNode) {
         Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
-        Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
+        Objects.requireNonNull(rowTypeParameterNode, "rowTypeParameterNode must not be null");
         Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
 
         STNode stTableTypeDescriptorNode = STNodeFactory.createTableTypeDescriptorNode(
                 tableKeywordToken.internalNode(),
-                typeParameterNode.internalNode(),
+                rowTypeParameterNode.internalNode(),
                 keyConstraintNode.internalNode());
         return stTableTypeDescriptorNode.createUnlinkedFacade();
     }

@@ -34,7 +34,7 @@ public class TableTypeDescriptorNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node typeParameterNode() {
+    public Node rowTypeParameterNode() {
         return childInBucket(1);
     }
 
@@ -56,24 +56,24 @@ public class TableTypeDescriptorNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "tableKeywordToken",
-                "typeParameterNode",
+                "rowTypeParameterNode",
                 "keyConstraintNode"};
     }
 
     public TableTypeDescriptorNode modify(
             Token tableKeywordToken,
-            Node typeParameterNode,
+            Node rowTypeParameterNode,
             Node keyConstraintNode) {
         if (checkForReferenceEquality(
                 tableKeywordToken,
-                typeParameterNode,
+                rowTypeParameterNode,
                 keyConstraintNode)) {
             return this;
         }
 
         return NodeFactory.createTableTypeDescriptorNode(
                 tableKeywordToken,
-                typeParameterNode,
+                rowTypeParameterNode,
                 keyConstraintNode);
     }
 }

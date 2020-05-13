@@ -1306,11 +1306,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
         Token tableKeywordToken = modifyToken(tableTypeDescriptorNode.tableKeywordToken());
-        Node typeParameterNode = modifyNode(tableTypeDescriptorNode.typeParameterNode());
+        Node rowTypeParameterNode = modifyNode(tableTypeDescriptorNode.rowTypeParameterNode());
         Node keyConstraintNode = modifyNode(tableTypeDescriptorNode.keyConstraintNode());
         return tableTypeDescriptorNode.modify(
                 tableKeywordToken,
-                typeParameterNode,
+                rowTypeParameterNode,
                 keyConstraintNode);
     }
 

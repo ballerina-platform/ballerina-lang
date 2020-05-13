@@ -2361,7 +2361,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeParameterNode",
+                    "name": "rowTypeParameterNode",
                     "type": "Node"
                 },
                 {

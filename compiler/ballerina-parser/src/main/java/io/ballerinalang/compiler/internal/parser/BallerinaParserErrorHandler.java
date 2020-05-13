@@ -136,7 +136,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESCRIPTORS = { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
             ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
             ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
-            ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_TYPE_DESCRIPTOR,
+            ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
             ParserRuleContext.FUNC_TYPE_DESC };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
@@ -317,7 +317,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.INTERPOLATION_START_TOKEN, ParserRuleContext.TEMPLATE_END };
 
     private static final ParserRuleContext[] KEY_CONSTRAINTS_RHS =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.KEY_TYPE_CONSTRAINT_RHS };
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.LT };
 
     private static final ParserRuleContext[] FUNCTION_KEYWORD_RHS =
             { ParserRuleContext.FUNC_NAME, ParserRuleContext.OPEN_PARENTHESIS };
@@ -325,6 +325,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TYPEDESC_RHS =
             { ParserRuleContext.END_OF_TYPE_DESC, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
                     ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
+
+    private static final ParserRuleContext[] TABLE_TYPE_DESC_RHS =
+            { ParserRuleContext.KEY_KEYWORD, ParserRuleContext.TYPEDESC_RHS };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -388,6 +391,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_VAR_DECL_START:
             case STREAM_TYPE_FIRST_PARAM_RHS:
             case KEY_CONSTRAINTS_RHS:
+            case TABLE_TYPE_DESC_RHS:
             case FUNC_BODY:
             case FUNC_OPTIONAL_RETURNS:
             case TERMINAL_EXPRESSION:
@@ -1110,6 +1114,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case KEY_CONSTRAINTS_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, KEY_CONSTRAINTS_RHS,
                             isEntryPoint);
+                case TABLE_TYPE_DESC_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TABLE_TYPE_DESC_RHS,
+                            isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1177,10 +1184,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case KEY_SPECIFIER:
                 case LET_VAR_DECL:
                 case LET_EXPRESSION:
-                case KEY_TYPE_CONSTRAINT_RHS:
                 case END_OF_TYPE_DESC:
                 case VAR_DECL_STARTED_WITH_DENTIFIER:
-                case TABLE_TYPE_DESCRIPTOR:
+                case ROW_TYPE_PARAM:
 
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
@@ -1445,8 +1451,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case KEY_SPECIFIER:
             case LET_VAR_DECL:
-            case KEY_TYPE_CONSTRAINT_RHS:
-            case TABLE_TYPE_DESCRIPTOR:
+            case ROW_TYPE_PARAM:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -1520,9 +1525,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.EXPRESSION_RHS;
                 } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
                     endContext(); // end key-specifier
-                    parentCtx = getParentContext();
-                    if (parentCtx == ParserRuleContext.TABLE_TYPE_DESCRIPTOR) {
-                        endContext(); // end table type descriptor
+                    if (isInTypeDescContext()) {
                         return ParserRuleContext.TYPEDESC_RHS;
                     }
                     return ParserRuleContext.OPEN_BRACKET; //table-constructor ctx
@@ -1873,16 +1876,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
                 return ParserRuleContext.TABLE_KEYWORD;
             case TABLE_KEYWORD:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.TABLE_TYPE_DESCRIPTOR) {
-                    return ParserRuleContext.LT;
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.ROW_TYPE_PARAM;
                 }
                 return ParserRuleContext.TABLE_KEYWORD_RHS;
             case KEY_SPECIFIER:
                 return ParserRuleContext.KEY_KEYWORD;
             case KEY_KEYWORD:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.TABLE_TYPE_DESCRIPTOR) {
+                if (isInTypeDescContext()) {
                     return ParserRuleContext.KEY_CONSTRAINTS_RHS;
                 }
                 return ParserRuleContext.OPEN_PARENTHESIS;
@@ -1929,10 +1930,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
                 return ParserRuleContext.ARG_START_OR_ARG_LIST_END;
-            case KEY_TYPE_CONSTRAINT_RHS:
-                return ParserRuleContext.LT;
-            case TABLE_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TABLE_KEYWORD;
             case TYPE_DESC_IN_ANNOTATION_DECL:
             case TYPE_DESC_BEFORE_IDENTIFIER:
             case TYPE_DESC_IN_RECORD_FIELD:
@@ -1953,7 +1950,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPEDESC_RHS;
             case INFERRED_TYPE_DESC:
                 return ParserRuleContext.GT;
-
+            case ROW_TYPE_PARAM:
+                return ParserRuleContext.LT;
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2036,7 +2034,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.CLOSE_PARENTHESIS;
         } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
             return ParserRuleContext.KEY_SPECIFIER_RHS;
-        } else if (parentCtx == ParserRuleContext.TABLE_TYPE_DESCRIPTOR) {
+        } else if (isInTypeDescContext()) {
             // if the parent context is table type desc then we are in key specifier context.hence start context
             startContext(ParserRuleContext.KEY_SPECIFIER);
             return ParserRuleContext.KEY_SPECIFIER_RHS;
@@ -2221,8 +2219,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.VARIABLE_NAME;
             case ANNOTATION_DECL:
                 return ParserRuleContext.IDENTIFIER;
-            case KEY_TYPE_CONSTRAINT_RHS:
-                return ParserRuleContext.GT;
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 return ParserRuleContext.STREAM_TYPE_FIRST_PARAM_RHS;
             default:
@@ -2665,10 +2661,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private ParserRuleContext getNextRuleForLt() {
         ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.TYPE_CAST_EXPRESSION) {
-            return ParserRuleContext.TYPE_CAST_PARAM;
+        switch (parentCtx) {
+            case TYPE_CAST_EXPRESSION:
+                return ParserRuleContext.TYPE_CAST_PARAM;
+            default:
+                return ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS;
         }
-        return ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS;
     }
 
     private ParserRuleContext getNextRuleForGt(int nextLookahead) {
@@ -2684,22 +2682,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.TYPEDESC_RHS;
         }
 
-        if (parentCtx == ParserRuleContext.KEY_TYPE_CONSTRAINT_RHS) {
-            endContext(); // end key type constraint.
-            endContext(); // end table type desc
-            return ParserRuleContext.TYPEDESC_RHS;
+        if (parentCtx == ParserRuleContext.ROW_TYPE_PARAM) {
+            endContext(); //end row type param ctx
+            return ParserRuleContext.TABLE_TYPE_DESC_RHS;
         }
-
-        if (parentCtx == ParserRuleContext.TABLE_TYPE_DESCRIPTOR) {
-            STToken nextToken = this.tokenReader.peek(nextLookahead);
-            if (nextToken.kind == SyntaxKind.KEY_KEYWORD) {
-                return ParserRuleContext.KEY_KEYWORD;
-            }
-            //end table type descriptor context without key constraints.
-            endContext();
-            return ParserRuleContext.TYPEDESC_RHS;
-        }
-
         // Type cast expression:
         endContext();
         return ParserRuleContext.EXPRESSION;

@@ -1317,12 +1317,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTableTypeDescriptorNode(
             STNode tableKeywordToken,
-            STNode typeParameterNode,
+            STNode rowTypeParameterNode,
             STNode keyConstraintNode) {
 
         return new STTableTypeDescriptorNode(
                 tableKeywordToken,
-                typeParameterNode,
+                rowTypeParameterNode,
                 keyConstraintNode);
     }
 
