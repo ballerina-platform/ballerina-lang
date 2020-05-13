@@ -32,6 +32,8 @@ public class BTupleType extends BType {
     private List<BType> tupleTypes;
     private BType restType;
     private int typeFlags;
+    private final boolean readonly;
+    private BTupleType immutableType;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -51,6 +53,7 @@ public class BTupleType extends BType {
         if (isAllMembersPure) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         }
+        this.readonly = false;
     }
 
     public BTupleType(List<BType> typeList, int typeFlags) {
@@ -58,6 +61,7 @@ public class BTupleType extends BType {
         this.tupleTypes = typeList;
         this.restType = null;
         this.typeFlags = typeFlags;
+        this.readonly = false;
     }
 
     /**
@@ -66,12 +70,16 @@ public class BTupleType extends BType {
      * @param typeList of the tuple type
      * @param restType of the tuple type
      * @param typeFlags flags associated with the type
+     * @param readonly whether immutable
+     * @param immutableType the copy of the type with the immutable flag set
      */
-    public BTupleType(List<BType> typeList, BType restType, int typeFlags) {
+    public BTupleType(List<BType> typeList, BType restType, int typeFlags, boolean readonly, BTupleType immutableType) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = restType;
         this.typeFlags = typeFlags;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     public List<BType> getTupleTypes() {
@@ -100,7 +108,11 @@ public class BTupleType extends BType {
     @Override
     public String toString() {
         List<String> list = tupleTypes.stream().map(BType::toString).collect(Collectors.toList());
-        return "[" + String.join(",", list) + "]";
+        if (!readonly) {
+            return "[" + String.join(",", list) + "]";
+        }
+
+        return "[" + String.join(",", list) + "] & readonly";
     }
 
     @Override
@@ -117,7 +129,7 @@ public class BTupleType extends BType {
             return false;
         }
         BTupleType that = (BTupleType) o;
-        return Objects.equals(tupleTypes, that.tupleTypes);
+        return this.readonly == that.readonly && Objects.equals(tupleTypes, that.tupleTypes);
     }
 
     @Override
@@ -137,5 +149,20 @@ public class BTupleType extends BType {
 
     public int getTypeFlags() {
         return this.typeFlags;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BTupleType) immutableType;
     }
 }
