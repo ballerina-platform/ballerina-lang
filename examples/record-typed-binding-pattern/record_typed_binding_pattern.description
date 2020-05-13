@@ -1,2 +1,0 @@
-// Record typed binding patterns are used in declaring and defining new variables by destructuring fields in a record variable.
-// The record type binding pattern statement must have an assignment expression on the right hand side.
