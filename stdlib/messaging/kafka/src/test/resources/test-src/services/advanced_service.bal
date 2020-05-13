@@ -19,7 +19,7 @@ import ballerina/kafka;
 string topic = "advanced-service-test";
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14110",
+    bootstrapServers: "localhost:14141",
     groupId: "advanced-service-test-group",
     clientId: "advanced-service-consumer",
     offsetReset: "earliest",
@@ -31,7 +31,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers: "localhost:14110",
+    bootstrapServers: "localhost:14141",
     clientId: "advanced-service-producer",
     acks: kafka:ACKS_ALL,
     retryCount: 3,
@@ -62,11 +62,11 @@ service kafkaService on kafkaConsumer {
     }
 }
 
-function funcKafkaGetResultText() returns boolean {
+function testGetResultText() returns boolean {
     return isSuccess;
 }
 
-function funcKafkaProduce() {
+function testProduce() {
     int msg = 1135;
     var result = kafkaProducer->send(msg, topic);
 }

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.messaging.kafka.consumer;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -27,91 +27,105 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
- * Test cases for ballerina.net.kafka consumer for get list of available topics
- * using getAvailableTopics() native function.
+ * Test cases for ballerina.net.kafka consumer for get list of available topics using getAvailableTopics() native
+ * function.
  */
 @Test(singleThreaded = true)
 public class TopicsTest {
     private CompileResult result;
-    private static File dataDir;
     private static KafkaCluster kafkaCluster;
 
-    private static final String TOPIC_TEST_1 = "test-1";
-    private static final String TOPIC_TEST_2 = "test-2";
-    private static final String TEST_MESSAGE = "test-message";
+    private static final String dataDir = getDataDirectoryName(TopicsTest.class.getSimpleName());
 
-    @BeforeClass
-    public void setup() throws IOException {
-        result = BCompileUtil
-                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "topics.bal")));
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14008, 14108).addBrokers(1).startup();
+    private static final String topic1 = "test-topic-1";
+    private static final String topic2 = "test-topic-2";
+    private static final String topic3 = "test-topic-3";
+
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws Throwable {
+        String balFile = "topics.bal";
+        deleteDirectory(dataDir);
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14005)
+                .withBroker(PROTOCOL_PLAINTEXT, 14105, getZookeeperTimeoutProperty())
+                .withAdminClient()
+                .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
+                .start();
+        kafkaCluster.createTopic(topic1, 1, 1);
+        kafkaCluster.createTopic(topic2, 1, 1);
+        result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
     }
 
     @Test(description = "Test Kafka getAvailableTopics function")
-    public void testKafkaGetAvailableTopics() {
-        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
-        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAvailableTopics");
+    public void testGetAvailableTopics() throws ExecutionException, InterruptedException {
+        BValue[] returnBValues = BRunUtil.invoke(result, "testGetAvailableTopics");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
-        Assert.assertEquals((returnBValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
+        validateTopicsFromArray(returnBValues[0], 0, topic1);
+        validateTopicsFromArray(returnBValues[0], 1, topic2);
     }
 
-    @Test(
-            description = "Test Kafka getAvailableTopics with duration parameter",
-            dependsOnMethods = "testKafkaGetAvailableTopics"
-    )
-    public void testKafkaGetAvailableTopicsWithDuration() {
-        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
-        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsWithDuration");
+    @Test(description = "Test Kafka getAvailableTopics with duration parameter")
+    public void testGetAvailableTopicsWithDuration() throws ExecutionException, InterruptedException {
+        BValue[] returnBValues = BRunUtil.invoke(result, "testGetAvailableTopicsWithDuration");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
-        Assert.assertEquals((returnBValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
+        validateTopicsFromArray(returnBValues[0], 0, topic1);
+        validateTopicsFromArray(returnBValues[0], 1, topic2);
     }
 
-    @Test(
-            description = "Test functionality of getTopicPartitions() function",
-            dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration"
-    )
+    @Test(description = "Test functionality of getTopicPartitions() function")
+    public void testGetTopicPartitions() {
+        BValue[] returnBValues = BRunUtil.invoke(result, "testGetTopicPartitions");
+        Assert.assertEquals(returnBValues.length, 1);
+        validateTopicsFromMap(returnBValues[0], topic1);
+    }
+
+    @Test(description = "Test assign functions functionality")
     @SuppressWarnings("unchecked")
-    public void testKafkaConsumerGetTopicPartitions () {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetTopicPartitions");
+    public void testAssign() {
+        // Invoke assign to assign topic partitions to the consumer
+        BValue[] returnValues = BRunUtil.invoke(result, "testAssign");
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertFalse(returnValues[0] instanceof BError);
+
+        // Check whether the partitions are assigned
+        BValue[] returnBValues = BRunUtil.invoke(result, "testGetAssignment");
         Assert.assertEquals(returnBValues.length, 1);
-        BMap<String, BValue> tpReturned = (BMap<String, BValue>) returnBValues[0];
-        Assert.assertEquals(tpReturned.get("topic").stringValue(), TOPIC_TEST_1);
+        validateTopicsFromMap(returnBValues[0], topic3);
     }
 
-    @AfterClass
+    private void validateTopicsFromArray(BValue result, int index, String topic) {
+        Assert.assertEquals(result.size(), 2);
+        BValueArray resultArray = (BValueArray) result;
+        Assert.assertEquals(resultArray.getString(index), topic);
+    }
+
+    private void validateTopicsFromMap(BValue result, String topic) {
+        BMap<String, BValue> topicMap = (BMap) result;
+        Assert.assertEquals(topicMap.get("topic").stringValue(), topic);
+    }
+
+    @AfterTest(alwaysRun = true)
     public void tearDown() {
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
+        finishTest(kafkaCluster, dataDir);
     }
 }

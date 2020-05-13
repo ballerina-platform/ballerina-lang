@@ -29,13 +29,13 @@ kafka:AuthenticationConfiguration authConfigInvalidPassword = {
 };
 
 kafka:ConsumerConfiguration consumerConfigsValid = {
-    bootstrapServers: "localhost:14115",
+    bootstrapServers: "localhost:14121",
     valueDeserializerType: kafka:DES_STRING,
     authenticationConfiguration: authConfigValid
 };
 
 kafka:ConsumerConfiguration consumerConfigsInvalidPassword = {
-    bootstrapServers: "localhost:14115",
+    bootstrapServers: "localhost:14121",
     valueDeserializerType: kafka:DES_STRING,
     authenticationConfiguration: authConfigInvalidPassword
 };

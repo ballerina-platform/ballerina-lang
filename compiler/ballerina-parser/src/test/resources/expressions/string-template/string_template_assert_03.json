@@ -1,0 +1,257 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "STRING_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "s1"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "STRING_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "BINARY_EXPRESSION",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "expr1"
+                                },
+                                {
+                                  "kind": "PLUS_TOKEN",
+                                  "isMissing": true
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "expr2"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "STRING_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "s2"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "STRING_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_TEMPLATE_EXPRESSION",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "TEMPLATE_STRING",
+                                      "value": "hello "
+                                    },
+                                    {
+                                      "kind": "INTERPOLATION",
+                                      "children": [
+                                        {
+                                          "kind": "INTERPOLATION_START_TOKEN"
+                                        },
+                                        {
+                                          "kind": "STRING_TEMPLATE_EXPRESSION",
+                                          "children": [
+                                            {
+                                              "kind": "STRING_KEYWORD"
+                                            },
+                                            {
+                                              "kind": "BACKTICK_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "INTERPOLATION_START_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "BINARY_EXPRESSION",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "expr1"
+                                                        },
+                                                        {
+                                                          "kind": "PLUS_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "isMissing": true
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACE_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "BACKTICK_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACE_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "TEMPLATE_STRING",
+                                      "value": " world"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
+}

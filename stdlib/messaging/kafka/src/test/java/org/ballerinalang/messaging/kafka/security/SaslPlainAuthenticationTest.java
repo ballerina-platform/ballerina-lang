@@ -18,27 +18,35 @@
 
 package org.ballerinalang.messaging.kafka.security;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
+import kafka.server.KafkaConfig;
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.common.config.SaslConfigs;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_SASL_PLAIN;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_DESERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SECURITY;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
 
 /**
  * This class contains tests for Ballerina Kafka producers with SASL authentication.
@@ -46,39 +54,34 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageF
 public class SaslPlainAuthenticationTest {
     private CompileResult producerResult;
     private CompileResult consumerResult;
-    private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private static final String resourceDir = Paths.get("src", "test", "resources").toString();
-    private static final String producerBalFile =
-            Paths.get(TEST_SRC, TEST_SECURITY, "sasl_plain_producer.bal").toString();
-    private static final String consumerBalFile =
-            Paths.get(TEST_SRC, TEST_SECURITY, "sasl_plain_consumer.bal").toString();
-    private static final String jaasConfigs = Paths.get("data-files", "sasl_configs").toString();
+    private static final String dataDir = getDataDirectoryName(SaslPlainAuthenticationTest.class.getSimpleName());
+    private static final String producerBalFile = "sasl_plain_producer.bal";
+    private static final String consumerBalFile = "sasl_plain_consumer.bal";
+    private static final String topic = "test-1";
+    private static final List<String> topicsList = Collections.singletonList(topic);
 
-    @BeforeSuite
-    public void setJaasFilePath() {
-         /* Set system property for JAAS config. This should set Before Suit since TestNg not picking it from before
-         class when there are more than one test in the test suite. */
-        System.setProperty("java.security.auth.login.config",
-                           resourceDir + File.separator + jaasConfigs + File.separator + "kafka_server_jaas.conf");
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws Throwable {
+        deleteDirectory(dataDir);
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14021)
+                .withBroker(PROTOCOL_SASL_PLAIN, 14121, getKafkaBrokerProperties())
+                .withAdminClient(getClientProperties())
+                .withConsumer(STRING_DESERIALIZER, STRING_DESERIALIZER, "sasl-java-consumer",
+                              topicsList, getClientProperties())
+                .start();
+        kafkaCluster.createTopic(topic, 1, 1);
+        producerResult = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_SECURITY, producerBalFile)));
+        consumerResult = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_SECURITY, consumerBalFile)));
     }
 
-    @BeforeClass
-    public void setup() throws IOException {
-        Properties prop = getKafkaBrokerProperties();
-        kafkaCluster = kafkaCluster(prop).deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).addBrokers(1).startup();
-        kafkaCluster.createTopic("test-1", 1, 1);
-        producerResult = BCompileUtil.compile(Paths.get(resourceDir, producerBalFile).toAbsolutePath().toString());
-        consumerResult = BCompileUtil.compile(Paths.get(resourceDir, consumerBalFile).toAbsolutePath().toString());
-    }
-
-    // TODO: Disabled since topic auto creation is not working. Check further and enable this.
-    @Test(description = "Test kafka producer with SASL PLAIN authentication", enabled = false)
+    @Test(description = "Test kafka producer with SASL PLAIN authentication")
     public void testSaslAuthenticationProducer() {
         BValue[] returnBValues = BRunUtil.invoke(producerResult, "sendFromValidProducer");
         Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertFalse(returnBValues[0] instanceof BError, returnBValues[0].stringValue());
+        String message = kafkaCluster.consumeMessage(3000);
+        Assert.assertEquals(message, "Hello from Ballerina");
     }
 
     @Test(description = "Test kafka producer with SASL PLAIN authentication providing invalid username")
@@ -108,39 +111,37 @@ public class SaslPlainAuthenticationTest {
         Assert.assertEquals(getErrorMessageFromReturnValue(returnBValues[0]), expectedError);
     }
 
-    @AfterClass
-    public void tearDown() {
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
-    }
-
-    private static KafkaCluster kafkaCluster(Properties prop) {
-        if (kafkaCluster != null) {
-            throw new IllegalStateException();
-        }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-sasl-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir)
-                .withKafkaConfiguration(prop)
-                .withPorts(14015, 14115);
-        return kafkaCluster;
+    private static Properties getClientProperties() {
+        Properties properties = new Properties();
+        String jaasConfigValue =
+                "org.apache.kafka.common.security.plain.PlainLoginModule required" +
+                        "  username=\"ballerina\"" +
+                        "  password=\"ballerina-secret\";";
+        properties.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        properties.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        properties.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasConfigValue);
+        return properties;
     }
 
     private static Properties getKafkaBrokerProperties() {
-        Properties prop = new Properties();
-        prop.put("listeners", "SASL_PLAINTEXT://localhost:14115");
-        prop.put("advertised.listeners", "SASL_PLAINTEXT://localhost:14115");
-        prop.put("security.inter.broker.protocol", "SASL_PLAINTEXT");
-        prop.put("sasl.mechanism.inter.broker.protocol", "PLAIN");
-        prop.put("sasl.enabled.mechanisms", "PLAIN");
-        prop.put("zookeeper.session.timeout.ms", "25000");
-        prop.put("zookeeper.connection.timeout.ms", "25000");
-        return prop;
+        String jaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required" +
+                "  username=\"admin\"" +
+                "  password=\"admin-secret\"" +
+                "  user_admin=\"admin-secret\"" +
+                "  user_ballerina=\"ballerina-secret\";";
+        Properties properties = new Properties();
+        properties.setProperty(KafkaConfig.ListenersProp(), "SASL_PLAINTEXT://localhost:14121");
+        properties.setProperty("listener.name.sasl_plaintext.plain.sasl.jaas.config", jaasConfig);
+        properties.setProperty("advertised.listeners", "SASL_PLAINTEXT://localhost:14121");
+        properties.setProperty("security.inter.broker.protocol", "SASL_PLAINTEXT");
+        properties.setProperty("sasl.mechanism.inter.broker.protocol", "PLAIN");
+        properties.setProperty("sasl.enabled.mechanisms", "PLAIN");
+        properties.setProperty(KafkaConfig.ZkConnectionTimeoutMsDoc(), ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
+        return properties;
+    }
+
+    @AfterTest(alwaysRun = true)
+    public void tearDown() {
+        finishTest(kafkaCluster, dataDir);
     }
 }
