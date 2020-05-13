@@ -57,7 +57,7 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i, "variable 's' is not initialized", 40, 18);
     }
 
-    @Test
+    @Test(enabled = false)
     void testGlobalVariableInitWithInvocationNegative() {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
                 "/global_variable_init_with_invocation_negative.bal");
