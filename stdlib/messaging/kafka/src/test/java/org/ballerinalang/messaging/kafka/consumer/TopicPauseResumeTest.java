@@ -27,7 +27,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,7 +40,6 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTE
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -60,7 +59,6 @@ public class TopicPauseResumeTest {
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
         String balFile = "topic_pause_resume.bal";
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14004)
                 .withBroker(PROTOCOL_PLAINTEXT, 14104, getZookeeperTimeoutProperty())
@@ -123,7 +121,7 @@ public class TopicPauseResumeTest {
                                     "No current assignment for partition test_negative-1000");
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }

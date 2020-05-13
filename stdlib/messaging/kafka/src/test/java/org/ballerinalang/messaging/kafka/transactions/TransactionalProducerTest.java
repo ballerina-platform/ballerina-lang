@@ -26,7 +26,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,6 @@ import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_TRANSACTIONS;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getErrorMessageFromReturnValue;
@@ -56,7 +55,6 @@ public class TransactionalProducerTest {
 
     @BeforeTest(alwaysRun = true)
     public void setup() throws Throwable {
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14051)
                 .withBroker(PROTOCOL_PLAINTEXT, 14151, getZookeeperTimeoutProperty())
@@ -137,7 +135,7 @@ public class TransactionalProducerTest {
         Assert.assertEquals(getErrorMessageFromReturnValue(returnValues[0]), message);
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }

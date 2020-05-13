@@ -32,5 +32,5 @@ function testCreateProducer() returns error? {
 }
 
 function createKafkaProducer() {
-    kafka:Producer producer = new(producerConfigs);
+    kafka:Producer producer = new (producerConfigs);
 }
