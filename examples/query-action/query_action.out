@@ -1,7 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run query_action.bal
-
-firstName=Alex lastName=George
-firstName=Ranjan lastName=Fonseka
-firstName=John lastName=David
