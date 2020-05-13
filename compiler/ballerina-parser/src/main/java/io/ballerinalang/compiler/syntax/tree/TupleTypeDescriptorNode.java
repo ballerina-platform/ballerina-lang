@@ -34,8 +34,8 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public NodeList<TypeDescriptorNode> memberTypeDesc() {
-        return new NodeList<>(childInBucket(1));
+    public SeparatedNodeList<TypeDescriptorNode> memberTypeDesc() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Node restTypeDesc() {
@@ -67,7 +67,7 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
 
     public TupleTypeDescriptorNode modify(
             Token openBracketToken,
-            NodeList<TypeDescriptorNode> memberTypeDesc,
+            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
             Node restTypeDesc,
             Token closeBracketToken) {
         if (checkForReferenceEquality(

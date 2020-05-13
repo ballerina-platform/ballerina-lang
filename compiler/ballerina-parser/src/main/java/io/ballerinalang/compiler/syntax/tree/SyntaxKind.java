@@ -70,6 +70,7 @@ public enum SyntaxKind {
     TABLE_KEYWORD(221, "table"),
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
+    NEW_KEYWORD(224, "new"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -110,7 +111,7 @@ public enum SyntaxKind {
     BACKTICK_TOKEN(515, "`"),
     DOUBLE_QUOTE_TOKEN(516, "\""),
     SINGLE_QUOTE_TOKEN(517, "'"),
-    
+
     // Operators
     EQUAL_TOKEN(550, "="),
     DOUBLE_EQUAL_TOKEN(551, "=="),
@@ -212,6 +213,9 @@ public enum SyntaxKind {
     RAW_TEMPLATE_EXPRESSION(1320),
     STRING_TEMPLATE_EXPRESSION(1321),
     ANONYMOUS_FUNCTION_EXPRESSION(1322),
+    IMPLICIT_NEW(1323),
+    EXPLICIT_NEW(1324),
+    PARENTHESIZED_ARG_LIST(1325),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -241,6 +245,7 @@ public enum SyntaxKind {
     TABLE_TYPE_DESC(2024),
     FUNCTION_TYPE_DESC(2025),
     TUPLE_TYPE_DESC(2026),
+    PARENTHESISED_TYPE_DESC(2027),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
