@@ -130,7 +130,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
 
@@ -570,8 +569,8 @@ class JvmValueGen {
         mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
-        loadType(mv, recordType);
-        mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", TYPEDESC_VALUE), false);
 
 
         BAttachedFunction initializer = ((BRecordTypeSymbol) recordType.tsymbol).initializerFunc;
@@ -677,7 +676,8 @@ class JvmValueGen {
         this.createRecordClearMethod(cw, fields, className);
         this.createRecordGetKeysMethod(cw, fields, className);
 
-        this.createRecordConstructor(cw, className);
+        this.createRecordConstructor(cw, TYPEDESC_VALUE);
+        this.createRecordConstructor(cw, BTYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, lambdaGenMetadata);
         cw.visitEnd();
@@ -716,9 +716,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordConstructor(ClassWriter cw, String className) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", BTYPE), null, null);
+    private void createRecordConstructor(ClassWriter cw, String argumentClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", argumentClass), null, null);
         mv.visitCode();
 
         // load super
@@ -726,7 +725,7 @@ class JvmValueGen {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke `super(type)`;
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", String.format("(L%s;)V", argumentClass), false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);

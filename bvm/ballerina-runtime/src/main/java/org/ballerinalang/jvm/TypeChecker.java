@@ -46,6 +46,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
@@ -525,6 +526,12 @@ public class TypeChecker {
         BType type = TypeChecker.getType(value);
         if (type == null) {
             return null;
+        }
+        if (value instanceof MapValue) {
+            TypedescValue typedesc = ((MapValue) value).getTypedesc();
+            if (typedesc != null) {
+                return typedesc;
+            }
         }
         return new TypedescValueImpl(type);
     }

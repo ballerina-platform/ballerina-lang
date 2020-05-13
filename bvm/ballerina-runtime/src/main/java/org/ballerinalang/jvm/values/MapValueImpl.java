@@ -78,10 +78,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         BMap<K, V> {
 
     private static final long serialVersionUID = 1L;
+    private TypedescValue typedesc;
     private BType type;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private final Map<String, Object> nativeData = new HashMap<>();
     private BType iteratorNextReturnType;
+
+    public MapValueImpl(TypedescValue typedesc) {
+        this(typedesc.getDescribingType());
+        this.typedesc = typedesc;
+    }
 
     public MapValueImpl(BType type) {
         super();
@@ -521,6 +527,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public Object getNativeData(String key) {
         return nativeData.get(key);
+    }
+
+    @Override
+    public TypedescValue getTypedesc() {
+        return typedesc;
     }
 
     /**
