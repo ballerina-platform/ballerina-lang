@@ -11,6 +11,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.TreeSet;
@@ -18,8 +19,8 @@ import java.util.regex.Pattern;
 
 public class ModuleLoaderImpl implements ModuleLoader {
 
-    private Project project;
-    private List<Repo> repos;
+    Project project;
+    List<Repo> repos;
 
     public ModuleLoaderImpl(Project project, List<Repo> repos) {
         this.project = project;
@@ -122,11 +123,9 @@ public class ModuleLoaderImpl implements ModuleLoader {
         return null;
     }
 
-    public void generateRepoHierarchy() {
+    public void generateRepoHierarchy(List<Repo> repos) {
         // 1. product modules
-        ProjectModules projectModules = new ProjectModules(Paths.get(System.getProperty("user.dir")),
-                this.project.manifest.getProject().getOrgName(), this.project.manifest.getProject().getVersion());
-        repos.add(projectModules);
+        addProjectModules(repos, Paths.get(System.getProperty("user.dir")));
 
         // 2. project bir cache
         BirCache projectBirCache = new BirCache(Paths.get(String.valueOf(Paths.get(System.getProperty("user.dir"))),
@@ -152,6 +151,12 @@ public class ModuleLoaderImpl implements ModuleLoader {
         // 6. central repo
         Central central = new Central();
         repos.add(central);
+    }
+
+    public void addProjectModules(List<Repo> repos, Path projectPath) {
+        ProjectModules projectModules = new ProjectModules(projectPath, this.project.manifest.getProject().getOrgName(),
+                this.project.manifest.getProject().getVersion());
+        repos.add(projectModules);
     }
 
     private String resolveModuleVersion(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {

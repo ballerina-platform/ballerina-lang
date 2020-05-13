@@ -28,7 +28,6 @@ public class ModuleLoaderTests {
                 "\"foo/secondMod\" = \"\"");
 
         tomlModuleLoader = new ModuleLoaderImpl(tomlProject, new ArrayList<>());
-        tomlModuleLoader.generateRepoHierarchy();
     }
 
     @Test(description = "Get module version from module ID")

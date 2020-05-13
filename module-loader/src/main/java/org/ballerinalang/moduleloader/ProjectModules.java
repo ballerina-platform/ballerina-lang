@@ -9,8 +9,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.moduleloader.Util.isValidVersion;
-
 public class ProjectModules extends Cache {
 
     private Path projectPath;
@@ -31,8 +29,7 @@ public class ProjectModules extends Cache {
             File[] fileEntries = new File(String.valueOf(srcPath)).listFiles();
             if (fileEntries != null) {
                 for (File fileEntry : fileEntries) {
-                    if (fileEntry.isDirectory() && fileEntry.getName().equals(moduleId.moduleName) && isValidVersion(
-                            fileEntry.getName(), filter)) {
+                    if (fileEntry.isDirectory() && fileEntry.getName().equals(moduleId.moduleName)) {
                         versions.add(this.version);
                     }
                 }
