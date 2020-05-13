@@ -212,7 +212,7 @@ public function fromHandle(handle array, string jType, string bType = "default")
 # handle handleValue = check java.arrays:toHandle(array, "char");
 # ```
 #
-# + array - Ballerina array which is to be converted to a handle reference
+# + array - Ballerina array, which is to be converted to a handle reference
 # + jType - Java class name or the primitive type of the array elements referenced by the handle
 # + return - The `handle|error` after the conversion
 public function toHandle(any[] array, string jType) returns handle|error {
