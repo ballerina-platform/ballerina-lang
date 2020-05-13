@@ -8190,7 +8190,7 @@ public class BallerinaParser extends AbstractParser {
         ArrayList<STNode> bindingPatterns = new ArrayList<>();
         STNode openBracket = parseOpenBracket();
     
-        while (token.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
+        while (token.kind != SyntaxKind.CLOSE_BRACKET_TOKEN) {
             switch (token.kind) {
                 case ELLIPSIS_TOKEN:
                     STNode restBindingPattern = parseRestBindingPattern();
