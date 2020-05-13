@@ -362,6 +362,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseFuncReturnTypeDescriptor((boolean) args[0]);
             case RETURNS_KEYWORD:
                 return parseReturnsKeyword();
+            case CAPTURE_BINDING_PATTERN:
+                return parseCaptureBindingPattern();
+            case LIST_BINDING_PATTERN:
+                return parseListBindingPattern();
+            case BINDING_PATTERN:
+                return parseBindingPattern();
+            case TYPED_BINDING_PATTERN:
+                return parseTypedBindingPattern();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -8136,7 +8144,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
 
         switch (token.kind) {
-            case OPEN_BRACE_TOKEN:
+            case OPEN_BRACKET_TOKEN:
                 return parseListBindingPattern();
             case IDENTIFIER_TOKEN:
                 return parseCaptureBindingPattern();
@@ -8193,18 +8201,23 @@ public class BallerinaParser extends AbstractParser {
                                                                         restBindingPattern,
                                                                         closeBracket);
                 case COMMA_TOKEN:
-                    if (bindingPatterns.isEmpty()) {
+                    if (bindingPatterns.isEmpty()) { // comma cant be first item
                         this.errorHandler.reportInvalidNode(null,
                             "comma must be preceded by binding-pattern in list-binding-pattern");
-                    } else {
+                    } else { 
                         bindingPatterns.add(parseComma());
+                        token = peek();
+                        //if rest-b-p after comma then break and while will take care
+                        if (token.kind == SyntaxKind.ELLIPSIS_TOKEN) {
+                            break;
+                        }
                         bindingPatterns.add(parseBindingPattern());
                     }
                     break;
                 default:
                     if (bindingPatterns.isEmpty()) {
                         bindingPatterns.add(parseBindingPattern());
-                    } else {
+                    } else { // if the list is not empty then we need to add , b-p
                         bindingPatterns.add(parseComma());
                         bindingPatterns.add(parseBindingPattern());
                     }
