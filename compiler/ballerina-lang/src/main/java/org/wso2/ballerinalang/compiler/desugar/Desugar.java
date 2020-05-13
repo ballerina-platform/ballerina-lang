@@ -6149,7 +6149,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (isAllTypesRecords) {
             for (BType memberType : memTypes) {
-                if (isFieldExist((BRecordType) memberType, field)) {
+                if (((BRecordType) memberType).fields.containsKey(field.value)) {
                     successPattern = getSuccessPattern(memberType, accessExpr, tempResultVar,
                             accessExpr.errorSafeNavigation);
                     matchStmt.patternClauses.add(successPattern);
@@ -6187,15 +6187,6 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         return field;
-    }
-
-    private boolean isFieldExist(BRecordType recordType, Name field) {
-        for (BField f : recordType.fields) {
-            if (field.value.equals(f.name.value)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isAllTypesAreRecordsInUnion(LinkedHashSet<BType> memTypes) {

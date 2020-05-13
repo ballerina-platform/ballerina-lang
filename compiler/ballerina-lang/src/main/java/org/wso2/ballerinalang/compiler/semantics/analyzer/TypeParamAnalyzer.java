@@ -459,7 +459,7 @@ public class TypeParamAnalyzer {
                 members.add(((BMapType) type).constraint);
             }
             if (type.tag == TypeTags.RECORD) {
-                for (BField field : ((BRecordType) type).getFields()) {
+                for (BField field : ((BRecordType) type).fields.values()) {
                     members.add(field.type);
                 }
             }

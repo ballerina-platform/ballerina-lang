@@ -58,7 +58,6 @@ public class BRecordType extends BStructureType implements RecordType {
 
     public BRecordType(BTypeSymbol tSymbol, int flags) {
         super(TypeTags.RECORD, tSymbol, flags);
-        this.fields = new ArrayList<>();
     }
 
     @Override

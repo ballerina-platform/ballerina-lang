@@ -994,7 +994,7 @@ public class Types {
                         isSelectivelyImmutableType(tupRestType, unresolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields) {
+                for (BField field : recordType.fields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
                             !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {

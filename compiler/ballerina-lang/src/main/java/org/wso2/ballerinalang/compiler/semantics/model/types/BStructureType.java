@@ -38,7 +38,7 @@ public abstract class BStructureType extends BType {
 
     public BStructureType(int tag, BTypeSymbol tSymbol, int flags) {
         super(tag, tSymbol, flags);
-        this.fields = new ArrayList<>();
+        this.fields = new LinkedHashMap<>();
     }
 
     public LinkedHashMap<String, BField> getFields() {
