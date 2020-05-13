@@ -155,10 +155,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                if (ArrayValueImpl.USE_BSTRING) {
-                    throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
-                            StringUtils.fromString(e.getDetail()));
-                }
                 throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
             }
         }

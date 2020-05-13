@@ -15,8 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.sql.utils;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -110,7 +112,7 @@ class Utils {
         }
     }
 
-    static String getSqlQuery(MapValue<String, Object> paramString) throws ApplicationError {
+    static String getSqlQuery(MapValue<BString, Object> paramString) throws ApplicationError {
         ArrayValue partsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.PARTS);
         ArrayValue insertionsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         if (partsArray.size() - 1 == insertionsArray.size()) {
@@ -128,7 +130,7 @@ class Utils {
         }
     }
 
-    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<String,
+    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<BString,
             Object> paramString) throws SQLException, ApplicationError, IOException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
@@ -136,7 +138,7 @@ class Utils {
             int index = i + 1;
             if (object == null) {
                 preparedStatement.setNull(index, Types.NULL);
-            } else if (object instanceof String) {
+            } else if (object instanceof BString) {
                 preparedStatement.setString(index, object.toString());
             } else if (object instanceof Long) {
                 preparedStatement.setLong(index, (Long) object);
@@ -155,7 +157,7 @@ class Utils {
                             "ParameterizedString, any other array types should be wrapped as sql:Value");
                 }
             } else if (object instanceof MapValue) {
-                MapValue<String, Object> recordValue = (MapValue<String, Object>) object;
+                MapValue<BString, Object> recordValue = (MapValue<BString, Object>) object;
                 if ((recordValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
                     setSqlTypedParam(connection, preparedStatement, index, recordValue);
                 } else if (recordValue.getType() instanceof BMapType &&
@@ -174,9 +176,9 @@ class Utils {
     }
 
     private static void setSqlTypedParam(Connection connection, PreparedStatement preparedStatement, int index,
-                                         MapValue<String, Object> typedValue)
+                                         MapValue<BString, Object> typedValue)
             throws SQLException, ApplicationError, IOException {
-        String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
+        String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE).getValue();
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
             case Constants.SqlTypes.VARCHAR:
@@ -200,7 +202,7 @@ class Utils {
             case Constants.SqlTypes.BOOLEAN:
                 if (value == null) {
                     preparedStatement.setNull(index, Types.BOOLEAN);
-                } else if (value instanceof String) {
+                } else if (value instanceof BString) {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value.toString()));
                 } else if (value instanceof Integer || value instanceof Long) {
                     long lVal = ((Number) value).longValue();
@@ -321,7 +323,7 @@ class Utils {
                     } else {
                         clob = connection.createClob();
                     }
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         clob.setString(1, value.toString());
                         preparedStatement.setClob(index, clob);
                     } else if (value instanceof ObjectValue) {
@@ -343,7 +345,7 @@ class Utils {
                 if (value == null) {
                     preparedStatement.setDate(index, null);
                 } else {
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         date = Date.valueOf(value.toString());
                     } else if (value instanceof Long) {
                         date = new Date((Long) value);
@@ -367,7 +369,7 @@ class Utils {
                     preparedStatement.setTime(index, null);
                 } else {
                     Time time;
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         time = Time.valueOf(value.toString());
                     } else if (value instanceof Long) {
                         time = new Time((Long) value);
@@ -392,7 +394,7 @@ class Utils {
                     preparedStatement.setTimestamp(index, null);
                 } else {
                     Timestamp timestamp;
-                    if (value instanceof String) {
+                    if (value instanceof BString) {
                         timestamp = Timestamp.valueOf(value.toString());
                     } else if (value instanceof Long) {
                         timestamp = new Timestamp((Long) value);
@@ -745,14 +747,14 @@ class Utils {
         return returnResult;
     }
 
-    static String convert(String value, int sqlType, BType bType) throws ApplicationError {
+    static BString convert(String value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL String");
-        return value;
+        return StringUtils.fromString(value);
     }
 
     static Object convert(String value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, sqlTypeName);
-        return value;
+        return StringUtils.fromString(value);
     }
 
     static Object convert(byte[] value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {

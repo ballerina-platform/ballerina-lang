@@ -20,6 +20,7 @@ package org.ballerinalang.sql.utils;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
@@ -44,7 +45,7 @@ import java.util.Map;
  */
 public class ExecuteUtils {
 
-    public static Object nativeExecute(ObjectValue client, MapValue<String, Object> paramSQLString) {
+    public static Object nativeExecute(ObjectValue client, MapValue<BString, Object> paramSQLString) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
