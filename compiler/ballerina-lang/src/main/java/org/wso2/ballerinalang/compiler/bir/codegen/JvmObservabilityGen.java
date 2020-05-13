@@ -55,7 +55,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -202,16 +202,13 @@ class JvmObservabilityGen {
 
             // Creating and adding invokable symbol to the package symbol
             PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-            BPackageSymbol pkgSymbol = packageCache.getSymbol(currentPkgId);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, typeFuncName,
-                    currentPkgId, bInvokableType, pkgSymbol);
+                    currentPkgId, bInvokableType, typeDef.type.tsymbol);
             invokableSymbol.retType = returnType;
             invokableSymbol.kind = SymbolKind.FUNCTION;
-            invokableSymbol.bodyExist = false;
             invokableSymbol.params = Collections.singletonList(new BVarSymbol(0, typeFuncName, currentPkgId,
-                    selfArgType, pkgSymbol));
+                    selfArgType, invokableSymbol));
             invokableSymbol.scope = new Scope(invokableSymbol);
-            typeDef.type.tsymbol.scope.define(typeFuncName, invokableSymbol);
 
             if (!((typeDef.flags & Flags.ABSTRACT) == Flags.ABSTRACT)) {
                 String type = getPackageName(typeDef.type.tsymbol.pkgID.orgName, typeDef.type.tsymbol.pkgID.name)
@@ -243,7 +240,16 @@ class JvmObservabilityGen {
      * @param pkg The package containing the function
      */
     public void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
-        List<BIRFunction> scopeFunctionsList = attachedTypeDef == null ? pkg.functions : attachedTypeDef.attachedFuncs;
+        PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
+        BSymbol functionOwner;
+        List<BIRFunction> scopeFunctionsList;
+        if (attachedTypeDef == null) {
+            functionOwner = packageCache.getSymbol(currentPkgId);
+            scopeFunctionsList = pkg.functions;
+        } else {
+            functionOwner = attachedTypeDef.type.tsymbol;
+            scopeFunctionsList = attachedTypeDef.attachedFuncs;
+        }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
             if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
                     && isObservable((AsyncCall) currentBB.terminator)) {
@@ -271,20 +277,19 @@ class JvmObservabilityGen {
                 desugaredFunc.returnVariable = funcReturnVariableDcl;
 
                 // Creating and adding invokable symbol to the package symbol
-                PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-                BPackageSymbol pkgSymbol = packageCache.getSymbol(currentPkgId);
                 BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                        currentPkgId, bInvokableType, pkgSymbol);
+                        currentPkgId, bInvokableType, functionOwner);
                 invokableSymbol.retType = funcReturnVariableDcl.type;
                 invokableSymbol.kind = SymbolKind.FUNCTION;
-                invokableSymbol.bodyExist = false;
                 invokableSymbol.params = asyncCallIns.args.stream()
                         .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
                                 invokableSymbol))
                         .collect(Collectors.toList());
                 invokableSymbol.scope = new Scope(invokableSymbol);
                 invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
-                pkgSymbol.scope.define(lambdaName, invokableSymbol);
+                if (attachedTypeDef == null) {
+                    functionOwner.scope.define(lambdaName, invokableSymbol);
+                }
 
                 // Creating and adding function parameters
                 List<BIROperand> funcParamOperands = new ArrayList<>();
@@ -454,7 +459,6 @@ class JvmObservabilityGen {
     private void rewriteObservableFunctionInvocations(BIRFunction func, BIRPackage pkg) {
         int i = 0;
         while (i < func.basicBlocks.size()) {
-            int insertedBBs = 0;
             BIRBasicBlock currentBB = func.basicBlocks.get(i);
             if (currentBB.terminator.kind == InstructionKind.CALL && isObservable((Call) currentBB.terminator)) {
                 Call callIns = (Call) currentBB.terminator;
@@ -533,7 +537,7 @@ class JvmObservabilityGen {
                         newCurrentBB.terminator.thenBB = errorCheckBB;
                         observeStartBB.terminator.thenBB = newCurrentBB;
                         currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
-                        insertedBBs += 5; // Number of inserted BBs
+                        i += 5; // Number of inserted BBs
                     } else {
                         observeEndBB = insertBasicBlock(func, i + 3);
 
@@ -546,7 +550,7 @@ class JvmObservabilityGen {
                         newCurrentBB.terminator.thenBB = observeEndBB;
                         observeStartBB.terminator.thenBB = newCurrentBB;
                         currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
-                        insertedBBs += 3; // Number of inserted BBs
+                        i += 3; // Number of inserted BBs
                     }
                     fixErrorTable(func, currentBB, observeEndBB);
                 }
@@ -607,11 +611,11 @@ class JvmObservabilityGen {
                         newCurrentBB.terminator.thenBB = errorCheckBB;
                         errorReportBB.terminator.thenBB = observeEndBB;
                         observeEndBB.terminator.thenBB = rePanicBB;
-                        insertedBBs += 4; // Number of inserted BBs
+                        i += 4; // Number of inserted BBs
                     }
                 }
             }
-            i += (insertedBBs + 1);
+            i += 1;
         }
     }
 
