@@ -22,7 +22,7 @@ string topic2 = "rebalance-topic-2";
 string[] topics = [topic1, topic2];
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14105",
+    bootstrapServers: "localhost:14107",
     groupId: "test-group",
     clientId: "seek-consumer",
     offsetReset: "earliest",
@@ -35,8 +35,8 @@ kafka:Consumer simpleConsumer = new(consumerConfigs);
 
 service KafkaService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
-        function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onAssigned = funcKafkaOnPartitionsAssigned;
-        function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onRevoked = funcKafkaOnPartitionsRevoke;
+        function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onAssigned = testOnPartitionsAssigned;
+        function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onRevoked = testOnPartitionsRevoke;
 
         var result = kafkaConsumer->subscribeWithPartitionRebalance(topics, onRevoked, onAssigned);
     }
@@ -45,18 +45,18 @@ service KafkaService on kafkaConsumer {
 int rebalnceInvokedPartitions = -1;
 int rebalnceAssignedPartitions = -1;
 
-function funcKafkaOnPartitionsRevoke(kafka:Consumer kafkaConsumer, kafka:TopicPartition[] partitions) {
+function testOnPartitionsRevoke(kafka:Consumer kafkaConsumer, kafka:TopicPartition[] partitions) {
     rebalnceInvokedPartitions = partitions.length();
 }
 
-function funcKafkaOnPartitionsAssigned(kafka:Consumer kafkaConsumer, kafka:TopicPartition[] partitions) {
+function testOnPartitionsAssigned(kafka:Consumer kafkaConsumer, kafka:TopicPartition[] partitions) {
     rebalnceAssignedPartitions = partitions.length();
 }
 
-function funcKafkaGetRebalanceInvokedPartitionsCount() returns int {
+function testGetRebalanceInvokedPartitionsCount() returns int {
     return rebalnceInvokedPartitions;
 }
 
-function funcKafkaGetRebalanceAssignedPartitionsCount() returns int {
+function testGetRebalanceAssignedPartitionsCount() returns int {
     return rebalnceAssignedPartitions;
 }

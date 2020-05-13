@@ -20,7 +20,7 @@ import ballerina/kafka;
 string topic = "commit-consumer-offsets-topic";
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
+    bootstrapServers: "localhost:14151",
     clientId: "commit-consumer-offsets-producer",
     acks: kafka:ACKS_ALL,
     transactionalId: "comit-consumer-offset-test-producer",
@@ -31,7 +31,7 @@ kafka:ProducerConfiguration producerConfigs = {
 kafka:Producer kafkaProducer = new(producerConfigs);
 
 kafka:ConsumerConfiguration consumerConfigs1 = {
-    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
+    bootstrapServers: "localhost:14151",
     groupId: "commit-consumer-offsets-test-group-1",
     offsetReset: "earliest",
     topics: [topic],
@@ -41,7 +41,7 @@ kafka:ConsumerConfiguration consumerConfigs1 = {
 kafka:Consumer kafkaConsumer1 = new(consumerConfigs1);
 
 kafka:ConsumerConfiguration consumerConfigs2 = {
-    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
+    bootstrapServers: "localhost:14151",
     groupId: "commit-consumer-offsets-test-group-2",
     offsetReset: "earliest",
     topics: [topic],
@@ -50,7 +50,7 @@ kafka:ConsumerConfiguration consumerConfigs2 = {
 
 kafka:Consumer kafkaConsumer2 = new(consumerConfigs2);
 
-function funcTestKafkaProduce() {
+function testProduce() {
     string msg = "test-msg";
     byte[] byteMsg = msg.toBytes();
     kafkaProduce(byteMsg);
@@ -69,8 +69,8 @@ function kafkaProduce(byte[] value) {
      }
 }
 
-function funcTestKafkaCommitOffsets() returns boolean {
-    var results = funcGetPartitionOffset(kafkaConsumer1);
+function testCommitOffsets() returns boolean {
+    var results = getPartitionOffset(kafkaConsumer1);
     boolean isSuccess = false;
     kafka:PartitionOffset[] offsets;
     if (results is error) {
@@ -92,8 +92,8 @@ function funcTestKafkaCommitOffsets() returns boolean {
     return isSuccess;
 }
 
-function funcTestPollAgain() returns boolean {
-    var results = funcGetPartitionOffset(kafkaConsumer2);
+function testPollAgain() returns boolean {
+    var results = getPartitionOffset(kafkaConsumer2);
     if (results is error) {
         return false;
     } else {
@@ -105,7 +105,7 @@ function funcTestPollAgain() returns boolean {
     }
 }
 
-function funcGetPartitionOffset(kafka:Consumer consumer) returns kafka:PartitionOffset[]|error {
+function getPartitionOffset(kafka:Consumer consumer) returns kafka:PartitionOffset[]|error {
     var result = consumer->poll(1000);
     if (result is error) {
         return result;

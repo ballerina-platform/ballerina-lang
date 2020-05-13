@@ -18,8 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.services;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -27,48 +26,60 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SERVICES;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Test cases for ballerina kafka consumer endpoint bind to a service .
  */
 public class ServiceTest {
 
+    private static final String dataDir = getDataDirectoryName(ServiceTest.class.getSimpleName());
+
     private CompileResult compileResult;
-    private static File dataDir;
     private static KafkaCluster kafkaCluster;
 
-    @BeforeClass
-    public void setup() throws IOException {
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-service-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14010, 14110).addBrokers(1).startup();
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws Throwable {
+        deleteDirectory(dataDir);
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14041)
+                .withBroker(PROTOCOL_PLAINTEXT, 14141, getZookeeperTimeoutProperty())
+                .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
+                .withAdminClient(null)
+                .start();
     }
 
     @Test(description = "Test endpoint bind to a service")
-    public void testKafkaService() {
-        compileResult = BCompileUtil.compileOffline(true,
-                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "simple_service.bal")));
+    public void testSimpleService() throws ExecutionException, InterruptedException {
+        String balFile = "simple_service.bal";
+        compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
         String topic = "service-test";
         String message = "test_string";
-        produceToKafkaCluster(kafkaCluster, topic, message);
+        kafkaCluster.createTopic(topic, 3, 1);
+        for (int i = 0; i < 10; i++) {
+            kafkaCluster.sendMessage(topic, message);
+        }
 
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(compileResult, "funcKafkaGetResult");
+                BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetResult");
                 Assert.assertEquals(returnBValues.length, 1);
                 Assert.assertTrue(returnBValues[0] instanceof BInteger);
                 return (((BInteger) returnBValues[0]).intValue() == 10);
@@ -79,14 +90,14 @@ public class ServiceTest {
     }
 
     @Test(description = "Test endpoint bind to a service")
-    public void testKafkaAdvancedService() {
-        compileResult = BCompileUtil.compileOffline(true,
-                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "advanced_service.bal")));
-        BRunUtil.invoke(compileResult, "funcKafkaProduce");
+    public void testAdvancedService() {
+        String balFile = "advanced_service.bal";
+        compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
+        BRunUtil.invoke(compileResult, "testProduce");
 
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(compileResult, "funcKafkaGetResultText");
+                BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetResultText");
                 Assert.assertEquals(returnBValues.length, 1);
                 Assert.assertTrue(returnBValues[0] instanceof BBoolean);
                 return ((BBoolean) returnBValues[0]).booleanValue();
@@ -97,13 +108,13 @@ public class ServiceTest {
     }
 
     @Test(description = "Test kafka service stop() function")
-    public void testKafkaServiceStop() {
-        compileResult = BCompileUtil.compileOffline(true,
-                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "stop_service.bal")));
-        BRunUtil.invoke(compileResult, "funcKafkaProduce");
+    public void testServiceStop() {
+        String balFile = "stop_service.bal";
+        compileResult = BCompileUtil.compileOffline(true, getResourcePath(Paths.get(TEST_SRC, TEST_SERVICES, balFile)));
+        BRunUtil.invoke(compileResult, "testProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] results = BRunUtil.invoke(compileResult, "funcKafkaGetResult");
+                BValue[] results = BRunUtil.invoke(compileResult, "testGetResult");
                 Assert.assertEquals(results.length, 1);
                 Assert.assertTrue(results[0] instanceof BBoolean);
                 return ((BBoolean) results[0]).booleanValue();
@@ -113,16 +124,8 @@ public class ServiceTest {
         }
     }
 
-    @AfterClass
+    @AfterTest(alwaysRun = true)
     public void tearDown() {
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
+        finishTest(kafkaCluster, dataDir);
     }
 }

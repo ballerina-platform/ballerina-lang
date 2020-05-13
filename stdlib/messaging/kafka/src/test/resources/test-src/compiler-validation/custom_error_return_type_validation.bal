@@ -19,7 +19,7 @@ import ballerina/kafka;
 string topic = "service-validate-custom-error-type-test";
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:14191",
     groupId: "service-test-validate-custom-error-group",
     clientId: "service-validate-rcustom-error-consumer",
     offsetReset: "earliest",
