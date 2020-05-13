@@ -125,8 +125,43 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
                     }
                 });
             }
-            paths.add(new AbstractMap.SimpleEntry<>(path.getKey(), balPath));
+            
+            String resourcePath;
+            // Use ballerina string templating if there are path params.
+            if (hasPathParams(path.getValue())) {
+                resourcePath = "string `" + path.getKey().replace("{", "${") + "`";
+            } else {
+                resourcePath = "\"" + path.getKey() + "\"";
+            }
+            
+            paths.add(new AbstractMap.SimpleEntry<>(resourcePath, balPath));
         }
+    }
+    
+    /**
+     * Checks if there are any path parameters in the operations.
+     *
+     * @param path The path item in the OpenAPI spec.
+     * @return True if there are path parameters, else false.
+     */
+    private boolean hasPathParams(PathItem path) {
+        if (null != path.getParameters() && path.getParameters().size() > 0) {
+            return path.getParameters().stream()
+                    .anyMatch(parameter -> null != parameter.getIn() && parameter.getIn().equals("path"));
+        }
+    
+        if (path.readOperations().size() > 0) {
+            return path.readOperations().stream().anyMatch(operation -> {
+                if (null != operation.getParameters() && operation.getParameters().size() > 0) {
+                    return operation.getParameters().stream()
+                            .anyMatch(parameter -> null != parameter.getIn() && parameter.getIn().equals("path"));
+                }
+                
+                return false;
+            });
+        }
+        
+        return false;
     }
 
     /**
@@ -151,7 +186,7 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
                     schema.setType(entry.getKey());
                 }
 
-                schemas.add(new AbstractMap.SimpleEntry<>(entry.getKey(), schema));
+                schemas.add(new AbstractMap.SimpleEntry<>(escapeIdentifier(entry.getKey()), schema));
             } catch (BallerinaOpenApiException e) {
                 // Ignore exception and try to build next schema. No need to break the flow for a failure of one schema.
             }

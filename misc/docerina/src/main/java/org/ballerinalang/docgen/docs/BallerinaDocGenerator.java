@@ -18,9 +18,9 @@
 
 package org.ballerinalang.docgen.docs;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -42,20 +42,18 @@ import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.generator.model.TypesPageContext;
 import org.ballerinalang.docgen.model.ModuleDoc;
-import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -79,64 +78,55 @@ public class BallerinaDocGenerator {
     private static final String MODULE_CONTENT_FILE = "Module.md";
     private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
     private static final String HTML = ".html";
+    private static final String JSON = ".json";
+    private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     /**
-     * API to generate Ballerina API documentation.
-     *  @param sourceRoot    project root
-     * @param output        path to the output directory where the API documentation will be written to.
-     * @param moduleFilter comma separated list of module names to be filtered from the documentation.
-     * @param isNative      whether the given modules are native or not.
-     * @param offline       is offline generation
-     * @param sources       either the path to the directories where Ballerina source files reside or a
+     * API to merge multiple api docs.
+     *  @param apiDocsRoot api doc root
      */
-    public static void generateApiDocs(String sourceRoot, String output, String moduleFilter, boolean isNative,
-                                       boolean offline, String... sources) {
-        out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
-
-        // generate module docs
-        Map<String, ModuleDoc> docsMap = generateModuleDocsMap(sourceRoot, moduleFilter, isNative, sources, offline);
-
-        if (docsMap.size() == 0) {
-            out.println("docerina: no module definitions found!");
+    public static void mergeApiDocs(String apiDocsRoot)  {
+        out.println("docerina: API documentation generation for doc path - " + apiDocsRoot);
+        File directory = new File(apiDocsRoot);
+        // get all the files from a directory
+        File[] fList = directory.listFiles();
+        if (fList == null) {
+            String errorMsg = String.format("docerina: API documentation generation failed. Could not find any module" +
+                                                    " in given path %s", apiDocsRoot);
+            out.println(errorMsg);
+            log.error(errorMsg);
             return;
         }
-
-        if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: generating HTML API documentation...");
+        Arrays.sort(fList);
+        List<Module> moduleList = new ArrayList<>(fList.length);
+        for (File file : fList) {
+            if (file.isDirectory()) {
+                Path moduleJsonPath = Paths.get(file.getAbsolutePath(), file.getName() + JSON);
+                if (moduleJsonPath.toFile().exists()) {
+                    try (BufferedReader br = Files.newBufferedReader(moduleJsonPath, StandardCharsets.UTF_8)) {
+                        Module module = gson.fromJson(br, Module.class);
+                        moduleList.add(module);
+                    } catch (IOException e) {
+                        String errorMsg = String.format("API documentation generation failed. Cause: %s",
+                                                        e.getMessage());
+                        out.println(errorMsg);
+                        log.error(errorMsg, e);
+                        return;
+                    }
+                }
+            }
         }
-
-        // validate output path
-        String userDir = System.getProperty("user.dir");
-        // If output directory is empty
-        if (output == null) {
-            output = System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator
-                + ProjectDirConstants.TARGET_DIR_NAME + File.separator + "api-docs" + File.separator
-                + BallerinaDocDataHolder.getInstance().getVersion());
-        }
-
-        if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: creating output directory: " + output);
-        }
-
+        Project project = new Project();
+        project.modules = moduleList;
+        String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
+        String indexHtmlPath = apiDocsRoot + File.separator  + projectTemplateName + HTML;
+        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
+        // Generate index.html for the project
         try {
-            // Create output directory
-            Files.createDirectories(Paths.get(output));
+            Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexHtmlPath);
         } catch (IOException e) {
-            out.println(String.format("docerina: API documentation generation failed. Couldn't create the [output " +
-                    "directory] %s. Cause: %s", output, e.getMessage()));
-            log.error(String.format("API documentation generation failed. Couldn't create the [output directory] %s. " +
-                    "" + "" + "Cause: %s", output, e.getMessage()), e);
-            return;
-        }
-
-        if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: successfully created the output directory: " + output);
-        }
-
-        writeAPIDocsForModules(docsMap, output);
-
-        if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: documentation generation is done.");
+            out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
+            log.error("Failed to create the index.html file.", e);
         }
     }
 
@@ -149,48 +139,7 @@ public class BallerinaDocGenerator {
         Map<String, List<Path>> resources = new HashMap<>();
 
         // Generate project model
-        Project project = new Project();
-        project.isSingleFile = moduleDocList.size() == 1 &&
-                moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
-        if (project.isSingleFile) {
-            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
-        }
-        project.name = "";
-        project.description = "";
-        project.modules = moduleDocList.stream().map(moduleDoc -> {
-
-            // Generate module models
-            Module module = new Module();
-            module.id = moduleDoc.bLangPackage.packageID.name.toString();
-            module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
-            String moduleVersion = moduleDoc.bLangPackage.packageID.version.toString();
-            // get version from system property if not found in bLangPackage
-            module.version = moduleVersion.equals("")
-                    ? System.getProperty(BallerinaDocConstants.VERSION)
-                    : moduleVersion;
-            module.summary = moduleDoc.summary;
-            module.description = moduleDoc.description;
-
-            // populate module constructs
-            sortModuleConstructs(moduleDoc.bLangPackage);
-            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
-
-            // collect module's doc resources
-            resources.put(module.id, moduleDoc.resources);
-
-            return module;
-        }).collect(Collectors.toList());
-
-        // Generate index.html for the project
-        String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
-        String indexFilePath = output + File.separator + "index" + HTML;
-        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
-        try {
-            Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexFilePath);
-        } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
-            log.error("Failed to create the index.html file.", e);
-        }
+        Project project = getDocsGenModel(moduleDocList, resources);
 
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
         String recordTemplateName = System.getProperty(BallerinaDocConstants.RECORD_TEMPLATE_NAME_KEY, "record");
@@ -209,7 +158,15 @@ public class BallerinaDocGenerator {
 
         String rootPathModuleLevel = project.isSingleFile ? "./" : "../";
         String rootPathConstructLevel = project.isSingleFile ? "../" : "../../";
+
         // Generate module pages
+        if (project.modules == null) {
+            String errMessage =
+                    "docerina: API documentation generation failed. Couldn't create the [output directory] " + output;
+            out.println(errMessage);
+            log.error(errMessage);
+            return;
+        }
         for (Module module : project.modules) {
             try {
                 if (BallerinaDocUtils.isDebugEnabled()) {
@@ -315,6 +272,8 @@ public class BallerinaDocGenerator {
                             rootPathModuleLevel, "API Docs - Errors : " + module.id);
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
+                // Create module json
+                genModuleJson(module, modDir + File.separator + module.id + JSON);
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: generated docs for module: " + module.id);
@@ -326,6 +285,9 @@ public class BallerinaDocGenerator {
             }
         }
 
+        // Generate index.html for the project
+        genIndexHtml(output, project);
+
         // Copy template resources to output dir
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: copying HTML theme into " + output);
@@ -336,7 +298,7 @@ public class BallerinaDocGenerator {
         } catch (IOException e) {
             out.println(String.format("docerina: failed to copy the docerina-theme resource. Cause: %s", e.getMessage
                     ()));
-            log.error("Failed to coxpy the docerina-theme resource.", e);
+            log.error("Failed to copy the docerina-theme resource.", e);
         }
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: successfully copied HTML theme into " + output);
@@ -384,165 +346,117 @@ public class BallerinaDocGenerator {
         }
     }
 
-    public static Map<String, ModuleDoc> generateModuleDocsFromBLangPackages(String sourceRoot,
-                                                                     List<BLangPackage> modules) throws IOException {
+    private static void genIndexHtml(String output, Project project) {
+        String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
+        String indexHtmlPath = output + File.separator  + projectTemplateName + HTML;
+        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
+        // Generate index.html for the project
+        try {
+            Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexHtmlPath);
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
+            log.error("Failed to create the index.html file.", e);
+        }
+    }
+
+    private static void genModuleJson(Module module, String moduleJsonPath) {
+        File jsonFile = new File(moduleJsonPath);
+        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            String json = gson.toJson(module);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the module.json. Cause: %s", e.getMessage()));
+            log.error("Failed to create module.json file.", e);
+        }
+    }
+
+    public static Map<String, ModuleDoc> generateModuleDocs(String sourceRoot,
+                                                            List<BLangPackage> modules) throws IOException {
+        Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
+        for (BLangPackage bLangPackage : modules) {
+            moduleDocMap.put(bLangPackage.packageID.name.toString(), generateModuleDoc(sourceRoot, bLangPackage));
+        }
+        return moduleDocMap;
+    }
+
+    public static Map<String, ModuleDoc> generateModuleDocs(String sourceRoot, List<BLangPackage> modules,
+                                                            Set<String> moduleFilter) throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (BLangPackage bLangPackage : modules) {
             String moduleName = bLangPackage.packageID.name.toString();
-            Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
-
-            // find the Module.md file
-            Path packageMd = getModuleDocPath(absolutePkgPath);
-
-            // find the resources of the package
-            List<Path> resources = getResourcePaths(absolutePkgPath);
-
-            moduleDocMap.put(moduleName,
-                    new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage));
+            if (moduleFilter.contains(moduleName)) {
+                continue;
+            }
+            moduleDocMap.put(moduleName, generateModuleDoc(sourceRoot, bLangPackage));
         }
         return moduleDocMap;
+    }
+
+    public static ModuleDoc generateModuleDoc(String sourceRoot, BLangPackage bLangPackage) throws IOException {
+        String moduleName = bLangPackage.packageID.name.toString();
+        Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, Paths.get(moduleName));
+        // find the Module.md file
+        Path packageMd = getModuleDocPath(absolutePkgPath);
+        // find the resources of the package
+        List<Path> resources = getResourcePaths(absolutePkgPath);
+        return new ModuleDoc(packageMd == null ? null : packageMd.toAbsolutePath(), resources, bLangPackage);
     }
 
     public static void setPrintStream(PrintStream out) {
         BallerinaDocGenerator.out = out;
     }
 
+    /**
+     * Generate docs generator model.
+     *
+     * @param moduleDocList moduleDocList modules list whose docs to be generated
+     * @param resources     module level doc resources
+     * @return docs generator model of the project
+     */
+    public static Project getDocsGenModel(List<ModuleDoc> moduleDocList, Map<String, List<Path>> resources) {
+        Project project = new Project();
+        project.isSingleFile =
+                moduleDocList.size() == 1 && moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
+        if (project.isSingleFile) {
+            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
+        }
+        project.name = "";
+        project.description = "";
+
+        List<Module> moduleDocs = new ArrayList<>();
+        for (ModuleDoc moduleDoc : moduleDocList) {
+            // Generate module models
+            Module module = new Module();
+            module.id = moduleDoc.bLangPackage.packageID.name.toString();
+            module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
+            String moduleVersion = moduleDoc.bLangPackage.packageID.version.toString();
+            // get version from system property if not found in bLangPackage
+            module.version = moduleVersion.equals("") ?
+                    System.getProperty(BallerinaDocConstants.VERSION) :
+                    moduleVersion;
+            module.summary = moduleDoc.summary;
+            module.description = moduleDoc.description;
+
+            // populate module constructs
+            sortModuleConstructs(moduleDoc.bLangPackage);
+            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
+
+            // collect module's doc resources
+            resources.put(module.id, moduleDoc.resources);
+
+            moduleDocs.add(module);
+        }
+        project.modules = moduleDocs;
+        return project;
+    }
+
     private static void sortModuleConstructs(BLangPackage bLangPackage) {
         bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
                 .getReceiver().getName()) + f.getName().getValue()));
         bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
-        bLangPackage.getTypeDefinitions().sort(Comparator.comparing(a -> a.getName().getValue()));
+        bLangPackage.getTypeDefinitions()
+                .sort(Comparator.comparing(a -> a.getName() == null ? "" : a.getName().getValue()));
         bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
-    }
-
-    private static Map<String, ModuleDoc> generateModuleDocsMap(String sourceRoot, String packageFilter, boolean
-            isNative, String[] sources, boolean offline) {
-        for (String source : sources) {
-            source = source.trim();
-            try {
-                generatePackageDocsFromBallerina(sourceRoot, source, packageFilter, isNative, offline);
-
-            } catch (Exception e) {
-                out.println(String.format("docerina: API documentation generation failed for %s: %s", source, e
-                        .getMessage()));
-                log.error(String.format("API documentation generation failed for %s", source), e);
-                // we continue, as there may be other valid packages.
-                continue;
-            }
-        }
-        return BallerinaDocDataHolder.getInstance().getPackageMap();
-    }
-
-    /**
-     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
-     *
-     * @param sourceRoot  points to the folder relative to which package path is given
-     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
-     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
-     * @throws IOException on error.
-     */
-    protected static Map<String, ModuleDoc> generatePackageDocsFromBallerina(String sourceRoot, String packagePath)
-            throws IOException {
-        return generatePackageDocsFromBallerina(sourceRoot, packagePath, null, true);
-    }
-
-    /**
-     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
-     *
-     * @param sourceRoot    points to the folder relative to which package path is given
-     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
-     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
-     * @param offline is offline generation
-     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
-     * @throws IOException on error.
-     */
-    protected static Map<String, ModuleDoc> generatePackageDocsFromBallerina(String sourceRoot, String packagePath,
-                                                                             String packageFilter, boolean offline)
-            throws IOException {
-        return generatePackageDocsFromBallerina(sourceRoot, packagePath, packageFilter, false, offline);
-    }
-
-    /**
-     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
-     *
-     * @param sourceRoot    points to the folder relative to which package path is given
-     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
-     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
-     * @param isNative      whether this is a native package or not.
-     * @param offline is offline generation
-     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
-     * @throws IOException on error.
-     */
-    protected static Map<String, ModuleDoc> generatePackageDocsFromBallerina(
-            String sourceRoot, String packagePath, String packageFilter, boolean isNative, boolean offline)
-            throws IOException {
-        return generatePackageDocsFromBallerina(sourceRoot, Paths.get(packagePath), packageFilter, isNative, offline);
-    }
-
-    /**
-     * Generates {@link BLangPackage} objects for each Ballerina package from the given ballerina files.
-     *
-     * @param sourceRoot    points to the folder relative to which package path is given
-     * @param packagePath   a {@link Path} object pointing either to a ballerina file or a folder with ballerina files.
-     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
-     * @param isNative      whether the given packages are native or not.
-     * @param offline is offline generation
-     * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
-     * @throws IOException on error.
-     */
-    protected static Map<String, ModuleDoc> generatePackageDocsFromBallerina(
-            String sourceRoot, Path packagePath, String packageFilter, boolean isNative, boolean offline)
-            throws IOException {
-
-        Path absolutePkgPath = getAbsoluteModulePath(sourceRoot, packagePath);
-
-        // find the Module.md file
-        Path packageMd = getModuleDocPath(absolutePkgPath);
-
-        // find the resources of the package
-        List<Path> resources = getResourcePaths(absolutePkgPath);
-
-        BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
-        if (!isNative) {
-            // This is necessary to be true in order to Ballerina to work properly
-            System.setProperty("skipNatives", "true");
-        }
-
-        BLangPackage bLangPackage = null;
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
-        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
-        options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.OFFLINE, Boolean.valueOf(offline).toString());
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
-
-        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
-
-        Compiler compiler = Compiler.getInstance(context);
-
-        // TODO: Remove this and the related constants once these are properly handled in the core
-        if (!absolutePkgPath.endsWith(BAL_BUILTIN.toString())) {
-            // compile the given package
-            Path fileOrPackageName = packagePath.getFileName();
-            bLangPackage = compiler.compile(fileOrPackageName == null ? packagePath.toString() : fileOrPackageName
-                    .toString());
-        }
-
-        if (bLangPackage == null) {
-            out.println(String.format("docerina: invalid Ballerina module: %s", packagePath));
-        } else {
-            String packageName = packageNameToString(bLangPackage.packageID);
-            if (isFilteredPackage(packageName, packageFilter)) {
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: module " + packageName + " excluded");
-                }
-            } else {
-                dataHolder.getPackageMap().put(packageName, new ModuleDoc(packageMd == null ? null : packageMd
-                        .toAbsolutePath(), resources, bLangPackage));
-            }
-        }
-        return dataHolder.getPackageMap();
     }
 
     private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {
@@ -572,18 +486,5 @@ public class BallerinaDocGenerator {
     private static Path getAbsoluteModulePath(String sourceRoot, Path modulePath) {
         return Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                                .resolve(modulePath);
-    }
-
-    private static String packageNameToString(PackageID pkgId) {
-        String pkgName = pkgId.getName().getValue();
-        return ".".equals(pkgName) ? pkgId.sourceFileName.getValue() : pkgName;
-    }
-
-    private static boolean isFilteredPackage(String packageName, String packageFilter) {
-        if ((packageFilter != null) && (packageFilter.trim().length() > 0)) {
-            return Arrays.stream(packageFilter.split(","))
-                    .anyMatch(e -> packageName.startsWith(e.replace(".*", "")));
-        }
-        return false;
     }
 }

@@ -39,6 +39,7 @@ public class TreeUtils {
         stringTypeKindMap.put("json", TypeKind.JSON);
         stringTypeKindMap.put("xml", TypeKind.XML);
         stringTypeKindMap.put("stream", TypeKind.STREAM);
+        stringTypeKindMap.put("table", TypeKind.TABLE);
         stringTypeKindMap.put("any", TypeKind.ANY);
         stringTypeKindMap.put("anydata", TypeKind.ANYDATA);
         stringTypeKindMap.put("map", TypeKind.MAP);
@@ -50,6 +51,7 @@ public class TreeUtils {
         stringTypeKindMap.put("channel", TypeKind.CHANNEL);
         stringTypeKindMap.put("service", TypeKind.SERVICE);
         stringTypeKindMap.put("handle", TypeKind.HANDLE);
+        stringTypeKindMap.put("readonly", TypeKind.READONLY);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

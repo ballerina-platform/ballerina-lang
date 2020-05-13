@@ -52,7 +52,7 @@ public class XMLIterationTest {
         negative = BCompileUtil.compile("test-src/types/xml/xml_iteration_negative.bal");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testNegative() {
         Assert.assertEquals(negative.getErrorCount(), 2);
         int index = 0;
@@ -60,10 +60,11 @@ public class XMLIterationTest {
                                   "invalid tuple binding pattern: expected a tuple type, but found '(xml|string)'",
                                   11, 17);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
-                "'function ((xml|string)) returns ()', found 'function ([int,xml,string]) returns ()'", 16, 19);
+                "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
+                " found 'function ([int,xml,string]) returns ()'", 16, 19);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLForeach() {
         BValue[] returns = BRunUtil.invoke(result, "foreachTest");
 
@@ -76,7 +77,7 @@ public class XMLIterationTest {
         }
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLForeachOp() {
         String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
         BValue[] returns = BRunUtil.invoke(result, "foreachOpTest");
@@ -90,7 +91,7 @@ public class XMLIterationTest {
         }
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLMapOp() {
         BValue[] returns = BRunUtil.invoke(result, "mapOpTest");
 
@@ -115,7 +116,7 @@ public class XMLIterationTest {
         return j.toString();
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLFilterOp() {
         BValue[] returns = BRunUtil.invoke(result, "filterOpTest");
 
@@ -133,7 +134,7 @@ public class XMLIterationTest {
         Assert.assertEquals(((BXMLItem) values[1]).children().getItem(7).getTextValue().floatValue(), 29.99);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXMLChainedIterableOps() {
         BValue[] returns = BRunUtil.invoke(result, "chainedIterableOps");
 
@@ -144,8 +145,7 @@ public class XMLIterationTest {
         Assert.assertEquals(((BXMLSequence) resArray.getRefValue(1)).getTextValue().stringValue(), authors[1][0]);
     }
 
-    @Test(description = "Test iterating over xml elements where some elements are characters",
-            groups = "brokenOnXMLLangLibChange")
+    @Test(description = "Test iterating over xml elements where some elements are characters")
     public void testXMLCompoundCharacterSequenceIteration() {
         BValue[] results = BRunUtil.invoke(result, "xmlSequenceIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
@@ -153,8 +153,7 @@ public class XMLIterationTest {
         Assert.assertEquals(str, "<book>the book</book>\nbit of text✂✅\n");
     }
 
-    @Test(description = "Test iterating over xml sequence where all elements are character items",
-            groups = "brokenOnXMLLangLibChange")
+    @Test(description = "Test iterating over xml sequence where all elements are character items")
     public void testXMLCharacterSequenceIteration() {
         BValue[] results = BRunUtil.invoke(result, "xmlCharItemIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);

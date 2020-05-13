@@ -2,11 +2,17 @@
     {{#each fields}}    
     <div class="params-listing">
         <ul>
-            <li> {{ name }}<span class="type">  {{{ typeName type }}}</span>
-                {{#if defaultValue}}<span class="default"> (default {{ defaultValue }})</span>{{/if}}
+            <li> <span {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</span>
+                <span class="type">  {{{ typeName type }}}</span>
+                {{#if defaultValue}} {{{ defVal type defaultValue }}} {{/if}}
             </li>
             <li>
-                <p>{{{ description }}}</p>
+                <p>
+                    {{#if isDeprecated}}
+                        <span class="stab">Deprecated</span>
+                    {{/if}}
+                    {{{ description }}}
+                </p>
             </li>
         </ul>
     </div>

@@ -24,13 +24,14 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
  */
 public class JvmConstants {
 
-    // javm values public API classes
+    // jvm values public API classes
     public static final String BXML_QNAME = "org/ballerinalang/jvm/values/api/BXMLQName";
 
     // jvm runtime values related classes
     public static final String MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
     public static final String MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
     public static final String STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
+    public static final String TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
     public static final String ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
     public static final String OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
     public static final String ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
@@ -48,6 +49,8 @@ public class JvmConstants {
     public static final String XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
     public static final String XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
     public static final String FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
+    public static final String TYPEDESC_VALUE_IMPL = "org/ballerinalang/jvm/values/TypedescValueImpl";
+    public static final String TYPEDESC_VALUE_IMPL_CLOSURES = "closures";
     public static final String TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
     public static final String HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
     public static final String LOCK_VALUE = "org/ballerinalang/jvm/BLock";
@@ -55,6 +58,7 @@ public class JvmConstants {
     public static final String FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
     public static final String ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
     public static final String TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
+    public static final String TABLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
 
     public static final String BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
@@ -64,7 +68,9 @@ public class JvmConstants {
     public static final String BTYPES = "org/ballerinalang/jvm/types/BTypes";
     public static final String ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
     public static final String MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
+    public static final String XML_TYPE = "org/ballerinalang/jvm/types/BXMLType";
     public static final String STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
+    public static final String TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
     public static final String UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
     public static final String RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
     public static final String OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
@@ -94,6 +100,7 @@ public class JvmConstants {
     public static final String CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
     public static final String WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
     public static final String MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+    public static final String TABLE_UTILS = "org/ballerinalang/jvm/TableUtils";
     public static final String STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
     public static final String BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
     public static final String RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
@@ -165,6 +172,8 @@ public class JvmConstants {
     public static final String UNIX_PATH_SEPERATOR = "/";
     public static final String JAVA_PACKAGE_SEPERATOR = "/";
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
+    public static final String VALUE_CLASS_PREFIX = "$value$";
+    public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
@@ -202,5 +211,8 @@ public class JvmConstants {
     public static final String METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
-    public static final String GLOBAL_LOCK_NAME = "global";
+    public static final String GLOBAL_LOCK_NAME = "lock";
+    public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
+    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
+    public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 }

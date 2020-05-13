@@ -38,6 +38,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
@@ -169,10 +170,14 @@ public class BallerinaDocUtils {
      * @throws IOException Failure to load the resources.
      */
     public static void copyResources(String resource, String targetPath) throws IOException {
-        URI uri = null;
+        URI uri;
         try {
             // load the resource from the Class path
-            uri = BallerinaDocUtils.class.getClassLoader().getResource(resource).toURI();
+            URL url = BallerinaDocUtils.class.getClassLoader().getResource(resource);
+            if (url == null) {
+                return;
+            }
+            uri = url.toURI();
         } catch (URISyntaxException e) {
             throw new IOException("Failed to load resources: " + e.getMessage(), e);
         }

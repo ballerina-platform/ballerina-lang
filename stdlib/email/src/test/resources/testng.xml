@@ -31,6 +31,8 @@
             <class name="org.ballerinalang.stdlib.email.PopComplexEmailReceiveTest"/>
             <class name="org.ballerinalang.stdlib.email.ImapSimpleSecureEmailReceiveTest"/>
             <class name="org.ballerinalang.stdlib.email.ImapComplexEmailReceiveTest"/>
+            <class name="org.ballerinalang.stdlib.email.ListenerImapReceiveTest"/>
+            <class name="org.ballerinalang.stdlib.email.ListenerPopReceiveTest"/>
         </classes>
     </test>
 </suite>

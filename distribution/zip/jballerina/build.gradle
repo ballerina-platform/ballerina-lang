@@ -36,10 +36,12 @@ configurations {
     bin
     balSource
     balxSource
+    balDoc
     staticArtifacts
     staticFiles
     source
     sourceBalx
+    doc
     zip
     resourceFiles
     balx
@@ -100,6 +102,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
@@ -153,6 +156,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:object', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:stream', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:table', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:string', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:typedesc', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:value', configuration: 'balSource')
@@ -230,6 +234,7 @@ artifacts {
     balo configurations.distBal.files
     source configurations.balSource.files
     sourceBalx configurations.balxSource.files
+    doc configurations.balDoc.files
     bin file('bin')
     staticFiles configurations.staticArtifacts.files
     resourceFiles file('resources')

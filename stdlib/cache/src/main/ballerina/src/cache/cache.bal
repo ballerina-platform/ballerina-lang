@@ -17,15 +17,15 @@
 import ballerina/task;
 import ballerina/time;
 
-# Represents cache configuration.
+# Represents configurations for the `cache:Cache` object.
 #
-# + capacity - Maximum number of entries allowed
-# + evictionPolicy - The policy which defines the cache eviction algorithm
-# + evictionFactor - The factor which the entries will be evicted once the cache full
+# + capacity - Maximum number of entries allowed in the cache
+# + evictionPolicy - The policy, which defines the cache eviction algorithm
+# + evictionFactor - The factor by which the entries will be evicted once the cache is full
 # + defaultMaxAgeInSeconds - The default value in seconds which all the cache entries are valid.
 #                            '-1' means, the entries are valid forever. This will be overwritten by the the
 #                            `maxAgeInSeconds` property set when inserting item to the cache
-# + cleanupIntervalInSeconds - Interval of the timer task which clean up the cache
+# + cleanupIntervalInSeconds - Interval of the timer task, which will clean up the cache
 public type CacheConfig record {|
     int capacity = 100;
     AbstractEvictionPolicy evictionPolicy = new LruEvictionPolicy();
@@ -57,8 +57,8 @@ service cleanupService = service {
     }
 };
 
-# Represents the Ballerina `Cache` object and cache-related operations. It is not recommended to insert `()` as the
-# value of the cache since it doesn't make any sense to cache a nil.
+# The `cache:Cache` object, which is used for all the cache-related operations. It is not recommended to insert `()`
+# as the value of the cache since it doesn't make any sense to cache a nil.
 public type Cache object {
 
     *AbstractCache;
@@ -70,9 +70,9 @@ public type Cache object {
     private map<Node> entries = {};
     private LinkedList list;
 
-    # Creates a new `Cache` object.
+    # Called when a new `cache:Cache` object is created.
     #
-    # + cacheConfig - Cache configurations
+    # + cacheConfig - Configurations for the `cache:Cache` object
     public function __init(CacheConfig cacheConfig = {}) {
         self.capacity = cacheConfig.capacity;
         self.evictionPolicy = cacheConfig.evictionPolicy;
@@ -116,12 +116,13 @@ public type Cache object {
         }
     }
 
-    # Add the given key value pair to the cache. If the cache previously contained a value associated with key, the
-    # old value is replaced by value.
+    # Adds the given key value pair to the cache. If the cache previously contained a value associated with the
+    # provided key, the old value wil be replaced by the newly-provided value.
     #
-    # + key - Key of the cached value
+    # + key - Key of the value to be cached
     # + value - Value to be cached. Value should not be `()`
-    # + maxAgeInSeconds - The value in seconds, which the cache entry is valid. '-1' means, the entry is valid forever.
+    # + maxAgeInSeconds - The time in seconds for which the cache entry is valid. If the value is '-1', the entry is
+    #                     valid forever.
     # + return - `()` if successfully added to the cache or `Error` if a `()` value is inserted to the cache.
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error? {
         lock {
@@ -161,11 +162,11 @@ public type Cache object {
         }
     }
 
-    # Return the cached value associated with the given key.
+    # Returns the cached value associated with the provided key.
     #
-    # + key - Key which is used to retrieve the cached value
-    # + return - The cached value associated with the given key or
-    # `Error` if the provided cache key is not or if any error occurred while retrieving from the cache.
+    # + key - Key of the cached value, which should be retrieved
+    # + return - The cached value associated with the provided key or an `Error` if the provided cache key is not
+    #            exisiting in the cache or any error occurred while retrieving the value from the cache.
     public function get(string key) returns any|Error {
         lock {
             if (!self.hasKey(key)) {
@@ -188,11 +189,11 @@ public type Cache object {
         }
     }
 
-    # Discard a cached value from the cache.
+    # Discards a cached value from the cache.
     #
-    # + key - Key of the cache entry which needs to be discarded
-    # + return - `()` if successfully discarded or
-    # `Error` if the provided cache key is not or if any error occurred while discarding from the cache.
+    # + key - Key of the cache value, which needs to be discarded from the cache
+    # + return - `()` if successfully discarded the value or an `Error` if the provided cache key is not present in the
+    #            cache or if any error occurred while discarding the value from the cache.
     public function invalidate(string key) returns Error? {
         lock {
             if (!self.hasKey(key)) {
@@ -205,10 +206,10 @@ public type Cache object {
         }
     }
 
-    # Discard all the cached values from the cache.
+    # Discards all the cached values from the cache.
     #
-    # + return - `()` if successfully discarded all or
-    # `Error` if any error occurred while discarding all from the cache.
+    # + return - `()` if successfully discarded all the values from the cache or an `Error` if any error occurred while
+    # discarding all the values from the cache.
     public function invalidateAll() returns Error? {
         lock {
             self.evictionPolicy.clear(self.list);
@@ -216,17 +217,18 @@ public type Cache object {
         }
     }
 
-    # Checks whether the given key has an associated cache value.
+    # Checks whether the given key has an associated cached value.
     #
-    # + key - The key to be checked
-    # + return - Whether the an associated cache value is available in the cache or not
+    # + key - The key to be checked in the cache
+    # + return - `true` if a cached value is available for the provided key or `false` if there is no cached value
+    #            associated for the given key
     public function hasKey(string key) returns boolean {
         return self.entries.hasKey(key);
     }
 
-    # Returns all keys from the cache.
+    # Returns a list of all the keys from the cache.
     #
-    # + return - Array of all keys from the cache
+    # + return - Array of all the keys from the cache
     public function keys() returns string[] {
         return self.entries.keys();
     }

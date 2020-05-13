@@ -24,9 +24,9 @@ import ballerina/java;
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
-# Object representing the WebSubSubscriber Service Endpoint.
+# Represents the WebSubSubscriber Service Listener.
 #
-# + config - The configuration for the endpoint
+# + config - The configurations for the `websub:Listener`
 public type Listener object {
 
     *lang:Listener;
@@ -35,28 +35,55 @@ public type Listener object {
 
     private http:Listener? serviceEndpoint = ();
 
-    # The initialization method for the Listener.
+    # Creates a new `websub:Listener`.
     #
-    # + port - The port to listen on
-    # + config - The configuration for the listener
+    # + port - The port number of the remote service
+    # + config - The configurations related to the `websub:Listener`
     public function __init(int port, SubscriberListenerConfiguration? config = ()) {
         self.init(port, config);
     }
 
+# Binds a service to the `websub:Listener`.
+# ```ballerina
+# error? result = websubListener.__attach(helloService);
+# ```
+#
+# + s - Type descriptor of the service
+# + name - Name of the service
+# + return - `()` or else an `error` upon failure to register the listener
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
         externRegisterWebSubSubscriberService(self, s);
     }
 
+# Stops consuming messages and detaches the service from the `websub:Listener`.
+# ```ballerina
+# error? result = websubListener.__detach(helloService);
+# ```
+#
+# + s - Type descriptor of the service
+# + return - `()` or else an `error` upon failure to detach the service
     public function __detach(service s) returns error? {
     }
 
+# Starts the `websub:Listener`.
+# ```ballerina
+# error? result = websubListener.__start();
+# ```
+#
+# + return - `()` or else an `error` upon failure to start the listener
     public function __start() returns error? {
         check externStartWebSubSubscriberServiceEndpoint(self);
         // TODO: handle data and return error on error
         self.sendSubscriptionRequests();
     }
 
+# Stops the `websub:Listener` gracefully.
+# ```ballerina
+# error? result = websubListener.__gracefulStop();
+# ```
+#
+# + return - `()` or else an `error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         http:Listener? sListener = self.serviceEndpoint;
         if (sListener is http:Listener) {
@@ -65,12 +92,18 @@ public type Listener object {
         return ();
     }
 
+# Stops the `websub:Listener` forcefully.
+# ```ballerina
+# error? result = websubListener.__immediateStop();
+# ```
+#
+# + return - () or else an `error` upon failure to stop the listener
     public function __immediateStop() returns error? {
     }
 
-    # Gets called when the endpoint is being initialized during module initialization.
+    # Gets called when the `websub:Listener` is being initialized during the module initialization.
     #
-    # + sseEpConfig - The Subscriber Service Endpoint Configuration of the endpoint
+    # + sseEpConfig - The Subscriber Service configurations of the `websub:Listener`
     function init(int port, SubscriberListenerConfiguration? sseEpConfig = ()) {
         self.config = sseEpConfig;
         http:ListenerConfiguration? serviceConfig = ();
@@ -192,10 +225,10 @@ function externRetrieveSubscriptionParameters(Listener subscriberListener) retur
 } external;
 
 
-# Object representing the configuration for the WebSub Subscriber Service Endpoint.
+# Represents the configuration for the WebSub Subscriber Service Listener.
 #
-# + host - The host name/IP of the endpoint
-# + httpServiceSecureSocket - The SSL configurations for the service endpoint
+# + host - The host name/IP of the WebSub Subscriber Service Listener
+# + httpServiceSecureSocket - The SSL configurations for the WebSub Subscriber Service Listener
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberListenerConfiguration record {|
     string host = "";
@@ -246,11 +279,11 @@ public type ExtensionConfig record {|
     map<map<map<[string, typedesc<record {}>]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
-# The function called to discover hub and topic URLs defined by a resource URL.
+# Discovers the hub and topic URLs defined by a resource URL.
 #
-# + resourceUrl - The resource URL advertising hub and topic URLs
+# + resourceUrl - The resource URL advertising the hub and topic URLs
 # + publisherClientConfig - The configuration for the publisher client
-# + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
+# + return - A `(hub, topic)` as a `(string, string)` if successful or else an `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? publisherClientConfig)
         returns @tainted [string, string]|error {
     http:Client resourceEP = new http:Client(resourceUrl, publisherClientConfig);
@@ -276,11 +309,11 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
     return websubError;
 }
 
-# Function to invoke the WebSubSubscriberConnector's remote functions for subscription.
+# Invokes the `WebSubSubscriberConnector`'s remote functions for the subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
 # + hubClientConfig - The configuration for the hub client
-# + subscriptionDetails - Map containing subscription details
+# + subscriptionDetails - The subscription details as a `map`
 function invokeClientConnectorForSubscription(string hub, http:ClientConfiguration? hubClientConfig,
                                               map<any> subscriptionDetails) {
     SubscriptionClient websubHubClientEP = new (hub, hubClientConfig);

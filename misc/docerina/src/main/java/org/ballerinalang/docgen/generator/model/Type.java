@@ -56,6 +56,7 @@ public class Type {
     public boolean isNullable;
     public boolean isTuple;
     public boolean isLambda;
+    public boolean isDeprecated;
     public boolean generateUserDefinedTypeLink = true;
     public List<Type> memberTypes = new ArrayList<>();
     public List<Type> paramTypes = new ArrayList<>();
@@ -112,9 +113,17 @@ public class Type {
         setCategory(type.type);
     }
 
-    public Type(String name, String description) {
+    public Type(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.isDeprecated = isDeprecated;
+    }
+
+    public static Type fromTypeNode(BLangType type, BType bType, String currentModule) {
+        if (type == null) {
+            return new Type(bType);
+        }
+        return fromTypeNode(type, currentModule);
     }
 
     public static Type fromTypeNode(BLangType type, String currentModule) {
@@ -133,7 +142,8 @@ public class Type {
             }
         } else if (type instanceof BLangArrayType) {
             BLangType elemtype = ((BLangArrayType) type).elemtype;
-            String moduleName = elemtype.type.tsymbol.pkgID.name.toString();
+            String moduleName = elemtype.type.tsymbol == null ? type.type.tsymbol.pkgID.name.toString() :
+                    elemtype.type.tsymbol.pkgID.name.toString();
             Type elementType = fromTypeNode(elemtype, moduleName);
             typeModel = new Type(type, currentModule);
             typeModel.elementType = elementType;
@@ -166,6 +176,10 @@ public class Type {
         typeModel.isNullable = type.nullable;
         if (type.type instanceof BNilType) {
             typeModel.name = "()";
+        }
+        // If anonymous type substitute the name
+        if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
+            typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);;
         }
         return typeModel;
     }

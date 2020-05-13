@@ -1,0 +1,1 @@
+wso2 ballerina binary test.

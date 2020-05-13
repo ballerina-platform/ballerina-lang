@@ -56,11 +56,11 @@ public class TypeParamTest {
                 89, 16);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 94, 15);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 95, 22);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 97, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 97, 22);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 99, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 100, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 100, 22);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 101, 28);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 101, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 110, 22);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'float'", 113, 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'byte', found 'int'", 116, 21);
