@@ -2035,6 +2035,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFunctionTypeDesc();
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
+            case READONLY_KEYWORD:
+                return parseReadOnlyTypeDesc();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -7201,6 +7203,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
+            case READONLY_KEYWORD:
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -8422,5 +8425,38 @@ public class BallerinaParser extends AbstractParser {
         STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
+    }
+
+    /**
+     * Parse read only type desc.
+     * readonly-type-deacriptor := readonly [type-parameter]
+     *
+     * @return Parsed node
+     */
+    private STNode parseReadOnlyTypeDesc() {
+        STNode readonlyKeyWordToken = parseReadonlyKeyword();
+        STNode typeParameterNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            typeParameterNode = parseTypeParameter();
+        } else {
+            typeParameterNode = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createReadOnlyTypeDescriptor(readonlyKeyWordToken, typeParameterNode);
+    }
+
+    /**
+     * Parse readonly keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseReadonlyKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.READONLY_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.READONLY_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 }

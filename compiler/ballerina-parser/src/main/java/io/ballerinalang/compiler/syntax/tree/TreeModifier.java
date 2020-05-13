@@ -1394,21 +1394,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ExplicitNewExpression explicitNewExpression) {
-        Token NewKeyword = modifyToken(explicitNewExpression.NewKeyword());
-        Node TypeDescriptor = modifyNode(explicitNewExpression.TypeDescriptor());
-        Node ParenthesizedArgList = modifyNode(explicitNewExpression.ParenthesizedArgList());
-        return explicitNewExpression.modify(
+    public Node transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Token NewKeyword = modifyToken(explicitNewExpressionNode.NewKeyword());
+        TypeDescriptorNode TypeDescriptor = modifyNode(explicitNewExpressionNode.TypeDescriptor());
+        Node ParenthesizedArgList = modifyNode(explicitNewExpressionNode.ParenthesizedArgList());
+        return explicitNewExpressionNode.modify(
                 NewKeyword,
                 TypeDescriptor,
                 ParenthesizedArgList);
     }
 
     @Override
-    public Node transform(ImplicitNewExpression implicitNewExpression) {
-        Token NewKeyword = modifyToken(implicitNewExpression.NewKeyword());
-        Node ParenthesizedArgList = modifyNode(implicitNewExpression.ParenthesizedArgList().orElse(null));
-        return implicitNewExpression.modify(
+    public Node transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        Token NewKeyword = modifyToken(implicitNewExpressionNode.NewKeyword());
+        ParenthesizedArgList ParenthesizedArgList = modifyNode(implicitNewExpressionNode.ParenthesizedArgList().orElse(null));
+        return implicitNewExpressionNode.modify(
                 NewKeyword,
                 ParenthesizedArgList);
     }
@@ -1422,6 +1422,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    @Override
+    public Node transform(ReadOnlyTypeDescriptor readOnlyTypeDescriptor) {
+        Token readonlyKeyWordToken = modifyToken(readOnlyTypeDescriptor.readonlyKeyWordToken());
+        Node typeParameterNode = modifyNode(readOnlyTypeDescriptor.typeParameterNode());
+        return readOnlyTypeDescriptor.modify(
+                readonlyKeyWordToken,
+                typeParameterNode);
     }
 
     // Tokens

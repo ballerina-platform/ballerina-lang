@@ -216,6 +216,7 @@ public enum ParserRuleContext {
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
     NEW_KEYWORD("new"),
+    READONLY_KEYWORD("readonly"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

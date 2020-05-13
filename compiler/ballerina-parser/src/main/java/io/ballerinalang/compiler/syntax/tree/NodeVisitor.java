@@ -483,16 +483,20 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parenthesisedTypeDescriptorNode);
     }
 
-    public void visit(ExplicitNewExpression explicitNewExpression) {
-        visitSyntaxNode(explicitNewExpression);
+    public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        visitSyntaxNode(explicitNewExpressionNode);
     }
 
-    public void visit(ImplicitNewExpression implicitNewExpression) {
-        visitSyntaxNode(implicitNewExpression);
+    public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        visitSyntaxNode(implicitNewExpressionNode);
     }
 
     public void visit(ParenthesizedArgList parenthesizedArgList) {
         visitSyntaxNode(parenthesizedArgList);
+    }
+
+    public void visit(ReadOnlyTypeDescriptor readOnlyTypeDescriptor) {
+        visitSyntaxNode(readOnlyTypeDescriptor);
     }
 
     // Tokens

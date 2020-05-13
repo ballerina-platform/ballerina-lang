@@ -2570,6 +2570,21 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "ReadOnlyTypeDescriptor",
+            "base": "Node",
+            "kind": "READONLY_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "readonlyKeyWordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameterNode",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

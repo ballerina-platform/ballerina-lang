@@ -71,6 +71,7 @@ public enum SyntaxKind {
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
     NEW_KEYWORD(224, "new"),
+    READONLY_KEYWORD(225, "readonly"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -246,6 +247,7 @@ public enum SyntaxKind {
     FUNCTION_TYPE_DESC(2025),
     TUPLE_TYPE_DESC(2026),
     PARENTHESISED_TYPE_DESC(2027),
+    READONLY_TYPE_DESC(2028),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

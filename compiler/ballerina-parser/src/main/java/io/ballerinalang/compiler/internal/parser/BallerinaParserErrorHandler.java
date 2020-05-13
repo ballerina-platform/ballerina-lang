@@ -3037,6 +3037,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.FUTURE_KEYWORD;
             case TYPEDESC_KEYWORD:
                 return SyntaxKind.TYPEDESC_KEYWORD;
+            case READONLY_KEYWORD:
+                return SyntaxKind.READONLY_KEYWORD;
             case GT:
                 return SyntaxKind.GT_TOKEN;
             case LT:

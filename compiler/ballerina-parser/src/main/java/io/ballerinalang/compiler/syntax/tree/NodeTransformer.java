@@ -484,16 +484,20 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesisedTypeDescriptorNode);
     }
 
-    public T transform(ExplicitNewExpression explicitNewExpression) {
-        return transformSyntaxNode(explicitNewExpression);
+    public T transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        return transformSyntaxNode(explicitNewExpressionNode);
     }
 
-    public T transform(ImplicitNewExpression implicitNewExpression) {
-        return transformSyntaxNode(implicitNewExpression);
+    public T transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        return transformSyntaxNode(implicitNewExpressionNode);
     }
 
     public T transform(ParenthesizedArgList parenthesizedArgList) {
         return transformSyntaxNode(parenthesizedArgList);
+    }
+
+    public T transform(ReadOnlyTypeDescriptor readOnlyTypeDescriptor) {
+        return transformSyntaxNode(readOnlyTypeDescriptor);
     }
 
     // Tokens
