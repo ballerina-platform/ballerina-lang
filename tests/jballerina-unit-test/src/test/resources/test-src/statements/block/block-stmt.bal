@@ -131,9 +131,9 @@ function testStmtInBlock() {
     int a = 2;
     int b = 5;
     {
-        while(a < 4) {
+        while (a < 4) {
             a = a + 1;
-            if(a == 3) {
+            if (a == 3) {
                 b = 8;
             }
         }
