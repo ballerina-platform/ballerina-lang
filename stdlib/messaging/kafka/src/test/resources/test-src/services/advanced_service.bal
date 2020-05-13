@@ -28,7 +28,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     valueDeserializerType: kafka:DES_INT
 };
 
-listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
+listener kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 kafka:ProducerConfiguration producerConfigs = {
     bootstrapServers: "localhost:14141",
@@ -38,7 +38,7 @@ kafka:ProducerConfiguration producerConfigs = {
     valueSerializerType: kafka:SER_INT
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 boolean isSuccess = false;
 

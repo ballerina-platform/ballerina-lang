@@ -25,7 +25,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,6 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTE
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
@@ -60,7 +59,6 @@ public class TopicSubscribeWithPartitionRebalanceTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14007)
                 .withBroker(PROTOCOL_PLAINTEXT, 14107, getZookeeperTimeoutProperty())
@@ -105,7 +103,7 @@ public class TopicSubscribeWithPartitionRebalanceTest {
         });
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }
