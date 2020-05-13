@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public abstract class STNewExpression extends STExpressionNode {
+public abstract class STNewExpressionNode extends STExpressionNode {
 
-    STNewExpression(SyntaxKind kind) {
+    STNewExpressionNode(SyntaxKind kind) {
         super(kind);
     }
 }
