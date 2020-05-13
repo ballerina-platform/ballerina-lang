@@ -2023,8 +2023,9 @@ public class Types {
             for (BField sourceField : source.fields.values()) {
                 if (t.fields.containsKey(sourceField.name.value)) {
                     BField targetField = t.fields.get(sourceField.name.value);
-                    if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes, this.unresolvedReadonlyTypes)
-                            && hasSameOptionalFlag(sourceField.symbol, targetField.symbol)) {
+                    if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes,
+                                   this.unresolvedReadonlyTypes) && hasSameOptionalFlag(sourceField.symbol,
+                                                                                        targetField.symbol)) {
                         continue;
                     }
                 }
