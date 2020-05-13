@@ -125,7 +125,21 @@ function testUnreachableStmtInBlock() {
         return;
         int i = 9;
     }
-    if(a > 10) {
+    if (a > 10) {
         int number = 10;
+    }
+}
+
+function testUninitializedVariableAssignInBlock1() {
+    int a;
+    {        
+        int i = a;
+    }
+}
+
+function testUninitializedVariableAssignInBlock2() {
+    int a;
+    {        
+        a += 2;
     }
 }
