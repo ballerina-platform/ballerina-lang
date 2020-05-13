@@ -115,7 +115,7 @@ public class SymbolTable {
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
-    public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
+    public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     public final BArrayType arrayAnydataType = new BArrayType(anydataType);
@@ -127,7 +127,7 @@ public class SymbolTable {
     public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
-    public final BType typeDesc = new BTypedescType(this.anyType, null);
+    public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);

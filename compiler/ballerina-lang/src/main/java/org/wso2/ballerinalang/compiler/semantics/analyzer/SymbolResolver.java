@@ -818,6 +818,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
             symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+            symTable.futureType.constraint = symTable.anyOrErrorType;
             return;
         }
         throw new IllegalStateException("built-in error not found ?");

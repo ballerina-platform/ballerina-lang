@@ -275,10 +275,10 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
-    |   TYPE_FUTURE LT typeName GT
+    |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_DESC LT typeName GT
+    |   TYPE_DESC (LT typeName GT)?
     |   SERVICE
     |   errorTypeName
     |   streamTypeName
