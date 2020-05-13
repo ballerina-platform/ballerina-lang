@@ -167,7 +167,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -840,14 +839,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         Set<BField> allFieldSet = new LinkedHashSet<>();
         for (BType memType : memTypes) {
-            Collection<BField> fields = ((BRecordType) memType).fields.values();
-            allFieldSet.addAll(fields);
+            allFieldSet.addAll(((BRecordType) memType).fields.values());
         }
 
         Set<BField> commonFieldSet = new LinkedHashSet<>(allFieldSet);
         for (BType memType : memTypes) {
-            Collection<BField> fields = ((BRecordType) memType).fields.values();
-            commonFieldSet.retainAll(fields);
+            commonFieldSet.retainAll(((BRecordType) memType).fields.values());
         }
 
         List<String> requiredFieldNames = new ArrayList<>();

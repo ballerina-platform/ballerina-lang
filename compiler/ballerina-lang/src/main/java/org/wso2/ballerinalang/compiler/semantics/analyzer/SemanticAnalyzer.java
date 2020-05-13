@@ -1830,7 +1830,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         for (BField rhsField : rhsRecordType.fields.values()) {
-            // TOOD 22/04/2020: Refactor this. No need to do this in each iteration.
             List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()
                     .filter(field -> field.variableName.value.equals(rhsField.name.toString()))
                     .collect(Collectors.toList());
