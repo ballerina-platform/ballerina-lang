@@ -38,6 +38,9 @@ import ballerina/java;
 #                     `kafka:Serializer` object
 # + schemaRegistryUrl - Avro schema registry URL. Use this field to specify the schema registry URL if the Avro
 #                       serializer is used
+# + properties - Additional properties for the property fields not provided by Ballerina Kafka module. Use this with
+#                caution since this can override any of the fields. It is not recomendded to use this field except
+#                in an extreme situation
 # + bufferMemory - Total bytes of memory the producer can use to buffer records
 # + retryCount - Number of retries to resend a record
 # + batchSize - Number of records to be batched for a single request. Use 0 for no batching
@@ -75,6 +78,8 @@ public type ProducerConfiguration record {|
     Serializer valueSerializer?;
     Serializer keySerializer?;
     string schemaRegistryUrl?;
+
+    map<string> properties?; // TODO: This should be renamed to additionalProperties in future releases.
 
     int bufferMemory?;
     int retryCount?;
