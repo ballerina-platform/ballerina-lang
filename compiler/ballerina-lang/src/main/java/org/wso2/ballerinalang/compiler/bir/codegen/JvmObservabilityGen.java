@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.FPCall;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
@@ -58,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -66,7 +66,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -108,7 +107,7 @@ class JvmObservabilityGen {
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
-    private static final String OBJECT_TYPE_FIELD_NAME = "$obs$typeName";
+    private static final String OBJECT_TYPE_FUNCTION_NAME = "$obs$getTypeName";
 
     // Observability tags related constants
     private static final String SRC_TAG_KEYS_PREFIX = "src.";
@@ -156,7 +155,7 @@ class JvmObservabilityGen {
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            addTypeInfo(typeDef, pkg);
+            addTypeInfoFunction(typeDef, pkg);
             if ((typeDef.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
                 continue;
             }
@@ -176,47 +175,61 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Add the type information field to a type definition.
+     * Add the type information method to a type definition.
      *
-     * @param typeDef The type definition to which type information field should be added
+     * @param typeDef The type definition to which type information function should be added
      * @param pkg The package containing the type definition
      */
-    private void addTypeInfo(BIRTypeDefinition typeDef, BIRPackage pkg) {
+    private void addTypeInfoFunction(BIRTypeDefinition typeDef, BIRPackage pkg) {
         if (typeDef.type instanceof BObjectType) {
-            BObjectType objectType = (BObjectType) typeDef.type;
-            boolean hasTypeField = objectType.fields.stream()
-                    .anyMatch(field -> Objects.equals(field.name.value, OBJECT_TYPE_FIELD_NAME));
-            if (hasTypeField) {
+            boolean hasTypeFunction = typeDef.attachedFuncs.stream()
+                    .anyMatch(func -> Objects.equals(func.name.value, OBJECT_TYPE_FUNCTION_NAME));
+            if (hasTypeFunction) {
                 return;
             }
 
-            Name typeFieldName = new Name(OBJECT_TYPE_FIELD_NAME);
-            PackageID pkgId = new PackageID(pkg.org, pkg.name, pkg.version);
-            BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgId);
-            BField typeNameField = new BField(typeFieldName, null, new BVarSymbol(0, typeFieldName, pkgId,
-                    symbolTable.stringType, pkgSymbol));
-            objectType.fields.add(typeNameField);
+            // Creating a function to return the type information
+            Name typeFuncName = new Name(OBJECT_TYPE_FUNCTION_NAME);
+            BType returnType = symbolTable.stringType;
+            BType selfArgType = typeDef.type;
+            BInvokableType bInvokableType = new BInvokableType(Collections.emptyList(), null, returnType, null);
+            BIRFunction typeFunc = new BIRFunction(null, typeFuncName, 0, bInvokableType, new Name("default"),
+                    0, null);
+            Name selfArgName = new Name("%self");
+            typeFunc.receiver = new BIRVariableDcl(null, selfArgType, selfArgName, VarScope.FUNCTION, VarKind.SELF,
+                    null);
+            typeDef.attachedFuncs.add(typeFunc);
 
-            BVarSymbol fieldVarSymbol = new BVarSymbol(0, typeFieldName, pkgId, objectType, objectType.tsymbol);
-            objectType.tsymbol.scope.define(typeFieldName, fieldVarSymbol);
+            // Creating and adding invokable symbol to the package symbol
+            PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(currentPkgId);
+            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, typeFuncName,
+                    currentPkgId, bInvokableType, pkgSymbol);
+            invokableSymbol.retType = returnType;
+            invokableSymbol.kind = SymbolKind.FUNCTION;
+            invokableSymbol.bodyExist = false;
+            invokableSymbol.params = Collections.singletonList(new BVarSymbol(0, typeFuncName, currentPkgId,
+                    selfArgType, pkgSymbol));
+            invokableSymbol.scope = new Scope(invokableSymbol);
+            typeDef.type.tsymbol.scope.define(typeFuncName, invokableSymbol);
 
             if (!((typeDef.flags & Flags.ABSTRACT) == Flags.ABSTRACT)) {
-                Optional<BIRFunction> initFunction = typeDef.attachedFuncs.stream()
-                        .filter(func -> Objects.equals(func.name, Names.GENERATED_INIT_SUFFIX))
-                        .findAny();
-                if (initFunction.isPresent()) {
-                    // Every generated init function should have function body
-                    BIRBasicBlock startBB = initFunction.get().basicBlocks.get(0);
-                    BIROperand typeFieldNameOperand = generateConstantOperand(String.format("%s$typeFieldName",
-                            startBB.id.value), OBJECT_TYPE_FIELD_NAME, initFunction.get().localVars, startBB, null);
-                    String type = getPackageName(typeDef.type.tsymbol.pkgID.orgName, typeDef.type.tsymbol.pkgID.name)
-                            + cleanUpServiceName(typeDef.name.value);
-                    BIROperand typeOperand = generateConstantOperand(String.format("%s$type",
-                            startBB.id.value), type, initFunction.get().localVars, startBB, null);
-                    FieldAccess fieldAccessIns = new FieldAccess(null, InstructionKind.OBJECT_STORE,
-                            new BIROperand(initFunction.get().receiver), typeFieldNameOperand, typeOperand);
-                    startBB.instructions.add(fieldAccessIns);
-                }
+                String type = getPackageName(typeDef.type.tsymbol.pkgID.orgName, typeDef.type.tsymbol.pkgID.name)
+                        + cleanUpServiceName(typeDef.name.value);
+
+                // Creating the return variable
+                BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
+                        new Name(String.format("$%s$retVal", typeFuncName.value)), VarScope.FUNCTION,
+                        VarKind.RETURN);
+                typeFunc.localVars.add(funcReturnVariableDcl);
+                typeFunc.returnVariable = funcReturnVariableDcl;
+
+                // Generating function body
+                BIRBasicBlock returnInsBB = insertBasicBlock(typeFunc, 0);
+                BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
+                ConstantLoad constLoadIns = new ConstantLoad(null, type, returnType, funcReturnOperand);
+                returnInsBB.instructions.add(constLoadIns);
+                returnInsBB.terminator = new Return(null);
             }
         }
     }
@@ -446,18 +459,20 @@ class JvmObservabilityGen {
             if (currentBB.terminator.kind == InstructionKind.CALL && isObservable((Call) currentBB.terminator)) {
                 Call callIns = (Call) currentBB.terminator;
                 DiagnosticPos desugaredInsPosition = callIns.pos;
-                BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 1);
+                BIRBasicBlock observeStartBB = insertBasicBlock(func, i + 1);
+                BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 2);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
                 {
                     BIROperand objectTypeOperand;
                     String action;
                     if (callIns.isVirtual) {
                         // Every virtual call instruction has self as the first argument
-                        BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
+                        BIROperand selfArgOperand = callIns.args.get(0);
+                        BIRVariableDcl selfArg = getVariableDcl(selfArgOperand.variableDcl);
                         if (selfArg.type instanceof BObjectType) {
                             /*
-                             * Reading the object type which was set as a field in the object created at compile time
-                             * using addTypeInfo method.
+                             * Invoking the type info method (added in addTypeInfoFunction method)
+                             * which returns the actual type
                              */
                             BIRVariableDcl objectTypeVariableDcl = new BIRVariableDcl(symbolTable.stringType,
                                     new Name(String.format("$%s$%s$objectType", INVOCATION_INSTRUMENTATION_TYPE,
@@ -465,14 +480,10 @@ class JvmObservabilityGen {
                             func.localVars.add(objectTypeVariableDcl);
                             objectTypeOperand = new BIROperand(objectTypeVariableDcl);
 
-                            BIROperand typeFieldNameOperand = generateConstantOperand(
-                                    String.format("%s$%s$typeFieldName", INVOCATION_INSTRUMENTATION_TYPE,
-                                            currentBB.id.value),
-                                    OBJECT_TYPE_FIELD_NAME, func.localVars, currentBB, null);
-                            FieldAccess fieldAccessIns = new FieldAccess(desugaredInsPosition,
-                                    InstructionKind.OBJECT_LOAD, objectTypeOperand, typeFieldNameOperand,
-                                    new BIROperand(selfArg));
-                            currentBB.instructions.add(fieldAccessIns);
+                            currentBB.terminator = new Call(desugaredInsPosition, InstructionKind.CALL,
+                                    true, callIns.calleePkg, new Name(OBJECT_TYPE_FUNCTION_NAME),
+                                    Collections.singletonList(selfArgOperand), objectTypeOperand, observeStartBB,
+                                    callIns.calleeAnnotAttachments, callIns.calleeFlags);
                         } else {
                             String objectType = getPackageName(selfArg.type.tsymbol.pkgID.orgName,
                                     selfArg.type.tsymbol.pkgID.name)
@@ -494,6 +505,9 @@ class JvmObservabilityGen {
                                 currentBB, desugaredInsPosition);
                         action = callIns.name.value;
                     }
+                    if (currentBB.terminator == null) {
+                        currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
+                    }
                     Map<String, String> tags = generatePositionTags(pkg, callIns.pos);
                     if (callIns.calleeFlags.contains(Flag.REMOTE)) {
                         tags.put(IS_REMOTE_TAG_KEY, TAG_VALUE_TRUE);
@@ -501,11 +515,11 @@ class JvmObservabilityGen {
 
                     BIRBasicBlock observeEndBB;
                     if (isErrorAssignable(callIns.lhsOp.variableDcl)) {
-                        BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 2);
-                        BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 3);
-                        observeEndBB = insertBasicBlock(func, i + 4);
+                        BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 3);
+                        BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 4);
+                        observeEndBB = insertBasicBlock(func, i + 5);
 
-                        injectObserveStartCall(currentBB, func.localVars, desugaredInsPosition,
+                        injectObserveStartCall(observeStartBB, func.localVars, desugaredInsPosition,
                                 false, objectTypeOperand, action, tags, INVOCATION_INSTRUMENTATION_TYPE);
                         injectCheckErrorCalls(errorCheckBB, errorReportBB, observeEndBB, func.localVars,
                                 desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
@@ -517,20 +531,22 @@ class JvmObservabilityGen {
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         errorReportBB.terminator.thenBB = observeEndBB;
                         newCurrentBB.terminator.thenBB = errorCheckBB;
-                        currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
-                        insertedBBs += 4; // Number of inserted BBs
+                        observeStartBB.terminator.thenBB = newCurrentBB;
+                        currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
+                        insertedBBs += 5; // Number of inserted BBs
                     } else {
-                        observeEndBB = insertBasicBlock(func, i + 2);
+                        observeEndBB = insertBasicBlock(func, i + 3);
 
-                        injectObserveStartCall(currentBB, func.localVars, desugaredInsPosition,
+                        injectObserveStartCall(observeStartBB, func.localVars, desugaredInsPosition,
                                 false, objectTypeOperand, action, tags, INVOCATION_INSTRUMENTATION_TYPE);
                         injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
                         // Fix the Basic Blocks links
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         newCurrentBB.terminator.thenBB = observeEndBB;
-                        currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
-                        insertedBBs += 2; // Number of inserted BBs
+                        observeStartBB.terminator.thenBB = newCurrentBB;
+                        currentBB.terminator.thenBB = observeStartBB; // Current BB now contains the type fetch call
+                        insertedBBs += 3; // Number of inserted BBs
                     }
                     fixErrorTable(func, currentBB, observeEndBB);
                 }
