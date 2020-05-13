@@ -234,6 +234,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -312,6 +313,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
+    private ConcreteBTypeBuilder typeBuilder;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -362,6 +364,7 @@ public class Desugar extends BLangNodeVisitor {
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.typeBuilder = new ConcreteBTypeBuilder();
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -3604,10 +3607,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
+        BType retType = ((BInvokableSymbol) iExpr.symbol).retType;
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(retType)
+                || Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             BType originalInvType = genIExpr.type;
-            genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) genIExpr.symbol;
+            genIExpr.type = typeBuilder.buildType(invokableSymbol.retType, (BLangInvocation) null);
             BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
 
             // Prevent adding another type conversion
