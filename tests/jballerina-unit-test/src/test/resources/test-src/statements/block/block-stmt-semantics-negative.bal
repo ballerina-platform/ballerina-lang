@@ -14,7 +14,7 @@ function testRedeclareFunctionArgument (int value) returns (string) {
     return "done";
 }
 
-function testRedeclareFunctionArgumentInBlockStmt (int value) returns (string) {
+function testRedeclareFunctionParameterInBlockStmt(int value) returns string {
     {
         int value = 11;
         testError tError = {message: "error", cause: error("errorMsg", code = "test")};
