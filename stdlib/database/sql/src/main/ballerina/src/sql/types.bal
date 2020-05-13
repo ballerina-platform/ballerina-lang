@@ -22,7 +22,7 @@ import ballerina/time;
 #
 # + value - Value of paramter passed into the SQL statement
 public type TypedValue abstract object {
-    anydata|object{}|record{} value;
+    public anydata|object{}|record{} value;
 };
 
 # Possible type of parameters that can be passed into the SQL query.
