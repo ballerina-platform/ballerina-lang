@@ -216,6 +216,7 @@ public enum ParserRuleContext {
     STREAM_KEYWORD("stream"),
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
+    NEW_KEYWORD("new"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -245,6 +246,7 @@ public enum ParserRuleContext {
     LT_TOKEN("<"),
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
+    PARENTHESISED_TYPE_DESC_START("("),
     EXPR_FUNC_BODY_START("=>"),
 
     // Other terminals
@@ -303,6 +305,8 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    NEW_KEYWORD_RHS("new-keyword-rhs"),
+    IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
 
@@ -317,9 +321,12 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_RETURN_TYPE_DESC("type-desc-in-return-type-desc"),
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
     TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
+    TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
+    TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
+    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
-    // XML 
+    // XML
     XML_CONTENT("xml-content"),
     XML_TAG("xml-tag"),
     XML_START_OR_EMPTY_TAG("xml-start-or-empty-tag"),

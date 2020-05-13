@@ -615,7 +615,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(NamedArgumentNode namedArgumentNode) {
         Token leadingComma = modifyToken(namedArgumentNode.leadingComma());
-        Token argumentName = modifyToken(namedArgumentNode.argumentName());
+        SimpleNameReferenceNode argumentName = modifyNode(namedArgumentNode.argumentName());
         Token equalsToken = modifyToken(namedArgumentNode.equalsToken());
         ExpressionNode expression = modifyNode(namedArgumentNode.expression());
         return namedArgumentNode.modify(
@@ -1345,6 +1345,61 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return expressionFunctionBodyNode.modify(
                 rightDoubleArrow,
                 expression);
+    }
+
+    @Override
+    public Node transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        Token openBracketToken = modifyToken(tupleTypeDescriptorNode.openBracketToken());
+        SeparatedNodeList<TypeDescriptorNode> memberTypeDesc = modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
+        Node restTypeDesc = modifyNode(tupleTypeDescriptorNode.restTypeDesc());
+        Token closeBracketToken = modifyToken(tupleTypeDescriptorNode.closeBracketToken());
+        return tupleTypeDescriptorNode.modify(
+                openBracketToken,
+                memberTypeDesc,
+                restTypeDesc,
+                closeBracketToken);
+    }
+
+    @Override
+    public Node transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        Token openParenToken = modifyToken(parenthesisedTypeDescriptorNode.openParenToken());
+        TypeDescriptorNode typedesc = modifyNode(parenthesisedTypeDescriptorNode.typedesc());
+        Token closeParenToken = modifyToken(parenthesisedTypeDescriptorNode.closeParenToken());
+        return parenthesisedTypeDescriptorNode.modify(
+                openParenToken,
+                typedesc,
+                closeParenToken);
+    }
+
+    @Override
+    public Node transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Token NewKeyword = modifyToken(explicitNewExpressionNode.NewKeyword());
+        TypeDescriptorNode TypeDescriptor = modifyNode(explicitNewExpressionNode.TypeDescriptor());
+        Node ParenthesizedArgList = modifyNode(explicitNewExpressionNode.ParenthesizedArgList());
+        return explicitNewExpressionNode.modify(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
+    }
+
+    @Override
+    public Node transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        Token NewKeyword = modifyToken(implicitNewExpressionNode.NewKeyword());
+        ParenthesizedArgList ParenthesizedArgList = modifyNode(implicitNewExpressionNode.ParenthesizedArgList().orElse(null));
+        return implicitNewExpressionNode.modify(
+                NewKeyword,
+                ParenthesizedArgList);
+    }
+
+    @Override
+    public Node transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = modifyToken(parenthesizedArgList.openParenToken());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(parenthesizedArgList.arguments());
+        Token closeParenToken = modifyToken(parenthesizedArgList.closeParenToken());
+        return parenthesizedArgList.modify(
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
     // Tokens

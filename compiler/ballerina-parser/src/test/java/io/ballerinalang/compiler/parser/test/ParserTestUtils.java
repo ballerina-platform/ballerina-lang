@@ -712,6 +712,10 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_DESC;
             case "FUNCTION_TYPE_DESC":
                 return SyntaxKind.FUNCTION_TYPE_DESC;
+            case "TUPLE_TYPE_DESC":
+                return SyntaxKind.TUPLE_TYPE_DESC;
+            case "PARENTHESISED_TYPE_DESC":
+                return SyntaxKind.PARENTHESISED_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -830,6 +834,14 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+            case "IMPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
+            case "NEW_KEYWORD":
+                return SyntaxKind.NEW_KEYWORD;
+            case "PARENTHESIZED_ARG_LIST":
+                return SyntaxKind.PARENTHESIZED_ARG_LIST;
+            case "EXPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 
             // Trivia
             case "EOF_TOKEN":

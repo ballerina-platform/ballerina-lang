@@ -467,6 +467,26 @@ public abstract class NodeVisitor {
         visitSyntaxNode(expressionFunctionBodyNode);
     }
 
+    public void visit(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        visitSyntaxNode(tupleTypeDescriptorNode);
+    }
+
+    public void visit(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        visitSyntaxNode(parenthesisedTypeDescriptorNode);
+    }
+
+    public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        visitSyntaxNode(explicitNewExpressionNode);
+    }
+
+    public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        visitSyntaxNode(implicitNewExpressionNode);
+    }
+
+    public void visit(ParenthesizedArgList parenthesizedArgList) {
+        visitSyntaxNode(parenthesizedArgList);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -360,6 +360,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseFuncReturnTypeDescriptor();
             case RETURNS_KEYWORD:
                 return parseReturnsKeyword();
+            case NEW_KEYWORD_RHS:
+                return parseNewKeywordRhs((STNode) args[0]);
+            case NEW_KEYWORD:
+                return parseNewKeyword();
+            case IMPLICIT_NEW:
+                return parseImplicitNewRhs((STNode) args[0]);
             case ANON_FUNC_BODY:
                 return parseAnonFuncBody();
             default:
@@ -490,7 +496,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse top level node having an optional modifier preceding it, given the next token kind.
      *
-     * @param tokenKind Next token kind
+     * @param metadata Next token kind
      * @return Parsed node
      */
     private STNode parseTopLevelNode(STNode metadata) {
@@ -1248,7 +1254,8 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * return-type-descriptor := [ returns [annots] type-descriptor ]
      * </code>
-     * 
+     *
+     * @param isParamNameOptional Whether the parameter names are optional
      * @param isInExprContext Whether this function signature is occurred within an expression context
      * @return Function signature node
      */
@@ -1271,7 +1278,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 // Parse the remaining as var-decl, because its the only module-level construct
                 // that can start with a func-type-desc. Constants cannot have func-type-desc.
-                endContext();   // end the func-type
+                endContext(); // end the func-type
                 startContext(ParserRuleContext.VAR_DECL_STMT);
                 STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(functionKeyword, funcSignature);
                 STNode varName = parseVariableName();
@@ -1302,7 +1309,7 @@ public class BallerinaParser extends AbstractParser {
      * Validate the param list and return. If there are params without param-name,
      * then this method will create a new set of params with missing param-name
      * and return.
-     * 
+     *
      * @param signature Function signature
      * @return
      */
@@ -1547,7 +1554,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse a single parameter. Parameter can be a required parameter, a defaultable
      * parameter, or a rest parameter.
-     * 
+     *
      * @param prevParamKind Kind of the parameter that precedes current parameter
      * @param leadingComma Comma that occurs before the param
      * @param isParamNameOptional Whether the param names in the signature is optional or not.
@@ -2009,7 +2016,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseObjectTypeDescriptor();
             case OPEN_PAREN_TOKEN:
                 // nil type descriptor '()'
-                return parseNilTypeDescriptor();
+                if (getNextNextToken(tokenKind).kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return parseNilTypeDescriptor();
+                }
+
+                return parseParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
@@ -2020,6 +2031,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseStreamTypeDescriptor();
             case FUNCTION_KEYWORD:
                 return parseFunctionTypeDesc();
+            case OPEN_BRACKET_TOKEN:
+                return parseTupleTypeDesc();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -3427,6 +3440,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeCastExpr();
             case TABLE_KEYWORD:
                 return parseTableConstructorExpr();
+            case ERROR_KEYWORD:
+                return parseErrorConstructorExpr();
             case LET_KEYWORD:
                 return parseLetExpression();
             case BACKTICK_TOKEN:
@@ -3449,6 +3464,8 @@ public class BallerinaParser extends AbstractParser {
                 // Annon-func can have annotations. Check for other expressions
                 // that van start with annots.
                 break;
+            case NEW_KEYWORD:
+                return parseNewExpression();
             default:
                 break;
         }
@@ -3487,6 +3504,117 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseActionOrExpressionInLhs(SyntaxKind nextTokenKind, STNode lhsExpr) {
         return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
+    }
+
+    /**
+     * <p>
+     * Parse a new expression.
+     * </p>
+     * <code>
+     *  new-expr := explicit-new-expr | implicit-new-expr
+     *  explicit-new-expr := new type-descriptor ( arg-list )
+     *  implicit-new-expr := new [( arg-list )]
+     * </code>
+     *
+     * @return Parsed NewExpression node.
+     */
+    private STNode parseNewExpression() {
+        STNode newKeyword = parseNewKeyword();
+        return parseNewKeywordRhs(newKeyword);
+    }
+
+    /**
+     * <p>
+     * Parse `new` keyword.
+     * </p>
+     *
+     * @return Parsed NEW_KEYWORD Token.
+     */
+    private STNode parseNewKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.NEW_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.NEW_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseNewKeywordRhs(STNode newKeyword) {
+        STNode token = peek();
+        return parseNewKeywordRhs(token.kind, newKeyword);
+    }
+
+    /**
+     * <p>
+     * Parse an implicit or explicit expression.
+     * </p>
+     * 
+     * @param kind next token kind.
+     * @param newKeyword parsed node for `new` keyword.
+     * @return Parsed new-expression node.
+     */
+    private STNode parseNewKeywordRhs(SyntaxKind kind, STNode newKeyword) {
+        switch (kind) {
+            case OPEN_PAREN_TOKEN:
+                return parseImplicitNewRhs(newKeyword);
+            case SEMICOLON_TOKEN:
+                break;
+            case IDENTIFIER_TOKEN:
+            case OBJECT_KEYWORD:
+                // TODO: Support `stream` keyword once introduced
+                return parseTypeDescriptorInNewExpr(newKeyword);
+            default:
+                break;
+        }
+
+        return STNodeFactory.createImplicitNewExpressionNode(newKeyword, STNodeFactory.createEmptyNode());
+    }
+
+    /**
+     * <p>
+     * Parse an Explicit New expression.
+     * </p>
+     * <code>
+     *  explicit-new-expr := new type-descriptor ( arg-list )
+     * </code>
+     *
+     * @param newKeyword Parsed `new` keyword.
+     * @return the Parsed Explicit New Expression.
+     */
+    private STNode parseTypeDescriptorInNewExpr(STNode newKeyword) {
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_NEW_EXPR);
+        STNode parenthesizedArgsList = parseParenthesizedArgList();
+
+        return STNodeFactory.createExplicitNewExpressionNode(newKeyword, typeDescriptor, parenthesizedArgsList);
+    }
+
+    /**
+     * <p>
+     * Parse an <code>implicit-new-expr</code> with arguments.
+     * </p>
+     *
+     * @param newKeyword Parsed `new` keyword.
+     * @return Parsed implicit-new-expr.
+     */
+    private STNode parseImplicitNewRhs(STNode newKeyword) {
+        STNode implicitNewArgList = parseParenthesizedArgList();
+        return STNodeFactory.createImplicitNewExpressionNode(newKeyword, implicitNewArgList);
+    }
+
+    /**
+     * <p>
+     * Parse the parenthesized argument list for a <code>new-expr</code>.
+     * </p>
+     *
+     * @return Parsed parenthesized rhs of <code>new-expr</code>.
+     */
+    private STNode parseParenthesizedArgList() {
+        STNode openParan = parseOpenParenthesis();
+        STNode arguments = parseArgsList();
+        STNode closeParan = parseCloseParenthesis();
+
+        return STNodeFactory.createParenthesizedArgList(openParan, arguments, closeParan);
     }
 
     /**
@@ -3784,6 +3912,20 @@ public class BallerinaParser extends AbstractParser {
         STNode args = parseArgsList();
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
+    }
+
+    /**
+     * <p>
+     * Parse error constructor expression.
+     * </p>
+     * <code>
+     * error-constructor-expr := error ( arg-list )
+     * </code>
+     *
+     * @return Error constructor expression
+     */
+    private STNode parseErrorConstructorExpr() {
+        return parseFuncCall(parseErrorKeyWord());
     }
 
     /**
@@ -5936,7 +6078,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse statement which is only consists of an action or expression.
-     * 
+     *
      * @param annots Annotations
      * @param nextTokenKind Next token kind
      * @return Parsed node
@@ -7004,7 +7146,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * i.e.: a member-access-expr, where its container is also a member-access.
      * <code>a[b][]</code>
-     * 
+     *
      * @param expression EXpression to check
      * @return <code>true</code> if the expression provided is a possible array-type desc. <code>false</code> otherwise
      */
@@ -7065,6 +7207,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // error type desc
             case STREAM_KEYWORD: // stream type desc
             case FUNCTION_KEYWORD:
+            case OPEN_BRACKET_TOKEN:
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -7848,7 +7991,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse raw backtick string template expression.
      * <p>
      * <code>BacktickString := `expression`</code>
-     * 
+     *
      * @return Template expression node
      */
     private STNode parseTemplateExpression() {
@@ -7895,7 +8038,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse string template expression.
      * <p>
      * <code>string-template-expr := string ` expression `</code>
-     * 
+     *
      * @return String template expression node
      */
     private STNode parseStringTemplateExpression() {
@@ -7926,7 +8069,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse XML template expression.
      * <p>
      * <code>xml-template-expr := xml BacktickString</code>
-     * 
+     *
      * @return XML template expression
      */
     private STNode parseXMLTemplateExpression() {
@@ -7957,7 +8100,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse the content of the template string as XML. This method first read the
      * input in the same way as the raw-backtick-template (BacktickString). Then
      * it parses the content as XML.
-     * 
+     *
      * @return XML node
      */
     private STNode parseTemplateContentAsXML() {
@@ -7990,7 +8133,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * interpolation := ${ expression }
      * </code>
-     * 
+     *
      * @return Interpolation node
      */
     private STNode parseInterpolation() {
@@ -8007,7 +8150,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse interpolation start token.
      * <p>
      * <code>interpolation-start := ${</code>
-     * 
+     *
      * @return Interpolation start token
      */
     private STNode parseInterpolationStart() {
@@ -8057,7 +8200,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse function type descriptor.
      * <p>
      * <code>function-type-descriptor := function function-signature</code>
-     * 
+     *
      * @return Function type descriptor node
      */
     private STNode parseFunctionTypeDesc() {
@@ -8090,6 +8233,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse anonymous function body.
      * <p>
      * <code>anon-func-body := block-function-body | expr-function-body</code>
+     * 
      * @return
      */
     private STNode parseAnonFuncBody() {
@@ -8137,5 +8281,85 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse tuple type descriptor.
+     * <p>
+     * <code>tuple-type-descriptor := [ tuple-member-type-descriptors ]
+     * <br/><br/>
+     * tuple-member-type-descriptors := member-type-descriptor (, member-type-descriptor)* [, tuple-rest-descriptor]
+     *                                     | [ tuple-rest-descriptor ]
+     * <br/><br/>
+     * tuple-rest-descriptor := type-descriptor ...
+     * </code>
+     * 
+     * @return
+     */
+    private STNode parseTupleTypeDesc() {
+        STNode openBracket = parseOpenBracket();
+        STNode memberTypeDesc = parseTupleMemberTypeDescList();
+        STNode restTypeDesc = parseTupleRestTypeDesc();
+        STNode closeBracket = parseCloseBracket();
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, restTypeDesc, closeBracket);
+    }
+
+    /**
+     * Parse tuple member type descriptors.
+     *
+     * @return Parsed node
+     */
+    private STNode parseTupleMemberTypeDescList() {
+        List<STNode> typeDescList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list
+        if (isEndOfTypeList(nextToken.kind)) {
+            this.errorHandler.reportMissingTokenError("missing type-desc");
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first typedesc, that has no leading comma
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        typeDescList.add(typeDesc);
+
+        // Parse the remaining type descs
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfTypeList(nextToken.kind)) {
+            leadingComma = parseComma();
+            typeDescList.add(leadingComma);
+            typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            typeDescList.add(typeDesc);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(typeDescList);
+    }
+
+    private boolean isEndOfTypeList(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case CLOSE_BRACKET_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case EOF_TOKEN:
+            case EQUAL_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseTupleRestTypeDesc() {
+        return STNodeFactory.createEmptyNode();
+    }
+
+    private STNode parseParenthesisedTypeDesc() {
+        STNode openParen = parseOpenParenthesis();
+        STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
+        STNode closeParen = parseCloseParenthesis();
+        return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
     }
 }

@@ -1358,5 +1358,60 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 rightDoubleArrow,
                 expression);
     }
+
+    public static STNode createTupleTypeDescriptorNode(
+            STNode openBracketToken,
+            STNode memberTypeDesc,
+            STNode restTypeDesc,
+            STNode closeBracketToken) {
+
+        return new STTupleTypeDescriptorNode(
+                openBracketToken,
+                memberTypeDesc,
+                restTypeDesc,
+                closeBracketToken);
+    }
+
+    public static STNode createParenthesisedTypeDescriptorNode(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken) {
+
+        return new STParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken);
+    }
+
+    public static STNode createExplicitNewExpressionNode(
+            STNode NewKeyword,
+            STNode TypeDescriptor,
+            STNode ParenthesizedArgList) {
+
+        return new STExplicitNewExpressionNode(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
+    }
+
+    public static STNode createImplicitNewExpressionNode(
+            STNode NewKeyword,
+            STNode ParenthesizedArgList) {
+
+        return new STImplicitNewExpressionNode(
+                NewKeyword,
+                ParenthesizedArgList);
+    }
+
+    public static STNode createParenthesizedArgList(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STParenthesizedArgList(
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
 }
 

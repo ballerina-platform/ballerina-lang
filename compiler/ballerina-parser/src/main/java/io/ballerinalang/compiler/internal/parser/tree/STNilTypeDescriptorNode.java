@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STNilTypeDescriptorNode extends STNode {
+public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode openParenToken;
     public final STNode closeParenToken;
 

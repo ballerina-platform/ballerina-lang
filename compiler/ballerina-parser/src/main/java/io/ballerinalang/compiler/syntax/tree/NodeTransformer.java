@@ -468,6 +468,26 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
+    public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        return transformSyntaxNode(tupleTypeDescriptorNode);
+    }
+
+    public T transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        return transformSyntaxNode(parenthesisedTypeDescriptorNode);
+    }
+
+    public T transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        return transformSyntaxNode(explicitNewExpressionNode);
+    }
+
+    public T transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        return transformSyntaxNode(implicitNewExpressionNode);
+    }
+
+    public T transform(ParenthesizedArgList parenthesizedArgList) {
+        return transformSyntaxNode(parenthesizedArgList);
+    }
+
     // Tokens
 
     public T transform(Token token) {

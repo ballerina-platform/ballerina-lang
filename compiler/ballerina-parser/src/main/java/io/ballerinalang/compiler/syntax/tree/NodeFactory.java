@@ -829,7 +829,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NamedArgumentNode createNamedArgumentNode(
             Token leadingComma,
-            Token argumentName,
+            SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -1829,6 +1829,80 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 rightDoubleArrow.internalNode(),
                 expression.internalNode());
         return stExpressionFunctionBodyNode.createUnlinkedFacade();
+    }
+
+    public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
+            Token openBracketToken,
+            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
+            Node restTypeDesc,
+            Token closeBracketToken) {
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+        Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
+
+        STNode stTupleTypeDescriptorNode = STNodeFactory.createTupleTypeDescriptorNode(
+                openBracketToken.internalNode(),
+                memberTypeDesc.underlyingListNode().internalNode(),
+                restTypeDesc.internalNode(),
+                closeBracketToken.internalNode());
+        return stTupleTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ParenthesisedTypeDescriptorNode createParenthesisedTypeDescriptorNode(
+            Token openParenToken,
+            TypeDescriptorNode typedesc,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(typedesc, "typedesc must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stParenthesisedTypeDescriptorNode = STNodeFactory.createParenthesisedTypeDescriptorNode(
+                openParenToken.internalNode(),
+                typedesc.internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesisedTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ExplicitNewExpressionNode createExplicitNewExpressionNode(
+            Token NewKeyword,
+            TypeDescriptorNode TypeDescriptor,
+            Node ParenthesizedArgList) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+        Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
+        Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
+
+        STNode stExplicitNewExpressionNode = STNodeFactory.createExplicitNewExpressionNode(
+                NewKeyword.internalNode(),
+                TypeDescriptor.internalNode(),
+                ParenthesizedArgList.internalNode());
+        return stExplicitNewExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ImplicitNewExpressionNode createImplicitNewExpressionNode(
+            Token NewKeyword,
+            ParenthesizedArgList ParenthesizedArgList) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+
+        STNode stImplicitNewExpressionNode = STNodeFactory.createImplicitNewExpressionNode(
+                NewKeyword.internalNode(),
+                getOptionalSTNode(ParenthesizedArgList));
+        return stImplicitNewExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ParenthesizedArgList createParenthesizedArgList(
+            Token openParenToken,
+            NodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stParenthesizedArgList = STNodeFactory.createParenthesizedArgList(
+                openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesizedArgList.createUnlinkedFacade();
     }
 }
 
