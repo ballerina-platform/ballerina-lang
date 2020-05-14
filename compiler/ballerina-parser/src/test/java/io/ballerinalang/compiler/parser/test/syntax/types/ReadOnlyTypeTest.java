@@ -31,4 +31,28 @@ public class ReadOnlyTypeTest extends AbstractTypesTest {
         testTopLevelNode("readonly-type/readonly_type_assert_01.bal",
                 "readonly-type/readonly_type_assert_01.json");
     }
+
+    @Test
+    public void testValidModuleLevelReadOnlyType() {
+        test("readonly<int> a;", "readonly-type/readonly_type_assert_02.json");
+    }
+
+    @Test
+    public void testValidMReadOnlyTypeAsReturnType() {
+        testTopLevelNode("readonly-type/readonly_type_assert_03.bal",
+                "readonly-type/readonly_type_assert_03.json");
+    }
+
+    @Test
+    public void testValidMReadOnlyTypeAsTypeDefinition() {
+        testTopLevelNode("readonly-type/readonly_type_assert_04.bal",
+                "readonly-type/readonly_type_assert_04.json");
+    }
+
+    //Recovery tests
+    @Test
+    public void testInValidLocalLevelReadOnlyType() {
+        testTopLevelNode("readonly-type/readonly_type_assert_05.bal",
+                "readonly-type/readonly_type_assert_05.json");
+    }
 }
