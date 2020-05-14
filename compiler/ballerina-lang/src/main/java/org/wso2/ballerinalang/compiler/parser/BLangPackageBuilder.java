@@ -283,8 +283,6 @@ public class BLangPackageBuilder {
 
     private Stack<BLangNode> queryClauseStack = new Stack<>();
 
-    private Stack<BLangOnClause> onClauseNodeStack = new Stack<>();
-
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
