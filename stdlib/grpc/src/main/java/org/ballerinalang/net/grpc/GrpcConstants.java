@@ -16,7 +16,9 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,7 +52,7 @@ public class GrpcConstants {
     public static final String CALLER = "Caller";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
-    public static final String CALLER_ID = "instanceId";
+    public static final BString CALLER_ID = StringUtils.fromString("instanceId");
 
     // Service Descriptor Annotation
     public static final String DESCRIPTOR_MAP = "getDescriptorMap";
