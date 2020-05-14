@@ -56,7 +56,7 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
     public List<BallerinaField> getFieldDescriptors() {
         if (this.fieldDescriptors == null) {
             this.fieldDescriptors = new ArrayList<>();
-            for (BField field : ((BRecordType) this.getBType()).fields) {
+            for (BField field : ((BRecordType) this.getBType()).fields.values()) {
                 this.fieldDescriptors.add(new BallerinaField(field));
             }
         }

@@ -87,7 +87,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
     public List<BallerinaField> getObjectFields() {
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
-            for (BField field : ((BObjectType) this.getBType()).fields) {
+            for (BField field : ((BObjectType) this.getBType()).fields.values()) {
                 this.objectFields.add(new BallerinaField(field));
             }
         }

@@ -93,7 +93,7 @@ public class BallerinaRecordVarSymbol extends BallerinaVariable {
          * @param recordTypeSymbol Record Type Symbol instance
          */
         private void withRecordTypeSymbol(BRecordTypeSymbol recordTypeSymbol) {
-            for (BField field : ((BRecordType) recordTypeSymbol.getType()).fields) {
+            for (BField field : ((BRecordType) recordTypeSymbol.getType()).fields.values()) {
                 BallerinaField ballerinaField = new BallerinaField(field);
                 this.recordFields.add(ballerinaField);
             }
