@@ -1403,22 +1403,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createExplicitNewExpression(
+    public static STNode createExplicitNewExpressionNode(
             STNode NewKeyword,
             STNode TypeDescriptor,
             STNode ParenthesizedArgList) {
 
-        return new STExplicitNewExpression(
+        return new STExplicitNewExpressionNode(
                 NewKeyword,
                 TypeDescriptor,
                 ParenthesizedArgList);
     }
 
-    public static STNode createImplicitNewExpression(
+    public static STNode createImplicitNewExpressionNode(
             STNode NewKeyword,
             STNode ParenthesizedArgList) {
 
-        return new STImplicitNewExpression(
+        return new STImplicitNewExpressionNode(
                 NewKeyword,
                 ParenthesizedArgList);
     }

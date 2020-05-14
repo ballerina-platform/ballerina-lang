@@ -1891,30 +1891,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stParenthesisedTypeDescriptorNode.createUnlinkedFacade();
     }
 
-    public static ExplicitNewExpression createExplicitNewExpression(
+    public static ExplicitNewExpressionNode createExplicitNewExpressionNode(
             Token NewKeyword,
-            Node TypeDescriptor,
+            TypeDescriptorNode TypeDescriptor,
             Node ParenthesizedArgList) {
         Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
         Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
         Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
 
-        STNode stExplicitNewExpression = STNodeFactory.createExplicitNewExpression(
+        STNode stExplicitNewExpressionNode = STNodeFactory.createExplicitNewExpressionNode(
                 NewKeyword.internalNode(),
                 TypeDescriptor.internalNode(),
                 ParenthesizedArgList.internalNode());
-        return stExplicitNewExpression.createUnlinkedFacade();
+        return stExplicitNewExpressionNode.createUnlinkedFacade();
     }
 
-    public static ImplicitNewExpression createImplicitNewExpression(
+    public static ImplicitNewExpressionNode createImplicitNewExpressionNode(
             Token NewKeyword,
-            Node ParenthesizedArgList) {
+            ParenthesizedArgList ParenthesizedArgList) {
         Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
 
-        STNode stImplicitNewExpression = STNodeFactory.createImplicitNewExpression(
+        STNode stImplicitNewExpressionNode = STNodeFactory.createImplicitNewExpressionNode(
                 NewKeyword.internalNode(),
                 getOptionalSTNode(ParenthesizedArgList));
-        return stImplicitNewExpression.createUnlinkedFacade();
+        return stImplicitNewExpressionNode.createUnlinkedFacade();
     }
 
     public static ParenthesizedArgList createParenthesizedArgList(

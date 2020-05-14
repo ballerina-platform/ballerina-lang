@@ -108,6 +108,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#blockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlockStatement(BallerinaParser.BlockStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#blockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlockStatement(BallerinaParser.BlockStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#externalFunctionBody}.
 	 * @param ctx the parse tree
 	 */
@@ -338,6 +348,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#enumDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#enumDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#enumMember}.
+	 * @param ctx the parse tree
+	 */
+	void enterEnumMember(BallerinaParser.EnumMemberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#enumMember}.
+	 * @param ctx the parse tree
+	 */
+	void exitEnumMember(BallerinaParser.EnumMemberContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 */
@@ -533,6 +563,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code intersectionTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code intersectionTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code groupTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
