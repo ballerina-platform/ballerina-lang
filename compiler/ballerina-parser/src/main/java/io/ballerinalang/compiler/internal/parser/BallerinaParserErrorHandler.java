@@ -1133,7 +1133,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.READONLY_KEYWORD;
                     break;
                 case DISTINCT_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD;
+                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:

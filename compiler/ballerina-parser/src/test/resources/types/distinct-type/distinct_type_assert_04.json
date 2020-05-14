@@ -1,0 +1,36 @@
+{
+    "kind": "TYPE_DEFINITION",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "myType"
+        },
+        {
+            "kind": "DISTINCT_TYPE_DESC",
+            "children": [
+                {
+                    "kind": "DISTINCT_KEYWORD"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "T"
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}
