@@ -155,4 +155,18 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b select c where d", "query-expr/query_expr_assert_33.json");
         test("from int a in b select c select d", "query-expr/query_expr_assert_34.json");
     }
+
+    @Test
+    public void testQueryWithOperatorPrecedence() {
+        test("from int a in b select c + from int d in e select f", "query-expr/query_expr_assert_35.json");
+    }
+
+    @Test
+    public void testQueryWithOperatorPrecedenceWithExtraClauses() {
+        test("from int a in b select c where e + from int d in e select f", "query-expr/query_expr_assert_36.json");
+        test("from int a in b select c from int d in e + from int f in g select h",
+                "query-expr/query_expr_assert_37.json");
+        test("from int a in b select c let int a = b + from int f in g select h",
+                "query-expr/query_expr_assert_38.json");
+    }
 }
