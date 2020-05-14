@@ -59,7 +59,7 @@ public class TopicSubscribeToPatternTest {
                 .start();
     }
 
-    @Test(description = "Test functionality of getAvailableTopics() function")
+    @Test(description = "Test functionality of getAvailableTopics() function", enabled = false)
     public void testSubscribeToPattern() {
         String balFile = "topic_subscribe_to_pattern.bal";
         CompileResult result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
