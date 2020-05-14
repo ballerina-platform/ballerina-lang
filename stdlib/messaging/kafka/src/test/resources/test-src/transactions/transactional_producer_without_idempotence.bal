@@ -19,18 +19,18 @@ import ballerina/kafka;
 string topic = "abort-transaction-topic";
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers:"localhost:14112, localhost:14113, localhost:14114",
+    bootstrapServers:"localhost:14151",
     clientId:"abort-transaction-producer",
     acks: kafka:ACKS_ALL,
     retryCount:3,
     transactionalId:"abort-transaction-test-producer-without-idempotence"
 };
 
-function funcKafkaCreateProducer() returns error? {
+function testCreateProducer() returns error? {
     error? err = trap createKafkaProducer();
     return err;
 }
 
 function createKafkaProducer() {
-    kafka:Producer producer = new(producerConfigs);
+    kafka:Producer producer = new (producerConfigs);
 }

@@ -298,8 +298,16 @@ public class LSPUtils {
                 }
             } else {
                 // Checks if the ballerina command works.
-                String ballerinaPath = BallerinaSdkUtils.execBalHomeCmd(String.format("%s %s", BALLERINA_CMD,
-                        BALLERINA_HOME_CMD));
+                String ballerinaPath = "";
+                try {
+                    ballerinaPath = BallerinaSdkUtils.execBalHomeCmd(String.format("%s %s", BALLERINA_CMD,
+                            BALLERINA_HOME_CMD));
+                } catch (BallerinaCmdException ignored) {
+                    // We do nothing here as we need to fall back for default installer based locations, since
+                    // "ballerina" command might not work because of the IntelliJ issue of PATH variable might not
+                    // being identified by the IntelliJ java runtime.
+                }
+
                 if (!ballerinaPath.isEmpty()) {
                     cmdArgs.add(BALLERINA_CMD);
                     cmdArgs.add(BALLERINA_LS_CMD);
