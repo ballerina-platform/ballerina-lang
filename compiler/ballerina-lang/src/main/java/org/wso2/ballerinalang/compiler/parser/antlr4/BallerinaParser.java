@@ -242,7 +242,7 @@ public class BallerinaParser extends Parser {
 		"'retry'", "'onretry'", "'retries'", "'committed'", "'aborted'", "'with'", 
 		"'in'", "'lock'", "'untaint'", "'start'", "'but'", "'check'", "'checkpanic'", 
 		"'primarykey'", "'is'", "'flush'", "'wait'", "'default'", "'from'", null, 
-		null, null, "'let'", "'conflict'", "'equals'", "'Deprecated'", null, "'Deprecated parameters'", 
+		null, null, "'let'", "'conflict'", null, "'Deprecated'", null, "'Deprecated parameters'", 
 		"';'", "':'", "'.'", "','", "'{'", "'}'", "'('", "')'", "'['", "']'", 
 		"'?'", "'?.'", "'{|'", "'|}'", "'='", "'+'", "'-'", "'*'", "'/'", "'%'", 
 		"'!'", "'=='", "'!='", "'>'", "'<'", "'>='", "'<='", "'&&'", "'||'", "'==='", 
