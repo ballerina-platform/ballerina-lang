@@ -1433,6 +1433,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeParameterNode);
     }
 
+    @Override
+    public Node transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        Token distinctKeywordToken = modifyToken(distinctTypeDescriptorNode.distinctKeywordToken());
+        Node typeDescriptorNode = modifyNode(distinctTypeDescriptorNode.typeDescriptorNode());
+        return distinctTypeDescriptorNode.modify(
+                distinctKeywordToken,
+                typeDescriptorNode);
+    }
+
     // Tokens
 
     @Override

@@ -1946,5 +1946,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typeParameterNode.internalNode());
         return stReadOnlyTypeDescriptor.createUnlinkedFacade();
     }
+
+    public static DistinctTypeDescriptorNode createDistinctTypeDescriptorNode(
+            Token distinctKeywordToken,
+            Node typeDescriptorNode) {
+        Objects.requireNonNull(distinctKeywordToken, "distinctKeywordToken must not be null");
+        Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
+
+        STNode stDistinctTypeDescriptorNode = STNodeFactory.createDistinctTypeDescriptorNode(
+                distinctKeywordToken.internalNode(),
+                typeDescriptorNode.internalNode());
+        return stDistinctTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

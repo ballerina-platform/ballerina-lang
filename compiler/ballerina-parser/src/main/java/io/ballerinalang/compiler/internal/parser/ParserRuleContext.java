@@ -217,6 +217,7 @@ public enum ParserRuleContext {
     STRING_KEYWORD("string"),
     NEW_KEYWORD("new"),
     READONLY_KEYWORD("readonly"),
+    DISTINCT_KEYWORD("distinct"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -323,6 +324,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
     TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
+    TYPE_DESC_IN_DISTINCT_TYPE_DESC("type-desc-in-distinct-type-desc"),
 
     // XML
     XML_CONTENT("xml-content"),

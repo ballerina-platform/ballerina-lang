@@ -2039,6 +2039,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTupleTypeDesc();
             case READONLY_KEYWORD:
                 return parseReadOnlyTypeDesc();
+            case DISTINCT_KEYWORD:
+                return parseDistinctTypeDesc();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -7206,6 +7208,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
             case READONLY_KEYWORD:
+            case DISTINCT_KEYWORD:
                 return true;
             default:
                 return isSimpleType(nodeKind);
@@ -8459,6 +8462,33 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.READONLY_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse distinct type descriptor.
+     * <p>distinct-type-desc := distinct type-desc</p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseDistinctTypeDesc() {
+        STNode distinctKeywordToken = parseDistinctKeyword();
+        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_DISTINCT_TYPE_DESC);
+        return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeywordToken, typeDescriptorNode);
+    }
+
+    /**
+     * Parse distinct keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDistinctKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DISTINCT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.DISTINCT_KEYWORD);
             return sol.recoveredNode;
         }
     }

@@ -2585,6 +2585,21 @@
                     "type": "Node"
                 }
             ]
+        },
+        {
+            "name": "DistinctTypeDescriptorNode",
+            "base": "Node",
+            "kind": "DISTINCT_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "distinctKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptorNode",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

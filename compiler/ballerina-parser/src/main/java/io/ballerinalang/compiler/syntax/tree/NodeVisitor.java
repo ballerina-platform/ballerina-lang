@@ -499,6 +499,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(readOnlyTypeDescriptor);
     }
 
+    public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

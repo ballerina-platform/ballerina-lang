@@ -500,6 +500,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(readOnlyTypeDescriptor);
     }
 
+    public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        return transformSyntaxNode(distinctTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
