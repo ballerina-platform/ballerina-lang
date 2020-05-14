@@ -17,47 +17,51 @@
 import ballerina/system;
 import ballerina/java;
 
-# Struct which represents Kafka Producer configuration.
+# Represents the Kafka Producer configuration.
 #
-# + bootstrapServers - List of remote server endpoints of Kafka brokers.
-# + acks - Number of acknowledgments. This can be either `kafka:ACKS_ALL`, `kafka:ACKS_SINGLE` or `kafka:ACKS_NONE`.
-# + compressionType - Compression type to be used for messages.
-# + clientId - Identifier to be used for server side logging.
-# + metricsRecordingLevel - Metrics recording level.
-# + metricReporterClasses - Metrics reporter classes.
-# + partitionerClass - Partitioner class to be used to select partition to which the message is sent.
-# + interceptorClasses - Interceptor classes to be used before sending records.
-# + transactionalId - Transactional ID to be used in transactional delivery.
+# + bootstrapServers - List of remote server endpoints of Kafka brokers
+# + acks - Number of acknowledgments
+# + compressionType - Compression type to be used for messages
+# + clientId - Identifier to be used for server side logging
+# + metricsRecordingLevel - Metrics recording level
+# + metricReporterClasses - Metrics reporter classes
+# + partitionerClass - Partitioner class to be used to select the partition to which the message is sent
+# + interceptorClasses - Interceptor classes to be used before sending records
+# + transactionalId - Transactional ID to be used in transactional delivery
 # + keySerializerType - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or a
-#       user-defined serializer.
+#                       user-defined serializer
 # + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or a
-#       user-defined serializer.
-# + keySerializer - Custom serializer object to serialize kafka keys. This should be implement the `kafka:Serializer`
-#       object.
-# + valueSerializer - Custom serializer object to serialize kafka values. This should be implement the
-#       `kafka:Serializer` object.
-# + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url, if Avro serializer
-#       is used.
-# + bufferMemory - Total bytes of memory the producer can use to buffer records.
-# + retryCount - Number of retries to resend a record.
-# + batchSize - Number of records to be batched for a single request. Use 0 for no batching.
-# + linger - Delay to allow other records to be batched.
-# + sendBuffer - Size of the TCP send buffer (SO_SNDBUF).
-# + receiveBuffer - Size of the TCP receive buffer (SO_RCVBUF).
-# + maxRequestSize - The maximum size of a request in bytes.
-# + reconnectBackoffTimeInMillis - Time to wait before attempting to reconnect.
-# + reconnectBackoffMaxTimeInMillis - Maximum amount of time in milliseconds to wait when reconnecting.
-# + retryBackoffTimeInMillis - Time to wait before attempting to retry a failed request.
-# + maxBlock - Maximum block time which the send is blocked, when the buffer is full.
-# + requestTimeoutInMillis - Wait time for response of a request.
-# + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata.
-# + metricsSampleWindowInMillis - Time window for a metrics sample to computed over.
-# + metricsNumSamples - Number of samples maintained to compute metrics.
-# + maxInFlightRequestsPerConnection - Maximum number of unacknowledged requests on a single connection.
-# + connectionsMaxIdleTimeInMillis - Close idle connections after the number of milliseconds.
-# + transactionTimeoutInMillis - Timeout for transaction status update from the producer.
-# + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
-# + secureSocket - Configurations related to SSL/TLS.
+#                         user-defined serializer
+# + keySerializer - Custom serializer object to serialize Kafka keys. This should implement the `kafka:Serializer`
+#                   object
+# + valueSerializer - Custom serializer object to serialize Kafka values. This should implement the
+#                     `kafka:Serializer` object
+# + schemaRegistryUrl - Avro schema registry URL. Use this field to specify the schema registry URL if the Avro
+#                       serializer is used
+# + properties - Additional properties for the property fields not provided by Ballerina Kafka module. Use this with
+#                caution since this can override any of the fields. It is not recomendded to use this field except
+#                in an extreme situation
+# + bufferMemory - Total bytes of memory the producer can use to buffer records
+# + retryCount - Number of retries to resend a record
+# + batchSize - Number of records to be batched for a single request. Use 0 for no batching
+# + linger - Delay to allow other records to be batched
+# + sendBuffer - Size of the TCP send buffer (SO_SNDBUF)
+# + receiveBuffer - Size of the TCP receive buffer (SO_RCVBUF)
+# + maxRequestSize - The maximum size of a request in bytes
+# + reconnectBackoffTimeInMillis - Time to wait before attempting to reconnect
+# + reconnectBackoffMaxTimeInMillis - Maximum amount of time in milliseconds to wait when reconnecting
+# + retryBackoffTimeInMillis - Time to wait before attempting to retry a failed request
+# + maxBlock - Maximum block time during which the sending is blocked when the buffer is full
+# + requestTimeoutInMillis - Wait time for the response of a request
+# + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata
+# + metricsSampleWindowInMillis - Time window for a metrics sample to compute over
+# + metricsNumSamples - Number of samples maintained to compute the metrics
+# + maxInFlightRequestsPerConnection - Maximum number of unacknowledged requests on a single connection
+# + connectionsMaxIdleTimeInMillis - Close the idle connections after this number of milliseconds
+# + transactionTimeoutInMillis - Timeout for transaction status update from the producer
+# + enableIdempotence - Exactly one copy of each message is written to the stream when enabled
+# + secureSocket - Configurations related to SSL/TLS encryption
+# + authenticationConfiguration - Authentication-related configurations for the Kafka producer
 public type ProducerConfiguration record {|
     string bootstrapServers;
     ProducerAcks acks = ACKS_SINGLE;
@@ -74,6 +78,8 @@ public type ProducerConfiguration record {|
     Serializer valueSerializer?;
     Serializer keySerializer?;
     string schemaRegistryUrl?;
+
+    map<string> properties?; // TODO: This should be renamed to additionalProperties in future releases.
 
     int bufferMemory?;
     int retryCount?;
@@ -97,29 +103,31 @@ public type ProducerConfiguration record {|
     boolean enableIdempotence = false;
 
     SecureSocket secureSocket?;
+    AuthenticationConfiguration authenticationConfiguration?;
 |};
 
-# Defines a records to send data using Avro serialization.
-# + schemaString - The string which defines the Avro schema.
-# + dataRecord - Records which should be serialized using Avro.
+# Defines a record to send data using Avro serialization.
+#
+# + schemaString - The string, which defines the Avro schema
+# + dataRecord - Records, which should be serialized using Avro
 public type AvroRecord record {|
     string schemaString;
     anydata dataRecord;
 |};
 
-# Kafka producer acknowledgement type.
+# Kafka producer acknowledgement types.
 public type ProducerAcks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
 
-# Kafka in-built serializer type.
+# Kafka in-built serializer types.
 public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT|SER_AVRO|SER_CUSTOM;
 
-# kafka compression type to compress the messages
+# Kafka compression types to compress the messages.
 public type CompressionType COMPRESSION_NONE|COMPRESSION_GZIP|COMPRESSION_SNAPPY|COMPRESSION_LZ4|COMPRESSION_ZSTD;
 
-# Represent a Kafka producer endpoint.
+# Represents a Kafka producer endpoint.
 #
-# + connectorId - Unique ID for a particular connector.
-# + producerConfig - Used to store configurations related to a Kafka connection.
+# + connectorId - Unique ID for a particular connector
+# + producerConfig - Used to store configurations related to a Kafka connection
 public type Producer client object {
 
     public ProducerConfiguration? producerConfig = ();
@@ -130,7 +138,7 @@ public type Producer client object {
 
     # Creates a new Kafka `Producer`.
     #
-    # + config - Configurations related to initializing a Kafka `Producer`.
+    # + config - Configurations related to initializing a Kafka `Producer`
     public function __init(ProducerConfiguration config) {
         self.producerConfig = config;
         self.keySerializerType = config.keySerializerType;
@@ -173,53 +181,65 @@ public type Producer client object {
 
     public string connectorId = system:uuid();
 
-    # Closes producer connection to the external Kafka broker.
+    # Closes the producer connection to the external Kafka broker.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->close();
+    # ```
     #
-    # + return - `kafka:ProducerError` if closing the producer failed, nil otherwise.
+    # + return - A `kafka:ProducerError` if closing the producer failed or else '()'
     public remote function close() returns ProducerError? {
         return producerClose(self);
     }
 
-    # Commits consumer action which commits consumer consumed offsets to offset topic.
+    # Commits the offsets consumed by the provided consumer.
     #
-    # + consumer - Consumer which needs offsets to be committed.
-    # + return - `kafka:ProducerError` if committing the consumer failed, nil otherwise.
+    # + consumer - Consumer, which needs offsets to be committed
+    # + return - A`kafka:ProducerError` if committing the consumer failed or else ()
     public remote function commitConsumer(Consumer consumer) returns ProducerError? {
         return producerCommitConsumer(self, consumer);
     }
 
-    # CommitConsumerOffsets action which commits consumer offsets in given transaction.
+    # Commits the consumer offsets in a given transaction.
     #
-    # + offsets - Consumer offsets to commit for given transaction.
-    # + groupID - Consumer group id.
-    # + return - `kafka:ProducerError` if committing consumer offsets failed, nil otherwise.
+    # + offsets - Consumer offsets to commit for a given transaction
+    # + groupID - Consumer group ID
+    # + return - A `kafka:ProducerError` if committing consumer offsets failed or else ()
     public remote function commitConsumerOffsets(PartitionOffset[] offsets, string groupID) returns ProducerError? {
         return producerCommitConsumerOffsets(self, offsets, java:fromString(groupID));
     }
 
-    # Flush action which flush batch of records.
+    # Flushes the batch of records already sent to the broker by the producer.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->flushRecords();
+    # ```
     #
-    # + return - `kafka:ProducerError` if records couldn't be flushed, nil otherwise.
+    # + return - A `kafka:ProducerError` if records couldn't be flushed or else '()'
     public remote function flushRecords() returns ProducerError? {
         return producerFlushRecords(self);
     }
 
-    # GetTopicPartitions action which returns given topic partition information.
+    # Retrieves the topic partition information for the provided topic.
+    # ```ballerina
+    # kafka:TopicPartition[]|kafka:ProducerError result = producer->getTopicPartitions("kafka-topic");
+    # ```
     #
-    # + topic - Topic which the partition information is given.
-    # + return - `kafka:TopicPartition` array for the given topic, returns `kafka:ProducerError` if operation fails.
+    # + topic - Topic of which the partition information is given
+    # + return - A `kafka:TopicPartition` array for the given topic or else a `kafka:ProducerError` if the operation fails
     public remote function getTopicPartitions(string topic) returns TopicPartition[]|ProducerError {
         return producerGetTopicPartitions(self, java:fromString(topic));
     }
 
-    # Simple Send action which produce records to Kafka server.
+    # Produces records to the Kafka server.
+    # ```ballerina
+    # kafka:ProducerError? result = producer->send("Hello World, Ballerina", "kafka-topic");
+    # ```
     #
-    # + value - Record contents.
-    # + topic - Topic to which the record will be appended to.
-    # + key - Key that will be included in the record.
-    # + partition - Partition to which the record should be sent.
-    # + timestamp - Timestamp of the record, in milliseconds since epoch.
-    # + return - Returns `kafka:ProducerError` if send action fails to send data, nil otherwise.
+    # + value - Record contents
+    # + topic - Topic to which the record will be appended
+    # + key - Key, which will be included in the record
+    # + partition - Partition to which the record should be sent
+    # + timestamp - Timestamp of the record in milliseconds since epoch
+    # + return -  A `kafka:ProducerError` if send action fails to send data or else '()'
     public remote function send(anydata value, string topic, public anydata? key = (), public int? partition = (),
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);

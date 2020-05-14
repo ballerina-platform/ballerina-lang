@@ -1,2 +1,0 @@
-// The `crypto` stdlib provides functions usable to perform different cryptographic operations such as hashing,
-// HMAC generation, checksum generation and digitally signing data.

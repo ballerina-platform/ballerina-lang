@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.values.FutureValue;
+
 import java.util.function.Function;
 
 /**
@@ -32,12 +34,33 @@ import java.util.function.Function;
 public interface BFunctionPointer<T, R> extends BRefValue {
 
     /**
-     * Execute the {@code Function} with given parameter array.
+     * Execute the {@code Function} with given parameter array. Method can be used to call function pointer from
+     * ballerina. This will directly invoke the function pointer without using ballerina scheduler. If function
+     * pointer can have async code, then need to use @asyncCall method.
      *
      * @param t {@code Function to be executed}
      * @return The result of the executed function.
      */
     R call(T t);
+
+    /**
+     * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
+     * call function pointer from native function. This supports function pointers with async ballerina code.
+     *
+     * @param args Function arguments.
+     * @return Future value received from invoking asynchronous function.
+     */
+    FutureValue asyncCall(Object[] args);
+
+    /**
+     * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
+     * call function pointer from native function. This supports function pointers with async ballerina code.
+     *
+     * @param args                 Function arguments.
+     * @param resultHandleFunction Function used to process the result received after execution of function.
+     * @return Future value received from invoking asynchronous function.
+     */
+    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction);
 
     /**
      * Returns the {@code Function} the FP is pointed to.

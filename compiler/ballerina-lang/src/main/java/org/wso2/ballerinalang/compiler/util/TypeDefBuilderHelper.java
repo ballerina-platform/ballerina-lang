@@ -60,7 +60,7 @@ public class TypeDefBuilderHelper {
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, DiagnosticPos pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
-        for (BField field : recordType.fields) {
+        for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             if (symbol == null) {
                 symbol = new BVarSymbol(Flags.PUBLIC, field.name, packageID, symTable.pureType, null);

@@ -40,7 +40,7 @@ function inferSimpleTuple() {
 function inferStructuredTuple() {
     var x = [f, b, xml `text`, j];
     typedesc<any> ta = typeof x;
-    assertEquality("typedesc [Foo,Bar,xml,json]", ta.toString());
+    assertEquality("typedesc [Foo,Bar,lang.xml:Text,json]", ta.toString());
 }
 
 function inferNestedTuple() {
@@ -48,6 +48,40 @@ function inferNestedTuple() {
     var x = [1, 2.0d, [3, f, [b, b]], arr, j];
     typedesc<any> ta = typeof x;
     assertEquality("typedesc [int,decimal,[int,Foo,[Bar,Bar]],int[2],json]", ta.toString());
+}
+
+function testInferSameRecordsInTuple() {
+    var arr = [
+        {id: 123, name: "Anne", city: "Colombo"},
+        {id: 456, name: "Jo", city: "Colombo"}
+    ];
+
+    record {|int id; string name; string city;|} rec1 = arr[0];
+    assertEquality(123, rec1.id);
+    assertEquality("Anne", rec1.name);
+    assertEquality("Colombo", rec1.city);
+
+    record {|int id; string name; string city;|} rec2 = arr[1];
+    assertEquality(456, rec2.id);
+    assertEquality("Jo", rec2.name);
+    assertEquality("Colombo", rec2.city);
+}
+
+function testInferDifferentRecordsInTuple() {
+    var arr = [
+        {id: 123, name: "Anne", city: "Colombo"},
+        {id: 456, name: "Jo", age: 40}
+    ];
+
+    record {|int id; string name; string city;|} rec1 = arr[0];
+    assertEquality(123, rec1.id);
+    assertEquality("Anne", rec1.name);
+    assertEquality("Colombo", rec1.city);
+
+    record {|int id; string name; int age;|} rec2 = arr[1];
+    assertEquality(456, rec2.id);
+    assertEquality("Jo", rec2.name);
+    assertEquality(40, rec2.age);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

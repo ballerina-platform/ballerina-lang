@@ -51,7 +51,7 @@ public class ExprBodiedFunctionTest {
     @Test
     public void testSyntaxErrors() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_negative.bal");
-        Set<Integer> errorLines = new HashSet<>(Arrays.asList(19, 23, 26));
+        Set<Integer> errorLines = new HashSet<>(Arrays.asList(19, 23, 20, 26));
         for (Diagnostic diagnostic : result.getDiagnostics()) {
             if (!errorLines.contains(diagnostic.getPosition().getStartLine())) {
                 Assert.fail("Unexpected error at line: " + diagnostic.getPosition().getStartLine());
@@ -101,7 +101,7 @@ public class ExprBodiedFunctionTest {
                 {"testObjectInitBodyAsAnExpr"},
                 {"testObjectsAsExprBody"},
                 {"testAnonFuncsAsExprBody"},
-//                {"testReturningXML"}, @Test (groups = "brokenOnXMLLangLibChange")
+                {"testReturningXML"},
                 {"testReturningStringTemplate"},
                 {"testReturningServiceConstructors"},
                 {"testLetExprAsExprBody"},

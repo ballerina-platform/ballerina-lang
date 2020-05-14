@@ -119,4 +119,9 @@ public class BFunctionType extends AnnotatableType {
     public String getAnnotationKey() {
         return this.typeName;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

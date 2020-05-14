@@ -87,4 +87,9 @@ public class BErrorType extends AnnotatableType {
     public BType getDetailType() {
         return detailType;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

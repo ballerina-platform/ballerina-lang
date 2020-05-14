@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.java;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR;
@@ -63,6 +64,10 @@ public class JavaUtils {
         } catch (ClassNotFoundException e) {
             return BallerinaErrors.createError(JAVA_CLASS_NOT_FOUND_ERROR, name);
         }
+    }
+
+    public static Object getClass_bstring(Strand strand, BString name) {
+        return getClass(strand, name.getValue());
     }
 
     private static Class<?> getPrimitiveTypeClass(String name) {

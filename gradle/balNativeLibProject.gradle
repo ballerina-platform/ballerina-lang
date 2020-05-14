@@ -22,6 +22,10 @@ configurations {
         transitive false
     }
 
+    balDoc {
+        transitive false
+    }
+
     interopImports {
         transitive(true)
     }
@@ -36,19 +40,6 @@ project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filte
 
 dependencies {
     interopImports project(':ballerina-runtime')
-}
-// TODO: remove project names
-if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
-
-    dependencies {
-        testRuntime project(':ballerina-jvm')
-        testRuntime project(':ballerina-bir')
-        testRuntime project(':ballerina-backend-jvm')
-
-        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-    }
 }
 
 class CreateBaloTask extends JavaExec {
@@ -71,6 +62,7 @@ class CreateBaloTask extends JavaExec {
         args << "${project.buildDir}/ballerina-home/main"
         args << skipWarnings
         args << jvmTarget
+        args << "lang.__internal,lang.annotations,bir,jvm,utils"
 
         super.setArgs(args)
         super.exec()
@@ -94,8 +86,12 @@ task copyExternalMappingNextToBir(type: Copy) {
     into "$buildDir/generated-bir-jar"
     rename { project.ext.moduleName + ".map.json" }
     inputs.file "$buildDir/classes/java/main/META-INF/this.map.json"
+    outputs.files("$buildDir/generated-bir-jar" + project.ext.moduleName + ".map.json")
 }
 
+jar {
+    outputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
+}
 
 task createBalo(type: CreateBaloTask) {
     dependsOn createBalHome
@@ -114,14 +110,15 @@ task createBalo(type: CreateBaloTask) {
     }
 
     classpath = project.configurations.baloCreat
-    classpath += files(jar.archivePath)
+//    classpath += files(jar.archivePath)
 
     environment 'BALLERINA_NATIVE_MAP', "./build/classes/java/main/META-INF/this.map.json"
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
+    inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
     outputs.dir("$buildDir/generated-balo")
-    outputs.dir("$buildDir/generated-bir-jar")
+    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." + project.ext.moduleName + ".jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
 }
@@ -150,8 +147,9 @@ task createBStringBalo(type: CreateBaloTask) {
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
     inputs.files(configurations.baloImplementation)
+    inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
     outputs.dir("$buildDir/generated-balo")
-    outputs.dir("$buildDir/generated-bir-jar")
+    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." + project.ext.moduleName + "-bstring.jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
     
@@ -159,6 +157,7 @@ task createBStringBalo(type: CreateBaloTask) {
 
 artifacts {
     baloImplementation file("$buildDir/generated-balo/"), { builtBy(createBalo) }
+    balDoc file("$buildDir/generated-apidocs/"), { builtBy(createBalo) }
     balSource file("src/main/ballerina/")
 }
 

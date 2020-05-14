@@ -60,6 +60,21 @@ public function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? 
     return s;
 }
 
+// ------------------- Test function signature with rest param
+public function bar(public int i, boolean... b) returns int {
+    return i;
+}
+
+public function baz(string s, public float f = 2.0, boolean... b) {
+}
+
+public function bazTwo(int i, boolean... b) returns [int, boolean[]] {
+    return [i, checkpanic boolean[].constructFrom(b)];
+}
+
+public function barTwo(int i, string s = "hello", string... t) returns [int, string, string[]] {
+    return [i, s, checkpanic string[].constructFrom(t)];
+}
 
 // ------------------- Test function signature for attached functions ------------------
 
@@ -92,5 +107,24 @@ public type Person object {
         string val = n + " world";
         int intVal = a + 10;
         return [intVal, val];
+    }
+};
+
+public type Foo client object {
+    public function bar(public int i, boolean... b) returns int {
+        return i;
+    }
+
+    public remote function baz(string s, public float f = 2.0, boolean... b) {
+    }
+};
+
+public type FooTwo client object {
+    public function baz(int i, boolean... b) returns [int, boolean[]] {
+        return [i, checkpanic boolean[].constructFrom(b)];
+    }
+
+    public remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
+        return [i, s, checkpanic string[].constructFrom(t)];
     }
 };

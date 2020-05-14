@@ -29,20 +29,36 @@ import org.ballerinalang.jvm.values.XMLValue;
 public class BXMLType extends BType {
 
     private final int tag;
+    public BType constraint;
+    private final boolean readonly;
+    private BXMLType immutableType;
 
     /**
      * Create a {@code BXMLType} which represents the boolean type.
      *
      * @param typeName string name of the type
+     * @param constraint constraint of the xml sequence
      */
-    BXMLType(String typeName, BPackage pkg) {
+    BXMLType(String typeName, BType constraint, BPackage pkg) {
         super(typeName, pkg, XMLValue.class);
+        this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
+        this.readonly = false;
     }
 
-    BXMLType(String typeName, BPackage pkg, int tag) {
+    public BXMLType(String typeName, BPackage pkg, int tag, boolean readonly, BXMLType immutableType) {
         super(typeName, pkg, XMLValue.class);
         this.tag = tag;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
+    }
+
+    public BXMLType(BType constraint, boolean readonly, BXMLType immutableType) {
+        super(TypeConstants.XML_TNAME, null, XMLValue.class);
+        this.tag = TypeTags.XML_TAG;
+        this.constraint = constraint;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     @Override
@@ -63,5 +79,42 @@ public class BXMLType extends BType {
     @Override
     public boolean isAnydata() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(this == obj && obj instanceof BXMLType)) {
+            return false;
+        }
+
+        BXMLType other = (BXMLType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        return this.readonly == other.readonly && constraint.equals(other.constraint);
+    }
+
+    @Override
+    public String toString() {
+        if (constraint != null) {
+            return TypeConstants.XML_TNAME + "<" + constraint + ">";
+        }
+        return super.toString();
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BXMLType) immutableType;
     }
 }

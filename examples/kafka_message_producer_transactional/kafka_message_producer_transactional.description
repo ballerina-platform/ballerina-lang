@@ -1,2 +1,0 @@
-// This example shows you how to do transactional message producing by sending messages
-// to kafka brokers atomically using the `kafka:Producer` object.

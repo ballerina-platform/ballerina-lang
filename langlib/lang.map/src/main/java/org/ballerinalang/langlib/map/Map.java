@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -28,6 +29,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.map:map(map&lt;Type&gt;, function).
@@ -44,13 +47,20 @@ public class Map {
 
     public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
-        MapValue newMap = new MapValueImpl(newMapType);
-
-        m.entrySet().forEach(entry -> {
-            Object newVal = func.apply(new Object[]{strand, entry.getValue(), true});
-            newMap.put(entry.getKey(), newVal);
-        });
-
+        MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
+        int size = m.size();
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       result -> newMap
+                                                               .put(m.getKeys()[index.get()], result),
+                                                       () -> newMap);
         return newMap;
+    }
+
+    public static MapValue map_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
+        return map(strand, m, func);
     }
 }

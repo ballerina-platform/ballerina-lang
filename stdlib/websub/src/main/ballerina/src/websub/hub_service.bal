@@ -269,12 +269,12 @@ function getHubService() returns service {
 }
 
 
-# Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
+# Validates a subscription/unsubscription request by validating the specified mode, topic, and callback.
 #
 # + mode - Mode specified in the subscription change request parameters
 # + topic - Topic specified in the subscription change request parameters
 # + callback - Callback specified in the subscription change request parameters
-# + return - `error` if validation failed for the subscription request
+# + return - An `error` if validation failed for the subscription request
 function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns error? {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
@@ -293,7 +293,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     return err;
 }
 
-# Function to initiate intent verification for a valid subscription/unsubscription request received.
+# Initiates intent verification for a valid subscription/unsubscription request received.
 #
 # + callback - The callback URL of the new subscription/unsubscription request
 # + topic - The topic specified in the new subscription/unsubscription request
@@ -385,11 +385,11 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     }
 }
 
-# Function to add/remove the persisted details of topics registered.
+# Adds/Removes the persisted details to/from the topics registered.
 #
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
-# + return - `error` if an error occurred while persisting the change, `()` otherwise
+# + return - An `error` if an error occurred while persisting the change or else `()`
 function persistTopicRegistrationChange(string mode, string topic) returns error? {
     HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
     if (hubStoreImpl is HubPersistenceStore) {
@@ -401,11 +401,11 @@ function persistTopicRegistrationChange(string mode, string topic) returns error
     }
 }
 
-# Function to add/change/remove the persisted subscription details.
+# Adds/Changes/Removes the persisted subscription details.
 #
-# + mode - Whether the subscription change is for unsubscription/unsubscription
+# + mode - Whether the subscription change is for subscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
-# + return - `error` if an error occurred while persisting the change, `()` otherwise
+# + return - An `error` if an error occurred while persisting the change or else `()`
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) returns error? {
     HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
     if (hubStoreImpl is HubPersistenceStore) {
@@ -462,10 +462,10 @@ function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns
     }
 }
 
-# Function to fetch updates for a particular topic.
+# Fetches updates for a particular topic.
 #
 # + topic - The topic URL to be fetched to retrieve updates
-# + return - `http:Response` indicating the response received on fetching the topic URL if successful,
+# + return - An `http:Response` indicating the response received on fetching the topic URL if successful or else an
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, hubClientConfig);
@@ -475,7 +475,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     return fetchResponse;
 }
 
-# Function to distribute content to a subscriber on notification from publishers.
+# Distributes content to a subscriber on the notification from the publishers.
 #
 # + callback - The callback URL registered for the subscriber
 # + subscriptionDetails - The subscription details for the particular subscriber
@@ -550,10 +550,10 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
     return;
 }
 
-# Function to retrieve cached subscriberCallbackClient for a given callback.
+# Retrieves the cached `subscriberCallbackClient` for a given callback.
 #
 # + callback - The callback URL registered for the subscriber
-# + return - `http:Client` indicating the client for a given callback from cache or new client
+# + return - The `http:Client` for the given callback from the cache or a new `http:Client`
 function getSubcriberCallbackClient(string callback) returns http:Client {
     http:Client subscriberCallbackClient;
     if (subscriberCallbackClientCache.hasKey(callback)) {
@@ -577,14 +577,14 @@ function getSubcriberCallbackClient(string callback) returns http:Client {
 }
 
 // TODO: validate if no longer necessary
-# Struct to represent a topic registration.
+# Represents a topic registration.
 #
 # + topic - The topic for which notification would happen
 type TopicRegistration record {|
     string topic = "";
 |};
 
-# Object to represent a pending subscription/unsubscription request.
+# Represents a pending subscription/unsubscription request.
 #
 # + mode - Whether a pending subscription or unsubscription
 # + topic - The topic for which the subscription or unsubscription is pending
@@ -601,11 +601,10 @@ type PendingSubscriptionChangeRequest object {
         self.callback = callback;
     }
 
-    # Function to check if two pending subscription change requests are equal.
+    # Checks if two pending subscription change requests are equal.
     #
-    # + pendingRequest - The pending subscription change request to check against
-    #
-    # + return - `boolean` indicating whether the requests are equal or not
+    # + pendingRequest - The pending subscription change request to be checked against pending subscription or unsubscription
+    # + return - A `boolean` indicating whether the requests are equal or not
     function equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
         return pendingRequest.mode == self.mode && pendingRequest.topic == self.topic && pendingRequest.callback == self.callback;
     }
@@ -615,7 +614,7 @@ function generateKey(string topic, string callback) returns (string) {
     return topic + "_" + callback;
 }
 
-# Function to build the link header for a request.
+# Builds the link header for a request.
 #
 # + hub - The hub publishing the update
 # + topic - The canonical URL of the topic for which the update occurred
@@ -625,10 +624,10 @@ function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     return linkHeader;
 }
 
-# Construct an array of groups from the comma separed group string passed
+# Constructs an array of groups from the passed comma-separated group string
 #
-# + groupString - Comma separated string of groups
-# + return - Array of groups
+# + groupString - Comma-separated string of groups
+# + return - An array of groups
 function getArray(string groupString) returns string[] {
     string[] groupsArr = [];
     if (groupString.length() == 0) {

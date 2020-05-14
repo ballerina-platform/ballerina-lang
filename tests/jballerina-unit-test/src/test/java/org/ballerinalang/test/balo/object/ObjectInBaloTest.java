@@ -391,7 +391,7 @@ public class ObjectInBaloTest {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_with_non_defaultable_semantic_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object " +
+        BAssertUtil.validateError(result, 0, "undefined method 'attachInterface' in object " +
                 "'testorg/foo:1.0.0:Architect'", 7, 15);
     }
 

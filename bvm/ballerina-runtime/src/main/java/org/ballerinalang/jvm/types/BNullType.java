@@ -51,4 +51,9 @@ public class BNullType extends BType {
     public boolean isNilable() {
         return true;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

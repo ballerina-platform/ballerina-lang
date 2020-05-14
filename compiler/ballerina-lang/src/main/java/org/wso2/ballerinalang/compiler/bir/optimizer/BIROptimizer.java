@@ -51,6 +51,7 @@ public class BIROptimizer {
     private static final CompilerContext.Key<BIROptimizer> BIR_OPTIMIZER = new CompilerContext.Key<>();
     private RHSTempVarOptimizer rhsTempVarOptimizer;
     private LHSTempVarOptimizer lhsTempVarOptimizer;
+    private BIRLockOptimizer lockOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -65,6 +66,7 @@ public class BIROptimizer {
         context.put(BIR_OPTIMIZER, this);
         this.rhsTempVarOptimizer = new RHSTempVarOptimizer();
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
+        this.lockOptimizer = new BIRLockOptimizer();
     }
 
     public void optimizePackage(BIRPackage pkg) {
@@ -73,6 +75,9 @@ public class BIROptimizer {
 
         // LHS temp var optimization
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
+
+        // Optimize lock statements
+        this.lockOptimizer.optimizeNode(pkg);
     }
 
     /**
@@ -396,12 +401,26 @@ public class BIROptimizer {
         @Override
         public void visit(BIRNonTerminator.NewStructure birNewStructure) {
             this.optimizeNode(birNewStructure.lhsOp, this.env);
+            for (BIRNode.BIRMappingConstructorEntry initialValue : birNewStructure.initialValues) {
+                if (initialValue.isKeyValuePair()) {
+                    BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry =
+                            (BIRNode.BIRMappingConstructorKeyValueEntry) initialValue;
+                    this.optimizeNode(keyValueEntry.keyOp, this.env);
+                    this.optimizeNode(keyValueEntry.valueOp, this.env);
+                    continue;
+                }
+                this.optimizeNode(((BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue).exprOp, this.env);
+            }
         }
 
         @Override
         public void visit(BIRNonTerminator.NewArray birNewArray) {
             this.optimizeNode(birNewArray.lhsOp, this.env);
             this.optimizeNode(birNewArray.sizeOp, this.env);
+
+            for (BIROperand value : birNewArray.values) {
+                this.optimizeNode(value, this.env);
+            }
         }
 
         @Override
@@ -445,6 +464,13 @@ public class BIROptimizer {
         public void visit(BIRNonTerminator.TypeTest birTypeTest) {
             this.optimizeNode(birTypeTest.lhsOp, this.env);
             this.optimizeNode(birTypeTest.rhsOp, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewTable newTable) {
+            this.optimizeNode(newTable.lhsOp, this.env);
+            this.optimizeNode(newTable.keyColOp, this.env);
+            this.optimizeNode(newTable.dataOp, this.env);
         }
 
         @Override

@@ -34,7 +34,8 @@ public class TesterinaReport {
     private PrintStream outStream;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
-    
+    private boolean isReportRequired;
+
     /**
      * Create an instance of Testerina Report.
      */
@@ -103,8 +104,10 @@ public class TesterinaReport {
             testSummary.failedTests.add(result);
         }
 
-        ModuleStatus.getInstance()
-                .addTestSummary(result.getTestFunctionName(), status, result.getAssertFailureMessage());
+        if (isReportRequired) {
+            ModuleStatus.getInstance()
+                    .addTestSummary(result.getTestFunctionName(), status, result.getAssertFailureMessage());
+        }
     }
 
     /**
@@ -114,6 +117,10 @@ public class TesterinaReport {
      */
     public boolean isFailure() {
         return failure;
+    }
+
+    public void setReportRequired(boolean reportRequired) {
+        isReportRequired = reportRequired;
     }
 
     /**

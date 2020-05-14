@@ -18,14 +18,13 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,9 +44,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.generatePackage;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.intiPackageGen;
-
 /**
  * JVM byte code generator from BIR model.
  *
@@ -57,20 +53,17 @@ public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
-    public static BLangDiagnosticLogHelper dlog;
-
-    //TODO: remove static
-    static SymbolTable symbolTable;
-    static PackageCache packageCache;
+    private SymbolTable symbolTable;
 
     private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
+
+    private JvmPackageGen jvmPackageGen;
 
     private CodeGenerator(CompilerContext context) {
 
         context.put(CODE_GEN, this);
         symbolTable = SymbolTable.getInstance(context);
-        packageCache = PackageCache.getInstance(context);
-        dlog = BLangDiagnosticLogHelper.getInstance(context);
+        jvmPackageGen = JvmPackageGen.getInstance(context);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -89,16 +82,13 @@ public class CodeGenerator {
             return;
         }
 
-        intiPackageGen();
-        JvmPackageGen.symbolTable = symbolTable;
-        JvmMethodGen.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
-        JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
+
         populateExternalMap();
 
         ClassLoader classLoader = makeClassLoader(moduleDependencies);
         InteropValidator interopValidator = new InteropValidator(classLoader, symbolTable);
-        generatePackage(entryMod, jarFile, interopValidator, true);
+        JarFile jarFile = jvmPackageGen.generate(entryMod, interopValidator, true);
         writeJarFile(jarFile, target);
     }
 
@@ -137,7 +127,7 @@ public class CodeGenerator {
                     int firstQuote = line.indexOf('"', 1);
                     String key = line.substring(1, firstQuote);
                     String value = line.substring(line.indexOf('"', firstQuote + 1) + 1, line.lastIndexOf('"'));
-                    JvmPackageGen.externalMapCache.put(key, value);
+                    jvmPackageGen.addExternClassMapping(key, value);
                 }
             }
         } catch (IOException e) {
@@ -145,22 +135,17 @@ public class CodeGenerator {
         }
     }
 
-    private static void writeJarFile(JvmPackageGen.JarFile entries, Path targetPath) {
+    private void writeJarFile(JarFile jarFile, Path targetPath) {
 
         Manifest manifest = new Manifest();
-        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        jarFile.getMainClassName().ifPresent(mainClassName ->
+                mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName));
 
-        if (entries.manifestEntries != null) {
-            Map<String, String> manifestEntries = entries.manifestEntries;
-            manifestEntries.forEach((key, value) -> manifest.getMainAttributes().put(new Attributes.Name(key), value));
-        }
-
-        try (JarOutputStream target = new JarOutputStream(new FileOutputStream(targetPath.toString()), manifest)) {
-            if (entries.pkgEntries == null) {
-                throw new BLangCompilerException("no class file entries found in the record");
-            }
-
-            Map<String, byte[]> jarEntries = entries.pkgEntries;
+        try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
+                new FileOutputStream(targetPath.toString())), manifest)) {
+            Map<String, byte[]> jarEntries = jarFile.getJarEntries();
             for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
                 byte[] entryContent = keyVal.getValue();
                 JarEntry entry = new JarEntry(keyVal.getKey());
@@ -172,5 +157,4 @@ public class CodeGenerator {
             throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
     }
-
 }

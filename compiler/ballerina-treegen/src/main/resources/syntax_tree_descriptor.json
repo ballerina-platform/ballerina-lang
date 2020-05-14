@@ -1092,7 +1092,7 @@
                 },
                 {
                     "name": "argumentName",
-                    "type": "Token"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "equalsToken",
@@ -1213,7 +1213,7 @@
         },
         {
             "name": "NilTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "NIL_TYPE_DESC",
             "attributes": [
                 {
@@ -1869,7 +1869,7 @@
         },
         {
             "name": "UnionTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "UNION_TYPE_DESC",
             "attributes": [
                 {
@@ -1940,7 +1940,7 @@
         },
         {
             "name": "ErrorTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "ERROR_TYPE_DESC",
             "attributes": [
                 {
@@ -1974,7 +1974,7 @@
         },
         {
             "name": "StreamTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "STREAM_TYPE_DESC",
             "attributes": [
                 {
@@ -2348,6 +2348,59 @@
             ]
         },
         {
+            "name": "TableTypeDescriptorNode",
+            "base": "Node",
+            "kind": "TABLE_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "tableKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rowTypeParameterNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "keyConstraintNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "TypeParameterNode",
+            "base": "Node",
+            "kind": "TYPE_PARAMETER",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "KeyTypeConstraintNode",
+            "base": "Node",
+            "kind": "KEY_TYPE_CONSTRAINT",
+            "attributes": [
+                {
+                    "name": "keyKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameterNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
             "name": "FunctionTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "FUNCTION_TYPE_DESC",
@@ -2412,17 +2465,117 @@
             ]
         },
         {
-            "name": "TypedBindingPatternNode",
-            "base": "Node",
-            "kind": "TYPED_BINDING_PATTERN",
+            "name": "TupleTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TUPLE_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "typeDescriptor",
+                    "name": "openBracketToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "memberTypeDesc",
+                    "type": "TypeDescriptorNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restTypeDesc",
                     "type": "Node"
                 },
                 {
-                    "name": "bindingPattern",
-                    "type": "BindingPatternNode"
+                    "name": "closeBracketToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ParenthesisedTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "PARENTHESISED_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedesc",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NewExpressionNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "ExplicitNewExpressionNode",
+            "base": "NewExpressionNode",
+            "kind": "EXPLICIT_NEW_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "TypeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "ParenthesizedArgList",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ImplicitNewExpressionNode",
+            "base": "NewExpressionNode",
+            "kind": "IMPLICIT_NEW_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "NewKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "ParenthesizedArgList",
+                    "type": "ParenthesizedArgList",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ParenthesizedArgList",
+            "base": "Node",
+            "kind": "PARENTHESIZED_ARG_LIST",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "CaptureBindingPatternNode",
+            "base": "Node",
+            "kind": "BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -2439,14 +2592,17 @@
             ]
         },
         {
-            "name": "CaptureBindingPatternNode",
+            "name": "TypedBindingPatternNode",
             "base": "Node",
-            "kind": "BINDING_PATTERN",
+            "kind": "TYPED_BINDING_PATTERN",
             "attributes": [
                 {
-                    "name": "variableName",
-                    "type": "Token",
-                    "isOptional": true
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
                 }
             ]
         }

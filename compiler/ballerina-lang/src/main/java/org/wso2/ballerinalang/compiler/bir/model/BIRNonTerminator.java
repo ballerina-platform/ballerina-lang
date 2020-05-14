@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -168,28 +169,22 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.980.0
      */
     public static class NewStructure extends BIRNonTerminator {
-        public BType type;
-        public final boolean isExternalDef;
-        public final PackageID externalPackageId;
-        public final String recordName;
+        public BIROperand rhsOp;
+        public List<BIRMappingConstructorEntry> initialValues;
 
-        public NewStructure(DiagnosticPos pos, BType type, BIROperand lhsOp) {
+        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
-            this.type = type;
             this.lhsOp = lhsOp;
-            this.recordName = null;
-            this.externalPackageId = null;
-            this.isExternalDef = false;
+            this.rhsOp = rhsOp;
+            this.initialValues = new ArrayList<>();
         }
 
-        public NewStructure(DiagnosticPos pos, PackageID externalPackageId, String recordName, BType type,
-                            BIROperand lhsOp) {
+        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp,
+                            List<BIRMappingConstructorEntry> initialValues) {
             super(pos, InstructionKind.NEW_STRUCTURE);
-            this.recordName = recordName;
-            this.type = type;
             this.lhsOp = lhsOp;
-            this.externalPackageId = externalPackageId;
-            this.isExternalDef = true;
+            this.rhsOp = rhsOp;
+            this.initialValues = initialValues;
         }
 
         @Override
@@ -245,12 +240,14 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewArray extends BIRNonTerminator {
         public BIROperand sizeOp;
         public BType type;
+        public List<BIROperand> values;
 
-        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp) {
+        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp, List<BIROperand> values) {
             super(pos, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
             this.sizeOp = sizeOp;
+            this.values = values;
         }
 
         @Override
@@ -410,12 +407,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLElement extends BIRNonTerminator {
         public BIROperand startTagOp;
         public BIROperand defaultNsURIOp;
+        public boolean readonly;
 
-        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp) {
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp,
+                             boolean readonly) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
+            this.readonly = readonly;
         }
 
         @Override
@@ -501,12 +501,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLProcIns extends BIRNonTerminator {
         public BIROperand dataOp;
         public BIROperand targetOp;
+        public boolean readonly;
 
-        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp) {
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp,
+                             boolean readonly) {
             super(pos, InstructionKind.NEW_XML_PI);
             this.lhsOp = lhsOp;
             this.dataOp = dataOp;
             this.targetOp = targetOp;
+            this.readonly = readonly;
         }
 
         @Override
@@ -522,11 +525,13 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewXMLComment extends BIRNonTerminator {
         public BIROperand textOp;
+        public boolean readonly;
 
-        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp, boolean readonly) {
             super(pos, InstructionKind.NEW_XML_COMMENT);
             this.lhsOp = lhsOp;
             this.textOp = textOp;
+            this.readonly = readonly;
         }
 
         @Override
@@ -594,6 +599,29 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     }
 
     /**
+     * The new table instruction.
+     */
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand keyColOp;
+        public BIROperand dataOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyColOp,
+                        BIROperand dataOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.keyColOp = keyColOp;
+            this.dataOp = dataOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A type cast expression.
      * <p>
      * e.g., int a = cast(int) b;
@@ -601,10 +629,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.995.0
      */
     public static class NewTypeDesc extends BIRNonTerminator {
+        public final List<BIROperand> closureVars;
         public BType type;
 
-        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type) {
+        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars) {
             super(pos, InstructionKind.NEW_TYPEDESC);
+            this.closureVars = closureVars;
             this.lhsOp = lhsOp;
             this.type = type;
         }

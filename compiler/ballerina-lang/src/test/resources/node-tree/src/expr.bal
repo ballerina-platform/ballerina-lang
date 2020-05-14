@@ -33,4 +33,13 @@ function testExpressions() {
     // field-access-expr
     Foo foo = {bar: "templers rd"};
     io:println(foo.bar);
+
+    Foo foo = new();
+    Foo foo1 = new;
+    Foo foo2 = new(1);
+    Foo foo3 = new(a, "a");
+
+    Foo foo4 = new Foo();
+    Foo foo5 = new Foo(1);
+    Foo foo6 = new Foo(a, "a");
 }
