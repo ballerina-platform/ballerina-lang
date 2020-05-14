@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -148,9 +149,11 @@ public class HubNativeOperationHandler {
      *
      * @param subscriptionDetails the details of the subscription including WebSub specifics
      */
-    public static void addSubscription(MapValue<String, Object> subscriptionDetails) {
-        String topic = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_TOPIC);
-        String callback = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_CALLBACK);
+    public static void addSubscription(MapValue<BString, Object> subscriptionDetails) {
+        String topic = subscriptionDetails.getStringValue(
+                StringUtils.fromString(SUBSCRIPTION_DETAILS_TOPIC)).getValue();
+        String callback = subscriptionDetails.getStringValue(
+                StringUtils.fromString(SUBSCRIPTION_DETAILS_CALLBACK)).getValue();
         Hub.getInstance().registerSubscription(Scheduler.getStrand(), topic, callback, subscriptionDetails);
     }
 
@@ -161,7 +164,7 @@ public class HubNativeOperationHandler {
      * @param content the content to send to subscribers, with the payload and content-type specified
      * @return `error` if an error occurred during publishing
      */
-    public static Object publishToInternalHub(String topic, MapValue<String, Object> content) {
+    public static Object publishToInternalHub(String topic, MapValue<BString, Object> content) {
         try {
             Hub.getInstance().publish(topic, content);
         } catch (BallerinaWebSubException e) {

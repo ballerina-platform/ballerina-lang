@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -37,6 +38,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.langlib.typedesc.ConstructFrom;
@@ -161,15 +163,16 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                 MapValue<String, Object> params = new MapValueImpl<>();
                 try {
                     URIUtil.populateQueryParamMap(queryString, params);
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_MODE,
+                    intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_MODE),
                                                   getParamStringValue(params, PARAM_HUB_MODE));
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_TOPIC,
+                    intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_TOPIC),
                                                   getParamStringValue(params, PARAM_HUB_TOPIC));
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_CHALLENGE,
+                    intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_CHALLENGE),
                                                   getParamStringValue(params, PARAM_HUB_CHALLENGE));
                     if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
                         long leaseSec = Long.parseLong(getParamStringValue(params, PARAM_HUB_LEASE_SECONDS));
-                        intentVerificationRequest.set(VERIFICATION_REQUEST_LEASE_SECONDS, leaseSec);
+                        intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_LEASE_SECONDS),
+                                                      leaseSec);
                     }
                 } catch (UnsupportedEncodingException e) {
                     log.error("Error populating query map for intent verification request received: "
@@ -182,7 +185,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                     return;
                 }
             }
-            intentVerificationRequest.set(REQUEST, httpRequest);
+            intentVerificationRequest.set(StringUtils.fromString(REQUEST), httpRequest);
             signatureParams[paramIndex++] = intentVerificationRequest;
             signatureParams[paramIndex] = true;
         } else { //Notification Resource
@@ -272,7 +275,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private ObjectValue createNotification(ObjectValue httpRequest) {
         ObjectValue notification = BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_NOTIFICATION_REQUEST);
-        notification.set(REQUEST, httpRequest);
+        notification.set(StringUtils.fromString(REQUEST), httpRequest);
         return notification;
     }
 
@@ -282,7 +285,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private Object createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
                                               ObjectValue httpRequest) {
         BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
+        MapValue<BString, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         return ConstructFrom.convert(recordType, jsonBody);
     }

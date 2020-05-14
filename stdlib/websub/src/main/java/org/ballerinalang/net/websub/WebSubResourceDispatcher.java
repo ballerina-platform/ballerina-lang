@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
@@ -142,19 +143,19 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(HttpCarbonMessage inboundRequest,
                                                WebSubServicesRegistry servicesRegistry) {
-        MapValue<String, MapValue<String, MapValue<String, Object>>> headerAndPayloadKeyResourceMap =
+        MapValue<BString, MapValue<BString, MapValue<BString, Object>>> headerAndPayloadKeyResourceMap =
                 servicesRegistry.getHeaderAndPayloadKeyResourceMap();
         String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
         ObjectValue httpRequest = getHttpRequest(inboundRequest);
-        MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
+        MapValue<BString, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
 
         if (headerAndPayloadKeyResourceMap.containsKey(topic)) {
-            MapValue<String, MapValue<String, Object>> topicResourceMapForHeader =
+            MapValue<BString, MapValue<BString, Object>> topicResourceMapForHeader =
                     headerAndPayloadKeyResourceMap.get(topic);
-            for (String key : topicResourceMapForHeader.getKeys()) {
+            for (BString key : topicResourceMapForHeader.getKeys()) {
                 if (jsonBody.containsKey(key)) {
-                    MapValue<String, Object> topicResourceMapForValue = topicResourceMapForHeader.get(key);
+                    MapValue<BString, Object> topicResourceMapForValue = topicResourceMapForHeader.get(key);
                     String valueForKey = jsonBody.get(key).toString();
                     if (topicResourceMapForValue.containsKey(valueForKey)) {
                         return retrieveResourceName(valueForKey, topicResourceMapForValue);
@@ -164,14 +165,14 @@ class WebSubResourceDispatcher {
         }
 
         if (servicesRegistry.getHeaderResourceMap() != null) {
-            MapValue<String, Object> headerResourceMap = servicesRegistry.getHeaderResourceMap();
+            MapValue<BString, Object> headerResourceMap = servicesRegistry.getHeaderResourceMap();
             if (headerResourceMap.containsKey(topic)) {
                 return retrieveResourceName(topic, headerResourceMap);
             }
         }
 
         if (servicesRegistry.getPayloadKeyResourceMap() != null) {
-            MapValue<String, MapValue<String, Object>> payloadKeyResourceMap =
+            MapValue<BString, MapValue<BString, Object>> payloadKeyResourceMap =
                     servicesRegistry.getPayloadKeyResourceMap();
             String resourceName = retrieveResourceNameForKey(jsonBody, payloadKeyResourceMap);
             if (resourceName != null) {
@@ -192,9 +193,9 @@ class WebSubResourceDispatcher {
      * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
      */
     private static String retrieveResourceName(HttpCarbonMessage inboundRequest,
-                                               MapValue<String, MapValue<String, Object>> payloadKeyResourceMap) {
+                                               MapValue<BString, MapValue<BString, Object>> payloadKeyResourceMap) {
         ObjectValue httpRequest = getHttpRequest(inboundRequest);
-        MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
+        MapValue<BString, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         String resourceName = retrieveResourceNameForKey(jsonBody, payloadKeyResourceMap);
         if (resourceName != null) {
@@ -203,11 +204,12 @@ class WebSubResourceDispatcher {
         throw new BallerinaConnectorException("Matching resource not found for dispatching based on Payload Key");
     }
 
-    private static String retrieveResourceNameForKey(MapValue<String, ?> jsonBody,
-                                                     MapValue<String, MapValue<String, Object>> payloadKeyResourceMap) {
-        for (String key : payloadKeyResourceMap.getKeys()) {
+    private static String retrieveResourceNameForKey(MapValue<BString, ?> jsonBody,
+                                                     MapValue<BString, MapValue<BString, Object>>
+                                                             payloadKeyResourceMap) {
+        for (BString key : payloadKeyResourceMap.getKeys()) {
             if (jsonBody.containsKey(key)) {
-                MapValue<String, Object> topicResourceMapForValue = payloadKeyResourceMap.get(key);
+                MapValue<BString, Object> topicResourceMapForValue = payloadKeyResourceMap.get(key);
                 String valueForKey = jsonBody.get(key).toString();
                 if (topicResourceMapForValue.containsKey(valueForKey)) {
                     return retrieveResourceName(valueForKey, topicResourceMapForValue);
@@ -226,7 +228,7 @@ class WebSubResourceDispatcher {
      * @return                  the name of the resource as identified based on the topic
      * @throws BallerinaConnectorException if a resource could not be mapped to the topic
      */
-    private static String retrieveResourceName(String topic, MapValue<String, Object> topicResourceMap) {
+    private static String retrieveResourceName(String topic, MapValue<BString, Object> topicResourceMap) {
         if (topicResourceMap.containsKey(topic)) {
             return ((ArrayValue) topicResourceMap.get(topic)).getRefValue(0).toString();
         } else {

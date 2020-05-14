@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -69,7 +70,8 @@ public class WebSubHttpService extends HttpService {
             // Service name cannot start with /, hence concat.
             websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
         } else {
-            websubHttpService.setBasePath(serviceConfigAnnotation.getStringValue(PATH_FIELD));
+            websubHttpService.setBasePath(serviceConfigAnnotation.getStringValue(
+                    StringUtils.fromString(PATH_FIELD)).getValue());
         }
 
         List<HttpResource> resources = new ArrayList<>();
