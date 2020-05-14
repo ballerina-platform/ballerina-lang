@@ -37,7 +37,6 @@ import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
@@ -56,7 +55,7 @@ import java.util.List;
  * Utilities for Maven dependency resolving.
  */
 public class MavenResolver {
-
+    org.ballerinalang.maven.Dependency rootNode = null;
     private List<RemoteRepository> repositories;
     RepositorySystem system;
     DefaultRepositorySystemSession session;
@@ -109,6 +108,12 @@ public class MavenResolver {
                 .setAuthentication(authentication).build());
     }
 
+    private org.ballerinalang.maven.Dependency convertDependency(DependencyNode dependencyNode) {
+        return new org.ballerinalang.maven.Dependency(
+                dependencyNode.getArtifact().getGroupId(), dependencyNode.getArtifact().getArtifactId(),
+                dependencyNode.getArtifact().getVersion());
+    }
+
     /**
      * Resolves provided artifact into resolver location.
      *
@@ -119,10 +124,9 @@ public class MavenResolver {
      * @return List of resolved dependencies
      * @throws MavenResolverException when specified dependency cannot be resolved
      */
-    public List<org.ballerinalang.maven.Dependency> resolve(String groupId, String artifactId, String version,
-                                                            boolean resolveTransitiveDependencies)
+    public org.ballerinalang.maven.Dependency resolve(String groupId, String artifactId, String version,
+                                                      boolean resolveTransitiveDependencies)
             throws MavenResolverException {
-        List<org.ballerinalang.maven.Dependency> resolvedDependencies = new ArrayList<>();
         Artifact artifact = new DefaultArtifact(groupId + ":" + artifactId + ":" + version);
         if (resolveTransitiveDependencies) {
             try {
@@ -132,33 +136,35 @@ public class MavenResolver {
                 collectRequest.setRepositories(repositories);
 
                 DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFilter);
-                List<ArtifactResult> artifactResults =
-                        system.resolveDependencies(session, dependencyRequest).getArtifactResults();
-
-//                for (ArtifactResult artifactResult : artifactResults) {
-//                    for (DependencyNode dependency : artifactResult.getRequest().getDependencyNode().getChildren()) {
-//                        resolve(dependency.getArtifact().getGroupId(), dependency.getArtifact().getArtifactId(),
-//                                dependency.getArtifact().getVersion(), false);
-//                        resolvedDependencies.add(new org.ballerinalang.maven.Dependency(
-//                                artifact.getGroupId(), artifact.getGroupId(), artifact.getVersion()));
-//                    }
-//                }
-
+                system.resolveDependencies(session, dependencyRequest);
 
                 CollectResult collectResult = system.collectDependencies(session, collectRequest);
                 DependencyNode node = collectResult.getRoot();
+
                 node.accept(new TreeDependencyVisitor(new DependencyVisitor() {
-                    String indent = "";
+                    int level = 0;
+
                     @Override
                     public boolean visitEnter(DependencyNode dependencyNode) {
-                        System.out.println(indent + dependencyNode.getArtifact());
-                        indent += "    ";
+                        org.ballerinalang.maven.Dependency currentNode = convertDependency(dependencyNode);
+                        if (level == 0) {
+                            rootNode = currentNode;
+                        } else {
+                            org.ballerinalang.maven.Dependency parent = rootNode;
+                            for (int i = 0; i < level; i++) {
+                                if (level > 1) {
+                                    parent = rootNode.getDepedencies().get(rootNode.getDepedencies().size() - 1);
+                                }
+                            }
+                            parent.addDependency(currentNode);
+                        }
+                        level += 1;
                         return true;
                     }
 
                     @Override
                     public boolean visitLeave(DependencyNode dependencyNode) {
-                        indent = indent.substring(0, indent.length() - 4);
+                        level -= 1;
                         return true;
                     }
                 }));
@@ -171,12 +177,12 @@ public class MavenResolver {
                 artifactRequest.setArtifact(artifact);
                 artifactRequest.setRepositories(repositories);
                 system.resolveArtifact(session, artifactRequest);
-                resolvedDependencies.add(new org.ballerinalang.maven.Dependency(
-                        artifact.getGroupId(), artifact.getGroupId(), artifact.getVersion()));
+                rootNode = new org.ballerinalang.maven.Dependency(artifact.getGroupId(), artifact.getGroupId(),
+                        artifact.getVersion());
             } catch (ArtifactResolutionException e) {
                 throw new MavenResolverException(e.getMessage());
             }
         }
-        return resolvedDependencies;
+        return rootNode;
     }
 }
