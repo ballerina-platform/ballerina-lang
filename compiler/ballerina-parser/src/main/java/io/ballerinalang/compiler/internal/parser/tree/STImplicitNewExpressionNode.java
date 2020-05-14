@@ -34,7 +34,7 @@ public class STImplicitNewExpressionNode extends STNewExpressionNode {
     STImplicitNewExpressionNode(
             STNode NewKeyword,
             STNode ParenthesizedArgList) {
-        super(SyntaxKind.IMPLICIT_NEW);
+        super(SyntaxKind.IMPLICIT_NEW_EXPRESSION);
         this.NewKeyword = NewKeyword;
         this.ParenthesizedArgList = ParenthesizedArgList;
 
