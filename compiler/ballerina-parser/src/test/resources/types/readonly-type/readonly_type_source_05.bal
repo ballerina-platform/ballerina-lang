@@ -6,7 +6,7 @@ public function foo() {
     readonly<int a;
     readonly<T a;
     readonly T> a;
-    readonly<<T> a;
+    readonly<T>> a;
     readonly<string%> a;
     readonly<string, int> a;
 }

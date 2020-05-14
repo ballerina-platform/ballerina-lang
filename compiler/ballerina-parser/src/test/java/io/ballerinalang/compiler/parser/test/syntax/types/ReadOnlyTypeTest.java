@@ -28,7 +28,7 @@ public class ReadOnlyTypeTest extends AbstractTypesTest {
     //Valid source tests
     @Test
     public void testValidLocalLevelReadOnlyType() {
-        testTopLevelNode("readonly-type/readonly_type_assert_01.bal",
+        testTopLevelNode("readonly-type/readonly_type_source_01.bal",
                 "readonly-type/readonly_type_assert_01.json");
     }
 
@@ -39,20 +39,20 @@ public class ReadOnlyTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidMReadOnlyTypeAsReturnType() {
-        testTopLevelNode("readonly-type/readonly_type_assert_03.bal",
+        testTopLevelNode("readonly-type/readonly_type_source_03.bal",
                 "readonly-type/readonly_type_assert_03.json");
     }
 
     @Test
     public void testValidMReadOnlyTypeAsTypeDefinition() {
-        testTopLevelNode("readonly-type/readonly_type_assert_04.bal",
+        testTopLevelNode("readonly-type/readonly_type_source_04.bal",
                 "readonly-type/readonly_type_assert_04.json");
     }
 
     //Recovery tests
     @Test
     public void testInValidLocalLevelReadOnlyType() {
-        testTopLevelNode("readonly-type/readonly_type_assert_05.bal",
+        testTopLevelNode("readonly-type/readonly_type_source_05.bal",
                 "readonly-type/readonly_type_assert_05.json");
     }
 }
