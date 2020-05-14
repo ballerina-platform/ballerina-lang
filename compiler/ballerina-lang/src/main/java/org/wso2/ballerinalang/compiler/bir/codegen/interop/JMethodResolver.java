@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BError;
@@ -41,6 +42,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -131,6 +133,11 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
+            Optional<JMethod> covariantRetTypeMethod = findCovariantReturnTypeMethod(jMethods);
+            if (covariantRetTypeMethod.isPresent()) {
+                return covariantRetTypeMethod.get();
+            }
+
             int paramCount = jMethods.get(0).getParamTypes().length;
             throw getOverloadedMethodExistError(jMethodRequest.kind, jMethodRequest.declaringClass,
                     jMethodRequest.methodName, paramCount);
@@ -142,6 +149,26 @@ class JMethodResolver {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
         return jMethod;
+    }
+
+    private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
+
+        for (int i = 0; i < jMethods.size(); i++) {
+            for (int k = i; k < jMethods.size(); k++) {
+                if (i == k) {
+                    continue;
+                }
+
+                JMethod ithMethod = jMethods.get(i);
+                JMethod kthMethod = jMethods.get(k);
+
+                if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
+                        kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
+                    return Optional.of(ithMethod);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -337,6 +364,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TABLE:
+                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -477,6 +506,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TABLE:
+                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -515,19 +546,21 @@ class JMethodResolver {
 
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
         List<JMethod> resolvedJMethods = new ArrayList<>();
-        for (JMethod jMethod : jMethods) {
-            boolean resolved = true;
-            Class<?>[] formalParamTypes = jMethod.getParamTypes();
-            for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
-                Class<?> formalParamType = formalParamTypes[paramIndex];
-                if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
-                    continue;
+        if (constraints.length > 0) {
+            for (JMethod jMethod : jMethods) {
+                boolean resolved = true;
+                Class<?>[] formalParamTypes = jMethod.getParamTypes();
+                for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
+                    Class<?> formalParamType = formalParamTypes[paramIndex];
+                    if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
+                        continue;
+                    }
+                    resolved = false;
+                    break;
                 }
-                resolved = false;
-                break;
-            }
-            if (resolved) {
-                resolvedJMethods.add(jMethod);
+                if (resolved) {
+                    resolvedJMethods.add(jMethod);
+                }
             }
         }
 
@@ -642,15 +675,15 @@ class JMethodResolver {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
+                    "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
                             declaringClass + "', please specify class names for each parameter " +
                             "in 'paramTypes' field in the annotation");
         } else {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "Overloaded methods '" + methodName + "' with '" + paramCount +
-                                         "' parameter(s) in class '" + declaringClass +
-                                         "', please specify class names for each parameter " +
-                                         "with 'paramTypes' field in the annotation");
+                    "Overloaded methods '" + methodName + "' with '" + paramCount +
+                            "' parameter(s) in class '" + declaringClass +
+                            "', please specify class names for each parameter " +
+                            "with 'paramTypes' field in the annotation");
         }
     }
 
@@ -662,13 +695,13 @@ class JMethodResolver {
         String paramTypesSig = getParamTypesAsString(constraints);
         if (kind == JMethodKind.CONSTRUCTOR) {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "More than one public constructors that match with the parameter types '" +
-                                         paramTypesSig + "' found in class '" + declaringClass + "'");
+                    "More than one public constructors that match with the parameter types '" +
+                            paramTypesSig + "' found in class '" + declaringClass + "'");
         } else {
             return new JInteropException(OVERLOADED_METHODS,
-                                         "More than one public methods '" + methodName +
-                                         "' that match with the parameter types '" + paramTypesSig +
-                                         "' found in class '" + declaringClass + "'");
+                    "More than one public methods '" + methodName +
+                            "' that match with the parameter types '" + paramTypesSig +
+                            "' found in class '" + declaringClass + "'");
         }
     }
 
@@ -683,6 +716,7 @@ class JMethodResolver {
 
     private JInteropException getNoSuchMethodError(String methodName, Class<?> jType, BType bType,
                                                    Class<?> declaringClass) {
+
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
                         "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
@@ -690,6 +724,7 @@ class JMethodResolver {
     }
 
     private JInteropException getParamCountMismatchError(JMethodRequest jMethodRequest) {
+
         return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName + "' found in class '" +
                         jMethodRequest.declaringClass.getName() + "'");

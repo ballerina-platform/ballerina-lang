@@ -103,27 +103,28 @@ public class ClientObjectTest {
                                   "remote modifier not allowed in non-object attached function test3", 30, 1);
 
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                               51, 13);
+                .validateError(compileResult, errIdx++,
+                               "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 51, 13);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "undefined remote function 'abc' in client object Foo", 53, 13);
+                .validateError(compileResult, errIdx++,
+                               "invalid method call '->abc()': '->' can only be used with remote methods", 53, 13);
 
         BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 59, 5);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
-                               61, 13);
+                .validateError(compileResult, errIdx++,
+                               "invalid remote method call: expected a client object, but found 'other'", 61, 13);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
-                               65, 9);
+                .validateError(compileResult, errIdx++,
+                               "invalid remote method call: expected a client object, but found 'map'", 65, 9);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
-                               69, 9);
+                .validateError(compileResult, errIdx++,
+                               "invalid remote method call: expected a client object, but found 'Bar'", 69, 9);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                               85, 13);
+                .validateError(compileResult, errIdx++,
+                               "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 85, 13);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                               93, 13);
+                .validateError(compileResult, errIdx++,
+                               "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 93, 13);
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 112, 5);
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 121, 5);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);

@@ -122,6 +122,11 @@ public class TupleRestDescriptorTest {
                 19, 36);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '([string,int,boolean]|string)'," +
                                           " found '[string,int,boolean,boolean]'", 24, 12);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,int,string...]', found " +
+                                          "'[int]'", 29, 31);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,float,string,string...]', " +
+                                          "found '[int,float,string...]'", 32, 41);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
 }

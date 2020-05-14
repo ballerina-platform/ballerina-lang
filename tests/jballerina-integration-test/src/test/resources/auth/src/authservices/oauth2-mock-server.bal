@@ -142,6 +142,30 @@ service oauth2 on oauth2Server {
         }
         checkpanic caller->respond(res);
     }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/jwks"
+    }
+    // This JWKs endpoint respond with a JSON object that represents a set of JWKs.
+    // https://tools.ietf.org/html/rfc7517#section-5
+    resource function jwks(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        json jwks = {
+          "keys": [
+            {
+              "kty": "RSA",
+              "e": "AQAB",
+              "use": "sig",
+              "kid": "NTAxZmMxNDMyZDg3MTU1ZGM0MzEzODJhZWI4NDNlZDU1OGFkNjFiMQ",
+              "alg": "RS256",
+              "n": "luZFdW1ynitztkWLC6xKegbRWxky-5P0p4ShYEOkHs30QI2VCuR6Qo4Bz5rTgLBrky03W1GAVrZxuvKRGj9V9-PmjdGtau4CTXu9pLLcqnruaczoSdvBYA3lS9a7zgFU0-s6kMl2EhB-rk7gXluEep7lIOenzfl2f6IoTKa2fVgVd3YKiSGsyL4tztS70vmmX121qm0sTJdKWP4HxXyqK9neolXI9fYyHOYILVNZ69z_73OOVhkh_mvTmWZLM7GM6sApmyLX6OXUp8z0pkY-vT_9-zRxxQs7GurC4_C1nK3rI_0ySUgGEafO1atNjYmlFN-M3tZX6nEcA6g94IavyQ"
+            }
+          ]
+        };
+        res.setJsonPayload(jwks);
+        checkpanic caller->respond(res);
+    }
 }
 
 function getResponseForHeaderBearerRequest(http:Request req, string authorizationHeader, string bearer) returns http:Response {

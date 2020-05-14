@@ -141,7 +141,7 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(60000);
     }
 
-    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
+    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush", enabled = false)
     public void testPull() {
         String baloFileName = moduleName + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
@@ -179,7 +179,7 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(actualMsg.contains("0.1.0"));
     }
 
-    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
+    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull", enabled = false)
     public void testPullCount() throws IOException {
         initializeSsl();
         String url = RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";

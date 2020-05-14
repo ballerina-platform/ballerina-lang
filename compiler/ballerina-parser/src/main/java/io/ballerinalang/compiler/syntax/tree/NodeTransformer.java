@@ -452,6 +452,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLProcessingInstruction);
     }
 
+    public T transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        return transformSyntaxNode(tableTypeDescriptorNode);
+    }
+
+    public T transform(TypeParameterNode typeParameterNode) {
+        return transformSyntaxNode(typeParameterNode);
+    }
+
+    public T transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        return transformSyntaxNode(keyTypeConstraintNode);
+    }
+
     public T transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
@@ -468,32 +480,20 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(tupleTypeDescriptorNode);
     }
 
-    public T transform(QueryConstructTypeNode queryConstructTypeNode) {
-        return transformSyntaxNode(queryConstructTypeNode);
+    public T transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        return transformSyntaxNode(parenthesisedTypeDescriptorNode);
     }
 
-    public T transform(FromClauseNode fromClauseNode) {
-        return transformSyntaxNode(fromClauseNode);
+    public T transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        return transformSyntaxNode(explicitNewExpressionNode);
     }
 
-    public T transform(WhereClauseNode whereClauseNode) {
-        return transformSyntaxNode(whereClauseNode);
+    public T transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        return transformSyntaxNode(implicitNewExpressionNode);
     }
 
-    public T transform(LetClauseNode letClauseNode) {
-        return transformSyntaxNode(letClauseNode);
-    }
-
-    public T transform(QueryPipelineNode queryPipelineNode) {
-        return transformSyntaxNode(queryPipelineNode);
-    }
-
-    public T transform(SelectClauseNode selectClauseNode) {
-        return transformSyntaxNode(selectClauseNode);
-    }
-
-    public T transform(QueryExpressionNode queryExpressionNode) {
-        return transformSyntaxNode(queryExpressionNode);
+    public T transform(ParenthesizedArgList parenthesizedArgList) {
+        return transformSyntaxNode(parenthesizedArgList);
     }
 
     // Tokens

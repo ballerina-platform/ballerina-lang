@@ -132,7 +132,7 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
-    TUPLE_TYPE_DESC("tuple-type-desc"),
+    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     SELECT_CLAUSE("select-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
@@ -220,6 +220,7 @@ public enum ParserRuleContext {
     STREAM_KEYWORD("stream"),
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
+    NEW_KEYWORD("new"),
     FROM_KEYWORD("from"),
     WHERE_KEYWORD("where"),
     SELECT_KEYWORD("select"),
@@ -252,6 +253,7 @@ public enum ParserRuleContext {
     LT_TOKEN("<"),
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
+    PARENTHESISED_TYPE_DESC_START("("),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -309,6 +311,8 @@ public enum ParserRuleContext {
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
     TABLE_ROW_END("table-row-end"),
+    NEW_KEYWORD_RHS("new-keyword-rhs"),
+    IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
     TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
@@ -329,6 +333,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_EXPRESSION("type-desc-in-expression"),
     TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
     TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
+    TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML
@@ -364,6 +369,9 @@ public enum ParserRuleContext {
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
+    KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
+    ROW_TYPE_PARAM("row-type-param"),
+    TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     ;
 
     private String value;

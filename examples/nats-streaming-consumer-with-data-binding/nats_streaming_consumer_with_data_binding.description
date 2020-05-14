@@ -1,3 +1,0 @@
-// This sample demonstrates the usage of NATS subscriber
-// services to bind the data in the incoming message to
-// a user-provided compatible type.

@@ -90,14 +90,19 @@ public class LSStdLibCacheUtil {
     
     private static void extract(Path baloPath, Path destinationRoot, String moduleName, String cacheableKey)
             throws LSStdlibCacheException {
+        Path rootParent = destinationRoot.getParent();
+        if (rootParent == null) {
+            return;
+        }
+        Path tomlFile = rootParent.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         FileInputStream baloFileInputStream;
-        if (Files.exists(destinationRoot)) {
+        if (Files.exists(tomlFile)) {
             // Already extracted
             return;
         }
         if (!Files.exists(baloPath)) {
             throw new LSStdlibCacheException("Invalid module source root provided for module: ["
-                    + cacheableKey + "]");
+                                                     + cacheableKey + "]");
         }
 
         // Create the new extract root

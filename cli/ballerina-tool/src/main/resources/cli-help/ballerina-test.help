@@ -58,9 +58,14 @@ OPTIONS
            sourceroot.
 
        --code-coverage
-           Enable code coverage. This will analyze the line coverage of
-           source .bal files and add a section to the testerina report with
-           coverage details.
+           Enables code coverage. This will analyze the line coverage of
+           source .bal files in the Ballerina project and add a section
+           to the testerina report with code coverage details.
+           This feature is not supported with single file executions.
+
+       --test-report
+           Generates an HTML report containing test results. Defaults to 'true'
+           if code coverage is enabled.
 
        --experimental
            Enable experimental language features.
@@ -69,7 +74,7 @@ OPTIONS
            Build/Compile offline without downloading dependencies.
 
        --debug
-           Start Ballerina in remote debugging mode.
+           Run tests in remote debugging mode.
 
 CONFIG PROPERTIES
        (--key=value)...
@@ -96,5 +101,9 @@ EXAMPLES
         Run tests in single bal file.
            $ ballerina test main_test.bal
 
-        Run tests with code coverage.
+        Run tests and generate a test report in addition.
+           $ ballerina test --test-report --all
+
+        Run tests with code coverage. This will generate a test report
+        with test statuses and code coverage information.
            $ ballerina test --code-coverage --all

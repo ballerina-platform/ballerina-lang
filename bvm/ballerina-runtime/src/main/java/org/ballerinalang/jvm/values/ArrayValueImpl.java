@@ -31,8 +31,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
@@ -40,6 +38,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -70,7 +69,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private double[] floatValues;
     private String[] stringValues;
     private BString[] bStringValues;
-
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Deprecated
@@ -130,13 +130,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.arrayType = type;
         BArrayType arrayType = type;
         this.elementType = arrayType.getElementType();
-        initArrayValues(elementType, false);
+        initArrayValues(elementType);
         if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
             this.size = maxSize = arrayType.getSize();
         }
     }
 
-    private void initArrayValues(BType elementType, boolean useBString) {
+    private void initArrayValues(BType elementType) {
         int initialArraySize = (arrayType.getSize() != -1) ? arrayType.getSize() : DEFAULT_ARRAY_SIZE;
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -153,7 +153,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                if (useBString) {
+                if (USE_BSTRING) {
                     this.bStringValues = new BString[initialArraySize];
                 } else {
                     this.stringValues = new String[initialArraySize];
@@ -178,19 +178,23 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public ArrayValueImpl(BArrayType type, long size) {
         this.arrayType = type;
         this.elementType = type.getElementType();
-        initArrayValues(this.elementType, false);
+        initArrayValues(this.elementType);
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
     }
 
     @Deprecated
-    public ArrayValueImpl(BArrayType type, long size, boolean useBString) {
+    public ArrayValueImpl(BArrayType type, long size, ListInitialValueEntry[] initialValues) {
         this.arrayType = type;
         this.elementType = type.getElementType();
-        initArrayValues(this.elementType, useBString);
+        initArrayValues(this.elementType);
         if (size != -1) {
             this.size = this.maxSize = (int) size;
+        }
+
+        for (int index = 0; index < initialValues.length; index++) {
+            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
         }
     }
 
@@ -222,6 +226,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return floatValues[(int) index];
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    return bStringValues[(int) index];
+                }
                 return stringValues[(int) index];
             default:
                 return refValues[(int) index];
@@ -248,7 +255,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (refValues != null) {
             // Need do a filling-read if index >= size
             if (index >= this.size) {
-                handleFrozenArrayValue();
+                handleImmutableArrayValue();
                 fillRead(index, refValues.length);
             }
             return refValues[(int) index];
@@ -363,7 +370,84 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, Object value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
+        addRefValue(index, value);
+    }
+
+    /**
+     * Add int value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, long value) {
+        handleImmutableArrayValue();
+        addInt(index, value);
+    }
+
+    /**
+     * Add boolean value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, boolean value) {
+        handleImmutableArrayValue();
+        addBoolean(index, value);
+    }
+
+    /**
+     * Add byte value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, byte value) {
+        handleImmutableArrayValue();
+        addByte(index, value);
+    }
+
+    /**
+     * Add double value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, double value) {
+        handleImmutableArrayValue();
+        addFloat(index, value);
+    }
+
+    /**
+     * Add string value to the given array index.
+     * 
+     * @param index array index
+     * @param value value to be added
+     */
+    @Deprecated
+    @Override
+    public void add(long index, String value) {
+        handleImmutableArrayValue();
+        addString(index, value);
+    }
+
+    /**
+     * Add string value to the given array index.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public void add(long index, BString value) {
+        handleImmutableArrayValue();
+        addBString(index, value);
+    }
+
+    public void addRefValue(long index, Object value) {
         BType type = TypeChecker.getType(value);
         switch (this.elementType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
@@ -386,10 +470,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 prepareForAdd(index, value, type, intValues.length);
-                this.intValues[(int) index] = ((Long) value).longValue();
+                this.intValues[(int) index] = (Long) value;
                 return;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    prepareForAdd(index, value, type, bStringValues.length);
+                    this.bStringValues[(int) index] = (BString) value;
+                    return;
+                }
                 prepareForAdd(index, value, type, stringValues.length);
                 this.stringValues[(int) index] = (String) value;
                 return;
@@ -399,16 +488,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    /**
-     * Add int value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, long value) {
-        handleFrozenArrayValue();
-
+    public void addInt(long index, long value) {
         if (intValues != null) {
             prepareForAdd(index, value, BTypes.typeInt, intValues.length);
             intValues[(int) index] = value;
@@ -419,68 +499,32 @@ public class ArrayValueImpl extends AbstractArrayValue {
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
-    /**
-     * Add boolean value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, boolean value) {
-        handleFrozenArrayValue();
+    private void addBoolean(long index, boolean value) {
         prepareForAdd(index, value, BTypes.typeBoolean, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
-    /**
-     * Add byte value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, byte value) {
-        handleFrozenArrayValue();
+    private void addByte(long index, byte value) {
         prepareForAdd(index, value, BTypes.typeByte, byteValues.length);
         byteValues[(int) index] = value;
     }
 
-    /**
-     * Add double value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, double value) {
-        handleFrozenArrayValue();
+    private void addFloat(long index, double value) {
         prepareForAdd(index, value, BTypes.typeFloat, floatValues.length);
         floatValues[(int) index] = value;
     }
 
-    /**
-     * Add string value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
     @Deprecated
-    @Override
-    public void add(long index, String value) {
-        handleFrozenArrayValue();
+    private void addString(long index, String value) {
+        if (USE_BSTRING) {
+            addBString(index, org.ballerinalang.jvm.StringUtils.fromString(value));
+            return;
+        }
         prepareForAdd(index, value, BTypes.typeString, stringValues.length);
         stringValues[(int) index] = value;
     }
 
-    /**
-     * Add string value to the given array index.
-     *
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, BString value) {
-        handleFrozenArrayValue();
+    private void addBString(long index, BString value) {
         prepareForAdd(index, value, BTypes.typeString, bStringValues.length);
         bStringValues[(int) index] = value;
     }
@@ -499,7 +543,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         Object val = get(index);
         shiftArray((int) index, getArrayFromType(this.elementType.getTag()));
         return val;
@@ -618,6 +662,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    valueArray = new ArrayValueImpl(Arrays.copyOf(bStringValues, this.size));
+                    break;
+                }
                 valueArray = new ArrayValueImpl(Arrays.copyOf(stringValues, this.size));
                 break;
             default:
@@ -683,6 +731,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    slicedArray = new ArrayValueImpl(new BString[slicedSize]);
+                    System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
+                    break;
+                }
                 slicedArray = new ArrayValueImpl(new String[slicedSize]);
                 System.arraycopy(stringValues, (int) startIndex, slicedArray.stringValues, 0, slicedSize);
                 break;
@@ -768,30 +821,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(Status freezeStatus) {
-        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            return;
-        }
-        this.freezeStatus = freezeStatus;
-        if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
-            for (int i = 0; i < this.size; i++) {
-                Object value = this.getRefValue(i);
-                if (value instanceof RefValue) {
-                    ((RefValue) value).attemptFreeze(freezeStatus);
-                }
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void freezeDirect() {
-        if (isFrozen()) {
+        if (arrayType.isReadOnly()) {
             return;
         }
-        this.freezeStatus.setFrozen();
+
+        this.arrayType = (BArrayType) ReadOnlyUtils.setImmutableType(this.arrayType);
         if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
@@ -800,14 +835,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
     }
 
     /**
@@ -853,6 +880,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    bStringValues = Arrays.copyOf(bStringValues, newLength);
+                    break;
+                }
                 stringValues = Arrays.copyOf(stringValues, newLength);
                 break;
             default:
@@ -869,6 +900,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
         switch (this.elementType.getTag()) {
             case TypeTags.STRING_TAG:
+                if (USE_BSTRING) {
+                    Arrays.fill(bStringValues, size, index,
+                                org.ballerinalang.jvm.StringUtils.fromString(BLangConstants.STRING_EMPTY_VALUE));
+                    return;
+                }
                 Arrays.fill(stringValues, size, index, BLangConstants.STRING_EMPTY_VALUE);
                 return;
             case TypeTags.INT_TAG:
@@ -961,7 +997,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void unshift(long index, ArrayValue vals) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         unshiftArray(index, vals.size(), getCurrentArrayLength());
 
         int startIndex = (int) index;
@@ -977,10 +1013,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, BType sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
-                            sourceType));
+            String reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
+            String detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
+                    sourceType);
+            if (USE_BSTRING) {
+                throw BallerinaErrors.createError(org.ballerinalang.jvm.StringUtils.fromString(reason),
+                                                  org.ballerinalang.jvm.StringUtils.fromString(detail));
+            }
+            throw BallerinaErrors.createError(reason, detail);
         }
 
         int intIndex = (int) index;
@@ -1099,5 +1139,40 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 return refValues.length;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ArrayValueImpl that = (ArrayValueImpl) o;
+        return arrayType.equals(that.arrayType) &&
+                elementType.equals(that.elementType) &&
+                Arrays.equals(refValues, that.refValues) &&
+                Arrays.equals(intValues, that.intValues) &&
+                Arrays.equals(booleanValues, that.booleanValues) &&
+                Arrays.equals(byteValues, that.byteValues) &&
+                Arrays.equals(floatValues, that.floatValues) &&
+                Arrays.equals(stringValues, that.stringValues) &&
+                Arrays.equals(bStringValues, that.bStringValues);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(arrayType, elementType);
+        result = 31 * result + Arrays.hashCode(refValues);
+        result = 31 * result + Arrays.hashCode(intValues);
+        result = 31 * result + Arrays.hashCode(booleanValues);
+        result = 31 * result + Arrays.hashCode(byteValues);
+        result = 31 * result + Arrays.hashCode(floatValues);
+        result = 31 * result + Arrays.hashCode(stringValues);
+        result = 31 * result + Arrays.hashCode(bStringValues);
+        return result;
     }
 }

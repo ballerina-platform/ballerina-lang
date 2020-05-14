@@ -15,35 +15,50 @@
 // under the License.
 
 type Employee record {
-    int id;
+    readonly int id;
     string name;
     float salary;
 };
+
 function testTableGeneration() returns int {
-   table<Employee> tbEmployee = table {
-           {key id, name, salary},
-           [
-               {1, "Mary🤒", 300.5},
-               {2, "John💉", 200.5},
-               {3, "Jim", 330.5}
-           ]
-       };
-       return tbEmployee.toString().length();
+   table<Employee> tbEmployee = table key(id) [
+               {id: 1, name: "Mary🤒", salary: 300.5},
+               {id: 2, name: "John💉", salary: 200.5},
+               {id: 3, name: "Jim", salary: 330.5}
+    ];
+
+    return tbEmployee.toString().length();
 }
 
 type Names record {|
-    string country;
+    readonly string country;
     string[] names;
 |};
+
 function testTableWithArrayGeneration() returns int {
     string[] names = ["Sam🚜", "John🕔", "Ann"];
-    Names val = {country:"Ireland🔀", names: names};
-   table<Names> tbNames = table {
-           {key country, names},
-           [
-                val
-           ]
-       };
-       return tbNames.toString().length();
+
+   table<Names> tbNames = table key(country)[
+                {country:"Ireland🔀", names: names}
+    ];
+
+    return tbNames.toString().length();
 }
 
+
+
+type AssertionError error<ASSERTION_ERROR_REASON>;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

@@ -43,15 +43,15 @@ class JMethod {
     JMethodKind kind;
     private Executable method;
 
-    static JMethod build(JMethodKind kind, Executable executable) {
-
-        return new JMethod(kind, executable);
-    }
-
     private JMethod(JMethodKind kind, Executable executable) {
 
         this.kind = kind;
         this.method = executable;
+    }
+
+    static JMethod build(JMethodKind kind, Executable executable) {
+
+        return new JMethod(kind, executable);
     }
 
     String getClassName() {

@@ -1,9 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run record_iteration.bal
-maths : 80
-physics : 75
-chemistry : 65
-Average grade: 73.33333333333333
-Mapped and filtered letter grades: {"maths":"A", "physics":"B"}
-Average grade using iterable ops: 73.33333333333333

@@ -52,6 +52,19 @@ OPTIONS
        --experimental
            Enable experimental language features.
 
+       --code-coverage
+           Enables code coverage. This will analyze the line coverage of
+           source .bal files in the Ballerina project and add a section
+           to the testerina report with code coverage details.
+           This feature is not supported with single file executions.
+
+       --test-report
+           Generates an HTML report containing test results. Defaults to 'true'
+           if code coverage is enabled.
+
+       --debug
+           Run tests in remote debugging mode, only when the '--skip-tests' flag is not used.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
@@ -74,3 +87,11 @@ EXAMPLES
        them in the '<project-root>/target/bin' directory.
           $ ballerina build -a
 
+       Build all modules and generate the test report. This will generate an
+       html test report in addition to the executable jar files.
+          $ ballerina build --test-report -a
+
+       Build all modules and generate the test report with
+       code coverage information. This will add an additional section
+       to the test report for code coverage information.
+          $ ballerina build --code-coverage -a

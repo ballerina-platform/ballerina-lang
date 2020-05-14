@@ -1772,6 +1772,48 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stXMLProcessingInstruction.createUnlinkedFacade();
     }
 
+    public static TableTypeDescriptorNode createTableTypeDescriptorNode(
+            Token tableKeywordToken,
+            Node rowTypeParameterNode,
+            Node keyConstraintNode) {
+        Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
+        Objects.requireNonNull(rowTypeParameterNode, "rowTypeParameterNode must not be null");
+        Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
+
+        STNode stTableTypeDescriptorNode = STNodeFactory.createTableTypeDescriptorNode(
+                tableKeywordToken.internalNode(),
+                rowTypeParameterNode.internalNode(),
+                keyConstraintNode.internalNode());
+        return stTableTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static TypeParameterNode createTypeParameterNode(
+            Token ltToken,
+            Node typeNode,
+            Token gtToken) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(typeNode, "typeNode must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stTypeParameterNode = STNodeFactory.createTypeParameterNode(
+                ltToken.internalNode(),
+                typeNode.internalNode(),
+                gtToken.internalNode());
+        return stTypeParameterNode.createUnlinkedFacade();
+    }
+
+    public static KeyTypeConstraintNode createKeyTypeConstraintNode(
+            Token keyKeywordToken,
+            Node typeParameterNode) {
+        Objects.requireNonNull(keyKeywordToken, "keyKeywordToken must not be null");
+        Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
+
+        STNode stKeyTypeConstraintNode = STNodeFactory.createKeyTypeConstraintNode(
+                keyKeywordToken.internalNode(),
+                typeParameterNode.internalNode());
+        return stKeyTypeConstraintNode.createUnlinkedFacade();
+    }
+
     public static FunctionTypeDescriptorNode createFunctionTypeDescriptorNode(
             Token functionKeyword,
             FunctionSignatureNode functionSignature) {
@@ -1821,7 +1863,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
             Token openBracketToken,
-            NodeList<TypeDescriptorNode> memberTypeDesc,
+            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
             Node restTypeDesc,
             Token closeBracketToken) {
         Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
@@ -1837,100 +1879,60 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTupleTypeDescriptorNode.createUnlinkedFacade();
     }
 
-    public static QueryConstructTypeNode createQueryConstructTypeNode(
-            Token tableKeyword,
-            KeySpecifierNode KeySpecifier) {
-        Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+    public static ParenthesisedTypeDescriptorNode createParenthesisedTypeDescriptorNode(
+            Token openParenToken,
+            TypeDescriptorNode typedesc,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(typedesc, "typedesc must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
-        STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
-                tableKeyword.internalNode(),
-                KeySpecifier.internalNode());
-        return stQueryConstructTypeNode.createUnlinkedFacade();
+        STNode stParenthesisedTypeDescriptorNode = STNodeFactory.createParenthesisedTypeDescriptorNode(
+                openParenToken.internalNode(),
+                typedesc.internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesisedTypeDescriptorNode.createUnlinkedFacade();
     }
 
-    public static FromClauseNode createFromClauseNode(
-            Token fromKeyword,
-            Node typeName,
-            Token variableName,
-            Token inKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(fromKeyword, "fromKeyword must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
-        Objects.requireNonNull(inKeyword, "inKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
+    public static ExplicitNewExpressionNode createExplicitNewExpressionNode(
+            Token NewKeyword,
+            TypeDescriptorNode TypeDescriptor,
+            Node ParenthesizedArgList) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+        Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
+        Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
 
-        STNode stFromClauseNode = STNodeFactory.createFromClauseNode(
-                fromKeyword.internalNode(),
-                typeName.internalNode(),
-                variableName.internalNode(),
-                inKeyword.internalNode(),
-                expression.internalNode());
-        return stFromClauseNode.createUnlinkedFacade();
+        STNode stExplicitNewExpressionNode = STNodeFactory.createExplicitNewExpressionNode(
+                NewKeyword.internalNode(),
+                TypeDescriptor.internalNode(),
+                ParenthesizedArgList.internalNode());
+        return stExplicitNewExpressionNode.createUnlinkedFacade();
     }
 
-    public static WhereClauseNode createWhereClauseNode(
-            Token whereKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(whereKeyword, "whereKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
+    public static ImplicitNewExpressionNode createImplicitNewExpressionNode(
+            Token NewKeyword,
+            ParenthesizedArgList ParenthesizedArgList) {
+        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
 
-        STNode stWhereClauseNode = STNodeFactory.createWhereClauseNode(
-                whereKeyword.internalNode(),
-                expression.internalNode());
-        return stWhereClauseNode.createUnlinkedFacade();
+        STNode stImplicitNewExpressionNode = STNodeFactory.createImplicitNewExpressionNode(
+                NewKeyword.internalNode(),
+                getOptionalSTNode(ParenthesizedArgList));
+        return stImplicitNewExpressionNode.createUnlinkedFacade();
     }
 
-    public static LetClauseNode createLetClauseNode(
-            Token letKeyword,
-            SeparatedNodeList<Node> letVarDeclarations) {
-        Objects.requireNonNull(letKeyword, "letKeyword must not be null");
-        Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
+    public static ParenthesizedArgList createParenthesizedArgList(
+            Token openParenToken,
+            NodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
-        STNode stLetClauseNode = STNodeFactory.createLetClauseNode(
-                letKeyword.internalNode(),
-                letVarDeclarations.underlyingListNode().internalNode());
-        return stLetClauseNode.createUnlinkedFacade();
-    }
-
-    public static QueryPipelineNode createQueryPipelineNode(
-            FromClauseNode fromClause,
-            NodeList<Node> intermediateClauses) {
-        Objects.requireNonNull(fromClause, "fromClause must not be null");
-        Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
-
-        STNode stQueryPipelineNode = STNodeFactory.createQueryPipelineNode(
-                fromClause.internalNode(),
-                intermediateClauses.underlyingListNode().internalNode());
-        return stQueryPipelineNode.createUnlinkedFacade();
-    }
-
-    public static SelectClauseNode createSelectClauseNode(
-            Token selectKeyword,
-            ExpressionNode expression) {
-        Objects.requireNonNull(selectKeyword, "selectKeyword must not be null");
-        Objects.requireNonNull(expression, "expression must not be null");
-
-        STNode stSelectClauseNode = STNodeFactory.createSelectClauseNode(
-                selectKeyword.internalNode(),
-                expression.internalNode());
-        return stSelectClauseNode.createUnlinkedFacade();
-    }
-
-    public static QueryExpressionNode createQueryExpressionNode(
-            QueryConstructTypeNode queryConstructType,
-            QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause) {
-        Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
-        Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(selectClause, "selectClause must not be null");
-
-        STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
-                queryConstructType.internalNode(),
-                queryPipeline.internalNode(),
-                selectClause.internalNode());
-        return stQueryExpressionNode.createUnlinkedFacade();
+        STNode stParenthesizedArgList = STNodeFactory.createParenthesizedArgList(
+                openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stParenthesizedArgList.createUnlinkedFacade();
     }
 }
 

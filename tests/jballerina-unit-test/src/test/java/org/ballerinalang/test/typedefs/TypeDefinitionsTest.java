@@ -122,4 +122,19 @@ public class TypeDefinitionsTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testXml");
         Assert.assertEquals(returns[0].stringValue(), "<name>ballerina</name>");
     }
+
+    @Test
+    public void testAnonRecordUnionTypeDef() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonRecordUnionTypeDef");
+    }
+
+    @Test
+    public void testAnonObjectUnionTypeDef() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonObjectUnionTypeDef");
+    }
+
+    @Test
+    public void testAnonExclusiveRecordUnionTypeDef() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnonExclusiveRecordUnionTypeDef");
+    }
 }

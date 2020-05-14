@@ -1,2 +1,0 @@
-//Ballerina can act as a proxy to another remote service. Ballerina forwards the
-//requests sent by the clients that connect to it via a WebSocket to the respective remote service.

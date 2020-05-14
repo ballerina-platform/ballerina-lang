@@ -31,17 +31,16 @@ import org.testng.annotations.Test;
  * @since 0.985.0
  */
 
-//TODO Table remove - Fix
 public class ForeachTableTypedBindingPatternsTests {
 
     private CompileResult program;
 
-    @BeforeClass (enabled = false)
+    @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach-table-typed-binding-patterns.bal");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testTableWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testTableWithoutType");
         Assert.assertEquals(returns.length, 1);
@@ -49,7 +48,7 @@ public class ForeachTableTypedBindingPatternsTests {
                 "0:id=1 name=Mary salary=300.5 1:id=2 name=John salary=200.5 2:id=3 name=Jim salary=330.5 ");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testTableWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testTableWithType");
         Assert.assertEquals(returns.length, 1);
@@ -57,14 +56,14 @@ public class ForeachTableTypedBindingPatternsTests {
                 "0:id=1 name=Mary salary=300.5 1:id=2 name=John salary=200.5 2:id=3 name=Jim salary=330.5 ");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testRecordInTableWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testRecordInTableWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testEmptyTableIteration() {
         BValue[] returns = BRunUtil.invoke(program, "testEmptyTableIteration");
         Assert.assertEquals(returns.length, 1);

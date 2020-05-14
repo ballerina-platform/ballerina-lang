@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -51,12 +52,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -67,9 +72,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -77,6 +84,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -151,7 +160,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if ((expSymTag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             foundSym = lookupSymbolInConstructorSpace(env, symbol.name);
         }  else if ((expSymTag & SymTag.MAIN) == SymTag.MAIN) {
-            foundSym = lookupSymbolInMainSpace(env, symbol.name);
+            // Using this method for looking up in the main symbol space since record field symbols lookup have
+            // different semantics depending on whether it's looking up a referenced symbol or looking up to see if
+            // the symbol is unique within the scope.
+            foundSym = lookupSymbolForDecl(env, symbol.name, SymTag.MAIN);
         }
 
         //if symbol is not found then it is unique for the current scope
@@ -300,7 +312,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
                 return entry.symbol;
             }
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -403,14 +415,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
     }
 
-    public BType resolveTypeNodeWithDeprecationCheck(BLangType typeNode, SymbolEnv env) {
-        BType type = resolveTypeNode(typeNode, env);
-        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(typeNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type.tsymbol.name.value);
-        }
-        return type;
-    }
-
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
     }
@@ -439,18 +443,17 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Return the symbol associated with the given name in the current package.
-     * This method first searches the symbol in the current scope
-     * and proceeds the enclosing scope, if it is not there in the
-     * current scope. This process continues until the symbol is
-     * found or the root scope is reached.
+     * Return the symbol associated with the given name in the current package. This method first searches the symbol in
+     * the current scope and proceeds the enclosing scope, if it is not there in the current scope. This process
+     * continues until the symbol is found or the root scope is reached. This method is mainly meant for checking
+     * whether a given symbol is already defined in the scope hierarchy.
      *
      * @param env       current symbol environment
      * @param name      symbol name
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
      */
-    private BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
+    private BSymbol lookupSymbolForDecl(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & expSymTag) == expSymTag) {
@@ -464,6 +467,47 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Return the symbol associated with the given name in the current package. This method first searches the symbol in
+     * the current scope and proceeds the enclosing scope, if it is not there in the current scope. This process
+     * continues until the symbol is found or the root scope is reached. This method is meant for looking up a symbol
+     * when they are referenced. If looking up a symbol from within a record type definition, this method ignores record
+     * fields. This is done so that default value expressions cannot refer to other record fields.
+     *
+     * @param env       current symbol environment
+     * @param name      symbol name
+     * @param expSymTag expected symbol type/tag
+     * @return resolved symbol
+     */
+    private BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
+        ScopeEntry entry = env.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+
+        if (env.enclEnv != null) {
+            return lookupSymbol(env.enclEnv, name, expSymTag);
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Checks whether the specified symbol is a symbol of a record field and whether that field is referred to from
+     * within a record type definition (not necessarily the owner of the field).
+     *
+     * @param symbol symbol to be tested
+     * @param env    the environment in which the symbol was found
+     * @return returns `true` if the aboove described condition holds
+     */
+    private boolean isFieldRefFromWithinARecord(BSymbol symbol, SymbolEnv env) {
+        return (symbol.owner.tag & SymTag.RECORD) == SymTag.RECORD &&
+                env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE;
     }
 
     public BSymbol lookupSymbolInMainSpace(SymbolEnv env, Name name) {
@@ -524,6 +568,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.STREAM:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
                 break;
+            case TypeTags.TABLE:
+                bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
+                break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
@@ -535,8 +582,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_PI:
+                bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                break;
             case TypeTags.XML_TEXT:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                if (bSymbol == symTable.notFoundSymbol) {
+                    bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
+                }
                 break;
             case TypeTags.BOOLEAN:
                 bSymbol = lookupLangLibMethodInModule(symTable.langBooleanModuleSymbol, name);
@@ -585,7 +637,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
                 return entry.symbol;
             }
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -759,11 +811,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
             symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
             symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+            symTable.futureType.constraint = symTable.anyOrErrorType;
             return;
         }
         throw new IllegalStateException("built-in error not found ?");
@@ -844,6 +900,65 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = unionType;
     }
 
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+
+        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
+
+        boolean validIntersection = true;
+
+        BType typeOne = resolveTypeNode(constituentTypeNodes.get(0), env);
+        BType typeTwo = resolveTypeNode(constituentTypeNodes.get(1), env);
+
+        boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
+
+        BType intersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
+
+        if (intersectionType == symTable.semanticError) {
+            validIntersection = false;
+        } else {
+            for (int i = 2; i < constituentTypeNodes.size(); i++) {
+                BType type = resolveTypeNode(constituentTypeNodes.get(i), env);
+
+                if (!hasReadOnlyType) {
+                    hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                intersectionType = getPotentialReadOnlyIntersection(intersectionType, type);
+                if (intersectionType == symTable.semanticError) {
+                    validIntersection = false;
+                    break;
+                }
+            }
+        }
+
+        if (!validIntersection) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!hasReadOnlyType) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
+                       intersectionTypeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (types.isInherentlyImmutableType(intersectionType)) {
+            resultType = intersectionType;
+            return;
+        }
+
+        if (!types.isSelectivelyImmutableType(intersectionType)) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE, intersectionType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types, intersectionType, env,
+                                                          symTable, anonymousModelHelper, names);
+    }
+
     public void visit(BLangObjectTypeNode objectTypeNode) {
         EnumSet<Flag> flags = EnumSet.copyOf(objectTypeNode.flagSet);
         if (objectTypeNode.isAnonymous) {
@@ -889,6 +1004,49 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else {
             resultType = recordTypeNode.symbol.type;
         }
+    }
+
+    public void visit(BLangStreamType streamTypeNode) {
+        BType type = resolveTypeNode(streamTypeNode.type, env);
+        BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
+        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : null;
+        // If the constrained type is undefined, return noType as the type.
+        if (constraintType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
+
+        BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
+        BTypeSymbol typeSymbol = type.tsymbol;
+        streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                typeSymbol.pkgID, streamType, typeSymbol.owner);
+        resultType = streamType;
+    }
+
+    public void visit(BLangTableTypeNode tableTypeNode) {
+        BType type = resolveTypeNode(tableTypeNode.type, env);
+        BType constraintType = resolveTypeNode(tableTypeNode.constraint, env);
+
+        BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
+        BTypeSymbol typeSymbol = type.tsymbol;
+        tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
+                typeSymbol.name, env.enclPkg.symbol.pkgID, tableType, env.scope.owner);
+        tableType.constraintPos = tableTypeNode.constraint.pos;
+
+        if (tableTypeNode.tableKeyTypeConstraint != null) {
+            tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
+            tableType.keyPos = tableTypeNode.tableKeyTypeConstraint.pos;
+        } else if (tableTypeNode.tableKeySpecifier != null) {
+            BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
+            List<String> fieldNameList = new ArrayList<>();
+            for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
+                fieldNameList.add(identifier.value);
+            }
+            tableType.fieldNameList = fieldNameList;
+            tableType.keyPos = tableKeySpecifier.pos;
+        }
+
+        resultType = tableType;
     }
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
@@ -976,7 +1134,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
-            constrainedType = symTable.xmlType;
+            if (constraintType.tag != TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
+                    dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
+                            constraintType);
+                }
+                constrainedType = new BXMLType(constraintType, null);
+            } else {
+                checkUnionTypeForXMLSubTypes((BUnionType) constraintType, constrainedTypeNode.pos);
+                constrainedType = new BXMLType(constraintType, null);
+            }
         } else {
             return;
         }
@@ -987,21 +1154,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = constrainedType;
     }
 
-    public void visit(BLangStreamType streamTypeNode) {
-        BType type = resolveTypeNode(streamTypeNode.type, env);
-        BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
-        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : null;
-        // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType) {
-            resultType = symTable.noType;
-            return;
+    private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, DiagnosticPos pos) {
+        for (BType memberType : constraintUnionType.getMemberTypes()) {
+            if (memberType.tag == TypeTags.UNION) {
+                checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
+            }
+            if (!TypeTags.isXMLTypeTag(memberType.tag)) {
+                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintUnionType);
+            }
         }
-
-        BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
-        BTypeSymbol typeSymbol = type.tsymbol;
-        streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.pkgID, streamType, typeSymbol.owner);
-        resultType = streamType;
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {
@@ -1264,5 +1425,53 @@ public class SymbolResolver extends BLangNodeVisitor {
                 && env.enclInvokable.symbol.receiverSymbol != null
                 && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
                 || isMemberAllowed(env.enclEnv, symbol));
+    }
+
+    public void loadFunctionalConstructors() {
+        BPackageSymbol xmlModuleSymbol = symTable.langXmlModuleSymbol;
+        if (xmlModuleSymbol == null) {
+            return;
+        }
+
+        BConstructorSymbol elementCtor =
+                FunctionalConstructorBuilder.newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType)
+                    .addParam("name", symTable.stringType)
+                    .addDefaultableParam("attributes", symTable.mapStringType)
+                    .addDefaultableParam("children", symTable.xmlType)
+                    .build();
+        xmlModuleSymbol.scope.define(elementCtor.name, elementCtor);
+
+        BConstructorSymbol piCtor =
+                FunctionalConstructorBuilder.newConstructor("ProcessingInstruction",
+                        xmlModuleSymbol,
+                        symTable.xmlPIType)
+                    .addParam("target", symTable.stringType)
+                    .addDefaultableParam("content", symTable.stringType)
+                    .build();
+        xmlModuleSymbol.scope.define(piCtor.name, piCtor);
+
+        BConstructorSymbol commentCtor =
+                FunctionalConstructorBuilder.newConstructor("Comment", xmlModuleSymbol, symTable.xmlCommentType)
+                    .addDefaultableParam("comment", symTable.stringType)
+                    .build();
+        xmlModuleSymbol.scope.define(commentCtor.name, commentCtor);
+
+        BConstructorSymbol textCtor =
+                FunctionalConstructorBuilder.newConstructor("Text", xmlModuleSymbol, symTable.xmlTextType)
+                    .addDefaultableParam("characters", symTable.stringType)
+                    .build();
+        xmlModuleSymbol.scope.define(textCtor.name, textCtor);
+    }
+
+    private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {
+        if (lhsType == symTable.readonlyType) {
+            return rhsType;
+        }
+
+        if (rhsType == symTable.readonlyType) {
+            return lhsType;
+        }
+
+        return types.getTypeIntersection(lhsType, rhsType);
     }
 }

@@ -1315,6 +1315,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 piEnd);
     }
 
+    public static STNode createTableTypeDescriptorNode(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
+    public static STNode createTypeParameterNode(
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+
+        return new STTypeParameterNode(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    public static STNode createKeyTypeConstraintNode(
+            STNode keyKeywordToken,
+            STNode typeParameterNode) {
+
+        return new STKeyTypeConstraintNode(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
     public static STNode createFunctionTypeDescriptorNode(
             STNode functionKeyword,
             STNode functionSignature) {
@@ -1363,75 +1394,46 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBracketToken);
     }
 
-    public static STNode createQueryConstructTypeNode(
-            STNode tableKeyword,
-            STNode KeySpecifier) {
+    public static STNode createParenthesisedTypeDescriptorNode(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken) {
 
-        return new STQueryConstructTypeNode(
-                tableKeyword,
-                KeySpecifier);
+        return new STParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken);
     }
 
-    public static STNode createFromClauseNode(
-            STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
-            STNode inKeyword,
-            STNode expression) {
+    public static STNode createExplicitNewExpressionNode(
+            STNode NewKeyword,
+            STNode TypeDescriptor,
+            STNode ParenthesizedArgList) {
 
-        return new STFromClauseNode(
-                fromKeyword,
-                typeName,
-                variableName,
-                inKeyword,
-                expression);
+        return new STExplicitNewExpressionNode(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
     }
 
-    public static STNode createWhereClauseNode(
-            STNode whereKeyword,
-            STNode expression) {
+    public static STNode createImplicitNewExpressionNode(
+            STNode NewKeyword,
+            STNode ParenthesizedArgList) {
 
-        return new STWhereClauseNode(
-                whereKeyword,
-                expression);
+        return new STImplicitNewExpressionNode(
+                NewKeyword,
+                ParenthesizedArgList);
     }
 
-    public static STNode createLetClauseNode(
-            STNode letKeyword,
-            STNode letVarDeclarations) {
+    public static STNode createParenthesizedArgList(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
 
-        return new STLetClauseNode(
-                letKeyword,
-                letVarDeclarations);
-    }
-
-    public static STNode createQueryPipelineNode(
-            STNode fromClause,
-            STNode intermediateClauses) {
-
-        return new STQueryPipelineNode(
-                fromClause,
-                intermediateClauses);
-    }
-
-    public static STNode createSelectClauseNode(
-            STNode selectKeyword,
-            STNode expression) {
-
-        return new STSelectClauseNode(
-                selectKeyword,
-                expression);
-    }
-
-    public static STNode createQueryExpressionNode(
-            STNode queryConstructType,
-            STNode queryPipeline,
-            STNode selectClause) {
-
-        return new STQueryExpressionNode(
-                queryConstructType,
-                queryPipeline,
-                selectClause);
+        return new STParenthesizedArgList(
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 }
 

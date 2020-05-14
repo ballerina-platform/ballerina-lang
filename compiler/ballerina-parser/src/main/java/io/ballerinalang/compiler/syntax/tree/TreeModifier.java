@@ -1304,6 +1304,37 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        Token tableKeywordToken = modifyToken(tableTypeDescriptorNode.tableKeywordToken());
+        Node rowTypeParameterNode = modifyNode(tableTypeDescriptorNode.rowTypeParameterNode());
+        Node keyConstraintNode = modifyNode(tableTypeDescriptorNode.keyConstraintNode());
+        return tableTypeDescriptorNode.modify(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
+    @Override
+    public Node transform(TypeParameterNode typeParameterNode) {
+        Token ltToken = modifyToken(typeParameterNode.ltToken());
+        Node typeNode = modifyNode(typeParameterNode.typeNode());
+        Token gtToken = modifyToken(typeParameterNode.gtToken());
+        return typeParameterNode.modify(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    @Override
+    public Node transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        Token keyKeywordToken = modifyToken(keyTypeConstraintNode.keyKeywordToken());
+        Node typeParameterNode = modifyNode(keyTypeConstraintNode.typeParameterNode());
+        return keyTypeConstraintNode.modify(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
+    @Override
     public Node transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         Token functionKeyword = modifyToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature = modifyNode(functionTypeDescriptorNode.functionSignature());
@@ -1341,7 +1372,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         Token openBracketToken = modifyToken(tupleTypeDescriptorNode.openBracketToken());
-        NodeList<TypeDescriptorNode> memberTypeDesc = modifyNodeList(tupleTypeDescriptorNode.memberTypeDesc());
+        SeparatedNodeList<TypeDescriptorNode> memberTypeDesc = modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
         Node restTypeDesc = modifyNode(tupleTypeDescriptorNode.restTypeDesc());
         Token closeBracketToken = modifyToken(tupleTypeDescriptorNode.closeBracketToken());
         return tupleTypeDescriptorNode.modify(
@@ -1352,74 +1383,45 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(QueryConstructTypeNode queryConstructTypeNode) {
-        Token tableKeyword = modifyToken(queryConstructTypeNode.tableKeyword());
-        KeySpecifierNode KeySpecifier = modifyNode(queryConstructTypeNode.KeySpecifier());
-        return queryConstructTypeNode.modify(
-                tableKeyword,
-                KeySpecifier);
+    public Node transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        Token openParenToken = modifyToken(parenthesisedTypeDescriptorNode.openParenToken());
+        TypeDescriptorNode typedesc = modifyNode(parenthesisedTypeDescriptorNode.typedesc());
+        Token closeParenToken = modifyToken(parenthesisedTypeDescriptorNode.closeParenToken());
+        return parenthesisedTypeDescriptorNode.modify(
+                openParenToken,
+                typedesc,
+                closeParenToken);
     }
 
     @Override
-    public Node transform(FromClauseNode fromClauseNode) {
-        Token fromKeyword = modifyToken(fromClauseNode.fromKeyword());
-        Node typeName = modifyNode(fromClauseNode.typeName());
-        Token variableName = modifyToken(fromClauseNode.variableName());
-        Token inKeyword = modifyToken(fromClauseNode.inKeyword());
-        ExpressionNode expression = modifyNode(fromClauseNode.expression());
-        return fromClauseNode.modify(
-                fromKeyword,
-                typeName,
-                variableName,
-                inKeyword,
-                expression);
+    public Node transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Token NewKeyword = modifyToken(explicitNewExpressionNode.NewKeyword());
+        TypeDescriptorNode TypeDescriptor = modifyNode(explicitNewExpressionNode.TypeDescriptor());
+        Node ParenthesizedArgList = modifyNode(explicitNewExpressionNode.ParenthesizedArgList());
+        return explicitNewExpressionNode.modify(
+                NewKeyword,
+                TypeDescriptor,
+                ParenthesizedArgList);
     }
 
     @Override
-    public Node transform(WhereClauseNode whereClauseNode) {
-        Token whereKeyword = modifyToken(whereClauseNode.whereKeyword());
-        ExpressionNode expression = modifyNode(whereClauseNode.expression());
-        return whereClauseNode.modify(
-                whereKeyword,
-                expression);
+    public Node transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        Token NewKeyword = modifyToken(implicitNewExpressionNode.NewKeyword());
+        ParenthesizedArgList ParenthesizedArgList = modifyNode(implicitNewExpressionNode.ParenthesizedArgList().orElse(null));
+        return implicitNewExpressionNode.modify(
+                NewKeyword,
+                ParenthesizedArgList);
     }
 
     @Override
-    public Node transform(LetClauseNode letClauseNode) {
-        Token letKeyword = modifyToken(letClauseNode.letKeyword());
-        SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letClauseNode.letVarDeclarations());
-        return letClauseNode.modify(
-                letKeyword,
-                letVarDeclarations);
-    }
-
-    @Override
-    public Node transform(QueryPipelineNode queryPipelineNode) {
-        FromClauseNode fromClause = modifyNode(queryPipelineNode.fromClause());
-        NodeList<Node> intermediateClauses = modifyNodeList(queryPipelineNode.intermediateClauses());
-        return queryPipelineNode.modify(
-                fromClause,
-                intermediateClauses);
-    }
-
-    @Override
-    public Node transform(SelectClauseNode selectClauseNode) {
-        Token selectKeyword = modifyToken(selectClauseNode.selectKeyword());
-        ExpressionNode expression = modifyNode(selectClauseNode.expression());
-        return selectClauseNode.modify(
-                selectKeyword,
-                expression);
-    }
-
-    @Override
-    public Node transform(QueryExpressionNode queryExpressionNode) {
-        QueryConstructTypeNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType());
-        QueryPipelineNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause = modifyNode(queryExpressionNode.selectClause());
-        return queryExpressionNode.modify(
-                queryConstructType,
-                queryPipeline,
-                selectClause);
+    public Node transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = modifyToken(parenthesizedArgList.openParenToken());
+        NodeList<FunctionArgumentNode> arguments = modifyNodeList(parenthesizedArgList.arguments());
+        Token closeParenToken = modifyToken(parenthesizedArgList.closeParenToken());
+        return parenthesizedArgList.modify(
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
     // Tokens

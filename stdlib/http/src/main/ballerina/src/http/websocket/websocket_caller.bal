@@ -29,51 +29,54 @@ public type WebSocketCaller client object {
         // package private function to prevent object creation
     }
 
-    # Push text to the connection.
+    # Pushes text to the connection. If an error occurs while sending the text message to the connection, that message
+    # will be lost.
     #
-    # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
+    # + data - Data to be sent. If it is a byte[], it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
-    # + return  - `error` if an error occurs when sending
-    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, 
+    # + return  - An `error` if an error occurs when sending
+    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
         public boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
     }
 
-    # Push binary data to the connection.
+    # Pushes binary data to the connection. If an error occurs while sending the binary message to the connection,
+    # that message will be lost.
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
-    # + return - `error` if an error occurs when sending
+    # + return  - An `error` if an error occurs when sending
     public remote function pushBinary(byte[] data, public boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
-    # Ping the connection.
+    # Pings the connection. If an error occurs while sending the ping frame to the server, that frame will be lost.
     #
-    # + data - Binary data to be sent.
-    # + return - `error` if an error occurs when sending
+    # + data - Binary data to be sent
+    # + return  - An `error` if an error occurs when sending
     public remote function ping(byte[] data) returns WebSocketError? {
         return self.conn.ping(data);
     }
 
-    # Send pong message to the connection.
+    # Sends a pong message to the connection. If an error occurs while sending the pong frame to the connection, that
+    # frame will be lost.
     #
     # + data - Binary data to be sent
-    # + return - `error` if an error occurs when sending
+    # + return  - An `error` if an error occurs when sending
     public remote function pong(byte[] data) returns WebSocketError? {
         return self.conn.pong(data);
     }
 
-    # Close the connection.
+    # Closes the connection.
     #
     # + statusCode - Status code for closing the connection
     # + reason - Reason for closing the connection
     # + timeoutInSeconds - Time to wait for the close frame to be received from the remote endpoint before closing the
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
     #                   is not received from the remote endpoint. If the value < 0 (e.g., -1), then the connection waits
-    #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
-    #                   within waiting period the connection is terminated immediately.
-    # + return - `error` if an error occurs when sending
+    #                   until a close frame is received. If WebSocket frame is received from the remote endpoint
+    #                   within the waiting period, the connection is terminated immediately.
+    # + return - An `error` if an error occurs when sending
     public remote function close(public int? statusCode = 1000, public string? reason = (),
         public int timeoutInSeconds = 60) returns WebSocketError? {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
@@ -81,31 +84,31 @@ public type WebSocketCaller client object {
 
     # Sets a connection related attribute.
     #
-    # + key - key that identifies the attribute
-    # + value - value of the attribute
+    # + key - The key, which identifies the attribute
+    # + value - The value of the attribute
     public function setAttribute(string key, any value) {
         self.attributes[key] = value;
     }
 
     # Gets connection related attribute if any.
     #
-    # + key - the key to identify the attribute.
-    # + return - the attribute related to the given key or `nil`
+    # + key - The key to identify the attribute
+    # + return - The attribute related to the given key or `nil`
     public function getAttribute(string key) returns any {
         return self.attributes[key];
     }
 
     # Removes connection related attribute if any.
     #
-    # + key - the key to identify the attribute.
-    # + return - the attribute related to the given key or `nil`
+    # + key - The key to identify the attribute
+    # + return - The attribute related to the given key or `nil`
     public function removeAttribute(string key) returns any {
         return self.attributes.remove(key);
     }
 
     # Gives the connection id associated with this connection.
     #
-    # + return - the unique id associated with the connection
+    # + return - The unique ID associated with the connection
     public function getConnectionId() returns string {
         return self.id;
     }
@@ -119,7 +122,7 @@ public type WebSocketCaller client object {
 
     # Gives the secured status of the connection.
     #
-    # + return - `true` if the connection is secure.
+    # + return - `true` if the connection is secure
     public function isSecure() returns boolean {
         return self.secure;
     }
