@@ -460,3 +460,24 @@ function testSimpleSelectQueryReturnStream() returns boolean {
     testPassed = testPassed && (returnedVal is Person) && (returnedVal == p3);
     return testPassed;
 }
+
+function testQueryWithRecordVarInLetClause() returns Person1[] {
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Address address = {city: "Colombo", country: "SL"};
+
+    Person[] personList = [p1, p2, p3];
+
+    var outputPersonList = from var person in personList
+                           let Address {city: town, country: state } = address
+                           where person.age >= 30
+                           select {
+                               firstName: person.firstName,
+                               lastName: person.lastName,
+                               deptAccess: "XYZ",
+                               address: {city: town, country: state}
+                           };
+    return outputPersonList;
+}

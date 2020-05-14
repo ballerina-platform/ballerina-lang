@@ -574,6 +574,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
+        if (bLangRecordVariable.expr != null) {
+            bLangRecordVariable.expr.accept(this);
+        }
+        if (bLangRecordVariable.hasRestParam()) {
+            ((BLangNode) bLangRecordVariable.restParam).accept(this);
+        }
     }
 
     @Override

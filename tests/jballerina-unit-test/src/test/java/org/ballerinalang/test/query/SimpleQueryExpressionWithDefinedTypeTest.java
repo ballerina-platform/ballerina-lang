@@ -346,4 +346,19 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
+
+    @Test(description = "Test Query expression With Record Variable within let clause ")
+    public void testQueryWithRecordVarInLetClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryWithRecordVarInLetClause");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap person1 = (BMap) returnValues[0];
+        BMap person2 = (BMap) returnValues[1];
+
+        Assert.assertEquals(person1.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", " +
+                "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
+        Assert.assertEquals(person2.stringValue(), "{firstName:\"John\", lastName:\"David\", " +
+                "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
+    }
 }
