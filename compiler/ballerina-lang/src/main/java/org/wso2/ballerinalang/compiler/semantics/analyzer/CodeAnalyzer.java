@@ -2556,10 +2556,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-
         analyzeExpr(joinClause.collection);
-        analyzeExpr(joinClause.onClause.expression);
-        analyzeExpr(joinClause.expression);
     }
 
     @Override

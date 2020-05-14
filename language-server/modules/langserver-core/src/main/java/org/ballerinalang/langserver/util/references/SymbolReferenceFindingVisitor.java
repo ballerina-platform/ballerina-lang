@@ -917,8 +917,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         this.acceptNode(joinClause.collection);
         this.acceptNode((BLangNode) joinClause.variableDefinitionNode);
-        this.acceptNode(joinClause.onClause);
-        this.acceptNode(joinClause.expression);
     }
 
     @Override

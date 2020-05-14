@@ -2796,18 +2796,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.bindingPattern().Identifier() != null) {
             String identifier = ctx.bindingPattern().Identifier().getText();
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
-            this.pkgBuilder.createFromClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+            this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
-                    isDeclaredWithVar);
+                    isDeclaredWithVar, true);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.createFromClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-            this.pkgBuilder.createFromClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true);
         } else {
-            this.pkgBuilder.createFromClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true);
         }
     }
 
@@ -2822,12 +2822,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.bindingPattern().Identifier() != null) {
             String identifier = ctx.bindingPattern().Identifier().getText();
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
-            this.pkgBuilder.createJoinClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+            this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
-                    isDeclaredWithVar);
+                    isDeclaredWithVar, false);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.createJoinClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false);
+        } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false);
+        } else {
+            this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false);
         }
     }
 

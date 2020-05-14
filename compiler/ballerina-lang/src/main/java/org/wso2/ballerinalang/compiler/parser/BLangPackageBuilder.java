@@ -1953,112 +1953,95 @@ public class BLangPackageBuilder {
         this.isInQuery = true;
     }
 
-    void createFromClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+    void createClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar, boolean isFromClause) {
         BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
                 false, false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause);
     }
 
-    void createFromClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                        boolean isDeclaredWithVar) {
+    void createClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                        boolean isDeclaredWithVar, boolean isFromClause) {
         BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, false,
                 isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause);
     }
 
-    void createFromClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                       boolean isDeclaredWithVar) {
+    void createClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar, boolean isFromClause) {
         BLangErrorVariableDef variableDefinitionNode = createErrorVariableDef(pos, ws, false,
                 false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause);
     }
 
-    void createFromClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                       boolean isDeclaredWithVar) {
+    void createClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar, boolean isFromClause) {
         BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false,
                 false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) {
+        if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
 
-        isInQuery = false;
-        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+        if (isFromClause) {
+            isInQuery = false;
+        }
+        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause);
     }
 
-    private void addFromClause(DiagnosticPos pos, Set<Whitespace> ws,
-                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
-        BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
-        fromClause.addWS(ws);
-        fromClause.pos = pos;
-        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
-        fromClause.setVariableDefinitionNode(variableDefinitionNode);
-        fromClause.setCollection(this.exprNodeStack.pop());
-        fromClause.isDeclaredWithVar = isDeclaredWithVar;
-        queryClauseStack.push(fromClause);
-    }
-
-    void createJoinClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
-        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
-                false, false, isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
-            variableDefinitionNode.var.addWS(this.bindingPatternIdentifierWS.pop());
-        } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
-            variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
+    private void addClause(DiagnosticPos pos, Set<Whitespace> ws,
+                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar,
+                           boolean isFromClause) {
+        if (isFromClause) {
+            BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
+            fromClause.addWS(ws);
+            fromClause.pos = pos;
+            markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
+            fromClause.setVariableDefinitionNode(variableDefinitionNode);
+            fromClause.setCollection(this.exprNodeStack.pop());
+            fromClause.isDeclaredWithVar = isDeclaredWithVar;
+            queryClauseStack.push(fromClause);
+        } else {
+            BLangJoinClause joinClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
+            joinClause.addWS(ws);
+            joinClause.pos = pos;
+            markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
+            joinClause.setVariableDefinitionNode(variableDefinitionNode);
+            joinClause.isDeclaredWithVar = isDeclaredWithVar;
+            joinClause.setCollection(this.exprNodeStack.pop());
+            queryClauseStack.push(joinClause);
         }
 
-        addJoinClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
-    }
-
-    void createJoinClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                                        boolean isDeclaredWithVar) {
-        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, false,
-                isDeclaredWithVar);
-        if (!this.bindingPatternIdentifierWS.isEmpty()) {
-            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
-        } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
-            variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
-        }
-
-        addJoinClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
-    }
-
-    private void addJoinClause(DiagnosticPos pos, Set<Whitespace> ws,
-                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
-        BLangJoinClause joinClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
-        joinClause.addWS(ws);
-        joinClause.pos = pos;
-        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
-        joinClause.setVariableDefinitionNode(variableDefinitionNode);
-        joinClause.isDeclaredWithVar = isDeclaredWithVar;
-        joinClause.setExpression(this.exprNodeStack.pop());
-        joinClause.setOnClauseNode(onClauseNodeStack.pop());
-        joinClause.setCollection(this.exprNodeStack.pop());
-        queryClauseStack.push(joinClause);
     }
 
     void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2066,7 +2049,7 @@ public class BLangPackageBuilder {
         onClause.addWS(ws);
         onClause.pos = pos;
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        onClauseNodeStack.push(onClause);
+        queryClauseStack.push(onClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

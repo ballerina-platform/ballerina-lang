@@ -41,12 +41,4 @@ public interface JoinClauseNode extends Node {
 
     void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
 
-    OnClauseNode getOnClauseNode();
-
-    void setOnClauseNode(OnClauseNode onClauseNode);
-
-    ExpressionNode getExpression();
-
-    void setExpression(ExpressionNode expression);
-
 }

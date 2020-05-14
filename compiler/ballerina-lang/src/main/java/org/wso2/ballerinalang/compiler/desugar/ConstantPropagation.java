@@ -814,8 +814,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         joinClause.collection = rewrite(joinClause.collection);
-        joinClause.onClause = rewrite(joinClause.onClause);
-        joinClause.expression = rewrite(joinClause.expression);
         result = joinClause;
     }
 

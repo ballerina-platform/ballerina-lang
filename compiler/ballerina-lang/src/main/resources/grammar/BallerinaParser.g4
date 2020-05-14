@@ -846,6 +846,7 @@ expression
     |   queryExpr                                                           # queryExpression
     |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
+    |   expression JOIN_EQUALS expression                                   # joinEqualsExpression
     ;
 
 constantExpression
@@ -909,12 +910,8 @@ letClause
     :   LET letVarDecl (COMMA letVarDecl)*
     ;
 
-joinOnCondition
-    :   onClause JOIN_EQUALS expression
-    ;
-
 joinClause
-    :   JOIN (typeName | VAR) bindingPattern IN expression joinOnCondition
+    :   JOIN (typeName | VAR) bindingPattern IN expression
     ;
 
 fromClause
@@ -926,7 +923,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause ((fromClause | letClause | whereClause )* | joinClause?)
+    :   fromClause ((fromClause | letClause | whereClause )* | (joinClause onClause)?)
     ;
 
 queryConstructType

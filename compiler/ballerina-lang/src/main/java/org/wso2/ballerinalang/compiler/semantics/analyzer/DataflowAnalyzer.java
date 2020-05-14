@@ -823,8 +823,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         analyzeNode(joinClause.collection, env);
-        analyzeNode(joinClause.onClause, env);
-        analyzeNode(joinClause.expression, env);
     }
 
     @Override

@@ -44,7 +44,7 @@ function testSimpleJoinClause() returns DeptPerson[]{
     DeptPerson[] deptPersonList =
        from var person in personList
        join Department dept in deptList
-       on person.id equals dept.id
+       on true
        select {
            fname : person.fname,
            lname : person.lname,
@@ -72,7 +72,7 @@ function testJoinClauseWithStream() returns boolean {
     stream<DeptPerson> deptPersonStream =
        stream from var person in personStream
        join var dept in deptStream
-       on person.id equals dept.id
+       on true
        select {
            fname : person.fname,
            lname : person.lname,
@@ -89,5 +89,3 @@ function testJoinClauseWithStream() returns boolean {
 
     return testPassed;
 }
-
-

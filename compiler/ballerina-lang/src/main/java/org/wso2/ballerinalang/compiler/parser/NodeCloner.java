@@ -1320,8 +1320,9 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.variableDefinitionNode = (VariableDefinitionNode) clone((BLangNode) source.variableDefinitionNode);
         clone.collection = clone(source.collection);
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
-        clone.onClause = clone(source.onClause);
-        clone.expression = clone(source.expression);
+        clone.varType = source.varType;
+        clone.resultType = source.resultType;
+        clone.nillableResultType = source.nillableResultType;
 
     }
 
