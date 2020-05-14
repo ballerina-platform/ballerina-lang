@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class ModuleLoaderImpl implements ModuleLoader {
 
-    Project project;
+    private Project project;
     List<Repo> repos;
 
     public ModuleLoaderImpl(Project project, List<Repo> repos) {
@@ -35,34 +35,30 @@ public class ModuleLoaderImpl implements ModuleLoader {
         }
 
         // if module is in the current project
-        if (this.repos.get(0).isModuleExists(moduleId)) {
-            moduleId.version = this.project.manifest.getProject().getVersion();
+        if (this.project.isModuleExists(moduleId)) {
+            moduleId.version = this.project.getManifest().getProject().getVersion();
             return moduleId;
         }
 
         // if lock file exists
         if (enclModuleId != null && this.project.hasLockFile()) {
             // not a top level module or bal
-            String lockFileVersion = resolveVersionFromLockFile(moduleId, enclModuleId);
-            if (lockFileVersion != null) {
-                 moduleId.version = lockFileVersion;
+            String versionFromLockfile = resolveVersionFromLockFile(moduleId, enclModuleId);
+            // version in lock can be null if the import is added after creating the lock
+            if (versionFromLockfile != null) {
+                 moduleId.version = versionFromLockfile;
                 return moduleId;
             }
         }
 
-        // If it is an immediate import check the Ballerina.toml
+        String versionFromManifest = null;
+        // if it is an immediate import check the Ballerina.toml
         // Set version from the Ballerina.toml of the current project
-        if (enclModuleId != null && this.project.manifest != null) {
+        if (enclModuleId != null && this.project.getManifest() != null && this.project.isModuleExists(enclModuleId)) {
             // If exact version return
-            String versionFromManifest = resolveVersionFromManifest(moduleId, this.project.manifest);
-            if (isExactVersion(versionFromManifest)) {
+            versionFromManifest = resolveVersionFromManifest(moduleId, this.project.getManifest());
+            if (versionFromManifest != null && isExactVersion(versionFromManifest)) {
                 moduleId.version = versionFromManifest;
-                return moduleId;
-            }
-            // if not exact version, look in caches and repos
-            String moduleIdFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
-            if (moduleIdFromRepos != null) {
-                moduleId.version = moduleIdFromRepos;
                 return moduleId;
             }
         }
@@ -73,22 +69,26 @@ public class ModuleLoaderImpl implements ModuleLoader {
             BaloCache homeBaloCache = (BaloCache) this.repos.get(4);
             Module parentModule = homeBaloCache.getModule(enclModuleId);
             Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
-            String versionFromManifest = resolveVersionFromManifest(moduleId, parentManifest);
+            versionFromManifest = resolveVersionFromManifest(moduleId, parentManifest);
             // if exact version
             if (isExactVersion(versionFromManifest)) {
                 moduleId.version = versionFromManifest;
                 return moduleId;
             }
-            // if not exact version, look in caches and repos
-            String moduleIdFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
-            if (moduleIdFromRepos != null) {
-                moduleId.version = moduleIdFromRepos;
-                return moduleId;
-            }
         }
 
         // find latest in repos
+        // if not exact version, look in caches and repos
+        String moduleIdFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
+        if (moduleIdFromRepos != null) {
+            moduleId.version = moduleIdFromRepos;
+            return moduleId;
+        }
+
         // pull if the module is in a remote repo.
+//        this.pullFromRemoteRepos(moduleId);
+        // if remote repo pull fail we can do a build failure.
+
         return moduleId;
     }
 
@@ -154,8 +154,8 @@ public class ModuleLoaderImpl implements ModuleLoader {
     }
 
     public void addProjectModules(List<Repo> repos, Path projectPath) {
-        ProjectModules projectModules = new ProjectModules(projectPath, this.project.manifest.getProject().getOrgName(),
-                this.project.manifest.getProject().getVersion());
+        ProjectModules projectModules = new ProjectModules(projectPath, this.project.getManifest().getProject().getOrgName(),
+                this.project.getManifest().getProject().getVersion());
         repos.add(projectModules);
     }
 

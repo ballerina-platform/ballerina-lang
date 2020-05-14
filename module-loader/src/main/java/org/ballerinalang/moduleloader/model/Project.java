@@ -11,8 +11,8 @@ import java.util.Set;
 
 public class Project {
 
-    public org.ballerinalang.toml.model.Project project;
-    public Manifest manifest;
+    private org.ballerinalang.toml.model.Project project;
+    private Manifest manifest;
     public LockFile lockFile;
 
     org.ballerinalang.toml.model.Project getBallerinaToml() {
@@ -37,5 +37,25 @@ public class Project {
 
     public void parseLockFile(InputStream toml) {
         lockFile = LockFileProcessor.parseTomlContentAsStream(toml);
+    }
+
+    public boolean isModuleExists(ModuleId moduleId) {
+        return true;
+    }
+
+    public org.ballerinalang.toml.model.Project getProject() {
+        return project;
+    }
+
+    public void setProject(org.ballerinalang.toml.model.Project project) {
+        this.project = project;
+    }
+
+    public Manifest getManifest() {
+        return manifest;
+    }
+
+    public void setManifest(Manifest manifest) {
+        this.manifest = manifest;
     }
 }

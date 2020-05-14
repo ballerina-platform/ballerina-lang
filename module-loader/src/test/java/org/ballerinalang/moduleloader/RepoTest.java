@@ -32,7 +32,7 @@ public class RepoTest {
 
         project = new Project();
         project.parseBallerinaToml("[project] \n" +
-                "org-name = \"test\" \n" +
+                "org-name = \"test\"\n" +
                 "version = \"0.1.0\"\n");
     }
 

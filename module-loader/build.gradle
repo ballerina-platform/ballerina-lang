@@ -38,6 +38,7 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
+    testCompile 'org.mockito:mockito-all'
 
     testRuntime project(':ballerina-jvm')
     testRuntime project(':ballerina-bir')
@@ -85,5 +86,9 @@ test {
     }
 }
 
-description = 'Ballerina - Package Loader'
+//plugins {
+//    id 'jacoco'
+//}
+
+description = 'Ballerina - Module Loader'
 

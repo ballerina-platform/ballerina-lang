@@ -19,8 +19,8 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="cli-module-suite">
-    <test name="cli-module-tests" preserve-order="true" parallel="false">
+<suite name="module-loader-suite">
+    <test name="module-loader-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -28,7 +28,7 @@ under the License.
         </groups>
 
         <packages>
-            <package name="org.ballerinalang.cli.module.*"/>
+            <package name="org.ballerinalang.moduleloader.*"/>
         </packages>
     </test>
 </suite>
