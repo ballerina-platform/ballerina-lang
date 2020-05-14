@@ -499,10 +499,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typedBindingPatternNode);
     }
 
-    public void visit(BindingPatternNode bindingPatternNode) {
-        visitSyntaxNode(bindingPatternNode);
-    }
-
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
         visitSyntaxNode(captureBindingPatternNode);
     }

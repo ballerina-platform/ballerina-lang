@@ -1432,18 +1432,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(BindingPatternNode bindingPatternNode) {
-        CaptureBindingPatternNode captureBindingPattern = modifyNode(bindingPatternNode.captureBindingPattern().orElse(null));
-        return bindingPatternNode.modify(
-                captureBindingPattern);
-    }
-
-    @Override
     public Node transform(CaptureBindingPatternNode captureBindingPatternNode) {
         Token variableName = modifyToken(captureBindingPatternNode.variableName().orElse(null));
         return captureBindingPatternNode.modify(
                 variableName);
     }
+
     // Tokens
 
     @Override

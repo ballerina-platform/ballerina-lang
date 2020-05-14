@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STCaptureBindingPatternNode extends STNode {
+public class STCaptureBindingPatternNode extends STBindingPatternNode {
     public final STNode variableName;
 
     STCaptureBindingPatternNode(

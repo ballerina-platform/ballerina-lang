@@ -1944,14 +1944,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypedBindingPatternNode.createUnlinkedFacade();
     }
 
-    public static BindingPatternNode createBindingPatternNode(
-            CaptureBindingPatternNode captureBindingPattern) {
-
-        STNode stBindingPatternNode = STNodeFactory.createBindingPatternNode(
-                getOptionalSTNode(captureBindingPattern));
-        return stBindingPatternNode.createUnlinkedFacade();
-    }
-
     public static CaptureBindingPatternNode createCaptureBindingPatternNode(
             Token variableName) {
 

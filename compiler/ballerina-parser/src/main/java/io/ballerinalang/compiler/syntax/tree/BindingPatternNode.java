@@ -19,47 +19,14 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Optional;
-
 /**
  * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
-public class BindingPatternNode extends NonTerminalNode {
+public abstract class BindingPatternNode extends NonTerminalNode {
 
     public BindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
-    }
-
-    public Optional<CaptureBindingPatternNode> captureBindingPattern() {
-        return optionalChildInBucket(0);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
-
-    @Override
-    protected String[] childNames() {
-        return new String[]{
-                "captureBindingPattern"};
-    }
-
-    public BindingPatternNode modify(
-            CaptureBindingPatternNode captureBindingPattern) {
-        if (checkForReferenceEquality(
-                captureBindingPattern)) {
-            return this;
-        }
-
-        return NodeFactory.createBindingPatternNode(
-                captureBindingPattern);
     }
 }

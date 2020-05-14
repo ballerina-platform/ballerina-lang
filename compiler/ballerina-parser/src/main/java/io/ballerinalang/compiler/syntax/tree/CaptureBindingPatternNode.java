@@ -26,7 +26,7 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class CaptureBindingPatternNode extends NonTerminalNode {
+public class CaptureBindingPatternNode extends BindingPatternNode {
 
     public CaptureBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

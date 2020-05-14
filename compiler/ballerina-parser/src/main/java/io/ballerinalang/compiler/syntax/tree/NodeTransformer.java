@@ -500,10 +500,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typedBindingPatternNode);
     }
 
-    public T transform(BindingPatternNode bindingPatternNode) {
-        return transformSyntaxNode(bindingPatternNode);
-    }
-
     public T transform(CaptureBindingPatternNode captureBindingPatternNode) {
         return transformSyntaxNode(captureBindingPatternNode);
     }
