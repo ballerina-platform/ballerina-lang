@@ -62,6 +62,11 @@ public class ForEachStatementTest extends AbstractStatementTest {
         "forEach-stmt/forEach_stmt_assert_12.json");
     }
 
+    @Test
+    public void testListBindingPatternForm4ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_13.bal",
+        "forEach-stmt/forEach_stmt_assert_13.json");
+    }
     // Recovery tests
 
     @Test
@@ -98,12 +103,6 @@ public class ForEachStatementTest extends AbstractStatementTest {
     public void testForEachStmtwithMissingTypedBindingPattern() {
         testFile("forEach-stmt/forEach_stmt_source_09.bal",
         "forEach-stmt/forEach_stmt_assert_09.json");
-    }
-
-    @Test
-    public void testListBindingPatternMissingForEachStmt() {
-        testFile("forEach-stmt/forEach_stmt_source_13.bal",
-        "forEach-stmt/forEach_stmt_assert_13.json");
     }
 
     @Test
