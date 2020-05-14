@@ -1991,8 +1991,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseComplexTypeDescriptor(parseOptionalTypeDescriptor(typeDesc), context);
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case OPEN_BRACKET_TOKEN:
-                if (isListBindingPattern()) { // return typed binding attern if we find a list-b-p
-                    return STNodeFactory.createTypedBindingPatternNode(typeDesc, parseListBindingPattern());
+                if (isListBindingPattern()) {
+                    return typeDesc;
                 }
                 return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context);                
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
@@ -2013,6 +2013,11 @@ public class BallerinaParser extends AbstractParser {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 switch (peek(3).kind) {
+                    case CLOSE_BRACKET_TOKEN:
+                        if (isFollowTypedBindingPattern(peek(4).kind)) {
+                            return true;
+                        }
+                        return false;
                     case COMMA_TOKEN:
                     case ELLIPSIS_TOKEN: // if the first comma is missing
                     case OPEN_BRACKET_TOKEN: // if the first comma is missing
@@ -2021,6 +2026,11 @@ public class BallerinaParser extends AbstractParser {
                     default:
                         return false;
                 }
+            case CLOSE_BRACKET_TOKEN: // could be an empty list binding pattern
+                if (isFollowTypedBindingPattern(peek(3).kind)) {
+                    return true;
+                }
+                return false;
             case ELLIPSIS_TOKEN:
             case OPEN_BRACKET_TOKEN:
                 return true;
@@ -2029,6 +2039,19 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check if this could be list-binding-pattern components.
+     *
+     * @return Boolean
+     */
+    private Boolean isFollowTypedBindingPattern(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case IN_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
     /**
      * <p>
      * Parse a type descriptor, given the next token kind.
@@ -8585,6 +8608,9 @@ public class BallerinaParser extends AbstractParser {
             }
             token = peek();
         }
+        if (bindingPatterns.isEmpty()) { // cannot be empty, must be atleast one
+            bindingPatterns.add(parseBindingPattern()); //recovery adds a missing b-p
+        }
         STNode closeBracket = parseCloseBracket();
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
         endContext();
@@ -8628,11 +8654,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPattern() {
         startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-        //list binding patterned typed-binding-patterns are returned this way
-        if (typeDesc.kind == SyntaxKind.TYPED_BINDING_PATTERN) {
-            endContext();
-            return typeDesc;
-        }
         STNode bindingPattern = parseBindingPattern();
         endContext();
         return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
