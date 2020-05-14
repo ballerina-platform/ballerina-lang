@@ -122,8 +122,8 @@ public class MimeUtil {
         if (!primaryType.isEmpty() && !subType.isEmpty()) {
             contentType = primaryType + "/" + subType;
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
-                MapValue map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
-                        (MapValue) mediaType.get(PARAMETER_MAP_FIELD) : null;
+                MapValue<BString, BString> map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
+                        (MapValue<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD) : null;
                 if (map != null && !map.isEmpty()) {
                     contentType = contentType + SEMICOLON;
                     return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
@@ -227,7 +227,7 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            BallerinaErrors.createError(INVALID_CONTENT_TYPE, e.getMessage());
+            throw new ErrorValue(org.ballerinalang.jvm.StringUtils.fromString(INVALID_CONTENT_TYPE), e.getMessage());
         }
         return mediaType;
     }
@@ -260,10 +260,10 @@ public class MimeUtil {
             } else {
                 dispositionValue = contentDispositionHeaderWithParams;
             }
-            contentDisposition.set(DISPOSITION_FIELD, dispositionValue);
-            MapValue paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
+            contentDisposition.set(DISPOSITION_FIELD, org.ballerinalang.jvm.StringUtils.fromString(dispositionValue));
+            MapValue<BString, BString> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
             for (Object key : paramMap.getKeys()) {
-                String paramValue = (String) paramMap.get(key);
+                BString paramValue = paramMap.get(key);
                 switch (key.toString()) {
                     case CONTENT_DISPOSITION_FILE_NAME:
                         contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD, stripQuotes(paramValue));
@@ -274,8 +274,8 @@ public class MimeUtil {
                     default:
                 }
             }
-            paramMap.remove(CONTENT_DISPOSITION_FILE_NAME);
-            paramMap.remove(CONTENT_DISPOSITION_NAME);
+            paramMap.remove(org.ballerinalang.jvm.StringUtils.fromString(CONTENT_DISPOSITION_FILE_NAME));
+            paramMap.remove(org.ballerinalang.jvm.StringUtils.fromString(CONTENT_DISPOSITION_NAME));
             contentDisposition.set(CONTENT_DISPOSITION_PARA_MAP_FIELD, paramMap);
         }
     }
@@ -326,7 +326,8 @@ public class MimeUtil {
                     .append(includeQuotes(fileName)).append(SEMICOLON);
         }
         if (contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD) != null) {
-            MapValue map = (MapValue) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
+            MapValue<BString, BString> map =
+                    (MapValue<BString, BString>) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
             HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
         }
 
@@ -418,11 +419,11 @@ public class MimeUtil {
      * @param textValue Represent a text value
      * @return a String surrounded by quotes
      */
-    public static String stripQuotes(String textValue) {
-        if (textValue.startsWith(DOUBLE_QUOTE)) {
-            textValue = textValue.substring(1);
+    public static BString stripQuotes(BString textValue) {
+        if (textValue.getValue().startsWith(DOUBLE_QUOTE)) {
+            textValue = textValue.substring(1, textValue.length());
         }
-        if (textValue.endsWith(DOUBLE_QUOTE)) {
+        if (textValue.getValue().endsWith(DOUBLE_QUOTE)) {
             textValue = textValue.substring(0, textValue.length() - 1);
         }
         return textValue;
