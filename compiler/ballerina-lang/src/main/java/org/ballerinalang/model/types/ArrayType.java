@@ -22,7 +22,7 @@ package org.ballerinalang.model.types;
  *
  * @since 0.94
  */
-public interface ArrayType extends ReferenceType {
+public interface ArrayType extends SelectivelyImmutableReferenceType {
     Type getElementType();
 
     int getSize();

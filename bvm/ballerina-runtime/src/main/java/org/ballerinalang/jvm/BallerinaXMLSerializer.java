@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -136,7 +137,10 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
-        xmlStreamWriter.writeCharacters(xmlValue.getTextValue());
+        String textValue = xmlValue.getTextValue();
+        if (!textValue.isEmpty()) {
+            xmlStreamWriter.writeCharacters(textValue);
+        }
     }
 
     private void writeElement(XMLItem xmlValue) throws XMLStreamException {

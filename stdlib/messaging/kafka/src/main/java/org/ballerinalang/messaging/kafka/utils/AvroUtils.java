@@ -45,7 +45,8 @@ public class AvroUtils {
         List<Schema.Field> fields = record.getSchema().getFields();
         for (Schema.Field field : fields) {
             if (record.get(field.name()) instanceof Utf8) {
-                genericAvroRecord.put(StringUtils.fromString(field.name()), record.get(field.name()).toString());
+                genericAvroRecord.put(StringUtils.fromString(field.name()),
+                                      StringUtils.fromString(record.get(field.name()).toString()));
             } else if (record.get(field.name()) instanceof GenericRecord) {
                 populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) record.get(field.name()));
             } else {

@@ -25,8 +25,6 @@ import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.api.BXMLQName;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -52,8 +50,6 @@ import javax.xml.namespace.QName;
 public abstract class XMLValue implements RefValue, BXML, CollectionValue {
 
     BType type = BTypes.typeXML;
-
-    protected volatile Status freezeStatus = new Status(State.UNFROZEN);
 
     public abstract int size();
 
@@ -175,13 +171,6 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
                 addDescendants(descendants, (XMLItem) child, qnames);
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
     }
 
     // TODO: These are bridge methods to invoke methods in BXML interface

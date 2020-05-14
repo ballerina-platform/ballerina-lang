@@ -24,8 +24,6 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -197,21 +195,8 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public void attemptFreeze(Status freezeStatus) {
-        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-        }
-    }
-
-    @Override
     public void freezeDirect() {
-        this.freezeStatus.setFrozen();
-    }
-
-    @Override
-    public Object freeze() {
-        freezeDirect();
-        return this;
+        this.type = ReadOnlyUtils.setImmutableType(this.type);
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BInitialValueEntry;
 
 import java.util.Map;
 
@@ -70,8 +71,13 @@ public class TypedescValueImpl implements  TypedescValue {
 
     @Override
     public Object instantiate(Strand s) {
+        return instantiate(s, new BInitialValueEntry[0]);
+    }
+
+    @Override
+    public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         if (describingType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl<>(describingType);
+            return new MapValueImpl<>(describingType, (MappingInitialValueEntry[]) initialValues);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + describingType);
@@ -102,16 +108,6 @@ public class TypedescValueImpl implements  TypedescValue {
      */
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public boolean isFrozen() {
-        return true;
-    }
-
-    @Override
-    public Object freeze() {
         return this;
     }
 }

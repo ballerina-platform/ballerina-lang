@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -94,11 +93,6 @@ public class ErrorValue extends BError implements RefValue {
     public Object frozenCopy(Map<Object, Object> refs) {
         // Error values are immutable and frozen, copy give same value.
         return this;
-    }
-
-    @Override
-    public void attemptFreeze(Status freezeStatus) {
-        // do nothing, since error types are always frozen
     }
 
     /**
@@ -224,13 +218,5 @@ public class ErrorValue extends BError implements RefValue {
             return true;
         }
         return (details instanceof MapValue) && ((MapValue) details).isEmpty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isFrozen() {
-        return true;
     }
 }

@@ -746,18 +746,10 @@ public class TypesTest {
         Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
     }
 
-    //TODO Table remove - Fix
-//    @Test
-//    public void testNewTable() {
-//        BValue[] result = BRunUtil.invoke(compileResult, "tableFunc");
-//        Assert.assertNotNull(result[0]);
-//        BTable table = (BTable) result[0];
-//        BMap data = table.getNext();
-//        Assert.assertEquals(data.getMap().get("name"), new BString("Mary"));
-//        Assert.assertEquals(data.getMap().get("physics"), new BInteger(90));
-//        Assert.assertEquals(data.getMap().get("chemistry"), new BInteger(87));
-//
-//    }
+    @Test(groups = "brokenOnJBallerina")
+    public void testNewTable() {
+        BRunUtil.invoke(compileResult, "tableFunc");
+    }
 
     @Test
     public void testDecimalWithoutArgs() {

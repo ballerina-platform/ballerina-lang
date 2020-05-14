@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -45,11 +46,13 @@ public class BFiniteType extends BType implements FiniteType {
     public BFiniteType(BTypeSymbol tsymbol) {
         super(TypeTags.FINITE, tsymbol);
         valueSpace = new LinkedHashSet<>();
+        this.flags |= Flags.READONLY;
     }
 
     public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {
         super(TypeTags.FINITE, tsymbol);
         this.valueSpace = valueSpace;
+        this.flags |= Flags.READONLY;
     }
 
     @Override

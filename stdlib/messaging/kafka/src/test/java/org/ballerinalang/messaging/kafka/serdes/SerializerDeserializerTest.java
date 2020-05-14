@@ -18,8 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.serdes;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Testing;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -27,18 +25,14 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SERDES;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
 
 /**
  * Test class for Ballerina Kafka Serializer / Deserializer tests.
@@ -46,14 +40,11 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 public class SerializerDeserializerTest {
 
     private CompileResult result;
-    private static File dataDir;
-    private static KafkaCluster kafkaCluster;
 
-    @BeforeClass
-    public void setup() throws IOException {
-        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_SERDES, "invalid_producers.bal")));
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-serdes-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14013, 14113).addBrokers(1).startup();
+    @BeforeClass(alwaysRun = true)
+    public void setup() {
+        String balFile = "invalid_producers.bal";
+        result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_SERDES, balFile)));
     }
 
     @Test(description = "Test Kafka producer avro serializer without schema url")
@@ -102,18 +93,5 @@ public class SerializerDeserializerTest {
         Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
         String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
         Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        if (kafkaCluster != null) {
-            kafkaCluster.shutdown();
-            kafkaCluster = null;
-            boolean delete = dataDir.delete();
-            // If files are still locked and a test fails: delete on exit to allow subsequent test execution
-            if (!delete) {
-                dataDir.deleteOnExit();
-            }
-        }
     }
 }

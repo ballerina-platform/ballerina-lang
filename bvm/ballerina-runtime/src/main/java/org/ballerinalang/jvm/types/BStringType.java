@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.values.BmpStringValue;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -57,5 +56,10 @@ public class BStringType extends BType {
     @Override
     public int getTag() {
         return tag;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 }

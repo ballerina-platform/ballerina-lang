@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class BInvokableType extends BType implements InvokableType {
     public BType retType;
 
     public BInvokableType(List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
-        super(TypeTags.INVOKABLE, tsymbol);
+        super(TypeTags.INVOKABLE, tsymbol, Flags.READONLY);
         this.paramTypes = paramTypes;
         this.restType = restType;
         this.retType = retType;

@@ -46,4 +46,9 @@ public class BServiceType extends BObjectType {
     public int getTag() {
         return TypeTags.SERVICE_TAG;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

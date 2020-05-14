@@ -25,7 +25,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -78,9 +77,8 @@ public class ProducerActions {
         Properties producerProperties = processKafkaProducerConfig(configs);
         try {
             if (Objects.nonNull(
-                    producerProperties.get(StringUtils.fromString(ProducerConfig.TRANSACTIONAL_ID_CONFIG)))) {
-                if (!((boolean) producerProperties.get(
-                        StringUtils.fromString(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG)))) {
+                    producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
+                if (!((boolean) producerProperties.get(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG))) {
                     throw new IllegalStateException("configuration enableIdempotence must be set to true to enable " +
                                                             "transactional producer");
                 }

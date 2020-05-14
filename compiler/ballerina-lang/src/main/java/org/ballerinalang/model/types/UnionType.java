@@ -24,6 +24,6 @@ import java.util.Set;
  *
  * @since 0.966.0
  */
-public interface UnionType extends ReferenceType {
+public interface UnionType extends SelectivelyImmutableReferenceType {
     Set<? extends Type> getMemberTypes();
 }

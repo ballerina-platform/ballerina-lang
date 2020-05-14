@@ -106,6 +106,7 @@ public class SmtpUtil {
         Address[] replyToAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_REPLY_TO);
         String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT).getValue();
         String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY).getValue();
+        String bodyContentType = message.getStringValue(EmailConstants.MESSAGE_BODY_CONTENT_TYPE).getValue();
         String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM).getValue();
         if (fromAddress == null || fromAddress.isEmpty()) {
             fromAddress = username;
@@ -129,17 +130,18 @@ public class SmtpUtil {
         }
         ArrayValue attachments = message.getArrayValue(EmailConstants.MESSAGE_ATTACHMENTS);
         if (attachments == null) {
-            emailMessage.setText(messageBody);
+            emailMessage.setContent(messageBody, bodyContentType);
         } else {
-            addBodyAndAttachments(emailMessage, messageBody, attachments);
+            addBodyAndAttachments(emailMessage, messageBody, bodyContentType, attachments);
         }
         return emailMessage;
     }
 
-    private static void addBodyAndAttachments(MimeMessage emailMessage, String messageBody, ArrayValue attachments)
+    private static void addBodyAndAttachments(MimeMessage emailMessage, String messageBody, String bodyContentType,
+                                              ArrayValue attachments)
             throws MessagingException, IOException {
         BodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setText(messageBody);
+        messageBodyPart.setContent(messageBody, bodyContentType);
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(messageBodyPart);
         for (int i = 0; i < attachments.size(); i++) {

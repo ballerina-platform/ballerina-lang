@@ -249,7 +249,7 @@ public class StringTest {
                         "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|'," +
                         " '?:', '->>', '..<', '.@'}", 25, 19);
         validateError(multilineLiterals, indx++, "token recognition error at: '\";\\n'", 25, 39);
-        validateError(multilineLiterals, indx++, "mismatched input 's3'. expecting {'(', '[', '?', '|'}", 27, 12);
+        validateError(multilineLiterals, indx++, "mismatched input 's3'. expecting {'(', '[', '?', '&', '|'}", 27, 12);
         validateError(multilineLiterals, indx++, "token recognition error at: '\"Multiple\\n'", 27, 17);
         validateError(multilineLiterals, indx++, "mismatched input 'Hello'. expecting {',', ')'}", 29, 5);
         validateError(multilineLiterals, indx++, "mismatched input 'World'. expecting {'is', ';', '.', '[', '?', '?" +

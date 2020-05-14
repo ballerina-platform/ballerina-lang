@@ -23,8 +23,6 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.State;
 
 import javax.xml.XMLConstants;
 
@@ -46,31 +44,16 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     public BString put(BString keyBStr, BString value) {
         synchronized (this) {
             if (super.isFrozen()) {
-                FreezeUtils.handleInvalidUpdate(State.FROZEN, XML_LANG_LIB);
+                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
             }
         }
-        String key = keyBStr.getValue();
-        String localName = "";
-        String namespaceUri = "";
-        int closingCurlyPos = key.lastIndexOf('}');
-        if (closingCurlyPos == -1) { // no '}' found
-            localName = key;
-        } else {
-            namespaceUri = key.substring(1, closingCurlyPos);
-            localName = key.substring(closingCurlyPos + 1);
-        }
 
-        if (localName.isEmpty()) {
-            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
-        }
+        return insertValue(keyBStr, value);
+    }
 
-        // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
-        XMLValidator.validateXMLName(localName);
-
-        if (namespaceUri.isEmpty()) {
-            return super.put(StringUtils.fromString(localName), value);
-        }
-        return super.put(keyBStr, value);
+    @Override
+    public void populateInitialValue(BString key, BString value) {
+        insertValue(key, value);
     }
 
     public void setAttribute(String localName, String namespaceUri, String prefix, String value) {
@@ -114,5 +97,30 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
             String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
             super.put(StringUtils.fromString(xmlnsPrefix), StringUtils.fromString(namespaceUri));
         }
+    }
+
+    private BString insertValue(BString keyBStr, BString value) {
+        String key = keyBStr.getValue();
+        String localName = "";
+        String namespaceUri = "";
+        int closingCurlyPos = key.lastIndexOf('}');
+        if (closingCurlyPos == -1) { // no '}' found
+            localName = key;
+        } else {
+            namespaceUri = key.substring(1, closingCurlyPos);
+            localName = key.substring(closingCurlyPos + 1);
+        }
+
+        if (localName.isEmpty()) {
+            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
+        }
+
+        // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
+        XMLValidator.validateXMLName(localName);
+
+        if (namespaceUri.isEmpty()) {
+            return super.put(StringUtils.fromString(localName), value);
+        }
+        return super.put(keyBStr, value);
     }
 }
