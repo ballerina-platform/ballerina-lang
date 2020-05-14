@@ -2040,7 +2040,7 @@ public class BallerinaParser extends AbstractParser {
             case READONLY_KEYWORD:
                 return parseReadOnlyTypeDesc();
             case DISTINCT_KEYWORD:
-                return parseDistinctTypeDesc();
+                return parseDistinctTypeDesc(context);
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -8472,9 +8472,9 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseDistinctTypeDesc() {
+    private STNode parseDistinctTypeDesc(ParserRuleContext parentCtx) {
         STNode distinctKeywordToken = parseDistinctKeyword();
-        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+        STNode typeDescriptorNode = parseTypeDescriptor(parentCtx);
         return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeywordToken, typeDescriptorNode);
     }
 

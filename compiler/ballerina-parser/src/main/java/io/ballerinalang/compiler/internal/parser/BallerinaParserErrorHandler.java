@@ -1985,7 +1985,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case READONLY_KEYWORD:
                 return ParserRuleContext.LT;
             case DISTINCT_KEYWORD:
-                return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
+                return getParentContext();
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2232,6 +2232,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
             case TYPE_DESC_IN_EXPRESSION:
                 endContext();
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
                 return ParserRuleContext.EXPRESSION_RHS;
             case COMP_UNIT:
                 /*
@@ -2263,6 +2266,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             case TYPE_DESC_IN_NEW_EXPR:
                 endContext();
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
                 return ParserRuleContext.ARG_LIST_START;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
