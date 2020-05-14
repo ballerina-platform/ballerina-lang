@@ -99,7 +99,8 @@ public class CoverageReport {
             }
             if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
-                    if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                    if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                            !sourceFileCoverage.getName().contains("tests/")) {
                         List<Integer> coveredLines = new ArrayList<>();
                         List<Integer> missedLines = new ArrayList<>();
                         for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
