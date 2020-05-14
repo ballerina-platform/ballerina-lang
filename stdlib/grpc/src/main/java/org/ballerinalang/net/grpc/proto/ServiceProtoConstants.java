@@ -49,7 +49,7 @@ public class ServiceProtoConstants {
     public static final String TMP_DIRECTORY_PATH = System.getProperty("java.io.tmpdir");
 
     public static final String ANN_SERVICE_CONFIG = "ServiceConfig";
-    public static final String ANN_SERVICE_CONFIG_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + "ServiceConfig";
+    public static final String ANN_SERVICE_CONFIG_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":ServiceConfig";
     public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
 
     public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
