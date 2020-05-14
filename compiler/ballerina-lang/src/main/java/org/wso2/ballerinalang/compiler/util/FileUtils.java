@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
@@ -170,4 +171,63 @@ public class FileUtils {
         }
         return updatedFileName;
     }
+
+    /**
+     * Get the name of the without the extension.
+     *
+     * @param filePath Path of the file.
+     * @return File name without extension.
+     */
+    public static String geFileNameWithoutExtension(Path filePath) {
+        Path fileName = filePath.getFileName();
+        if (null != fileName) {
+            int index = indexOfExtension(fileName.toString());
+            return index == -1 ? fileName.toString() :
+                    fileName.toString().substring(0, index);
+        } else {
+            return null;
+        }
+    }
+
+    public static String getExtension(Path filePath) {
+        Path fileName = filePath.getFileName();
+        if (null == fileName) {
+            return "";
+        }
+        Optional<String> extension = Optional.ofNullable(fileName.toString())
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(fileName.toString().lastIndexOf(".") + 1));
+        return extension.orElse("");
+    }
+
+    public static boolean hasExtension(Path filePath) {
+        Path fileName = filePath.getFileName();
+        if (null != fileName) {
+            int index = indexOfExtension(fileName.toString());
+            return index != -1;
+        } else {
+            return false;
+        }
+    }
+
+    private static int indexOfExtension(String filename) {
+        if (filename == null) {
+            return -1;
+        } else {
+            int extensionPos = filename.lastIndexOf(46);
+            int lastSeparator = indexOfLastSeparator(filename);
+            return lastSeparator > extensionPos ? -1 : extensionPos;
+        }
+    }
+
+    private static int indexOfLastSeparator(String filename) {
+        if (filename == null) {
+            return -1;
+        } else {
+            int lastUnixPos = filename.lastIndexOf(47);
+            int lastWindowsPos = filename.lastIndexOf(92);
+            return Math.max(lastUnixPos, lastWindowsPos);
+        }
+    }
+
 }
