@@ -94,6 +94,7 @@ public enum SyntaxKind {
     TYPEDESC_KEYWORD(265, "typedesc"),
     ERROR_KEYWORD(266,"error"),
     STREAM_KEYWORD(267,"stream"),
+    READONLY_KEYWORD(268, "readonly"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -250,6 +251,7 @@ public enum SyntaxKind {
     FUNCTION_TYPE_DESC(2025),
     TUPLE_TYPE_DESC(2026),
     PARENTHESISED_TYPE_DESC(2027),
+    READONLY_TYPE_DESC(2028),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

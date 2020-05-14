@@ -470,6 +470,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LET_KEYWORD;
             case "STREAM_KEYWORD":
                 return SyntaxKind.STREAM_KEYWORD;
+            case "READONLY_KEYWORD":
+                return SyntaxKind.READONLY_KEYWORD;
             case "FROM_KEYWORD":
                 return SyntaxKind.FROM_KEYWORD;
             case "WHERE_KEYWORD":
@@ -726,6 +728,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TUPLE_TYPE_DESC;
             case "PARENTHESISED_TYPE_DESC":
                 return SyntaxKind.PARENTHESISED_TYPE_DESC;
+            case "READONLY_TYPE_DESC":
+                return SyntaxKind.READONLY_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

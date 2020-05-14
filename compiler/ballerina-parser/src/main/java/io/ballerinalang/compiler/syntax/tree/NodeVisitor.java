@@ -495,32 +495,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parenthesizedArgList);
     }
 
-    public void visit(QueryConstructTypeNode queryConstructTypeNode) {
-        visitSyntaxNode(queryConstructTypeNode);
-    }
-
-    public void visit(FromClauseNode fromClauseNode) {
-        visitSyntaxNode(fromClauseNode);
-    }
-
-    public void visit(WhereClauseNode whereClauseNode) {
-        visitSyntaxNode(whereClauseNode);
-    }
-
-    public void visit(LetClauseNode letClauseNode) {
-        visitSyntaxNode(letClauseNode);
-    }
-
-    public void visit(QueryPipelineNode queryPipelineNode) {
-        visitSyntaxNode(queryPipelineNode);
-    }
-
-    public void visit(SelectClauseNode selectClauseNode) {
-        visitSyntaxNode(selectClauseNode);
-    }
-
-    public void visit(QueryExpressionNode queryExpressionNode) {
-        visitSyntaxNode(queryExpressionNode);
+    public void visit(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
+        visitSyntaxNode(readOnlyTypeDescriptorNode);
     }
 
     // Tokens

@@ -2572,6 +2572,26 @@
             ]
         },
         {
+            "name": "ReadOnlyTypeDescriptorNode",
+            "base": "Node",
+            "kind": "READONLY_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "readonlyKeyWordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameterNode",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ClauseNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
             "name": "QueryConstructTypeNode",
             "base": "Node",
             "kind": "QUERY_CONSTRUCT_TYPE",
@@ -2585,11 +2605,6 @@
                     "type": "KeySpecifierNode"
                 }
             ]
-        },
-        {
-            "name": "ClauseNode",
-            "base": "Node",
-            "isAbstract": true
         },
         {
             "name": "FromClauseNode",
