@@ -138,7 +138,7 @@ public class CompilerPluginTest {
         });
     }
 
-    @Test(description = "Test ballerina producer with additional properties provided through a map")
+    @Test(description = "Test ballerina producer with additional properties provided through a map", enabled = false)
     public void testProducerWithAdditionalProperties() throws ExecutionException, InterruptedException {
         String expectedMessage = "Hello, from Ballerina";
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testProducerWithAdditionalProperties");

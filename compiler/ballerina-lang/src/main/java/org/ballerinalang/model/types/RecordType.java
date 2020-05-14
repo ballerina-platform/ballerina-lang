@@ -22,5 +22,5 @@ package org.ballerinalang.model.types;
  *
  * @since 0.971.0
  */
-public interface RecordType extends ReferenceType {
+public interface RecordType extends SelectivelyImmutableReferenceType {
 }

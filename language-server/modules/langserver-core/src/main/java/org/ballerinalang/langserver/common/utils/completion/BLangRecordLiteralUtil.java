@@ -81,7 +81,7 @@ public class BLangRecordLiteralUtil {
 
         if (dotCount < 1 && evalType.get() instanceof BRecordType) {
             // Suggests fields only when the the ellipsis is not being typed
-            List<BField> fields = ((BRecordType) evalType.get()).fields;
+            List<BField> fields = new ArrayList<>(((BRecordType) evalType.get()).fields.values());
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
             completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
             completionItems.addAll(getVariableCompletionsForFields(context, visibleSymbols, fields));
@@ -177,7 +177,9 @@ public class BLangRecordLiteralUtil {
             }
             return Collections.singletonList(constraint);
         } else if (bType instanceof BRecordType) {
-            return ((BRecordType) bType).fields.stream().map(bField -> bField.type).collect(Collectors.toList());
+            return ((BRecordType) bType).fields.values().stream()
+                    .map(bField -> bField.type)
+                    .collect(Collectors.toList());
         }
 
         return new ArrayList<>();

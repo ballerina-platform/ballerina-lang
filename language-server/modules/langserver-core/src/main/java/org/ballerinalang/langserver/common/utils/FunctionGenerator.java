@@ -361,7 +361,7 @@ public class FunctionGenerator {
                     (recordType.tsymbol.name.value.isEmpty() || recordType.tsymbol.name.value.startsWith("$"))) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("record").append(" ").append("{|");
-                for (BField field : recordType.fields) {
+                for (BField field : recordType.fields.values()) {
                     sb.append(" ").append(field.type).append(" ").append(field.name)
                             .append(Symbols.isOptional(field.symbol) ? "?" : "")
                             .append(";");

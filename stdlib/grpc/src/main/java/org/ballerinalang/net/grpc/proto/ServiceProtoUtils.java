@@ -524,7 +524,7 @@ public class ServiceProtoUtils {
             GrpcServerException {
         UserDefinedMessage.Builder messageBuilder = UserDefinedMessage.newBuilder(messageType.tsymbol.name.value);
         int fieldIndex = 0;
-        for (BField structField : messageType.fields) {
+        for (BField structField : messageType.fields.values()) {
             Field messageField;
             String fieldName = structField.getName().getValue();
             BType fieldType = structField.getType();
