@@ -19,7 +19,8 @@ type DeptPersonValue record {|
     DeptPerson value;
 |};
 
-function getDeptPersonValue((record {| DeptPerson value; |}|error?)|(record {| DeptPerson value; |}?) returnedVal) returns DeptPersonValue? {
+function getDeptPersonValue((record {| DeptPerson value; |}|error?)|(record {| DeptPerson value; |}?) returnedVal)
+returns DeptPersonValue? {
     var result = returnedVal;
     if (result is DeptPersonValue) {
         return result;
