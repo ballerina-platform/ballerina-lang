@@ -100,7 +100,7 @@ public class TracingTestCase extends BaseTest {
         serverInstance.shutdownServer();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testOOTBTracing() throws Exception {
         final String service = "http://localhost:9090/echoService/";
         HttpClientRequest.doGet(service + "resourceOne");
