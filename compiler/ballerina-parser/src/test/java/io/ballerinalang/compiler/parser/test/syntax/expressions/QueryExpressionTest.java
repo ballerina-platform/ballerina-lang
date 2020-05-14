@@ -149,4 +149,10 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testQueryWithTwoKeySpecifiersWithExtraTokenInBetween() {
         test("table key(a) foo key(b) []", "query-expr/query_expr_assert_32.json");
     }
+
+    @Test
+    public void testQueryWithExtraClausesAfterSelectClause() {
+        test("from int a in b select c where d", "query-expr/query_expr_assert_33.json");
+        test("from int a in b select c select d", "query-expr/query_expr_assert_34.json");
+    }
 }
