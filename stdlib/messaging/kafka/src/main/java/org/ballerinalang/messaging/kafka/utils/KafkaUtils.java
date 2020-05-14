@@ -121,7 +121,8 @@ public class KafkaUtils {
                 consumerRecordsArray.append(consumerRecord);
                 partitionOffsetsArray.append(partitionOffset);
             }
-            return new Object[]{listener, true, consumerRecordsArray, true, partitionOffsetsArray, true, groupId, true};
+            return new Object[]{listener, true, consumerRecordsArray, true, partitionOffsetsArray, true,
+                    StringUtils.fromString(groupId), true};
         }
     }
 
@@ -382,9 +383,8 @@ public class KafkaUtils {
     }
 
     private static void processAdditionalProperties(MapValue propertiesMap, Properties kafkaProperties) {
-        for (Object keyValue : propertiesMap.getKeys()) {
-            String key = keyValue.toString();
-            kafkaProperties.setProperty(key, propertiesMap.getStringValue(key));
+        for (Object key : propertiesMap.getKeys()) {
+            kafkaProperties.setProperty(key.toString(), propertiesMap.getStringValue((BString) key).getValue());
         }
     }
 
@@ -587,9 +587,7 @@ public class KafkaUtils {
             }
         } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
-                // TODO: Workaround until #20644 is fixed
-                return value;
-                // return StringUtils.fromString((String) value);
+                return StringUtils.fromString((String) value);
             } else {
                 throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: string");
             }

@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.values.BmpStringValue;
 
 /**
  * {@code BStringType} represents a String type in ballerina.

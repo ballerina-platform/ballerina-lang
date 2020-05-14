@@ -69,7 +69,7 @@ import static org.ballerinalang.jvm.values.ReadOnlyUtils.handleInvalidUpdate;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * @see MapValue
- * 
+ *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *
@@ -257,15 +257,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValue(K key, V value) {
-        String bStringProp = System.getProperty("ballerina.bstring");
-        boolean isBString = (bStringProp != null && !"".equals(bStringProp));
-
         if (type.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type, isBString);
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
         } else {
-            String fieldName = isBString ? ((BString) key).getValue() : (String) key;
-            MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, isBString,
-                                                             true);
+            String fieldName = ((BString) key).getValue();
+            MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true);
         }
 
         putValue(key, value);

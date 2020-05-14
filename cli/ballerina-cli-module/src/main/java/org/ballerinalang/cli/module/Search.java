@@ -186,9 +186,9 @@ public class Search {
             if (authorsArr.size() > 0) {
                 for (int j = 0; j < authorsArr.size(); j++) {
                     if (j == 0) {
-                        authors = (String) authorsArr.get(j);
+                        authors = authorsArr.get(j).toString();
                     } else if (j == authorsArr.size() - 1) {
-                        authors = (String) authorsArr.get(j);
+                        authors = authorsArr.get(j).toString();
                     } else {
                         authors = ", " + authorsArr.get(j);
                     }

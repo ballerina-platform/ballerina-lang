@@ -169,10 +169,10 @@ public class EmailAccessUtil {
             valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY.getValue(), messageBody);
         }
         if (messageContentType != null && !messageContentType.equals("")) {
-            valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE, messageContentType);
+            valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE.getValue(), messageContentType);
         }
-        valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
-        valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
+        valueMap.put(EmailConstants.MESSAGE_FROM.getValue(), fromAddress);
+        valueMap.put(EmailConstants.MESSAGE_SENDER.getValue(), senderAddress);
         if (attachments != null && attachments.size() > 0) {
             valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS.getValue(), attachments);
         }

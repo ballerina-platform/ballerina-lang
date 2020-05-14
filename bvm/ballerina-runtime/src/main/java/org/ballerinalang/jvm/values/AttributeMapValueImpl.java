@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.State;
 
 import javax.xml.XMLConstants;
 
@@ -49,11 +48,11 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
             }
         }
 
-        return insertValue(key, value);
+        return insertValue(keyBStr, value);
     }
 
     @Override
-    public void populateInitialValue(String key, String value) {
+    public void populateInitialValue(BString key, BString value) {
         insertValue(key, value);
     }
 
@@ -100,7 +99,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
     }
 
-    private String insertValue(BString keyBStr, String value) {
+    private BString insertValue(BString keyBStr, BString value) {
         String key = keyBStr.getValue();
         String localName = "";
         String namespaceUri = "";

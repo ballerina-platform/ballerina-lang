@@ -1620,7 +1620,8 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmConstants.B_STRING_VALUE, XML_VALUE), false);
+                                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmConstants.B_STRING_VALUE, XML_VALUE),
+                                false);
         this.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
 
@@ -1684,7 +1685,8 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                                String.format("(L%s;L%s;Z)L%s;", JvmConstants.B_STRING_VALUE, JvmConstants.B_STRING_VALUE, XML_VALUE), false);
+                                String.format("(L%s;L%s;Z)L%s;", JvmConstants.B_STRING_VALUE,
+                                              JvmConstants.B_STRING_VALUE, XML_VALUE), false);
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
