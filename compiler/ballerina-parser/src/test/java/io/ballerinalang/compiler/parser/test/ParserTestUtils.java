@@ -470,6 +470,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LET_KEYWORD;
             case "STREAM_KEYWORD":
                 return SyntaxKind.STREAM_KEYWORD;
+            case "READONLY_KEYWORD":
+                return SyntaxKind.READONLY_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -718,6 +720,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TUPLE_TYPE_DESC;
             case "PARENTHESISED_TYPE_DESC":
                 return SyntaxKind.PARENTHESISED_TYPE_DESC;
+            case "READONLY_TYPE_DESC":
+                return SyntaxKind.READONLY_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -840,14 +844,14 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":
                 return SyntaxKind.KEY_TYPE_CONSTRAINT;
-            case "IMPLICIT_NEW":
-                return SyntaxKind.IMPLICIT_NEW;
+            case "IMPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
             case "PARENTHESIZED_ARG_LIST":
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
-            case "EXPLICIT_NEW":
-                return SyntaxKind.EXPLICIT_NEW;
+            case "EXPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 
             // Trivia
             case "EOF_TOKEN":

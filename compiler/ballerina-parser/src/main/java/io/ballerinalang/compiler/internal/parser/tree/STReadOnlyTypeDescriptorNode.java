@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ReadOnlyTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,27 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STExplicitNewExpressionNode extends STNewExpressionNode {
-    public final STNode NewKeyword;
-    public final STNode TypeDescriptor;
-    public final STNode ParenthesizedArgList;
+public class STReadOnlyTypeDescriptorNode extends STNode {
+    public final STNode readonlyKeyWordToken;
+    public final STNode typeParameterNode;
 
-    STExplicitNewExpressionNode(
-            STNode NewKeyword,
-            STNode TypeDescriptor,
-            STNode ParenthesizedArgList) {
-        super(SyntaxKind.EXPLICIT_NEW_EXPRESSION);
-        this.NewKeyword = NewKeyword;
-        this.TypeDescriptor = TypeDescriptor;
-        this.ParenthesizedArgList = ParenthesizedArgList;
+    STReadOnlyTypeDescriptorNode(
+            STNode readonlyKeyWordToken,
+            STNode typeParameterNode) {
+        super(SyntaxKind.READONLY_TYPE_DESC);
+        this.readonlyKeyWordToken = readonlyKeyWordToken;
+        this.typeParameterNode = typeParameterNode;
 
         addChildren(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                readonlyKeyWordToken,
+                typeParameterNode);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ExplicitNewExpressionNode(this, position, parent);
+        return new ReadOnlyTypeDescriptorNode(this, position, parent);
     }
 }

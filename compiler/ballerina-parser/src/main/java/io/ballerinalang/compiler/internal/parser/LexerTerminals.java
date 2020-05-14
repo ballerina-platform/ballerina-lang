@@ -75,6 +75,7 @@ public class LexerTerminals {
     public static final String LET = "let";
     public static final String STREAM = "stream";
     public static final String NEW = "new";
+    public static final String READONLY = "readonly";
 
     // Types
     public static final String INT = "int";
