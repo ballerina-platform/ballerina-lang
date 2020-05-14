@@ -328,6 +328,7 @@ public class BLangPackageBuilder {
     private long isInErrorType = 0;
 
     private boolean isInQuery = false;
+    private boolean isInOnCondition = false;
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -2042,12 +2043,18 @@ public class BLangPackageBuilder {
 
     }
 
+    void startOnClause() {
+        this.isInOnCondition = true;
+    }
+
     void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.addWS(ws);
         onClause.pos = pos;
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
         queryClauseStack.push(onClause);
+
+        isInOnCondition = false;
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

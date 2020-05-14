@@ -4,7 +4,7 @@ lexer grammar BallerinaLexer;
     boolean inStringTemplate = false;
     boolean inQueryExpression = false;
     boolean inTableType = false;
-    boolean inOnCondition = true;
+    boolean inOnCondition = false;
 }
 
 // Reserved words
@@ -35,7 +35,7 @@ CLIENT      : 'client' ;
 CONST       : 'const' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
-ON          : 'on' ;
+ON          : 'on' { inOnCondition = true; };
 FIELD       : 'field' ;
 
 TYPE_INT        : 'int' ;

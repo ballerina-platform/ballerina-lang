@@ -2860,6 +2860,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterOnClause(BallerinaParser.OnClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startOnClause();
+    }
+
+    @Override
     public void exitOnClause(BallerinaParser.OnClauseContext ctx) {
         if (isInErrorState) {
             return;
