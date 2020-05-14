@@ -87,10 +87,10 @@ public class ConstructFrom {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v);
+            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v, t, strand);
         }
         // json.constructFrom like usage
-        return convert(describingType, v);
+        return convert(describingType, v, t, strand);
     }
 
     public static Object constructFrom_bstring(Strand strand, TypedescValue t, Object v) {
@@ -114,8 +114,12 @@ public class ConstructFrom {
     }
 
     public static Object convert(BType convertType, Object inputValue) {
+        return convert(convertType, inputValue, null, null);
+    }
+
+    public static Object convert(BType convertType, Object inputValue, TypedescValue t, Strand strand) {
         try {
-            return convert(inputValue, convertType, new ArrayList<>());
+            return convert(inputValue, convertType, new ArrayList<>(), t, strand);
         } catch (ErrorValue e) {
             return e;
         } catch (BallerinaException e) {
@@ -128,7 +132,7 @@ public class ConstructFrom {
     }
 
     private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues) {
-        return convert(value, targetType, unresolvedValues, false);
+        return convert(value, targetType, unresolvedValues, false, null, null);
     }
 
     private static Object convert_bstring(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
@@ -166,7 +170,13 @@ public class ConstructFrom {
     }
 
     private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
-                                  boolean allowAmbiguity) {
+                                  TypedescValue t, Strand strand) {
+        return convert(value, targetType, unresolvedValues, false, t, strand);
+    }
+
+
+    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  boolean allowAmbiguity, TypedescValue t, Strand strand) {
         if (value == null) {
             if (targetType.isNilable()) {
                 return null;
@@ -198,10 +208,11 @@ public class ConstructFrom {
             }
         }
 
-        return convert((RefValue) value, matchingType, unresolvedValues);
+        return convert((RefValue) value, matchingType, unresolvedValues, t, strand);
     }
 
-    private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  TypedescValue t, Strand strand) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (unresolvedValues.contains(typeValuePair)) {
@@ -219,11 +230,11 @@ public class ConstructFrom {
                     newValue = convertMap_bstring((MapValue<?, ?>) value, targetType, unresolvedValues);
                     break;
                 }
-                newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues);
+                newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues, t, strand);
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues);
+                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues, t, strand);
                 break;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -277,19 +288,25 @@ public class ConstructFrom {
         throw BallerinaErrors.createConversionError(map, targetType);
     }
 
-    private static Object convertMap(MapValue<?, ?> map, BType targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convertMap(MapValue<?, ?> map, BType targetType, List<TypeValuePair> unresolvedValues,
+                                     TypedescValue t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 MapValueImpl<String, Object> newMap = new MapValueImpl<>(targetType);
                 for (Map.Entry entry : map.entrySet()) {
                     BType constraintType = ((BMapType) targetType).getConstrainedType();
-                    putToMap(newMap, entry, constraintType, unresolvedValues);
+                    putToMap(newMap, entry, constraintType, unresolvedValues, t, strand);
                 }
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) targetType;
-                MapValueImpl<String, Object> newRecord = (MapValueImpl<String, Object>) BallerinaValues
-                        .createRecordValue(recordType.getPackage(), recordType.getName());
+                MapValueImpl<String, Object> newRecord;
+                if (t != null && t.getDescribingType() == targetType) {
+                    newRecord = (MapValueImpl<String, Object>) t.instantiate(strand);
+                } else {
+                    newRecord = (MapValueImpl<String, Object>) BallerinaValues
+                            .createRecordValue(recordType.getPackage(), recordType.getName());
+                }
 
                 BType restFieldType = recordType.restFieldType;
                 Map<String, BType> targetTypeField = new HashMap<>();
@@ -299,12 +316,12 @@ public class ConstructFrom {
 
                 for (Map.Entry entry : map.entrySet()) {
                     BType fieldType = targetTypeField.getOrDefault(entry.getKey(), restFieldType);
-                    putToMap(newRecord, entry, fieldType, unresolvedValues);
+                    putToMap(newRecord, entry, fieldType, unresolvedValues, t, strand);
                 }
                 return newRecord;
             case TypeTags.JSON_TAG:
                 BType matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
-                return convert(map, matchingType, unresolvedValues);
+                return convert(map, matchingType, unresolvedValues, t, strand);
             default:
                 break;
         }
@@ -312,7 +329,8 @@ public class ConstructFrom {
         throw BallerinaErrors.createConversionError(map, targetType);
     }
 
-    private static Object convertArray(ArrayValue array, BType targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convertArray(ArrayValue array, BType targetType, List<TypeValuePair> unresolvedValues,
+                                       TypedescValue t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) targetType;
@@ -323,7 +341,7 @@ public class ConstructFrom {
                         newArray.add(i, newValue);
                         continue;
                     }
-                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
+                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
@@ -338,14 +356,14 @@ public class ConstructFrom {
                         newTuple.add(i, newValue);
                         continue;
                     }
-                    Object newValue = convert(array.get(i), elementType, unresolvedValues);
+                    Object newValue = convert(array.get(i), elementType, unresolvedValues, t, strand);
                     newTuple.add(i, newValue);
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
                 newArray = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), BTypes.typeJSON, unresolvedValues);
+                    Object newValue = convert(array.get(i), BTypes.typeJSON, unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
@@ -363,8 +381,8 @@ public class ConstructFrom {
     }
 
     private static void putToMap(MapValue<String, Object> map, Map.Entry entry, BType fieldType,
-                                 List<TypeValuePair> unresolvedValues) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true);
+                                 List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
+        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
         map.put(entry.getKey().toString(), newValue);
     }
 
