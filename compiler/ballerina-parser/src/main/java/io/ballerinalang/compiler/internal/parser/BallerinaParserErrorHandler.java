@@ -138,7 +138,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
             ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
             ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
-            ParserRuleContext.READONLY_KEYWORD };
+            ParserRuleContext.READONLY_KEYWORD, ParserRuleContext.DISTINCT_KEYWORD };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_BODY_END, ParserRuleContext.RECORD_FIELD };
@@ -1132,6 +1132,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case READONLY_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.READONLY_KEYWORD;
                     break;
+                case DISTINCT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD:
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1222,6 +1224,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 case TYPE_DESC_IN_PARENTHESIS:
                 case TYPE_DESC_IN_NEW_EXPR:
+                case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1483,6 +1486,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
+            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 startContext(currentCtx);
                 break;
             default:
@@ -1965,6 +1969,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
+            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_DECL_STARTED_WITH_DENTIFIER:
                 // We come here trying to recover statement started with identifier,
@@ -1981,6 +1986,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESC_IN_PARENTHESIS;
             case READONLY_KEYWORD:
                 return ParserRuleContext.LT;
+            case DISTINCT_KEYWORD:
+                return ParserRuleContext.TYPE_DESC_IN_DISTINCT_TYPE_DESC;
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2181,6 +2188,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_BEFORE_IDENTIFIER:
             case TYPE_DESC_IN_RECORD_FIELD:
             case TYPE_DESC_IN_TYPE_BINDING_PATTERN: // TODO: Update this once the typed-binding-patterns added.
+            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 endContext();
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
@@ -2280,6 +2288,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
+            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 return true;
             default:
                 return false;
@@ -3140,6 +3149,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case STRING_KEYWORD:
                 return SyntaxKind.STRING_KEYWORD;
+            case DISTINCT_KEYWORD:
+                return SyntaxKind.DISTINCT_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
