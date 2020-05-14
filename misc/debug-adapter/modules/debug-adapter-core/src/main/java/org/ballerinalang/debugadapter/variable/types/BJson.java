@@ -39,7 +39,7 @@ public class BJson extends BCompoundVariable {
 
     public BJson(Value value, Variable dapVariable) {
         this.jvmValueRef = (ObjectReferenceImpl) value;
-        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setType(BVariableType.JSON.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
         this.computeChildVariables();
@@ -47,7 +47,7 @@ public class BJson extends BCompoundVariable {
 
     @Override
     public String getValue() {
-        return "json";
+        return "object";
     }
 
     @Override

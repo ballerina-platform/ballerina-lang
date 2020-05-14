@@ -21,14 +21,15 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
-import org.ballerinalang.debugadapter.variable.types.BFloat;
 import org.ballerinalang.debugadapter.variable.types.BError;
+import org.ballerinalang.debugadapter.variable.types.BFloat;
 import org.ballerinalang.debugadapter.variable.types.BInt;
 import org.ballerinalang.debugadapter.variable.types.BJson;
 import org.ballerinalang.debugadapter.variable.types.BMap;
 import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObjectType;
 import org.ballerinalang.debugadapter.variable.types.BObjectValue;
+import org.ballerinalang.debugadapter.variable.types.BRecord;
 import org.ballerinalang.debugadapter.variable.types.BString;
 import org.ballerinalang.debugadapter.variable.types.BTuple;
 import org.ballerinalang.debugadapter.variable.types.BUnknown;
@@ -91,9 +92,12 @@ public class VariableFactory {
         } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())
                 && valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             return new BJson(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())
+                && valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             return new BMap(value, dapVariable);
-        }  else if (parentTypeName.contains(JVMValueType.OBJECT.getString())) {
+        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+            return new BRecord(value, dapVariable);
+        } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())) {
             dapVariable.setType("object");
             if (valueTypeName.equalsIgnoreCase(JVMValueType.ARRAY_VALUE.getString())) {
                 return new BArray(value, dapVariable);

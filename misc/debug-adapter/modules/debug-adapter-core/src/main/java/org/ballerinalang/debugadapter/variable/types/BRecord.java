@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Field;
@@ -27,18 +11,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Ballerina object variable type.
+ * Ballerina record variable type.
  */
-public class BObjectValue extends BCompoundVariable {
+public class BRecord extends BCompoundVariable {
 
     private final ObjectReferenceImpl jvmValueRef;
 
-    public BObjectValue(Value value, Variable dapVariable) {
+    public BRecord(Value value, Variable dapVariable) {
         this.jvmValueRef = (ObjectReferenceImpl) value;
-        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setType(BVariableType.RECORD.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        computeChildVariables();
+        this.computeChildVariables();
     }
 
     @Override
@@ -62,9 +46,11 @@ public class BObjectValue extends BCompoundVariable {
         try {
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
+            // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
+            String balRecordFiledIdentifier = this.getValue() + ".";
             fieldValueMap.forEach((field, value) -> {
-                // Filter out internal variables
-                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
+                // Filter out internal variables.
+                if (field.toString().contains(balRecordFiledIdentifier)) {
                     values.put(field.name(), value);
                 }
             });
