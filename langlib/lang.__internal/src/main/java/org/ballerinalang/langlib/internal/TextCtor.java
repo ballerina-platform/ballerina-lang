@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "textCtor",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "textCtor",
         args = {
                 @Argument(name = "charactors", type = TypeKind.STRING)
         },
