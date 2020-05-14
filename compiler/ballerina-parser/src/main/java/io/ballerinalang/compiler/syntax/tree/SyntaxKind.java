@@ -71,7 +71,6 @@ public enum SyntaxKind {
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
     NEW_KEYWORD(224, "new"),
-    READONLY_KEYWORD(225, "readonly"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -92,6 +91,7 @@ public enum SyntaxKind {
     TYPEDESC_KEYWORD(265, "typedesc"),
     ERROR_KEYWORD(266,"error"),
     STREAM_KEYWORD(267,"stream"),
+    READONLY_KEYWORD(268, "readonly"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
