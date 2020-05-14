@@ -71,6 +71,10 @@ public class TypedescValueImpl implements  TypedescValue {
 
     @Override
     public Object instantiate(Strand s) {
+        if (describingType.getTag() == TypeTags.MAP_TAG || describingType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return instantiate(s, new MappingInitialValueEntry[0]);
+        }
+
         return instantiate(s, new BInitialValueEntry[0]);
     }
 
