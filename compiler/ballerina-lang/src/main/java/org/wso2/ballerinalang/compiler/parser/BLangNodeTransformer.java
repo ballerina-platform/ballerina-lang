@@ -713,7 +713,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangTypeInit createTypeInit(NewExpressionNode expression) {
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = getPosition(expression);
-        if (expression.kind() == SyntaxKind.EXPLICIT_NEW) {
+        if (expression.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
             Node type = ((ExplicitNewExpressionNode) expression).TypeDescriptor();
             initNode.userDefinedType = createTypeNode(type);
         }
@@ -747,7 +747,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private Iterator<FunctionArgumentNode> getArgumentNodesIterator(NewExpressionNode expression) {
         Iterator<FunctionArgumentNode> argumentsIter = null;
 
-        if (expression.kind() == SyntaxKind.IMPLICIT_NEW) {
+        if (expression.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
             Optional<ParenthesizedArgList> argsList = ((ImplicitNewExpressionNode) expression).ParenthesizedArgList();
             if (argsList.isPresent()) {
                 ParenthesizedArgList argList = argsList.get();
