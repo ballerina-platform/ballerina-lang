@@ -10,4 +10,3 @@ public function foo() {
     readonly<string%> a;
     readonly<string, int> a;
 }
-
