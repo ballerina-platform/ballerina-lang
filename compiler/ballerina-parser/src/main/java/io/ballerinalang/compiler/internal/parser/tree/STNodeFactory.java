@@ -1436,11 +1436,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createReadOnlyTypeDescriptor(
+    public static STNode createReadOnlyTypeDescriptorNode(
             STNode readonlyKeyWordToken,
             STNode typeParameterNode) {
 
-        return new STReadOnlyTypeDescriptor(
+        return new STReadOnlyTypeDescriptorNode(
                 readonlyKeyWordToken,
                 typeParameterNode);
     }

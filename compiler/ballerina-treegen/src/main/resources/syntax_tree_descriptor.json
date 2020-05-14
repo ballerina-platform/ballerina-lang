@@ -2572,7 +2572,7 @@
             ]
         },
         {
-            "name": "ReadOnlyTypeDescriptor",
+            "name": "ReadOnlyTypeDescriptorNode",
             "base": "Node",
             "kind": "READONLY_TYPE_DESC",
             "attributes": [

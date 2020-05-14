@@ -1935,16 +1935,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stParenthesizedArgList.createUnlinkedFacade();
     }
 
-    public static ReadOnlyTypeDescriptor createReadOnlyTypeDescriptor(
+    public static ReadOnlyTypeDescriptorNode createReadOnlyTypeDescriptorNode(
             Token readonlyKeyWordToken,
             Node typeParameterNode) {
         Objects.requireNonNull(readonlyKeyWordToken, "readonlyKeyWordToken must not be null");
         Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
 
-        STNode stReadOnlyTypeDescriptor = STNodeFactory.createReadOnlyTypeDescriptor(
+        STNode stReadOnlyTypeDescriptorNode = STNodeFactory.createReadOnlyTypeDescriptorNode(
                 readonlyKeyWordToken.internalNode(),
                 typeParameterNode.internalNode());
-        return stReadOnlyTypeDescriptor.createUnlinkedFacade();
+        return stReadOnlyTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static DistinctTypeDescriptorNode createDistinctTypeDescriptorNode(

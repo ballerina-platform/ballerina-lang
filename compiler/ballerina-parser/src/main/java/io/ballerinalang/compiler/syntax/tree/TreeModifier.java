@@ -1425,10 +1425,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ReadOnlyTypeDescriptor readOnlyTypeDescriptor) {
-        Token readonlyKeyWordToken = modifyToken(readOnlyTypeDescriptor.readonlyKeyWordToken());
-        Node typeParameterNode = modifyNode(readOnlyTypeDescriptor.typeParameterNode());
-        return readOnlyTypeDescriptor.modify(
+    public Node transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
+        Token readonlyKeyWordToken = modifyToken(readOnlyTypeDescriptorNode.readonlyKeyWordToken());
+        Node typeParameterNode = modifyNode(readOnlyTypeDescriptorNode.typeParameterNode());
+        return readOnlyTypeDescriptorNode.modify(
                 readonlyKeyWordToken,
                 typeParameterNode);
     }
