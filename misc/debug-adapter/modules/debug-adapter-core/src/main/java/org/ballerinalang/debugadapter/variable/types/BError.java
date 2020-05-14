@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * error type.
  */
-public class BError extends VariableImpl {
+public class BError extends BVariable {
 
     private final ObjectReferenceImpl value;
 

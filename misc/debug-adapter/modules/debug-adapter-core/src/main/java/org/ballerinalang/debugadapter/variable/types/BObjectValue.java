@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * object value type.
  */
-public class BObjectValue extends VariableImpl {
+public class BObjectValue extends BVariable {
 
     public BObjectValue(Value value, Variable dapVariable) {
         this.setDapVariable(dapVariable);

@@ -18,14 +18,14 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.eclipse.lsp4j.debug.Variable;
 
 
 /**
  * object type.
  */
-public class BObjectType extends VariableImpl {
+public class BObjectType extends BVariable {
 
     private final ObjectReferenceImpl value;
 
@@ -38,8 +38,7 @@ public class BObjectType extends VariableImpl {
 
     @Override
     public String toString() {
-        Value typeName = ((ObjectReferenceImpl) value)
-                .getValue(((ObjectReferenceImpl) value).referenceType().fieldByName("typeName"));
+        Value typeName = value.getValue(value.referenceType().fieldByName("typeName"));
         return typeName.toString();
     }
 }
