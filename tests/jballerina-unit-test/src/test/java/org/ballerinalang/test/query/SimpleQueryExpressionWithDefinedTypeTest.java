@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -129,10 +130,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
-
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 21);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 25);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test Query expression with select expression ")
@@ -141,11 +139,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
-
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "2");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "3");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test filtering null values from query expression")
@@ -169,16 +163,15 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testMapWithArity");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1A");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test selecting values in a JSON array from query expression")
     public void testJSONArrayWithArity() {
         BValue[] returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals((returnValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "bob");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "tom");
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test filtering values in a tuple from query expression")
@@ -186,7 +179,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testArrayWithTuple");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
-        Assert.assertEquals(returnValues[0].stringValue(), "[\"C\"]");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test from clause with a stream")
@@ -255,11 +248,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryWithStream");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
-
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 1);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 3);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(2), 5);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Query a stream with error")
@@ -315,7 +304,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 3);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test query expression with type conversion in select clause")
