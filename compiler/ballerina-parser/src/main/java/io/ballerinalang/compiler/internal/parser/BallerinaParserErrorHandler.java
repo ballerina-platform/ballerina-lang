@@ -2592,7 +2592,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
             return ParserRuleContext.TABLE_KEY_RHS;
         } else if (parentCtx == ParserRuleContext.LET_EXPR_LET_VAR_DECL ||
-            parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
+                parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
             return ParserRuleContext.ASSIGN_OP;
         } else if (parentCtx == ParserRuleContext.ANNOTATION_DECL) {
             return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
