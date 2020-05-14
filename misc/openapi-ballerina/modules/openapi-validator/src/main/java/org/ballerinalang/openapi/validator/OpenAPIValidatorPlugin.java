@@ -71,6 +71,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         List<String> operations = new ArrayList<>();
         this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
+        Boolean failOnErrors = true;
+        Diagnostic.Kind kind;
 
         for (AnnotationAttachmentNode ann : annotations) {
             if (Constants.PACKAGE.equals(ann.getPackageAlias().getValue())
@@ -169,9 +171,28 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     }
                                 }
                             }
+                        }  else if (key.equals(Constants.FAILONERRORS)) {
+
+                            if (valueExpr instanceof BLangLiteral) {
+
+                                BLangLiteral value = (BLangLiteral) valueExpr;
+
+                                if (value.getValue() instanceof Boolean) {
+                                    failOnErrors = (Boolean) value.getValue();
+                                } else {
+                                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                            "FailOnErrors should be applied as boolean values");
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            if (failOnErrors) {
+                kind = Diagnostic.Kind.ERROR;
+            } else {
+                kind = Diagnostic.Kind.WARNING;
             }
 
             if (contractURI != null) {
@@ -179,10 +200,11 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                     OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
                     ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
                     ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
-                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations,
+                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind,
                                                                   this.resourceSummaryList, this.openAPISummaryList,
                                                                   this.openAPIComponentSummary, dLog);
-                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, this.resourceSummaryList,
+                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind,
+                                                                  this.resourceSummaryList,
                                                                   this.openAPISummaryList, this.openAPIComponentSummary,
                                                                   dLog);
                 } catch (OpenApiValidatorException e) {
