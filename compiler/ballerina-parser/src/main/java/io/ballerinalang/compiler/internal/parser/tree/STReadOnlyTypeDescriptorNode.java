@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ReadOnlyTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.ReadOnlyTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,11 +27,11 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STReadOnlyTypeDescriptor extends STNode {
+public class STReadOnlyTypeDescriptorNode extends STNode {
     public final STNode readonlyKeyWordToken;
     public final STNode typeParameterNode;
 
-    STReadOnlyTypeDescriptor(
+    STReadOnlyTypeDescriptorNode(
             STNode readonlyKeyWordToken,
             STNode typeParameterNode) {
         super(SyntaxKind.READONLY_TYPE_DESC);
@@ -44,6 +44,6 @@ public class STReadOnlyTypeDescriptor extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReadOnlyTypeDescriptor(this, position, parent);
+        return new ReadOnlyTypeDescriptorNode(this, position, parent);
     }
 }

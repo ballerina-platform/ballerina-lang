@@ -8445,7 +8445,7 @@ public class BallerinaParser extends AbstractParser {
         } else {
             typeParameterNode = STNodeFactory.createEmptyNode();
         }
-        return STNodeFactory.createReadOnlyTypeDescriptor(readonlyKeyWordToken, typeParameterNode);
+        return STNodeFactory.createReadOnlyTypeDescriptorNode(readonlyKeyWordToken, typeParameterNode);
     }
 
     /**

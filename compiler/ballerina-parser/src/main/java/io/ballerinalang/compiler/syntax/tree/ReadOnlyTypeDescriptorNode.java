@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ReadOnlyTypeDescriptor extends NonTerminalNode {
+public class ReadOnlyTypeDescriptorNode extends NonTerminalNode {
 
-    public ReadOnlyTypeDescriptor(STNode internalNode, int position, NonTerminalNode parent) {
+    public ReadOnlyTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -55,7 +55,7 @@ public class ReadOnlyTypeDescriptor extends NonTerminalNode {
                 "typeParameterNode"};
     }
 
-    public ReadOnlyTypeDescriptor modify(
+    public ReadOnlyTypeDescriptorNode modify(
             Token readonlyKeyWordToken,
             Node typeParameterNode) {
         if (checkForReferenceEquality(
@@ -64,7 +64,7 @@ public class ReadOnlyTypeDescriptor extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createReadOnlyTypeDescriptor(
+        return NodeFactory.createReadOnlyTypeDescriptorNode(
                 readonlyKeyWordToken,
                 typeParameterNode);
     }
