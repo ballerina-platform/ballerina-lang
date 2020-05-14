@@ -1225,7 +1225,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 case TYPE_DESC_IN_PARENTHESIS:
                 case TYPE_DESC_IN_NEW_EXPR:
-                case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1487,7 +1486,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
-            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 startContext(currentCtx);
                 break;
             default:
@@ -1970,7 +1968,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
-            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_DECL_STARTED_WITH_DENTIFIER:
                 // We come here trying to recover statement started with identifier,
@@ -1988,7 +1985,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case READONLY_KEYWORD:
                 return ParserRuleContext.LT;
             case DISTINCT_KEYWORD:
-                return ParserRuleContext.TYPE_DESC_IN_DISTINCT_TYPE_DESC;
+                return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2189,7 +2186,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_BEFORE_IDENTIFIER:
             case TYPE_DESC_IN_RECORD_FIELD:
             case TYPE_DESC_IN_TYPE_BINDING_PATTERN: // TODO: Update this once the typed-binding-patterns added.
-            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 endContext();
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
@@ -2289,7 +2285,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
-            case TYPE_DESC_IN_DISTINCT_TYPE_DESC:
                 return true;
             default:
                 return false;

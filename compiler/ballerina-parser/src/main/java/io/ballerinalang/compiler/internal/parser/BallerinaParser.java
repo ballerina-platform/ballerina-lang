@@ -8474,7 +8474,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseDistinctTypeDesc() {
         STNode distinctKeywordToken = parseDistinctKeyword();
-        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_DISTINCT_TYPE_DESC);
+        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeywordToken, typeDescriptorNode);
     }
 
