@@ -3317,7 +3317,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
                                      boolean isStream, boolean isTable) {
         List<BType> assignableSelectTypes = new ArrayList<>();
-        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream && !isTable) ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
 
         //type checks select type against expected element type
@@ -3329,7 +3328,6 @@ public class TypeChecker extends BLangNodeVisitor {
             switch (type.tag) {
                 case TypeTags.ARRAY:
                     selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
-                    enclosedTypeTag = TypeTags.ARRAY;
                     break;
                 case TypeTags.TABLE:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
@@ -3348,7 +3346,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (!isStream) {
+            if (!isStream && !isTable) {
                 actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
