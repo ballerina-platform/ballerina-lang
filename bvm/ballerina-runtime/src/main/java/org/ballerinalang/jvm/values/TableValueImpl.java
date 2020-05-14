@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +110,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public IteratorValue getIterator() {
-        return new TableIterator<K, V>(entries.values().iterator());
+        return new TableIterator<K, V>(new LinkedHashSet<>(entries.values()).iterator());
     }
 
     @Override
@@ -358,7 +357,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             V value = next.getValue();
             K key = next.getKey();
 
-            List<BType> types = new LinkedList<>();
+            List<BType> types = new ArrayList<>();
             types.add(TypeChecker.getType(key));
             types.add(TypeChecker.getType(value));
             BTupleType tupleType = new BTupleType(types);

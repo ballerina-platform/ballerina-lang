@@ -1041,9 +1041,6 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.MAP) {
             loadMapType(mv, (BMapType) bType);
             return;
-        } else if (bType.tag == TypeTags.TABLE) {
-            loadTableType(mv, (BTableType) bType);
-            return;
         } else if (bType.tag == TypeTags.STREAM) {
             loadStreamType(mv, (BStreamType) bType);
             return;
@@ -1195,6 +1192,10 @@ class JvmTypeGen {
             }
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V",
                     BTYPE, STRING_VALUE), false);
+        } else if (bType.keyTypeConstraint != null) {
+            loadType(mv, bType.keyTypeConstraint);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;)V",
+                    BTYPE, BTYPE), false);
         } else {
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
         }

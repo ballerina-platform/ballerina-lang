@@ -66,8 +66,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
@@ -753,16 +755,67 @@ public class TypeChecker {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
-        BTableType srcTableType  = (BTableType) sourceType;
-        boolean isTableType = checkConstraints(srcTableType.getConstrainedType(), targetType.getConstrainedType(),
-                unresolvedTypes);
 
-        String[] targetKeySpecifier = targetType.getFieldNames();
-        if (targetKeySpecifier == null || targetKeySpecifier.length == 0) {
-            return isTableType;
+        BTableType srcTableType  = (BTableType) sourceType;
+
+        if (!checkConstraints(srcTableType.getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes)) {
+            return false;
         }
 
-        return isTableType && Arrays.equals(srcTableType.getFieldNames(), targetKeySpecifier);
+        if (targetType.getKeyType() == null && targetType.getFieldNames() == null) {
+            return true;
+        }
+
+        if (targetType.getKeyType() != null) {
+            if (srcTableType.getKeyType() != null &&
+                    (checkConstraints(srcTableType.getKeyType(), targetType.getKeyType(), unresolvedTypes))) {
+                return true;
+            }
+
+            if (srcTableType.getFieldNames() == null) {
+                return false;
+            }
+
+            List<BType> fieldTypes = new ArrayList<>();
+            Arrays.stream(srcTableType.getFieldNames()).forEach(field -> fieldTypes
+                    .add(Objects.requireNonNull(getTableConstraintField(srcTableType.getConstrainedType(), field))
+                    .type));
+
+            if (fieldTypes.size() == 1) {
+                return checkConstraints(fieldTypes.get(0), targetType.getKeyType(), unresolvedTypes);
+            }
+
+            BTupleType tupleType = new BTupleType(fieldTypes);
+            return checkConstraints(tupleType, targetType.getKeyType(), unresolvedTypes);
+        }
+
+        return Arrays.equals(srcTableType.getFieldNames(), targetType.getFieldNames());
+    }
+
+    static BField getTableConstraintField(BType constraintType, String fieldName) {
+
+        switch (constraintType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
+                return fieldList.get(fieldName);
+
+            case TypeTags.UNION_TAG:
+                BUnionType unionType = (BUnionType) constraintType;
+                List<BType> memTypes = unionType.getMemberTypes();
+                List<BField> fields = memTypes.stream().map(type -> getTableConstraintField(type, fieldName))
+                        .filter(Objects::nonNull).collect(Collectors.toList());
+
+                if (fields.size() != memTypes.size()) {
+                    return null;
+                }
+
+                if (fields.stream().allMatch(field -> isSameType(field.type, fields.get(0).type))) {
+                    return fields.get(0);
+                }
+        }
+
+        return null;
     }
 
     private static boolean checkIsJSONType(BType sourceType, List<TypePair> unresolvedTypes) {
