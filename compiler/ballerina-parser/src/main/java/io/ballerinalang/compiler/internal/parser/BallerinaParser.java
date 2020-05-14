@@ -8469,8 +8469,7 @@ public class BallerinaParser extends AbstractParser {
 
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-                STNode captureBindingPattern = parseCaptureBindingPattern();
-                return STNodeFactory.createBindingPatternNode(captureBindingPattern);
+                return parseCaptureBindingPattern();
             default:
                 Solution sol = recover(token, ParserRuleContext.BINDING_PATTERN);
                 return sol.recoveredNode;
@@ -8478,7 +8477,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse binding-patterns.
+     * Parse capture-binding-pattern.
      *
      * capture-binding-pattern := variable-name
      * variable-name := identifier
@@ -8487,7 +8486,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCaptureBindingPattern() {
         STToken token = peek();
-
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 STNode varName = parseVariableName();

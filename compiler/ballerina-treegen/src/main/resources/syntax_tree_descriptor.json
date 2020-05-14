@@ -2568,30 +2568,6 @@
             ]
         },
         {
-            "name": "CaptureBindingPatternNode",
-            "base": "Node",
-            "kind": "BINDING_PATTERN",
-            "attributes": [
-                {
-                    "name": "variableName",
-                    "type": "Token",
-                    "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "BindingPatternNode",
-            "base": "Node",
-            "kind": "BINDING_PATTERN",
-            "attributes": [
-                {
-                    "name": "captureBindingPattern",
-                    "type": "CaptureBindingPatternNode",
-                    "isOptional": true
-                }
-            ]
-        },
-        {
             "name": "TypedBindingPatternNode",
             "base": "Node",
             "kind": "TYPED_BINDING_PATTERN",
@@ -2603,6 +2579,23 @@
                 {
                     "name": "bindingPattern",
                     "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "BindingPatternNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "CaptureBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "CAPTURE_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }
