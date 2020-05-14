@@ -8578,10 +8578,11 @@ public class BallerinaParser extends AbstractParser {
 
         //parsing the main chunck of list-binding-pattern
         STToken token = peek();
-        while (token.kind != SyntaxKind.CLOSE_BRACKET_TOKEN &&
+        while (!isEndOfListBindingPattern(token.kind) &&
                 listBindingPatternContent.kind != SyntaxKind.REST_BINDING_PATTERN) {
             bindingPatterns.add(parseComma());
             listBindingPatternContent = parselistBindingPatternContent();
+            System.out.println(listBindingPatternContent.kind);
             bindingPatterns.add(listBindingPatternContent);
             token = peek();
         }
@@ -8602,6 +8603,17 @@ public class BallerinaParser extends AbstractParser {
                                                     bindingPatternsNode,
                                                     restBindingPattern,
                                                     closeBracket);
+    }
+
+    private boolean isEndOfListBindingPattern(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IN_KEYWORD:
+            case CLOSE_BRACKET_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

@@ -138,6 +138,7 @@ public enum ParserRuleContext {
     REST_BINDING_PATTERN("rest-binding-pattern"),
     LIST_BINDING_PATTERN("list-binding-pattern"),
     LIST_BINDING_PATTERN_CONTENTS("list-binding-pattern-content"),
+    LIST_BINDING_PATTERN_END_OR_CONTINUE("list-binding-pattern-end-or-continue"),
 
     // Statements
     STATEMENT("statement"),
