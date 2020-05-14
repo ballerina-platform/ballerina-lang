@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
@@ -3425,6 +3426,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDoClause doClause) {
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
     }
 
     @Override
