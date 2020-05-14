@@ -8296,23 +8296,35 @@ public class BallerinaParser extends AbstractParser {
         STNode fromClause = parseFromClause();
 
         List<STNode> clauses = new ArrayList<>();
-        STNode clause = null;
+        boolean hasReachedSelectClause = false;
+
+        STNode intermediateClause;
+        STNode selectClause = null;
 
         while (!isEndOfIntermediateClause(peek().kind)) {
-            clause = parseIntermediateClause();
-            if (clause.kind == SyntaxKind.SELECT_CLAUSE) {
-                break;
+            intermediateClause = parseIntermediateClause();
+
+            if (!hasReachedSelectClause) {
+                if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE){
+                    selectClause = intermediateClause;
+                    hasReachedSelectClause = true;
+                }else {
+                    clauses.add(intermediateClause);
+                }
+            } else {
+                // If there are more clauses after select clause they are ignored
+                // TODO: In future we should store ignored nodes
+                this.errorHandler.reportMissingTokenError("extra clauses after select clause");
             }
-            clauses.add(clause);
         }
 
-        if (clause == null || clause.kind != SyntaxKind.SELECT_CLAUSE) {
-            clause = parseSelectClause();
+        if (!hasReachedSelectClause) {
+            selectClause = parseSelectClause();
         }
 
         STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
         STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, clause);
+        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause);
     }
 
     /**
@@ -8354,7 +8366,6 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfIntermediateClause(SyntaxKind tokenKind) {
         switch (tokenKind) {
-            case SELECT_KEYWORD:
             case CLOSE_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case CLOSE_BRACKET_TOKEN:
