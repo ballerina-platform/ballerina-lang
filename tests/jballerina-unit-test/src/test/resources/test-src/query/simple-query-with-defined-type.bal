@@ -75,6 +75,18 @@ type NumberGeneratorWithError object {
     }
 };
 
+type ResultValue record {|
+    Person value;
+|};
+
+function getRecordValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal) returns Person? {
+    if (returnedVal is ResultValue) {
+        return returnedVal.value;
+    } else {
+        return ();
+    }
+}
+
 function testSimpleSelectQueryWithSimpleVariable() returns Person[] {
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
@@ -422,4 +434,29 @@ function testQueryExprWithStreamMapAndFilter() returns Subscription[]{
 		select subs;
 
 	return  outputSubscriptionList;
+}
+
+function testSimpleSelectQueryReturnStream() returns boolean {
+    boolean testPassed = true;
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    stream<Person> outputPersonStream = stream from var person in personList
+                                select {
+                                    firstName: person.firstName,
+                                    lastName: person.lastName,
+                                    age: person.age
+                                };
+    Person? returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p1);
+
+    returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p2);
+
+    returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p3);
+    return testPassed;
 }

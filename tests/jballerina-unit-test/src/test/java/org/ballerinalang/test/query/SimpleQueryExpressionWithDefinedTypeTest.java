@@ -337,4 +337,13 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(subscription.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6, " +
                 "degree:\"Bachelor of Medicine\"}");
     }
+
+    @Test(description = "Test Query expression returning a stream ")
+    public void testSimpleSelectQueryReturnStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryReturnStream");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
 }

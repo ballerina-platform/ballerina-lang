@@ -238,4 +238,13 @@ public class QueryExpressionWithVarTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
+
+    @Test(description = "Test Query expression returning a stream ")
+    public void testSimpleSelectQueryReturnStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryReturnStream");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
 }
