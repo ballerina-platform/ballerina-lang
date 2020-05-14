@@ -288,7 +288,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         
         public String code() {
             return "registerNativeFunction(new NativeFunctionDef(\"" + this.org + "\", \"" + this.pkg + "\", \"" +
-                    this.version + "\", " + "\"" + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", " +
+                    this.version + "\", \"" + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", " +
                     this.typeArrayToCode(this.retTypes) + ", \"" + this.className + "\"))";
         }
         
