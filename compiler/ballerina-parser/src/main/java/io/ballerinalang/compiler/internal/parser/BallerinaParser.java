@@ -8573,50 +8573,34 @@ public class BallerinaParser extends AbstractParser {
         ArrayList<STNode> bindingPatterns = new ArrayList<>();
         STNode openBracket = parseOpenBracket();
 
+        STNode listBindingPatternContent = parselistBindingPatternContent();
+        bindingPatterns.add(listBindingPatternContent);
+
+        //parsing the main chunck of list-binding-pattern
         STToken token = peek();
-        while (token.kind != SyntaxKind.CLOSE_BRACKET_TOKEN) {
-            switch (token.kind) {
-                case ELLIPSIS_TOKEN:
-                    STNode restBindingPattern = parseRestBindingPattern();
-                    STNode closeBracket = parseCloseBracket();
-                    STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
-                    return STNodeFactory.createListBindingPatternNode(openBracket,
-                                                                        bindingPatternsNode,
-                                                                        restBindingPattern,
-                                                                        closeBracket);
-                case COMMA_TOKEN:
-                    if (bindingPatterns.isEmpty()) { // comma cant be first item
-                        this.errorHandler.reportInvalidNode(null,
-                            "comma must be preceded by binding-pattern in list-binding-pattern");
-                    } else { 
-                        bindingPatterns.add(parseComma());
-                        token = peek();
-                        //if rest-b-p after comma then break and while will take care
-                        if (token.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-                            break;
-                        }
-                        bindingPatterns.add(parseBindingPattern());
-                    }
-                    break;
-                default:
-                    if (bindingPatterns.isEmpty()) {
-                        bindingPatterns.add(parseBindingPattern());
-                    } else { // if the list is not empty then we need to add , b-p
-                        bindingPatterns.add(parseComma());
-                        bindingPatterns.add(parseBindingPattern());
-                    }
-            }
+        while (token.kind != SyntaxKind.CLOSE_BRACKET_TOKEN &&
+                listBindingPatternContent.kind != SyntaxKind.REST_BINDING_PATTERN) {
+            bindingPatterns.add(parseComma());
+            listBindingPatternContent = parselistBindingPatternContent();
+            bindingPatterns.add(listBindingPatternContent);
             token = peek();
         }
-        if (bindingPatterns.isEmpty()) { // cannot be empty, must be atleast one
-            bindingPatterns.add(parseBindingPattern()); //recovery adds a missing b-p
-        }
         STNode closeBracket = parseCloseBracket();
+
+        //seperating out the restbindingpattern
+        STNode restBindingPattern = STNodeFactory.createEmptyNode();
+        int lastIndex = bindingPatterns.size() - 1;
+        STNode lastItem = bindingPatterns.get(lastIndex);
+        if (lastItem.kind == SyntaxKind.REST_BINDING_PATTERN) {
+            restBindingPattern = bindingPatterns.remove(lastIndex);
+        }
+
+
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
         endContext();
         return STNodeFactory.createListBindingPatternNode(openBracket,
                                                     bindingPatternsNode,
-                                                    STNodeFactory.createEmptyNode(),
+                                                    restBindingPattern,
                                                     closeBracket);
     }
 
@@ -8640,6 +8624,27 @@ public class BallerinaParser extends AbstractParser {
             default:
                 Solution sol = recover(token, ParserRuleContext.REST_BINDING_PATTERN);
                 return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse list-binding-pattern entry.
+     *
+     * list-binding-pattern := [ list-member-binding-patterns ]
+     * list-member-binding-patterns :=
+     *      binding-pattern (, binding-pattern)* [, rest-binding-pattern]
+     *      | [ rest-binding-pattern ]
+     *
+     * @return rest-binding-pattern node
+     */
+    private STNode parselistBindingPatternContent() {
+        STToken token = peek();
+
+        switch (token.kind) {
+            case ELLIPSIS_TOKEN:
+                return parseRestBindingPattern();
+            default:
+                return parseBindingPattern();
         }
     }
 
