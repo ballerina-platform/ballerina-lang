@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.maven;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Dependency representation.
  */
@@ -25,16 +28,20 @@ public class Dependency {
     private String artifactId;
     private String version;
 
+    List<Dependency> depedencies;
+
     public Dependency() {
         this.groupId = "";
         this.artifactId = "";
         this.version = "";
+        this.depedencies = new ArrayList<>();
     }
 
     public Dependency(String groupId, String artifactId, String version) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.depedencies = new ArrayList<>();
     }
 
     public String getGroupId() {
@@ -49,6 +56,10 @@ public class Dependency {
         return artifactId;
     }
 
+    public List<Dependency> getDepedencies() {
+        return depedencies;
+    }
+
     public void setArtifactId(String artifactId) {
         this.artifactId = artifactId;
     }
@@ -59,5 +70,13 @@ public class Dependency {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public void setDepedencies(List<Dependency> depedencies) {
+        this.depedencies = depedencies;
+    }
+
+    public void addDependency(Dependency dependency) {
+        this.depedencies.add(dependency);
     }
 }
