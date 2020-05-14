@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 
@@ -30,17 +31,15 @@ public class ArrayTypeDescriptor extends BallerinaTypeDesc {
     
     private TypeDescriptor memberTypeDesc;
     
-    private BArrayType arrayType;
     
     public ArrayTypeDescriptor(ModuleID moduleID,
                                BArrayType arrayType) {
-        super(TypeDescKind.ARRAY, moduleID);
-        this.arrayType = arrayType;
+        super(TypeDescKind.ARRAY, moduleID, arrayType);
     }
     
     public TypeDescriptor getMemberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(this.arrayType.eType);
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
         }
         return memberTypeDesc;
     }

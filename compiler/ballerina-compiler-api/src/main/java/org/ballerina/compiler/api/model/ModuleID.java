@@ -54,6 +54,10 @@ public class ModuleID {
     public String getModuleName() {
         return this.moduleID.getNameComps().stream().map(Name::getValue).collect(Collectors.joining("."));
     } 
+    
+    public boolean isAnonOrg() {
+        return ANON_ORG.equals(this.getOrgName());
+    }
 
     public boolean isLangLib() {
         // todo: implement the logic 

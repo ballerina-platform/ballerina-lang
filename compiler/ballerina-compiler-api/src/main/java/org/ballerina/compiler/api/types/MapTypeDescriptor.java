@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 
@@ -32,17 +33,14 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
 
     private TypeDescriptor memberTypeDesc;
 
-    private BMapType mapType;
-
     public MapTypeDescriptor(ModuleID moduleID,
                               BMapType mapType) {
-        super(TypeDescKind.MAP, moduleID);
-        this.mapType = mapType;
+        super(TypeDescKind.MAP, moduleID, mapType);
     }
 
     public Optional<TypeDescriptor> getMemberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(this.mapType.constraint);
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
         }
         return Optional.ofNullable(this.memberTypeDesc);
     }

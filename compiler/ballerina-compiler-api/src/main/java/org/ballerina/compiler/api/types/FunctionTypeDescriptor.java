@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -33,7 +34,6 @@ import java.util.StringJoiner;
  * @since 1.3.0
  */
 public class FunctionTypeDescriptor extends BallerinaTypeDesc {
-    private BInvokableType invokableType;
     private List<TypeDescriptor> requiredParams;
     private TypeDescriptor restParam;
     private TypeDescriptor returnType;
@@ -41,14 +41,13 @@ public class FunctionTypeDescriptor extends BallerinaTypeDesc {
 
     public FunctionTypeDescriptor(ModuleID moduleID,
                                   BInvokableType invokableType) {
-        super(TypeDescKind.FUNCTION, moduleID);
-        this.invokableType = invokableType;
+        super(TypeDescKind.FUNCTION, moduleID, invokableType);
     }
 
     public List<TypeDescriptor> getRequiredParams() {
         if (this.requiredParams == null) {
             this.requiredParams = new ArrayList<>();
-            for (BType requiredParam : this.invokableType.getParameterTypes()) {
+            for (BType requiredParam : ((BInvokableType) this.getBType()).getParameterTypes()) {
                 this.requiredParams.add(TypesFactory.getTypeDescriptor(requiredParam));
             }
         }
@@ -57,14 +56,14 @@ public class FunctionTypeDescriptor extends BallerinaTypeDesc {
 
     public Optional<TypeDescriptor> getRestParam() {
         if (restParam == null) {
-            this.restParam = TypesFactory.getTypeDescriptor(this.invokableType.restType);
+            this.restParam = TypesFactory.getTypeDescriptor(((BInvokableType) this.getBType()).restType);
         }
         return Optional.ofNullable(this.restParam);
     }
 
     public Optional<TypeDescriptor> getReturnType() {
         if (returnType == null) {
-            this.returnType = TypesFactory.getTypeDescriptor(this.invokableType.retType);
+            this.returnType = TypesFactory.getTypeDescriptor(((BInvokableType) this.getBType()).retType);
         }
         return Optional.ofNullable(this.returnType);
     }

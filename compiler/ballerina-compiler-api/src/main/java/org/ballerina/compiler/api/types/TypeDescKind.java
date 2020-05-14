@@ -17,26 +17,53 @@
  */
 package org.ballerina.compiler.api.types;
 
+import java.util.Arrays;
+
 /**
  * Represents the Type Kinds.
  * 
  * @since 1.3.0
  */
 public enum TypeDescKind {
-    ARRAY,
-    OBJECT,
-    RECORD,
-    MAP,
-    ERROR,
-    SIMPLE,
-    OTHER,
-    FUNCTION,
-    BUILTIN,
-    NIL,
-    TUPLE,
-    STREAM,
-    FUTURE,
-    TYPEDESC,
-    TYPE_REFERENCE,
-    UNION
+    ARRAY("array"),
+    OBJECT("object"),
+    RECORD("record"),
+    MAP("map"),
+    ERROR("error"),
+    SIMPLE("simple"),
+    OTHER("other"),
+    FUNCTION("function"),
+    BUILTIN("builtin"),
+    NIL("nil"),
+    TUPLE("tuple"),
+    STREAM("stream"),
+    FUTURE("future"),
+    TYPEDESC("typeDesc"),
+    TYPE_REFERENCE("typeReference"),
+    UNION("union"),
+    INT("int"),
+    BYTE("byte"),
+    FLOAT("float"),
+    DECIMAL("decimal"),
+    STRING("string"),
+    BOOLEAN("boolean"),
+    JSON("json"),
+    XML("xml");
+    
+    private String name;
+
+    TypeDescKind(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+    
+    public static TypeDescKind getFromName(String name) {
+        return Arrays.stream(TypeDescKind.values())
+                .filter(typeDescKind -> typeDescKind.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
 }

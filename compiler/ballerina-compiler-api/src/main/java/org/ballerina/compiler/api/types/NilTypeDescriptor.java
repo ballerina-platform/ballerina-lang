@@ -18,6 +18,8 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 /**
  * Represents the nil type descriptor.
@@ -26,8 +28,8 @@ import org.ballerina.compiler.api.model.ModuleID;
  */
 public class NilTypeDescriptor extends BallerinaTypeDesc {
 
-    public NilTypeDescriptor(ModuleID moduleID) {
-        super(TypeDescKind.NIL, moduleID);
+    public NilTypeDescriptor(ModuleID moduleID, BNilType nilType) {
+        super(TypeDescKind.NIL, moduleID, nilType);
     }
 
     @Override

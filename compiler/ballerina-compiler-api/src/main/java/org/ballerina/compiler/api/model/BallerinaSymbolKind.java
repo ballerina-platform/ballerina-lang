@@ -40,5 +40,6 @@ public enum BallerinaSymbolKind {
     WORKER,
     OBJECT,
     RECORD,
-    ANNOTATION
+    ANNOTATION,
+    FIELD
 }

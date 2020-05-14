@@ -15,9 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.types;
+package org.ballerina.compiler.api.semantic;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.types.TypeDescKind;
+import org.ballerina.compiler.api.types.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -27,10 +30,21 @@ import org.ballerina.compiler.api.model.ModuleID;
 public abstract class BallerinaTypeDesc implements TypeDescriptor {
     private TypeDescKind typeDescKind;
     private ModuleID moduleID;
+    private BType bType;
 
-    public BallerinaTypeDesc(TypeDescKind typeDescKind, ModuleID moduleID) {
+    public BallerinaTypeDesc(TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
         this.typeDescKind = typeDescKind;
         this.moduleID = moduleID;
+        this.bType = bType;
+    }
+
+    /**
+     * Get the BType.
+     * 
+     * @return {@link BType} associated with the type desc
+     */
+    protected BType getBType() {
+        return bType;
     }
 
     public TypeDescKind getKind() {

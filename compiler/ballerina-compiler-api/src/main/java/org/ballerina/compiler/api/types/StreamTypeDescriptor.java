@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 
@@ -34,18 +35,15 @@ public class StreamTypeDescriptor extends BallerinaTypeDesc {
 
     private List<TypeDescriptor> typeParameters;
 
-    private BStreamType streamType;
-
     public StreamTypeDescriptor(ModuleID moduleID,
                                 BStreamType streamType) {
-        super(TypeDescKind.STREAM, moduleID);
-        this.streamType = streamType;
+        super(TypeDescKind.STREAM, moduleID, streamType);
     }
 
     public List<TypeDescriptor> getTypeParameters() {
         if (this.typeParameters == null) {
             this.typeParameters = new ArrayList<>();
-            typeParameters.add(TypesFactory.getTypeDescriptor(this.streamType.constraint));
+            typeParameters.add(TypesFactory.getTypeDescriptor(((BStreamType) this.getBType()).constraint));
         }
 
         return this.typeParameters;

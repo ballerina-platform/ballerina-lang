@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 
@@ -30,19 +31,16 @@ import java.util.Optional;
  */
 public class FutureTypeDescriptor extends BallerinaTypeDesc {
 
-    private BFutureType futureType;
-
     private TypeDescriptor memberTypeDesc;
 
     public FutureTypeDescriptor(ModuleID moduleID,
                                  BFutureType futureType) {
-        super(TypeDescKind.FUTURE, moduleID);
-        this.futureType = futureType;
+        super(TypeDescKind.FUTURE, moduleID, futureType);
     }
 
     public Optional<TypeDescriptor> getMemberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(this.futureType.constraint);
+            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
         }
         return Optional.ofNullable(this.memberTypeDesc);
     }

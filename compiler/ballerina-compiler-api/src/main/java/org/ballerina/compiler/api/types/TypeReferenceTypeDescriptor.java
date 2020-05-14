@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -30,30 +31,29 @@ public class TypeReferenceTypeDescriptor extends BallerinaTypeDesc {
 
     private String definitionName;
 
-    private BType bType;
-
     private TypeDescriptor typeDescriptor;
 
     public TypeReferenceTypeDescriptor(ModuleID moduleID,
                                         BType bType,
                                         String definitionName) {
-        super(TypeDescKind.TYPE_REFERENCE, moduleID);
-        this.bType = bType;
+        super(TypeDescKind.TYPE_REFERENCE, moduleID, bType);
         this.definitionName = definitionName;
     }
 
     public TypeDescriptor getTypeDescriptor() {
         if (this.typeDescriptor == null) {
-            this.typeDescriptor = TypesFactory.getTypeDescriptor(this.bType);
+            this.typeDescriptor = TypesFactory.getTypeDescriptor(this.getBType(), true);
         }
         return typeDescriptor;
     }
 
     @Override
     public String getSignature() {
-        if (this.getModuleID() == null) {
+        if (this.getModuleID() == null || (this.getModuleID().getModuleName().equals("lang.annotations")
+                && this.getModuleID().getOrgName().equals("ballerina"))) {
             return this.definitionName;
         }
-        return this.getModuleID().getModulePrefix() + ":" + this.definitionName;
+        return !this.getModuleID().isAnonOrg() ? this.getModuleID().getModulePrefix() + ":" + this.definitionName 
+                : this.definitionName;
     }
 }

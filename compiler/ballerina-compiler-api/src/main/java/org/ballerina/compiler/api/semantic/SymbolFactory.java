@@ -66,6 +66,9 @@ public class SymbolFactory {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
+            if (symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+                return createTypeDefinition(symbol.type.tsymbol, name);
+            }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
@@ -105,7 +108,16 @@ public class SymbolFactory {
      */
     public static BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
         PackageID pkgID = invokableSymbol.pkgID;
-        return new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol).build();
+        BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
+                new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
+        if ((invokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            builder.withAccessModifier(AccessModifier.PUBLIC);
+        }
+        if ((invokableSymbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
+            builder.withAccessModifier(AccessModifier.PRIVATE);
+        }
+
+        return builder.build();
     }
 
     /**

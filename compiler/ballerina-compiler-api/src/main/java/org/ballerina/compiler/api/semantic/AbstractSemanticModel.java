@@ -17,10 +17,9 @@
  */
 package org.ballerina.compiler.api.semantic;
 
-import io.ballerinalang.compiler.syntax.tree.Span;
-import io.ballerinalang.compiler.text.TextPosition;
+import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerinalang.compiler.text.TextRange;
 import org.ballerina.compiler.api.model.BCompiledSymbol;
-import org.ballerina.compiler.api.model.BallerinaSymbol;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
@@ -45,7 +44,7 @@ public abstract class AbstractSemanticModel {
      * @param position text position in the source
      * @return {@link List} of visible symbols in the given location
      */
-    public abstract List<BCompiledSymbol> lookupSymbols(TextPosition position);
+    public abstract List<BCompiledSymbol> lookupSymbols(LinePosition position);
 
     /**
      * Lookup the symbol at the given location.
@@ -62,14 +61,14 @@ public abstract class AbstractSemanticModel {
      * @param name symbol name to match
      * @return {@link List} of symbols visible to the position, with the name
      */
-    public abstract List<BCompiledSymbol> getSymbolByName(TextPosition textPosition, String name);
+    public abstract List<BCompiledSymbol> getSymbolByName(LinePosition textPosition, String name);
 
     /**
      * Get the diagnostics within the given text Span.
      * 
-     * @param span Text span to filter the diagnostics
+     * @param textRange Text range to filter the diagnostics
      * @param kind Diagnostic kind, can be Syntactic, Semantic or both
      * @return {@link List} of extracted diagnostics
      */
-    public abstract List<Diagnostic> getDiagnostics(Span span, DiagnosticKind kind);
+    public abstract List<Diagnostic> getDiagnostics(TextRange textRange, DiagnosticKind kind);
 }

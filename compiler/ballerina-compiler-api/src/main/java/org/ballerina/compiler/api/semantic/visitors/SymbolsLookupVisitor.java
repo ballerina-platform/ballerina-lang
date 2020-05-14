@@ -17,8 +17,9 @@
  */
 package org.ballerina.compiler.api.semantic.visitors;
 
-import io.ballerinalang.compiler.text.TextPosition;
+import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -28,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -132,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -161,12 +161,12 @@ import java.util.List;
  * @since 1.3.0
  */
 public class SymbolsLookupVisitor extends BLangNodeVisitor {
-    TextPosition textPosition;
+    LinePosition linePosition;
     private SymbolEnv symbolEnv;
     private SymbolEnv scope;
     
-    public SymbolsLookupVisitor(TextPosition position, SymbolEnv symbolEnv) {
-        this.textPosition = position;
+    public SymbolsLookupVisitor(LinePosition position, SymbolEnv symbolEnv) {
+        this.linePosition = position;
         this.symbolEnv = symbolEnv;
         this.scope = symbolEnv;
     }
@@ -227,7 +227,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
             this.scope = env;
             objectTypeNode.getFunctions().forEach(function -> this.acceptNode(function, env));
             this.acceptNode((BLangNode) objectTypeNode.getInitFunction(), env);
-            return;
         }
     }
 
@@ -238,9 +237,12 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BSymbol recordSymbol = recordTypeNode.symbol;
-        SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, recordSymbol.scope, symbolEnv);
-        recordTypeNode.fields.forEach(field -> acceptNode(field, recordEnv));
+        if (this.withinBlock(recordTypeNode.getPosition())) {
+            BSymbol recordSymbol = recordTypeNode.symbol;
+            SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, recordSymbol.scope, symbolEnv);
+            this.scope = recordEnv;
+            recordTypeNode.fields.forEach(field -> acceptNode(field, recordEnv));
+        }
     }
 
     @Override
@@ -271,29 +273,13 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-//        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
-//        List<BLangStatement> statements = blockNode.stmts.stream()
-//                .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
-//                .sorted(new CommonUtil.BLangNodeComparator())
-//                .collect(Collectors.toList());
-//
-//        if (statements.isEmpty() && CompletionVisitorUtil
-//                .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
-//                        this.lsContext, this)) {
-//            return;
-//        }
-//
-//        for (int i = 0; i < statements.size(); i++) {
-//            this.blockStmtStack.push(blockNode);
-//            this.cursorPositionResolver = BlockStatementScopeResolver.class;
-//            this.acceptNode(statements.get(i), blockEnv);
-//            if (this.terminateVisitor && this.previousNode == null) {
-//                int nodeIndex = statements.size() > 1 && i > 0 ? (i - 1) : 0;
-//                this.previousNode = statements.get(nodeIndex);
-//                lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
-//            }
-//            this.blockStmtStack.pop();
-//        }
+        if (this.withinBlock(blockNode.getPosition())) {
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
+            this.scope = blockEnv;
+            for (BLangStatement statement : blockNode.stmts) {
+                this.acceptNode(statement, blockEnv);
+            }
+        }
     }
 
     @Override
@@ -305,8 +291,11 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExprFunctionBody exprFuncBody) {
-        SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
-        this.acceptNode(exprFuncBody.expr, exprBodyEnv);
+        if (this.withinBlock(exprFuncBody.getPosition())) {
+            SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
+            this.scope = exprBodyEnv;
+            this.acceptNode(exprFuncBody.expr, exprBodyEnv);
+        }
     }
 
     @Override
@@ -335,15 +324,19 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationNode) {
-//        invocationNode.getArgumentExpressions().forEach(expressionNode -> {
-//        });
+        for (ExpressionNode argExpr : invocationNode.getArgumentExpressions()) {
+            this.acceptNode((BLangNode) argExpr, this.symbolEnv);
+        }
         // Specially check for the position of the cursor to support the completion for complete sources
         // eg: string modifiedStr = sampleStr.replace("hello", "Hello").<cursor>toLower();
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        this.acceptNode(ifNode.body, this.symbolEnv);
+        if (this.withinBlock(ifNode.getBody().getPosition())) {
+            this.scope = this.symbolEnv;
+            this.acceptNode(ifNode.body, this.symbolEnv);
+        }
 
         if (ifNode.elseStmt != null) {
             acceptNode(ifNode.elseStmt, this.symbolEnv);
@@ -352,7 +345,10 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        this.acceptNode(whileNode.body, this.symbolEnv);
+        if (this.withinBlock(whileNode.getPosition())) {
+            this.scope = this.symbolEnv;
+            this.acceptNode(whileNode.body, this.symbolEnv);
+        }
     }
 
     @Override
@@ -377,10 +373,11 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
-        forkJoin.workers.forEach(e -> {
-            this.acceptNode(e, folkJoinEnv);
-        });
+        if (this.withinBlock(forkJoin.getPosition())) {
+            SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
+            this.scope = forkJoinEnv;
+            forkJoin.workers.forEach(e -> this.acceptNode(e, forkJoinEnv));
+        }
     }
 
     @Override
@@ -389,9 +386,6 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        //Todo receive is an expression now and a statement
-        //CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-        //        .isCursorBeforeNode(workerReceiveNode.getPosition(), this, this.lsContext, workerReceiveNode, null);
     }
 
     @Override
@@ -424,13 +418,17 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-        matchNode.patternClauses.forEach(patternClause -> {
-            acceptNode(patternClause, this.symbolEnv);
-        });
+        if (this.withinBlock(matchNode.getPosition())) {
+            this.scope = this.symbolEnv;
+            matchNode.patternClauses.forEach(patternClause -> acceptNode(patternClause, this.symbolEnv));
+        }
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        if (!this.withinBlock(annAttachmentNode.getPosition())) {
+            return;
+        }
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
         this.symbolEnv.copyTo(annotationAttachmentEnv);
         if (annAttachmentNode.annotationSymbol == null) {
@@ -442,6 +440,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
                 && annAttachmentNode.annotationName.getValue().equals("ServiceDescriptor")) {
             return;
         }
+        this.scope = annotationAttachmentEnv;
         this.acceptNode(annAttachmentNode.expr, annotationAttachmentEnv);
     }
 
@@ -451,22 +450,24 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        if (!this.withinBlock(recordLiteral.getPosition())) {
+            return;
+        }
         SymbolEnv recordLiteralEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
         symbolEnv.copyTo(recordLiteralEnv);
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
-        fields.forEach(keyValue -> {
-            this.acceptNode((BLangNode) keyValue, recordLiteralEnv);
-        });
+        this.scope = recordLiteralEnv;
+        fields.forEach(keyValue -> this.acceptNode((BLangNode) keyValue, recordLiteralEnv));
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
-//        this.visitMatchPatternClause(patternClause, patternClause.body);
+        this.acceptNode(patternClause.body, this.symbolEnv);
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
-//        this.visitMatchPatternClause(patternClause, patternClause.body);
+        this.acceptNode(patternClause.body, this.symbolEnv);
     }
 
     @Override
@@ -522,22 +523,10 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        
     }
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangWorker workerNode) {
-        
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
-        
     }
 
     @Override
@@ -1061,6 +1050,9 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {
+        if (node == null) {
+            return;
+        }
         SymbolEnv prevEnv = this.symbolEnv;
         this.symbolEnv = env;
         node.accept(this);
@@ -1072,8 +1064,8 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
         int zeroBasedEndLine = symbolPosition.getEndLine() - 1;
         int zeroBasedStartCol = symbolPosition.getStartColumn() - 1;
         int zeroBasedEndCol = symbolPosition.getEndColumn() - 1;
-        int line = this.textPosition.line();
-        int col = this.textPosition.offset();
+        int line = this.linePosition.line();
+        int col = this.linePosition.offset();
 
         return (zeroBasedStartLine < line && zeroBasedEndLine > line)
                 || (zeroBasedStartLine < line && zeroBasedEndLine == line && zeroBasedEndCol > col)

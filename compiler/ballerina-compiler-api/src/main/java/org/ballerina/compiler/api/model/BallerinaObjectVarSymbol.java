@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a Ballerina Object Symbol.
@@ -59,8 +60,8 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
      * 
      * @return {@link BallerinaFunctionSymbol} init function symbol
      */
-    public BallerinaFunctionSymbol getInitFunction() {
-        return initFunction;
+    public Optional<BallerinaFunctionSymbol> getInitFunction() {
+        return Optional.ofNullable(initFunction);
     }
 
     /**
@@ -147,7 +148,9 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
         }
 
         private void withObjectTypeSymbol(BObjectTypeSymbol objectTypeSymbol, String name) {
-            this.initFunction = SymbolFactory.createFunctionSymbol(objectTypeSymbol.initializerFunc.symbol, name);
+            if (objectTypeSymbol.initializerFunc != null) {
+                this.initFunction = SymbolFactory.createFunctionSymbol(objectTypeSymbol.initializerFunc.symbol, name);
+            }
             List<BallerinaFunctionSymbol> list = new ArrayList<>();
             for (BAttachedFunction function : objectTypeSymbol.attachedFuncs) {
                 String funcName = function.symbol.getName().getValue();

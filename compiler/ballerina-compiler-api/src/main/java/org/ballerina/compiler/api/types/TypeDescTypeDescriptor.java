@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
@@ -30,19 +31,16 @@ import java.util.Optional;
  */
 public class TypeDescTypeDescriptor extends BallerinaTypeDesc {
 
-    private BTypedescType typedescType;
-
     private TypeDescriptor typeParameter;
 
     public TypeDescTypeDescriptor(ModuleID moduleID,
                                   BTypedescType typedescType) {
-        super(TypeDescKind.TYPEDESC, moduleID);
-        this.typedescType = typedescType;
+        super(TypeDescKind.TYPEDESC, moduleID, typedescType);
     }
 
     public Optional<TypeDescriptor> getTypeParameter() {
         if (this.typeParameter == null) {
-            this.typeParameter = TypesFactory.getTypeDescriptor(typedescType.constraint);
+            this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
         }
 
         return Optional.ofNullable(this.typeParameter);

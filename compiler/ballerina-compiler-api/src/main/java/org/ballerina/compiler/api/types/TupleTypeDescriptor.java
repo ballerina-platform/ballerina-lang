@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -34,22 +35,19 @@ import java.util.StringJoiner;
  */
 public class TupleTypeDescriptor extends BallerinaTypeDesc {
 
-    private BTupleType tupleType;
-
     private List<TypeDescriptor> memberTypes;
 
     private TypeDescriptor restTypeDesc;
 
     public TupleTypeDescriptor(ModuleID moduleID,
                                BTupleType tupleType) {
-        super(TypeDescKind.TUPLE, moduleID);
-        this.tupleType = tupleType;
+        super(TypeDescKind.TUPLE, moduleID, tupleType);
     }
 
     public List<TypeDescriptor> getMemberTypes() {
         if (this.memberTypes == null) {
             this.memberTypes = new ArrayList<>();
-            for (BType type : this.tupleType.tupleTypes) {
+            for (BType type : ((BTupleType) this.getBType()).tupleTypes) {
                 this.memberTypes.add(TypesFactory.getTypeDescriptor(type));
             }
         }
@@ -59,7 +57,7 @@ public class TupleTypeDescriptor extends BallerinaTypeDesc {
 
     public Optional<TypeDescriptor> getRestType() {
         if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(this.tupleType.restType);
+            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BTupleType) this.getBType()).restType);
         }
 
         return Optional.ofNullable(this.restTypeDesc);

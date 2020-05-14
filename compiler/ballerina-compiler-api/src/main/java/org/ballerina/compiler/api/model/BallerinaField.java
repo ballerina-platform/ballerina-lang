@@ -29,7 +29,7 @@ import java.util.Optional;
  * 
  * @since 1.3.0
  */
-public class BallerinaField {
+public class BallerinaField implements BCompiledSymbol {
     private DocAttachment docAttachment;
     private BField bField;
     private TypeDescriptor typeDescriptor;
@@ -45,7 +45,7 @@ public class BallerinaField {
      * 
      * @return {@link String} name of the field
      */
-    public String getFieldName() {
+    public String getName() {
         return this.bField.getName().getValue();
     }
 
@@ -79,10 +79,10 @@ public class BallerinaField {
     /**
      * Get the documentation attachment.
      * 
-     * @return {@link DocAttachment} of the field
+     * @return {@link Optional} doc attachment of the field
      */
-    public DocAttachment getDocAttachment() {
-        return docAttachment;
+    public Optional<DocAttachment> getDocAttachment() {
+        return Optional.ofNullable(docAttachment);
     }
 
     /**
@@ -106,11 +106,21 @@ public class BallerinaField {
      * @return {}
      */
     public String getSignature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor.getSignature() + " " + this.getFieldName());
+        StringBuilder signature = new StringBuilder(this.typeDescriptor.getSignature() + " " + this.getName());
         if (this.isOptional()) {
             signature.append("?");
         }
 
         return signature.toString();
+    }
+
+    @Override
+    public ModuleID getModuleID() {
+        return null;
+    }
+
+    @Override
+    public BallerinaSymbolKind getKind() {
+        return BallerinaSymbolKind.FIELD;
     }
 }

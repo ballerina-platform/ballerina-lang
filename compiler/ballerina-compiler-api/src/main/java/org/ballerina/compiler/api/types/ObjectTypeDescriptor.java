@@ -18,8 +18,10 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.BallerinaField;
+import org.ballerina.compiler.api.model.BallerinaFunctionSymbol;
 import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
+import org.ballerina.compiler.api.semantic.SymbolFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -38,17 +40,21 @@ import java.util.StringJoiner;
  */
 public class ObjectTypeDescriptor extends BallerinaTypeDesc {
 
-    private BObjectType objectType;
     private List<TypeQualifier> typeQualifiers;
-    private TypeDescriptor objectTypeReference;
+
+    // private TypeDescriptor objectTypeReference;
+
     private List<BallerinaField> objectFields;
-    private List<FunctionTypeDescriptor> methods;
-    private FunctionTypeDescriptor initFunction;
+
+    private List<BallerinaFunctionSymbol> methods;
+
+    private BallerinaFunctionSymbol initFunction;
 
     public ObjectTypeDescriptor(ModuleID moduleID,
-                                 BObjectType objectType) {
-        super(TypeDescKind.OBJECT, moduleID);
-        this.objectType = objectType;
+                                BObjectType objectType) {
+        super(TypeDescKind.OBJECT, moduleID, objectType);
+        // TODO: Fix this
+        // objectTypeReference = null;
     }
 
     /**
@@ -59,13 +65,13 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
     public List<TypeQualifier> getTypeQualifiers() {
         if (this.typeQualifiers == null) {
             this.typeQualifiers = new ArrayList<>();
-            if ((objectType.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            if ((((BObjectType) this.getBType()).flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
                 this.typeQualifiers.add(ObjectTypeDescriptor.TypeQualifier.ABSTRACT);
             }
-            if ((objectType.flags & Flags.CLIENT) == Flags.CLIENT) {
+            if ((((BObjectType) this.getBType()).flags & Flags.CLIENT) == Flags.CLIENT) {
                 this.typeQualifiers.add(ObjectTypeDescriptor.TypeQualifier.CLIENT);
             }
-            if ((objectType.flags & Flags.LISTENER) == Flags.LISTENER) {
+            if ((((BObjectType) this.getBType()).flags & Flags.LISTENER) == Flags.LISTENER) {
                 this.typeQualifiers.add(ObjectTypeDescriptor.TypeQualifier.LISTENER);
             }
         }
@@ -81,7 +87,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
     public List<BallerinaField> getObjectFields() {
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
-            for (BField field : this.objectType.fields) {
+            for (BField field : ((BObjectType) this.getBType()).fields) {
                 this.objectFields.add(new BallerinaField(field));
             }
         }
@@ -93,35 +99,30 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
      *
      * @return {@link List} of object methods
      */
-    public List<FunctionTypeDescriptor> getMethods() {
+    public List<BallerinaFunctionSymbol> getMethods() {
         if (this.methods == null) {
             this.methods = new ArrayList<>();
-            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.objectType.tsymbol).attachedFuncs) {
-                this.methods.add(TypesFactory.createFunctionTypeDescriptor(attachedFunc.type));
+            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol)
+                    .attachedFuncs) {
+                this.methods.add(SymbolFactory.createFunctionSymbol(attachedFunc.symbol,
+                        attachedFunc.funcName.getValue()));
             }
         }
 
         return this.methods;
     }
 
-    public FunctionTypeDescriptor getInitializer() {
+    public Optional<BallerinaFunctionSymbol> getInitializer() {
         if (this.initFunction == null) {
-            this.initFunction = TypesFactory
-                    .createFunctionTypeDescriptor(((BObjectTypeSymbol) this.objectType.tsymbol).initializerFunc.type);
+            BAttachedFunction initFunction =
+                    ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
+            this.initFunction = initFunction == null ? null : SymbolFactory
+                    .createFunctionSymbol(initFunction.symbol, initFunction.funcName.getValue());
         }
 
-        return this.initFunction;
+        return Optional.ofNullable(this.initFunction);
     }
-
-    /**
-     * Get the object type reference.
-     *
-     * @return {@link Optional} type reference
-     */
-    public Optional<TypeDescriptor> getObjectTypeReference() {
-        return Optional.ofNullable(this.objectTypeReference);
-    }
-
+    
     @Override
     public String getSignature() {
         StringBuilder signature = new StringBuilder();
@@ -135,9 +136,11 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
         }
         signature.append(qualifierJoiner.toString()).append(" object {");
 
-        this.getObjectTypeReference().ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
+        // this.getObjectTypeReference()
+        //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.getObjectFields().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.getSignature()));
-        this.getMethods().forEach(method -> methodJoiner.add(method.getSignature()));
+        this.getMethods().forEach(method -> method.getTypeDescriptor()
+                .ifPresent(typeDescriptor -> methodJoiner.add(typeDescriptor.getSignature())));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())

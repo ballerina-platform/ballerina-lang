@@ -17,9 +17,12 @@
  */
 package org.ballerina.compiler.api.model;
 
+import org.ballerina.compiler.api.semantic.BallerinaSymbol;
 import org.ballerina.compiler.api.semantic.SymbolFactory;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -51,10 +54,15 @@ public class BallerinaModule extends BallerinaSymbol {
     public List<BallerinaTypeDefinition> getTypeDefinitions() {
         List<BallerinaTypeDefinition> typeDefs = new ArrayList<>();
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
-            if (scopeEntry.symbol instanceof BTypeSymbol
-                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            if ((scopeEntry.symbol.flags & Flags.PUBLIC) != Flags.PUBLIC) {
+                return;
+            }
+            if (scopeEntry.symbol instanceof BTypeSymbol) {
                 String typeName = scopeEntry.symbol.getName().getValue();
                 typeDefs.add(SymbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol, typeName));
+            } else if (scopeEntry.symbol instanceof BConstructorSymbol) {
+                String typeName = scopeEntry.symbol.type.tsymbol.getName().getValue();
+                typeDefs.add(SymbolFactory.createTypeDefinition(scopeEntry.symbol.type.tsymbol, typeName));
             }
         });
         
@@ -70,7 +78,8 @@ public class BallerinaModule extends BallerinaSymbol {
         List<BallerinaFunctionSymbol> functions = new ArrayList<>();
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC
+                    && scopeEntry.symbol.kind != SymbolKind.ERROR_CONSTRUCTOR) {
                 String funcName = scopeEntry.symbol.getName().getValue();
                 functions.add(SymbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
             }
@@ -113,8 +122,7 @@ public class BallerinaModule extends BallerinaSymbol {
     public List<BCompiledSymbol> getAllSymbols() {
         List<BCompiledSymbol> symbols = new ArrayList<>();
         this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
-            if (scopeEntry.symbol instanceof BConstantSymbol
-                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            if ((scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 String symbolName = scopeEntry.symbol.getName().getValue();
                 symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, symbolName));
             }

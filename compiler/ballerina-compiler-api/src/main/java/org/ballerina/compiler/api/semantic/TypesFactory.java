@@ -33,12 +33,12 @@ import org.ballerina.compiler.api.types.TypeDescTypeDescriptor;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import org.ballerina.compiler.api.types.UnionTypeDescriptor;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -48,7 +48,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.util.Flags;
 
-/** Represents a set of factory methods to generate the {@link org.ballerina.compiler.api.types.TypeDescriptor}s.
+/**
+ * Represents a set of factory methods to generate the {@link org.ballerina.compiler.api.types.TypeDescriptor}s.
  *
  * @since 1.3.0
  */
@@ -56,11 +57,12 @@ public class TypesFactory {
 
     /**
      * Get the type descriptor for the given type.
-     * 
+     *
      * @param bType BType tp get the type descriptor
+     * @param rawTypeOnly Whether convert the type descriptor to type reference or keep the raw type
      * @return {@link TypeDescriptor} generated
      */
-    public static TypeDescriptor getTypeDescriptor(BType bType) {
+    public static TypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
         TypeDescriptor typeDescriptor;
         if (bType == null) {
             return null;
@@ -73,15 +75,7 @@ public class TypesFactory {
             case RECORD:
                 typeDescriptor = new RecordTypeDescriptor(moduleID, (BRecordType) bType);
                 break;
-            case FUNCTION:
-                typeDescriptor = new FunctionTypeDescriptor(moduleID, (BInvokableType) bType);
-                break;
             case ERROR:
-                if (bType.tsymbol != null && "error".equals(bType.tsymbol.name.getValue())) {
-                    String name = bType.tsymbol.getName().getValue();
-                    typeDescriptor = new BuiltinTypeDescriptor(moduleID, name);
-                    break;
-                }
                 typeDescriptor = new ErrorTypeDescriptor(moduleID, (BErrorType) bType);
                 break;
             case UNION:
@@ -106,23 +100,28 @@ public class TypesFactory {
                 typeDescriptor = new TypeDescTypeDescriptor(moduleID, (BTypedescType) bType);
                 break;
             case NIL:
-                 return new NilTypeDescriptor(moduleID);
-            case ANNOTATION:
-                return null;
+                return new NilTypeDescriptor(moduleID, (BNilType) bType);
+            case OTHER:
+                if (bType instanceof BInvokableType) {
+                    typeDescriptor = new FunctionTypeDescriptor(moduleID, (BInvokableType) bType);
+                } else {
+                    String name = bType.getKind().typeName();
+                    typeDescriptor = new BuiltinTypeDescriptor(moduleID, name, bType);
+                }
+                break;
             default:
-                String name = bType.tsymbol == null ? "" : bType.tsymbol.getName().getValue();
-                return new BuiltinTypeDescriptor(moduleID, name);
+                String name = bType.getKind().typeName();
+                return new BuiltinTypeDescriptor(moduleID, name, bType);
         }
-        
-        if (bType.tsymbol != null && ((bType.tsymbol.flags & Flags.ANONYMOUS) != Flags.ANONYMOUS)
+
+        if (!rawTypeOnly && bType.tsymbol != null && ((bType.tsymbol.flags & Flags.ANONYMOUS) != Flags.ANONYMOUS)
                 && !bType.tsymbol.getName().getValue().isEmpty()) {
             typeDescriptor = new TypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
         }
         return typeDescriptor;
     }
-    
-    public static FunctionTypeDescriptor createFunctionTypeDescriptor(BInvokableType invokableType) {
-        PackageID pkgID = invokableType.tsymbol.pkgID;
-        return new FunctionTypeDescriptor(new ModuleID(pkgID), invokableType);
+
+    public static TypeDescriptor getTypeDescriptor(BType bType) {
+        return getTypeDescriptor(bType, false);
     }
 }

@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 
@@ -28,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
  */
 public class ErrorTypeDescriptor extends BallerinaTypeDesc {
     
-    private BErrorType errorType;
     
     private TypeDescriptor reason;
     
@@ -36,8 +36,7 @@ public class ErrorTypeDescriptor extends BallerinaTypeDesc {
 
     public ErrorTypeDescriptor(ModuleID moduleID,
                                BErrorType errorType) {
-        super(TypeDescKind.ERROR, moduleID);
-        this.errorType = errorType;
+        super(TypeDescKind.ERROR, moduleID, errorType);
     }
 
     /**
@@ -47,7 +46,7 @@ public class ErrorTypeDescriptor extends BallerinaTypeDesc {
      */
     public TypeDescriptor getReason() {
         if (this.reason == null) {
-            this.reason = TypesFactory.getTypeDescriptor(errorType.getReasonType());
+            this.reason = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getReasonType());
         }
         return this.reason;
     }
@@ -59,13 +58,17 @@ public class ErrorTypeDescriptor extends BallerinaTypeDesc {
      */
     public TypeDescriptor getDetail() {
         if (this.detail == null) {
-            this.detail = TypesFactory.getTypeDescriptor(errorType.getDetailType());
+            this.detail = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
         }
         return this.detail;
     }
 
     @Override
     public String getSignature() {
-        return null;
+        if (this.getModuleID().getModuleName().equals("lang.annotations")
+                && this.getModuleID().getOrgName().equals("ballerina")) {
+            return ((BErrorType) this.getBType()).name.getValue();
+        }
+        return this.getModuleID().getModulePrefix() + ":" + ((BErrorType) this.getBType()).name.getValue();
     }
 }

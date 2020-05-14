@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -35,16 +36,16 @@ import java.util.StringJoiner;
  */
 public class RecordTypeDescriptor extends BallerinaTypeDesc {
     
-    private BRecordType recordType;
     private List<BallerinaField> fieldDescriptors;
     private boolean isInclusive;
-    private TypeDescriptor typeReference;
+    // private TypeDescriptor typeReference;
     private TypeDescriptor restTypeDesc;
     
     public RecordTypeDescriptor(ModuleID moduleID, BRecordType recordType) {
-        super(TypeDescKind.RECORD, moduleID);
-        this.recordType = recordType;
+        super(TypeDescKind.RECORD, moduleID, recordType);
         this.isInclusive = !recordType.sealed;
+        // TODO: Fix this
+        // this.typeReference = null;
     }
 
     /**
@@ -55,7 +56,7 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
     public List<BallerinaField> getFieldDescriptors() {
         if (this.fieldDescriptors == null) {
             this.fieldDescriptors = new ArrayList<>();
-            for (BField field : this.recordType.fields) {
+            for (BField field : ((BRecordType) this.getBType()).fields) {
                 this.fieldDescriptors.add(new BallerinaField(field));
             }
         }
@@ -72,18 +73,9 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
         return isInclusive;
     }
 
-    /**
-     * Get the type reference.
-     * 
-     * @return {@link TypeDescriptor} type reference
-     */
-    public Optional<TypeDescriptor> getTypeReference() {
-        return Optional.ofNullable(this.typeReference);
-    }
-
     public Optional<TypeDescriptor> getRestTypeDesc() {
         if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(this.recordType.restFieldType);
+            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
         }
         return Optional.ofNullable(this.restTypeDesc);
     }
@@ -96,7 +88,7 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
             joiner.add(ballerinaFieldSignature);
         }
         this.getRestTypeDesc().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.getSignature() + "..."));
-        this.getTypeReference().ifPresent(typeDescriptor -> joiner.add("*" + typeDescriptor.getSignature()));
+//        this.getTypeReference().ifPresent(typeDescriptor -> joiner.add("*" + typeDescriptor.getSignature()));
         
         StringBuilder signature = new StringBuilder("{");
         if (!this.isInclusive) {
