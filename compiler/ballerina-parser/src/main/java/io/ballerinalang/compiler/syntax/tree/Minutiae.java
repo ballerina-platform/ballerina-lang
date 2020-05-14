@@ -17,21 +17,19 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+public class Minutiae {
 
-public class Minutiae extends Node {
+//    public Minutiae(STNode node, int position, NonTerminalNode parent) {
+//        super(node, position, parent);
+//    }
 
-    public Minutiae(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
+//    @Override
+//    public void accept(NodeVisitor visitor) {
+//        visitor.visit(this);
+//    }
+//
+//    @Override
+//    public <T> T apply(NodeTransformer<T> visitor) {
+//        return visitor.transform(this);
+//    }
 }

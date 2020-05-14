@@ -21,16 +21,20 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-// TODO find a better replacement for trivia. So C# like... ;-)
-public class SyntaxTrivia extends STNode {
+/**
+ * Represents whitespaces, comments, newline characters attached to a {@code Token}.
+ *
+ * @since 2.0.0
+ */
+public class STMinutiae extends STNode {
 
-    public final String text;
+    private final String text;
 
-    public SyntaxTrivia(SyntaxKind kind, String text) {
+    STMinutiae(SyntaxKind kind, String text) {
         this(kind, text, text.length());
     }
 
-    public SyntaxTrivia(SyntaxKind kind, String text, int width) {
+    STMinutiae(SyntaxKind kind, String text, int width) {
         super(kind);
         this.text = text;
         this.width = width;
@@ -42,6 +46,10 @@ public class SyntaxTrivia extends STNode {
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         throw new UnsupportedOperationException();
+    }
+
+    public String text() {
+        return text;
     }
 
     @Override

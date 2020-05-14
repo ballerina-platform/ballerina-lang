@@ -29,12 +29,12 @@ import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferen
 import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
+import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -198,7 +198,7 @@ public class ParserTestUtils {
     private static void assertTerminalNode(JsonObject json, STNode node) {
         // If this is a terminal node, it has to be a STToken (i.e: lexeme)
         if (isTrivia(node.kind)) {
-            Assert.assertTrue(node instanceof SyntaxTrivia);
+            Assert.assertTrue(node instanceof STMinutiae);
         } else {
             Assert.assertTrue(node instanceof STToken);
         }
@@ -284,7 +284,7 @@ public class ParserTestUtils {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifierToken) token).text;
             case STRING_LITERAL:
-                String val = ((STLiteralValueToken) token).text;
+                String val = ((STLiteralValueToken) token).text();
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
                 return val.substring(1, lastCharPosition);
@@ -292,19 +292,19 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                return ((STLiteralValueToken) token).text;
+                return ((STLiteralValueToken) token).text();
             case WHITESPACE_TRIVIA:
             case COMMENT:
             case INVALID:
-                return ((SyntaxTrivia) token).text;
+                return ((STMinutiae) token).text();
             case END_OF_LINE_TRIVIA:
-                return cleanupText(((SyntaxTrivia) token).text);
+                return cleanupText(((STMinutiae) token).text());
             case DOCUMENTATION_LINE:
-                return ((STDocumentationLineToken) token).text;
+                return ((STDocumentationLineToken) token).text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-                return cleanupText(((STLiteralValueToken) token).text);
+                return cleanupText(((STLiteralValueToken) token).text());
             default:
                 return token.kind.toString();
         }

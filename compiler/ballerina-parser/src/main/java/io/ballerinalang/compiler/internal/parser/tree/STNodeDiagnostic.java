@@ -17,27 +17,24 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
+import io.ballerinalang.compiler.internal.diagnostics.IRDiagnostic;
 
 /**
- * Represents a literal value in the Ballerina internal syntax tree.
+ * Internal representation of diagnostic that is related to an internal syntax node.
  *
  * @since 2.0.0
  */
-public class STLiteralValueToken extends STToken {
-    private final String text;
+public class STNodeDiagnostic extends IRDiagnostic {
+    // TODO introduce a proper error code
+    private DiagnosticCode diagnosticCode;
 
-    STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
-        this.text = text;
+    // TODO we need to get arguments here.
+    public STNodeDiagnostic(DiagnosticCode diagnosticCode) {
+        this.diagnosticCode = diagnosticCode;
     }
 
-    public String text() {
-        return text;
-    }
-
-    @Override
-    public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+    public DiagnosticCode diagnosticCode() {
+        return diagnosticCode;
     }
 }

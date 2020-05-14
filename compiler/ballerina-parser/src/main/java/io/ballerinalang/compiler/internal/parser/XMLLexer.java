@@ -115,7 +115,7 @@ public class XMLLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createSyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
     }
 
     /**
@@ -130,13 +130,13 @@ public class XMLLexer extends AbstractLexer {
         switch (c) {
             case LexerTerminals.NEWLINE:
                 reader.advance();
-                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
             case LexerTerminals.CARRIAGE_RETURN:
                 reader.advance();
                 if (reader.peek() == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
             default:
                 throw new IllegalStateException();
         }
@@ -312,7 +312,7 @@ public class XMLLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingXMLTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     /**
@@ -803,7 +803,7 @@ public class XMLLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingXMLTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     /*

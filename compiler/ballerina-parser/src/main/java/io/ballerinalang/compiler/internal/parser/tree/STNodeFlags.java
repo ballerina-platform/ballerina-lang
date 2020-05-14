@@ -17,27 +17,12 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-
 /**
- * Represents a literal value in the Ballerina internal syntax tree.
+ * Represents a set of flags that can be attached to an internal syntax node.
  *
  * @since 2.0.0
  */
-public class STLiteralValueToken extends STToken {
-    private final String text;
-
-    STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
-        this.text = text;
-    }
-
-    public String text() {
-        return text;
-    }
-
-    @Override
-    public String toString() {
-        return leadingTrivia + text + trailingTrivia;
-    }
+public enum STNodeFlags {
+    HAS_DIAGNOSTICS,
+    IS_MISSING
 }
