@@ -523,7 +523,7 @@ class ValidatorUtil {
             // Check the existence of the fields.
             Map<String, Schema> properties = ((ObjectSchema) openAPIParam).getProperties();
             BRecordType recordType = (BRecordType) resourceParamType;
-            for (BField field : recordType.fields) {
+            for (BField field : recordType.fields.values()) {
                 boolean isExist = false;
                 for (Map.Entry<String, Schema> entry : properties.entrySet()) {
                     if (entry.getKey().equals(field.name.getValue())
@@ -577,7 +577,7 @@ class ValidatorUtil {
             BRecordType recordType = (BRecordType) resourceParamType;
             for (Map.Entry<String, Schema> entry : properties.entrySet()) {
                 boolean isExist = false;
-                for (BField field : recordType.fields) {
+                for (BField field : recordType.fields.values()) {
                     if (entry.getKey().equals(field.name.getValue())
                             && field.getType().getKind().typeName()
                             .equals(ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()))) {

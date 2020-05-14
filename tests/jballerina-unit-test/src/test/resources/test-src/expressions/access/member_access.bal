@@ -461,3 +461,48 @@ function testOutOfRangeFiniteTypeStringMemberAccess() {
     IntValues i = 4;
     _ = s[i];
 }
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+type Foo1 record {|
+    string s1;
+    int i1;
+|};
+
+type Bar1 record {|
+    string s2;
+    int i2;
+|};
+
+function testMemberAccessInUnionType() {
+    testMemberAccessInUnionType1();
+    testMemberAccessInUnionType2();
+}
+
+function testMemberAccessInUnionType1() {
+    Foo1 f = {s1: "s", i1: 1};
+    Foo1|Bar1? fb = f;
+
+    string|int? x1 = fb["s1"];
+    string|int? x2 = fb["i1"];
+    string|int? x3 = fb["s2"];
+    string|int? x4 = fb["i2"];
+
+    if !(x1 == "s" && x2 == 1 && x3 == () && x4 == ()) {
+        panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
+    }
+}
+
+function testMemberAccessInUnionType2() {
+    Bar1 b = {s2: "s", i2: 1};
+    Foo1|Bar1 fb = b;
+
+    string|int? x1 = fb["s1"];
+    string|int? x2 = fb["i1"];
+    string|int? x3 = fb["s2"];
+    string|int? x4 = fb["i2"];
+
+    if !(x1 == ()) && x2 == () && x3 == "s" && x4 == 1 {
+        panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
+    }
+}
