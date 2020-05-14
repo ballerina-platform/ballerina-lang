@@ -58,4 +58,9 @@ public class BStringType extends BType {
     public int getTag() {
         return tag;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

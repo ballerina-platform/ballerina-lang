@@ -99,7 +99,6 @@ public final class Constants {
      * Constants related to TypedValue fields.
      */
     public static final class TypedValueFields {
-        public static final BString SQL_TYPE = StringUtils.fromString("sqlType");
         public static final BString VALUE = StringUtils.fromString("value");
     }
 
@@ -107,34 +106,34 @@ public final class Constants {
      * Constants related to SQL Types supported.
      */
     public static final class SqlTypes {
-        public static final String VARCHAR = "VARCHAR";
-        public static final String CHAR = "CHAR";
-        public static final String TEXT = "TEXT";
-        public static final String CLOB = "CLOB";
-        public static final String NCHAR = "NCHAR";
-        public static final String NVARCHAR = "NVARCHAR";
-        public static final String NCLOB = "NCLOB";
-        public static final String SMALLINT = "SMALLINT";
-        public static final String INTEGER = "INTEGER";
-        public static final String BIGINT = "BIGINT";
-        public static final String NUMERIC = "NUMERIC";
-        public static final String DECIMAL = "DECIMAL";
-        public static final String REAL = "REAL";
-        public static final String FLOAT = "FLOAT";
-        public static final String DOUBLE = "DOUBLE";
-        public static final String BIT = "BIT";
-        public static final String BOOLEAN = "BOOLEAN";
-        public static final String BINARY = "BINARY";
-        public static final String VARBINARY = "VARBINARY";
-        public static final String BLOB = "BLOB";
-        public static final String DATE = "DATE";
-        public static final String TIME = "TIME";
-        public static final String DATETIME = "DATETIME";
-        public static final String TIMESTAMP = "TIMESTAMP";
-        public static final String ARRAY = "ARRAY";
-        public static final String REF = "REF";
-        public static final String ROW = "ROW";
-        public static final String STRUCT = "USER_DEFINED_TYPE";
+        public static final String VARCHAR = "VarcharValue";
+        public static final String CHAR = "CharValue";
+        public static final String TEXT = "TextValue";
+        public static final String CLOB = "ClobValue";
+        public static final String NCHAR = "NCharValue";
+        public static final String NVARCHAR = "NVarcharValue";
+        public static final String NCLOB = "NClobValue";
+        public static final String SMALLINT = "SmallIntValue";
+        public static final String INTEGER = "IntegerValue";
+        public static final String BIGINT = "BigIntValue";
+        public static final String NUMERIC = "NumericValue";
+        public static final String DECIMAL = "DecimalValue";
+        public static final String REAL = "RealValue";
+        public static final String FLOAT = "FloatValue";
+        public static final String DOUBLE = "DoubleValue";
+        public static final String BIT = "BitValue";
+        public static final String BOOLEAN = "BooleanValue";
+        public static final String BINARY = "BinaryValue";
+        public static final String VARBINARY = "VarBinaryValue";
+        public static final String BLOB = "BlobValue";
+        public static final String DATE = "DateValue";
+        public static final String TIME = "TimeValue";
+        public static final String DATETIME = "DateTimeValue";
+        public static final String TIMESTAMP = "TimestampValue";
+        public static final String ARRAY = "ArrayValue";
+        public static final String REF = "RefValue";
+        public static final String ROW = "RowValue";
+        public static final String STRUCT = "StructValue";
 
     }
 

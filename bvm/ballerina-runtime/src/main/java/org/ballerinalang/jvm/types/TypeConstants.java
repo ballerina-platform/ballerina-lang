@@ -37,12 +37,16 @@ public class TypeConstants {
     public static final String MAP_TNAME = "map";
     public static final String FUTURE_TNAME = "future";
     public static final String XML_TNAME = "xml";
+    public static final String READONLY_XML_TNAME = "xml & readonly";
     public static final String JSON_TNAME = "json";
+    public static final String READONLY_JSON_TNAME = "json & readonly";
     public static final String ITERATOR_TNAME = "iterator";
     public static final String TABLE_TNAME = "table";
     public static final String STREAM_TNAME = "stream";
     public static final String ANY_TNAME = "any";
+    public static final String READONLY_ANY_TNAME = "any & readonly";
     public static final String ANYDATA_TNAME = "anydata";
+    public static final String READONLY_ANYDATA_TNAME = "anydata & readonly";
     public static final String TYPEDESC_TNAME = "typedesc";
     public static final String NULL_TNAME = "()";
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";
@@ -63,8 +67,11 @@ public class TypeConstants {
     public static final String UNSIGNED8 = "Unsigned8";
     public static final String CHAR = "Char";
     public static final String XML_ELEMENT = "Element";
+    public static final String READONLY_XML_ELEMENT = "Element & readonly";
     public static final String XML_PI = "ProcessingInstruction";
+    public static final String READONLY_XML_PI = "ProcessingInstruction & readonly";
     public static final String XML_COMMENT = "Comment";
+    public static final String READONLY_XML_COMMENT = "Comment & readonly";
     public static final String XML_TEXT = "Text";
 
     // Special Types and Type fields.

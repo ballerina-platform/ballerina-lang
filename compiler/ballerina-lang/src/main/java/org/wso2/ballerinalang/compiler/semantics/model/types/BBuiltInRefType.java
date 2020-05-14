@@ -40,6 +40,10 @@ public class BBuiltInRefType extends BType implements ReferenceType {
         super(tag, tsymbol);
     }
 
+    public BBuiltInRefType(int tag, BTypeSymbol tsymbol, int flags) {
+        super(tag, tsymbol, flags);
+    }
+
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);

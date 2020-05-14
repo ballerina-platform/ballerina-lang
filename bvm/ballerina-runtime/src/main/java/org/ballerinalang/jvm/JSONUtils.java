@@ -302,48 +302,6 @@ public class JSONUtils {
     }
 
     /**
-     * Set an element in the given position of a JSON array. This method will update the existing value.
-     * If the JSON is not array type, then this operation has no effect.
-     * 
-     * @param json JSON array to set the element
-     * @param index Index of the element to be set
-     * @param element Element to be set
-     */
-    public static void setArrayElement(Object json, long index, Object element) {
-        if (!isJSONArray(json)) {
-            return;
-        }
-
-        BArrayType jsonArray = (BArrayType) ((RefValue) json).getType();
-        BType elementType = jsonArray.getElementType();
-        if (!TypeChecker.checkIsType(element, elementType)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, elementType,
-                    (element != null) ? TypeChecker.getType(element) : BTypes.typeNull);
-        }
-
-        try {
-            ((ArrayValue) json).add(index, element);
-        } catch (ErrorValue e) {
-            Object errorDetails = e.getDetails();
-            if (errorDetails != null) {
-                if (TypeChecker.getType(errorDetails).getTag() == TypeTags.MAP_TAG &&
-                        ((MapValue) errorDetails).containsKey(BallerinaErrors.ERROR_MESSAGE_FIELD)) {
-                    throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR,
-                            ((MapValue) errorDetails).get(BallerinaErrors.ERROR_MESSAGE_FIELD));
-                }
-                throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR,
-                        e.getDetails());
-            }
-            throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR,
-                    e.getMessage());
-        } catch (BallerinaException e) {
-            throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR, e.getDetail());
-        } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
-        }
-    }
-
-    /**
      * Convert a JSON node to a map.
      *
      * @param json JSON to convert

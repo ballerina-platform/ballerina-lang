@@ -20,7 +20,7 @@ import ballerina/kafka;
 string topic = "commit-consumer-test-topic";
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
+    bootstrapServers: "localhost:14151",
     clientId: "commit-producer",
     acks: kafka:ACKS_ALL,
     transactionalId: "comit-consumer-test-producer",
@@ -28,18 +28,18 @@ kafka:ProducerConfiguration producerConfigs = {
     enableIdempotence: true
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
+    bootstrapServers: "localhost:14151",
     groupId: "commit-consumer-test-group",
     offsetReset: "earliest",
     topics: [topic]
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfigs);
+kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
-function funcTestKafkaProduce() {
+function testProduce() {
     string msg = "Hello World";
     byte[] byteMsg = msg.toBytes();
     var result = kafkaProduce(byteMsg);
@@ -57,7 +57,7 @@ function kafkaProduce(byte[] value) returns boolean {
     return transactionComplete;
 }
 
-function funcTestKafkaConsume() returns boolean {
+function testConsume() returns boolean {
     boolean transactionComplete = false;
     var records = kafkaConsumer->poll(3000);
     if (records is error) {

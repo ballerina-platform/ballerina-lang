@@ -719,7 +719,8 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType recordType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType) type;
                 Map<String, org.ballerinalang.jvm.types.BField> fields = new HashMap<>();
-                for (org.wso2.ballerinalang.compiler.semantics.model.types.BField bvmField : recordType.fields) {
+                for (org.wso2.ballerinalang.compiler.semantics.model.types.BField bvmField
+                        : recordType.fields.values()) {
                     org.ballerinalang.jvm.types.BField jvmField =
                             new org.ballerinalang.jvm.types.BField(getJVMType(bvmField.type), bvmField.name.value, 0);
                     fields.put(bvmField.name.value, jvmField);

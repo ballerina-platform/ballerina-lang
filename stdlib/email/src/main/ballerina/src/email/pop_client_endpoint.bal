@@ -38,8 +38,8 @@ public type PopClient client object {
     # ```
     #
     # + folder - Folder to read emails. The default value is `INBOX`
-    # + return - An`email:Email` if reading the message is successful, `()` if there are no emails in the specified folder,
-    #            or else an `email:Error` if the recipient failed to receive the message
+    # + return - An`email:Email` if reading the message is successful, `()` if there are no emails in the specified
+    #            folder, or else an `email:Error` if the recipient failed to receive the message
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return popRead(self, java:fromString(folder));
     }

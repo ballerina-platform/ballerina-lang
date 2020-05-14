@@ -34,6 +34,8 @@ public class BRecordType extends BStructureType {
     public boolean sealed;
     public BType restFieldType;
     public int typeFlags;
+    private final boolean readonly;
+    private BRecordType immutableType;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -48,6 +50,7 @@ public class BRecordType extends BStructureType {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;
+        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
 
     /**
@@ -67,6 +70,7 @@ public class BRecordType extends BStructureType {
         this.restFieldType = restFieldType;
         this.sealed = sealed;
         this.typeFlags = typeFlags;
+        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
 
     @Override
@@ -105,5 +109,20 @@ public class BRecordType extends BStructureType {
     @Override
     public boolean isPureType() {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BRecordType) immutableType;
     }
 }
