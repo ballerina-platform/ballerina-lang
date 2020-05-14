@@ -923,7 +923,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause ((fromClause | letClause | whereClause )* | (joinClause onClause)?)
+    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
     ;
 
 queryConstructType
