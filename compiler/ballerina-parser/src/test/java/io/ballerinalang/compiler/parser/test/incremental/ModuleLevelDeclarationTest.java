@@ -17,8 +17,15 @@
  */
 package io.ballerinalang.compiler.parser.test.incremental;
 
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocumentChange;
+import io.ballerinalang.compiler.text.TextDocuments;
+import io.ballerinalang.compiler.text.TextEdit;
+import io.ballerinalang.compiler.text.TextRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,5 +44,22 @@ public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
 
         // TODO This is fragile way to test. Improve
         Assert.assertEquals(newNodes.length, 5);
+    }
+
+    @Test
+    public void testUpdatingEmptyDocument() {
+        String input = " \n  ";
+        TextDocument textDocument = TextDocuments.from(input);
+        SyntaxTree oldTree = SyntaxTree.from(textDocument);
+
+        // Applying a change
+        TextEdit[] edits = new TextEdit[]{new TextEdit(new TextRange(0, 0), "public function main() {\n }\n")};
+        TextDocumentChange textDocumentChange = new TextDocumentChange(edits);
+        SyntaxTree newTree = SyntaxTree.from(oldTree, textDocumentChange);
+
+        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) newTree.modulePart().members().get(0);
+        IdentifierToken funcName = functionDefinitionNode.functionName();
+
+        Assert.assertEquals(funcName.text(), "main");
     }
 }
