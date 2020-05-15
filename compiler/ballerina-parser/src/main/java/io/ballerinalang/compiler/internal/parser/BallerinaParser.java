@@ -7600,12 +7600,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseTypeCastExpr() {
-        startContext(ParserRuleContext.TYPE_CAST_EXPRESSION);
+        startContext(ParserRuleContext.TYPE_CAST);
         STNode ltToken = parseLTToken();
         STNode typeCastParam = parseTypeCastParam();
         STNode gtToken = parseGTToken();
-        STNode expression = parseExpression();
         endContext();
+        STNode expression = parseExpression();
         return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
     }
 
