@@ -42,7 +42,7 @@ public class FunctionTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testFuncTypeUsagesInExpressionContexts() {
+    public void testFuncTypeWithoutReturnsInParam() {
         testFile("func-type/func_type_source_04.bal", "func-type/func_type_assert_04.json");
     }
 
@@ -61,10 +61,5 @@ public class FunctionTypeTest extends AbstractTypesTest {
     @Test
     public void testRecveryInFuncTypeUsagesInTypeDescContexts() {
         testFile("func-type/func_type_source_07.bal", "func-type/func_type_assert_07.json");
-    }
-
-    @Test
-    public void testRecoveryInFuncTypeUsagesInExpressionContexts() {
-        testFile("func-type/func_type_source_08.bal", "func-type/func_type_assert_08.json");
     }
 }

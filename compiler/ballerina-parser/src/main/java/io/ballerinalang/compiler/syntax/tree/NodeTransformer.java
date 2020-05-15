@@ -468,12 +468,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -522,6 +526,18 @@ public abstract class NodeTransformer<T> {
 
     public T transform(QueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
+    public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        return transformSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public T transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
     }
 
     // Tokens

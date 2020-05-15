@@ -74,6 +74,9 @@
         <Package name="org.wso2.ballerinalang.compiler.packaging.converters" />
     </Match>
     <Match>
+        <Class name = "org.ballerinalang.toml.model.Library"/>
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.programfile" />
     </Match>
     <Match>

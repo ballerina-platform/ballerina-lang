@@ -43,8 +43,9 @@ public enum ParserRuleContext {
     PARAMETER_NAME_RHS("parameter-name-rhs"),
     FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
-    FUNC_TYPE_OR_DEF_SIGNATURE_RHS("func-signature-rhs"),
-    ANNON_FUNC_BODY("annon-func-body"),
+    FUNC_BODY_OR_TYPE_DESC_RHS("func-body-or-type-desc-rhs"),
+    ANON_FUNC_BODY("annon-func-body"),
+    FUNC_TYPE_DESC_END("func-type-desc-end"),
 
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
@@ -132,11 +133,15 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
-    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     SELECT_CLAUSE("select-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
     LET_CLAUSE("let-clause"),
+    AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
+    EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
+    BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
+    BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
+    IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
 
     // Statements
     STATEMENT("statement"),
@@ -254,6 +259,8 @@ public enum ParserRuleContext {
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
     PARENTHESISED_TYPE_DESC_START("("),
+    BITWISE_AND_OPERATOR("&"),
+    EXPR_FUNC_BODY_START("=>"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -334,6 +341,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
     TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
     TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
+    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML

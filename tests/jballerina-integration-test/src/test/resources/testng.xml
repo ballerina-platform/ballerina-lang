@@ -330,6 +330,7 @@
 <!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
         </classes>
     </test>
 
