@@ -30,7 +30,7 @@ public class BBoolean extends BPrimitiveVariable {
     private final BooleanValueImpl jvmValueRef;
 
     public BBoolean(Value value, Variable dapVariable) {
-        this.jvmValueRef = (BooleanValueImpl) value;
+        this.jvmValueRef = value instanceof BooleanValueImpl ? (BooleanValueImpl) value : null;
         dapVariable.setType(BVariableType.BOOLEAN.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -38,6 +38,6 @@ public class BBoolean extends BPrimitiveVariable {
 
     @Override
     public String getValue() {
-        return jvmValueRef.toString();
+        return jvmValueRef != null ? jvmValueRef.toString() : "unknown";
     }
 }

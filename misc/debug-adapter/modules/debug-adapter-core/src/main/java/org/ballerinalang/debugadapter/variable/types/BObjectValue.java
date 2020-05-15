@@ -34,7 +34,7 @@ public class BObjectValue extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BObjectValue(Value value, Variable dapVariable) {
-        this.jvmValueRef = (ObjectReferenceImpl) value;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.OBJECT.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -52,6 +52,8 @@ public class BObjectValue extends BCompoundVariable {
                 }
             }
             return "unknown";
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception ignored) {
             return "unknown";
         }
@@ -69,6 +71,8 @@ public class BObjectValue extends BCompoundVariable {
                 }
             });
             this.setChildVariables(values);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }
