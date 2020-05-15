@@ -36,6 +36,13 @@ public class BallerinaSyntaxTreeModifyUtil {
         put("DECLARATION", "$TYPE $VARIABLE = new ($PARAMS);\n");
         put("REMOTE_SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER->$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER.$FUNCTION($PARAMS);\n");
+        put("MAIN_START", "public function main() {\n");
+        put("MAIN_END", "}\n");
+        put("SERVICE_START", "service $SERVICE on new http:Listener($PORT) {\n" +
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n" );
+        put("SERVICE_END",
+                "    }\n" +
+                "}\n");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
