@@ -3060,8 +3060,6 @@ public class BallerinaParser extends AbstractParser {
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case PANIC_KEYWORD:
-            case CHECK_KEYWORD:
-            case CHECKPANIC_KEYWORD:
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
@@ -3070,6 +3068,12 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
             case FORK_KEYWORD:
             case FOREACH_KEYWORD:
+
+                // action-statements
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+            case TRAP_KEYWORD:
+            case START_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -3148,11 +3152,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseReturnStatement();
             case TYPE_KEYWORD:
                 return parseLocalTypeDefinitionStatement(getAnnotations(annots));
-            case CHECK_KEYWORD:
-            case CHECKPANIC_KEYWORD:
-                // Need to pass the token kind, since we may be coming here after recovering.
-                // If so, `peek().kind` will not be same as `tokenKind`.
-                return parseStamentStartsWithExpr(tokenKind, getAnnotations(annots));
+//            case CHECK_KEYWORD:
+//            case CHECKPANIC_KEYWORD:
+//            case TRAP_KEYWORD:
+//                // Need to pass the token kind, since we may be coming here after recovering.
+//                // If so, `peek().kind` will not be same as `tokenKind`.
+//                return parseStamentStartsWithExpr(tokenKind, getAnnotations(annots));
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
@@ -3170,6 +3175,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseForkStatement();
             case FOREACH_KEYWORD:
                 return parseForEachStatement();
+            case START_KEYWORD:
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+            case TRAP_KEYWORD:
+                return parseExpressionStament(tokenKind, getAnnotations(annots));
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
@@ -3494,6 +3504,9 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case NEW_KEYWORD:
                 return parseNewExpression();
+            case START_KEYWORD:
+                // TODO: support annotations
+                return parseStartAction(null);
             default:
                 break;
         }
@@ -3731,7 +3744,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseTypeTestExpression(lhsExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
-                newLhsExpr = parseAction(tokenKind, lhsExpr);
+                newLhsExpr = parseRemoteMethodCallAction(lhsExpr);
                 if (!allowActions) {
                     this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
                 }
@@ -6157,10 +6170,10 @@ public class BallerinaParser extends AbstractParser {
      * @param nextTokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseStamentStartsWithExpr(SyntaxKind nextTokenKind, STNode annots) {
+    private STNode parseExpressionStament(SyntaxKind nextTokenKind, STNode annots) {
         startContext(ParserRuleContext.EXPRESSION_STATEMENT);
         STNode expression = parseActionOrExpression(nextTokenKind);
-        STNode stmt = parseStamentStartWithExpr(annots, expression);
+        STNode stmt = getExpressionAsStatement(expression);
         endContext();
         return stmt;
     }
@@ -6228,6 +6241,8 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_METHOD_CALL_ACTION:
             case CHECK_ACTION:
             case BRACED_ACTION:
+            case START_ACTION:
+            case TRAP_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -6297,16 +6312,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseActionStatement(STNode action) {
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createExpressionStatementNode(SyntaxKind.ACTION_STATEMENT, action, semicolon);
-    }
-
-    private STNode parseAction(SyntaxKind tokenKind, STNode lhsExpr) {
-        switch (tokenKind) {
-            case RIGHT_ARROW_TOKEN:
-                return parseRemoteMethodCallAction(lhsExpr);
-            default:
-                // Should never reach here.
-                return null;
-        }
     }
 
     /**
@@ -8983,6 +8988,52 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.SELECT_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse start action.
+     * <p>
+     * <code>start-action := [annots] start (function-call-expr|method-call-expr|remote-method-call-action)</code>
+     * 
+     * @return Start action node
+     */
+    private STNode parseStartAction(STNode annots) {
+        STNode startKeyword = parseStartKeyword();
+        STNode expr = parseActionOrExpression();
+        validateExprInStartAction(expr);
+        return STNodeFactory.createStartActionNode(startKeyword, expr);
+    }
+
+    /**
+     * Parse start keyword.
+     *
+     * @return Start keyword node
+     */
+    private STNode parseStartKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.START_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.START_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private void validateExprInStartAction(STNode expression) {
+        switch (expression.kind) {
+            case FUNCTION_CALL:
+            case METHOD_CALL:
+            case REMOTE_METHOD_CALL_ACTION:
+                break;
+            default:
+                if (isMissingNode(expression)) {
+                    break;
+                }
+
+                this.errorHandler.reportInvalidNode(null, "expression followed by the start keyword must be a " +
+                        "func-call, a method-call or a remote-method-call");
+                break;
         }
     }
 }

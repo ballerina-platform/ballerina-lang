@@ -328,14 +328,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeDescriptor = modifyNode(forEachStatementNode.typeDescriptor());
         Token variableName = modifyToken(forEachStatementNode.variableName());
         Token inKeyword = modifyToken(forEachStatementNode.inKeyword());
-        Node ActionOrExpressionNode = modifyNode(forEachStatementNode.ActionOrExpressionNode());
+        Node actionOrExpressionNode = modifyNode(forEachStatementNode.actionOrExpressionNode());
         StatementNode blockStatement = modifyNode(forEachStatementNode.blockStatement());
         return forEachStatementNode.modify(
                 forEachKeyword,
                 typeDescriptor,
                 variableName,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement);
     }
 
@@ -1532,6 +1532,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return implicitAnonymousFunctionExpressionNode.modify(
                 params,
                 rightDoubleArrow,
+                expression);
+    }
+
+    @Override
+    public Node transform(StartActionNode startActionNode) {
+        Token startKeyword = modifyToken(startActionNode.startKeyword());
+        ExpressionNode expression = modifyNode(startActionNode.expression());
+        return startActionNode.modify(
+                startKeyword,
                 expression);
     }
 

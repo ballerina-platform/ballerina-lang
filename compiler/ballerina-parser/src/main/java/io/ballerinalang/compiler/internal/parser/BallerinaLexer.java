@@ -914,6 +914,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
             case LexerTerminals.SELECT:
                 return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
+            case LexerTerminals.START:
+                return getSyntaxToken(SyntaxKind.START_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

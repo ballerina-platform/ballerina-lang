@@ -432,13 +432,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node typeDescriptor,
             Token variableName,
             Token inKeyword,
-            Node ActionOrExpressionNode,
+            Node actionOrExpressionNode,
             StatementNode blockStatement) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(variableName, "variableName must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
-        Objects.requireNonNull(ActionOrExpressionNode, "ActionOrExpressionNode must not be null");
+        Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stForEachStatementNode = STNodeFactory.createForEachStatementNode(
@@ -446,7 +446,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typeDescriptor.internalNode(),
                 variableName.internalNode(),
                 inKeyword.internalNode(),
-                ActionOrExpressionNode.internalNode(),
+                actionOrExpressionNode.internalNode(),
                 blockStatement.internalNode());
         return stForEachStatementNode.createUnlinkedFacade();
     }
@@ -2083,6 +2083,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 rightDoubleArrow.internalNode(),
                 expression.internalNode());
         return stImplicitAnonymousFunctionExpressionNode.createUnlinkedFacade();
+    }
+
+    public static StartActionNode createStartActionNode(
+            Token startKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(startKeyword, "startKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stStartActionNode = STNodeFactory.createStartActionNode(
+                startKeyword.internalNode(),
+                expression.internalNode());
+        return stStartActionNode.createUnlinkedFacade();
     }
 }
 

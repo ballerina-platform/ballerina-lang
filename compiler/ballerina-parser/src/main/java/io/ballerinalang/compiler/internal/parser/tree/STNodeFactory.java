@@ -333,7 +333,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode typeDescriptor,
             STNode variableName,
             STNode inKeyword,
-            STNode ActionOrExpressionNode,
+            STNode actionOrExpressionNode,
             STNode blockStatement) {
 
         return new STForEachStatementNode(
@@ -341,7 +341,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor,
                 variableName,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement);
     }
 
@@ -1544,6 +1544,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STImplicitAnonymousFunctionExpressionNode(
                 params,
                 rightDoubleArrow,
+                expression);
+    }
+
+    public static STNode createStartActionNode(
+            STNode startKeyword,
+            STNode expression) {
+
+        return new STStartActionNode(
+                startKeyword,
                 expression);
     }
 }

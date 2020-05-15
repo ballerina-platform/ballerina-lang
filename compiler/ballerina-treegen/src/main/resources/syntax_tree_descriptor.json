@@ -577,7 +577,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "ActionOrExpressionNode",
+                    "name": "actionOrExpressionNode",
                     "type": "Node"
                 },
                 {
@@ -2770,6 +2770,21 @@
                 },
                 {
                     "name": "rightDoubleArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "StartActionNode",
+            "base": "ExpressionNode",
+            "kind": "START_ACTION",
+            "attributes": [
+                {
+                    "name": "startKeyword",
                     "type": "Token"
                 },
                 {

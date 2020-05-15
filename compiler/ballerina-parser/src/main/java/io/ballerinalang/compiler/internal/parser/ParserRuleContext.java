@@ -230,6 +230,7 @@ public enum ParserRuleContext {
     FROM_KEYWORD("from"),
     WHERE_KEYWORD("where"),
     SELECT_KEYWORD("select"),
+    START_KEYWORD("start"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -327,6 +328,7 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
+    START_ACTION("start-action"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
