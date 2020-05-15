@@ -3944,10 +3944,13 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expectedType = this.expType;
 
         if (expType.getKind() == TypeKind.UNION) {
-            BType[] errorMembers = ((BUnionType) expectedType).getMemberTypes()
-                    .stream()
-                    .filter(memberType -> types.isAssignable(memberType, symTable.errorType))
-                    .toArray(BType[]::new);
+            List<BType> list = new ArrayList<>();
+            for (BType memberType : ((BUnionType) expectedType).getMemberTypes()) {
+                if (types.isAssignable(memberType, symTable.errorType)) {
+                    list.add(memberType);
+                }
+            }
+            BType[] errorMembers = list.toArray(new BType[0]);
             if (errorMembers.length > 0) {
                 expectedType = BUnionType.create(null, errorMembers);
             }
@@ -3982,33 +3985,48 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.argExprs.isEmpty() && iExpr.requiredArgs.isEmpty()) {
+
+        if (iExpr.argExprs.isEmpty()) {
+            dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_ARG_ERROR_MESSAGE);
             return;
         }
-
-        if (nonNamedArgsGiven(iExpr) && (iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-            dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED);
-            resultType = symTable.semanticError;
+        BLangExpression errorMessageArg = iExpr.argExprs.get(0);
+        if (errorMessageArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+            dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_ARG_ERROR_MESSAGE);
             return;
         }
+        checkExpr(errorMessageArg, this.env, symTable.stringType);
+        iExpr.requiredArgs.add(0, errorMessageArg);
 
-        if (expectedError.detailType.tag == TypeTags.RECORD) {
-            BRecordType targetErrorDetailRec = (BRecordType) expectedError.detailType;
-            BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec);
-            if (resultType == symTable.semanticError) {
-                return;
+        boolean isErrorCauseArgProvided = false;
+        if (iExpr.argExprs.size() > 1) {
+            BLangExpression secondArg = iExpr.argExprs.get(1);
+            if (secondArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                checkExpr(secondArg, this.env, symTable.errorType);
+                iExpr.requiredArgs.add(1, secondArg);
+                isErrorCauseArgProvided = true;
             }
+        }
 
-            if (!types.isAssignable(recordType, targetErrorDetailRec)) {
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
-                resultType = symTable.semanticError;
-                return;
-            }
-        } else {
+        if (expectedError.detailType.tag != TypeTags.RECORD) {
             // This is when there is a semantic error in error type, bail out!
             return;
         }
-        setErrorDetailArgsToNamedArgsList(iExpr);
+
+        BRecordType targetErrorDetailRec = (BRecordType) expectedError.detailType;
+        BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec, isErrorCauseArgProvided);
+        if (resultType == symTable.semanticError) {
+            return;
+        }
+
+        // TODO: Improve error detail args mismatch error message by explicitly checking each named arg against
+        // error detail record fieldds.
+        if (!types.isAssignable(recordType, targetErrorDetailRec)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
+            resultType = symTable.semanticError;
+            return;
+        }
+        setErrorDetailArgsToNamedArgsList(iExpr, isErrorCauseArgProvided);
 
         resultType = expectedError;
         if (iExpr.symbol == symTable.errorType.tsymbol) {
@@ -4040,15 +4058,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean nonNamedArgsGiven(BLangInvocation iExpr) {
-        return iExpr.argExprs.stream().anyMatch(arg -> arg.getKind() != NodeKind.NAMED_ARGS_EXPR);
-    }
-
-    private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
+    private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr, boolean isErrorCauseArgProvided) {
+//        BType defaultErrorRestFieldType = ((BRecordType) symTable.errorType.detailType).restFieldType;
         List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
-        for (int i = 0; i < iExpr.argExprs.size(); i++) {
+        for (int i = getErrorCtorNamedArgStartingIndex(isErrorCauseArgProvided); i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
-            checkExpr(argExpr, env, symTable.pureType);
+            //checkExpr(argExpr, env, defaultErrorRestFieldType);
             if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 iExpr.requiredArgs.add(argExpr);
                 namedArgPositions.add(argExpr);
@@ -4064,6 +4079,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
+    private int getErrorCtorNamedArgStartingIndex(boolean isErrorCauseArgProvided) {
+        // First argument is mandatory error message.
+        // If error cause is provided it's a positional argument.
+        return isErrorCauseArgProvided ? 2 : 1;
+    }
+
     /**
      * Create a error detail record using all metadata from {@code targetErrorDetailsType} and put actual error details
      * from {@code iExpr} expression.
@@ -4074,8 +4095,8 @@ public class TypeChecker extends BLangNodeVisitor {
      */
     // todo: try to re-use recrod literal checking
     private BRecordType createErrorDetailRecordType(BLangInvocation iExpr,
-                                                    BRecordType targetErrorDetailsType) {
-        List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr);
+                                                    BRecordType targetErrorDetailsType, boolean isCauseArgProvided) {
+        List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr, isCauseArgProvided);
         if (namedArgs == null) {
             // error in provided error details
             return null;
@@ -4107,11 +4128,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType;
     }
 
-    private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr) {
+    private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr, boolean isCauseArgProvided) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        // todo: as reason arg is removed and message and cause need to check here
-        assert false;
-        for (int i = 0; i < iExpr.argExprs.size(); i++) {
+        // First 2 positional arguemnts to error ctor are,
+        // mandatory error message and optional error cause in that order.
+        for (int i = getErrorCtorNamedArgStartingIndex(isCauseArgProvided); i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
             checkExpr(argExpr, env);
             if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {

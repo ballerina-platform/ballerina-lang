@@ -57,7 +57,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final long serialVersionUID = 1L;
     private final BType type;
     private final BString message;
-    private final BError cause;
+    private final ErrorValue cause;
     private final Object details;
 
     @Deprecated
@@ -67,7 +67,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Deprecated
-    public ErrorValue(BType type, String message, BError cause, Object details) {
+    public ErrorValue(BType type, String message, ErrorValue cause, Object details) {
         super(message);
         this.type = type;
         this.message = StringUtils.fromString(message);
@@ -82,7 +82,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Deprecated
-    public ErrorValue(BType type, BString message, BError cause, Object details) {
+    public ErrorValue(BType type, BString message, ErrorValue cause, Object details) {
         super(message);
         this.type = type;
         this.message = message;
