@@ -1515,5 +1515,34 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 queryPipeline,
                 selectClause);
     }
+
+    public static STNode createDoubleLTTokenNode(
+            STNode openLTToken,
+            STNode endLTToken) {
+
+        return new STDoubleLTTokenNode(
+                openLTToken,
+                endLTToken);
+    }
+
+    public static STNode createDoubleGTTokenNode(
+            STNode openGTToken,
+            STNode endGTToken) {
+
+        return new STDoubleGTTokenNode(
+                openGTToken,
+                endGTToken);
+    }
+
+    public static STNode createTrippleGTTokenNode(
+            STNode openGTToken,
+            STNode middleGTToken,
+            STNode endGTToken) {
+
+        return new STTrippleGTTokenNode(
+                openGTToken,
+                middleGTToken,
+                endGTToken);
+    }
 }
 

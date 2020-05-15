@@ -2042,5 +2042,44 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 selectClause.internalNode());
         return stQueryExpressionNode.createUnlinkedFacade();
     }
+
+    public static DoubleLTTokenNode createDoubleLTTokenNode(
+            Token openLTToken,
+            Token endLTToken) {
+        Objects.requireNonNull(openLTToken, "openLTToken must not be null");
+        Objects.requireNonNull(endLTToken, "endLTToken must not be null");
+
+        STNode stDoubleLTTokenNode = STNodeFactory.createDoubleLTTokenNode(
+                openLTToken.internalNode(),
+                endLTToken.internalNode());
+        return stDoubleLTTokenNode.createUnlinkedFacade();
+    }
+
+    public static DoubleGTTokenNode createDoubleGTTokenNode(
+            Token openGTToken,
+            Token endGTToken) {
+        Objects.requireNonNull(openGTToken, "openGTToken must not be null");
+        Objects.requireNonNull(endGTToken, "endGTToken must not be null");
+
+        STNode stDoubleGTTokenNode = STNodeFactory.createDoubleGTTokenNode(
+                openGTToken.internalNode(),
+                endGTToken.internalNode());
+        return stDoubleGTTokenNode.createUnlinkedFacade();
+    }
+
+    public static TrippleGTTokenNode createTrippleGTTokenNode(
+            Token openGTToken,
+            Token middleGTToken,
+            Token endGTToken) {
+        Objects.requireNonNull(openGTToken, "openGTToken must not be null");
+        Objects.requireNonNull(middleGTToken, "middleGTToken must not be null");
+        Objects.requireNonNull(endGTToken, "endGTToken must not be null");
+
+        STNode stTrippleGTTokenNode = STNodeFactory.createTrippleGTTokenNode(
+                openGTToken.internalNode(),
+                middleGTToken.internalNode(),
+                endGTToken.internalNode());
+        return stTrippleGTTokenNode.createUnlinkedFacade();
+    }
 }
 

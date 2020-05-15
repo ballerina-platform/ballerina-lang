@@ -1504,6 +1504,35 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 selectClause);
     }
 
+    @Override
+    public Node transform(DoubleLTTokenNode doubleLTTokenNode) {
+        Token openLTToken = modifyToken(doubleLTTokenNode.openLTToken());
+        Token endLTToken = modifyToken(doubleLTTokenNode.endLTToken());
+        return doubleLTTokenNode.modify(
+                openLTToken,
+                endLTToken);
+    }
+
+    @Override
+    public Node transform(DoubleGTTokenNode doubleGTTokenNode) {
+        Token openGTToken = modifyToken(doubleGTTokenNode.openGTToken());
+        Token endGTToken = modifyToken(doubleGTTokenNode.endGTToken());
+        return doubleGTTokenNode.modify(
+                openGTToken,
+                endGTToken);
+    }
+
+    @Override
+    public Node transform(TrippleGTTokenNode trippleGTTokenNode) {
+        Token openGTToken = modifyToken(trippleGTTokenNode.openGTToken());
+        Token middleGTToken = modifyToken(trippleGTTokenNode.middleGTToken());
+        Token endGTToken = modifyToken(trippleGTTokenNode.endGTToken());
+        return trippleGTTokenNode.modify(
+                openGTToken,
+                middleGTToken,
+                endGTToken);
+    }
+
     // Tokens
 
     @Override

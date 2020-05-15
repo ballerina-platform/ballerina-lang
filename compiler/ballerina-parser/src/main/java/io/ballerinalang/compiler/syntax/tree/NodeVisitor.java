@@ -527,6 +527,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(queryExpressionNode);
     }
 
+    public void visit(DoubleLTTokenNode doubleLTTokenNode) {
+        visitSyntaxNode(doubleLTTokenNode);
+    }
+
+    public void visit(DoubleGTTokenNode doubleGTTokenNode) {
+        visitSyntaxNode(doubleGTTokenNode);
+    }
+
+    public void visit(TrippleGTTokenNode trippleGTTokenNode) {
+        visitSyntaxNode(trippleGTTokenNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
