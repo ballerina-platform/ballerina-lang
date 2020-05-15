@@ -2725,6 +2725,25 @@
             ]
         },
         {
+            "name": "IntersectionTypeDescriptorNode",
+            "base": "Node",
+            "kind": "INTERSECTION_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "leftTypeDesc",
+                    "type": "Node"
+                },
+                {
+                    "name": "bitwiseAndToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rightTypeDesc",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
             "name": "ImplicitAnonymousFunctionParameters",
             "base": "Node",
             "kind": "INFER_PARAM_LIST",

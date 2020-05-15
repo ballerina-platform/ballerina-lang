@@ -746,6 +746,8 @@ public class ParserTestUtils {
                 return SyntaxKind.READONLY_TYPE_DESC;
             case "DISTINCT_TYPE_DESC":
                 return SyntaxKind.DISTINCT_TYPE_DESC;
+            case "INTERSECTION_TYPE_DESC":
+                return SyntaxKind.INTERSECTION_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

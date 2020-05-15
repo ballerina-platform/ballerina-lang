@@ -259,6 +259,7 @@ public enum ParserRuleContext {
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
     PARENTHESISED_TYPE_DESC_START("("),
+    BITWISE_AND_OPERATOR("&"),
     EXPR_FUNC_BODY_START("=>"),
 
     // Other terminals

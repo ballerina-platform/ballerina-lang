@@ -1516,6 +1516,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 selectClause);
     }
 
+    public static STNode createIntersectionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode bitwiseAndToken,
+            STNode rightTypeDesc) {
+
+        return new STIntersectionTypeDescriptorNode(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
+    }
+
     public static STNode createImplicitAnonymousFunctionParameters(
             STNode openParenToken,
             STNode parameters,

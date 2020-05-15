@@ -2043,6 +2043,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stQueryExpressionNode.createUnlinkedFacade();
     }
 
+    public static IntersectionTypeDescriptorNode createIntersectionTypeDescriptorNode(
+            Node leftTypeDesc,
+            Token bitwiseAndToken,
+            Node rightTypeDesc) {
+        Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
+        Objects.requireNonNull(bitwiseAndToken, "bitwiseAndToken must not be null");
+        Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
+
+        STNode stIntersectionTypeDescriptorNode = STNodeFactory.createIntersectionTypeDescriptorNode(
+                leftTypeDesc.internalNode(),
+                bitwiseAndToken.internalNode(),
+                rightTypeDesc.internalNode());
+        return stIntersectionTypeDescriptorNode.createUnlinkedFacade();
+    }
+
     public static ImplicitAnonymousFunctionParameters createImplicitAnonymousFunctionParameters(
             Token openParenToken,
             SeparatedNodeList<SimpleNameReferenceNode> parameters,

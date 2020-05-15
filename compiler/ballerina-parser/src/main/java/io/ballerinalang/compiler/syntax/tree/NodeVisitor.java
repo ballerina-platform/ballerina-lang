@@ -527,6 +527,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(queryExpressionNode);
     }
 
+    public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        visitSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
     public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
         visitSyntaxNode(implicitAnonymousFunctionParameters);
     }

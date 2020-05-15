@@ -528,6 +528,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(queryExpressionNode);
     }
 
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
     public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
         return transformSyntaxNode(implicitAnonymousFunctionParameters);
     }

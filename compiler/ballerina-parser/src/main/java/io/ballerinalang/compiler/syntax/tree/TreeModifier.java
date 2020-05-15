@@ -1505,6 +1505,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(intersectionTypeDescriptorNode.leftTypeDesc());
+        Token bitwiseAndToken = modifyToken(intersectionTypeDescriptorNode.bitwiseAndToken());
+        Node rightTypeDesc = modifyNode(intersectionTypeDescriptorNode.rightTypeDesc());
+        return intersectionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
+    }
+
+    @Override
     public Node transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
         Token openParenToken = modifyToken(implicitAnonymousFunctionParameters.openParenToken());
         SeparatedNodeList<SimpleNameReferenceNode> parameters = modifySeparatedNodeList(implicitAnonymousFunctionParameters.parameters());
