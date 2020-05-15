@@ -25,6 +25,8 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerinalang.compiler.text.LineRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,7 +38,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class MinutiaeAPITest extends AbstractSyntaxTreeAPITest {
+public class MinutiaeListAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "Leading and trailing minutiae lists contains zero elements")
     public void testGetMinutiaListAPIBasic() {
@@ -80,6 +82,37 @@ public class MinutiaeAPITest extends AbstractSyntaxTreeAPITest {
                 SyntaxKind.END_OF_LINE_MINUTIAE
         };
         testMinutiaList(semicolonToken.trailingMinutiae(), expectedKinds);
+    }
+
+    @Test
+    public void textMinutiaLineRange() {
+        String sourceFileName = "minutiae_location_test_01.bal";
+        SyntaxTree syntaxTree = parseFile(sourceFileName);
+        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
+
+        Token funcKw = funcDefNode.functionKeyword();
+        MinutiaeList leadingMinutiae = funcKw.leadingMinutiae();
+        SyntaxKind[] expectedKinds = new SyntaxKind[]{
+                SyntaxKind.END_OF_LINE_MINUTIAE, SyntaxKind.COMMENT_MINUTIA,
+                SyntaxKind.END_OF_LINE_MINUTIAE
+        };
+        testMinutiaList(leadingMinutiae, expectedKinds);
+
+        // Expected line position of the first minutiae node
+        // It is simply a '\n'
+        LineRange expectedLineRange = LineRange.from(sourceFileName, LinePosition.from(0, 0), LinePosition.from(1, 0));
+        assertLineRange(leadingMinutiae.get(0).lineRange(), expectedLineRange);
+
+        // Expected line position of the second minutiae node
+        // It is comment minutiae
+        expectedLineRange = LineRange.from(sourceFileName, LinePosition.from(1, 0), LinePosition.from(1, 37));
+        assertLineRange(leadingMinutiae.get(1).lineRange(), expectedLineRange);
+
+        // Expected line position of the second minutiae node
+        // It is simply a '\n'
+        expectedLineRange = LineRange.from(sourceFileName, LinePosition.from(1, 37), LinePosition.from(2, 0));
+        assertLineRange(leadingMinutiae.get(2).lineRange(), expectedLineRange);
     }
 
     private void testMinutiaList(MinutiaeList minutiaeList, SyntaxKind[] expectedKinds) {
