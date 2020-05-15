@@ -257,7 +257,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true, false);
     }
 
     /**
@@ -488,12 +488,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Only difference is that in object type definition, object body's parent's parent does not have siblings.
         boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)
                 || (ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext
-                    && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
-                    && ctx.parent.parent.parent.getChildCount() > 1);
+                && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
+                && ctx.parent.parent.parent.getChildCount() > 1);
 
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false);
+        boolean isDistinct = ((ObjectTypeNameLabelContext) ctx.parent).DISTINCT() != null;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false,
+                isDistinct);
     }
 
     /**
@@ -1057,8 +1059,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean reasonTypeExists = !ctx.typeName().isEmpty();
         boolean detailsTypeExists = ctx.typeName().size() > 1;
         boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
-                                        instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
-        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), reasonTypeExists, detailsTypeExists, isAnonymous);
+                instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
+        boolean isDistinct = ctx.DISTINCT() != null;
+        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), reasonTypeExists, detailsTypeExists, isAnonymous,
+                isDistinct);
     }
 
     @Override

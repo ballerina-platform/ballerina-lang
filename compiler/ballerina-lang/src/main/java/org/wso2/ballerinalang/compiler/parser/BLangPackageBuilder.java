@@ -598,7 +598,7 @@ public class BLangPackageBuilder {
     }
 
     void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
-                      boolean isAnonymous) {
+                      boolean isAnonymous, boolean isDistinct) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
@@ -607,6 +607,10 @@ public class BLangPackageBuilder {
         }
         if (reasonTypeExists) {
             errorType.reasonType = (BLangType) this.typeNodeStack.pop();
+        }
+
+        if (isDistinct) {
+            errorType.flagSet.add(Flag.DISTINCT);
         }
 
         endErrorType();
@@ -622,7 +626,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = errorType;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -2510,7 +2516,7 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
-                       boolean isClient, boolean isService) {
+                       boolean isClient, boolean isService, boolean isDistinct) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
@@ -2526,6 +2532,10 @@ public class BLangPackageBuilder {
             objectTypeNode.flagSet.add(Flag.SERVICE);
         }
 
+        if (isDistinct) {
+            objectTypeNode.flagSet.add(Flag.DISTINCT);
+        }
+
         if (!isAnonymous) {
             addType(objectTypeNode);
             return;
@@ -2537,7 +2547,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
