@@ -20,13 +20,39 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
+/**
+ * Represents a terminal node in the Ballerina syntax tree.
+ * <p>
+ * Always Minutiae is associated with a terminal node.
+ *
+ * @since 2.0.0
+ */
 public class Token extends Node {
+    protected MinutiaeList leadingMinutiaeList;
+    protected MinutiaeList trailingMinutiaeList;
+
     public Token(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
 
     public String text() {
         return ((STToken) this.internalNode).text();
+    }
+
+    public MinutiaeList leadingMinutiae() {
+        if (leadingMinutiaeList != null) {
+            return leadingMinutiaeList;
+        }
+        leadingMinutiaeList = new MinutiaeList(this, internalNode.leadingMinutiae());
+        return leadingMinutiaeList;
+    }
+
+    public MinutiaeList trailingMinutiae() {
+        if (trailingMinutiaeList != null) {
+            return trailingMinutiaeList;
+        }
+        trailingMinutiaeList = new MinutiaeList(this, internalNode.trailingMinutiae());
+        return trailingMinutiaeList;
     }
 
     @Override

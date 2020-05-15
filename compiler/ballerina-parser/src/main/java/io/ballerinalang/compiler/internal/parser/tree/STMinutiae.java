@@ -22,7 +22,7 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
- * Represents whitespaces, comments, newline characters attached to a {@code Token}.
+ * Represents whitespaces, comments, newline characters attached to a {@code STToken}.
  *
  * @since 2.0.0
  */

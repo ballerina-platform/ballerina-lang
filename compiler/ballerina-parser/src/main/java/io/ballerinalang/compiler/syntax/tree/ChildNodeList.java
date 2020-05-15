@@ -58,11 +58,6 @@ public class ChildNodeList implements Iterable<Node> {
         return new ChildNodeIterator(this.size);
     }
 
-    @Override
-    public Spliterator<Node> spliterator() {
-        return null;
-    }
-
     private int getChildCount(STNode parent) {
         int count = 0;
         for (int bucket = 0; bucket < parent.bucketCount(); bucket++) {

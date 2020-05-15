@@ -98,6 +98,10 @@ public abstract class Node {
         return lineRange;
     }
 
+    public abstract MinutiaeList leadingMinutiae();
+
+    public abstract MinutiaeList trailingMinutiae();
+
     /**
      * Accepts an instance of the {@code NodeVisitor}, which can be used to
      * traverse the syntax tree.

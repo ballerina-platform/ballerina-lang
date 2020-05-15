@@ -17,19 +17,25 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
+
+/**
+ * Represents whitespaces, comments, newline characters attached to a {@code Token}.
+ *
+ * @since 2.0.0
+ */
 public class Minutiae {
+    private final STMinutiae internalMinutiae;
+    private final Token token;
+    private final int position;
 
-//    public Minutiae(STNode node, int position, NonTerminalNode parent) {
-//        super(node, position, parent);
-//    }
+    public Minutiae(STMinutiae internalMinutiae, Token token, int position) {
+        this.internalMinutiae = internalMinutiae;
+        this.token = token;
+        this.position = position;
+    }
 
-//    @Override
-//    public void accept(NodeVisitor visitor) {
-//        visitor.visit(this);
-//    }
-//
-//    @Override
-//    public <T> T apply(NodeTransformer<T> visitor) {
-//        return visitor.transform(this);
-//    }
+    public SyntaxKind kind() {
+        return internalMinutiae.kind;
+    }
 }
