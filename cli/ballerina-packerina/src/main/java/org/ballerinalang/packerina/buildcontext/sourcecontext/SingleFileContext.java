@@ -20,11 +20,11 @@ package org.ballerinalang.packerina.buildcontext.sourcecontext;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.FileUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.ballerinalang.packerina.utils.FileUtils.geFileNameWithoutExtension;
 
 /**
  * Dataholder for a single bal file compilation.
@@ -66,6 +66,6 @@ public class SingleFileContext {
     }
     
     public String getBalFileNameWithoutExtension() {
-        return geFileNameWithoutExtension(this.balFile);
+        return FileUtils.geFileNameWithoutExtension(this.balFile);
     }
 }

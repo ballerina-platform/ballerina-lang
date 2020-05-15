@@ -21,8 +21,8 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.utils.FileUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,9 +30,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.util.SourceType.SINGLE_BAL_FILE;
 
 /**
  * Task to copy the executable to a given location. This requires the {@link CreateExecutableTask} to be completed.
