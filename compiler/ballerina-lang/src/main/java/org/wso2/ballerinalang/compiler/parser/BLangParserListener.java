@@ -2800,16 +2800,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
             this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
-                    isDeclaredWithVar, true);
+                    isDeclaredWithVar, true, false);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar, true);
+                    isDeclaredWithVar, true, false);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
             this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar, true);
+                    isDeclaredWithVar, true, false);
         } else {
             this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar, true);
+                    isDeclaredWithVar, true, false);
         }
     }
 
@@ -2820,22 +2820,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isDeclaredWithVar = ctx.VAR() != null;
+        boolean isOuterJoin = ctx.OUTER() != null;
 
         if (ctx.bindingPattern().Identifier() != null) {
             String identifier = ctx.bindingPattern().Identifier().getText();
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
             this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
-                    isDeclaredWithVar, false);
+                    isDeclaredWithVar, false, isOuterJoin);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar, false);
+                    isDeclaredWithVar, false, isOuterJoin);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
             this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar, false);
+                    isDeclaredWithVar, false, isOuterJoin);
         } else {
             this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar, false);
+                    isDeclaredWithVar, false, isOuterJoin);
         }
     }
 
@@ -2875,6 +2876,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createOnClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitJoinEqualsExpression(BallerinaParser.JoinEqualsExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createEqualsExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

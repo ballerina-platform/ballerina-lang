@@ -29,6 +29,10 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
  */
 public interface InputClauseNode extends Node {
 
+    boolean isOuterJoin();
+
+    void setIsOuterJoin(boolean isOuterJoin);
+
     ExpressionNode getCollection();
 
     void setCollection(ExpressionNode collection);

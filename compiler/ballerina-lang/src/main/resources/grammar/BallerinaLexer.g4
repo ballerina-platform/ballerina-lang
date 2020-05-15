@@ -70,6 +70,7 @@ CONTINUE    : 'continue' ;
 BREAK       : 'break' ;
 FORK        : 'fork' ;
 JOIN        : 'join' ;
+OUTER       : 'outer' ;
 SOME        : 'some' ;
 ALL         : 'all' ;
 TRY         : 'try' ;
