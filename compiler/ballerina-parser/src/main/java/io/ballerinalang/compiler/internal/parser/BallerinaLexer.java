@@ -169,6 +169,9 @@ public class BallerinaLexer extends AbstractLexer {
                 if (peek() == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else if (peek() == LexerTerminals.LT) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
@@ -177,6 +180,14 @@ public class BallerinaLexer extends AbstractLexer {
                 if (peek() == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+                } else if (peek() == LexerTerminals.GT) {
+                    reader.advance();
+                    if (peek() == LexerTerminals.GT) {
+                        reader.advance();
+                        token = getSyntaxToken(SyntaxKind.TRIPPLE_GT_TOKEN);
+                    } else {
+                        token = getSyntaxToken(SyntaxKind.DOUBLE_GT_TOKEN);
+                    }
                 } else {
                     token = getSyntaxToken(SyntaxKind.GT_TOKEN);
                 }
@@ -428,9 +439,14 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        if (reader.peek() == LexerTerminals.DOT && reader.peek(1) == LexerTerminals.DOT) {
-            reader.advance(2);
-            return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
+        if (reader.peek() == LexerTerminals.DOT) {
+            if (reader.peek(1) == LexerTerminals.DOT) {
+                reader.advance(2);
+                return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
+            } else if (reader.peek(1) == LexerTerminals.LT) {
+                reader.advance(2);
+                return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
+            }
         }
         if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
             return processDecimalFloatLiteral();

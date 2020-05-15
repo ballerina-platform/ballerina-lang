@@ -2416,6 +2416,11 @@ public class BallerinaParser extends AbstractParser {
             case PIPE_TOKEN:
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
+            case DOUBLE_LT_TOKEN:
+            case DOUBLE_GT_TOKEN:
+            case TRIPPLE_GT_TOKEN:
+            case ELLIPSIS_TOKEN:
+            case DOUBLE_DOT_LT_TOKEN:
                 return true;
             default:
                 return false;
@@ -2463,6 +2468,13 @@ public class BallerinaParser extends AbstractParser {
                 return OperatorPrecedence.LOGICAL_OR;
             case RIGHT_ARROW_TOKEN:
                 return OperatorPrecedence.ACTION;
+            case DOUBLE_LT_TOKEN:
+            case DOUBLE_GT_TOKEN:
+            case TRIPPLE_GT_TOKEN:
+                return OperatorPrecedence.SHIFT;
+            case ELLIPSIS_TOKEN:
+            case DOUBLE_DOT_LT_TOKEN:
+                return OperatorPrecedence.RANGE;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -2487,6 +2499,10 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.ASTERISK_TOKEN;
             case ADDITIVE:
                 return SyntaxKind.PLUS_TOKEN;
+            case SHIFT:
+                return SyntaxKind.DOUBLE_LT_TOKEN;
+            case RANGE:
+                return SyntaxKind.ELLIPSIS_TOKEN;
             case BINARY_COMPARE:
                 return SyntaxKind.LT_TOKEN;
             case EQUALITY:
