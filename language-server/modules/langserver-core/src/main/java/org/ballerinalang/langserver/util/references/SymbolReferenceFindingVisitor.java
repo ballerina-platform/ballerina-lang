@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
@@ -910,6 +911,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         this.acceptNode(fromClause.collection);
         this.acceptNode((BLangNode) fromClause.variableDefinitionNode);
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        this.acceptNode(joinClause.collection);
+        this.acceptNode((BLangNode) joinClause.variableDefinitionNode);
     }
 
     @Override

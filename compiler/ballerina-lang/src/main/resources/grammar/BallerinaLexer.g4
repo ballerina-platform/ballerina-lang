@@ -4,6 +4,7 @@ lexer grammar BallerinaLexer;
     boolean inStringTemplate = false;
     boolean inQueryExpression = false;
     boolean inTableType = false;
+    boolean inOnCondition = false;
 }
 
 // Reserved words
@@ -34,7 +35,7 @@ CLIENT      : 'client' ;
 CONST       : 'const' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
-ON          : 'on' ;
+ON          : 'on' { inOnCondition = true; };
 FIELD       : 'field' ;
 
 TYPE_INT        : 'int' ;
@@ -104,6 +105,7 @@ DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
 CONFLICT    : 'conflict' ;
+JOIN_EQUALS : {inOnCondition}? 'equals' { inOnCondition = false; };
 DEPRECATED  : 'Deprecated';
 KEY         : {inTableType}? 'key' { inTableType = false; };
 DEPRECATED_PARAMETERS  : 'Deprecated parameters';

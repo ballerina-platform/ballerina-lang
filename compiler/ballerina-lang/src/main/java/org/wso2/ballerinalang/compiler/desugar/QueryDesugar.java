@@ -574,6 +574,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
+        if (bLangRecordVariable.expr != null) {
+            bLangRecordVariable.expr.accept(this);
+        }
+        if (bLangRecordVariable.hasRestParam()) {
+            ((BLangNode) bLangRecordVariable.restParam).accept(this);
+        }
     }
 
     @Override
@@ -592,6 +598,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
+        if (fieldAccessExpr.impConversionExpr != null) {
+            fieldAccessExpr.impConversionExpr.expr.accept(this);
+        }
     }
 
     @Override
@@ -660,9 +669,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         //do nothing
     }
 
-    //todo check ref visits @chiran
     public void visit(BLangTupleVarRef varRefExpr) {
-        BSymbol symbol = varRefExpr.symbol;
         varRefExpr.expressions.forEach(expression -> expression.accept(this));
         if (varRefExpr.restParam != null) {
             BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
@@ -671,7 +678,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
-        BSymbol symbol = varRefExpr.symbol;
         varRefExpr.recordRefFields.forEach(recordVarRefKeyValue
                 -> recordVarRefKeyValue.variableReference.accept(this));
         if (varRefExpr.restParam != null) {
@@ -681,10 +687,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVarRef varRefExpr) {
-        BSymbol symbol = varRefExpr.symbol;
-        varRefExpr.reason.accept(this);
+        if(varRefExpr.reason != null) {
+            varRefExpr.reason.accept(this);
+        }
+        if(varRefExpr.restVar != null) {
+            varRefExpr.restVar.accept(this);
+        }
         varRefExpr.detail.forEach(bLangNamedArgsExpression -> bLangNamedArgsExpression.accept(this));
-        varRefExpr.restVar.accept(this);
     }
 
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
@@ -700,6 +709,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                         types.getSafeType(frameAccessExpr.expr.type, true, false));
 
                 if (symbol instanceof BVarSymbol) {
+                    ((BVarSymbol) symbol).originalSymbol = null;
                     BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
                             desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                     BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);

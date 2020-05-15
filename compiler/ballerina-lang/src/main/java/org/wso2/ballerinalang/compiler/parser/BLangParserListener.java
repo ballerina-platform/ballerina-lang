@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -2799,18 +2798,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.bindingPattern().Identifier() != null) {
             String identifier = ctx.bindingPattern().Identifier().getText();
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
-            this.pkgBuilder.createFromClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+            this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
-                    isDeclaredWithVar);
+                    isDeclaredWithVar, true);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.createFromClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-            this.pkgBuilder.createFromClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true);
         } else {
-            this.pkgBuilder.createFromClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true);
+        }
+    }
+
+    @Override
+    public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+
+        if (ctx.bindingPattern().Identifier() != null) {
+            String identifier = ctx.bindingPattern().Identifier().getText();
+            DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
+            this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    identifier, identifierPos,
+                    isDeclaredWithVar, false);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false);
+        } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false);
+        } else {
+            this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false);
         }
     }
 
@@ -2834,6 +2859,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createWhereClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterOnClause(BallerinaParser.OnClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startOnClause();
     }
 
     @Override

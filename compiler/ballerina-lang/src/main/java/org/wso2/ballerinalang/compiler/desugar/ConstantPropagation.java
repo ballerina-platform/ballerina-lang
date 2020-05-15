@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
@@ -808,6 +809,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         fromClause.collection = rewrite(fromClause.collection);
         result = fromClause;
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        joinClause.collection = rewrite(joinClause.collection);
+        result = joinClause;
     }
 
     @Override

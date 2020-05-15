@@ -846,6 +846,7 @@ expression
     |   queryExpr                                                           # queryExpression
     |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
+    |   expression JOIN_EQUALS expression                                   # joinEqualsExpression
     ;
 
 constantExpression
@@ -898,7 +899,7 @@ selectClause
     ;
 
 onClause
-    : ON expression
+    :   ON expression
     ;
 
 whereClause
@@ -907,6 +908,10 @@ whereClause
 
 letClause
     :   LET letVarDecl (COMMA letVarDecl)*
+    ;
+
+joinClause
+    :   JOIN (typeName | VAR) bindingPattern IN expression
     ;
 
 fromClause
@@ -918,7 +923,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause (fromClause | letClause | whereClause)*
+    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
     ;
 
 queryConstructType
@@ -926,7 +931,7 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline onClause? selectClause onConflictClause?
+    :   queryConstructType? queryPipeline selectClause onConflictClause?
     ;
 
 queryAction
