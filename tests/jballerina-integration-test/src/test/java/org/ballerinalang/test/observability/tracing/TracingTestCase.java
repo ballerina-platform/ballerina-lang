@@ -186,7 +186,7 @@ public class TracingTestCase extends BaseTest {
         });
     }
 
-    @Test(dependsOnMethods = "testObservePackageUserTraceTrue")
+    @Test(dependsOnMethods = "testObservePackageUserTraceTrue", enabled = false)
     public void testOOTBTracingWithWorkers() throws Exception {
         final String service = "http://localhost:9093/echoService/";
         HttpClientRequest.doGet(service + "resourceOne");
@@ -215,7 +215,7 @@ public class TracingTestCase extends BaseTest {
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 8, "Mismatch in number of root spans.");
     }
 
-    @Test(dependsOnMethods = "testOOTBTracingWithWorkers")
+    @Test(dependsOnMethods = "testOOTBTracingWithWorkers", enabled = false)
     public void testOOTBTracingWithErrors() throws Exception {
         final String service = "http://localhost:9094/echoService/";
         HttpClientRequest.doGet(service + "resourceOne/3");
