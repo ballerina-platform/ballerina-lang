@@ -34,11 +34,13 @@ public class MinutiaeList implements Iterable<Minutiae> {
     private final int size;
     private final Minutiae[] minutiaeNodes;
 
-    MinutiaeList(Token token, STNode internalMinutiae) {
+    MinutiaeList(Token token, STNode internalMinutiae, int position) {
         this.token = token;
         this.internalMinutia = internalMinutiae;
         this.size = getMinutiaeCount(internalMinutiae);
-        this.minutiaeNodes = loadMinutiaeNodes(internalMinutiae, size);
+        // The following method eagerly create all the minutiae nodes at the moment
+        // Do we need to create them on-demand?
+        this.minutiaeNodes = loadMinutiaeNodes(internalMinutiae, size, position);
     }
 
     public Minutiae get(int index) {
@@ -71,30 +73,32 @@ public class MinutiaeList implements Iterable<Minutiae> {
         };
     }
 
-    private Minutiae[] loadMinutiaeNodes(STNode internalMinutiae, int size) {
+    private Minutiae[] loadMinutiaeNodes(STNode internalMinutiae, int size, int position) {
         if (size == 0) {
             return new Minutiae[0];
         }
 
         if (!SyntaxUtils.isSTNodeList(internalMinutiae)) {
-            return new Minutiae[]{createMinutiae(internalMinutiae)};
+            return new Minutiae[]{createMinutiae(internalMinutiae, position)};
         }
 
         int index = 0;
+        int minutiaeStartPos = position;
         Minutiae[] minutiaeNodes = new Minutiae[size];
         for (int bucket = 0; bucket < internalMinutiae.bucketCount(); bucket++) {
             STNode node = internalMinutiae.childInBucket(bucket);
             if (!SyntaxUtils.isSTNodePresent(node)) {
                 continue;
             }
-            minutiaeNodes[index] = createMinutiae(node);
+            minutiaeNodes[index] = createMinutiae(node, minutiaeStartPos);
             index++;
+            minutiaeStartPos += node.widthWithMinutiae();
         }
         return minutiaeNodes;
     }
 
-    private Minutiae createMinutiae(STNode internalMinutiae) {
-        return new Minutiae((STMinutiae) internalMinutiae, token, 0);
+    private Minutiae createMinutiae(STNode internalMinutiae, int position) {
+        return new Minutiae((STMinutiae) internalMinutiae, token, position);
     }
 
     private int getMinutiaeCount(STNode internalMinutiae) {

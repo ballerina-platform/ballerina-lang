@@ -43,7 +43,7 @@ public class Token extends Node {
         if (leadingMinutiaeList != null) {
             return leadingMinutiaeList;
         }
-        leadingMinutiaeList = new MinutiaeList(this, internalNode.leadingMinutiae());
+        leadingMinutiaeList = new MinutiaeList(this, internalNode.leadingMinutiae(), this.position());
         return leadingMinutiaeList;
     }
 
@@ -51,7 +51,8 @@ public class Token extends Node {
         if (trailingMinutiaeList != null) {
             return trailingMinutiaeList;
         }
-        trailingMinutiaeList = new MinutiaeList(this, internalNode.trailingMinutiae());
+        int trailingMinutiaeStartPos = this.position() + internalNode.widthWithLeadingMinutiae();
+        trailingMinutiaeList = new MinutiaeList(this, internalNode.trailingMinutiae(), trailingMinutiaeStartPos);
         return trailingMinutiaeList;
     }
 

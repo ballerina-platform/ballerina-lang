@@ -18,6 +18,9 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
+import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextRange;
 
 /**
  * Represents whitespaces, comments, newline characters attached to a {@code Token}.
@@ -29,7 +32,10 @@ public class Minutiae {
     private final Token token;
     private final int position;
 
-    public Minutiae(STMinutiae internalMinutiae, Token token, int position) {
+    private TextRange textRange;
+    private LineRange lineRange;
+
+    Minutiae(STMinutiae internalMinutiae, Token token, int position) {
         this.internalMinutiae = internalMinutiae;
         this.token = token;
         this.position = position;
@@ -37,5 +43,25 @@ public class Minutiae {
 
     public SyntaxKind kind() {
         return internalMinutiae.kind;
+    }
+
+    public TextRange textRange() {
+        if (textRange != null) {
+            return textRange;
+        }
+        textRange = TextRange.from(position, internalMinutiae.width());
+        return textRange;
+    }
+
+    public LineRange lineRange() {
+        if (lineRange != null) {
+            return lineRange;
+        }
+
+        SyntaxTree syntaxTree = token.syntaxTree();
+        TextDocument textDocument = syntaxTree.textDocument();
+        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+                textDocument.linePositionFrom(textRange().endOffset()));
+        return lineRange;
     }
 }
