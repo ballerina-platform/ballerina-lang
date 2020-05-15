@@ -325,7 +325,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] TYPEDESC_RHS =
             { ParserRuleContext.END_OF_TYPE_DESC, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE };
+                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE,
+                    ParserRuleContext.BITWISE_AND_OPERATOR };
 
     private static final ParserRuleContext[] TABLE_TYPE_DESC_RHS =
             { ParserRuleContext.KEY_KEYWORD, ParserRuleContext.TYPEDESC_RHS };
@@ -1151,6 +1152,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case QUERY_EXPRESSION_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, QUERY_EXPRESSION_RHS,
                             isEntryPoint);
+                case BITWISE_AND_OPERATOR:
+                    hasMatch = nextToken.kind == SyntaxKind.BITWISE_AND_TOKEN;
+                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -2071,6 +2075,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FROM_CLAUSE;
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
                 return ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START;
+            case BITWISE_AND_OPERATOR:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:

@@ -254,6 +254,7 @@ public enum ParserRuleContext {
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
     PARENTHESISED_TYPE_DESC_START("("),
+    BITWISE_AND_OPERATOR("&"),
 
     // Other terminals
     FUNC_NAME("function-name"),
