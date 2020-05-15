@@ -32,8 +32,9 @@ import org.ballerinalang.debugadapter.launchrequest.Launch;
 import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -344,13 +345,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 String name = entry.getKey();
 
                 BVariable variable = VariableFactory.getVariable(value, varTypeStr, name);
-                if (variable != null && variable.getChildVariables() != null) {
-                    long variableReference = (long) nextVarReference.getAndIncrement();
-                    variable.getDapVariable().setVariablesReference(variableReference);
-                    this.childVariables.put(variableReference, variable.getChildVariables());
-                }
                 if (variable == null) {
                     return null;
+                } else if (variable instanceof BCompoundVariable) {
+                    long variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
                 }
                 return variable.getDapVariable();
             }).filter(Objects::nonNull).toArray(Variable[]::new);
@@ -371,13 +371,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             }
 
                             BVariable variable = VariableFactory.getVariable(varValueEntry.getValue(), varType, name);
-                            if (variable != null && variable.getChildVariables() != null) {
-                                long variableReference = (long) nextVarReference.getAndIncrement();
-                                variable.getDapVariable().setVariablesReference(variableReference);
-                                this.childVariables.put(variableReference, variable.getChildVariables());
-                            }
                             if (variable == null) {
                                 return null;
+                            }
+                            if (variable instanceof BCompoundVariable) {
+                                long variableReference = nextVarReference.getAndIncrement();
+                                variable.getDapVariable().setVariablesReference(variableReference);
+                                this.childVariables.put(variableReference, ((BCompoundVariable) variable)
+                                        .getChildVariables());
                             }
                             return variable.getDapVariable();
                         }).filter(Objects::nonNull).toArray(Variable[]::new);

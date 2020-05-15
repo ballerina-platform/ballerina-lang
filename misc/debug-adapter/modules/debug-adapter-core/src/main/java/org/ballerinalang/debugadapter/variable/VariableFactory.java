@@ -20,13 +20,18 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
-import org.ballerinalang.debugadapter.variable.types.BDouble;
+import org.ballerinalang.debugadapter.variable.types.BDecimal;
+import org.ballerinalang.debugadapter.variable.types.BFloat;
 import org.ballerinalang.debugadapter.variable.types.BError;
-import org.ballerinalang.debugadapter.variable.types.BLong;
+import org.ballerinalang.debugadapter.variable.types.BInt;
 import org.ballerinalang.debugadapter.variable.types.BMapObject;
+import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObjectType;
 import org.ballerinalang.debugadapter.variable.types.BObjectValue;
 import org.ballerinalang.debugadapter.variable.types.BString;
+import org.ballerinalang.debugadapter.variable.types.BTuple;
+import org.ballerinalang.debugadapter.variable.types.BUnknown;
+import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
@@ -44,21 +49,32 @@ public class VariableFactory {
      */
     public static BVariable getVariable(Value value, String parentTypeName, String varName) {
 
-        if (value == null || parentTypeName == null || varName == null || parentTypeName.isEmpty()) {
+        if (parentTypeName == null || parentTypeName.isEmpty() || varName == null || varName.isEmpty()
+                || varName.startsWith("$")) {
             return null;
+        }
+
+        Variable dapVariable = new Variable();
+        dapVariable.setName(varName);
+        if (value == null) {
+            // variables of "nil" type.
+            if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT.getString())) {
+                return new BNil(dapVariable);
+            } else {
+                return null;
+            }
         }
 
         Type valueType = value.type();
         String valueTypeName = valueType.name();
-        Variable dapVariable = new Variable();
-        dapVariable.setName(varName);
-
-        if (valueTypeName.equalsIgnoreCase(JVMValueType.LONG.toString())) {
-            return new BLong(value, dapVariable);
+        if (valueTypeName.equalsIgnoreCase(JVMValueType.LONG.getString())) {
+            return new BInt(value, dapVariable);
         } else if (valueTypeName.equalsIgnoreCase(JVMValueType.BOOLEAN.getString())) {
             return new BBoolean(value, dapVariable);
         } else if (valueTypeName.equalsIgnoreCase(JVMValueType.DOUBLE.getString())) {
-            return new BDouble(value, dapVariable);
+            return new BFloat(value, dapVariable);
+        } else if (parentTypeName.equalsIgnoreCase(JVMValueType.DECIMAL.getString())) {
+            return new BDecimal(value, dapVariable);
         } else if (parentTypeName.equalsIgnoreCase(JVMValueType.STRING.getString())) {
             return new BString(value, dapVariable);
         } else if (parentTypeName.contains("$value$")) {
@@ -67,40 +83,35 @@ public class VariableFactory {
             return new BObjectType(value, dapVariable);
         } else if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT_VALUE.getString())) {
             return new BObjectValue(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
+        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+            return new BMapObject(value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
             return new BArray(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())
-                || parentTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.TUPLE_VALUE.getString())) {
+            return new BTuple(value, dapVariable);
+        } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())) {
             dapVariable.setType("object");
-            if (valueType == null) {
-                dapVariable.setValue("null");
-                return new BVariable(dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.ARRAY_VALUE.getString())) {
+            if (valueTypeName.equalsIgnoreCase(JVMValueType.ARRAY_VALUE.getString())) {
                 return new BArray(value, dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.LONG.toString())) {
-                return new BLong(value, dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.BOOLEAN.toString())) {
+            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.LONG.getString())) {
+                return new BInt(value, dapVariable);
+            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.BOOLEAN.getString())) {
                 return new BBoolean(value, dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.DOUBLE.toString())) {
-                return new BDouble(value, dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.STRING.toString())) {
+            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.DOUBLE.getString())) {
+                return new BFloat(value, dapVariable);
+            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.STRING.getString())) {
                 return new BString(value, dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.ERROR_VALUE.toString())) {
+            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.ERROR_VALUE.getString())) {
                 return new BError(value, dapVariable);
-            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.XML_ITEM.toString())) {
-                // TODO: support xml values
+            } else if (valueTypeName.equalsIgnoreCase(JVMValueType.XML_ITEM.getString())) {
+                // TODO: complete implementation
                 dapVariable.setType("xml");
-                dapVariable.setValue(value.toString());
-                return new BVariable(dapVariable);
-            } else {
-                return new BMapObject(value, dapVariable);
+                return new BXmlItem(value, dapVariable);
             }
-        } else {
-            dapVariable.setType(parentTypeName);
-            String stringValue = value.toString();
-            dapVariable.setType("unknown");
-            dapVariable.setValue(stringValue);
-            return new BVariable(dapVariable);
         }
+
+        // If the variable doesn't match any of the above types, returns as a variable with type "unknown".
+        dapVariable.setType(parentTypeName);
+        return new BUnknown(value, dapVariable);
     }
 }

@@ -16,33 +16,28 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BVariable;
+import com.sun.tools.jdi.DoubleValueImpl;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.stream.Collectors;
-
 /**
- * Double variable type.
+ * Ballerina float variable type.
  */
-public class BDouble extends BVariable {
+public class BFloat extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl value;
+    private final DoubleValueImpl jvmValueRef;
 
-    public BDouble(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+    public BFloat(Value value, Variable dapVariable) {
+        this.jvmValueRef = (DoubleValueImpl) value;
+        dapVariable.setType(BVariableType.FLOAT.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("double");
-        dapVariable.setValue(this.toString());
     }
 
     @Override
-    public String toString() {
-        Field valueField = value.referenceType().allFields().stream().filter(
-                field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
-        Value longValue = value.getValue(valueField);
-        return longValue.toString();
+    public String getValue() {
+        return jvmValueRef.toString();
     }
 }

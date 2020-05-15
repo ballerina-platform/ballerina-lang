@@ -16,33 +16,28 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BVariable;
+import com.sun.tools.jdi.LongValueImpl;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.stream.Collectors;
-
 /**
- * long variable type.
+ * Ballerina integer type.
  */
-public class BLong extends BVariable {
+public class BInt extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl value;
+    private final LongValueImpl jvmValueRef;
 
-    public BLong(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+    public BInt(Value value, Variable dapVariable) {
+        this.jvmValueRef = (LongValueImpl) value;
+        dapVariable.setType(BVariableType.INT.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("long");
-        dapVariable.setValue(this.toString());
     }
 
     @Override
-    public String toString() {
-        Field valueField = value.referenceType().allFields().stream().filter(
-                field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
-        Value longValue = value.getValue(valueField);
-        return longValue.toString();
+    public String getValue() {
+        return jvmValueRef.toString();
     }
 }

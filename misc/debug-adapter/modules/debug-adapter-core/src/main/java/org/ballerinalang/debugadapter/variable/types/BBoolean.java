@@ -16,33 +16,28 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BVariable;
+import com.sun.tools.jdi.BooleanValueImpl;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.stream.Collectors;
-
 /**
- * Boolean variable type.
+ * Ballerina boolean variable type.
  */
-public class BBoolean extends BVariable {
+public class BBoolean extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl value;
+    private final BooleanValueImpl jvmValueRef;
 
     public BBoolean(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+        this.jvmValueRef = (BooleanValueImpl) value;
+        dapVariable.setType(BVariableType.BOOLEAN.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("double");
-        dapVariable.setValue(this.toString());
     }
 
     @Override
-    public String toString() {
-        Field valueField = value.referenceType().allFields().stream().filter(
-                field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
-        Value longValue = value.getValue(valueField);
-        return longValue.toString();
+    public String getValue() {
+        return jvmValueRef.toString();
     }
 }

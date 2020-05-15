@@ -6,7 +6,7 @@ package org.ballerinalang.debugadapter.variable;
 public enum BVariableType {
 
     // basic, simple types.
-    NIL("()"),
+    NIL("nil"),
     BOOLEAN("boolean"),
     INT("int"),
     FLOAT("float"),
@@ -17,7 +17,7 @@ public enum BVariableType {
     // basic, structured
     ARRAY("array"),
     TUPLE("tuple"),
-    MAP("tuple"),
+    MAP("map"),
     RECORD("record"),
     TABLE("table"),
     ERROR("error"),
@@ -37,7 +37,11 @@ public enum BVariableType {
     ANYDATA("anydata"),
     NEVER("never"),
     BYTE("byte"),
-    JSON("json");
+    JSON("json"),
+
+    // Note: This is not a valid ballerina variable type. This is only used for labeling jvm variables, which don't
+    // map to any of the above ballerina standard variable types.
+    UNKNOWN("unknown");
 
     private final String value;
 
@@ -45,7 +49,7 @@ public enum BVariableType {
         this.value = value;
     }
 
-    String getValue() {
+    public String getString() {
         return this.value;
     }
 }

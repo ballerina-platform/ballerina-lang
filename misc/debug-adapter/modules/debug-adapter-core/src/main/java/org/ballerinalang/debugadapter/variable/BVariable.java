@@ -16,41 +16,31 @@
 
 package org.ballerinalang.debugadapter.variable;
 
-import com.sun.jdi.Value;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Map;
-
 /**
- * Base class for all the ballerina variable types.
+ * Base interface for ballerina variable types.
  */
-public class BVariable {
+public interface BVariable {
 
-    private Map<String, Value> childVariables;
-    private Variable dapVariable;
+    /**
+     * Returns the value of the variable instance in string form. Each variable type implementation can have their
+     * own implementation to compute/fetch its value.
+     *
+     * @return value of the variable instance, in string form.
+     */
+    String getValue();
 
-    public BVariable() {
-        this(null);
-    }
+    /**
+     * Returns variable information in a Debug Adapter Protocol compatible variable instance.
+     *
+     * @return a DAP compatible variable instance of the ballerina variable instance.
+     */
+    Variable getDapVariable();
 
-    public BVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
-        this.childVariables = null;
-    }
+    /**
+     * Assigns the DAP representation of the given ballerina variable instance.
+     */
+    void setDapVariable(Variable dapVariable);
 
-    public Map<String, Value> getChildVariables() {
-        return childVariables;
-    }
-
-    public void setChildVariables(Map<String, Value> childVariables) {
-        this.childVariables = childVariables;
-    }
-
-    public Variable getDapVariable() {
-        return dapVariable;
-    }
-
-    public void setDapVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
-    }
 }

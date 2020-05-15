@@ -32,15 +32,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * Ballerina array variable type.
+ * Ballerina tuple variable type.
  */
-public class BArray extends BCompoundVariable {
+public class BTuple extends BCompoundVariable {
 
     private final ObjectReferenceImpl jvmValueRef;
 
-    public BArray(Value value, Variable dapVariable) {
+    public BTuple(Value value, Variable dapVariable) {
         this.jvmValueRef = (ObjectReferenceImpl) value;
-        dapVariable.setType(BVariableType.ARRAY.getString());
+        dapVariable.setType(BVariableType.TUPLE.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
         this.computeChildVariables();

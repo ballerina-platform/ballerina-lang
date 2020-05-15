@@ -19,22 +19,36 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * object value type.
+ * Ballerina object value type.
  */
-public class BObjectValue extends BVariable {
+public class BObjectValue extends BCompoundVariable {
+
+    private final ObjectReferenceImpl jvmValueRef;
 
     public BObjectValue(Value value, Variable dapVariable) {
+        this.jvmValueRef = (ObjectReferenceImpl) value;
+        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        Map<Field, Value> fieldValueMap = ((ObjectReferenceImpl) value)
-                .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
+        computeChildVariables();
+    }
+
+    @Override
+    public String getValue() {
+        return "object";
+    }
+
+    @Override
+    public void computeChildVariables() {
+        Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
         Map<String, Value> values = new HashMap<>();
         fieldValueMap.forEach((field, value1) -> {
             // Filter out internal variables
@@ -42,14 +56,6 @@ public class BObjectValue extends BVariable {
                 values.put(field.name(), value1);
             }
         });
-
         this.setChildVariables(values);
-        dapVariable.setType("object");
-        dapVariable.setValue(this.toString());
-    }
-
-    @Override
-    public String toString() {
-        return "object";
     }
 }
