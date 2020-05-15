@@ -137,8 +137,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
             ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
             ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
-            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
-            ParserRuleContext.READONLY_KEYWORD };
+            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_BODY_END, ParserRuleContext.RECORD_FIELD };
@@ -1134,9 +1133,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NEW_KEYWORD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth,
                             matchingRulesCount, NEW_KEYWORD_RHS, isEntryPoint);
-                case READONLY_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.READONLY_KEYWORD;
-                    break;
                 case SELECT_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.SELECT_KEYWORD;
                     break;
@@ -2041,8 +2037,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LT;
             case PARENTHESISED_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_PARENTHESIS;
-            case READONLY_KEYWORD:
-                return ParserRuleContext.LT;
             case SELECT_CLAUSE:
                 return ParserRuleContext.SELECT_KEYWORD;
             case SELECT_KEYWORD:
@@ -2330,6 +2324,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
             case TYPE_DESC_IN_EXPRESSION:
                 endContext();
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
                 return ParserRuleContext.EXPRESSION_RHS;
             case COMP_UNIT:
                 /*
@@ -2361,6 +2358,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             case TYPE_DESC_IN_NEW_EXPR:
                 endContext();
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
                 return ParserRuleContext.ARG_LIST_START;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
@@ -3150,8 +3150,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.FUTURE_KEYWORD;
             case TYPEDESC_KEYWORD:
                 return SyntaxKind.TYPEDESC_KEYWORD;
-            case READONLY_KEYWORD:
-                return SyntaxKind.READONLY_KEYWORD;
             case GT:
                 return SyntaxKind.GT_TOKEN;
             case LT:

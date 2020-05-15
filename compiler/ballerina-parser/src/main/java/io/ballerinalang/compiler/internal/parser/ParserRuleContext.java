@@ -221,7 +221,6 @@ public enum ParserRuleContext {
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
     NEW_KEYWORD("new"),
-    READONLY_KEYWORD("readonly"),
     FROM_KEYWORD("from"),
     WHERE_KEYWORD("where"),
     SELECT_KEYWORD("select"),
