@@ -41,7 +41,7 @@ import java.util.Map;
 public class ChildNodeEntryTest extends AbstractSyntaxTreeAPITest {
 
     @Test
-    public void testFoo() {
+    public void testChildNodeEntry() {
         Map<String, Object> expectedChildEntryMap = loadChildEntryMap("child_node_entry_test_01.json");
         SyntaxTree syntaxTree = parseFile("child_node_entry_test_01.bal");
         MapGen mapGen = new MapGen();
