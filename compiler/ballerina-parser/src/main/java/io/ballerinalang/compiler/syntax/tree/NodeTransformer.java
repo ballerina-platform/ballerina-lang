@@ -496,14 +496,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesizedArgList);
     }
 
-    public T transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        return transformSyntaxNode(readOnlyTypeDescriptorNode);
-    }
-
-    public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
-        return transformSyntaxNode(distinctTypeDescriptorNode);
-    }
-
     // Tokens
 
     public T transform(Token token) {

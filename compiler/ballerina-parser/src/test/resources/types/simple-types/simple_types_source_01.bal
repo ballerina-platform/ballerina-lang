@@ -12,4 +12,6 @@ public function foo() {
     service k;
     var l;
     never m;
+    readonly n;
+    distinct o;
 }

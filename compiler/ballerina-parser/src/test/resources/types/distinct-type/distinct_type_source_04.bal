@@ -1,1 +1,0 @@
-type myType distinct T;

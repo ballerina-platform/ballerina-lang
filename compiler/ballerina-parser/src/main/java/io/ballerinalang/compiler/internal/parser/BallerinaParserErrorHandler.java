@@ -137,8 +137,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
             ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
             ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
-            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
-            ParserRuleContext.READONLY_KEYWORD, ParserRuleContext.DISTINCT_KEYWORD };
+            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_BODY_END, ParserRuleContext.RECORD_FIELD };
@@ -1129,12 +1128,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NEW_KEYWORD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth,
                             matchingRulesCount, NEW_KEYWORD_RHS, isEntryPoint);
-                case READONLY_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.READONLY_KEYWORD;
-                    break;
-                case DISTINCT_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD;
-                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1982,10 +1975,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LT;
             case PARENTHESISED_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_PARENTHESIS;
-            case READONLY_KEYWORD:
-                return ParserRuleContext.LT;
-            case DISTINCT_KEYWORD:
-                return getParentContext();
 
             case FUNC_TYPE_OR_DEF_SIGNATURE_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -3053,8 +3042,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.FUTURE_KEYWORD;
             case TYPEDESC_KEYWORD:
                 return SyntaxKind.TYPEDESC_KEYWORD;
-            case READONLY_KEYWORD:
-                return SyntaxKind.READONLY_KEYWORD;
             case GT:
                 return SyntaxKind.GT_TOKEN;
             case LT:
@@ -3151,8 +3138,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case STRING_KEYWORD:
                 return SyntaxKind.STRING_KEYWORD;
-            case DISTINCT_KEYWORD:
-                return SyntaxKind.DISTINCT_KEYWORD;
 
             // TODO:
             case COMP_UNIT:

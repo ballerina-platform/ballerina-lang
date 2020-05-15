@@ -495,14 +495,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parenthesizedArgList);
     }
 
-    public void visit(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        visitSyntaxNode(readOnlyTypeDescriptorNode);
-    }
-
-    public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
-        visitSyntaxNode(distinctTypeDescriptorNode);
-    }
-
     // Tokens
 
     public void visit(Token token) {
