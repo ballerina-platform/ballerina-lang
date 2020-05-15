@@ -29,17 +29,13 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.SourceType;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,11 +46,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.compiler.CompilerOptionName.BALO_GENERATION;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_PATH;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
+import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
@@ -121,6 +121,10 @@ public class GenerateBalo {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
+        options.put(SOURCE_PATH, String.valueOf(sourceRootDir));
+        options.put(TARGET_BINARY_PATH, targetDir);
+        options.put(SOURCE_TYPE, String.valueOf(SourceType.SINGLE_MODULE));
+        options.put(BALO_GENERATION, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
@@ -128,7 +132,6 @@ public class GenerateBalo {
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
-        BackendDriver backendDriver = BackendDriver.getInstance(context);
         BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
@@ -149,7 +152,6 @@ public class GenerateBalo {
                 Files.createDirectories(parent);
             }
 
-            backendDriver.execute(pkg.symbol.bir, false, jarOutput, readModuleDependencies());
             printErrors(reportWarnings, diagListner, diagnostics);
         }
 
@@ -185,18 +187,6 @@ public class GenerateBalo {
             throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
                                              " error(s)" + warnMsg + " " + "\n  " + sj.toString());
         }
-    }
-
-    private static HashSet<Path> readModuleDependencies() throws IOException {
-        HashSet<Path> moduleDependencies = new HashSet<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream("build/interopJars.txt"), Charset.forName("UTF-8")))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                moduleDependencies.add(Paths.get(line));
-            }
-        }
-        return moduleDependencies;
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {
