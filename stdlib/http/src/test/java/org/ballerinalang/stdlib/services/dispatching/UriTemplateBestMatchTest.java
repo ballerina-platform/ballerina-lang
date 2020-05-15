@@ -495,6 +495,15 @@ public class UriTemplateBestMatchTest {
         bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "abc!"
                 , "Resource dispatched to wrong template");
+
+        path = "/hello/echo125?foo=Owner%20IN%20%28%27owner1%27%2C%27owner2%27%29,Owner%20OUT";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "Owner IN ('owner1','owner2')"
+                , "Resource dispatched to wrong template");
     }
 
     @Test(description = "Test GetQueryParamValue method when params are not set with URL. /paramNeg")
