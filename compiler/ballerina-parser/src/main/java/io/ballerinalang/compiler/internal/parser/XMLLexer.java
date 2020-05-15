@@ -115,7 +115,7 @@ public class XMLLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
     }
 
     /**
@@ -130,13 +130,13 @@ public class XMLLexer extends AbstractLexer {
         switch (c) {
             case LexerTerminals.NEWLINE:
                 reader.advance();
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             case LexerTerminals.CARRIAGE_RETURN:
                 reader.advance();
                 if (reader.peek() == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             default:
                 throw new IllegalStateException();
         }

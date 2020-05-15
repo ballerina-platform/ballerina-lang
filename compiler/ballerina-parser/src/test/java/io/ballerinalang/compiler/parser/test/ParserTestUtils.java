@@ -269,9 +269,9 @@ public class ParserTestUtils {
 
     public static boolean isTrivia(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
-            case WHITESPACE_TRIVIA:
-            case END_OF_LINE_TRIVIA:
-            case COMMENT:
+            case WHITESPACE_MINUTIAE:
+            case END_OF_LINE_MINUTIAE:
+            case COMMENT_MINUTIA:
             case INVALID:
                 return true;
             default:
@@ -293,11 +293,11 @@ public class ParserTestUtils {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text();
-            case WHITESPACE_TRIVIA:
-            case COMMENT:
+            case WHITESPACE_MINUTIAE:
+            case COMMENT_MINUTIA:
             case INVALID:
                 return ((STMinutiae) token).text();
-            case END_OF_LINE_TRIVIA:
+            case END_OF_LINE_MINUTIAE:
                 return cleanupText(((STMinutiae) token).text());
             case DOCUMENTATION_LINE:
                 return ((STDocumentationLineToken) token).text();
@@ -893,11 +893,11 @@ public class ParserTestUtils {
             case "EOF_TOKEN":
                 return SyntaxKind.EOF_TOKEN;
             case "END_OF_LINE_TRIVIA":
-                return SyntaxKind.END_OF_LINE_TRIVIA;
+                return SyntaxKind.END_OF_LINE_MINUTIAE;
             case "WHITESPACE_TRIVIA":
-                return SyntaxKind.WHITESPACE_TRIVIA;
+                return SyntaxKind.WHITESPACE_MINUTIAE;
             case "COMMENT":
-                return SyntaxKind.COMMENT;
+                return SyntaxKind.COMMENT_MINUTIA;
             case "INVALID":
                 return SyntaxKind.INVALID;
 

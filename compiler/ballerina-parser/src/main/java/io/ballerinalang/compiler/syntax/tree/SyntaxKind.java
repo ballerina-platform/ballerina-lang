@@ -158,9 +158,9 @@ public enum SyntaxKind {
     TEMPLATE_STRING(1007),
 
     // Trivia
-    WHITESPACE_TRIVIA(1500),
-    END_OF_LINE_TRIVIA(1501),
-    COMMENT(1502),
+    WHITESPACE_MINUTIAE(1500),
+    END_OF_LINE_MINUTIAE(1501),
+    COMMENT_MINUTIA(1502),
     DOCUMENTATION_LINE(1503),
 
     // module-level declarations
