@@ -496,8 +496,32 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesizedArgList);
     }
 
-    public T transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        return transformSyntaxNode(readOnlyTypeDescriptorNode);
+    public T transform(QueryConstructTypeNode queryConstructTypeNode) {
+        return transformSyntaxNode(queryConstructTypeNode);
+    }
+
+    public T transform(FromClauseNode fromClauseNode) {
+        return transformSyntaxNode(fromClauseNode);
+    }
+
+    public T transform(WhereClauseNode whereClauseNode) {
+        return transformSyntaxNode(whereClauseNode);
+    }
+
+    public T transform(LetClauseNode letClauseNode) {
+        return transformSyntaxNode(letClauseNode);
+    }
+
+    public T transform(QueryPipelineNode queryPipelineNode) {
+        return transformSyntaxNode(queryPipelineNode);
+    }
+
+    public T transform(SelectClauseNode selectClauseNode) {
+        return transformSyntaxNode(selectClauseNode);
+    }
+
+    public T transform(QueryExpressionNode queryExpressionNode) {
+        return transformSyntaxNode(queryExpressionNode);
     }
 
     // Tokens

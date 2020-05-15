@@ -24,18 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ReadOnlyTypeDescriptorNode extends NonTerminalNode {
+public class QueryExpressionNode extends ExpressionNode {
 
-    public ReadOnlyTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public QueryExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token readonlyKeyWordToken() {
+    public QueryConstructTypeNode queryConstructType() {
         return childInBucket(0);
     }
 
-    public Node typeParameterNode() {
+    public QueryPipelineNode queryPipeline() {
         return childInBucket(1);
+    }
+
+    public SelectClauseNode selectClause() {
+        return childInBucket(2);
     }
 
     @Override
@@ -51,21 +55,25 @@ public class ReadOnlyTypeDescriptorNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "readonlyKeyWordToken",
-                "typeParameterNode"};
+                "queryConstructType",
+                "queryPipeline",
+                "selectClause"};
     }
 
-    public ReadOnlyTypeDescriptorNode modify(
-            Token readonlyKeyWordToken,
-            Node typeParameterNode) {
+    public QueryExpressionNode modify(
+            QueryConstructTypeNode queryConstructType,
+            QueryPipelineNode queryPipeline,
+            SelectClauseNode selectClause) {
         if (checkForReferenceEquality(
-                readonlyKeyWordToken,
-                typeParameterNode)) {
+                queryConstructType,
+                queryPipeline,
+                selectClause)) {
             return this;
         }
 
-        return NodeFactory.createReadOnlyTypeDescriptorNode(
-                readonlyKeyWordToken,
-                typeParameterNode);
+        return NodeFactory.createQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause);
     }
 }

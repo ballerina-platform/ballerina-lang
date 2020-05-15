@@ -19,31 +19,31 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ReadOnlyTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STReadOnlyTypeDescriptorNode extends STNode {
-    public final STNode readonlyKeyWordToken;
-    public final STNode typeParameterNode;
+public class STWhereClauseNode extends STClauseNode {
+    public final STNode whereKeyword;
+    public final STNode expression;
 
-    STReadOnlyTypeDescriptorNode(
-            STNode readonlyKeyWordToken,
-            STNode typeParameterNode) {
-        super(SyntaxKind.READONLY_TYPE_DESC);
-        this.readonlyKeyWordToken = readonlyKeyWordToken;
-        this.typeParameterNode = typeParameterNode;
+    STWhereClauseNode(
+            STNode whereKeyword,
+            STNode expression) {
+        super(SyntaxKind.WHERE_CLAUSE);
+        this.whereKeyword = whereKeyword;
+        this.expression = expression;
 
         addChildren(
-                readonlyKeyWordToken,
-                typeParameterNode);
+                whereKeyword,
+                expression);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReadOnlyTypeDescriptorNode(this, position, parent);
+        return new WhereClauseNode(this, position, parent);
     }
 }

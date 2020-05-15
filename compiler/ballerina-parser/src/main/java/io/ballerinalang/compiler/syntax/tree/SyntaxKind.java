@@ -71,6 +71,9 @@ public enum SyntaxKind {
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
     NEW_KEYWORD(224, "new"),
+    FROM_KEYWORD(225, "from"),
+    WHERE_KEYWORD(226, "where"),
+    SELECT_KEYWORD(227, "select"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -92,6 +95,7 @@ public enum SyntaxKind {
     ERROR_KEYWORD(266,"error"),
     STREAM_KEYWORD(267,"stream"),
     READONLY_KEYWORD(268, "readonly"),
+    DISTINCT_KEYWORD(269,"distinct"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -217,6 +221,7 @@ public enum SyntaxKind {
     IMPLICIT_NEW_EXPRESSION(1323),
     EXPLICIT_NEW_EXPRESSION(1324),
     PARENTHESIZED_ARG_LIST(1325),
+    QUERY_EXPRESSION(1326),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -248,6 +253,7 @@ public enum SyntaxKind {
     TUPLE_TYPE_DESC(2026),
     PARENTHESISED_TYPE_DESC(2027),
     READONLY_TYPE_DESC(2028),
+    DISTINCT_TYPE_DESC(2029),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
@@ -297,6 +303,12 @@ public enum SyntaxKind {
     TYPE_PARAMETER(3038),
     KEY_TYPE_CONSTRAINT(3039),
     FUNCTION_SIGNATURE(3040),
+    QUERY_CONSTRUCT_TYPE(3041),
+    FROM_CLAUSE(3042),
+    WHERE_CLAUSE(3043),
+    LET_CLAUSE(3044),
+    QUERY_PIPELINE(3045),
+    SELECT_CLAUSE(3046),
 
     // XML
     XML_ELEMENT(4000),

@@ -80,4 +80,9 @@ public class LetExpressionTest extends AbstractExpressionsTest {
     public void testLetExprWithMissingExprInLetVarDecl() {
         test("let int B = in E2", "let-expr/let_expr_assert_12.json");
     }
+
+    @Test
+    public void testLetExprOperatorPrecedence() {
+        test("let int a = b in c + let int d = e in f", "let-expr/let_expr_assert_13.json");
+    }
 }
