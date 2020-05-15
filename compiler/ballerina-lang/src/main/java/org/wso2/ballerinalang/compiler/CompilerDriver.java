@@ -273,6 +273,7 @@ public class CompilerDriver {
     private void codeGen(BLangPackage pkgNode) {
         codeGenerator.generate(pkgNode);
     }
+
     public BLangPackage define(BLangPackage pkgNode) {
         return this.symbolEnter.definePackage(pkgNode);
     }
