@@ -40,7 +40,7 @@ public interface TableValue<K, V> extends RefValue, CollectionValue, BMap<K, V> 
 
     V put(K key, V value);
 
-    int getNextKey();
+    long getNextKey();
 
     BType getKeyType();
 }

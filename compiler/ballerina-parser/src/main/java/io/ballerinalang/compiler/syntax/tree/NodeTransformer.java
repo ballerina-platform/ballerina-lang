@@ -468,12 +468,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -496,8 +500,44 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesizedArgList);
     }
 
-    public T transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        return transformSyntaxNode(readOnlyTypeDescriptorNode);
+    public T transform(QueryConstructTypeNode queryConstructTypeNode) {
+        return transformSyntaxNode(queryConstructTypeNode);
+    }
+
+    public T transform(FromClauseNode fromClauseNode) {
+        return transformSyntaxNode(fromClauseNode);
+    }
+
+    public T transform(WhereClauseNode whereClauseNode) {
+        return transformSyntaxNode(whereClauseNode);
+    }
+
+    public T transform(LetClauseNode letClauseNode) {
+        return transformSyntaxNode(letClauseNode);
+    }
+
+    public T transform(QueryPipelineNode queryPipelineNode) {
+        return transformSyntaxNode(queryPipelineNode);
+    }
+
+    public T transform(SelectClauseNode selectClauseNode) {
+        return transformSyntaxNode(selectClauseNode);
+    }
+
+    public T transform(QueryExpressionNode queryExpressionNode) {
+        return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
+    public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        return transformSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public T transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
     }
 
     // Tokens

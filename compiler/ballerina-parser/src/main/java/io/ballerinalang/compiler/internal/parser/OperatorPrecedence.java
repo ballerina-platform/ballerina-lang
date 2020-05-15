@@ -38,7 +38,8 @@ public enum OperatorPrecedence {
     LOGICAL_AND(11),    //  (x && y)
     LOGICAL_OR(12),     //  (x || y)
 
-    ACTION(17),          //  Actions cannot reside inside expressions, hence they have the lowest precedence.
+    ANON_FUNC(16),      //  (x) => y
+    ACTION(17),         //  Actions cannot reside inside expressions, hence they have the lowest precedence.
                         //  (x -> y()), (start x), ...
     ;
 

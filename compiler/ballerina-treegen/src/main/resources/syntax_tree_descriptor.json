@@ -66,7 +66,7 @@
                 },
                 {
                     "name": "functionBody",
-                    "type": "Node"
+                    "type": "FunctionBodyNode"
                 }
             ]
         },
@@ -369,7 +369,7 @@
         },
         {
             "name": "ExternalFunctionBodyNode",
-            "base": "StatementNode",
+            "base": "FunctionBodyNode",
             "kind": "EXTERNAL_FUNCTION_BODY",
             "attributes": [
                 {
@@ -1656,7 +1656,7 @@
         },
         {
             "name": "FunctionBodyBlockNode",
-            "base": "StatementNode",
+            "base": "FunctionBodyNode",
             "kind": "FUNCTION_BODY_BLOCK",
             "attributes": [
                 {
@@ -2420,30 +2420,6 @@
             ]
         },
         {
-            "name": "AnonymousFunctionExpressionNode",
-            "base": "ExpressionNode",
-            "kind": "ANONYMOUS_FUNCTION_EXPRESSION",
-            "attributes": [
-                {
-                    "name": "annotations",
-                    "type": "AnnotationNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "functionSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "Node"
-                }
-            ]
-        },
-        {
             "name": "FunctionSignatureNode",
             "base": "Node",
             "kind": "FUNCTION_SIGNATURE",
@@ -2465,6 +2441,55 @@
                     "name": "returnTypeDesc",
                     "type": "ReturnTypeDescriptorNode",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "AnonymousFunctionExpressionNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ExplicitAnonymousFunctionExpressionNode",
+            "base": "AnonymousFunctionExpressionNode",
+            "kind": "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "FunctionBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "FunctionBodyNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ExpressionFunctionBodyNode",
+            "base": "FunctionBodyNode",
+            "kind": "EXPRESSION_FUNCTION_BODY",
+            "attributes": [
+                {
+                    "name": "rightDoubleArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -2572,17 +2597,188 @@
             ]
         },
         {
-            "name": "ReadOnlyTypeDescriptorNode",
+            "name": "ClauseNode",
             "base": "Node",
-            "kind": "READONLY_TYPE_DESC",
+            "isAbstract": true
+        },
+        {
+            "name": "QueryConstructTypeNode",
+            "base": "Node",
+            "kind": "QUERY_CONSTRUCT_TYPE",
             "attributes": [
                 {
-                    "name": "readonlyKeyWordToken",
+                    "name": "tableKeyword",
                     "type": "Token"
                 },
                 {
-                    "name": "typeParameterNode",
+                    "name": "KeySpecifier",
+                    "type": "KeySpecifierNode"
+                }
+            ]
+        },
+        {
+            "name": "FromClauseNode",
+            "base": "ClauseNode",
+            "kind": "FROM_CLAUSE",
+            "attributes": [
+                {
+                    "name": "fromKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeName",
                     "type": "Node"
+                },
+                {
+                    "name": "variableName",
+                    "type": "Token"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "WhereClauseNode",
+            "base": "ClauseNode",
+            "kind": "WHERE_CLAUSE",
+            "attributes": [
+                {
+                    "name": "whereKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "LetClauseNode",
+            "base": "ClauseNode",
+            "kind": "LET_CLAUSE",
+            "attributes": [
+                {
+                    "name": "letKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "letVarDeclarations",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "QueryPipelineNode",
+            "base": "Node",
+            "kind": "QUERY_PIPELINE",
+            "attributes": [
+                {
+                    "name": "fromClause",
+                    "type": "FromClauseNode"
+                },
+                {
+                    "name": "intermediateClauses",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "SelectClauseNode",
+            "base": "ClauseNode",
+            "kind": "SELECT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "selectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "QueryExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "QUERY_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "queryConstructType",
+                    "type": "QueryConstructTypeNode"
+                },
+                {
+                    "name": "queryPipeline",
+                    "type": "QueryPipelineNode"
+                },
+                {
+                    "name": "selectClause",
+                    "type": "SelectClauseNode"
+                }
+            ]
+        },
+        {
+            "name": "IntersectionTypeDescriptorNode",
+            "base": "Node",
+            "kind": "INTERSECTION_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "leftTypeDesc",
+                    "type": "Node"
+                },
+                {
+                    "name": "bitwiseAndToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rightTypeDesc",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ImplicitAnonymousFunctionParameters",
+            "base": "Node",
+            "kind": "INFER_PARAM_LIST",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameters",
+                    "type": "SimpleNameReferenceNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ImplicitAnonymousFunctionExpressionNode",
+            "base": "AnonymousFunctionExpressionNode",
+            "kind": "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "params",
+                    "type": "Node"
+                },
+                {
+                    "name": "rightDoubleArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         }

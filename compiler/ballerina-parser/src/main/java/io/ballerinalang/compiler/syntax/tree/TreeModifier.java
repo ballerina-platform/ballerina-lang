@@ -49,7 +49,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token functionKeyword = modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName = modifyNode(functionDefinitionNode.functionName());
         FunctionSignatureNode functionSignature = modifyNode(functionDefinitionNode.functionSignature());
-        Node functionBody = modifyNode(functionDefinitionNode.functionBody());
+        FunctionBodyNode functionBody = modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -1344,19 +1344,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        NodeList<AnnotationNode> annotations = modifyNodeList(anonymousFunctionExpressionNode.annotations());
-        Token functionKeyword = modifyToken(anonymousFunctionExpressionNode.functionKeyword());
-        FunctionSignatureNode functionSignature = modifyNode(anonymousFunctionExpressionNode.functionSignature());
-        Node functionBody = modifyNode(anonymousFunctionExpressionNode.functionBody());
-        return anonymousFunctionExpressionNode.modify(
-                annotations,
-                functionKeyword,
-                functionSignature,
-                functionBody);
-    }
-
-    @Override
     public Node transform(FunctionSignatureNode functionSignatureNode) {
         Token openParenToken = modifyToken(functionSignatureNode.openParenToken());
         NodeList<ParameterNode> parameters = modifyNodeList(functionSignatureNode.parameters());
@@ -1367,6 +1354,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    @Override
+    public Node transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(explicitAnonymousFunctionExpressionNode.annotations());
+        Token functionKeyword = modifyToken(explicitAnonymousFunctionExpressionNode.functionKeyword());
+        FunctionSignatureNode functionSignature = modifyNode(explicitAnonymousFunctionExpressionNode.functionSignature());
+        FunctionBodyNode functionBody = modifyNode(explicitAnonymousFunctionExpressionNode.functionBody());
+        return explicitAnonymousFunctionExpressionNode.modify(
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
+    }
+
+    @Override
+    public Node transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        Token rightDoubleArrow = modifyToken(expressionFunctionBodyNode.rightDoubleArrow());
+        ExpressionNode expression = modifyNode(expressionFunctionBodyNode.expression());
+        return expressionFunctionBodyNode.modify(
+                rightDoubleArrow,
+                expression);
     }
 
     @Override
@@ -1425,12 +1434,107 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        Token readonlyKeyWordToken = modifyToken(readOnlyTypeDescriptorNode.readonlyKeyWordToken());
-        Node typeParameterNode = modifyNode(readOnlyTypeDescriptorNode.typeParameterNode());
-        return readOnlyTypeDescriptorNode.modify(
-                readonlyKeyWordToken,
-                typeParameterNode);
+    public Node transform(QueryConstructTypeNode queryConstructTypeNode) {
+        Token tableKeyword = modifyToken(queryConstructTypeNode.tableKeyword());
+        KeySpecifierNode KeySpecifier = modifyNode(queryConstructTypeNode.KeySpecifier());
+        return queryConstructTypeNode.modify(
+                tableKeyword,
+                KeySpecifier);
+    }
+
+    @Override
+    public Node transform(FromClauseNode fromClauseNode) {
+        Token fromKeyword = modifyToken(fromClauseNode.fromKeyword());
+        Node typeName = modifyNode(fromClauseNode.typeName());
+        Token variableName = modifyToken(fromClauseNode.variableName());
+        Token inKeyword = modifyToken(fromClauseNode.inKeyword());
+        ExpressionNode expression = modifyNode(fromClauseNode.expression());
+        return fromClauseNode.modify(
+                fromKeyword,
+                typeName,
+                variableName,
+                inKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(WhereClauseNode whereClauseNode) {
+        Token whereKeyword = modifyToken(whereClauseNode.whereKeyword());
+        ExpressionNode expression = modifyNode(whereClauseNode.expression());
+        return whereClauseNode.modify(
+                whereKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(LetClauseNode letClauseNode) {
+        Token letKeyword = modifyToken(letClauseNode.letKeyword());
+        SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letClauseNode.letVarDeclarations());
+        return letClauseNode.modify(
+                letKeyword,
+                letVarDeclarations);
+    }
+
+    @Override
+    public Node transform(QueryPipelineNode queryPipelineNode) {
+        FromClauseNode fromClause = modifyNode(queryPipelineNode.fromClause());
+        NodeList<Node> intermediateClauses = modifyNodeList(queryPipelineNode.intermediateClauses());
+        return queryPipelineNode.modify(
+                fromClause,
+                intermediateClauses);
+    }
+
+    @Override
+    public Node transform(SelectClauseNode selectClauseNode) {
+        Token selectKeyword = modifyToken(selectClauseNode.selectKeyword());
+        ExpressionNode expression = modifyNode(selectClauseNode.expression());
+        return selectClauseNode.modify(
+                selectKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(QueryExpressionNode queryExpressionNode) {
+        QueryConstructTypeNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType());
+        QueryPipelineNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline());
+        SelectClauseNode selectClause = modifyNode(queryExpressionNode.selectClause());
+        return queryExpressionNode.modify(
+                queryConstructType,
+                queryPipeline,
+                selectClause);
+    }
+
+    @Override
+    public Node transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(intersectionTypeDescriptorNode.leftTypeDesc());
+        Token bitwiseAndToken = modifyToken(intersectionTypeDescriptorNode.bitwiseAndToken());
+        Node rightTypeDesc = modifyNode(intersectionTypeDescriptorNode.rightTypeDesc());
+        return intersectionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
+    }
+
+    @Override
+    public Node transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        Token openParenToken = modifyToken(implicitAnonymousFunctionParameters.openParenToken());
+        SeparatedNodeList<SimpleNameReferenceNode> parameters = modifySeparatedNodeList(implicitAnonymousFunctionParameters.parameters());
+        Token closeParenToken = modifyToken(implicitAnonymousFunctionParameters.closeParenToken());
+        return implicitAnonymousFunctionParameters.modify(
+                openParenToken,
+                parameters,
+                closeParenToken);
+    }
+
+    @Override
+    public Node transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        Node params = modifyNode(implicitAnonymousFunctionExpressionNode.params());
+        Token rightDoubleArrow = modifyToken(implicitAnonymousFunctionExpressionNode.rightDoubleArrow());
+        ExpressionNode expression = modifyNode(implicitAnonymousFunctionExpressionNode.expression());
+        return implicitAnonymousFunctionExpressionNode.modify(
+                params,
+                rightDoubleArrow,
+                expression);
     }
 
     // Tokens
