@@ -562,6 +562,7 @@ class JvmValueGen {
 
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
                                          BIRNode.BIRTypeDefinition typeDef) {
+
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "instantiate",
                 String.format("(L%s;)L%s;", STRAND, OBJECT), null, null);
         mv.visitCode();
@@ -573,14 +574,12 @@ class JvmValueGen {
         loadType(mv, recordType);
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
 
-
         BAttachedFunction initializer = ((BRecordTypeSymbol) recordType.tsymbol).initializerFunc;
         StringBuilder closureParamSignature = calcClosureMapSignature(initializer.type.paramTypes.size());
 
         // Invoke the init-function of this type.
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(SWAP);
-
 
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
@@ -589,14 +588,13 @@ class JvmValueGen {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
-                                   String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+                        String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
             }
         }
 
-
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, TYPEDESC_VALUE_IMPL, TYPEDESC_VALUE_IMPL_CLOSURES,
-                          String.format("[L%s;", MAP_VALUE));
+                String.format("[L%s;", MAP_VALUE));
 
         for (int i = 0; i < initializer.type.paramTypes.size(); i++) {
             mv.visitInsn(DUP);
@@ -608,7 +606,6 @@ class JvmValueGen {
             mv.visitInsn(SWAP);
         }
         mv.visitInsn(POP);
-
 
         // Invoke the init-function of this type.
         String initFuncName;
@@ -627,8 +624,8 @@ class JvmValueGen {
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
-                           String.format("(L%s;L%s;%s)L%s;", STRAND, MAP_VALUE, closureParamSignature, OBJECT),
-                           false);
+                String.format("(L%s;L%s;%s)L%s;", STRAND, MAP_VALUE, closureParamSignature, OBJECT),
+                false);
 
         mv.visitInsn(POP);
         mv.visitInsn(ARETURN);
@@ -637,6 +634,7 @@ class JvmValueGen {
     }
 
     private StringBuilder calcClosureMapSignature(int size) {
+
         StringBuilder closureParamSignature = new StringBuilder();
         for (int i = 0; i < size; i++) {
             closureParamSignature.append('L');
@@ -737,7 +735,7 @@ class JvmValueGen {
     private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
-                                          String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), null, null);
+                String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), null, null);
         mv.visitCode();
         // load strand
         mv.visitVarInsn(ALOAD, 0);
@@ -749,10 +747,10 @@ class JvmValueGen {
         for (BType typeRef : typeDef.referencedTypes) {
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
-                                                                toNameString(typeRef));
+                        toNameString(typeRef));
                 mv.visitInsn(DUP2);
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
-                                   String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+                        String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
             }
         }
 
@@ -774,7 +772,7 @@ class JvmValueGen {
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
-                           String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
+                String.format("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
         mv.visitInsn(POP);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);

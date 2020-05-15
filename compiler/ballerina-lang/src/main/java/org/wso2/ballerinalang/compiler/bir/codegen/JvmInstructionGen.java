@@ -1778,7 +1778,6 @@ public class JvmInstructionGen {
         this.mv.visitInsn(DUP);
         loadType(this.mv, newTypeDesc.type);
 
-
         List<BIROperand> closureVars = newTypeDesc.closureVars;
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);

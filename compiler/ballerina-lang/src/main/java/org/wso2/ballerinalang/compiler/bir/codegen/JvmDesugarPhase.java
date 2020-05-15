@@ -214,7 +214,7 @@ public class JvmDesugarPhase {
 
         // Inject an additional parameter to accept the self-record value into the init function
         BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
-                                                                  receiver.scope, VarKind.ARG, paramName, false);
+                receiver.scope, VarKind.ARG, paramName, false);
 
         List<BType> updatedParamTypes = Lists.of(receiver.type);
         updatedParamTypes.addAll(func.type.paramTypes);
