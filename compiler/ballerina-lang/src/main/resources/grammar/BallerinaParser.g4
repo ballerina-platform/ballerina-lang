@@ -911,7 +911,7 @@ letClause
     ;
 
 joinClause
-    :   JOIN (typeName | VAR) bindingPattern IN expression
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN VAR bindingPattern) IN expression
     ;
 
 fromClause

@@ -37,6 +37,17 @@ public abstract class BLangInputClause extends BLangNode implements InputClauseN
     public BType resultType; // map<T>
     public BType nillableResultType; // map<T>?
     public boolean isDeclaredWithVar;
+    public boolean isOuterJoin;
+
+    @Override
+    public boolean isOuterJoin() {
+        return isOuterJoin;
+    }
+
+    @Override
+    public void setIsOuterJoin(boolean isOuterJoin) {
+        this.isOuterJoin = isOuterJoin;
+    }
 
     @Override
     public ExpressionNode getCollection() {

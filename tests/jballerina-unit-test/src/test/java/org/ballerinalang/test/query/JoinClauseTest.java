@@ -51,7 +51,7 @@ public class JoinClauseTest {
 
         Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
         Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Eng");
+        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
     }
 
 
@@ -59,5 +59,20 @@ public class JoinClauseTest {
     public void testJoinClauseWithStream() {
         BValue[] values = BRunUtil.invoke(result, "testJoinClauseWithStream", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleOuterJoinClause() {
+        BValue[] values = BRunUtil.invoke(result, "testSimpleOuterJoinClause");
+        Assert.assertNotNull(values);
+
+        Assert.assertEquals(values.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
+        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
+
+        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
+        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
+        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Eng");
     }
 }

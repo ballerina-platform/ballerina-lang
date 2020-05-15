@@ -45,11 +45,11 @@ function testSimpleJoinClause() returns DeptPerson[]{
     DeptPerson[] deptPersonList =
        from var person in personList
        join Department dept in deptList
-       on true
+       on person.id == dept.id
        select {
            fname : person.fname,
            lname : person.lname,
-           dept : "Eng"
+           dept : dept.name
        };
 
     return deptPersonList;
@@ -73,20 +73,43 @@ function testJoinClauseWithStream() returns boolean {
     stream<DeptPerson> deptPersonStream =
        stream from var person in personStream
        join var dept in deptStream
-       on true
+       on person.id == dept.id
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : dept.name
+       };
+
+    record {| DeptPerson value; |}? deptPerson = getDeptPersonValue(deptPersonStream.next());
+    testPassed = testPassed && deptPerson?.value?.fname == "Alex" && deptPerson?.value?.lname == "George"
+                             && deptPerson?.value?.dept == "HR";
+
+    return testPassed;
+}
+
+function testSimpleOuterJoinClause() returns DeptPerson[]{
+    boolean testPassed = true;
+
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       outer join var dept in deptList
+       on person.id == 1
        select {
            fname : person.fname,
            lname : person.lname,
            dept : "Eng"
        };
 
-    record {| DeptPerson value; |}? deptPerson = getDeptPersonValue(deptPersonStream.next());
-    testPassed = testPassed && deptPerson?.value?.fname == "Alex" && deptPerson?.value?.lname == "George"
-                             && deptPerson?.value?.dept == "Eng";
-
-    deptPerson = getDeptPersonValue(deptPersonStream.next());
-    testPassed = testPassed && deptPerson?.value?.fname == "Ranjan" && deptPerson?.value?.lname == "Fonseka"
-                                 && deptPerson?.value?.dept == "Eng";
-
-    return testPassed;
+    return deptPersonList;
 }
+
+
