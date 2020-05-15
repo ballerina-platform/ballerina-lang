@@ -18,19 +18,20 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.RetryTransactionNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 
 /**
- * {@code BLangRetry} represents a retry statement within a transaction in Ballerina.
+ * {@code BLangRetryTransaction} represents a retry transaction statement within a transaction in Ballerina.
  *
- * @since 0.965.0
+ * @since 1.3.0
  */
-public class BLangRetry extends BLangStatement implements RetryNode {
+public class BLangRetryTransaction extends BLangStatement implements RetryTransactionNode {
 
     public BLangRetrySpec retrySpec;
-    public BLangBlockStmt retryBody;
+    public BLangTransaction transaction;
 
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;
@@ -40,12 +41,12 @@ public class BLangRetry extends BLangStatement implements RetryNode {
         this.retrySpec = retrySpec;
     }
 
-    public BLangBlockStmt getRetryBody() {
-        return retryBody;
+    public BLangTransaction getTransaction() {
+        return transaction;
     }
 
-    public void setRetryBody(BLangBlockStmt retryBody) {
-        this.retryBody = retryBody;
+    public void setTransaction(BLangTransaction transaction) {
+        this.transaction = transaction;
     }
 
     @Override
@@ -55,11 +56,13 @@ public class BLangRetry extends BLangStatement implements RetryNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.RETRY;
+        return NodeKind.RETRY_TRANSACTION;
     }
 
     @Override
     public String toString() {
+
+        //TODO Transaction
         return "Retry";
     }
 }

@@ -15,16 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.expressions;
 
 /**
- * {@code TransactionNode} represents the transaction statement in Ballerina.
+ * This represents the transaction expression node.
  *
  * @since 1.3.0
  */
-public interface TransactionNode extends StatementNode {
+public interface TransactionalExpressionNode extends ExpressionNode {
 
-    BlockStatementNode getTransactionBody();
-
-    void setTransactionBody(BlockStatementNode body);
 }

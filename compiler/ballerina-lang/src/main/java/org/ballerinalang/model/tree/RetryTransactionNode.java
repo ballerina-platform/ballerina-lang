@@ -15,23 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 
 /**
- * {@code RetryNode} represents a retry statement within a transaction in Ballerina.
+ * {@code RetryTransactionNode} represents a retry transaction statement within a transaction in Ballerina.
  *
- * @since 0.965.0
+ * @since 1.3.0
  */
-public interface RetryNode extends StatementNode {
+public interface RetryTransactionNode extends StatementNode {
 
     BLangRetrySpec getRetrySpec();
 
     void setRetrySpec(BLangRetrySpec retrySpec);
 
-    BLangBlockStmt getRetryBody();
+    BLangTransaction getTransaction();
 
-    void setRetryBody(BLangBlockStmt retryBody);
+    void setTransaction(BLangTransaction transaction);
+
 }

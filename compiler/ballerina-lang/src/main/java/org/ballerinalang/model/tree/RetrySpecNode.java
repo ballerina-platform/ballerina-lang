@@ -15,16 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree;
+
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
+
+import java.util.List;
 
 /**
- * {@code TransactionNode} represents the transaction statement in Ballerina.
+ * {@code RetrySpec} is the base interface for BLangRetrySpec node.
  *
  * @since 1.3.0
  */
-public interface TransactionNode extends StatementNode {
+public interface RetrySpecNode extends Node {
 
-    BlockStatementNode getTransactionBody();
+    TypeNode getRetryManagerType();
 
-    void setTransactionBody(BlockStatementNode body);
+    void setRetryManagerType(TypeNode retryManagerType);
+
+    List<? extends ExpressionNode> getArgExprs();
+
+    void addArgExpr(ExpressionNode argExpr);
 }

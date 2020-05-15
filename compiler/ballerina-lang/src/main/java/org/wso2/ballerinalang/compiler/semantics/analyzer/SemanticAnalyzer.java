@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -98,7 +99,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -119,7 +119,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -2446,32 +2448,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
         analyzeStmt(transactionNode.transactionBody, transactionEnv);
-        if (transactionNode.onRetryBody != null) {
-            analyzeStmt(transactionNode.onRetryBody, transactionEnv);
-        }
+    }
 
-        if (transactionNode.committedBody != null) {
-            analyzeStmt(transactionNode.committedBody, transactionEnv);
-        }
-
-        if (transactionNode.abortedBody != null) {
-            analyzeStmt(transactionNode.abortedBody, transactionEnv);
-        }
-
-        if (transactionNode.retryCount != null) {
-            typeChecker.checkExpr(transactionNode.retryCount, transactionEnv, symTable.intType);
-            checkRetryStmtValidity(transactionNode.retryCount);
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        if (rollbackNode.expr != null) {
+            this.typeChecker.checkExpr(rollbackNode.expr, this.env);
         }
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
-        /* ignore */
+    public void visit(BLangRetryTransaction retryTransaction) {
+        if(retryTransaction.retrySpec != null) {
+            retryTransaction.retrySpec.accept(this);
+        }
+
+        retryTransaction.transaction.accept(this);
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
-        /* ignore */
+        if(retryNode.retrySpec != null) {
+            retryNode.retrySpec.accept(this);
+        }
+
+        analyzeStmt(retryNode.retryBody, env);
+    }
+
+    @Override
+    public void visit(BLangRetrySpec retrySpec) {
+        if(retrySpec.argExprs != null) {
+            retrySpec.argExprs.forEach(arg -> this.typeChecker.checkExpr(arg, env));
+        }
     }
 
     private boolean isJoinResultType(BLangSimpleVariable var) {

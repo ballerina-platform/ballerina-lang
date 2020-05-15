@@ -15,35 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BlockStatementNode;
-import org.ballerinalang.model.tree.statements.TransactionNode;
+import org.ballerinalang.model.tree.expressions.TransactionalExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Implementation of {@link BLangTransactionalExpr}.
+ *
  * @since 1.3.0
  */
-public class BLangTransaction extends BLangStatement implements TransactionNode {
-
-    public BLangBlockStmt transactionBody;
-
-    public BLangTransaction() {
-    }
-
-    public BLangTransaction(BLangBlockStmt transactionBody) {
-        this.transactionBody = transactionBody;
-    }
+public class BLangTransactionalExpr extends BLangExpression implements TransactionalExpressionNode {
 
     @Override
-    public BLangBlockStmt getTransactionBody() {
-        return transactionBody;
-    }
-
-    @Override
-    public void setTransactionBody(BlockStatementNode body) {
-        this.transactionBody = (BLangBlockStmt) body;
+    public NodeKind getKind() {
+        return NodeKind.TRANSACTIONAL_EXPRESSION;
     }
 
     @Override
@@ -52,12 +39,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.TRANSACTION;
-    }
-
-    @Override
     public String toString() {
-        return "Transaction: {" + transactionBody + "} ";
+        return "transactional";
     }
 }
