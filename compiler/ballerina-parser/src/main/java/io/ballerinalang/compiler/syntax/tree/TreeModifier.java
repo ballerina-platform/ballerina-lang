@@ -1433,6 +1433,77 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeParameterNode);
     }
 
+    @Override
+    public Node transform(QueryConstructTypeNode queryConstructTypeNode) {
+        Token tableKeyword = modifyToken(queryConstructTypeNode.tableKeyword());
+        KeySpecifierNode KeySpecifier = modifyNode(queryConstructTypeNode.KeySpecifier());
+        return queryConstructTypeNode.modify(
+                tableKeyword,
+                KeySpecifier);
+    }
+
+    @Override
+    public Node transform(FromClauseNode fromClauseNode) {
+        Token fromKeyword = modifyToken(fromClauseNode.fromKeyword());
+        Node typeName = modifyNode(fromClauseNode.typeName());
+        Token variableName = modifyToken(fromClauseNode.variableName());
+        Token inKeyword = modifyToken(fromClauseNode.inKeyword());
+        ExpressionNode expression = modifyNode(fromClauseNode.expression());
+        return fromClauseNode.modify(
+                fromKeyword,
+                typeName,
+                variableName,
+                inKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(WhereClauseNode whereClauseNode) {
+        Token whereKeyword = modifyToken(whereClauseNode.whereKeyword());
+        ExpressionNode expression = modifyNode(whereClauseNode.expression());
+        return whereClauseNode.modify(
+                whereKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(LetClauseNode letClauseNode) {
+        Token letKeyword = modifyToken(letClauseNode.letKeyword());
+        SeparatedNodeList<Node> letVarDeclarations = modifySeparatedNodeList(letClauseNode.letVarDeclarations());
+        return letClauseNode.modify(
+                letKeyword,
+                letVarDeclarations);
+    }
+
+    @Override
+    public Node transform(QueryPipelineNode queryPipelineNode) {
+        FromClauseNode fromClause = modifyNode(queryPipelineNode.fromClause());
+        NodeList<Node> intermediateClauses = modifyNodeList(queryPipelineNode.intermediateClauses());
+        return queryPipelineNode.modify(
+                fromClause,
+                intermediateClauses);
+    }
+
+    @Override
+    public Node transform(SelectClauseNode selectClauseNode) {
+        Token selectKeyword = modifyToken(selectClauseNode.selectKeyword());
+        ExpressionNode expression = modifyNode(selectClauseNode.expression());
+        return selectClauseNode.modify(
+                selectKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(QueryExpressionNode queryExpressionNode) {
+        QueryConstructTypeNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType());
+        QueryPipelineNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline());
+        SelectClauseNode selectClause = modifyNode(queryExpressionNode.selectClause());
+        return queryExpressionNode.modify(
+                queryConstructType,
+                queryPipeline,
+                selectClause);
+    }
+
     // Tokens
 
     @Override

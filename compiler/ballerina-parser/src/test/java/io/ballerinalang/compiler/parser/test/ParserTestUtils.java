@@ -93,7 +93,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
                 try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -472,6 +472,12 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_KEYWORD;
             case "READONLY_KEYWORD":
                 return SyntaxKind.READONLY_KEYWORD;
+            case "FROM_KEYWORD":
+                return SyntaxKind.FROM_KEYWORD;
+            case "WHERE_KEYWORD":
+                return SyntaxKind.WHERE_KEYWORD;
+            case "SELECT_KEYWORD":
+                return SyntaxKind.SELECT_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -622,6 +628,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
             case "STRING_TEMPLATE_EXPRESSION":
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
+            case "QUERY_EXPRESSION":
+                return SyntaxKind.QUERY_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -800,6 +808,18 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
                 return SyntaxKind.FUNCTION_SIGNATURE;
+            case "QUERY_CONSTRUCT_TYPE":
+                return SyntaxKind.QUERY_CONSTRUCT_TYPE;
+            case "FROM_CLAUSE":
+                return SyntaxKind.FROM_CLAUSE;
+            case "WHERE_CLAUSE":
+                return SyntaxKind.WHERE_CLAUSE;
+            case "LET_CLAUSE":
+                return SyntaxKind.LET_CLAUSE;
+            case "QUERY_PIPELINE":
+                return SyntaxKind.QUERY_PIPELINE;
+            case "SELECT_CLAUSE":
+                return SyntaxKind.SELECT_CLAUSE;
 
             // XML template
             case "XML_ELEMENT":
