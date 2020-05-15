@@ -54,8 +54,8 @@ import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNod
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_TRIVIA;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_TRIVIA;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_MINUTIAE;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
 
 /**
@@ -212,17 +212,17 @@ public class ParserTestUtils {
         }
 
         if (!ParserTestUtils.isTrivia(node.kind)) {
-            validateTrivia(json, (STToken) node);
+            validateMinutiae(json, (STToken) node);
         }
     }
 
-    private static void validateTrivia(JsonObject json, STToken token) {
-        if (json.has(LEADING_TRIVIA)) {
-            assertNonTerminalNode(json, LEADING_TRIVIA, token.leadingTrivia);
+    private static void validateMinutiae(JsonObject json, STToken token) {
+        if (json.has(LEADING_MINUTIAE)) {
+            assertNonTerminalNode(json, LEADING_MINUTIAE, token.leadingMinutiae());
         }
 
-        if (json.has(TRAILING_TRIVIA)) {
-            assertNonTerminalNode(json, TRAILING_TRIVIA, token.trailingTrivia);
+        if (json.has(TRAILING_MINUTIAE)) {
+            assertNonTerminalNode(json, TRAILING_MINUTIAE, token.trailingMinutiae());
         }
     }
 

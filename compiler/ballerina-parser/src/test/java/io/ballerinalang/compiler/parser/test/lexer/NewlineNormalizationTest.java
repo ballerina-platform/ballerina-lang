@@ -15,29 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.parser.test.lexer;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import org.testng.annotations.Test;
 
 /**
- * Represents a literal value in the Ballerina internal syntax tree.
+ * This class contains cases to test the newline normalization logic in the {@code BallerinaLexer}.
  *
  * @since 2.0.0
  */
-public class STLiteralValueToken extends STToken {
-    private final String text;
+public class NewlineNormalizationTest extends AbstractLexerTest {
 
-    STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
-        this.text = text;
+    @Test(description = "Tests the presence of \n character")
+    public void testUnixNewlineChars() {
+        STToken token = lexToken("sameera\r\n");
     }
 
-    public String text() {
-        return text;
+    @Test(description = "Tests the presence of \r\n characters")
+    public void testWindowsNewlineChars() {
+
     }
 
-    @Override
-    public String toString() {
-        return leadingMinutiae + text + trailingMinutiae;
+    @Test(description = "Tests the presence of \r character")
+    public void testOldMacNewlineChars() {
+
     }
 }

@@ -15,29 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.parser.test.lexer;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocuments;
 
 /**
- * Represents a literal value in the Ballerina internal syntax tree.
+ * An abstract class that contains utilities for {@code BallerinaLexer} tests.
  *
  * @since 2.0.0
  */
-public class STLiteralValueToken extends STToken {
-    private final String text;
+public class AbstractLexerTest {
 
-    STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
-        this.text = text;
-    }
-
-    public String text() {
-        return text;
-    }
-
-    @Override
-    public String toString() {
-        return leadingMinutiae + text + trailingMinutiae;
+    public STToken lexToken(String sourceText) {
+        TextDocument textDocument = TextDocuments.from(sourceText);
+        BallerinaLexer lexer = new BallerinaLexer(textDocument.getCharacterReader());
+        return lexer.nextToken();
     }
 }
