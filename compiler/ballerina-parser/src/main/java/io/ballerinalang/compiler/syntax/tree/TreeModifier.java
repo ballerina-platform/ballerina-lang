@@ -1434,15 +1434,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        Token readonlyKeyWordToken = modifyToken(readOnlyTypeDescriptorNode.readonlyKeyWordToken());
-        Node typeParameterNode = modifyNode(readOnlyTypeDescriptorNode.typeParameterNode());
-        return readOnlyTypeDescriptorNode.modify(
-                readonlyKeyWordToken,
-                typeParameterNode);
-    }
-
-    @Override
     public Node transform(QueryConstructTypeNode queryConstructTypeNode) {
         Token tableKeyword = modifyToken(queryConstructTypeNode.tableKeyword());
         KeySpecifierNode KeySpecifier = modifyNode(queryConstructTypeNode.KeySpecifier());

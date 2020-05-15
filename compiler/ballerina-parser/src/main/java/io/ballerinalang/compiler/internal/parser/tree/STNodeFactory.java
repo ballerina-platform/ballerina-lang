@@ -1445,15 +1445,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createReadOnlyTypeDescriptorNode(
-            STNode readonlyKeyWordToken,
-            STNode typeParameterNode) {
-
-        return new STReadOnlyTypeDescriptorNode(
-                readonlyKeyWordToken,
-                typeParameterNode);
-    }
-
     public static STNode createQueryConstructTypeNode(
             STNode tableKeyword,
             STNode KeySpecifier) {

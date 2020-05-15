@@ -95,6 +95,7 @@ public enum SyntaxKind {
     ERROR_KEYWORD(266,"error"),
     STREAM_KEYWORD(267,"stream"),
     READONLY_KEYWORD(268, "readonly"),
+    DISTINCT_KEYWORD(269,"distinct"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -253,6 +254,7 @@ public enum SyntaxKind {
     TUPLE_TYPE_DESC(2026),
     PARENTHESISED_TYPE_DESC(2027),
     READONLY_TYPE_DESC(2028),
+    DISTINCT_TYPE_DESC(2029),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
