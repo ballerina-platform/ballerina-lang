@@ -54,7 +54,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -67,7 +66,7 @@ import javax.xml.stream.XMLStreamException;
 public class XMLFactory {
 
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
-    private static final String XML_VALUE_TAG = "#text";
+    private static final BString XML_VALUE_TAG = StringUtils.fromString("#text");
     private static final String XML_DCLR_START = "<?xml";
 
     private static final BType jsonMapType =
@@ -434,7 +433,7 @@ public class XMLFactory {
                 }
                 return traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
             default:
-                return new MapValueImpl<String, Object>(jsonMapType);
+                return new MapValueImpl<>(jsonMapType);
         }
     }
 
@@ -456,19 +455,19 @@ public class XMLFactory {
     /**
      * Converts given xml object to the corresponding json.
      *
-     * @param xmlItem XML element to traverse
-     * @param attributePrefix Prefix to use in attributes
+     * @param xmlItem            XML element to traverse
+     * @param attributePrefix    Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      * @return ObjectNode Json object node corresponding to the given xml element
      */
-    private static MapValueImpl<String, Object> traverseXMLElement(XMLItem xmlItem, String attributePrefix,
-                                                                   boolean preserveNamespaces) {
-        MapValueImpl<String, Object> rootNode = new MapValueImpl<>(jsonMapType);
+    private static MapValueImpl<BString, Object> traverseXMLElement(XMLItem xmlItem, String attributePrefix,
+                                                                    boolean preserveNamespaces) {
+        MapValueImpl<BString, Object> rootNode = new MapValueImpl<>(jsonMapType);
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(xmlItem, preserveNamespaces);
         Iterator<BXML> iterator = getChildrenIterator(xmlItem);
-        String keyValue = getElementKey(xmlItem, preserveNamespaces);
+        BString keyValue = StringUtils.fromString(getElementKey(xmlItem, preserveNamespaces));
         if (iterator.hasNext()) {
-            MapValueImpl<String, Object> currentRoot = new MapValueImpl<>(jsonMapType);
+            MapValueImpl<BString, Object> currentRoot = new MapValueImpl<>(jsonMapType);
             ArrayList<XMLItem> childArray = new ArrayList<>();
             LinkedHashMap<String, ArrayList<Object>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
@@ -485,9 +484,9 @@ public class XMLFactory {
                 Iterator<BXML> childrenIterator = getChildrenIterator(item);
                 if (childrenIterator.hasNext()) {
                     // The child element itself has more child elements
-                    MapValueImpl<String, ?> nodeIntermediate =
+                    MapValueImpl<BString, ?> nodeIntermediate =
                             traverseXMLElement(item, attributePrefix, preserveNamespaces);
-                    addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
+                    addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(StringUtils.fromString(childKeyValue)));
                 } else {
                     // The child element is a single element with no child elements
                     if (childAttributeMap.size() > 0) {
@@ -511,7 +510,7 @@ public class XMLFactory {
             // Process the single element
             if (attributeMap.size() > 0) {
                 // Element has attributes or namespaces
-                MapValueImpl<String, Object> attrObject =
+                MapValueImpl<BString, Object> attrObject =
                         processAttributeAndNamespaces(null, attributeMap, attributePrefix, xmlItem.getTextValue());
                 rootNode.put(keyValue, attrObject);
             } else {
@@ -553,7 +552,7 @@ public class XMLFactory {
             textArrayNode = processTextArray(textArray);
         }
 
-        MapValueImpl<String, Object> jsonNode = new MapValueImpl<>(jsonMapType);
+        MapValueImpl<BString, Object> jsonNode = new MapValueImpl<>(jsonMapType);
         if (!childArray.isEmpty()) {
             processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
             if (textArrayNode != null) {
@@ -572,12 +571,12 @@ public class XMLFactory {
     /**
      * Process XML child elements and create JSON node from them.
      *
-     * @param root JSON root object to which children are added
-     * @param childArray List of child XML elements
-     * @param attributePrefix Prefix to use in attributes
+     * @param root               JSON root object to which children are added
+     * @param childArray         List of child XML elements
+     * @param attributePrefix    Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      */
-    private static void processChildelements(MapValueImpl<String, Object> root, ArrayList<XMLItem> childArray,
+    private static void processChildelements(MapValueImpl<BString, Object> root, ArrayList<XMLItem> childArray,
                                              String attributePrefix, boolean preserveNamespaces) {
         LinkedHashMap<String, ArrayList<XMLItem>> rootMap = new LinkedHashMap<>();
         // Check child elements and group them from the key. XML sequences contain multiple child elements with same key
@@ -589,12 +588,12 @@ public class XMLFactory {
         for (Map.Entry<String, ArrayList<XMLItem>> entry : rootMap.entrySet()) {
             ArrayList<XMLItem> elementList = entry.getValue();
             if (elementList.size() > 0) {
-                String nodeKey = getElementKey(elementList.get(0), preserveNamespaces);
+                BString nodeKey = StringUtils.fromString(getElementKey(elementList.get(0), preserveNamespaces));
                 if (elementList.size() == 1) {
                     XMLItem element = elementList.get(0);
                     if (!element.children().elements().isEmpty()) {
                         // If the element it self has child elements traverse through them
-                        MapValueImpl<String, Object> node =
+                        MapValueImpl<BString, Object> node =
                                 traverseXMLElement(element, attributePrefix, preserveNamespaces);
                         root.put(nodeKey, node.get(nodeKey));
                     } else {
@@ -615,13 +614,13 @@ public class XMLFactory {
     /**
      * Add the child JSON nodes in the parent node.
      *
-     * @param root JSON root object to which child nodes are added
+     * @param root    JSON root object to which child nodes are added
      * @param rootMap List of child JSON nodes
      */
-    private static void processRootNodes(MapValueImpl<String, Object> root,
+    private static void processRootNodes(MapValueImpl<BString, Object> root,
                                          LinkedHashMap<String, ArrayList<Object>> rootMap) {
         for (Map.Entry<String, ArrayList<Object>> entry : rootMap.entrySet()) {
-            String key = entry.getKey();
+            BString key = StringUtils.fromString(entry.getKey());
             ArrayList<Object> elementList = entry.getValue();
             int elementCount = elementList.size();
             if (elementCount == 1) {
@@ -679,16 +678,16 @@ public class XMLFactory {
     /**
      * Set attributes and namespaces as key value pairs of the immediate parent.
      *
-     * @param rootNode Parent node of the attributes and the namespaces
-     * @param attributeMap Key value pairs of attributes and namespaces
-     * @param attributePrefix Prefix used for attributes
+     * @param rootNode           Parent node of the attributes and the namespaces
+     * @param attributeMap       Key value pairs of attributes and namespaces
+     * @param attributePrefix    Prefix used for attributes
      * @param singleElementValue Whether the given root is a single element
      * @return ObjectNode Json object node corresponding to the given attributes and namespaces
      */
-    private static MapValueImpl<String, Object>
-            processAttributeAndNamespaces(MapValueImpl<String, Object> rootNode,
-                                          LinkedHashMap<String, String> attributeMap,
-                                          String attributePrefix, String singleElementValue) {
+    private static MapValueImpl<BString, Object>
+    processAttributeAndNamespaces(MapValueImpl<BString, Object> rootNode,
+                                  LinkedHashMap<String, String> attributeMap,
+                                  String attributePrefix, String singleElementValue) {
         boolean singleElement = false;
         if (rootNode == null) {
             rootNode = new MapValueImpl<>(jsonMapType);
@@ -697,11 +696,11 @@ public class XMLFactory {
         // All the attributes and namesapces are set as key value pairs with given prefix
         for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
             String key = attributePrefix + entry.getKey();
-            rootNode.put(key, entry.getValue());
+            rootNode.put(StringUtils.fromString(key), StringUtils.fromString(entry.getValue()));
         }
         // If the single element has attributes or namespaces the text value is added with a dummy tag
         if (singleElement && !singleElementValue.isEmpty()) {
-            rootNode.put(XML_VALUE_TAG, singleElementValue);
+            rootNode.put(XML_VALUE_TAG, StringUtils.fromString(singleElementValue));
         }
         return rootNode;
     }

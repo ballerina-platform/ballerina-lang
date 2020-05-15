@@ -68,10 +68,10 @@ public class GetConfig {
     }
 
     @SuppressWarnings("unchecked")
-    private static MapValue buildMapValue(Map<String, Object> section) {
-        MapValue map = new MapValueImpl<String, Object>(mapType);
+    private static MapValue<BString, Object> buildMapValue(Map<String, Object> section) {
+        MapValue<BString, Object> map = new MapValueImpl<>(mapType);
         for (Map.Entry<String, Object> entry : section.entrySet()) {
-            map.put(entry.getKey(), getConvertedValue(entry.getValue()));
+            map.put(StringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
         }
         return map;
     }
@@ -86,13 +86,13 @@ public class GetConfig {
 
     @SuppressWarnings("unchecked")
     private static Object getConvertedValue(Object obj) {
-        if (obj instanceof String || obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
+        if (obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
             return obj;
         } else if (obj instanceof Map) {
             return buildMapValue((Map<String, Object>) obj);
         } else if (obj instanceof List) {
             return buildArrayValue((List) obj);
         }
-        return String.valueOf(obj);
+        return StringUtils.fromString(String.valueOf(obj));
     }
 }

@@ -99,18 +99,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         type = BTypes.typeMap;
     }
 
-    /**
-     * Retrieve the value for the given key from map.
-     * A null will be returned if the key does not exists.
-     *
-     * @param key key used to get the value
-     * @return value associated with the key
-     */
-    @Override
-    public V get(Object key) {
-        return super.get(key);
-    }
-
     public Long getIntValue(BString key) {
         return (Long) get(key);
     }
