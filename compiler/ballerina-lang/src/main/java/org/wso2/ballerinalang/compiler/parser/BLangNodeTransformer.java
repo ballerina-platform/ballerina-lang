@@ -56,6 +56,8 @@ import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerinalang.compiler.syntax.tree.NewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
@@ -206,6 +208,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -215,6 +218,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
 /**
@@ -683,8 +687,125 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 statements.add((BLangStatement) statement.apply(this));
             }
         }
+        if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
+            NamedWorkerDeclarator namedWorkerDeclarator = functionBodyBlockNode.namedWorkerDeclarator().get();
+            for (StatementNode statement : namedWorkerDeclarator.workerInitStatements()) {
+                statements.add((BLangStatement) statement.apply(this));
+            }
+            for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
+                statements.add((BLangStatement) workerDeclarationNode.apply(this));
+                // Consume resultant additional statements
+                while (!this.additionalStatements.empty()) {
+                    statements.add(additionalStatements.pop());
+                }
+            }
+        }
+
         bLFuncBody.stmts = statements;
+        bLFuncBody.pos = getPosition(functionBodyBlockNode);
         return bLFuncBody;
+    }
+
+
+    @Override
+    public BLangNode transform(NamedWorkerDeclarationNode namedWorkerDeclNode) {
+        BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        DiagnosticPos pos = getPosition(namedWorkerDeclNode);
+
+        // Set function name
+        bLFunction.name = createIdentifier(pos,
+                                           anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
+
+        // Set the function body
+        BLangBlockStmt blockStmt = (BLangBlockStmt) namedWorkerDeclNode.workerBody().apply(this);
+        BLangBlockFunctionBody bodyNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
+        bodyNode.stmts = blockStmt.stmts;
+        bLFunction.body = bodyNode;
+
+//        attachAnnotations(function, annCount, false);
+        bLFunction.pos = pos;
+
+        bLFunction.addFlag(Flag.LAMBDA);
+        bLFunction.addFlag(Flag.ANONYMOUS);
+        bLFunction.addFlag(Flag.WORKER);
+
+        // change default worker name
+        String workerName = namedWorkerDeclNode.workerName().text();
+        bLFunction.defaultWorkerName.value = workerName;
+        bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
+
+        // Attach worker annotation to the function node.
+//        attachAnnotations(bLangFunction, numAnnotations, true);
+
+        // Set Return Type
+        Optional<Node> retNode = namedWorkerDeclNode.returnTypeDesc();
+        if (retNode.isPresent()) {
+            ReturnTypeDescriptorNode returnType = (ReturnTypeDescriptorNode) retNode.get();
+            bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
+        } else {
+            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+            bLValueType.pos = getPosition(namedWorkerDeclNode);
+            bLValueType.typeKind = TypeKind.NIL;
+            bLFunction.setReturnTypeNode(bLValueType);
+        }
+
+        this.additionalTopLevelNodes.add(bLFunction);
+
+        BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaExpr.function = bLFunction;
+        lambdaExpr.pos = pos;
+
+        String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
+
+        // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
+        BLangSimpleVariable var = new SimpleVarBuilder()
+                .with(workerLambdaName)
+                .setExpression(lambdaExpr)
+                .isDeclaredWithVar()
+                .build();
+
+        BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        DiagnosticPos workerNamePos = getPosition(namedWorkerDeclNode.workerName());
+        lamdaWrkr.pos = workerNamePos;
+        lamdaWrkr.setVariable(var);
+        lamdaWrkr.isWorker = true;
+//        if (!this.forkJoinNodesStack.empty()) {
+//            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
+//            lamdaWrkr.isInFork = true;
+//            lamdaWrkr.var.flagSet.add(Flag.FORKED);
+//            this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
+//        }
+
+        BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createActionInvocation();
+        BLangIdentifier nameInd = this.createIdentifier(pos, workerLambdaName);
+        BLangNameReference reference = new BLangNameReference(workerNamePos, null, TreeBuilder.createIdentifierNode(),
+                                                              nameInd);
+        bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
+        bLInvocation.name = (BLangIdentifier) reference.name;
+        bLInvocation.pos = workerNamePos;
+        bLInvocation.flagSet = new HashSet<>();
+
+        if (bLInvocation.getKind() == NodeKind.INVOCATION) {
+            bLInvocation.async = true;
+//            attachAnnotations(invocation, numAnnotations, false);
+        } else {
+            dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
+        }
+
+        BLangSimpleVariable invoc = new SimpleVarBuilder()
+                .with(workerLambdaName, getPosition(namedWorkerDeclNode.workerName()))
+                .isDeclaredWithVar()
+                .isWorkerVar()
+                .setExpression(bLInvocation)
+                .build();
+
+        BLangSimpleVariableDef workerInvoc = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        workerInvoc.pos = workerNamePos;
+        workerInvoc.setVariable(invoc);
+        workerInvoc.isWorker = true;
+        this.additionalStatements.push(workerInvoc);
+
+        return lamdaWrkr;
     }
 
     // -----------------------------------------------Expressions-------------------------------------------------------
@@ -1048,10 +1169,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
         BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         bLVarDef.pos = getPosition(varDeclaration);
-        BLangSimpleVariable simpleVar = createSimpleVar(varDeclaration.variableName(), varDeclaration.typeName(),
-                varDeclaration.initializer().orElse(null),
-                varDeclaration.finalKeyword().isPresent(), false, null);
-        simpleVar.pos = getPosition(varDeclaration);
+
+        BLangSimpleVariable simpleVar = new SimpleVarBuilder()
+                .with(varDeclaration.variableName().text(), getPosition(varDeclaration.variableName()))
+                .setTypeByNode(varDeclaration.typeName())
+                .setExpressionByNode(varDeclaration.initializer().orElse(null))
+                .setFinal(varDeclaration.finalKeyword().isPresent())
+                .build();
+
         bLVarDef.setVariable(simpleVar);
         return bLVarDef;
     }
@@ -1644,7 +1769,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN || node.kind() == SyntaxKind.ERROR_KEYWORD) {
             // simple identifier
             Token token = (Token) node;
-            BLangIdentifier pkgAlias = this.createIdentifier(getPosition(token), "");
+            BLangIdentifier pkgAlias = this.createIdentifier(null, "");
             BLangIdentifier name = this.createIdentifier(getPosition(token), token.text());
             return new BLangNameReference(getPosition(node), null, pkgAlias, name);
         } else if (node.kind() == SyntaxKind.NEW_KEYWORD) {
@@ -1796,5 +1921,116 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         unionTypeNode.pos = position;
         return unionTypeNode;
+    }
+
+    private class SimpleVarBuilder {
+        private BLangIdentifier name;
+        private BLangType type;
+        private boolean isDeclaredWithVar;
+        private Set<Flag> flags = new HashSet<>();
+        private boolean isFinal;
+        private ExpressionNode expr;
+
+        public BLangSimpleVariable build() {
+            BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            bLSimpleVar.setName(this.name);
+            bLSimpleVar.setTypeNode(this.type);
+            bLSimpleVar.isDeclaredWithVar = this.isDeclaredWithVar;
+            bLSimpleVar.setTypeNode(this.type);
+            bLSimpleVar.flagSet.addAll(this.flags);
+            if (this.isFinal) {
+                markVariableAsFinal(bLSimpleVar);
+            }
+            bLSimpleVar.setInitialExpression(this.expr);
+            return bLSimpleVar;
+        }
+
+        public SimpleVarBuilder with(String name) {
+            this.name = createIdentifier(null, name);
+            return this;
+        }
+
+        public SimpleVarBuilder with(String name, DiagnosticPos identifierPos) {
+            this.name = createIdentifier(identifierPos, name);
+            return this;
+        }
+
+        public SimpleVarBuilder setTypeByNode(Node typeName) {
+            if (typeName == null || typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
+                this.isDeclaredWithVar = true;
+            }
+            this.type = createTypeNode(typeName);
+            return this;
+        }
+
+        public SimpleVarBuilder setExpressionByNode(Node initExprNode) {
+            this.expr = initExprNode != null ? createExpression(initExprNode) : null;
+            return this;
+        }
+
+        public SimpleVarBuilder setExpression(ExpressionNode expression) {
+            this.expr = expression;
+            return this;
+        }
+
+        public SimpleVarBuilder isDeclaredWithVar() {
+            this.isDeclaredWithVar = true;
+            return this;
+        }
+
+        public SimpleVarBuilder isFinal() {
+            this.isFinal = true;
+            return this;
+        }
+
+        public SimpleVarBuilder isListenerVar() {
+            this.flags.add(Flag.LISTENER);
+            this.flags.add(Flag.FINAL);
+            return this;
+        }
+
+        public SimpleVarBuilder setVisibility(Token visibilityQualifier) {
+            if (visibilityQualifier != null) {
+                if (visibilityQualifier.kind() == SyntaxKind.PRIVATE_KEYWORD) {
+                    this.flags.add(Flag.PRIVATE);
+                } else if (visibilityQualifier.kind() == SyntaxKind.PUBLIC_KEYWORD) {
+                    this.flags.add(Flag.PUBLIC);
+                }
+            }
+            return this;
+        }
+
+        public SimpleVarBuilder setFinal(boolean present) {
+            this.isFinal = present;
+            return this;
+        }
+
+        public SimpleVarBuilder setOptional(boolean present) {
+            if (present) {
+                this.flags.add(Flag.PUBLIC);
+            } else {
+                this.flags.remove(Flag.PUBLIC);
+            }
+            return this;
+        }
+
+        public SimpleVarBuilder setRequired(boolean present) {
+            if (present) {
+                this.flags.add(Flag.REQUIRED);
+            } else {
+                this.flags.remove(Flag.REQUIRED);
+            }
+            return this;
+        }
+
+        public SimpleVarBuilder isPublic() {
+            this.flags.add(Flag.PUBLIC);
+            return this;
+        }
+
+        public SimpleVarBuilder isWorkerVar() {
+            this.flags.add(Flag.WORKER);
+            return this;
+        }
     }
 }
