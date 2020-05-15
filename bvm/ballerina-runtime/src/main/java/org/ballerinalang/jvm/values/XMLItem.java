@@ -74,7 +74,7 @@ public final class XMLItem extends XMLValue {
         for (BXML child : children.children) {
             addParent(child, this);
         }
-        attributes = new AttributeMapValueImpl();
+        attributes = new AttributeMapValueImpl(false);
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
         this.type = BTypes.typeElement;
@@ -91,11 +91,20 @@ public final class XMLItem extends XMLValue {
     }
 
     public XMLItem(QName name, boolean readonly) {
-        this(name, new XMLSequence(new ArrayList<>()));
+        XMLSequence children = new XMLSequence(new ArrayList<>());
+        this.name = name;
+        this.children = children;
+        for (BXML child : children.children) {
+            addParent(child, this);
+        }
+        attributes = new AttributeMapValueImpl(readonly);
+        addDefaultNamespaceAttribute(name, attributes);
+        probableParents = new ArrayList<>();
+
         this.type = readonly ? BTypes.typeReadonlyElement : BTypes.typeElement;
     }
 
-    private void addDefaultNamespaceAttribute(QName name, MapValue<String, String> attributes) {
+    private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {
         String namespace = name.getNamespaceURI();
         if (namespace == null || namespace.isEmpty()) {
             return;
@@ -106,7 +115,7 @@ public final class XMLItem extends XMLValue {
             prefix = XMLNS;
         }
 
-        attributes.put(XMLNS_URL_PREFIX + prefix, namespace);
+        attributes.populateInitialValue(XMLNS_URL_PREFIX + prefix, namespace);
     }
 
     /**
@@ -200,7 +209,7 @@ public final class XMLItem extends XMLValue {
             ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
 
-        attributes.setAttribute(localName, namespaceUri, prefix, value);
+        attributes.setAttribute(localName, namespaceUri, prefix, value, false);
     }
 
     /**
@@ -511,7 +520,7 @@ public final class XMLItem extends XMLValue {
 
     @Override
     protected void setAttributeOnInitialization(String localName, String namespace, String prefix, String value) {
-        attributes.setAttribute(localName, namespace, prefix, value);
+        attributes.setAttribute(localName, namespace, prefix, value, true);
     }
 
     /**

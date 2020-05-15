@@ -42,6 +42,14 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
         super(new BMapType(BTypes.typeString));
     }
 
+    public AttributeMapValueImpl(boolean readonly) {
+        super(new BMapType(BTypes.typeString));
+
+        if (readonly) {
+            this.freezeDirect();
+        }
+    }
+
     @Override
     public String put(String key, String value) {
         if (isFrozen()) {
@@ -49,15 +57,16 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
                                               BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
         }
 
-        return insertValue(key, value);
+        return insertValue(key, value, false);
     }
 
     @Override
     public void populateInitialValue(String key, String value) {
-        insertValue(key, value);
+        insertValue(key, value, true);
     }
 
-    public void setAttribute(String localName, String namespaceUri, String prefix, String value) {
+    void setAttribute(String localName, String namespaceUri, String prefix, String value, boolean onInitialization) {
+        PutAttributeFunction func = onInitialization ? super::populateInitialValue : super:: put;
 
         if (localName == null || localName.isEmpty()) {
             throw BallerinaErrors.createError("localname of the attribute cannot be empty");
@@ -74,7 +83,7 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
         if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
-            super.put(nsNameDecl, value);
+            func.put(nsNameDecl, value);
             return;
         }
 
@@ -87,20 +96,20 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
         }
 
         if ((namespaceUri == null || namespaceUri.isEmpty())) {
-            super.put(localName, value);
+            func.put(localName, value);
         } else {
             // If the attribute already exists, update the value.
-            super.put("{" + namespaceUri + "}" + localName, value);
+            func.put("{" + namespaceUri + "}" + localName, value);
         }
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
-            super.put(xmlnsPrefix, namespaceUri);
+            func.put(xmlnsPrefix, namespaceUri);
         }
     }
 
-    private String insertValue(String key, String value) {
+    private String insertValue(String key, String value, boolean onInitialization) {
         String localName = "";
         String namespaceUri = "";
         int closingCurlyPos = key.lastIndexOf('}');
@@ -118,9 +127,17 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
         XMLValidator.validateXMLName(localName);
 
-        if (namespaceUri.isEmpty()) {
-            return super.put(localName, value);
+        String keyToInsert = namespaceUri.isEmpty() ? localName : key;
+
+        if (!onInitialization) {
+            return super.put(keyToInsert, value);
         }
-        return super.put(key, value);
+
+        super.populateInitialValue(keyToInsert, value);
+        return null;
+    }
+
+    private interface PutAttributeFunction {
+        void put(String key, String value);
     }
 }
