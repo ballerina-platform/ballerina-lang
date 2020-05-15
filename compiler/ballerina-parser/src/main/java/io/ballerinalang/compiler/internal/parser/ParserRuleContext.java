@@ -143,7 +143,10 @@ public enum ParserRuleContext {
     BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
     PEER_WORKER("peer-worker"),
+    ASYNC_SEND_PEER_WORKER("async-send-peer-worker"),
     FLUSH_WORKER_NAME("flush-worker-name"),
+    REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
+    REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
 
     // Statements
     STATEMENT("statement"),

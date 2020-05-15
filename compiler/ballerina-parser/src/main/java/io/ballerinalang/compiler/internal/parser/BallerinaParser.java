@@ -3182,6 +3182,11 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             default:
+                if (isValidExpressionStart(tokenKind)) {
+                    STNode expression = parseActionOrExpression(false);
+                    return parseStamentStartWithExpr(annots, expression);
+                }
+
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
@@ -3747,7 +3752,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseTypeTestExpression(lhsExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
-                newLhsExpr = parseRemoteMethodCallAction(lhsExpr);
+                newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr);
                 if (!allowActions) {
                     this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
                 }
@@ -6250,6 +6255,8 @@ public class BallerinaParser extends AbstractParser {
             case START_ACTION:
             case TRAP_ACTION:
             case FLUSH_ACTION:
+            case ASYNC_SEND_ACTION:
+            case SYNC_SEND_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -6329,17 +6336,96 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>remote-method-call-action := expression -> method-name ( arg-list )</code>
      * 
+     * @param isRhsExpr Is this an RHS action
      * @param expression LHS expression
      * @return
      */
-    private STNode parseRemoteMethodCallAction(STNode expression) {
+    private STNode parseRemoteMethodCallOrAsyncSendAction(STNode expression, boolean isRhsExpr) {
         STNode rightArrow = parseRightArrow();
-        STNode methodName = parseFunctionName();
+        return parseRemoteCallOrAsyncSendActionRhs(peek().kind, expression, isRhsExpr, rightArrow);
+    }
+
+    private STNode parseRemoteCallOrAsyncSendActionRhs(SyntaxKind nextTokenKind, STNode expression, boolean isRhsExpr,
+                                                       STNode rightArrow) {
+        STNode name;
+        switch (peek().kind) {
+            case DEFAULT_KEYWORD:
+                name = parseDefaultKeyword();
+                return parseSyncSendAction(expression, rightArrow, name);
+            case IDENTIFIER_TOKEN:
+                name = parseFunctionName();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_RHS, expression,
+                        isRhsExpr, rightArrow);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    name = solution.recoveredNode;
+                    break;
+                }
+
+                return parseRemoteCallOrAsyncSendActionRhs(solution.tokenKind, expression, isRhsExpr, rightArrow);
+        }
+
+        // if (isRhsExpr) {
+        // return parseRemoteMethodCallAction(expression, rightArrow, name);
+        // }
+
+        return parseRemoteCallOrAsyncSendEnd(peek().kind, expression, rightArrow, name);
+    }
+
+    private STNode parseRemoteCallOrAsyncSendEnd(SyntaxKind nextTokenKind, STNode expression, STNode rightArrow,
+                                                 STNode name) {
+        switch (nextTokenKind) {
+            case OPEN_PAREN_TOKEN:
+                return parseRemoteMethodCallAction(expression, rightArrow, name);
+            case SEMICOLON_TOKEN:
+                return parseSyncSendAction(expression, rightArrow, name);
+            default:
+                STToken token = peek();
+                Solution solution =
+                        recover(token, ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END, expression, rightArrow, name);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseRemoteCallOrAsyncSendEnd(solution.tokenKind, expression, rightArrow, name);
+        }
+    }
+
+    /**
+     * Parse default keyword.
+     *
+     * @return default keyword node
+     */
+    private STNode parseDefaultKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.DEFAULT_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseSyncSendAction(STNode expression, STNode rightArrow, STNode peerWorker) {
+        return STNodeFactory.createAsyncActionNode(expression, rightArrow, peerWorker);
+    }
+
+    private STNode parseRemoteMethodCallAction(STNode expression, STNode rightArrow, STNode name) {
         STNode openParenToken = parseOpenParenthesis();
         STNode arguments = parseArgsList();
         STNode closeParenToken = parseCloseParenthesis();
-        return STNodeFactory.createRemoteMethodCallActionNode(expression, rightArrow, methodName, openParenToken,
-                arguments, closeParenToken);
+        return STNodeFactory.createRemoteMethodCallActionNode(expression, rightArrow, name, openParenToken, arguments,
+                closeParenToken);
     }
 
     /**
@@ -9076,5 +9162,46 @@ public class BallerinaParser extends AbstractParser {
         STNode bitwiseAndToken = consume();
         STNode rightTypeDesc = parseTypeDescriptor(context);
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
+    }
+
+    private boolean isValidExpressionStart(SyntaxKind kind) {
+        switch (kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
+            case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case IDENTIFIER_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+            case OPEN_BRACE_TOKEN:
+            case TYPEOF_KEYWORD:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case NEGATION_TOKEN:
+            case EXCLAMATION_MARK_TOKEN:
+            case TRAP_KEYWORD:
+            case OPEN_BRACKET_TOKEN:
+            case LT_TOKEN:
+            case TABLE_KEYWORD:
+            case STREAM_KEYWORD:
+            case FROM_KEYWORD:
+            case ERROR_KEYWORD:
+            case LET_KEYWORD:
+            case BACKTICK_TOKEN:
+            case XML_KEYWORD:
+            case STRING_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case NEW_KEYWORD:
+                return true;
+            case START_KEYWORD:
+            case FLUSH_KEYWORD:
+            default:
+                return false;
+        }
     }
 }

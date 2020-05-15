@@ -547,6 +547,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(AsyncActionNode asyncActionNode) {
+        visitSyntaxNode(asyncActionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

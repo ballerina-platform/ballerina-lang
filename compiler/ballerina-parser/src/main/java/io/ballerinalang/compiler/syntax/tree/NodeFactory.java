@@ -2113,5 +2113,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stFlushActionNode.createUnlinkedFacade();
     }
+
+    public static AsyncActionNode createAsyncActionNode(
+            ExpressionNode expression,
+            Token rightArrowToken,
+            Token peerWorker) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+
+        STNode stAsyncActionNode = STNodeFactory.createAsyncActionNode(
+                expression.internalNode(),
+                rightArrowToken.internalNode(),
+                peerWorker.internalNode());
+        return stAsyncActionNode.createUnlinkedFacade();
+    }
 }
 

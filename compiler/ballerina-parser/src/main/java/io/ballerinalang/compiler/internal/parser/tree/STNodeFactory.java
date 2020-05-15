@@ -1568,5 +1568,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 flushKeyword,
                 peerWorker);
     }
+
+    public static STNode createAsyncActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode peerWorker) {
+
+        return new STAsyncActionNode(
+                expression,
+                rightArrowToken,
+                peerWorker);
+    }
 }
 

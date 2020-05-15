@@ -2810,6 +2810,25 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "AsyncActionNode",
+            "base": "ActionNode",
+            "kind": "ASYNC_SEND_ACTION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "rightArrowToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

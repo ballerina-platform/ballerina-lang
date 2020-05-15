@@ -1556,6 +1556,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 peerWorker);
     }
 
+    @Override
+    public Node transform(AsyncActionNode asyncActionNode) {
+        ExpressionNode expression = modifyNode(asyncActionNode.expression());
+        Token rightArrowToken = modifyToken(asyncActionNode.rightArrowToken());
+        Token peerWorker = modifyToken(asyncActionNode.peerWorker());
+        return asyncActionNode.modify(
+                expression,
+                rightArrowToken,
+                peerWorker);
+    }
+
     // Tokens
 
     @Override

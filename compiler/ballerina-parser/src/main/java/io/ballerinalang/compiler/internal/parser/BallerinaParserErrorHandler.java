@@ -356,6 +356,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PEER_WORKER = { ParserRuleContext.FLUSH_WORKER_NAME,
             ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.EXPRESSION_RHS };
 
+    
+    
+    
+    private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_RHS = { ParserRuleContext.ASYNC_SEND_PEER_WORKER,
+            ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.IDENTIFIER };
+    
+    private static final ParserRuleContext[] ASYNC_SEND_PEER_WORKER = { ParserRuleContext.FLUSH_WORKER_NAME,
+            ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_END = { ParserRuleContext.ARG_LIST_START,
+            ParserRuleContext.SEMICOLON };
+    
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1179,6 +1191,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case DEFAULT_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD;
                     break;
+                case REMOTE_CALL_OR_ASYNC_SEND_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, REMOTE_CALL_OR_ASYNC_SEND_RHS,
+                            isEntryPoint);
+                case REMOTE_CALL_OR_ASYNC_SEND_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, REMOTE_CALL_OR_ASYNC_SEND_END,
+                            isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
