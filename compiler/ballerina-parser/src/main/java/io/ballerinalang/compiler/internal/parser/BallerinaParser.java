@@ -592,7 +592,9 @@ public class BallerinaParser extends AbstractParser {
             case QUESTION_MARK_TOKEN:
                 // Scenario foo? (Optional type descriptor with custom type)
             case PIPE_TOKEN:
-                // Scenario foo| (Union type descriptor with custom type)
+                // Scenario foo | (Union type descriptor with custom type)
+            case BITWISE_AND_TOKEN:
+                // Scenario foo & (Intersection type descriptor with custom type)
                 return true;
             case IDENTIFIER_TOKEN:
                 switch (peek(lookahead + 2).kind) {
@@ -1992,10 +1994,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context);
             // If next token after a type descriptor is <code>|</code> then it is an array type descriptor
             case PIPE_TOKEN:
-                return parseComplexTypeDescriptor(parseUnionTypeDescriptor(typeDesc, context), context);
+                return parseUnionTypeDescriptor(typeDesc, context);
             // If next token after a type descriptor is <code> & </code> then it is an array type descriptor
             case BITWISE_AND_TOKEN:
-                return parseComplexTypeDescriptor(parseIntersectionTypeDescriptor(typeDesc, context), context);
+                return parseIntersectionTypeDescriptor(typeDesc, context);
             default:
                 return typeDesc;
         }
