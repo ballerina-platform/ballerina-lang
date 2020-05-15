@@ -92,6 +92,7 @@ import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
@@ -101,6 +102,15 @@ import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLComment;
+import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
+import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -1152,6 +1162,98 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(XMLProcessingInstruction xmlProcessingInstruction) {
+        BLangXMLProcInsLiteral xmlProcInsLiteral =
+                (BLangXMLProcInsLiteral) TreeBuilder.createXMLProcessingIntsructionLiteralNode();
+        for (Node commentNode: xmlProcessingInstruction.data()) {
+            xmlProcInsLiteral.dataFragments.add((BLangExpression) commentNode.apply(this));
+        }
+        // TODO : check this
+        xmlProcInsLiteral.target = (BLangLiteral) xmlProcessingInstruction.target().apply(this);
+        return xmlProcInsLiteral;
+    }
+
+    @Override
+    public BLangNode transform(XMLSimpleNameNode xmlSimpleNameNode) {
+        BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        bLiteral.pos = getPosition(xmlSimpleNameNode);
+        bLiteral.type = symTable.getTypeFromTag(TypeTags.STRING);
+        bLiteral.value = xmlSimpleNameNode.name().text();
+        bLiteral.originalValue = xmlSimpleNameNode.name().text();
+        return bLiteral;
+    }
+
+    @Override
+    public BLangNode transform(XMLComment xmlComment) {
+        BLangXMLCommentLiteral xmlCommentLiteral = (BLangXMLCommentLiteral) TreeBuilder.createXMLCommentLiteralNode();
+        for (Node commentNode: xmlComment.content()) {
+            // TODO : check the capability of below line (copied from old parser)
+//            endingText == null ? "" : StringEscapeUtils.unescapeJava(endingText);
+            xmlCommentLiteral.textFragments.add((BLangExpression) commentNode.apply(this));
+        }
+        xmlCommentLiteral.pos = getPosition(xmlComment);
+        return xmlCommentLiteral;
+    }
+
+    @Override
+    public BLangNode transform(Token token) {
+        BLangNode node = null;
+        if (token.kind() == SyntaxKind.XML_TEXT_CONTENT) {
+            node = createSimpleLiteral(token);
+        }
+        return node;
+    }
+
+    @Override
+    public BLangNode transform(InterpolationNode interpolationNode) {
+        return createExpression(interpolationNode.expression());
+    }
+
+    @Override
+    public BLangExpression transform(TemplateExpressionNode expressionNode) {
+        if (expressionNode.kind() == SyntaxKind.XML_TEMPLATE_EXPRESSION) {
+            return (BLangExpression) expressionNode.content().get(0).apply(this);
+        }
+        return null;
+    }
+
+    @Override
+    public BLangXMLElementLiteral transform(XMLElementNode xmlElementNode) {
+        BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
+        xmlElement.startTagName = createExpression(xmlElementNode.startTag());
+        xmlElement.endTagName = createExpression(xmlElementNode.endTag());
+
+        for (Node node: xmlElementNode.content()) {
+            if (node.kind() == SyntaxKind.XML_TEXT) {
+                xmlElement.children.add(createSimpleLiteral(((XMLTextNode)node).content()));
+                continue;
+            }
+            xmlElement.children.add(createExpression(node));
+        }
+        xmlElement.pos = getPosition(xmlElementNode);
+        xmlElement.isRoot = true; // TODO : check this
+        return xmlElement;
+    }
+
+    @Override
+    public BLangNode transform(XMLStartTagNode startTagNode) {
+        return createStartEndXMLTag(startTagNode.name(), getPosition(startTagNode));
+    }
+
+    @Override
+    public BLangNode transform(XMLEndTagNode endTagNode) {
+        return createStartEndXMLTag(endTagNode.name(), getPosition(endTagNode));
+    }
+
+    @Override
+    public BLangNode transform(XMLTextNode xmlTextNode) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.textFragments.add(0, (BLangExpression) xmlTextNode.content().apply(this));
+        xmlTextLiteral.pos = getPosition(xmlTextNode);
+        return xmlTextLiteral;
+    }
+
+    @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
         throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
@@ -1188,6 +1290,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLUnaryExpr.operator = operatorKind;
         bLUnaryExpr.expr = expr;
         return bLUnaryExpr;
+    }
+
+    private BLangXMLQName createStartEndXMLTag(XMLNameNode xmlNameNode, DiagnosticPos pos) {
+        BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
+        if (xmlNameNode.kind() == SyntaxKind.XML_QUALIFIED_NAME) {
+            xmlName.localname = createIdentifier(getPosition(((XMLQualifiedNameNode) xmlNameNode).name()),
+                    ((XMLQualifiedNameNode) xmlNameNode).name().toString());
+            xmlName.prefix = createIdentifier(getPosition(((XMLQualifiedNameNode) xmlNameNode).prefix()),
+                    ((XMLQualifiedNameNode) xmlNameNode).prefix().toString());
+        } else if (xmlNameNode.kind() == SyntaxKind.XML_SIMPLE_NAME) {
+            xmlName.localname = createIdentifier(getPosition(((XMLSimpleNameNode) xmlNameNode).name()),
+                    ((XMLSimpleNameNode) xmlNameNode).name().text());
+            xmlName.prefix = createIdentifier(null, "");
+        }
+        xmlName.pos = pos;
+        return xmlName;
     }
 
     private BLangExpression createExpression(Node expression) {

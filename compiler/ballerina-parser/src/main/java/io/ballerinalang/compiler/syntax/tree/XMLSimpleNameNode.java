@@ -32,7 +32,7 @@ public class XMLSimpleNameNode extends XMLNameNode {
         super(internalNode, position, parent);
     }
 
-    public XMLSimpleNameNode name() {
+    public Token name() {
         return childInBucket(0);
     }
 
@@ -53,7 +53,7 @@ public class XMLSimpleNameNode extends XMLNameNode {
     }
 
     public XMLSimpleNameNode modify(
-            XMLSimpleNameNode name) {
+            Token name) {
         if (checkForReferenceEquality(
                 name)) {
             return this;

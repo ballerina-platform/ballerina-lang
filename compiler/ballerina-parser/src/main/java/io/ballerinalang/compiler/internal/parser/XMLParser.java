@@ -300,6 +300,7 @@ public class XMLParser extends AbstractParser {
     private STNode parseXMLNCName() {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+//            return parseQualifiedIdentifier(STNodeFactory.createXMLSimpleNameNode(consume()));
             return parseQualifiedIdentifier(consume());
         } else if (token.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
             // If there's an interpolation parse it and report an error.
@@ -323,14 +324,15 @@ public class XMLParser extends AbstractParser {
     protected STNode parseQualifiedIdentifier(STNode identifier) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
-            return STNodeFactory.createSimpleNameReferenceNode(identifier);
+            return STNodeFactory.createXMLSimpleNameNode(identifier);
         }
 
         STToken nextNextToken = peek(2);
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STToken colon = consume();
-            STToken varOrFuncName = consume();
-            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+//            STNode varOrFuncName = STNodeFactory.createXMLSimpleNameNode(consume());
+            STNode varOrFuncName = consume();
+            return STNodeFactory.createXMLQualifiedNameNode(identifier, colon, varOrFuncName);
         } else {
             this.errorHandler.removeInvalidToken();
             return parseQualifiedIdentifier(identifier);
