@@ -45,9 +45,9 @@ public class TypeCastExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testTypeCastWithMissingExpr() {
-        test("<int>", "type-cast-expr/type_cast_expr_assert_08.json");
-        test("<@foo{}>", "type-cast-expr/type_cast_expr_assert_09.json");
-        test("<@foo{} int>", "type-cast-expr/type_cast_expr_assert_10.json");
+        test("<int>;", "type-cast-expr/type_cast_expr_assert_08.json");
+        test("<@foo{}>;", "type-cast-expr/type_cast_expr_assert_09.json");
+        test("<@foo{} int>;", "type-cast-expr/type_cast_expr_assert_10.json");
     }
 
     @Test
