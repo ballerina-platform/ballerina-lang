@@ -242,3 +242,18 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+
+function testUpdatingJsonTupleViaArrayTypedVar() {
+    [json...] a = [];
+    json[] b = a;
+
+    b[0] = {hello: "world"};
+    b[1] = 2;
+
+    assertArrayLengthPanic(2, b);
+
+    if a[0] == <map<json>> {hello: "world"} && a[1] == 2 {
+        return;
+    }
+    panic error("AssertionError", message = "expected 'hello=world 2', found '" + a.toString() +"'");
+}

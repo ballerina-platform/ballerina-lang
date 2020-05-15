@@ -28,10 +28,6 @@ public int invalidPublicGlobalInt = 1;
 
 public int invalidPublicGobalVar = 1;
 
-int uninitializedModuleVariable;
-
-var uninitializedModuleVar;
-
 listener Listener uninitializedModuleListener;
 
 public listener Listener uninitializedPublicModuleListener;

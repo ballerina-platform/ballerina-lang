@@ -55,4 +55,6 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
     void addNativeData(String key, Object data);
 
     Object getNativeData(String key);
+
+    TypedescValue getTypedesc();
 }

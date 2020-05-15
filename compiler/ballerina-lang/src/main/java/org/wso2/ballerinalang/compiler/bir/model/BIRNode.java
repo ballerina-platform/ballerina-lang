@@ -746,4 +746,51 @@ public abstract class BIRNode {
             return locks.size();
         }
     }
+
+    /**
+     * Represents the entries in a mapping constructor expression.
+     *
+     * @since 1.3.0
+     */
+    public abstract static class BIRMappingConstructorEntry {
+
+        public boolean isKeyValuePair() {
+            return true;
+        }
+    }
+
+    /**
+     * Represents a key-value entry in a mapping constructor expression.
+     *
+     * @since 1.3.0
+     */
+    public static class BIRMappingConstructorKeyValueEntry extends BIRMappingConstructorEntry {
+
+        public BIROperand keyOp;
+        public BIROperand valueOp;
+
+        public BIRMappingConstructorKeyValueEntry(BIROperand keyOp, BIROperand valueOp) {
+            this.keyOp = keyOp;
+            this.valueOp = valueOp;
+        }
+    }
+
+    /**
+     * Represents a spread-field entry in a mapping constructor expression.
+     *
+     * @since 1.3.0
+     */
+    public static class BIRMappingConstructorSpreadFieldEntry extends BIRMappingConstructorEntry {
+
+        public BIROperand exprOp;
+
+        public BIRMappingConstructorSpreadFieldEntry(BIROperand exprOp) {
+            this.exprOp = exprOp;
+        }
+
+        @Override
+        public boolean isKeyValuePair() {
+            return false;
+        }
+    }
 }

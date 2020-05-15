@@ -492,7 +492,7 @@ public class SignatureHelpUtil {
                 }
                 if (bErrorType.detailType instanceof BRecordType) {
                     BRecordType bRecordType = (BRecordType) bErrorType.detailType;
-                    bRecordType.fields.forEach(p -> {
+                    bRecordType.fields.values().forEach(p -> {
                         BVarSymbol symbol = p.symbol;
                         parameters.add(
                                 new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol), false));

@@ -1,0 +1,55 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "INDEXED_EXPRESSION",
+            "children": [
+                {
+                    "kind": "INDEXED_EXPRESSION",
+                    "children": [
+                        {
+                            "kind": "INT_KEYWORD"
+                        },
+                        {
+                            "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                            "kind": "DECIMAL_INTEGER_LITERAL",
+                            "value": "5"
+                        },
+                        {
+                            "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "DECIMAL_INTEGER_LITERAL",
+                    "value": "8"
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

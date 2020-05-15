@@ -49,4 +49,9 @@ public class BFloatType extends BType {
     public int getTag() {
         return TypeTags.FLOAT_TAG;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

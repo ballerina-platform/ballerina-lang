@@ -1,0 +1,20 @@
+{
+  "kind": "IMPORT_DECLARATION",
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

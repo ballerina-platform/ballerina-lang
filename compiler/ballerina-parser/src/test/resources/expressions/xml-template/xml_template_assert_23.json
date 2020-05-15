@@ -1,0 +1,1232 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "testXMLTextLiteral"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x1"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "aaa"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "v1"
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "bbb"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "v2"
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "ccc"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x2"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "aaa"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "v1"
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "bbb"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "v2"
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "ccc{d{}e}{f{"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x3"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "aaa"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "v1"
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "b\\"
+                        },
+                        {
+                          "kind": "INTERPOLATION",
+                          "children": [
+                            {
+                              "kind": "INTERPOLATION_START_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "bb"
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT_CONTENT",
+                          "value": "cc{d{}e}{f{"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x4"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x5"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_EMPTY_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "foo"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_ATTRIBUTE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "bar"
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE_VALUE",
+                                      "children": [
+                                        {
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "aaa"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v1"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "bb\u0027b"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v2"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "ccc?"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SLASH_TOKEN"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x6"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_EMPTY_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "foo"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_ATTRIBUTE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "bar"
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE_VALUE",
+                                      "children": [
+                                        {
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "}aaa"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v1"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "bbb"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v2"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "ccc{d{}e}{f{"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SLASH_TOKEN"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x7"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_EMPTY_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "foo"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_ATTRIBUTE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "bar1"
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE_VALUE",
+                                      "children": [
+                                        {
+                                          "kind": "SINGLE_QUOTE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "aaa{"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v1"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "}b\"b"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v2"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "c\\}cc{d{}e}{f{"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "SINGLE_QUOTE_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "XML_ATTRIBUTE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "bar2"
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE_VALUE",
+                                      "children": [
+                                        {
+                                          "kind": "SINGLE_QUOTE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "aaa{"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v1"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "}b{b\"b"
+                                            },
+                                            {
+                                              "kind": "INTERPOLATION",
+                                              "children": [
+                                                {
+                                                  "kind": "INTERPOLATION_START_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "v2"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "XML_TEXT_CONTENT",
+                                              "value": "c\\}cc{d{}e}{f{"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "SINGLE_QUOTE_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SLASH_TOKEN"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x8"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_EMPTY_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "LT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "foo"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_ATTRIBUTE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "bar"
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE_VALUE",
+                                      "children": [
+                                        {
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SLASH_TOKEN"
+                            },
+                            {
+                              "kind": "GT_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x9"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "XML_ELEMENT_START_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "_foo"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "XML_ATTRIBUTE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "id"
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_ATTRIBUTE_VALUE",
+                                          "children": [
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "value": "hello "
+                                                },
+                                                {
+                                                  "kind": "INTERPOLATION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "INTERPOLATION_START_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "BINARY_EXPRESSION",
+                                                      "children": [
+                                                        {
+                                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                                          "value": "3"
+                                                        },
+                                                        {
+                                                          "kind": "PLUS_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "BINARY_EXPRESSION",
+                                                          "children": [
+                                                            {
+                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "value": "6"
+                                                            },
+                                                            {
+                                                              "kind": "SLASH_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "value": "3"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACE_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": "hello"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "XML_ELEMENT_END_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "SLASH_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "_foo"
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "XML_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x10"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD"
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_ELEMENT",
+                          "children": [
+                            {
+                              "kind": "XML_ELEMENT_START_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "_-foo"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "XML_ATTRIBUTE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "id"
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_ATTRIBUTE_VALUE",
+                                          "children": [
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "value": "hello "
+                                                },
+                                                {
+                                                  "kind": "INTERPOLATION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "INTERPOLATION_START_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "BINARY_EXPRESSION",
+                                                      "children": [
+                                                        {
+                                                          "kind": "DECIMAL_INTEGER_LITERAL",
+                                                          "value": "3"
+                                                        },
+                                                        {
+                                                          "kind": "PLUS_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "BINARY_EXPRESSION",
+                                                          "children": [
+                                                            {
+                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "value": "6"
+                                                            },
+                                                            {
+                                                              "kind": "SLASH_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "value": "3"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACE_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": "hello"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "XML_ELEMENT_END_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "SLASH_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "_-foo"
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
+}

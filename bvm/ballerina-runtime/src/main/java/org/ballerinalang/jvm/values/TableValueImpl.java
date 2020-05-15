@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BField;
@@ -28,11 +29,9 @@ import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.values.api.BIterator;
 import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -48,9 +47,11 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR;
 
 /**
  * The runtime representation of table.
@@ -63,7 +64,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_
 public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private BTableType type;
-    private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType iteratorNextReturnType;
     private LinkedHashMap<Integer, Map.Entry<K, V>> entries;
     private LinkedHashMap<Integer, V> values;
@@ -72,6 +72,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private ValueHolder valueHolder;
     private int maxIntKey = 0;
     private boolean nextKeySupported;
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     public TableValueImpl(BTableType type) {
         this.type = type;
@@ -110,12 +112,53 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        return null;
+        if (isFrozen()) {
+            return this;
+        }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        TableValueImpl<K, V> clone = new TableValueImpl<>(type);
+        if (fieldNames != null) {
+            clone.fieldNames = fieldNames;
+        }
+
+        IteratorValue itr = getIterator();
+        while (itr.hasNext()) {
+            TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
+            Object value = tupleValue.get(1);
+            value = value instanceof RefValue ? ((RefValue) value).copy(refs) : value;
+            clone.add((V) value);
+        }
+
+       return clone;
     }
 
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        return null;
+        TableValueImpl<K, V> copy = (TableValueImpl<K, V>) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
+
+    protected void handleFrozenTableValue() {
+        synchronized (this) {
+            try {
+                if (this.type.isReadOnly()) {
+                    ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
+                }
+            } catch (BLangFreezeException e) {
+                if (ArrayValueImpl.USE_BSTRING) {
+                    throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
+                            StringUtils.fromString(e.getDetail()));
+                }
+                throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
+            }
+        }
     }
 
     @Override
@@ -123,18 +166,27 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return valueHolder.getData((K) key);
     }
 
+    //Generates the key from the given data
+    public V put(V value) {
+        handleFrozenTableValue();
+        return valueHolder.putData(value);
+    }
+
     @Override
     public V put(K key, V value) {
+        handleFrozenTableValue();
         return valueHolder.putData(key, value);
     }
 
     @Override
     public void add(V data) {
+        handleFrozenTableValue();
         valueHolder.addData(data);
     }
 
     @Override
     public V remove(Object key) {
+        handleFrozenTableValue();
         return valueHolder.remove((K) key);
     }
 
@@ -155,6 +207,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public void clear() {
+        handleFrozenTableValue();
         entries.clear();
         keys.clear();
         values.clear();
@@ -169,6 +222,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     public V removeOrThrow(Object key) {
+        handleFrozenTableValue();
         if (!containsKey(key)) {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
@@ -222,34 +276,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public boolean isFrozen() {
-        return freezeStatus.isFrozen();
-    }
-
-    @Override
-    public void attemptFreeze(Status freezeStatus) {
-        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-            this.values().forEach(val -> {
-                if (val instanceof RefValue) {
-                    ((RefValue) val).attemptFreeze(freezeStatus);
-                }
-            });
-        }
-    }
-
-    @Override
     public void freezeDirect() {
         if (isFrozen()) {
             return;
         }
 
-        this.freezeStatus.setFrozen();
-        this.values().forEach(val -> {
-            if (val instanceof RefValue) {
-                ((RefValue) val).freezeDirect();
-            }
-        });
+        this.type = (BTableType) ReadOnlyUtils.setImmutableType(this.type);
+        //we know that values are always RefValues
+        this.values().forEach(val -> ((RefValue) val).freezeDirect());
     }
 
     public String stringValue() {
@@ -280,8 +314,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public BType getType() {
         return this.type;
     }
-
-
 
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
@@ -339,6 +371,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
 
+        public V putData(V data) {
+            throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR, "value type inconsistent "
+                    + "with the inherent table type");
+        }
+
         public V remove(K key) {
             throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
@@ -379,21 +416,21 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, null);
             keys.put(hash, (K) key);
             values.put(hash, (V) data);
             entries.put(hash, entry);
         }
 
         public V getData(K key) {
-            return values.get(TableUtils.hash(key, new ArrayList<>()));
+            return values.get(TableUtils.hash(key, null));
         }
 
         public V putData(K key, V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
-            Integer actualHash = TableUtils.hash(actualKey, new ArrayList<>());
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer actualHash = TableUtils.hash(actualKey, null);
+            Integer hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
                 throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
@@ -405,15 +442,25 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return values.put(hash, data);
         }
 
+        public V putData(V data) {
+            MapValue dataMap = (MapValue) data;
+            Object key = this.keyWrapper.wrapKey(dataMap);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>((K) key, data);
+            Integer hash = TableUtils.hash(key, null);
+            entries.put(hash, entry);
+            keys.put(hash, (K) key);
+            return values.put(hash, data);
+        }
+
         public V remove(K key) {
-            Integer hash = TableUtils.hash(key, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, null);
             entries.remove(hash);
             keys.remove(hash);
             return values.remove(hash);
         }
 
         public boolean containsKey(K key) {
-            return keys.containsKey(TableUtils.hash(key, new ArrayList<>()));
+            return keys.containsKey(TableUtils.hash(key, null));
         }
 
         public BType getKeyType() {

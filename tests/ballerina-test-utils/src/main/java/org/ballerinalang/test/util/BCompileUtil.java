@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -75,6 +76,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_ADD_DEPENDENCIES;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
+import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -594,6 +596,10 @@ public class BCompileUtil {
         return Boolean.parseBoolean(value);
     }
 
+    public static boolean newParserEnabled() {
+        return Boolean.parseBoolean(System.getProperty(ENABLE_NEW_PARSER_FOR_TESTS));
+    }
+
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
                                                      SourceDirectory sourceDirectory, boolean init, boolean withTests) {
 
@@ -624,6 +630,44 @@ public class BCompileUtil {
                                                      boolean temp, boolean init, boolean withTests) {
 
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
+    }
+
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                     boolean temp, boolean init, boolean inProc, boolean withTests) {
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(LOCK_ENABLED, Boolean.toString(true));
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
+        if (withTests) {
+            options.put(CompilerOptionName.SKIP_TESTS, "false");
+            options.put(CompilerOptionName.TEST_ENABLED, "true");
+        }
+
+        CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, withTests);
+        if (compileResult.getErrorCount() > 0) {
+            return compileResult;
+        }
+
+        BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
+        BackendDriver backendDriver = BackendDriver.getInstance(context);
+        try {
+            Path buildDir = Paths.get("build").toAbsolutePath().normalize();
+            Path systemBirCache = buildDir.resolve("bir-cache");
+            URLClassLoader cl = createClassLoaders(backendDriver, bLangPackage, systemBirCache, buildDir,
+                    Optional.empty(), false, inProc);
+            compileResult.setClassLoader(cl);
+
+            // TODO: calling run on compile method is wrong, should be called from BRunUtil
+            if (compileResult.getErrorCount() == 0 && init) {
+                runInit(bLangPackage, cl, temp);
+            }
+            return compileResult;
+        } catch (ClassNotFoundException | IOException e) {
+            throw new BLangRuntimeException("Error during jvm code gen of the test", e);
+        }
     }
 
     public static String runMain(CompileResult compileResult, String[] args) {
@@ -733,9 +777,14 @@ public class BCompileUtil {
             options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
             options.put(OFFLINE, Boolean.TRUE.toString());
             options.put(SKIP_ADD_DEPENDENCIES, Boolean.TRUE.toString());
+
             if (withTests) {
                 options.put(SKIP_TESTS, Boolean.FALSE.toString());
                 options.put(TEST_ENABLED, Boolean.TRUE.toString());
+            }
+
+            if (newParserEnabled()) {
+                options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
             }
 
             CompileResult compileResult = compile(context, packageName, CompilerPhase.CODE_GEN, withTests);

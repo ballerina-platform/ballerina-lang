@@ -47,14 +47,14 @@ public type TopicPartition record {|
 #                                        the server certificate
 # + sslSecureRandomImplementation - The `SecureRandom` PRNG implementation to use for the SSL cryptography operations
 public type SecureSocket record {|
-    KeyStore keyStore; // KEY_STORE_CONFIG
-    TrustStore trustStore; // TRUST_STORE_CONFIG
-    Protocols protocol; // PROTOCOL_CONFIG
-    string sslProvider?; // SSL_PROVIDER_CONFIG 1
-    string sslKeyPassword?; // SSL_KEY_PASSWORD_CONFIG 2
-    string sslCipherSuites?; // SSL_CIPHER_SUITES_CONFIG 3
-    string sslEndpointIdentificationAlgorithm?; // SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG 4
-    string sslSecureRandomImplementation?; // SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG 5
+    KeyStore keyStore;
+    TrustStore trustStore;
+    Protocols protocol;
+    string sslProvider?;
+    string sslKeyPassword?;
+    string sslCipherSuites?;
+    string sslEndpointIdentificationAlgorithm?;
+    string sslSecureRandomImplementation?;
 |};
 
 # Configurations related to the KeyStore.
@@ -67,10 +67,10 @@ public type SecureSocket record {|
 # + keyManagerAlgorithm - The algorithm used by the key manager factory for SSL connections. The default value is the
 #                         key manager factory algorithm configured for the JVM
 public type KeyStore record {|
-    string keyStoreType?; // SSL_KEYSTORE_TYPE_CONFIG 1
-    string location = ""; // SSL_KEYSTORE_LOCATION_CONFIG 2
-    string password = ""; // SSL_KEYSTORE_PASSWORD_CONFIG 3
-    string keyManagerAlgorithm?; // SSL_KEYMANAGER_ALGORITHM_CONFIG 4
+    string keyStoreType?;
+    string location;
+    string password;
+    string keyManagerAlgorithm?;
 |};
 
 # Configurations related to the TrustStore.
@@ -82,10 +82,10 @@ public type KeyStore record {|
 # + trustManagerAlgorithm - The algorithm used by the trust manager factory for SSL connections. The default value is
 #                           the trust manager factory algorithm configured for the JVM
 public type TrustStore record {|
-    string trustStoreType?; // SSL_TRUSTSTORE_TYPE_CONFIG 1
-    string location = ""; // SSL_TRUSTSTORE_LOCATION_CONFIG 2
-    string password = ""; // SSL_TRUSTSTORE_PASSWORD_CONFIG 3
-    string trustManagerAlgorithm?; // SSL_TRUSTMANAGER_ALGORITHM_CONFIG 4
+    string trustStoreType?;
+    string location;
+    string password;
+    string trustManagerAlgorithm?;
 |};
 
 # Configurations related to the SSL/TLS protocol and the versions to be used.
@@ -96,7 +96,27 @@ public type TrustStore record {|
 #                 supported in older JVMs but their usage is discouraged due to known security vulnerabilities
 # + sslProtocolVersions - The list of protocols enabled for SSL connections
 public type Protocols record {|
-    string securityProtocol = ""; // SECURITY_PROTOCOL_CONFIG 1
-    string sslProtocol = ""; // SSL_PROTOCOL_CONFIG 2
-    string sslProtocolVersions = ""; // SSL_ENABLED_PROTOCOLS_CONFIG 3
+    string securityProtocol;
+    string sslProtocol;
+    string sslProtocolVersions;
 |};
+
+# Configurations related to Kafka authentication mechanisms.
+#
+# + mechanism - Type of the authentication mechanism. Currently, SASL_PLAIN and SCRAM are supported. See
+#                             `kafka:AuthennticationType` for more information
+# + securityProtocol - Type of the security protocol to use in the broker connection
+# + username - The username to use to authenticate the Kafka producer/consumer
+# + password - The password to use to authenticate the Kafka producer/consumer
+public type AuthenticationConfiguration record {|
+    AuthenticationMechanism mechanism = AUTH_SASL_PLAIN;
+    string securityProtocol = PROTOCOL_SASL_PLAINTEXT;
+    string username;
+    string password;
+|};
+
+# Represents the supported Kafka SASL authentication mechanisms.
+public type AuthenticationMechanism AUTH_SASL_PLAIN;
+
+# Represents the supported security protocols for Kafka clients.
+public type SecurityProtocol PROTOCOL_SASL_PLAINTEXT|PROTOCOL_SASL_SSL;

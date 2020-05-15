@@ -47,7 +47,6 @@ public class ImportsTests {
         imports = Paths.get("test-src", "balo", "imports");
         previousUserHome = System.getProperty(USER_HOME);
         System.setProperty(USER_HOME, tempDir.toString());
-
     }
 
     @Test(description = "Get the version from the source file.")
