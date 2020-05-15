@@ -1402,6 +1402,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public Node transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        Node params = modifyNode(implicitAnonymousFunctionExpressionNode.params());
+        Token rightDoubleArrow = modifyToken(implicitAnonymousFunctionExpressionNode.rightDoubleArrow());
+        ExpressionNode expression = modifyNode(implicitAnonymousFunctionExpressionNode.expression());
+        return implicitAnonymousFunctionExpressionNode.modify(
+                params,
+                rightDoubleArrow,
+                expression);
+    }
+
+    @Override
+    public Node transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        Token openParenToken = modifyToken(implicitAnonymousFunctionParameters.openParenToken());
+        SeparatedNodeList<SimpleNameReferenceNode> parameters = modifySeparatedNodeList(implicitAnonymousFunctionParameters.parameters());
+        Token closeParenToken = modifyToken(implicitAnonymousFunctionParameters.closeParenToken());
+        return implicitAnonymousFunctionParameters.modify(
+                openParenToken,
+                parameters,
+                closeParenToken);
+    }
+
     // Tokens
 
     @Override

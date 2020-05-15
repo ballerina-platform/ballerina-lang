@@ -133,6 +133,10 @@ public enum ParserRuleContext {
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
     AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
+    EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
+    BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
+    BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
+    IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
 
     // Statements
     STATEMENT("statement"),

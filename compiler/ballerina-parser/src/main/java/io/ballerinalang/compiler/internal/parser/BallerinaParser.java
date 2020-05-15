@@ -211,6 +211,7 @@ public class BallerinaParser extends AbstractParser {
             case VARIABLE_REF:
             case FIELD_OR_FUNC_NAME:
             case SERVICE_NAME:
+            case IMPLICIT_ANON_FUNC_PARAM:
                 return parseIdentifier(context);
             case IMPORT_KEYWORD:
                 return parseImportKeyword();
@@ -368,6 +369,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseImplicitNewRhs((STNode) args[0]);
             case ANON_FUNC_BODY:
                 return parseAnonFuncBody();
+            case CLOSE_BRACKET:
+                return parseCloseBracket();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2466,6 +2469,8 @@ public class BallerinaParser extends AbstractParser {
                 return OperatorPrecedence.LOGICAL_OR;
             case RIGHT_ARROW_TOKEN:
                 return OperatorPrecedence.ACTION;
+            case RIGHT_DOUBLE_ARROW:
+                return OperatorPrecedence.ACTION;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -3465,6 +3470,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case FUNCTION_KEYWORD:
+                // TODO: support annotations
                 return parseExplicitFunctionExpression(null);
             case AT_TOKEN:
                 // Annon-func can have annotations. Check for other expressions
@@ -3714,6 +3720,9 @@ public class BallerinaParser extends AbstractParser {
                     this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
                 }
                 break;
+            case RIGHT_DOUBLE_ARROW:
+                newLhsExpr = parseImplicitAnonFunc(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
 
@@ -3741,6 +3750,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
             case IS_KEYWORD:
             case RIGHT_ARROW_TOKEN:
+            case RIGHT_DOUBLE_ARROW:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -3832,11 +3842,49 @@ public class BallerinaParser extends AbstractParser {
             expr = parseExpression(isRhsExpr);
         }
 
+        // Could be param-list of an implicit-anon-func-expr
+        if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return parseBracedExprOrAnonFuncParamRhs(peek().kind, openParen, expr);
+        }
+
         STNode closeParen = parseCloseParenthesis();
         if (isAction(expr)) {
             return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, expr, closeParen);
-        } else {
-            return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+        }
+        return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+    }
+
+    private STNode parseBracedExprOrAnonFuncParamRhs(SyntaxKind nextTokenKind, STNode openParen, STNode expr) {
+        startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
+        switch (nextTokenKind) {
+            case CLOSE_PAREN_TOKEN:
+                STNode closeParen = parseCloseParenthesis();
+                STNode bracedEXprOrAnonFuncParam;
+                if (isAction(expr)) {
+                    bracedEXprOrAnonFuncParam = STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION,
+                            openParen, expr, closeParen);
+                } else {
+                    bracedEXprOrAnonFuncParam = STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION,
+                            openParen, expr, closeParen);
+                }
+                endContext();
+                return bracedEXprOrAnonFuncParam;
+            case COMMA_TOKEN:
+                // Here the context is ended inside the method.
+                return parseImplicitAnonFunc(openParen, expr);
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    endContext();
+                    return solution.recoveredNode;
+                }
+
+                return parseBracedExprOrAnonFuncParamRhs(solution.tokenKind, openParen, expr);
         }
     }
 
@@ -8254,7 +8302,7 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW:
                 // we end the anon-func context here, before going for expressions.
                 // That is because we wouldn't know when will it end inside expressions.
-                endContext(); 
+                endContext();
                 return parseExpressionFuncBody();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_BODY);
@@ -8290,6 +8338,86 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
             return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseImplicitAnonFunc(STNode params) {
+        switch (params.kind) {
+            case SIMPLE_NAME_REFERENCE:
+            case INFER_PARAM_LIST:
+                break;
+            case BRACED_EXPRESSION:
+                params = getAnonFuncParam((STBracedExpressionNode) params);
+                break;
+            default:
+                this.errorHandler.reportInvalidNode(null, "lhs must be an identifier or a param list");
+        }
+        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode expression = parseExpression();
+        return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow, expression);
+    }
+
+    /**
+     * Create a new anon-func-param node from a braced expression.
+     * 
+     * @param params Braced expression
+     * @return Anon-func param node
+     */
+    private STNode getAnonFuncParam(STBracedExpressionNode params) {
+        List<STNode> paramList = new ArrayList<>();
+        paramList.add(params.expression);
+        return STNodeFactory.createImplicitAnonymousFunctionParameters(params.openParen,
+                STNodeFactory.createNodeList(paramList), params.closeParen);
+    }
+
+    /**
+     * Parse implicit anon function expression.
+     * 
+     * @param openParen Open parenthesis token
+     * @param firstParam First parameter
+     * @return Implicit anon function expression node
+     */
+    private STNode parseImplicitAnonFunc(STNode openParen, STNode firstParam) {
+        List<STNode> paramList = new ArrayList<>();
+        paramList.add(firstParam);
+
+        // Parse the remaining params
+        STToken nextToken = peek();
+        STNode leadingComma;
+        STNode param;
+        while (!isEndOfAnonFuncParametersList(nextToken.kind)) {
+            leadingComma = parseComma();
+            paramList.add(leadingComma);
+            param = parseIdentifier(ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM);
+            paramList.add(param);
+            nextToken = peek();
+        }
+
+        STNode params = STNodeFactory.createNodeList(paramList);
+        STNode closeParen = parseCloseParenthesis();
+        endContext(); // end param list context
+
+        STNode inferedParams = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
+        return parseImplicitAnonFunc(inferedParams);
+    }
+
+    private boolean isEndOfAnonFuncParametersList(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+            case SEMICOLON_TOKEN:
+            case RETURNS_KEYWORD:
+            case TYPE_KEYWORD:
+            case LISTENER_KEYWORD:
+            case IF_KEYWORD:
+            case WHILE_KEYWORD:
+            case OPEN_BRACE_TOKEN:
+            case RIGHT_DOUBLE_ARROW:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -8366,6 +8494,11 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createEmptyNode();
     }
 
+    /**
+     * Parse type-desc with enclosing parenthesis.
+     * 
+     * @return Type-desc with enclosing parenthesis
+     */
     private STNode parseParenthesisedTypeDesc() {
         STNode openParen = parseOpenParenthesis();
         STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);

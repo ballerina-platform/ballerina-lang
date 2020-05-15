@@ -810,6 +810,8 @@ public class ParserTestUtils {
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
             case "EXPRESSION_FUNCTION_BODY":
                 return SyntaxKind.EXPRESSION_FUNCTION_BODY;
+            case "INFER_PARAM_LIST":
+                return SyntaxKind.INFER_PARAM_LIST;
 
             // XML template
             case "XML_ELEMENT":

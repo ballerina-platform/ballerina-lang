@@ -1904,5 +1904,35 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stParenthesizedArgList.createUnlinkedFacade();
     }
+
+    public static ImplicitAnonymousFunctionExpressionNode createImplicitAnonymousFunctionExpressionNode(
+            Node params,
+            Token rightDoubleArrow,
+            ExpressionNode expression) {
+        Objects.requireNonNull(params, "params must not be null");
+        Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stImplicitAnonymousFunctionExpressionNode = STNodeFactory.createImplicitAnonymousFunctionExpressionNode(
+                params.internalNode(),
+                rightDoubleArrow.internalNode(),
+                expression.internalNode());
+        return stImplicitAnonymousFunctionExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ImplicitAnonymousFunctionParameters createImplicitAnonymousFunctionParameters(
+            Token openParenToken,
+            SeparatedNodeList<SimpleNameReferenceNode> parameters,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(parameters, "parameters must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stImplicitAnonymousFunctionParameters = STNodeFactory.createImplicitAnonymousFunctionParameters(
+                openParenToken.internalNode(),
+                parameters.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stImplicitAnonymousFunctionParameters.createUnlinkedFacade();
+    }
 }
 

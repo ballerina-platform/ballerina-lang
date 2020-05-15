@@ -43,6 +43,16 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
         testFile("anon-func/anon_func_source_04.bal", "anon-func/anon_func_assert_04.json");
     }
 
+    @Test
+    public void testSimpleImplicitAnonFunc() {
+        testFile("anon-func/anon_func_source_07.bal", "anon-func/anon_func_assert_07.json");
+    }
+
+    @Test
+    public void testImplicitAnonFuncWithInferedParamList() {
+        testFile("anon-func/anon_func_source_09.bal", "anon-func/anon_func_assert_09.json");
+    }
+
     // Recovery test
 
     @Test
@@ -58,5 +68,15 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testMissingFUncBody() {
         testFile("anon-func/anon_func_source_06.bal", "anon-func/anon_func_assert_06.json");
+    }
+
+    @Test
+    public void testSimpleImplicitAnonFuncRecovery() {
+        testFile("anon-func/anon_func_source_08.bal", "anon-func/anon_func_assert_08.json");
+    }
+
+    @Test
+    public void testRecoveryInImplicitAnonFuncWithInferedParamList() {
+        testFile("anon-func/anon_func_source_10.bal", "anon-func/anon_func_assert_10.json");
     }
 }

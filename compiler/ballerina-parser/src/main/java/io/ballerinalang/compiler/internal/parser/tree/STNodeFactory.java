@@ -1413,5 +1413,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arguments,
                 closeParenToken);
     }
+
+    public static STNode createImplicitAnonymousFunctionExpressionNode(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression) {
+
+        return new STImplicitAnonymousFunctionExpressionNode(
+                params,
+                rightDoubleArrow,
+                expression);
+    }
+
+    public static STNode createImplicitAnonymousFunctionParameters(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken) {
+
+        return new STImplicitAnonymousFunctionParameters(
+                openParenToken,
+                parameters,
+                closeParenToken);
+    }
 }
 

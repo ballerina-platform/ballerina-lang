@@ -487,6 +487,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parenthesizedArgList);
     }
 
+    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        visitSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
     // Tokens
 
     public void visit(Token token) {
