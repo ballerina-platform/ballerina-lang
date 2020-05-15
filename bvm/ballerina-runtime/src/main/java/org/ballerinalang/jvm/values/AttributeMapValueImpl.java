@@ -21,10 +21,14 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static org.ballerinalang.jvm.values.XMLItem.XMLNS_URL_PREFIX;
 
 /**
@@ -40,10 +44,9 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
 
     @Override
     public String put(String key, String value) {
-        synchronized (this) {
-            if (super.isFrozen()) {
-                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
-            }
+        if (isFrozen()) {
+            throw BallerinaErrors.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                              BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
         }
 
         return insertValue(key, value);
