@@ -382,8 +382,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
-            throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR, "value type inconsistent "
-                    + "with the inherent table type");
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
+            UUID uuid = UUID.randomUUID();
+            entries.put(uuid.hashCode(), entry);
+            return values.put(uuid.hashCode(), data);
         }
 
         public V remove(K key) {
