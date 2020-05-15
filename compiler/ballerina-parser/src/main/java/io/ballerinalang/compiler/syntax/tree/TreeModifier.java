@@ -1495,6 +1495,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 selectClause);
     }
 
+    @Override
+    public Node transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(intersectionTypeDescriptorNode.leftTypeDesc());
+        Token bitwiseAndToken = modifyToken(intersectionTypeDescriptorNode.bitwiseAndToken());
+        Node rightTypeDesc = modifyNode(intersectionTypeDescriptorNode.rightTypeDesc());
+        return intersectionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
+    }
+
     // Tokens
 
     @Override

@@ -523,6 +523,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(queryExpressionNode);
     }
 
+    public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        visitSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

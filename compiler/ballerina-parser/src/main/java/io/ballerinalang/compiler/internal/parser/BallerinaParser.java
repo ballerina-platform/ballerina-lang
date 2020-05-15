@@ -1990,9 +1990,12 @@ public class BallerinaParser extends AbstractParser {
             // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case OPEN_BRACKET_TOKEN:
                 return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context);
-            // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
+            // If next token after a type descriptor is <code>|</code> then it is an array type descriptor
             case PIPE_TOKEN:
                 return parseComplexTypeDescriptor(parseUnionTypeDescriptor(typeDesc, context), context);
+            // If next token after a type descriptor is <code> & </code> then it is an array type descriptor
+            case BITWISE_AND_TOKEN:
+                return parseComplexTypeDescriptor(parseIntersectionTypeDescriptor(typeDesc, context), context);
             default:
                 return typeDesc;
         }
@@ -6035,6 +6038,7 @@ public class BallerinaParser extends AbstractParser {
                 // Here we directly start parsing as a statement that starts with an expression.
                 return parseStamentStartWithExpr(nextTokenKind, annots, identifier);
             case PIPE_TOKEN:
+            case BITWISE_AND_TOKEN:
                 STToken nextNextToken = peek(2);
                 if (nextNextToken.kind != SyntaxKind.EQUAL_TOKEN) {
                     return parseTypeDescStartsWithIdentifier(identifier, annots);
@@ -8745,5 +8749,19 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ParserRuleContext.SELECT_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse intersection type descriptor.
+     * <p>intersection-type-descriptor := type-descriptor & type-descriptor</p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseIntersectionTypeDescriptor(STNode leftTypeDesc, ParserRuleContext context) {
+        // we come here only after seeing & token hence consume.
+        STNode bitwiseAndToken = consume();
+        STNode rightTypeDesc = parseTypeDescriptor(context);
+
+        return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 }

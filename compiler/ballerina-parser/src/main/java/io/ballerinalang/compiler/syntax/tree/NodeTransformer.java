@@ -524,6 +524,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(queryExpressionNode);
     }
 
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
