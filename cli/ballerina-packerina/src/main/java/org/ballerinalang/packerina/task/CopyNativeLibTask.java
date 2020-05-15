@@ -24,7 +24,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.toml.model.Dependency;
-import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -148,31 +147,6 @@ public class CopyNativeLibTask implements Task {
             if (importJar != null && Files.exists(importJar)) {
                 copyLibsFromBalo(importJar, moduleDependencySet);
                 return;
-            }
-        }
-
-        // If platform libs are defined, copy them to target
-        List<Library> libraries = manifest.getPlatform().libraries;
-        if (libraries != null && libraries.size() > 0) {
-            for (Library library : libraries) {
-
-                if (library.getGroupId() == null || library.getModules() == null || library.getPath() == null) {
-                    continue;
-                }
-
-                if (library.getGroupId().equals(importz.pkgID.orgName.value) &&
-                        Arrays.asList(library.getModules()).contains(importz.pkgID.name.value)) {
-                    Path libFilePath = Paths.get(library.getPath());
-                    Path libFile = project.resolve(libFilePath);
-                    Path libFileName = libFilePath.getFileName();
-
-                    if (libFileName == null) {
-                        continue;
-                    }
-                    Path path = Paths.get(libFile.toUri());
-                    moduleDependencySet.add(path);
-                    return;
-                }
             }
         }
 
