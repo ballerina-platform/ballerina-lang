@@ -78,7 +78,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXPLICIT_ANON_FUNC_EXPR_BODY_START };
 
     /**
-     * FUNC_TYPE
+     * FUNC_TYPE --> When a only function type is possible.
      */
     private static final ParserRuleContext[] FUNC_TYPE_OPTIONAL_RETURNS =
             { ParserRuleContext.RETURNS_KEYWORD, ParserRuleContext.FUNC_TYPE_DESC_END };
