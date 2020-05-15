@@ -7,7 +7,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "socket"
-    version = "@project.version@"
-    path = "./lib/ballerina-socket-@project.version@.jar"
+    version = "0.6.0"
+    path = "./lib/ballerina-socket-0.6.0-java.jar"
     groupId = "ballerina"
     modules = ["socket"]

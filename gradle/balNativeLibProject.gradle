@@ -119,7 +119,7 @@ task createBalo(type: CreateBaloTask) {
     inputs.files(configurations.baloImplementation)
     inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
     outputs.dir("$buildDir/generated-balo")
-    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." +  project.ext.moduleName + "." +
+    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "-" +  project.ext.moduleName + "-" +
             project.ext.version + ".jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
@@ -151,7 +151,7 @@ task createBStringBalo(type: CreateBaloTask) {
     inputs.files(configurations.baloImplementation)
     inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
     outputs.dir("$buildDir/generated-balo")
-    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." + project.ext.moduleName + "." + project
+    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "-" + project.ext.moduleName + "-" + project
             .ext.version + "-bstring.jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
@@ -195,6 +195,10 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+jar {
+    archiveName project.ext.orgName + "-" + project.ext.moduleName + "-" + project.ext.version + "-java.jar"
 }
 
 apply from: "$rootDir/gradle/birProject.gradle"

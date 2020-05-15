@@ -143,9 +143,9 @@ public class GenerateBalo {
                 suffix = "-bstring";
             }
             if (!pkg.packageID.version.value.equals("")) {
-                version = "." + pkg.packageID.version;
+                version = "-" + pkg.packageID.version;
             }
-            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "-" + pkg.packageID.name +
                                                version + suffix + ".jar");
             Path parent = jarOutput.getParent();
             if (parent != null) {

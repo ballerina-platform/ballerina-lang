@@ -145,15 +145,15 @@ test {
     dependsOn copySelfToBirCache
     dependsOn createBalo
 
-    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + "." + project.ext
+    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '-' + moduleName + "-" + project.ext
             .version + ".jar")
 }
 
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
-    birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + "." + project.ext.version +
+    birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '-' + moduleName + "-" + project.ext.version +
             ".jar"), { builtBy(createBalo) }
-    bStringBirJar file('build/generated-bir-jar/' + project.ext.orgName + '.' + moduleName + "." + project.ext.version +
+    bStringBirJar file('build/generated-bir-jar/' + project.ext.orgName + '-' + moduleName + "-" + project.ext.version +
             "-bstring" + '.jar'), {builtBy(createBStringBalo)}
 }
 
