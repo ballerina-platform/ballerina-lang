@@ -62,7 +62,7 @@ public abstract class Node {
         }
         int leadingMinutiaeDelta = internalNode.widthWithLeadingMinutiae() - internalNode.width();
         int positionWithoutLeadingMinutiae = this.position + leadingMinutiaeDelta;
-        textRange = new TextRange(positionWithoutLeadingMinutiae, internalNode.width());
+        textRange = TextRange.from(positionWithoutLeadingMinutiae, internalNode.width());
         return textRange;
     }
 
@@ -70,7 +70,7 @@ public abstract class Node {
         if (textRangeWithMinutiae != null) {
             return textRangeWithMinutiae;
         }
-        textRangeWithMinutiae = new TextRange(position, internalNode.widthWithMinutiae());
+        textRangeWithMinutiae = TextRange.from(position, internalNode.widthWithMinutiae());
         return textRangeWithMinutiae;
     }
 
@@ -93,7 +93,7 @@ public abstract class Node {
 
         SyntaxTree syntaxTree = syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
-        lineRange = new LineRange(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
     }

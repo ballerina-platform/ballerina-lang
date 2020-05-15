@@ -29,10 +29,14 @@ public class TextRange {
     private final int endOffset;
     private final int length;
 
-    public TextRange(int startOffset, int length) {
+    private TextRange(int startOffset, int length) {
         this.startOffset = startOffset;
         this.length = length;
         this.endOffset = startOffset + length;
+    }
+
+    public static TextRange from(int startOffset, int length) {
+        return new TextRange(startOffset, length);
     }
 
     public int startOffset() {
