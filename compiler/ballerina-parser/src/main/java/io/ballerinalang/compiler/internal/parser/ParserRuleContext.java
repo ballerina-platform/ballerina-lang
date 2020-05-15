@@ -69,6 +69,7 @@ public enum ParserRuleContext {
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
+    OBJECT_MEMBER_START("object-member-start"),
     OBJECT_MEMBER_WITHOUT_METADATA("object-member-without-metadata"),
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),

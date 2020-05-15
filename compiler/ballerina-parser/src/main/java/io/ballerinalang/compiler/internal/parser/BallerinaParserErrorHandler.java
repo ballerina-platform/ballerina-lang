@@ -744,7 +744,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NAMED_OR_POSITIONAL_ARG_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             NAMED_OR_POSITIONAL_ARG_RHS, isEntryPoint);
-                case OBJECT_MEMBER:
+                case OBJECT_MEMBER_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, OBJECT_MEMBER_START,
                             isEntryPoint);
                 case OBJECT_MEMBER_WITHOUT_METADATA:
@@ -1518,6 +1518,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_CLAUSE_LET_VAR_DECL:
             case ROW_TYPE_PARAM:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
+            case OBJECT_MEMBER:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -1556,14 +1557,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case PUBLIC_KEYWORD:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR) {
-                    return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
+                if (parentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR || parentCtx == ParserRuleContext.OBJECT_MEMBER) {
+                    return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
                 } else if (isParameter(parentCtx)) {
                     return ParserRuleContext.TYPE_DESC_IN_PARAM;
                 }
                 return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
             case PRIVATE_KEYWORD:
-                return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
+                return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
@@ -2080,6 +2081,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXPLICIT_ANON_FUNC_EXPR_BODY_START:
                 endContext(); // end explicit anon-func
                 return ParserRuleContext.EXPR_FUNC_BODY_START;
+            case OBJECT_MEMBER:
+                return ParserRuleContext.OBJECT_MEMBER_START;
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2097,7 +2100,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FIELD_OR_REST_DESCIPTOR_RHS:
             case IMPORT_PREFIX_DECL:
             case NAMED_OR_POSITIONAL_ARG_RHS:
-            case OBJECT_MEMBER:
             case OBJECT_TYPE_DESCRIPTOR_START:
             case RECORD_BODY_END:
             case RECORD_BODY_START:
@@ -2225,7 +2227,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.NAMED_WORKER_DECL;
         }
 
-        return ParserRuleContext.STATEMENT;
+        switch (parentCtx) {
+            case OBJECT_TYPE_DESCRIPTOR:
+                return ParserRuleContext.OBJECT_MEMBER;
+            case RECORD_TYPE_DESCRIPTOR:
+                return ParserRuleContext.RECORD_FIELD;
+            case MAPPING_CONSTRUCTOR:
+                return ParserRuleContext.MAPPING_FIELD;
+            case FORK_STMT:
+                return ParserRuleContext.NAMED_WORKER_DECL;
+                default:
+                    return ParserRuleContext.STATEMENT;
+        }
     }
 
     private boolean isExpressionContext(ParserRuleContext ctx) {
@@ -2487,7 +2500,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case SERVICE_DECL:
                         return ParserRuleContext.RESOURCE_DEF;
                     case OBJECT_MEMBER:
-                        return ParserRuleContext.OBJECT_MEMBER;
+                        return ParserRuleContext.OBJECT_MEMBER_START;
                     case COMP_UNIT:
                         return ParserRuleContext.TOP_LEVEL_NODE;
                     case FUNC_DEF:
@@ -2738,7 +2751,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end object member
                 return ParserRuleContext.CLOSE_BRACE;
             }
-            return ParserRuleContext.OBJECT_MEMBER;
+            return ParserRuleContext.OBJECT_MEMBER_START;
         } else if (parentCtx == ParserRuleContext.IMPORT_DECL) {
             endContext(); // end object member
             nextToken = this.tokenReader.peek(nextLookahead);
@@ -2755,7 +2768,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
         } else {
-            throw new IllegalStateException();
+            throw new IllegalStateException(parentCtx.toString());
         }
     }
 
@@ -3308,6 +3321,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.FROM_KEYWORD;
             case EXPR_FUNC_BODY_START:
                 return SyntaxKind.RIGHT_DOUBLE_ARROW;
+            case STATEMENT:
+            case STATEMENT_WITHOUT_ANNOTS:
+                return SyntaxKind.CLOSE_BRACE_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -3317,8 +3333,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANNOTATIONS:
             case PARAM_LIST:
             case PARAMETER_NAME_RHS:
-            case STATEMENT:
-            case STATEMENT_WITHOUT_ANNOTS:
             case FIELD_OR_REST_DESCIPTOR_RHS:
             case MODULE_TYPE_DEFINITION:
             case RECORD_TYPE_DESCRIPTOR:
@@ -3479,7 +3493,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         // to get better results. Since this is an erroneous scenario, the overhead
         // of increasing the lookahead is acceptable.
         int prevLookahead = lookaheadLimit;
-        lookaheadLimit = (int) (lookaheadLimit * 1.5);
+        lookaheadLimit = (int) (lookaheadLimit);
         ParserRuleContext[] alternatives;
         switch (context) {
             case STATEMENT:
@@ -3490,6 +3504,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_MEMBER:
                 alternatives = OBJECT_MEMBER_START;
+                break;
+            case RECORD_FIELD:
+                alternatives = RECORD_FIELD_OR_RECORD_END;
                 break;
             default:
                 throw new IllegalStateException();
