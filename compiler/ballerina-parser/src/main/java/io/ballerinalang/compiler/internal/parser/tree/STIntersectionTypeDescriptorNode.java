@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ReadOnlyTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,23 +27,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STReadOnlyTypeDescriptorNode extends STNode {
-    public final STNode readonlyKeyWordToken;
-    public final STNode typeParameterNode;
+public class STIntersectionTypeDescriptorNode extends STNode {
+    public final STNode leftTypeDesc;
+    public final STNode bitwiseAndToken;
+    public final STNode rightTypeDesc;
 
-    STReadOnlyTypeDescriptorNode(
-            STNode readonlyKeyWordToken,
-            STNode typeParameterNode) {
-        super(SyntaxKind.READONLY_TYPE_DESC);
-        this.readonlyKeyWordToken = readonlyKeyWordToken;
-        this.typeParameterNode = typeParameterNode;
+    STIntersectionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode bitwiseAndToken,
+            STNode rightTypeDesc) {
+        super(SyntaxKind.INTERSECTION_TYPE_DESC);
+        this.leftTypeDesc = leftTypeDesc;
+        this.bitwiseAndToken = bitwiseAndToken;
+        this.rightTypeDesc = rightTypeDesc;
 
         addChildren(
-                readonlyKeyWordToken,
-                typeParameterNode);
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReadOnlyTypeDescriptorNode(this, position, parent);
+        return new IntersectionTypeDescriptorNode(this, position, parent);
     }
 }

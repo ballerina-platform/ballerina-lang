@@ -1447,15 +1447,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createReadOnlyTypeDescriptorNode(
-            STNode readonlyKeyWordToken,
-            STNode typeParameterNode) {
-
-        return new STReadOnlyTypeDescriptorNode(
-                readonlyKeyWordToken,
-                typeParameterNode);
-    }
-
     public static STNode createQueryConstructTypeNode(
             STNode tableKeyword,
             STNode KeySpecifier) {
@@ -1525,6 +1516,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 queryConstructType,
                 queryPipeline,
                 selectClause);
+    }
+
+    public static STNode createIntersectionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode bitwiseAndToken,
+            STNode rightTypeDesc) {
+
+        return new STIntersectionTypeDescriptorNode(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
     }
 
     public static STNode createImplicitAnonymousFunctionParameters(

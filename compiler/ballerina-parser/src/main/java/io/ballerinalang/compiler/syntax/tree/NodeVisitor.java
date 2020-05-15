@@ -499,10 +499,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parenthesizedArgList);
     }
 
-    public void visit(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        visitSyntaxNode(readOnlyTypeDescriptorNode);
-    }
-
     public void visit(QueryConstructTypeNode queryConstructTypeNode) {
         visitSyntaxNode(queryConstructTypeNode);
     }
@@ -529,6 +525,10 @@ public abstract class NodeVisitor {
 
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        visitSyntaxNode(intersectionTypeDescriptorNode);
     }
 
     public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {

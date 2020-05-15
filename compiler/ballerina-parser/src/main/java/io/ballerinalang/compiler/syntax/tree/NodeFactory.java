@@ -1949,18 +1949,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stParenthesizedArgList.createUnlinkedFacade();
     }
 
-    public static ReadOnlyTypeDescriptorNode createReadOnlyTypeDescriptorNode(
-            Token readonlyKeyWordToken,
-            Node typeParameterNode) {
-        Objects.requireNonNull(readonlyKeyWordToken, "readonlyKeyWordToken must not be null");
-        Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
-
-        STNode stReadOnlyTypeDescriptorNode = STNodeFactory.createReadOnlyTypeDescriptorNode(
-                readonlyKeyWordToken.internalNode(),
-                typeParameterNode.internalNode());
-        return stReadOnlyTypeDescriptorNode.createUnlinkedFacade();
-    }
-
     public static QueryConstructTypeNode createQueryConstructTypeNode(
             Token tableKeyword,
             KeySpecifierNode KeySpecifier) {
@@ -2055,6 +2043,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 queryPipeline.internalNode(),
                 selectClause.internalNode());
         return stQueryExpressionNode.createUnlinkedFacade();
+    }
+
+    public static IntersectionTypeDescriptorNode createIntersectionTypeDescriptorNode(
+            Node leftTypeDesc,
+            Token bitwiseAndToken,
+            Node rightTypeDesc) {
+        Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
+        Objects.requireNonNull(bitwiseAndToken, "bitwiseAndToken must not be null");
+        Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
+
+        STNode stIntersectionTypeDescriptorNode = STNodeFactory.createIntersectionTypeDescriptorNode(
+                leftTypeDesc.internalNode(),
+                bitwiseAndToken.internalNode(),
+                rightTypeDesc.internalNode());
+        return stIntersectionTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static ImplicitAnonymousFunctionParameters createImplicitAnonymousFunctionParameters(

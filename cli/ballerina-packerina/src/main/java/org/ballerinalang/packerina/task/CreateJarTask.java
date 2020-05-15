@@ -110,7 +110,9 @@ public class CreateJarTask implements Task {
                     // get the jar path of the module.
                     Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
                     if (!Files.exists(testJarOutput)) {
-                        backendDriver.execute(testPkg.symbol.bir, dumpBir, testJarOutput, moduleDependencies);
+                        HashSet<Path> testLibs = new HashSet<>(moduleDependencies);
+                        testLibs.addAll(buildContext.moduleDependencyPathMap.get(packageID).testLibs);
+                        backendDriver.execute(testPkg.symbol.bir, dumpBir, testJarOutput, testLibs);
                         alreadyImportedModuleSet.add(testPkg.packageID);
                     }
                 }

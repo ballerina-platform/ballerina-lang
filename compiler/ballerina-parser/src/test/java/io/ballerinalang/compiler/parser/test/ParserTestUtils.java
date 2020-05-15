@@ -472,6 +472,8 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_KEYWORD;
             case "READONLY_KEYWORD":
                 return SyntaxKind.READONLY_KEYWORD;
+            case "DISTINCT_KEYWORD":
+                return SyntaxKind.DISTINCT_KEYWORD;
             case "FROM_KEYWORD":
                 return SyntaxKind.FROM_KEYWORD;
             case "WHERE_KEYWORD":
@@ -754,6 +756,10 @@ public class ParserTestUtils {
                 return SyntaxKind.PARENTHESISED_TYPE_DESC;
             case "READONLY_TYPE_DESC":
                 return SyntaxKind.READONLY_TYPE_DESC;
+            case "DISTINCT_TYPE_DESC":
+                return SyntaxKind.DISTINCT_TYPE_DESC;
+            case "INTERSECTION_TYPE_DESC":
+                return SyntaxKind.INTERSECTION_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

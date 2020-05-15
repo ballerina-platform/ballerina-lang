@@ -24,18 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ReadOnlyTypeDescriptorNode extends NonTerminalNode {
+public class IntersectionTypeDescriptorNode extends NonTerminalNode {
 
-    public ReadOnlyTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public IntersectionTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token readonlyKeyWordToken() {
+    public Node leftTypeDesc() {
         return childInBucket(0);
     }
 
-    public Node typeParameterNode() {
+    public Token bitwiseAndToken() {
         return childInBucket(1);
+    }
+
+    public Node rightTypeDesc() {
+        return childInBucket(2);
     }
 
     @Override
@@ -51,21 +55,25 @@ public class ReadOnlyTypeDescriptorNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "readonlyKeyWordToken",
-                "typeParameterNode"};
+                "leftTypeDesc",
+                "bitwiseAndToken",
+                "rightTypeDesc"};
     }
 
-    public ReadOnlyTypeDescriptorNode modify(
-            Token readonlyKeyWordToken,
-            Node typeParameterNode) {
+    public IntersectionTypeDescriptorNode modify(
+            Node leftTypeDesc,
+            Token bitwiseAndToken,
+            Node rightTypeDesc) {
         if (checkForReferenceEquality(
-                readonlyKeyWordToken,
-                typeParameterNode)) {
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc)) {
             return this;
         }
 
-        return NodeFactory.createReadOnlyTypeDescriptorNode(
-                readonlyKeyWordToken,
-                typeParameterNode);
+        return NodeFactory.createIntersectionTypeDescriptorNode(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
     }
 }

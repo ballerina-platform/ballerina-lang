@@ -500,10 +500,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesizedArgList);
     }
 
-    public T transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        return transformSyntaxNode(readOnlyTypeDescriptorNode);
-    }
-
     public T transform(QueryConstructTypeNode queryConstructTypeNode) {
         return transformSyntaxNode(queryConstructTypeNode);
     }
@@ -530,6 +526,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(QueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
     }
 
     public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {

@@ -11,24 +11,16 @@
             ]
         },
         {
-            "kind": "READONLY_TYPE_DESC",
+            "kind": "INTERSECTION_TYPE_DESC",
             "children": [
                 {
-                    "kind": "READONLY_KEYWORD"
+                    "kind": "INT_KEYWORD"
                 },
                 {
-                    "kind": "TYPE_PARAMETER",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
+                    "kind": "BITWISE_AND_TOKEN"
+                },
+                {
+                    "kind": "STRING_KEYWORD"
                 }
             ]
         },

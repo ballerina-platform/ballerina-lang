@@ -1435,15 +1435,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        Token readonlyKeyWordToken = modifyToken(readOnlyTypeDescriptorNode.readonlyKeyWordToken());
-        Node typeParameterNode = modifyNode(readOnlyTypeDescriptorNode.typeParameterNode());
-        return readOnlyTypeDescriptorNode.modify(
-                readonlyKeyWordToken,
-                typeParameterNode);
-    }
-
-    @Override
     public Node transform(QueryConstructTypeNode queryConstructTypeNode) {
         Token tableKeyword = modifyToken(queryConstructTypeNode.tableKeyword());
         KeySpecifierNode KeySpecifier = modifyNode(queryConstructTypeNode.KeySpecifier());
@@ -1512,6 +1503,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 queryConstructType,
                 queryPipeline,
                 selectClause);
+    }
+
+    @Override
+    public Node transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        Node leftTypeDesc = modifyNode(intersectionTypeDescriptorNode.leftTypeDesc());
+        Token bitwiseAndToken = modifyToken(intersectionTypeDescriptorNode.bitwiseAndToken());
+        Node rightTypeDesc = modifyNode(intersectionTypeDescriptorNode.rightTypeDesc());
+        return intersectionTypeDescriptorNode.modify(
+                leftTypeDesc,
+                bitwiseAndToken,
+                rightTypeDesc);
     }
 
     @Override
