@@ -172,6 +172,11 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
+    public BError getCause() {
+        return this.cause;
+    }
+
+    @Override
     public void printStackTrace() {
         ErrorHandlerUtils.printError(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }

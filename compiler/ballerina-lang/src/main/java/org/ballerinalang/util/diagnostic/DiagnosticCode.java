@@ -81,6 +81,7 @@ public enum DiagnosticCode {
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),
     REST_ARG_DEFINED_AFTER_NAMED_ARG("rest.arg.defined.after.named.arg"),
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
+    MISSING_REQUIRED_ARG_ERROR_MESSAGE("missing.required.parameter.error.message"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),

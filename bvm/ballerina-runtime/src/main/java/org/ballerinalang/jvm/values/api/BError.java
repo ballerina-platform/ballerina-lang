@@ -54,6 +54,13 @@ public abstract class BError extends RuntimeException implements BRefValue {
     public abstract Object getDetails();
 
     /**
+     * Returns error cause.
+     *
+     * @return error cause
+     */
+    public abstract BError getCause();
+
+    /**
      * Print error stack trace to the given {@code PrintWriter}.
      *
      * @param printWriter {@code PrintWriter} to be used

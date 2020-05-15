@@ -490,19 +490,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateModuleQualifiedReason(DiagnosticPos pos, String reason) {
-        if (!reason.startsWith(LEFT_BRACE)) {
-            return;
-        }
-
-        PackageID currentPackageId = env.enclPkg.packageID;
-        if (currentPackageId.isUnnamed || reason.contains(SPACE) ||
-                !reason.startsWith(LEFT_BRACE.concat(currentPackageId.toString().split(COLON)[0])
-                                           .concat(RIGHT_BRACE))) {
-            dlog.warning(pos, DiagnosticCode.NON_MODULE_QUALIFIED_ERROR_REASON, reason);
-        }
-    }
-
     public void visit(BLangAnnotation annotationNode) {
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
