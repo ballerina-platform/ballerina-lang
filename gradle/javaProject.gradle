@@ -61,6 +61,8 @@ dependencies {
         implementation "io.grpc:grpc-protobuf:${project.ext.grpcVersion}"
         implementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
         implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
+        implementation 'com.github.spullara.mustache.java:compiler:0.8.9'
+        implementation 'org.bitbucket.cowwoc:diff-match-patch:1.2'
 
         implementation 'org.apache.commons:commons-lang3:3.8.1'
         implementation 'org.apache.commons:commons-text:1.7'
@@ -76,6 +78,7 @@ dependencies {
         implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
         implementation 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
         implementation 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
+        implementation 'org.apache.zookeeper:zookeeper:3.6.1'
         implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
         implementation 'org.codehaus.woodstox:stax2-api:4.2'
         implementation 'org.awaitility:awaitility:3.1.6'
@@ -107,13 +110,12 @@ dependencies {
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.1'
         implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
-        
+
         implementation 'info.picocli:picocli:4.0.1'
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
         implementation 'io.ballerina.messaging:broker-core:0.970.5'
         implementation 'io.ballerina.messaging:broker-amqp:0.970.5'
-        implementation 'io.debezium:debezium-core:1.0.0.Final'
-        implementation 'io.dropwizard.metrics:metrics-core:3.1.0'
+        implementation 'io.dropwizard.metrics:metrics-core:4.1.7'
         implementation 'io.netty:netty-codec:4.1.39.Final'
         implementation 'io.netty:netty-buffer:4.1.39.Final'
         implementation 'io.netty:netty-common:4.1.39.Final'

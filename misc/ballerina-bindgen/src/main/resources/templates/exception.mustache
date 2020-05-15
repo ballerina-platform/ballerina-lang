@@ -1,0 +1,10 @@
+// Ballerina error type for {{exceptionName}}.
+
+const {{exceptionConstName}} = "{{shortExceptionName}}";
+
+type {{shortExceptionName}}Data record {
+    string message;
+    error cause?;
+};
+
+type {{shortExceptionName}} error<{{exceptionConstName}}, {{shortExceptionName}}Data>;

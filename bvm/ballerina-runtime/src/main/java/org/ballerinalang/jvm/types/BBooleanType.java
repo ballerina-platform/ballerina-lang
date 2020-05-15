@@ -48,4 +48,9 @@ public class BBooleanType extends BType {
     public int getTag() {
         return TypeTags.BOOLEAN_TAG;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

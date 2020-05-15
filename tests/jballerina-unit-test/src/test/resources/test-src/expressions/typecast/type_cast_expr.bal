@@ -40,12 +40,12 @@ type Person record {
 };
 
 type TableEmployee record {|
-    int id;
+    readonly int id;
     string name;
 |};
 
 type TableEmployeeTwo record {|
-    boolean id;
+    readonly boolean id;
     string name;
 |};
 
@@ -295,34 +295,28 @@ function testRecordCastNegative() {
     Lead e2 = <Lead> p;
 }
 
-//TODO Table remove - Fix
+function testTableCastPositive() returns boolean {
+    table<TableEmployee> t1 = table key(id) [
+            { id: 1, name: "Mary" },
+            { id: 2, name: "John" },
+            { id: 3, name: "Jim" }
+        ];
 
-//function testTableCastPositive() returns boolean {
-//    table<TableEmployee> t1 = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    anydata a = t1;
-//    table<TableEmployee> t2 = <table<TableEmployee>> a;
-//    return t1 === t2;
-//}
-//
-//function testTableCastNegative() {
-//    table<TableEmployee> t1 = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    anydata a = t1;
-//    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
-//}
+    anydata a = t1;
+    table<TableEmployee> t2 = <table<TableEmployee>> a;
+    return t1 === t2;
+}
+
+function testTableCastNegative() {
+    table<TableEmployee> t1 = table key(id)[
+            { id: 1, name: "Mary" },
+            { id: 2, name: "John" },
+            { id: 3, name: "Jim" }
+        ];
+
+    anydata a = t1;
+    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
+}
 
 function testXmlCastPositive() returns boolean {
     xml x1 = xml `<book>The Lost World</book>`;

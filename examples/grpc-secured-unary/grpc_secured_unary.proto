@@ -1,7 +1,0 @@
-// This is the service definition for the secured connection (HTTPS) scenario.
-syntax = "proto3";
-import "google/protobuf/wrappers.proto";
-service HelloWorld {
-	rpc hello (google.protobuf.StringValue)
-			returns (google.protobuf.StringValue);
-}

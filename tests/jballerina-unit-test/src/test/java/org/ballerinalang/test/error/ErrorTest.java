@@ -148,7 +148,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData & readonly");
     }
 
     @Test
@@ -274,6 +274,7 @@ public class ErrorTest {
                 "incompatible types: expected 'error<string, " +
                         "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
     }
+
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
         return new Object[][] {

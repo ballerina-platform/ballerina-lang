@@ -67,7 +67,7 @@ public class TracingTestCase extends BaseTest {
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
-        
+
 
         // copy to bre/libs
         Path observeTestBaloPath =
@@ -186,7 +186,7 @@ public class TracingTestCase extends BaseTest {
         });
     }
 
-    @Test(dependsOnMethods = "testObservePackageUserTraceTrue")
+    @Test(dependsOnMethods = "testObservePackageUserTraceTrue", enabled = false)
     public void testOOTBTracingWithWorkers() throws Exception {
         final String service = "http://localhost:9093/echoService/";
         HttpClientRequest.doGet(service + "resourceOne");
@@ -215,33 +215,7 @@ public class TracingTestCase extends BaseTest {
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 8, "Mismatch in number of root spans.");
     }
 
-    @Test(dependsOnMethods = "testOOTBTracingWithWorkers")
-    public void testOOTBTracingForUserDefinedFunctions() throws Exception {
-        final String service = "http://localhost:9095/echoService/";
-        HttpClientRequest.doGet(service + "resourceOne");
-        Thread.sleep(1000);
-        Type type = new TypeToken<List<BMockSpan>>() {
-        }.getType();
-        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
-        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
-
-        // 39. echoService3__service_0 -> getMockTracers (Root Span)
-        // 40. echoService3__service_0 -> ballerina/http/Caller:respond
-
-        // 41. echoService5__service_0 -> resourceOne (Root Span)
-        // 42. echoService5__service_0 -> ballerina/http/Client:get
-        // 43. echoService5__service_0 -> ballerina/http/HttpClient:get
-        // 44. echoService5__service_0 -> resourceTwo
-        // 45. echoService5__service_0 -> default:sayHelloWorld2
-        // 46. echoService5__service_0 -> ballerina/http/Caller:respond
-        // 47. echoService5__service_0 -> default:sayHelloWorld
-        // 48. echoService5__service_0 -> ballerina/http/Caller:respond
-        Assert.assertEquals(mockSpans.size(), 48, "Mismatch in number of spans reported.");
-        Assert.assertEquals(mockSpans.stream()
-                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 10, "Mismatch in number of root spans.");
-    }
-
-    @Test(dependsOnMethods = "testOOTBTracingForUserDefinedFunctions")
+    @Test(dependsOnMethods = "testOOTBTracingWithWorkers", enabled = false)
     public void testOOTBTracingWithErrors() throws Exception {
         final String service = "http://localhost:9094/echoService/";
         HttpClientRequest.doGet(service + "resourceOne/3");

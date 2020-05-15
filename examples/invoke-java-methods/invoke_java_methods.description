@@ -1,2 +1,0 @@
-// The `Method` annotation in `ballerina/java` module allows you to link a Java method (static or instance) with a
-// Ballerina function with an external function body.

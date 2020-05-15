@@ -799,7 +799,8 @@ class JvmObservabilityGen {
                 new Name(String.format("$%s$mapTypeDesc", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
         scopeVarList.add(tagsMapTypeDescVariableDcl);
         BIROperand tagsMapTypeDescOperand = new BIROperand(tagsMapTypeDescVariableDcl);
-        NewTypeDesc mapNewTypeDescIns = new NewTypeDesc(pos, tagsMapTypeDescOperand, symbolTable.mapStringType);
+        NewTypeDesc mapNewTypeDescIns = new NewTypeDesc(pos, tagsMapTypeDescOperand, symbolTable.mapStringType,
+                Collections.emptyList());
         basicBlock.instructions.add(mapNewTypeDescIns);
 
         BIRVariableDcl tagsMapVariableDcl = new BIRVariableDcl(symbolTable.mapStringType,

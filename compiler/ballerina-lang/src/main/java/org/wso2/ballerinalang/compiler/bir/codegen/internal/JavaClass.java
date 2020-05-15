@@ -30,10 +30,11 @@ import java.util.List;
 public class JavaClass {
 
     public final String sourceFileName;
-    public final List<BIRNode.BIRFunction> functions = new ArrayList<>();
+    public final List<BIRNode.BIRFunction> functions;
 
     public JavaClass(String sourceFileName) {
 
         this.sourceFileName = sourceFileName;
+        this.functions = new ArrayList<>();
     }
 }

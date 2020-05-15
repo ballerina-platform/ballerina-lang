@@ -27,13 +27,11 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BConstructorSymbol extends BInvokableSymbol implements ConstructorSymbol {
 
-    public BConstructorSymbol(int tag,
-                              int flags,
+    public BConstructorSymbol(int flags,
                               Name name,
                               PackageID pkgID,
                               BType type,
                               BSymbol owner) {
-        super(tag, flags, name, pkgID, type, owner);
-        this.tag = tag;
+        super(SymTag.CONSTRUCTOR, flags, name, pkgID, type, owner);
     }
 }

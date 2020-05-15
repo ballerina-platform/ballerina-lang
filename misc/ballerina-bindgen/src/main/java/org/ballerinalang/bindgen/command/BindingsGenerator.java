@@ -19,6 +19,7 @@ package org.ballerinalang.bindgen.command;
 
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.JError;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -40,6 +41,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
@@ -73,6 +75,7 @@ public class BindingsGenerator {
     private static Set<String> allClasses = new HashSet<>();
     private static Set<String> classListForLooping = new HashSet<>();
     private static Set<String> allJavaClasses = new HashSet<>();
+    private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
     void generateJavaBindings() throws BindgenException {
@@ -165,6 +168,13 @@ public class BindingsGenerator {
         if (!names.isEmpty()) {
             writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
         }
+
+        // Create the .bal files for Ballerina error types.
+        for (JError jError : exceptionList) {
+            String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
+                    Paths.get(utilsDirPath.toString(), fileName).toString(), false);
+        }
     }
 
     void setOutputPath(String outputPath) {
@@ -221,5 +231,13 @@ public class BindingsGenerator {
 
     public static void setAllClasses(String allClasses) {
         BindingsGenerator.allClasses.add(allClasses);
+    }
+
+    public static Set<JError> getExceptionList() {
+        return exceptionList;
+    }
+
+    public static void setExceptionList(JError exception) {
+        BindingsGenerator.exceptionList.add(exception);
     }
 }

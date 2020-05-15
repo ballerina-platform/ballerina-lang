@@ -24,8 +24,8 @@ email:SmtpConfig smtpConfig = {
 };
 
 function testSendComplexEmail(string host, string username, string password, string subject, string body,
-        string fromAddress, string sender, string[] toAddresses, string[] ccAddresses, string[] bccAddresses,
-        string[] replyToAddresses) returns email:Error? {
+        string contentType, string fromAddress, string sender, string[] toAddresses, string[] ccAddresses,
+        string[] bccAddresses, string[] replyToAddresses) returns email:Error? {
 
     email:SmtpClient|email:Error smtpClient = new (host, username,  password, smtpConfig);
 
@@ -75,6 +75,7 @@ function testSendComplexEmail(string host, string username, string password, str
         bcc: bccAddresses,
         subject: subject,
         body: body,
+        contentType: contentType,
         'from: fromAddress,
         sender: sender,
         replyTo: replyToAddresses,
