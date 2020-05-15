@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,31 +27,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STFunctionBodyBlockNode extends STFunctionBodyNode {
-    public final STNode openBraceToken;
-    public final STNode namedWorkerDeclarator;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFunctionExpressionNode {
+    public final STNode params;
+    public final STNode rightDoubleArrow;
+    public final STNode expression;
 
-    STFunctionBodyBlockNode(
-            STNode openBraceToken,
-            STNode namedWorkerDeclarator,
-            STNode statements,
-            STNode closeBraceToken) {
-        super(SyntaxKind.FUNCTION_BODY_BLOCK);
-        this.openBraceToken = openBraceToken;
-        this.namedWorkerDeclarator = namedWorkerDeclarator;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+    STImplicitAnonymousFunctionExpressionNode(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression) {
+        super(SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        this.params = params;
+        this.rightDoubleArrow = rightDoubleArrow;
+        this.expression = expression;
 
         addChildren(
-                openBraceToken,
-                namedWorkerDeclarator,
-                statements,
-                closeBraceToken);
+                params,
+                rightDoubleArrow,
+                expression);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionBodyBlockNode(this, position, parent);
+        return new ImplicitAnonymousFunctionExpressionNode(this, position, parent);
     }
 }

@@ -15,18 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
- * This is a generated syntax tree node.
+ * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public abstract class AnonymousFunctionExpressionNode extends NonTerminalNode {
+public abstract class STFunctionBodyNode extends STNode {
 
-    public AnonymousFunctionExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
-        super(internalNode, position, parent);
+    STFunctionBodyNode(SyntaxKind kind) {
+        super(kind);
     }
 }

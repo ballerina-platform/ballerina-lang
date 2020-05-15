@@ -24,26 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ExternalFunctionBodyNode extends FunctionBodyNode {
+public class ImplicitAnonymousFunctionParameters extends NonTerminalNode {
 
-    public ExternalFunctionBodyNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ImplicitAnonymousFunctionParameters(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token equalsToken() {
+    public Token openParenToken() {
         return childInBucket(0);
     }
 
-    public NodeList<AnnotationNode> annotations() {
-        return new NodeList<>(childInBucket(1));
+    public SeparatedNodeList<SimpleNameReferenceNode> parameters() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
-    public Token externalKeyword() {
+    public Token closeParenToken() {
         return childInBucket(2);
-    }
-
-    public Token semicolonToken() {
-        return childInBucket(3);
     }
 
     @Override
@@ -59,29 +55,25 @@ public class ExternalFunctionBodyNode extends FunctionBodyNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "equalsToken",
-                "annotations",
-                "externalKeyword",
-                "semicolonToken"};
+                "openParenToken",
+                "parameters",
+                "closeParenToken"};
     }
 
-    public ExternalFunctionBodyNode modify(
-            Token equalsToken,
-            NodeList<AnnotationNode> annotations,
-            Token externalKeyword,
-            Token semicolonToken) {
+    public ImplicitAnonymousFunctionParameters modify(
+            Token openParenToken,
+            SeparatedNodeList<SimpleNameReferenceNode> parameters,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                equalsToken,
-                annotations.underlyingListNode(),
-                externalKeyword,
-                semicolonToken)) {
+                openParenToken,
+                parameters.underlyingListNode(),
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createExternalFunctionBodyNode(
-                equalsToken,
-                annotations,
-                externalKeyword,
-                semicolonToken);
+        return NodeFactory.createImplicitAnonymousFunctionParameters(
+                openParenToken,
+                parameters,
+                closeParenToken);
     }
 }

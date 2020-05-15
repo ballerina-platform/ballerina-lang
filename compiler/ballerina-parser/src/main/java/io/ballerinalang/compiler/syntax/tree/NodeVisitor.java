@@ -467,12 +467,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public void visit(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        visitSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public void visit(FunctionSignatureNode functionSignatureNode) {
         visitSyntaxNode(functionSignatureNode);
+    }
+
+    public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public void visit(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        visitSyntaxNode(expressionFunctionBodyNode);
     }
 
     public void visit(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -521,6 +525,14 @@ public abstract class NodeVisitor {
 
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        visitSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
     }
 
     // Tokens

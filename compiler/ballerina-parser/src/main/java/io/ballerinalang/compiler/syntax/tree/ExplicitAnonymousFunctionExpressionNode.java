@@ -19,41 +19,31 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Optional;
-
 /**
  * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
-public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
+public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionExpressionNode {
 
-    public FunctionDefinitionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ExplicitAnonymousFunctionExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
-    }
-
-    public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(1);
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(0));
     }
 
     public Token functionKeyword() {
-        return childInBucket(2);
-    }
-
-    public IdentifierToken functionName() {
-        return childInBucket(3);
+        return childInBucket(1);
     }
 
     public FunctionSignatureNode functionSignature() {
-        return childInBucket(4);
+        return childInBucket(2);
     }
 
     public FunctionBodyNode functionBody() {
-        return childInBucket(5);
+        return childInBucket(3);
     }
 
     @Override
@@ -69,36 +59,28 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "metadata",
-                "visibilityQualifier",
+                "annotations",
                 "functionKeyword",
-                "functionName",
                 "functionSignature",
                 "functionBody"};
     }
 
-    public FunctionDefinitionNode modify(
-            MetadataNode metadata,
-            Token visibilityQualifier,
+    public ExplicitAnonymousFunctionExpressionNode modify(
+            NodeList<AnnotationNode> annotations,
             Token functionKeyword,
-            IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
-                metadata,
-                visibilityQualifier,
+                annotations.underlyingListNode(),
                 functionKeyword,
-                functionName,
                 functionSignature,
                 functionBody)) {
             return this;
         }
 
-        return NodeFactory.createFunctionDefinitionNode(
-                metadata,
-                visibilityQualifier,
+        return NodeFactory.createExplicitAnonymousFunctionExpressionNode(
+                annotations,
                 functionKeyword,
-                functionName,
                 functionSignature,
                 functionBody);
     }

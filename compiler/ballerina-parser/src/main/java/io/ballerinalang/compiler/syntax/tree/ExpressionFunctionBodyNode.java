@@ -24,26 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ExternalFunctionBodyNode extends FunctionBodyNode {
+public class ExpressionFunctionBodyNode extends FunctionBodyNode {
 
-    public ExternalFunctionBodyNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ExpressionFunctionBodyNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token equalsToken() {
+    public Token rightDoubleArrow() {
         return childInBucket(0);
     }
 
-    public NodeList<AnnotationNode> annotations() {
-        return new NodeList<>(childInBucket(1));
-    }
-
-    public Token externalKeyword() {
-        return childInBucket(2);
-    }
-
-    public Token semicolonToken() {
-        return childInBucket(3);
+    public ExpressionNode expression() {
+        return childInBucket(1);
     }
 
     @Override
@@ -59,29 +51,21 @@ public class ExternalFunctionBodyNode extends FunctionBodyNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "equalsToken",
-                "annotations",
-                "externalKeyword",
-                "semicolonToken"};
+                "rightDoubleArrow",
+                "expression"};
     }
 
-    public ExternalFunctionBodyNode modify(
-            Token equalsToken,
-            NodeList<AnnotationNode> annotations,
-            Token externalKeyword,
-            Token semicolonToken) {
+    public ExpressionFunctionBodyNode modify(
+            Token rightDoubleArrow,
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
-                equalsToken,
-                annotations.underlyingListNode(),
-                externalKeyword,
-                semicolonToken)) {
+                rightDoubleArrow,
+                expression)) {
             return this;
         }
 
-        return NodeFactory.createExternalFunctionBodyNode(
-                equalsToken,
-                annotations,
-                externalKeyword,
-                semicolonToken);
+        return NodeFactory.createExpressionFunctionBodyNode(
+                rightDoubleArrow,
+                expression);
     }
 }
