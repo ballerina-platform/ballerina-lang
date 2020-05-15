@@ -44,11 +44,15 @@ public class BError extends BCompoundVariable {
 
     @Override
     public String getValue() {
-        List<Field> fields = jvmValueRef.referenceType().allFields();
-        Field valueField = fields.stream().filter(field -> field.name().equals("reason"))
-                .collect(Collectors.toList()).get(0);
-        Value error = jvmValueRef.getValue(valueField);
-        return error.toString();
+        try {
+            List<Field> fields = jvmValueRef.referenceType().allFields();
+            Field valueField = fields.stream().filter(field -> field.name().equals("reason"))
+                    .collect(Collectors.toList()).get(0);
+            Value error = jvmValueRef.getValue(valueField);
+            return error.toString();
+        } catch (Error e) {
+            return "unknown";
+        }
     }
 
     @Override

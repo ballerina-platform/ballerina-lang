@@ -24,7 +24,8 @@ import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BInt;
-import org.ballerinalang.debugadapter.variable.types.BMapObject;
+import org.ballerinalang.debugadapter.variable.types.BJson;
+import org.ballerinalang.debugadapter.variable.types.BMap;
 import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObjectType;
 import org.ballerinalang.debugadapter.variable.types.BObjectValue;
@@ -78,18 +79,21 @@ public class VariableFactory {
         } else if (parentTypeName.equalsIgnoreCase(JVMValueType.STRING.getString())) {
             return new BString(value, dapVariable);
         } else if (parentTypeName.contains("$value$")) {
-            return new BMapObject(value, dapVariable);
+            return new BMap(value, dapVariable);
         } else if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT_TYPE.getString())) {
             return new BObjectType(value, dapVariable);
         } else if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT_VALUE.getString())) {
             return new BObjectValue(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
-            return new BMapObject(value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
             return new BArray(value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TUPLE_VALUE.getString())) {
             return new BTuple(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())) {
+        } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())
+                && valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+            return new BJson(value, dapVariable);
+        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+            return new BMap(value, dapVariable);
+        }  else if (parentTypeName.contains(JVMValueType.OBJECT.getString())) {
             dapVariable.setType("object");
             if (valueTypeName.equalsIgnoreCase(JVMValueType.ARRAY_VALUE.getString())) {
                 return new BArray(value, dapVariable);

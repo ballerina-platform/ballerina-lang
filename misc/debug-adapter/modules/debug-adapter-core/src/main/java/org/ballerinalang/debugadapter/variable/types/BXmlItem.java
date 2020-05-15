@@ -6,6 +6,8 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.HashMap;
+
 /**
  * Ballerina xml variable type.
  */
@@ -28,6 +30,6 @@ public class BXmlItem extends BCompoundVariable {
 
     @Override
     public void computeChildVariables() {
-        // Todo
+        this.setChildVariables(new HashMap<>());
     }
 }

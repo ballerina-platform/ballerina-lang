@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Ballerina object value type.
+ * Ballerina object variable type.
  */
 public class BObjectValue extends BCompoundVariable {
 
@@ -43,19 +43,34 @@ public class BObjectValue extends BCompoundVariable {
 
     @Override
     public String getValue() {
-        return "object";
+        try {
+            // Extracts object type name from the reflected type class.
+            String[] split = this.jvmValueRef.referenceType().classObject().reflectedType().name().split("\\.");
+            for (String element : split) {
+                if (element.contains("$value$")) {
+                    return element.replaceFirst("\\$value\\$", "");
+                }
+            }
+            return "unknown";
+        } catch (Exception ignored) {
+            return "unknown";
+        }
     }
 
     @Override
     public void computeChildVariables() {
-        Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
-        Map<String, Value> values = new HashMap<>();
-        fieldValueMap.forEach((field, value1) -> {
-            // Filter out internal variables
-            if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
-                values.put(field.name(), value1);
-            }
-        });
-        this.setChildVariables(values);
+        try {
+            Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
+            Map<String, Value> values = new HashMap<>();
+            fieldValueMap.forEach((field, value1) -> {
+                // Filter out internal variables
+                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
+                    values.put(field.name(), value1);
+                }
+            });
+            this.setChildVariables(values);
+        } catch (Exception ignored) {
+            this.setChildVariables(new HashMap<>());
+        }
     }
 }
