@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public abstract class AnonymousFunctionExpressionNode extends NonTerminalNode {
+public abstract class FunctionBodyNode extends NonTerminalNode {
 
-    public AnonymousFunctionExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public FunctionBodyNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 }

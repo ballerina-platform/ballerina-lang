@@ -93,7 +93,7 @@ public class ParserTestUtils {
             try {
                 String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
                 try (BufferedWriter writer =
-                             new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
@@ -480,6 +480,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_KEYWORD;
             case "SELECT_KEYWORD":
                 return SyntaxKind.SELECT_KEYWORD;
+            case "NEW_KEYWORD":
+                return SyntaxKind.NEW_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -503,7 +505,7 @@ public class ParserTestUtils {
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
-                return SyntaxKind.EQUAL_GT_TOKEN;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
             case "LT_EQUAL_TOKEN":
@@ -566,6 +568,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
+            case "RIGHT_DOUBLE_ARROW":
+                return SyntaxKind.RIGHT_DOUBLE_ARROW;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -632,6 +636,14 @@ public class ParserTestUtils {
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
             case "QUERY_EXPRESSION":
                 return SyntaxKind.QUERY_EXPRESSION;
+            case "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
+                return SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
+            case "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
+                return SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
+            case "IMPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
+            case "EXPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -826,6 +838,12 @@ public class ParserTestUtils {
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
                 return SyntaxKind.SELECT_CLAUSE;
+            case "PARENTHESIZED_ARG_LIST":
+                return SyntaxKind.PARENTHESIZED_ARG_LIST;
+            case "EXPRESSION_FUNCTION_BODY":
+                return SyntaxKind.EXPRESSION_FUNCTION_BODY;
+            case "INFER_PARAM_LIST":
+                return SyntaxKind.INFER_PARAM_LIST;
 
             // XML template
             case "XML_ELEMENT":
@@ -870,14 +888,6 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":
                 return SyntaxKind.KEY_TYPE_CONSTRAINT;
-            case "IMPLICIT_NEW_EXPRESSION":
-                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
-            case "NEW_KEYWORD":
-                return SyntaxKind.NEW_KEYWORD;
-            case "PARENTHESIZED_ARG_LIST":
-                return SyntaxKind.PARENTHESIZED_ARG_LIST;
-            case "EXPLICIT_NEW_EXPRESSION":
-                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 
             // Trivia
             case "EOF_TOKEN":

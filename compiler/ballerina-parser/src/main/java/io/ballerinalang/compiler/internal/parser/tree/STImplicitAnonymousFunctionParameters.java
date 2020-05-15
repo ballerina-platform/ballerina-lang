@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,31 +27,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STFunctionBodyBlockNode extends STFunctionBodyNode {
-    public final STNode openBraceToken;
-    public final STNode namedWorkerDeclarator;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+public class STImplicitAnonymousFunctionParameters extends STNode {
+    public final STNode openParenToken;
+    public final STNode parameters;
+    public final STNode closeParenToken;
 
-    STFunctionBodyBlockNode(
-            STNode openBraceToken,
-            STNode namedWorkerDeclarator,
-            STNode statements,
-            STNode closeBraceToken) {
-        super(SyntaxKind.FUNCTION_BODY_BLOCK);
-        this.openBraceToken = openBraceToken;
-        this.namedWorkerDeclarator = namedWorkerDeclarator;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+    STImplicitAnonymousFunctionParameters(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken) {
+        super(SyntaxKind.INFER_PARAM_LIST);
+        this.openParenToken = openParenToken;
+        this.parameters = parameters;
+        this.closeParenToken = closeParenToken;
 
         addChildren(
-                openBraceToken,
-                namedWorkerDeclarator,
-                statements,
-                closeBraceToken);
+                openParenToken,
+                parameters,
+                closeParenToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionBodyBlockNode(this, position, parent);
+        return new ImplicitAnonymousFunctionParameters(this, position, parent);
     }
 }

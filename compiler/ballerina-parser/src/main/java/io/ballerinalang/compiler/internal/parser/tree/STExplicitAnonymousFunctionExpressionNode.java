@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,31 +27,31 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STFunctionBodyBlockNode extends STFunctionBodyNode {
-    public final STNode openBraceToken;
-    public final STNode namedWorkerDeclarator;
-    public final STNode statements;
-    public final STNode closeBraceToken;
+public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFunctionExpressionNode {
+    public final STNode annotations;
+    public final STNode functionKeyword;
+    public final STNode functionSignature;
+    public final STNode functionBody;
 
-    STFunctionBodyBlockNode(
-            STNode openBraceToken,
-            STNode namedWorkerDeclarator,
-            STNode statements,
-            STNode closeBraceToken) {
-        super(SyntaxKind.FUNCTION_BODY_BLOCK);
-        this.openBraceToken = openBraceToken;
-        this.namedWorkerDeclarator = namedWorkerDeclarator;
-        this.statements = statements;
-        this.closeBraceToken = closeBraceToken;
+    STExplicitAnonymousFunctionExpressionNode(
+            STNode annotations,
+            STNode functionKeyword,
+            STNode functionSignature,
+            STNode functionBody) {
+        super(SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION);
+        this.annotations = annotations;
+        this.functionKeyword = functionKeyword;
+        this.functionSignature = functionSignature;
+        this.functionBody = functionBody;
 
         addChildren(
-                openBraceToken,
-                namedWorkerDeclarator,
-                statements,
-                closeBraceToken);
+                annotations,
+                functionKeyword,
+                functionSignature,
+                functionBody);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionBodyBlockNode(this, position, parent);
+        return new ExplicitAnonymousFunctionExpressionNode(this, position, parent);
     }
 }
