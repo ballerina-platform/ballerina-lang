@@ -124,5 +124,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a worker inside fork stmt.
      */
-    FORKED
+    FORKED,
+    /**
+     * Indicates flagged node is a distinct type.
+     */
+    DISTINCT,
 }
