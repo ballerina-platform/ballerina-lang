@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
@@ -68,6 +69,14 @@ public class CopyModuleJarTask implements Task {
         Map<PackageID, Path> alreadyImportedMap = new HashMap<>();
         for (BLangPackage pkg : moduleBirMap) {
             ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(pkg.packageID);
+
+            Set<Path> moduleDependencies = pkg.symbol.moduleDependencies;
+
+            // If platform libs are found for this module, add them
+            if (!skipCopyLibsFromDist && moduleDependencies != null && moduleDependencies.size() > 0) {
+                executableJar.moduleLibs.addAll(moduleDependencies);
+            }
+
             copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
                              executableJar.moduleLibs, alreadyImportedMap);
             if (skipTests || !pkg.hasTestablePackage()) {
