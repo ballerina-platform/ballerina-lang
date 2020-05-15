@@ -747,7 +747,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (isDeprecated(typeDefinition.annAttachments)) {
             typeDefSymbol.flags |= Flags.DEPRECATED;
         }
-        definedType.flags = typeDefSymbol.flags;
 
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
@@ -763,6 +762,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
+        definedType.flags = typeDefSymbol.flags;
+
         typeDefinition.symbol = typeDefSymbol;
         boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
         if (isLanglibModule) {

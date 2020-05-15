@@ -807,8 +807,10 @@ public class BIRPackageSymbolEnter {
                     String recordName = getStringCPEntryValue(inputStream);
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
+                    recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
                     BRecordType recordType = new BRecordType(recordSymbol);
+                    recordType.flags |= flags;
                     recordSymbol.type = recordType;
 
                     compositeStack.push(recordType);
@@ -972,6 +974,7 @@ public class BIRPackageSymbolEnter {
                     pkgCpIndex = inputStream.readInt();
                     pkgId = getPackageId(pkgCpIndex);
                     String errorName = getStringCPEntryValue(inputStream);
+//                    BType reasonType = readTypeFromCp();
                     BType detailsType = readTypeFromCp();
                     errorType.detailType = detailsType;
                     errorSymbol.type = errorType;
