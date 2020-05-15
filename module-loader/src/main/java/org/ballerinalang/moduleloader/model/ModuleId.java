@@ -3,9 +3,9 @@ package org.ballerinalang.moduleloader.model;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 public class ModuleId {
-    public String orgName;
-    public String moduleName;
-    public String version;
+    private String orgName;
+    private String moduleName;
+    private ModuleVersion version;
 
     @Override
     public String toString() {
@@ -23,5 +23,29 @@ public class ModuleId {
         }
 
         return organizationName + this.moduleName + Names.VERSION_SEPARATOR.value + this.version;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public ModuleVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(ModuleVersion version) {
+        this.version = version;
     }
 }

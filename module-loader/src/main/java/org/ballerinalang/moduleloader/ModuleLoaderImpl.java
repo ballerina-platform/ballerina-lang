@@ -3,6 +3,7 @@ package org.ballerinalang.moduleloader;
 import org.ballerinalang.moduleloader.model.Module;
 import org.ballerinalang.moduleloader.model.ModuleId;
 import org.ballerinalang.moduleloader.model.ModuleResolution;
+import org.ballerinalang.moduleloader.model.ModuleVersion;
 import org.ballerinalang.moduleloader.model.Project;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFileImport;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 public class ModuleLoaderImpl implements ModuleLoader {
@@ -30,13 +31,15 @@ public class ModuleLoaderImpl implements ModuleLoader {
     @Override
     public ModuleId resolveVersion(ModuleId moduleId, ModuleId enclModuleId) throws IOException {
         // if version already exists in moduleId
-        if (moduleId.version != null && !"".equals(moduleId.version.trim())) {
+        if (moduleId.getVersion() != null && moduleId.getVersion().getVersion() != null
+                && !"".equals(moduleId.getVersion().getVersion().trim())) {
             return moduleId;
         }
 
         // if module is in the current project
         if (this.project.isModuleExists(moduleId)) {
-            moduleId.version = this.project.getManifest().getProject().getVersion();
+            moduleId.setVersion(
+                    new ModuleVersion(this.repos.get(0), this.project.getManifest().getProject().getVersion()));
             return moduleId;
         }
 
@@ -46,8 +49,11 @@ public class ModuleLoaderImpl implements ModuleLoader {
             String versionFromLockfile = resolveVersionFromLockFile(moduleId, enclModuleId);
             // version in lock can be null if the import is added after creating the lock
             if (versionFromLockfile != null) {
-                 moduleId.version = versionFromLockfile;
-                return moduleId;
+                ModuleVersion moduleVersion = resolveModuleVersion(this.repos, moduleId, versionFromLockfile);
+                if (moduleVersion != null) {
+                    moduleId.setVersion(moduleVersion);
+                    return moduleId;
+                }
             }
         }
 
@@ -57,31 +63,37 @@ public class ModuleLoaderImpl implements ModuleLoader {
         if (enclModuleId != null && this.project.getManifest() != null && this.project.isModuleExists(enclModuleId)) {
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(moduleId, this.project.getManifest());
-            if (versionFromManifest != null && isExactVersion(versionFromManifest)) {
-                moduleId.version = versionFromManifest;
-                return moduleId;
+            if (versionFromManifest != null) {
+                ModuleVersion moduleVersion = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
+                if (moduleVersion != null) {
+                    moduleId.setVersion(moduleVersion);
+                    return moduleId;
+                }
             }
         }
 
         // if enclosing module is not a project module, module is transitive
         // if it is a transitive we need to check the toml file of the dependent module
-        if (enclModuleId != null && !this.repos.get(0).isModuleExists(enclModuleId)) {
+        if (enclModuleId != null && !this.project.isModuleExists(enclModuleId)) {
             BaloCache homeBaloCache = (BaloCache) this.repos.get(4);
             Module parentModule = homeBaloCache.getModule(enclModuleId);
             Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
             versionFromManifest = resolveVersionFromManifest(moduleId, parentManifest);
             // if exact version
-            if (isExactVersion(versionFromManifest)) {
-                moduleId.version = versionFromManifest;
-                return moduleId;
+            if (versionFromManifest != null) {
+                ModuleVersion moduleVersion = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
+                if (moduleVersion != null) {
+                    moduleId.setVersion(moduleVersion);
+                    return moduleId;
+                }
             }
         }
 
         // find latest in repos
         // if not exact version, look in caches and repos
-        String moduleIdFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
-        if (moduleIdFromRepos != null) {
-            moduleId.version = moduleIdFromRepos;
+        ModuleVersion moduleVersionFromRepos = resolveModuleVersion(this.repos, moduleId, versionFromManifest);
+        if (moduleVersionFromRepos != null) {
+            moduleId.setVersion(moduleVersionFromRepos);
             return moduleId;
         }
 
@@ -102,7 +114,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
             List<LockFileImport> foundBaseImport = this.project.getLockFile().getImports().get(enclModuleId.toString());
 
             for (LockFileImport nestedImport : foundBaseImport) {
-                if (moduleId.orgName.equals(nestedImport.getOrgName()) && moduleId.moduleName
+                if (moduleId.getOrgName().equals(nestedImport.getOrgName()) && moduleId.getModuleName()
                         .equals(nestedImport.getName())) {
                     return nestedImport.getVersion();
                 }
@@ -113,8 +125,8 @@ public class ModuleLoaderImpl implements ModuleLoader {
 
     private String resolveVersionFromManifest(ModuleId moduleId, Manifest manifest) {
         for (Dependency dependency : manifest.getDependencies()) {
-            if (dependency.getModuleName().equals(moduleId.moduleName)
-                    && dependency.getOrgName().equals(moduleId.orgName)
+            if (dependency.getModuleName().equals(moduleId.getModuleName())
+                    && dependency.getOrgName().equals(moduleId.getOrgName())
                     && dependency.getMetadata().getVersion() != null
                     && !"*".equals(dependency.getMetadata().getVersion())) {
                 return dependency.getMetadata().getVersion();
@@ -159,12 +171,18 @@ public class ModuleLoaderImpl implements ModuleLoader {
         repos.add(projectModules);
     }
 
-    private String resolveModuleVersion(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
-        TreeSet<String> versions = new TreeSet<>();
+    private ModuleVersion resolveModuleVersion(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
+        TreeMap<String, Repo> moduleVersions = new TreeMap<>();
         for (Repo repo : repos) {
-            versions.addAll(repo.resolveVersions(moduleId, filter));
+            for (String versionStr : repo.resolveVersions(moduleId, filter)) {
+                moduleVersions.put(versionStr, repo);
+            }
         }
-        return versions.last();
+        if (moduleVersions.isEmpty()) {
+            return null;
+        } else {
+            return new ModuleVersion(moduleVersions.lastEntry().getValue(), moduleVersions.lastKey());
+        }
     }
 
     private boolean isExactVersion(String version) {
