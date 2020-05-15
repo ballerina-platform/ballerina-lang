@@ -273,14 +273,11 @@ public class CopyNativeLibTask implements Task {
             }
         }
 
-        if (platformLibs.containsAll(baloCompileScopeDependencies)) {
-            return;
-        }
-
-        baloCompileScopeDependencies.removeAll(platformLibs);
         for (Path baloTomlLib : baloCompileScopeDependencies) {
-            buildContext.out().println("warning: " + packageID + " is missing a native library dependency - " +
-                    baloTomlLib);
+            if (!platformLibs.contains(baloTomlLib)) {
+                buildContext.out().println("warning: " + packageID + " is missing a native library dependency - " +
+                        baloTomlLib);
+            }
         }
     }
 
