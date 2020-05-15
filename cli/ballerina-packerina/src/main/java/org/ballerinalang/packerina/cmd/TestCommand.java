@@ -29,7 +29,6 @@ import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
-import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.ListTestGroupsTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
@@ -51,15 +50,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_PATH;
+import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
+import static org.wso2.ballerinalang.compiler.util.SourceType.SINGLE_BAL_FILE;
 
 /**
  * Compile Ballerina modules in to balo.
@@ -348,7 +350,10 @@ public class TestCommand implements BLauncherCmd {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(SOURCE_PATH, String.valueOf(sourcePath));
+        options.put(TARGET_BINARY_PATH, String.valueOf(targetPath));
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(DUMP_BIR, Boolean.toString(dumpBIR));
         options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
@@ -369,8 +374,6 @@ public class TestCommand implements BLauncherCmd {
                 // (projects only)
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist), listGroups) // copy the native libs(projects only)
-                // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist), listGroups)
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
