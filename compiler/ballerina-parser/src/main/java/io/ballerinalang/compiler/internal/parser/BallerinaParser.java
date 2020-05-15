@@ -3158,12 +3158,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseReturnStatement();
             case TYPE_KEYWORD:
                 return parseLocalTypeDefinitionStatement(getAnnotations(annots));
-            // case CHECK_KEYWORD:
-            // case CHECKPANIC_KEYWORD:
-            // case TRAP_KEYWORD:
-            // // Need to pass the token kind, since we may be coming here after recovering.
-            // // If so, `peek().kind` will not be same as `tokenKind`.
-            // return parseStamentStartsWithExpr(tokenKind, getAnnotations(annots));
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
@@ -9081,7 +9075,6 @@ public class BallerinaParser extends AbstractParser {
         // we come here only after seeing & token hence consume.
         STNode bitwiseAndToken = consume();
         STNode rightTypeDesc = parseTypeDescriptor(context);
-
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 }
