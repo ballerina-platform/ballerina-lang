@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
@@ -3572,9 +3573,18 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         checkExpr(fromClause.collection, narrowedQueryEnv);
         // Set the type of the foreach node's type node.
-        types.setFromClauseTypedBindingPatternType(fromClause);
+        types.setInputClauseTypedBindingPatternType(fromClause);
         narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
-        handleFromClauseVariables(fromClause, narrowedQueryEnv);
+        handleInputClauseVariables(fromClause, narrowedQueryEnv);
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        checkExpr(joinClause.collection, narrowedQueryEnv);
+        // Set the type of the foreach node's type node.
+        types.setInputClauseTypedBindingPatternType(joinClause);
+        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
+        handleInputClauseVariables(joinClause, narrowedQueryEnv);
     }
 
     @Override
@@ -3596,10 +3606,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDoClause doClause) {
-    }
-
-    @Override
-    public void visit(BLangJoinClause joinClause) {
     }
 
     @Override
@@ -3626,30 +3632,31 @@ public class TypeChecker extends BLangNodeVisitor {
         narrowedQueryEnv = typeNarrower.evaluateTruth(filterExpression, selectClause, narrowedQueryEnv);
     }
 
-    private void handleFromClauseVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
-        if (fromClause.variableDefinitionNode == null) {
+    private void handleInputClauseVariables(BLangInputClause bLangInputClause, SymbolEnv blockEnv) {
+        if (bLangInputClause.variableDefinitionNode == null) {
             //not-possible
             return;
         }
 
-        BLangVariable variableNode = (BLangVariable) fromClause.variableDefinitionNode.getVariable();
+        BLangVariable variableNode = (BLangVariable) bLangInputClause.variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
-        if (fromClause.isDeclaredWithVar) {
+        if (bLangInputClause.isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, fromClause.varType, blockEnv);
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
         // Then we need to check whether the RHS type is assignable to LHS type.
-        if (types.isAssignable(fromClause.varType, typeNodeType)) {
+        if (types.isAssignable(bLangInputClause.varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, fromClause.varType, blockEnv);
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
         if (typeNodeType != symTable.semanticError) {
-            dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType, typeNodeType);
+            dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    bLangInputClause.varType, typeNodeType);
         }
         semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -1183,13 +1185,13 @@ public class Types {
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
-    public void setFromClauseTypedBindingPatternType(BLangFromClause fromClause) {
-        if (fromClause.collection == null) {
+    public void setInputClauseTypedBindingPatternType(BLangInputClause bLangInputClause) {
+        if (bLangInputClause.collection == null) {
             //not-possible
             return;
         }
 
-        BType collectionType = fromClause.collection.type;
+        BType collectionType = bLangInputClause.collection.type;
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -1236,23 +1238,23 @@ public class Types {
                 // check for iterable objects
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
-                    fromClause.resultType = getRecordType(nextMethodReturnType);
-                    fromClause.nillableResultType = nextMethodReturnType;
-                    fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
+                    bLangInputClause.resultType = getRecordType(nextMethodReturnType);
+                    bLangInputClause.nillableResultType = nextMethodReturnType;
+                    bLangInputClause.varType = ((BRecordType) bLangInputClause.resultType).fields.get(0).type;
                     return;
                 }
-                dlogHelper.error(fromClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlogHelper.error(bLangInputClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
-                fromClause.varType = symTable.semanticError;
-                fromClause.resultType = symTable.semanticError;
-                fromClause.nillableResultType = symTable.semanticError;
+                bLangInputClause.varType = symTable.semanticError;
+                bLangInputClause.resultType = symTable.semanticError;
+                bLangInputClause.nillableResultType = symTable.semanticError;
                 return;
             default:
-                fromClause.varType = symTable.semanticError;
-                fromClause.resultType = symTable.semanticError;
-                fromClause.nillableResultType = symTable.semanticError;
-                dlogHelper.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                bLangInputClause.varType = symTable.semanticError;
+                bLangInputClause.resultType = symTable.semanticError;
+                bLangInputClause.nillableResultType = symTable.semanticError;
+                dlogHelper.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1261,9 +1263,9 @@ public class Types {
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
-        fromClause.varType = varType;
-        fromClause.resultType = getRecordType(nextMethodReturnType);
-        fromClause.nillableResultType = nextMethodReturnType;
+        bLangInputClause.varType = varType;
+        bLangInputClause.resultType = getRecordType(nextMethodReturnType);
+        bLangInputClause.nillableResultType = nextMethodReturnType;
     }
 
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {

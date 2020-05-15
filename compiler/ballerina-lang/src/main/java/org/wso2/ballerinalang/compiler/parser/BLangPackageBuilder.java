@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
@@ -2019,27 +2020,21 @@ public class BLangPackageBuilder {
     }
 
     private void addClause(DiagnosticPos pos, Set<Whitespace> ws,
-                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar,
-                           boolean isFromClause) {
+                           VariableDefinitionNode variableDefinitionNode,
+                           boolean isDeclaredWithVar, boolean isFromClause) {
+        BLangInputClause inputClause;
         if (isFromClause) {
-            BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
-            fromClause.addWS(ws);
-            fromClause.pos = pos;
-            markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
-            fromClause.setVariableDefinitionNode(variableDefinitionNode);
-            fromClause.setCollection(this.exprNodeStack.pop());
-            fromClause.isDeclaredWithVar = isDeclaredWithVar;
-            queryClauseStack.push(fromClause);
+            inputClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
         } else {
-            BLangJoinClause joinClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
-            joinClause.addWS(ws);
-            joinClause.pos = pos;
-            markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
-            joinClause.setVariableDefinitionNode(variableDefinitionNode);
-            joinClause.isDeclaredWithVar = isDeclaredWithVar;
-            joinClause.setCollection(this.exprNodeStack.pop());
-            queryClauseStack.push(joinClause);
+            inputClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
         }
+        inputClause.addWS(ws);
+        inputClause.pos = pos;
+        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
+        inputClause.setVariableDefinitionNode(variableDefinitionNode);
+        inputClause.setCollection(this.exprNodeStack.pop());
+        inputClause.isDeclaredWithVar = isDeclaredWithVar;
+        queryClauseStack.push(inputClause);
 
     }
 

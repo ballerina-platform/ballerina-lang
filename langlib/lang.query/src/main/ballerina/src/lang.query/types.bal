@@ -162,7 +162,7 @@ public type _InitFunction object {
     }
 };
 
-public type _FromFunction object {
+public type _InputFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -170,16 +170,16 @@ public type _FromFunction object {
     #   frame {nm1: firstName, nm2: lastName}
     # from var dept in deptList
     #   frame {dept: deptList[x]}
-    public function(_Frame _frame) returns _Frame|error? fromFunc;
+    public function(_Frame _frame) returns _Frame|error? inputFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? fromFunc) {
-        self.fromFunc = fromFunc;
+    public function __init(function(_Frame _frame) returns _Frame|error? inputFunc) {
+        self.inputFunc = inputFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) returns _Frame|error? f = self.fromFunc;
+        function(_Frame _frame) returns _Frame|error? f = self.inputFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);

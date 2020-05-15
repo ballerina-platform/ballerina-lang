@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -172,7 +173,7 @@ import java.util.Map;
  */
 public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_PIPELINE_FUNCTION = new Name("createPipeline");
-    private static final Name QUERY_CREATE_FROM_FUNCTION = new Name("createFromFunction");
+    private static final Name QUERY_CREATE_INPUT_FUNCTION = new Name("createInputFunction");
     private static final Name QUERY_CREATE_LET_FUNCTION = new Name("createLetFunction");
     private static final Name QUERY_CREATE_JOIN_FUNCTION = new Name("createJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
@@ -259,13 +260,14 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.env = env;
         BLangNode initFromClause = clauses.get(0);
         final BLangVariableReference initPipeline = addPipeline(block, (BLangFromClause) initFromClause, resultType);
-        BLangVariableReference initFrom = addFromFunction(block, (BLangFromClause) initFromClause);
+        BLangVariableReference initFrom = addInputFunction(block, (BLangFromClause) initFromClause);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
-                    BLangVariableReference pipeline = addPipeline(block, (BLangFromClause) clause, resultType);
-                    BLangVariableReference fromFunc = addFromFunction(block, (BLangFromClause) clause);
+                case JOIN:
+                    BLangVariableReference pipeline = addPipeline(block, (BLangInputClause) clause, resultType);
+                    BLangVariableReference fromFunc = addInputFunction(block, (BLangInputClause) clause);
                     addStreamFunction(block, pipeline, fromFunc);
                     BLangVariableReference joinFunc = addJoinFunction(block, pipeline);
                     addStreamFunction(block, initPipeline, joinFunc);
@@ -300,18 +302,18 @@ public class QueryDesugar extends BLangNodeVisitor {
      * _StreamPipeline pipeline = createPipeline(collection);
      *
      * @param blockStmt  parent block to write to.
-     * @param fromClause to init pipeline.
+     * @param inputClause to init pipeline.
      * @return variableReference to created _StreamPipeline.
      */
-    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangFromClause fromClause, BType resultType) {
-        BLangExpression collection = fromClause.collection;
-        DiagnosticPos pos = fromClause.pos;
+    BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangInputClause inputClause, BType resultType) {
+        BLangExpression collection = inputClause.collection;
+        DiagnosticPos pos = inputClause.pos;
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
                 collection.type, this.env.scope.owner);
-        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(fromClause.pos, name,
+        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(inputClause.pos, name,
                 collection.type, collection, dataSymbol);
-        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(fromClause.pos, dataVariable);
+        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(inputClause.pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
         if (resultType.tag == TypeTags.ARRAY) {
@@ -324,11 +326,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         typedescExpr.resolvedType = resultType;
         typedescExpr.type = typedescType;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(valueVarRef, typedescExpr), fromClause.pos);
+                Lists.of(valueVarRef, typedescExpr), inputClause.pos);
     }
 
     /**
-     * Desugar fromClause to below and return a reference to created from _StreamFunction.
+     * Desugar inputClause to below and return a reference to created from _StreamFunction.
      * _StreamFunction xsFrom = createFromFunction(function(_Frame frame) returns _Frame|error? {
      * int x = <int> frame["value"];
      * frame["x"] = x;
@@ -336,11 +338,11 @@ public class QueryDesugar extends BLangNodeVisitor {
      * });
      *
      * @param blockStmt  parent block to write to.
-     * @param fromClause to be desugared.
+     * @param inputClause to be desugared.
      * @return variableReference to created from _StreamFunction.
      */
-    BLangVariableReference addFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
-        DiagnosticPos pos = fromClause.pos;
+    BLangVariableReference addInputFunction(BLangBlockStmt blockStmt, BLangInputClause inputClause) {
+        DiagnosticPos pos = inputClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
@@ -348,17 +350,17 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
         List<BVarSymbol> symbols = getIntroducedSymbols((BLangVariable)
-                fromClause.variableDefinitionNode.getVariable());
+                inputClause.variableDefinitionNode.getVariable());
         shadowSymbolScope(pos, body, ASTBuilderUtil.createVariableRef(pos, frameSymbol), symbols);
 
         // int x = <int> frame["value"];, note: stmts will get added in reverse order.
-        BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos,
+        BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(inputClause.pos,
                 symTable.anyOrErrorType, frameSymbol);
         valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
                 types.getSafeType(valueAccessExpr.expr.type, true, false));
-        VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
+        VariableDefinitionNode variableDefinitionNode = inputClause.variableDefinitionNode;
         BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
-        variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
+        variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, inputClause.varType));
         // add at 0, otherwise, this goes under existing stmts.
         body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
@@ -369,7 +371,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         //      return frame;
         // }
         lambda.accept(this);
-        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FROM_FUNCTION, Lists.of(lambda), pos);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_INPUT_FUNCTION, Lists.of(lambda), pos);
     }
 
     /**

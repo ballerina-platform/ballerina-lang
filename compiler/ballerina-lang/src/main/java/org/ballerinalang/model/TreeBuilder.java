@@ -18,8 +18,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.clauses.DoClauseNode;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.JoinClauseNode;
+import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.clauses.OnConflictClauseNode;
@@ -733,11 +732,11 @@ public class TreeBuilder {
         return new BLangForeach();
     }
 
-    public static FromClauseNode createFromClauseNode() {
+    public static InputClauseNode createFromClauseNode() {
         return new BLangFromClause();
     }
 
-    public static JoinClauseNode createJoinClauseNode() {
+    public static InputClauseNode createJoinClauseNode() {
         return new BLangJoinClause();
     }
 

@@ -18,13 +18,9 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.clauses.DoClauseNode;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 
 import java.util.List;
 

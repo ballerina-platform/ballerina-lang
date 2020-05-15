@@ -21,9 +21,9 @@ public function createPipeline(
     return new _StreamPipeline(collection, resType);
 }
 
-public function createFromFunction(function(_Frame _frame) returns _Frame|error? fromFunc)
+public function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
         returns _StreamFunction {
-    return new _FromFunction(fromFunc);
+    return new _InputFunction(inputFunc);
 }
 
 public function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc)
