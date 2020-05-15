@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -126,7 +125,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
 public class JvmPackageGen {
 
     static final boolean IS_BSTRING;
-    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_KEY = new CompilerContext.Key<>();
 
     static {
         String bStringProp = System.getProperty("ballerina.bstring");
@@ -142,31 +140,19 @@ public class JvmPackageGen {
     private Map<String, PackageID> dependentModules;
     private BLangDiagnosticLogHelper dlog;
 
-    private JvmPackageGen(CompilerContext compilerContext) {
-
-        compilerContext.put(JVM_PACKAGE_GEN_KEY, this);
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         externClassMap = new HashMap<>();
         dependentModules = new LinkedHashMap<>();
-        symbolTable = SymbolTable.getInstance(compilerContext);
-        packageCache = PackageCache.getInstance(compilerContext);
-        dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        this.symbolTable = symbolTable;
+        this.packageCache = packageCache;
+        this.dlog = dlog;
         jvmMethodGen = new JvmMethodGen(this);
 
         JvmCastGen.symbolTable = symbolTable;
         JvmInstructionGen.anyType = symbolTable.anyType;
-    }
-
-    public static JvmPackageGen getInstance(CompilerContext compilerContext) {
-
-        JvmPackageGen jvmPackageGen = compilerContext.get(JVM_PACKAGE_GEN_KEY);
-        if (jvmPackageGen == null) {
-            jvmPackageGen = new JvmPackageGen(compilerContext);
-        }
-
-        return jvmPackageGen;
     }
 
     private static String getBvmAlias(String orgName, String moduleName) {
