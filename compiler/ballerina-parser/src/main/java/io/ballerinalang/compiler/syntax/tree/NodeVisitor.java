@@ -543,6 +543,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(startActionNode);
     }
 
+    public void visit(FlushActionNode flushActionNode) {
+        visitSyntaxNode(flushActionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

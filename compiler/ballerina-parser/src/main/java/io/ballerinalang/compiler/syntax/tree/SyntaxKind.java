@@ -75,6 +75,8 @@ public enum SyntaxKind {
     WHERE_KEYWORD(226, "where"),
     SELECT_KEYWORD(227, "select"),
     START_KEYWORD(228, "start"),
+    FLUSH_KEYWORD(229, "flush"),
+    DEFAULT_KEYWORD(230, "default"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -261,6 +263,7 @@ public enum SyntaxKind {
     CHECK_ACTION(2502),
     START_ACTION(2503),
     TRAP_ACTION(2504),
+    FLUSH_ACTION(2505),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

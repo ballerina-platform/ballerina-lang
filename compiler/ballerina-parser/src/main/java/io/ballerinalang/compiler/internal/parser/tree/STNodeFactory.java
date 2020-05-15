@@ -1014,10 +1014,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createTrapExpressionNode(
+            SyntaxKind kind,
             STNode trapKeyword,
             STNode expression) {
 
         return new STTrapExpressionNode(
+                kind,
                 trapKeyword,
                 expression);
     }
@@ -1554,6 +1556,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STStartActionNode(
                 startKeyword,
                 expression);
+    }
+
+    public static STNode createFlushActionNode(
+            STNode flushKeyword,
+            STNode peerWorker) {
+
+        return new STFlushActionNode(
+                flushKeyword,
+                peerWorker);
     }
 }
 

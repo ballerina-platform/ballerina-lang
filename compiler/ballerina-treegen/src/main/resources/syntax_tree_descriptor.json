@@ -1800,7 +1800,6 @@
         {
             "name": "TrapExpressionNode",
             "base": "ExpressionNode",
-            "kind": "TRAP_EXPRESSION",
             "attributes": [
                 {
                     "name": "trapKeyword",
@@ -2790,6 +2789,21 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "FlushActionNode",
+            "base": "ExpressionNode",
+            "kind": "FLUSH_ACTION",
+            "attributes": [
+                {
+                    "name": "flushKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "Token"
                 }
             ]
         }

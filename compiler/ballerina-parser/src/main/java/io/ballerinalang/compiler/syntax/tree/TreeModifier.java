@@ -1007,6 +1007,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token trapKeyword = modifyToken(trapExpressionNode.trapKeyword());
         ExpressionNode expression = modifyNode(trapExpressionNode.expression());
         return trapExpressionNode.modify(
+                trapExpressionNode.kind(),
                 trapKeyword,
                 expression);
     }
@@ -1542,6 +1543,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return startActionNode.modify(
                 startKeyword,
                 expression);
+    }
+
+    @Override
+    public Node transform(FlushActionNode flushActionNode) {
+        Token flushKeyword = modifyToken(flushActionNode.flushKeyword());
+        Token peerWorker = modifyToken(flushActionNode.peerWorker());
+        return flushActionNode.modify(
+                flushKeyword,
+                peerWorker);
     }
 
     // Tokens

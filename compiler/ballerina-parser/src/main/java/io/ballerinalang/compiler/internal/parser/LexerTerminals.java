@@ -80,6 +80,8 @@ public class LexerTerminals {
     public static final String WHERE = "where";
     public static final String SELECT = "select";
     public static final String START = "start";
+    public static final String FLUSH = "flush";
+    public static final String DEFAULT = "default";
 
     // Types
     public static final String INT = "int";

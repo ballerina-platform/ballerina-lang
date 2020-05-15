@@ -30,6 +30,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STRequiredParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STRestParameterNode;
+import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -2482,7 +2483,7 @@ public class BallerinaParser extends AbstractParser {
             case LOGICAL_OR_TOKEN:
                 return OperatorPrecedence.LOGICAL_OR;
             case RIGHT_ARROW_TOKEN:
-                return OperatorPrecedence.ACTION;
+                return OperatorPrecedence.REMOTE_CALL_ACTION;
             case RIGHT_DOUBLE_ARROW:
                 return OperatorPrecedence.ACTION;
             default:
@@ -2502,6 +2503,9 @@ public class BallerinaParser extends AbstractParser {
         switch (opPrecedenceLevel) {
             case UNARY:
             case ACTION:
+            case EXPRESSION_ACTION:
+            case REMOTE_CALL_ACTION:
+            case ANON_FUNC:
                 // If the current precedence level is unary/action, then we return
                 // the binary operator with closest precedence level to it.
                 // Therefore fall through
@@ -3074,6 +3078,7 @@ public class BallerinaParser extends AbstractParser {
             case CHECKPANIC_KEYWORD:
             case TRAP_KEYWORD:
             case START_KEYWORD:
+            case FLUSH_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -3152,12 +3157,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseReturnStatement();
             case TYPE_KEYWORD:
                 return parseLocalTypeDefinitionStatement(getAnnotations(annots));
-//            case CHECK_KEYWORD:
-//            case CHECKPANIC_KEYWORD:
-//            case TRAP_KEYWORD:
-//                // Need to pass the token kind, since we may be coming here after recovering.
-//                // If so, `peek().kind` will not be same as `tokenKind`.
-//                return parseStamentStartsWithExpr(tokenKind, getAnnotations(annots));
+            // case CHECK_KEYWORD:
+            // case CHECKPANIC_KEYWORD:
+            // case TRAP_KEYWORD:
+            // // Need to pass the token kind, since we may be coming here after recovering.
+            // // If so, `peek().kind` will not be same as `tokenKind`.
+            // return parseStamentStartsWithExpr(tokenKind, getAnnotations(annots));
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
@@ -3179,6 +3184,7 @@ public class BallerinaParser extends AbstractParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
             case TRAP_KEYWORD:
+            case FLUSH_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             default:
                 if (isTypeStartingToken(tokenKind)) {
@@ -3468,7 +3474,7 @@ public class BallerinaParser extends AbstractParser {
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression(isRhsExpr);
             case TRAP_KEYWORD:
-                return parseTrapExpression(isRhsExpr);
+                return parseTrapExpression(isRhsExpr, allowActions);
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
             case LT_TOKEN:
@@ -3507,6 +3513,8 @@ public class BallerinaParser extends AbstractParser {
             case START_KEYWORD:
                 // TODO: support annotations
                 return parseStartAction(null);
+            case FLUSH_KEYWORD:
+                return parseFlushAction();
             default:
                 break;
         }
@@ -3725,7 +3733,7 @@ public class BallerinaParser extends AbstractParser {
         // the newly found (next) operator, then return and finish the previous expr,
         // because it has a higher precedence.
         OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(tokenKind);
-        if (currentPrecedenceLevel.isHigherThan(nextOperatorPrecedence)) {
+        if (currentPrecedenceLevel.isHigherThan(nextOperatorPrecedence, allowActions)) {
             return lhsExpr;
         }
 
@@ -3928,6 +3936,8 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_METHOD_CALL_ACTION:
             case BRACED_ACTION:
             case CHECK_ACTION:
+            case START_ACTION:
+            case TRAP_ACTION:
                 return true;
             default:
                 return false;
@@ -4788,7 +4798,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCheckExpression(boolean isRhsExpr, boolean allowActions) {
         STNode checkingKeyword = parseCheckingKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, allowActions);
+        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions);
         if (isAction(expr)) {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr);
         } else {
@@ -6243,6 +6253,7 @@ public class BallerinaParser extends AbstractParser {
             case BRACED_ACTION:
             case START_ACTION:
             case TRAP_ACTION:
+            case FLUSH_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -6306,6 +6317,9 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the node is a missing node. <code>false</code> otherwise
      */
     private boolean isMissingNode(STNode node) {
+        if (node.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return isMissingNode(((STSimpleNameReferenceNode) node).name);
+        }
         return node instanceof STMissingToken;
     }
 
@@ -7461,16 +7475,18 @@ public class BallerinaParser extends AbstractParser {
      * trap-expr := trap expression
      * </code>
      *
-     * @param isRhsExpr
+     * @param allowActions Allow actions
+     * @param isRhsExpr Whether this is a RHS expression or not
      * @return Trap expression node
      */
-    private STNode parseTrapExpression(boolean isRhsExpr) {
+    private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions) {
         STNode trapKeyword = parseTrapKeyword();
+        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions);
+        if (isAction(expr)) {
+            return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
+        }
 
-        // allow-actions flag is always false, since there will not be any actions
-        // within the trap-expression, due to the precedence.
-        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
-        return STNodeFactory.createTrapExpressionNode(trapKeyword, expr);
+        return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_EXPRESSION, trapKeyword, expr);
     }
 
     /**
@@ -9034,6 +9050,52 @@ public class BallerinaParser extends AbstractParser {
                 this.errorHandler.reportInvalidNode(null, "expression followed by the start keyword must be a " +
                         "func-call, a method-call or a remote-method-call");
                 break;
+        }
+    }
+
+    /**
+     * Parse flush action.
+     * <p>
+     * <code>flush-action := flush [peer-worker]</code>
+     * 
+     * @return flush action node
+     */
+    private STNode parseFlushAction() {
+        STNode flushKeyword = parseFlushKeyword();
+        STNode peerWorker = parsePeerWorkerName();
+        return STNodeFactory.createFlushActionNode(flushKeyword, peerWorker);
+    }
+
+    /**
+     * Parse flush keyword.
+     *
+     * @return flush keyword node
+     */
+    private STNode parseFlushKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FLUSH_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FLUSH_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse peer worker.
+     * <p>
+     * <code>peer-worker := worker-name | default</code>
+     *
+     * @return peer worker name node
+     */
+    private STNode parsePeerWorkerName() {
+        STToken token = peek();
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+            case DEFAULT_KEYWORD:
+                return consume();
+            default:
+                return STNodeFactory.createEmptyNode();
         }
     }
 }

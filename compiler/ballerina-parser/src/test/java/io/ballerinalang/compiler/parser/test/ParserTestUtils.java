@@ -480,6 +480,12 @@ public class ParserTestUtils {
                 return SyntaxKind.SELECT_KEYWORD;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
+            case "START_KEYWORD":
+                return SyntaxKind.START_KEYWORD;
+            case "FLUSH_KEYWORD":
+                return SyntaxKind.FLUSH_KEYWORD;
+            case "DEFAULT_KEYWORD":
+                return SyntaxKind.DEFAULT_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -650,6 +656,12 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
+            case "START_ACTION":
+                return SyntaxKind.START_ACTION;
+            case "TRAP_ACTION":
+                return SyntaxKind.TRAP_ACTION;
+            case "FLUSH_ACTION":
+                return SyntaxKind.FLUSH_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
