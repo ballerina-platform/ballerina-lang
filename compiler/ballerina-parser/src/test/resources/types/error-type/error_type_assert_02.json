@@ -27,7 +27,8 @@
                             "value": "NO_MATCHING_OBJECT"
                         },
                         {
-                            "kind": "GT_TOKEN"
+                            "kind": "GT_TOKEN",
+                            "isMissing": true
                         }
                     ]
                 }

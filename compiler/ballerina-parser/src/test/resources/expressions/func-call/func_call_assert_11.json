@@ -58,50 +58,45 @@
                                                     "kind": "BINARY_EXPRESSION",
                                                     "children": [
                                                         {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "age"
-                                                        },
-                                                        {
-                                                            "kind": "PLUS_TOKEN",
-                                                            "isMissing": true
-                                                        },
-                                                        {
-                                                            "kind": "FUNCTION_CALL",
+                                                            "kind": "BINARY_EXPRESSION",
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "baz"
+                                                                    "value": "age"
                                                                 },
                                                                 {
-                                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                                    "kind": "PLUS_TOKEN",
+                                                                    "isMissing": true
                                                                 },
                                                                 {
-                                                                    "kind": "LIST",
+                                                                    "kind": "FUNCTION_CALL",
                                                                     "children": [
+                                                                        {
+                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                            "value": "baz"
+                                                                        },
+                                                                        {
+                                                                            "kind": "OPEN_PAREN_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "LIST",
+                                                                            "children": []
+                                                                        },
+                                                                        {
+                                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                                        }
                                                                     ]
-                                                                },
-                                                                {
-                                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                                 }
                                                             ]
+                                                        },
+                                                        {
+                                                            "kind": "ELLIPSIS_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "subjects"
                                                         }
                                                     ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "REST_ARG",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "ELLIPSIS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "subjects"
                                                 }
                                             ]
                                         }
