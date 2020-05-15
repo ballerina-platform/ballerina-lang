@@ -451,6 +451,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLProcessingInstruction);
     }
 
+    public void visit(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        visitSyntaxNode(tableTypeDescriptorNode);
+    }
+
+    public void visit(TypeParameterNode typeParameterNode) {
+        visitSyntaxNode(typeParameterNode);
+    }
+
+    public void visit(KeyTypeConstraintNode keyTypeConstraintNode) {
+        visitSyntaxNode(keyTypeConstraintNode);
+    }
+
     public void visit(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         visitSyntaxNode(functionTypeDescriptorNode);
     }
@@ -487,12 +499,44 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parenthesizedArgList);
     }
 
-    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
-        visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    public void visit(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
+        visitSyntaxNode(readOnlyTypeDescriptorNode);
+    }
+
+    public void visit(QueryConstructTypeNode queryConstructTypeNode) {
+        visitSyntaxNode(queryConstructTypeNode);
+    }
+
+    public void visit(FromClauseNode fromClauseNode) {
+        visitSyntaxNode(fromClauseNode);
+    }
+
+    public void visit(WhereClauseNode whereClauseNode) {
+        visitSyntaxNode(whereClauseNode);
+    }
+
+    public void visit(LetClauseNode letClauseNode) {
+        visitSyntaxNode(letClauseNode);
+    }
+
+    public void visit(QueryPipelineNode queryPipelineNode) {
+        visitSyntaxNode(queryPipelineNode);
+    }
+
+    public void visit(SelectClauseNode selectClauseNode) {
+        visitSyntaxNode(selectClauseNode);
+    }
+
+    public void visit(QueryExpressionNode queryExpressionNode) {
+        visitSyntaxNode(queryExpressionNode);
     }
 
     public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
         visitSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
     }
 
     // Tokens

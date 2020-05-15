@@ -1315,6 +1315,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 piEnd);
     }
 
+    public static STNode createTableTypeDescriptorNode(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode);
+    }
+
+    public static STNode createTypeParameterNode(
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+
+        return new STTypeParameterNode(
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    public static STNode createKeyTypeConstraintNode(
+            STNode keyKeywordToken,
+            STNode typeParameterNode) {
+
+        return new STKeyTypeConstraintNode(
+                keyKeywordToken,
+                typeParameterNode);
+    }
+
     public static STNode createFunctionTypeDescriptorNode(
             STNode functionKeyword,
             STNode functionSignature) {
@@ -1414,15 +1445,84 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createImplicitAnonymousFunctionExpressionNode(
-            STNode params,
-            STNode rightDoubleArrow,
+    public static STNode createReadOnlyTypeDescriptorNode(
+            STNode readonlyKeyWordToken,
+            STNode typeParameterNode) {
+
+        return new STReadOnlyTypeDescriptorNode(
+                readonlyKeyWordToken,
+                typeParameterNode);
+    }
+
+    public static STNode createQueryConstructTypeNode(
+            STNode tableKeyword,
+            STNode KeySpecifier) {
+
+        return new STQueryConstructTypeNode(
+                tableKeyword,
+                KeySpecifier);
+    }
+
+    public static STNode createFromClauseNode(
+            STNode fromKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode inKeyword,
             STNode expression) {
 
-        return new STImplicitAnonymousFunctionExpressionNode(
-                params,
-                rightDoubleArrow,
+        return new STFromClauseNode(
+                fromKeyword,
+                typeName,
+                variableName,
+                inKeyword,
                 expression);
+    }
+
+    public static STNode createWhereClauseNode(
+            STNode whereKeyword,
+            STNode expression) {
+
+        return new STWhereClauseNode(
+                whereKeyword,
+                expression);
+    }
+
+    public static STNode createLetClauseNode(
+            STNode letKeyword,
+            STNode letVarDeclarations) {
+
+        return new STLetClauseNode(
+                letKeyword,
+                letVarDeclarations);
+    }
+
+    public static STNode createQueryPipelineNode(
+            STNode fromClause,
+            STNode intermediateClauses) {
+
+        return new STQueryPipelineNode(
+                fromClause,
+                intermediateClauses);
+    }
+
+    public static STNode createSelectClauseNode(
+            STNode selectKeyword,
+            STNode expression) {
+
+        return new STSelectClauseNode(
+                selectKeyword,
+                expression);
+    }
+
+    public static STNode createQueryExpressionNode(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause) {
+
+        return new STQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause);
     }
 
     public static STNode createImplicitAnonymousFunctionParameters(
@@ -1434,6 +1534,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openParenToken,
                 parameters,
                 closeParenToken);
+    }
+
+    public static STNode createImplicitAnonymousFunctionExpressionNode(
+            STNode params,
+            STNode rightDoubleArrow,
+            STNode expression) {
+
+        return new STImplicitAnonymousFunctionExpressionNode(
+                params,
+                rightDoubleArrow,
+                expression);
     }
 }
 

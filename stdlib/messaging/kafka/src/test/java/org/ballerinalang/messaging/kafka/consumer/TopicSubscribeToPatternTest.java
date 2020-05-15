@@ -25,7 +25,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,7 +36,6 @@ import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.TestUtils.deleteDirectory;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 import static org.ballerinalang.messaging.kafka.utils.TestUtils.getResourcePath;
@@ -53,7 +52,6 @@ public class TopicSubscribeToPatternTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Throwable {
-        deleteDirectory(dataDir);
         kafkaCluster = new KafkaCluster(dataDir)
                 .withZookeeper(14006)
                 .withBroker(PROTOCOL_PLAINTEXT, 14106, getZookeeperTimeoutProperty())
@@ -61,7 +59,7 @@ public class TopicSubscribeToPatternTest {
                 .start();
     }
 
-    @Test(description = "Test functionality of getAvailableTopics() function")
+    @Test(description = "Test functionality of getAvailableTopics() function", enabled = false)
     public void testSubscribeToPattern() {
         String balFile = "topic_subscribe_to_pattern.bal";
         CompileResult result = BCompileUtil.compile(getResourcePath(Paths.get(TEST_SRC, TEST_CONSUMER, balFile)));
@@ -102,7 +100,7 @@ public class TopicSubscribeToPatternTest {
         }
     }
 
-    @AfterTest(alwaysRun = true)
+    @AfterClass(alwaysRun = true)
     public void tearDown() {
         finishTest(kafkaCluster, dataDir);
     }

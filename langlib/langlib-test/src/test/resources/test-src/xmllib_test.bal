@@ -378,3 +378,51 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
+
+function testXMLFunctionalCtor() {
+    'xml:Element x = 'xml:Element("hello");
+    'xml:Element y = xml `<hello></hello>`;
+    assertValueEquality(y, x);
+}
+
+function testXMLFunctionalConstructorWithAttributes() {
+    'xml:Element x = 'xml:Element("element", { "attr": "attrVal", "two": "Val2"});
+    'xml:Element y = xml `<element attr="attrVal" two="Val2"/>`;
+    assertValueEquality(y, x);
+}
+
+function testXMLFunctionalConstructorWithAChild() {
+    'xml:Element x = 'xml:Element("element", {attr: "hello"}, 'xml:Element("child"));
+    'xml:Element y = xml `<element attr="hello"><child/></element>`;
+    assertValueEquality(y, x);
+}
+
+function testXMLCommentCtor() {
+    'xml:Comment x = 'xml:Comment("comment content");
+    'xml:Comment y = xml `<!--comment content-->`;
+    assertValueEquality(y, x);
+}
+
+function testXMLPICtor() {
+    'xml:ProcessingInstruction x = 'xml:ProcessingInstruction("DONOT", "print this");
+    'xml:ProcessingInstruction y = xml `<?DONOT print this?>`;
+    assertValueEquality(y, x);
+}
+
+function testXMLTextCtor() {
+    'xml:Text x = 'xml:Text("this is a charactor sequence");
+    'xml:Text y = xml `this is a charactor sequence`;
+    assertValueEquality(y, x);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertValueEquality(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+

@@ -126,12 +126,17 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
-    LET_VAR_DECL("let-var-decl"),
+    LET_EXPR_LET_VAR_DECL("let-expr-let-var-decl"),
+    LET_CLAUSE_LET_VAR_DECL("let-clause-let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
     FUNC_TYPE_DESC("func-type-desc"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
+    SELECT_CLAUSE("select-clause"),
+    WHERE_CLAUSE("where-clause"),
+    FROM_CLAUSE("from-clause"),
+    LET_CLAUSE("let-clause"),
     AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
     EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
     BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
@@ -221,6 +226,10 @@ public enum ParserRuleContext {
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
     NEW_KEYWORD("new"),
+    READONLY_KEYWORD("readonly"),
+    FROM_KEYWORD("from"),
+    WHERE_KEYWORD("where"),
+    SELECT_KEYWORD("select"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -313,6 +322,11 @@ public enum ParserRuleContext {
     IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
+    TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
+    TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
+    TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
+    QUERY_EXPRESSION("query-expr"),
+    QUERY_EXPRESSION_RHS("query-expr-rhs"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -363,6 +377,9 @@ public enum ParserRuleContext {
     TYPEDESC_RHS("type-desc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
+    KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
+    ROW_TYPE_PARAM("row-type-param"),
+    TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     ;
 
     private String value;

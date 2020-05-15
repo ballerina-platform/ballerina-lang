@@ -17,15 +17,20 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * @since 0.94
  */
-public class BJSONType extends BBuiltInRefType {
+public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
+    public BJSONType immutableType;
 
     public BJSONType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -34,6 +39,12 @@ public class BJSONType extends BBuiltInRefType {
     public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         this(tag, tsymbol);
         this.nullable = nullable;
+    }
+
+    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, int flags) {
+        this(tag, tsymbol);
+        this.nullable = nullable;
+        this.flags = flags;
     }
 
     @Override
@@ -52,5 +63,16 @@ public class BJSONType extends BBuiltInRefType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
     }
 }

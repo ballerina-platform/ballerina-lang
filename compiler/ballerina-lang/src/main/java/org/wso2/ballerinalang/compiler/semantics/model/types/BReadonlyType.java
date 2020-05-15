@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * {@code BReadonlyType} represents the shapes that have their read-only bit on.
@@ -32,6 +33,7 @@ public class BReadonlyType extends BBuiltInRefType {
 
     public BReadonlyType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
+        this.flags |= Flags.READONLY;
     }
 
     public BReadonlyType(int tag, BTypeSymbol tsymbol, Name name, int flag) {

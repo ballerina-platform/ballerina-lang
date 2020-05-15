@@ -28,7 +28,7 @@ kafka:ProducerConfiguration producerConfigs = {
     enableIdempotence: true
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14151",
@@ -37,7 +37,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     topics: [topic]
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfigs);
+kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 function testProduce() {
     string msg = "Hello World";

@@ -49,4 +49,9 @@ public class BHandleType extends BType {
     public int getTag() {
         return TypeTags.HANDLE_TAG;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

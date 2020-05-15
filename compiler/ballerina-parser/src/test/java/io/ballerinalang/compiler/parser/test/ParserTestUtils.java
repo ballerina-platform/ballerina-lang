@@ -470,6 +470,14 @@ public class ParserTestUtils {
                 return SyntaxKind.LET_KEYWORD;
             case "STREAM_KEYWORD":
                 return SyntaxKind.STREAM_KEYWORD;
+            case "READONLY_KEYWORD":
+                return SyntaxKind.READONLY_KEYWORD;
+            case "FROM_KEYWORD":
+                return SyntaxKind.FROM_KEYWORD;
+            case "WHERE_KEYWORD":
+                return SyntaxKind.WHERE_KEYWORD;
+            case "SELECT_KEYWORD":
+                return SyntaxKind.SELECT_KEYWORD;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
 
@@ -624,6 +632,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
             case "STRING_TEMPLATE_EXPRESSION":
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
+            case "QUERY_EXPRESSION":
+                return SyntaxKind.QUERY_EXPRESSION;
             case "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
                 return SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
             case "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
@@ -724,10 +734,14 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_DESC;
             case "FUNCTION_TYPE_DESC":
                 return SyntaxKind.FUNCTION_TYPE_DESC;
+            case "TABLE_TYPE_DESC":
+                return SyntaxKind.TABLE_TYPE_DESC;
             case "TUPLE_TYPE_DESC":
                 return SyntaxKind.TUPLE_TYPE_DESC;
             case "PARENTHESISED_TYPE_DESC":
                 return SyntaxKind.PARENTHESISED_TYPE_DESC;
+            case "READONLY_TYPE_DESC":
+                return SyntaxKind.READONLY_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -806,6 +820,18 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
                 return SyntaxKind.FUNCTION_SIGNATURE;
+            case "QUERY_CONSTRUCT_TYPE":
+                return SyntaxKind.QUERY_CONSTRUCT_TYPE;
+            case "FROM_CLAUSE":
+                return SyntaxKind.FROM_CLAUSE;
+            case "WHERE_CLAUSE":
+                return SyntaxKind.WHERE_CLAUSE;
+            case "LET_CLAUSE":
+                return SyntaxKind.LET_CLAUSE;
+            case "QUERY_PIPELINE":
+                return SyntaxKind.QUERY_PIPELINE;
+            case "SELECT_CLAUSE":
+                return SyntaxKind.SELECT_CLAUSE;
             case "PARENTHESIZED_ARG_LIST":
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
             case "EXPRESSION_FUNCTION_BODY":
@@ -852,6 +878,10 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+            case "TYPE_PARAMETER":
+                return SyntaxKind.TYPE_PARAMETER;
+            case "KEY_TYPE_CONSTRAINT":
+                return SyntaxKind.KEY_TYPE_CONSTRAINT;
 
             // Trivia
             case "EOF_TOKEN":

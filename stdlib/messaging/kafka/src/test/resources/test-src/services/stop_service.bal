@@ -26,7 +26,7 @@ kafka:ConsumerConfiguration consumerConfigs = {
     topics: [topic]
 };
 
-listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
+listener kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 boolean isSuccess = false;
 
@@ -44,7 +44,7 @@ kafka:ProducerConfiguration producerConfigs = {
     retryCount: 3
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 function testProduce() {
     string msg = "test_string";

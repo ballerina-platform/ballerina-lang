@@ -136,7 +136,10 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
-        xmlStreamWriter.writeCharacters(xmlValue.getTextValue());
+        String textValue = xmlValue.getTextValue();
+        if (!textValue.isEmpty()) {
+            xmlStreamWriter.writeCharacters(textValue);
+        }
     }
 
     private void writeElement(XMLItem xmlValue) throws XMLStreamException {
