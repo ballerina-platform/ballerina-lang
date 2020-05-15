@@ -39,7 +39,7 @@ public class BLangJoinClause extends BLangInputClause {
 
     @Override
     public String toString() {
-        if(isOuterJoin()) {
+        if (isOuterJoin()) {
             return "outer join " + variableDefinitionNode + " in " + collection;
         }
         return "join " + variableDefinitionNode + " in " + collection;
