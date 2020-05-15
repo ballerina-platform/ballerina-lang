@@ -231,7 +231,7 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
-    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
+    |   DISTINCT? ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
     |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
     |   tableTypeDescriptor                                                                     # tableTypeNameLabel
@@ -332,7 +332,7 @@ functionTypeName
     ;
 
 errorTypeName
-    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
+    :   DISTINCT? TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
     ;
 
 xmlNamespaceName
