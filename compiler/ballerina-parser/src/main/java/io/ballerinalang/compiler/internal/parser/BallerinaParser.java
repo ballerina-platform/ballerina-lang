@@ -3700,6 +3700,17 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
+        // TODO: Add a good comment
+        if (tokenKind == SyntaxKind.LT_TOKEN && peek(2).kind == SyntaxKind.LT_TOKEN) {
+            tokenKind = SyntaxKind.DOUBLE_LT_TOKEN;
+        } else if (tokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
+            if (peek(3).kind == SyntaxKind.GT_TOKEN) {
+                tokenKind = SyntaxKind.TRIPPLE_GT_TOKEN;
+            } else {
+                tokenKind = SyntaxKind.DOUBLE_GT_TOKEN;
+            }
+        }
+
         // If the precedence level of the operator that was being parsed is higher than
         // the newly found (next) operator, then return and finish the previous expr,
         // because it has a higher precedence.
@@ -3709,6 +3720,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode newLhsExpr;
+        STNode operator;
         switch (tokenKind) {
             case OPEN_PAREN_TOKEN:
                 newLhsExpr = parseFuncCall(lhsExpr);
@@ -3729,7 +3741,15 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             default:
-                STNode operator = parseBinaryOperator();
+                if (tokenKind == SyntaxKind.DOUBLE_LT_TOKEN) {
+                    operator = parseDoubleLTToken();
+                } else if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
+                    operator = parseDoubleGTToken();
+                } else if (tokenKind == SyntaxKind.TRIPPLE_GT_TOKEN) {
+                    operator = parseTrippleGTToken();
+                } else {
+                    operator = parseBinaryOperator();
+                }
 
                 // Parse the expression that follows the binary operator, until a operator
                 // with different precedence is encountered. If an operator with a lower
@@ -8800,5 +8820,39 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ParserRuleContext.SELECT_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse double-LT token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDoubleLTToken() {
+        STNode openLTToken = parseLTToken();
+        STNode endLTToken = parseLTToken();
+        return STNodeFactory.createDoubleLTTokenNode(openLTToken, endLTToken);
+    }
+
+    /**
+     * Parse double-GT token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDoubleGTToken() {
+        STNode openGTToken = parseGTToken();
+        STNode endLGToken = parseGTToken();
+        return STNodeFactory.createDoubleGTTokenNode(openGTToken, endLGToken);
+    }
+
+    /**
+     * Parse tripple-GT token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseTrippleGTToken() {
+        STNode openGTToken = parseGTToken();
+        STNode middleLGToken = parseGTToken();
+        STNode endLGToken = parseGTToken();
+        return STNodeFactory.createTrippleGTTokenNode(openGTToken, middleLGToken, endLGToken);
     }
 }

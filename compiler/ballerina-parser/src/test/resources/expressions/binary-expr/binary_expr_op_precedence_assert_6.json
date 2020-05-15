@@ -86,7 +86,15 @@
                                                                             "value": "m"
                                                                         },
                                                                         {
-                                                                            "kind": "DOUBLE_GT_TOKEN"
+                                                                            "kind": "DOUBLE_GT_TOKEN",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "GT_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "GT_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         },
                                                                         {
                                                                             "kind": "BINARY_EXPRESSION",

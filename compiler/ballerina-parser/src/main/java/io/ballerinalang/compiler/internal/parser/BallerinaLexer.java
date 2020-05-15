@@ -169,9 +169,6 @@ public class BallerinaLexer extends AbstractLexer {
                 if (peek() == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
-                } else if (peek() == LexerTerminals.LT) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
@@ -180,14 +177,6 @@ public class BallerinaLexer extends AbstractLexer {
                 if (peek() == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
-                } else if (peek() == LexerTerminals.GT) {
-                    reader.advance();
-                    if (peek() == LexerTerminals.GT) {
-                        reader.advance();
-                        token = getSyntaxToken(SyntaxKind.TRIPPLE_GT_TOKEN);
-                    } else {
-                        token = getSyntaxToken(SyntaxKind.DOUBLE_GT_TOKEN);
-                    }
                 } else {
                     token = getSyntaxToken(SyntaxKind.GT_TOKEN);
                 }
