@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -86,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -270,7 +268,6 @@ import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_C
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
-import static org.wso2.ballerinalang.compiler.util.Names.TRX_INITIATOR_BEGIN_FUNCTION;
 import static org.wso2.ballerinalang.compiler.util.Names.TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION;
 import static org.wso2.ballerinalang.compiler.util.Names.TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION;
 
@@ -3035,7 +3032,8 @@ public class Desugar extends BLangNodeVisitor {
 //        if (!transactionNode.transactionBody.stmts.isEmpty()) {
 //            statement = transactionNode.transactionBody.stmts.get(transactionNode.transactionBody.stmts.size() - 1);
 //        }
-//        if (statement == null || !(statement.getKind() == NodeKind.ABORT) && !(statement.getKind() == NodeKind.ABORT)) {
+//        if (statement == null || !(statement.getKind() == NodeKind.ABORT) &&
+//        !(statement.getKind() == NodeKind.ABORT)) {
 //            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(returnStmtPos, trxReturnType, 0L);
 //            transactionNode.transactionBody.addStatement(returnStmt);
 //        }
@@ -3059,14 +3057,16 @@ public class Desugar extends BLangNodeVisitor {
 //        BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$", Collections.emptyList(),
 //                trxReturnNode, transactionNode.transactionBody.stmts,
 //                env, transactionNode.transactionBody.scope);
-//        BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$", Collections.emptyList(),
+//        BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$",
+//        Collections.emptyList(),
 //                otherReturnNode, transactionNode.onRetryBody.stmts,
 //                env, transactionNode.onRetryBody.scope);
 //        BLangLambdaFunction trxCommittedFunc = createLambdaFunction(pos, "$anonTrxCommittedFunc$",
 //                Collections.emptyList(), otherReturnNode,
 //                transactionNode.committedBody.stmts, env,
 //                transactionNode.committedBody.scope);
-//        BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$", Collections.emptyList(),
+//        BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
+//        Collections.emptyList(),
 //                otherReturnNode, transactionNode.abortedBody.stmts,
 //                env, transactionNode.abortedBody.scope);
 //        trxMainFunc.capturedClosureEnv = env.createClone();

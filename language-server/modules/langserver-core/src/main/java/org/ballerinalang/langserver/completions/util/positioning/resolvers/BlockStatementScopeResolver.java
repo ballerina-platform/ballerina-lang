@@ -153,30 +153,32 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
     }
 
     private int getTransactionBlockComponentEndLine(BLangTransaction bLangTransaction, BlockNode bLangBlockStmt) {
-        BLangBlockStmt transactionBody = bLangTransaction.transactionBody;
-        BLangBlockStmt failedBody = bLangTransaction.onRetryBody;
-
-        List<BLangBlockStmt> components = new ArrayList<>();
-        components.add(transactionBody);
-        components.add(failedBody);
-
-        components.sort(Comparator.comparing(component -> {
-            if (component != null) {
-                return CommonUtil.toZeroBasedPosition(component.getPosition()).getEndLine();
-            } else {
-                return -1;
-            }
-        }));
-
-        int blockStmtIndex = components.indexOf(bLangBlockStmt);
-        if (blockStmtIndex == components.size() - 1) {
-            return CommonUtil.toZeroBasedPosition(bLangTransaction.getPosition()).eLine;
-        } else if (components.get(blockStmtIndex + 1) != null) {
-            return CommonUtil.toZeroBasedPosition(components.get(blockStmtIndex + 1).getPosition()).sLine;
-        } else {
-            // Ideally should not invoke this
-            return -1;
-        }
+        return 0;
+        //TODO Transaction
+//        BLangBlockStmt transactionBody = bLangTransaction.transactionBody;
+//        BLangBlockStmt failedBody = bLangTransaction.onRetryBody;
+//
+//        List<BLangBlockStmt> components = new ArrayList<>();
+//        components.add(transactionBody);
+//        components.add(failedBody);
+//
+//        components.sort(Comparator.comparing(component -> {
+//            if (component != null) {
+//                return CommonUtil.toZeroBasedPosition(component.getPosition()).getEndLine();
+//            } else {
+//                return -1;
+//            }
+//        }));
+//
+//        int blockStmtIndex = components.indexOf(bLangBlockStmt);
+//        if (blockStmtIndex == components.size() - 1) {
+//            return CommonUtil.toZeroBasedPosition(bLangTransaction.getPosition()).eLine;
+//        } else if (components.get(blockStmtIndex + 1) != null) {
+//            return CommonUtil.toZeroBasedPosition(components.get(blockStmtIndex + 1).getPosition()).sLine;
+//        } else {
+//            // Ideally should not invoke this
+//            return -1;
+//        }
     }
 
     /**

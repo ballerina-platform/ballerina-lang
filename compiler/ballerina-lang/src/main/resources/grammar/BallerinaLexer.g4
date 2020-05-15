@@ -3,6 +3,7 @@ lexer grammar BallerinaLexer;
 @members {
     boolean inStringTemplate = false;
     boolean inQueryExpression = false;
+    boolean inTransaction = false;
     boolean inTableType = false;
 }
 
@@ -78,10 +79,10 @@ THROW       : 'throw' ;
 PANIC       : 'panic' ;
 TRAP        : 'trap' ;
 RETURN      : 'return' ;
-TRANSACTION : 'transaction' ;
+TRANSACTION : 'transaction' { inTransaction = true; } ;
 RETRY       : 'retry' ;
 ABORTED     : 'aborted' ;
-COMMIT      : 'commit' ;
+COMMIT      : {inTransaction}? 'commit' ;
 ROLLBACK    : 'rollback' ;
 TRANSACTIONAL   : 'transactional' ;
 WITH        : 'with' ;

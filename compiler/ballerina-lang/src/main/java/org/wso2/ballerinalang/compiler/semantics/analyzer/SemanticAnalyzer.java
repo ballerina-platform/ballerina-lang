@@ -2459,7 +2459,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        if(retryTransaction.retrySpec != null) {
+        if (retryTransaction.retrySpec != null) {
             retryTransaction.retrySpec.accept(this);
         }
 
@@ -2468,7 +2468,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if(retryNode.retrySpec != null) {
+        if (retryNode.retrySpec != null) {
             retryNode.retrySpec.accept(this);
         }
 
@@ -2477,7 +2477,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetrySpec retrySpec) {
-        if(retrySpec.argExprs != null) {
+        if (retrySpec.argExprs != null) {
             retrySpec.argExprs.forEach(arg -> this.typeChecker.checkExpr(arg, env));
         }
     }

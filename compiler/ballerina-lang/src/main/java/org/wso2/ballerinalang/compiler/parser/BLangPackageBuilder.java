@@ -181,7 +181,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -3095,7 +3094,7 @@ public class BLangPackageBuilder {
         BLangTransaction transaction = (BLangTransaction) TreeBuilder.createTransactionNode();
         transaction.pos = pos;
         transaction.addWS(ws);
-        transaction.setTransactionBody((BLangBlockStmt)this.blockNodeStack.pop());
+        transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
         addStmtToCurrentBlock(transaction);
 
 //        // TODO This is a temporary workaround to flag coordinator service start
@@ -3116,7 +3115,7 @@ public class BLangPackageBuilder {
         retrySpec.pos = pos;
         retrySpec.addWS(ws);
 
-        if(typeParamAvailable) {
+        if (typeParamAvailable) {
             retrySpec.retryManagerType = (BLangType) typeNodeStack.pop();
         }
 

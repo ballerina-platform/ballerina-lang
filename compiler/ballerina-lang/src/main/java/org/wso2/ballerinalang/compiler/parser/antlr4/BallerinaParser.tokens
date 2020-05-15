@@ -307,7 +307,6 @@ StringTemplateText=238
 'transaction'=69
 'retry'=70
 'aborted'=71
-'commit'=72
 'rollback'=73
 'transactional'=74
 'with'=75
