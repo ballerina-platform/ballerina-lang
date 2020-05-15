@@ -50,7 +50,30 @@ public class ObjectTypeReferenceTest {
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
+                                  "cyclic type reference in '[Foo, Foo]'", 52, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[A, B, C, D, A]'", 57, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[C, E, C]'", 57, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[B, C, D, A, B]'", 61, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                "cyclic type reference in '[C, E, C]'", 61, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[C, D, A, B, C]'", 65, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[C, E, C]'", 65, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[C, E, C]'", 70, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[D, A, B, C, D]'", 70, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[C, D, A, B, C]'", 74, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "cyclic type reference in '[E, C, E]'", 74, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "no implementation found for the function 'getName' of non-abstract object " +
+                                          "'Manager2'",96, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
@@ -68,19 +91,30 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 28, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 42, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 42, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 45, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 93, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 93, 6);
-        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 93, 6);
-        BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 96, 16);
-        BAssertUtil.validateError(negativeResult, i, "variable 'salary' is not initialized", 100, 16);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, Foo]'", 49, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[A, B, C, D, A]'", 54, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 54, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[B, C, D, A, B]'", 58, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 58, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 62, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 62, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 67, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[D, A, B, C, D]'", 67, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 71, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[E, C, E]'", 71, 1);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 28, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 42, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 42, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 45, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 93, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 93, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 93, 6);
+//        BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 96, 16);
+//        BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 100, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -101,7 +135,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
-        BAssertUtil.validateError(negativeResult, i, "uninitialized field 'y'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
     }
 
     @Test
