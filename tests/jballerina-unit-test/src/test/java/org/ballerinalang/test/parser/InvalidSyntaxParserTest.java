@@ -90,7 +90,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, index++, "extraneous input '{'", 5, 26);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting ';'", 6, 16);
         BAssertUtil.validateError(result, index++, "mismatched input '\"GET\"'. expecting {'service', 'function', " +
-                "'object', 'record', 'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
+                "'object', 'record', 'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
                 "'error', 'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', 'anydata', 'handle', " +
                 "'readonly', '(', '[', Identifier}", 6, 18);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting ';'", 7, 13);

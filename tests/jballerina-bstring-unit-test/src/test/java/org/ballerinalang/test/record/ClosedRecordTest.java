@@ -220,7 +220,7 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, 3, "extraneous input '|'", 17, 1);
         BAssertUtil.validateError(result, 4,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
-                                          "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
+                                          "'abstract', 'client', 'distinct', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
                                           "'handle', 'readonly', '(', '[', '|}', '*', '@', Identifier, " +
