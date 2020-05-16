@@ -22,7 +22,7 @@ function getApplicationError() returns error {
 }
 
 function getApplicationErrorIndirectCtor() returns error {
-    er:ApplicationError e = er:ApplicationError(message = "Client has been stopped");
-    error e1 = er:ApplicationError(message = "Client has been stopped");
+    er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    error e1 = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     return e;
 }

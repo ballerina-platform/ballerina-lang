@@ -1929,7 +1929,8 @@ public class TypeChecker {
         checkedValues.add(compValuePair);
 
         return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues);
+                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
+                isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
     }
 
     /**
