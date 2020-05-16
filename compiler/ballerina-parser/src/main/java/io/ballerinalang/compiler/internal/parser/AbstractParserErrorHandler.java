@@ -86,7 +86,7 @@ public abstract class AbstractParserErrorHandler {
         }
 
         Result bestMatch = seekMatch(currentCtx);
-        if (bestMatch.matches > 1) {
+        if (bestMatch.matches > 0) {
             Solution sol = bestMatch.solution;
             applyFix(currentCtx, sol, args);
             return sol;

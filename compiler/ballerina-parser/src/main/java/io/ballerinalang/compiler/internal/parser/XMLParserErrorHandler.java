@@ -42,6 +42,9 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_ATTRIBUTE_VALUE_ITEM =
             { ParserRuleContext.XML_ATTRIBUTE_VALUE_TEXT, ParserRuleContext.XML_QUOTE_END };
 
+    private static final ParserRuleContext[] XML_PI_TARGET_RHS =
+            { ParserRuleContext.XML_PI_END, ParserRuleContext.XML_PI_DATA };
+
     public XMLParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -123,6 +126,10 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 case XML_ATTRIBUTE_VALUE_ITEM:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             XML_ATTRIBUTE_VALUE_ITEM, isEntryPoint);
+                case XML_PI_TARGET_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, XML_PI_TARGET_RHS,
+                            isEntryPoint);
+
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -191,7 +198,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                     case XML_ATTRIBUTES:
                         return ParserRuleContext.ASSIGN_OP;
                     case XML_PI:
-                        return ParserRuleContext.XML_PI_DATA;
+                        return ParserRuleContext.XML_PI_TARGET_RHS;
                     default:
                         throw new IllegalStateException("XML name cannot exist in: " + parentCtx);
                 }

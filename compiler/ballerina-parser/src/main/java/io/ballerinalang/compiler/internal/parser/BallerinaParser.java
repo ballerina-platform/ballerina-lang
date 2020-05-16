@@ -120,7 +120,8 @@ public class BallerinaParser extends AbstractParser {
             case FUNC_NAME:
                 return parseFunctionName();
             case OPEN_PARENTHESIS:
-                return parseOpenParenthesis();
+            case ARG_LIST_START:
+                return parseOpenParenthesis((ParserRuleContext) args[0]);
             // case RETURN_TYPE_DESCRIPTOR:
             // return parseFuncReturnTypeDescriptor();
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -1275,7 +1276,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Function signature node
      */
     private STNode parseFuncSignature(boolean isParamNameOptional) {
-        STNode openParenthesis = parseOpenParenthesis();
+        STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode parameters = parseParamList(isParamNameOptional);
         STNode closeParenthesis = parseCloseParenthesis();
         endContext(); // end param-list
@@ -1465,12 +1466,12 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseOpenParenthesis() {
+    private STNode parseOpenParenthesis(ParserRuleContext ctx) {
         STToken token = peek();
         if (token.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OPEN_PARENTHESIS);
+            Solution sol = recover(token, ctx, ctx);
             return sol.recoveredNode;
         }
     }
@@ -1577,7 +1578,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseCloseParenthesis();
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.PARAM_LIST);
+                Solution solution = recover(token, ParserRuleContext.PARAM_END);
 
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
@@ -3652,7 +3653,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed parenthesized rhs of <code>new-expr</code>.
      */
     private STNode parseParenthesizedArgList() {
-        STNode openParan = parseOpenParenthesis();
+        STNode openParan = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
         STNode arguments = parseArgsList();
         STNode closeParan = parseCloseParenthesis();
 
@@ -3842,7 +3843,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             // function invocation
-            STNode openParen = parseOpenParenthesis();
+            STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
             STNode args = parseArgsList();
             STNode closeParen = parseCloseParenthesis();
             return STNodeFactory.createMethodCallExpressionNode(lhsExpr, dotToken, fieldOrMethodName, openParen, args,
@@ -3864,7 +3865,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseBracedExpression(boolean isRhsExpr, boolean allowActions) {
-        STNode openParen = parseOpenParenthesis();
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode expr;
         if (allowActions) {
             expr = parseActionOrExpression(isRhsExpr);
@@ -3996,7 +3997,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Function call expression
      */
     private STNode parseFuncCall(STNode identifier) {
-        STNode openParen = parseOpenParenthesis();
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
         STNode args = parseArgsList();
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
@@ -5788,7 +5789,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseNilTypeDescriptor() {
         startContext(ParserRuleContext.NIL_TYPE_DESCRIPTOR);
-        STNode openParenthesisToken = parseOpenParenthesis();
+        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
 
@@ -6359,7 +6360,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseRemoteMethodCallAction(STNode expression) {
         STNode rightArrow = parseRightArrow();
         STNode methodName = parseFunctionName();
-        STNode openParenToken = parseOpenParenthesis();
+        STNode openParenToken = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
         STNode arguments = parseArgsList();
         STNode closeParenToken = parseCloseParenthesis();
         return STNodeFactory.createRemoteMethodCallActionNode(expression, rightArrow, methodName, openParenToken,
@@ -6482,7 +6483,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseNilLiteral() {
         startContext(ParserRuleContext.NIL_LITERAL);
-        STNode openParenthesisToken = parseOpenParenthesis();
+        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
         return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
@@ -7753,7 +7754,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseKeySpecifier() {
         startContext(ParserRuleContext.KEY_SPECIFIER);
         STNode keyKeyword = parseKeyKeyword();
-        STNode openParen = parseOpenParenthesis();
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode fieldNames = parseFieldNames();
         STNode closeParen = parseCloseParenthesis();
         endContext();
@@ -8378,7 +8379,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseKeySpecifier(STNode keyKeywordToken) {
         startContext(ParserRuleContext.KEY_SPECIFIER);
-        STNode openParenToken = parseOpenParenthesis();
+        STNode openParenToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode fieldNamesNode = parseFieldNames();
         STNode closeParenToken = parseCloseParenthesis();
         endContext();
@@ -8648,7 +8649,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Type-desc with enclosing parenthesis
      */
     private STNode parseParenthesisedTypeDesc() {
-        STNode openParen = parseOpenParenthesis();
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
         STNode closeParen = parseCloseParenthesis();
         return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
