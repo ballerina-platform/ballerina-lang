@@ -577,7 +577,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "ActionOrExpressionNode",
+                    "name": "actionOrExpressionNode",
                     "type": "Node"
                 },
                 {
@@ -1800,7 +1800,6 @@
         {
             "name": "TrapExpressionNode",
             "base": "ExpressionNode",
-            "kind": "TRAP_EXPRESSION",
             "attributes": [
                 {
                     "name": "trapKeyword",
@@ -2779,6 +2778,36 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "StartActionNode",
+            "base": "ExpressionNode",
+            "kind": "START_ACTION",
+            "attributes": [
+                {
+                    "name": "startKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "FlushActionNode",
+            "base": "ExpressionNode",
+            "kind": "FLUSH_ACTION",
+            "attributes": [
+                {
+                    "name": "flushKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "Token"
                 }
             ]
         }

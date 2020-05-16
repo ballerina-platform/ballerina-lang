@@ -24,13 +24,13 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class TrapExpressionNode extends ExpressionNode {
+public class StartActionNode extends ExpressionNode {
 
-    public TrapExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public StartActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token trapKeyword() {
+    public Token startKeyword() {
         return childInBucket(0);
     }
 
@@ -51,23 +51,21 @@ public class TrapExpressionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "trapKeyword",
+                "startKeyword",
                 "expression"};
     }
 
-    public TrapExpressionNode modify(
-            SyntaxKind kind,
-            Token trapKeyword,
+    public StartActionNode modify(
+            Token startKeyword,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
-                trapKeyword,
+                startKeyword,
                 expression)) {
             return this;
         }
 
-        return NodeFactory.createTrapExpressionNode(
-                kind,
-                trapKeyword,
+        return NodeFactory.createStartActionNode(
+                startKeyword,
                 expression);
     }
 }
