@@ -59,8 +59,6 @@ public abstract class AbstractParserErrorHandler {
 
     protected abstract SyntaxKind getExpectedTokenKind(ParserRuleContext context);
 
-    public abstract ParserRuleContext findBestPath(ParserRuleContext context);
-
     /*
      * -------------- Error recovering --------------
      */

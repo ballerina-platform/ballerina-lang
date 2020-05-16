@@ -69,6 +69,7 @@ public enum ParserRuleContext {
     ARG_LIST_END(")"),
     ARG_START_OR_ARG_LIST_END("arg-start-or-args-list-end"),
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
+    ARG_END("arg-end"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
     OBJECT_MEMBER_START("object-member-start"),
@@ -179,6 +180,7 @@ public enum ParserRuleContext {
     NAMED_WORKER_DECL("named-worker-decl"),
     FORK_STMT("fork-stmt"),
     FOREACH_STMT("foreach-stmt"),
+    INFER_PARAM_END_OR_PARENTHESIS_END("infer-param-end-or-parenthesis-end"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

@@ -171,8 +171,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeReference();
             case FIELD_DESCRIPTOR_RHS:
                 return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1], (STNode) args[2]);
-            case NAMED_OR_POSITIONAL_ARG_RHS:
-                return parseNamedOrPositionalArg((STNode) args[0]);
             case RECORD_BODY_START:
                 return parseRecordBodyStartDelimiter();
             case TYPE_DESCRIPTOR:
@@ -386,6 +384,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncBody();
             case CLOSE_BRACKET:
                 return parseCloseBracket();
+            case ARG_START_OR_ARG_LIST_END:
+                return parseArg((STNode) args[0]);
+            case ARG_END:
+                return parseArgEnd();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2217,7 +2219,12 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfStatements() {
-        return endOfModuleLevelNode(1);
+        switch (peek().kind) {
+            case RESOURCE_KEYWORD:
+                return true;
+            default:
+                return endOfModuleLevelNode(1);
+        }
     }
 
     private boolean endOfModuleLevelNode(int peekIndex) {
@@ -3528,7 +3535,7 @@ public class BallerinaParser extends AbstractParser {
 
         switch (solution.tokenKind) {
             case IDENTIFIER_TOKEN:
-                this.errorHandler.reportMissingTokenError("missing " + solution.recoveredNode);
+                this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return parseQualifiedIdentifier(solution.recoveredNode);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -3538,7 +3545,7 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                this.errorHandler.reportMissingTokenError("missing " + solution.recoveredNode);
+                this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return solution.recoveredNode;
             default:
                 return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
@@ -3549,13 +3556,55 @@ public class BallerinaParser extends AbstractParser {
         return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
     }
 
+    private boolean isValidExprStart(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
+            case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case IDENTIFIER_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            case CHECK_KEYWORD:
+            case CHECKPANIC_KEYWORD:
+            case OPEN_BRACE_TOKEN:
+            case TYPEOF_KEYWORD:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case NEGATION_TOKEN:
+            case EXCLAMATION_MARK_TOKEN:
+            case TRAP_KEYWORD:
+            case OPEN_BRACKET_TOKEN:
+            case LT_TOKEN:
+            case TABLE_KEYWORD:
+            case STREAM_KEYWORD:
+            case FROM_KEYWORD:
+            case ERROR_KEYWORD:
+            case LET_KEYWORD:
+            case BACKTICK_TOKEN:
+            case XML_KEYWORD:
+            case STRING_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case AT_TOKEN:
+            case NEW_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * <p>
      * Parse a new expression.
      * </p>
      * <code>
      *  new-expr := explicit-new-expr | implicit-new-expr
+     *  <br/>
      *  explicit-new-expr := new type-descriptor ( arg-list )
+     *  <br/>
      *  implicit-new-expr := new [( arg-list )]
      * </code>
      *
@@ -3866,6 +3915,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseBracedExpression(boolean isRhsExpr, boolean allowActions) {
         STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
+        startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
         STNode expr;
         if (allowActions) {
             expr = parseActionOrExpression(isRhsExpr);
@@ -3879,6 +3929,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode closeParen = parseCloseParenthesis();
+        endContext();
         if (isAction(expr)) {
             return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, expr, closeParen);
         }
@@ -3886,7 +3937,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseBracedExprOrAnonFuncParamRhs(SyntaxKind nextTokenKind, STNode openParen, STNode expr) {
-        startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
         switch (nextTokenKind) {
             case CLOSE_PAREN_TOKEN:
                 STNode closeParen = parseCloseParenthesis();
@@ -4033,31 +4083,28 @@ public class BallerinaParser extends AbstractParser {
             return args;
         }
 
-        SyntaxKind lastProcessedArgKind = parseFirstArg(argsList);
-        parseFollowUpArg(argsList, lastProcessedArgKind);
+        STNode leadingComma = STNodeFactory.createEmptyNode();
+        STNode arg = parseArg(leadingComma);
+        if (arg == null) {
+            STNode args = STNodeFactory.createNodeList(argsList);
+            endContext();
+            return args;
+        }
 
+        // TODO: Is this check required?
+        SyntaxKind lastProcessedArgKind;
+        if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
+            argsList.add(arg);
+            lastProcessedArgKind = arg.kind;
+        } else {
+            reportInvalidOrderOfArgs(peek(), SyntaxKind.POSITIONAL_ARG, arg.kind);
+            lastProcessedArgKind = SyntaxKind.POSITIONAL_ARG;
+        }
+
+        parseFollowUpArgs(argsList, lastProcessedArgKind);
         STNode args = STNodeFactory.createNodeList(argsList);
         endContext();
         return args;
-    }
-
-    /**
-     * Parse the first argument of a function call.
-     *
-     * @param argsList Arguments list to which the parsed argument must be added
-     * @return Kind of the argument first argument.
-     */
-    private SyntaxKind parseFirstArg(ArrayList<STNode> argsList) {
-        // Comma precedes the first argument is an empty node, since it doesn't exist.
-        STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode arg = parseArg(leadingComma);
-        if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
-            argsList.add(arg);
-            return arg.kind;
-        } else {
-            reportInvalidOrderOfArgs(peek(), SyntaxKind.POSITIONAL_ARG, arg.kind);
-            return SyntaxKind.POSITIONAL_ARG;
-        }
     }
 
     /**
@@ -4066,20 +4113,24 @@ public class BallerinaParser extends AbstractParser {
      * @param argsList Arguments list to which the parsed argument must be added
      * @param lastProcessedArgKind Kind of the argument processed prior to this
      */
-    private void parseFollowUpArg(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
+    private void parseFollowUpArgs(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
-            STNode leadingComma = parseComma();
+            STNode argEnd = parseArgEnd(nextToken.kind);
+            if (argEnd == null) {
+                // null marks the end of args
+                break;
+            }
 
             // If there's an extra comma at the end of arguments list, remove it.
             // Then stop the argument parsing.
             nextToken = peek();
             if (isEndOfParametersList(nextToken.kind)) {
-                this.errorHandler.reportInvalidNode((STToken) leadingComma, "invalid token " + leadingComma);
+                this.errorHandler.reportInvalidNode((STToken) argEnd, "invalid token " + argEnd);
                 break;
             }
 
-            STNode arg = parseArg(nextToken.kind, leadingComma);
+            STNode arg = parseArg(nextToken.kind, argEnd);
             if (lastProcessedArgKind.ordinal() <= arg.kind.ordinal()) {
                 if (lastProcessedArgKind == SyntaxKind.REST_ARG && arg.kind == SyntaxKind.REST_ARG) {
                     this.errorHandler.reportInvalidNode(nextToken, "cannot more than one rest arg");
@@ -4092,6 +4143,31 @@ public class BallerinaParser extends AbstractParser {
             }
 
             nextToken = peek();
+        }
+    }
+
+    private STNode parseArgEnd() {
+        return parseArgEnd(peek().kind);
+    }
+
+    private STNode parseArgEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_PAREN_TOKEN:
+                // null marks the end of args
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ARG_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseArgEnd(solution.tokenKind);
         }
     }
 
@@ -4129,21 +4205,27 @@ public class BallerinaParser extends AbstractParser {
             // Identifier can means two things: either its a named-arg, or just an expression.
             case IDENTIFIER_TOKEN:
                 // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
-                arg = parseNamedOrPositionalArg(leadingComma);
+                arg = parseNamedOrPositionalArg(leadingComma, kind);
                 break;
-
-            // Any other expression goes here
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
-            case OPEN_PAREN_TOKEN:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case NULL_KEYWORD:
+            case CLOSE_PAREN_TOKEN:
+                return null;
             default:
-                expr = parseExpression();
-                arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
-                break;
+                if (isValidExprStart(kind)) {
+                    expr = parseExpression();
+                    arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
+                    break;
+                }
+
+                Solution solution = recover(peek(), ParserRuleContext.ARG_START_OR_ARG_LIST_END, leadingComma);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseArg(solution.tokenKind, leadingComma);
         }
 
         return arg;
@@ -4156,34 +4238,23 @@ public class BallerinaParser extends AbstractParser {
      * @param leadingComma Comma that occurs before the param
      * @return Parsed argument node
      */
-    private STNode parseNamedOrPositionalArg(STNode leadingComma) {
-        STToken secondToken = peek(2);
+    private STNode parseNamedOrPositionalArg(STNode leadingComma, SyntaxKind nextTokenKind) {
+        STNode argNameOrExpr = parseTerminalExpression(peek().kind, true, false);
+        STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
-                STNode argNameOrVarRef = STNodeFactory.createSimpleNameReferenceNode(consume());
                 STNode equal = parseAssignOp();
-                STNode expr = parseExpression();
-                return STNodeFactory.createNamedArgumentNode(leadingComma, argNameOrVarRef, equal, expr);
+                STNode valExpr = parseExpression();
+                return STNodeFactory.createNamedArgumentNode(leadingComma, argNameOrExpr, equal, valExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
-                argNameOrVarRef = STNodeFactory.createSimpleNameReferenceNode(consume());
-                return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrVarRef);
+                return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrExpr);
 
             // Treat everything else as a single expression. If something is missing,
             // expression-parsing will recover it.
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
-            case IDENTIFIER_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case NULL_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
             default:
-                expr = parseExpression();
-                return STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
+                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, false, false);
+                return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrExpr);
         }
     }
 
@@ -5565,48 +5636,25 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 SyntaxKind tokenAfterIdentifier = peek(lookahead + 2).kind;
                 switch (tokenAfterIdentifier) {
+                    case ON_KEYWORD: // service foo on ...
+                    case OPEN_BRACE_TOKEN: // missing listeners-->  service foo {
+                        return true;
                     case EQUAL_TOKEN: // service foo = ...
                     case SEMICOLON_TOKEN: // service foo;
                     case QUESTION_MARK_TOKEN: // service foo?;
                         return false;
-                    case ON_KEYWORD: // service foo on ...
-                        return true;
                     default:
-                        // If not any of above, this is not a valid syntax. Hence try to recover
-                        // silently and find what's the best token. From that recovered token try
-                        // to determine whether the next construct is a service decl or not.
-                        ParserRuleContext sol = this.errorHandler.findBestPath(currentContext);
-                        return sol == ParserRuleContext.SERVICE_DECL || sol == ParserRuleContext.CLOSE_BRACE;
+                        // If not any of above, this is not a valid syntax.
+                        return false;
                 }
             case ON_KEYWORD:
                 // Next token sequence is similar to: `service on ...`.
                 // Then this is a service decl.
                 return true;
             default:
-                this.errorHandler.removeInvalidToken();
                 return false;
         }
     }
-    // private boolean isServiceDeclStart(ParserRuleContext currentContext, int lookahead) {
-    // // Assume we always reach here after a peek()
-    // switch (peek(lookahead + 1).kind) {
-    // case IDENTIFIER_TOKEN:
-    // SyntaxKind tokenAfterIdentifier = peek(lookahead + 2).kind;
-    // switch (tokenAfterIdentifier) {
-    // case ON_KEYWORD: // service foo on ...
-    // return true;
-    // default:
-    // return false;
-    // }
-    // case ON_KEYWORD:
-    // // Next token sequence is similar to: `service on ...`.
-    // // Then this is a service decl.
-    // return true;
-    // default:
-    // this.errorHandler.removeInvalidToken();
-    // return false;
-    // }
-    // }
 
     /**
      * Parse listener declaration, given the qualifier.
@@ -8544,7 +8592,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode params = STNodeFactory.createNodeList(paramList);
         STNode closeParen = parseCloseParenthesis();
-        endContext(); // end param list context
+        endContext(); // end arg list context
 
         STNode inferedParams = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
         return parseImplicitAnonFunc(inferedParams);

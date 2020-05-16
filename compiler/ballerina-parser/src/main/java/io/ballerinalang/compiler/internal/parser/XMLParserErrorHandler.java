@@ -285,9 +285,4 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.NONE;
         }
     }
-
-    @Override
-    public ParserRuleContext findBestPath(ParserRuleContext context) {
-        throw new UnsupportedOperationException();
-    }
 }
