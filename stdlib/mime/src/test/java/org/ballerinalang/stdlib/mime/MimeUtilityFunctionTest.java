@@ -18,6 +18,15 @@
 
 package org.ballerinalang.stdlib.mime;
 
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.util.StringUtils;
+import org.ballerinalang.core.model.util.XMLUtils;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -28,15 +37,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.core.model.util.JsonParser;
-import org.ballerinalang.core.model.util.StringUtils;
-import org.ballerinalang.core.model.util.XMLUtils;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.util.BCompileUtil;

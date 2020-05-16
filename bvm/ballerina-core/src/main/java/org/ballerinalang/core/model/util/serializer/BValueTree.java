@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.core.model.util.serializer.JsonSerializerConst.ENUM_SEPERATOR;
-import static org.ballerinalang.core.model.util.serializer.ObjectHelper.getTrimmedClassName;
 
 /**
  * Convert Java object graph into a tree of BValue objects.

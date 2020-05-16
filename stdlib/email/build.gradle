@@ -39,8 +39,12 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'com.sun.mail:javax.mail:1.6.2'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation ('org.wso2.transport.http:org.wso2.transport.http.netty') {
+        transitive false
+        exclude  group: 'org.eclipse.osgi', module: 'org.eclipse.osgi'
+        exclude  group: 'org.eclipse.osgi', module: 'org.eclipse.osgi.services'
+    }
+    //implementation 'org.apache.ws.commons.axiom:axiom-dom'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
@@ -62,7 +66,7 @@ dependencies {
     interopImports 'com.sun.mail:javax.mail:1.6.2'
     interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.8'
 
-    testCompile project(':ballerina-test-utils')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-io')
@@ -85,4 +89,16 @@ description = 'Ballerina - Email'
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
+}
+
+ext.moduleName = 'email'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
 }

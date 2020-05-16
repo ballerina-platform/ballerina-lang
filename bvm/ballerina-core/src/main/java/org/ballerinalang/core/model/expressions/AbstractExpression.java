@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.core.model.expressions;
 
-import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.NodeLocation;
 import org.ballerinalang.core.model.WhiteSpaceDescriptor;
+import org.ballerinalang.core.model.types.BType;
 
 /**
  * All the expressions should extend {@code AbstractExpression}

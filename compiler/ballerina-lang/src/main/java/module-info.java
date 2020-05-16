@@ -14,5 +14,24 @@ module ballerina.lang {
     exports org.wso2.ballerinalang.util;
     exports org.ballerinalang.model.types;
     exports org.wso2.ballerinalang.compiler.tree;
+    exports org.wso2.ballerinalang.compiler.tree.types;
     exports org.ballerinalang.compiler;
+    exports org.ballerinalang.compiler.plugins;
+    exports org.ballerinalang.model.tree;
+    exports org.ballerinalang.model.elements;
+    exports org.ballerinalang.util.diagnostic;
+    exports org.wso2.ballerinalang.compiler.semantics.model.types;
+    exports org.wso2.ballerinalang.compiler.semantics.model.symbols;
+    exports org.wso2.ballerinalang.compiler.tree.expressions;
+    exports org.ballerinalang.model.tree.expressions;
+    exports org.wso2.ballerinalang.compiler.util.diagnotic;
+    exports org.ballerinalang.natives.annotations;
+    exports org.wso2.ballerinalang.compiler.semantics.analyzer;
+    exports org.wso2.ballerinalang.compiler.semantics.model;
+    exports org.ballerinalang.model;
+    exports org.wso2.ballerinalang.compiler.desugar;
+    exports org.ballerinalang.model.tree.statements;
+    exports org.wso2.ballerinalang.compiler.tree.statements;
+    exports org.ballerinalang.annotation;
+    exports org.ballerinalang.codegen;
 }

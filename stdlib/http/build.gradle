@@ -90,8 +90,11 @@ dependencies {
     interopImports project(':ballerina-io')
 
     implementation 'io.netty:netty-codec-http'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    implementation ('org.wso2.transport.http:org.wso2.transport.http.netty') {
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi'
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi.services'
+    }
+//    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'org.bouncycastle:bcprov-jdk15on'
@@ -123,3 +126,15 @@ configurations {
 }
 
 description = 'Ballerina - Http/WS'
+
+ext.moduleName = 'http'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

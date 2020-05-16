@@ -32,7 +32,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.impl.dom.TextImpl;
+import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BTypes;
@@ -105,7 +105,8 @@ public class XMLUtils {
         try {
 
             if (xmlStr.isEmpty()) {
-                return new BXMLItem(new TextImpl());
+                // Temp fix to avoid package conflict in axiom.dom and axiom.impl
+                return new BXMLItem(new CharacterDataImpl());
             }
 
             // If this is an XML document, parse it and return an element type XML.

@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.io;
 
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BError;
@@ -27,6 +26,7 @@ import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

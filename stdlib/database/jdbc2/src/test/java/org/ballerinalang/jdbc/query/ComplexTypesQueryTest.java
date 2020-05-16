@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jdbc.query;
 
-import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BFloat;
@@ -26,6 +25,7 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

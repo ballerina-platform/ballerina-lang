@@ -17,11 +17,11 @@
 
 package org.ballerinalang.stdlib.jsonutils;
 
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.core.model.types.BMapType;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

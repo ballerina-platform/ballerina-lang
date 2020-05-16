@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.jdbc.connection;
 
-import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

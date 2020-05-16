@@ -17,9 +17,18 @@
   -->
 <FindBugsFilter>
 	<Match>
+		<Class name="org.ballerinalang.mime.util.MimeUtil"/>
 		<Bug pattern="BC_UNCONFIRMED_CAST" />
 	</Match>
     <Match>
         <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+	</Match>
+	<Match>
+		<Class name="org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler"/>
+		<Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+	</Match>
+	<Match>
+		<Class name="org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler"/>
+		<Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
 	</Match>
 </FindBugsFilter>
