@@ -16,5 +16,24 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+    <Match>
+        <Class name="org.ballerinalang.stdlib.email.client.EmailAccessClient"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.builder.components.Message"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.MessageFramer"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.ClientConnectorListener"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.Status"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
 </FindBugsFilter>

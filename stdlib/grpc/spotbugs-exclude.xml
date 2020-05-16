@@ -21,4 +21,29 @@
         <Method name="process" />
         <Bug pattern="BC_IMPOSSIBLE_INSTANCEOF" />
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.builder.components.Message" />
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.ClientConnectorListener$ClientInboundStateListener" />
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.MessageFramer$BufferChainOutputStream" />
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.Status$Code" />
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.Status" />
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.builder.components.Method$Builder" />
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+    </Match>
+
 </FindBugsFilter>

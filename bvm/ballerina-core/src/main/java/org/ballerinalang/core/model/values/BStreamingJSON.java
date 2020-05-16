@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.core.model.values;
 
+import org.ballerinalang.core.model.JSONDataSource;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.util.JsonGenerator;
-import org.ballerinalang.core.model.JSONDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;

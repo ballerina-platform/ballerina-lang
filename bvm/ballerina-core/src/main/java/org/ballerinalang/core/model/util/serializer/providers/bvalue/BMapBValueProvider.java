@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.core.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.util.serializer.BPacket;
 import org.ballerinalang.core.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.core.model.util.serializer.BValueSerializer;
 import org.ballerinalang.core.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 

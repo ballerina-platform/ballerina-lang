@@ -19,4 +19,12 @@ module ballerina.runtime {
     exports org.ballerinalang.jvm.values.utils;
     exports org.ballerinalang.jvm.launch;
     exports org.ballerinalang.jvm;
+    exports org.ballerinalang.jvm.values.connector;
+    exports org.ballerinalang.jvm.scheduling;
+    exports org.ballerinalang.jvm.observability;
+    exports org.ballerinalang.jvm.runtime;
+    exports org.ballerinalang.jvm.transactions;
+    exports org.ballerinalang.jvm.services;
+    exports org.ballerinalang.jvm.observability.metrics;
+    exports org.ballerinalang.jvm.commons;
 }

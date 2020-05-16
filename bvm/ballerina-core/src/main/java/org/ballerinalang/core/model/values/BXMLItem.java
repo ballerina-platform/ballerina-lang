@@ -27,17 +27,17 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
-import org.apache.axiom.om.impl.dom.CommentImpl;
-import org.apache.axiom.om.impl.dom.TextImpl;
+import org.apache.axiom.om.impl.llom.CharacterDataImpl;
+import org.apache.axiom.om.impl.llom.OMCommentImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.core.model.types.BMapType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.util.XMLNodeType;
 import org.ballerinalang.core.model.util.XMLUtils;
 import org.ballerinalang.core.model.util.XMLValidationUtils;
-import org.ballerinalang.core.model.types.BMapType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
@@ -605,13 +605,15 @@ public final class BXMLItem extends BXML<OMNode> {
                 clonedNode = ((OMElement) omNode).cloneOMElement();
                 break;
             case TEXT:
-                TextImpl text = new TextImpl();
-                text.setTextContent(((OMText) omNode).getText());
+                // Temp fix to avoid package conflict in axiom.dom and axiom.impl
+                CharacterDataImpl text = new CharacterDataImpl();
+                text.coreSetCharacterData(((OMText) omNode).getText());
                 clonedNode = text;
                 break;
             case COMMENT:
-                CommentImpl comment = new CommentImpl();
-                comment.setTextContent(((OMComment) omNode).getValue());
+                // Temp fix to avoid package conflict in axiom.dom and axiom.impl
+                OMCommentImpl comment = new OMCommentImpl();
+                comment.setValue(((OMComment) omNode).getValue());
                 clonedNode = comment;
                 break;
             case PI:

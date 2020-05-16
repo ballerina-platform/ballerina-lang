@@ -36,6 +36,8 @@ dependencies {
 }
 
 compileJava {
+//    sourceCompatibility = '11'
+//    targetCompatibility = '11'
     def generatedSources = "$buildDir/generated-from-annot"
     def generatedOutputDir = file("$generatedSources")
     def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
@@ -47,6 +49,10 @@ compileJava {
         generatedOutputDir.exists() || generatedOutputDir.mkdirs()
     }
 }
+
+//tasks.withType(JavaCompile) {
+//    println 'Compiler args: ' + options.compilerArgs
+//}
 
 task createBalHome(type: Copy) {
     dependsOn configurations.baloImplementation

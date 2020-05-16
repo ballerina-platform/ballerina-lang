@@ -52,9 +52,15 @@ dependencies {
     interopImports project(':ballerina-io')
     interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.6'
 
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation ('org.wso2.transport.http:org.wso2.transport.http.netty') {
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi'
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi.services'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+    }
     implementation 'org.jvnet.mimepull:mimepull'
+    implementation 'jakarta.activation:jakarta.activation-api'
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -84,4 +90,16 @@ description = 'Ballerina - MIME Implementation'
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
+}
+
+ext.moduleName = 'mime'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
 }

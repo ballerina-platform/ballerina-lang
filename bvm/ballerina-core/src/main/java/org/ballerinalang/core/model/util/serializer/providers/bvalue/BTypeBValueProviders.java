@@ -17,19 +17,19 @@
  */
 package org.ballerinalang.core.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.core.model.types.BAnyType;
+import org.ballerinalang.core.model.types.BAnydataType;
 import org.ballerinalang.core.model.types.BArrayType;
+import org.ballerinalang.core.model.types.BAttachedFunction;
 import org.ballerinalang.core.model.types.BField;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BObjectType;
 import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.util.serializer.BPacket;
 import org.ballerinalang.core.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.core.model.util.serializer.BValueSerializer;
 import org.ballerinalang.core.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.core.model.types.BAnyType;
-import org.ballerinalang.core.model.types.BAnydataType;
-import org.ballerinalang.core.model.types.BAttachedFunction;
-import org.ballerinalang.core.model.types.BMapType;
-import org.ballerinalang.core.model.types.BObjectType;
-import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;

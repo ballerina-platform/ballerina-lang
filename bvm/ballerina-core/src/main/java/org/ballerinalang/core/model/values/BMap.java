@@ -18,14 +18,14 @@
 package org.ballerinalang.core.model.values;
 
 import org.ballerinalang.core.model.types.BField;
-import org.ballerinalang.core.model.types.BTupleType;
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.util.Flags;
-import org.ballerinalang.core.model.util.JsonGenerator;
 import org.ballerinalang.core.model.types.BMapType;
 import org.ballerinalang.core.model.types.BStructureType;
+import org.ballerinalang.core.model.types.BTupleType;
 import org.ballerinalang.core.model.types.BType;
+import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.util.Flags;
+import org.ballerinalang.core.model.util.JsonGenerator;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 

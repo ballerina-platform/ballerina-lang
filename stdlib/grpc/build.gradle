@@ -53,7 +53,10 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'com.github.jknack:handlebars'
     implementation 'io.netty:netty-codec-http'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation ('org.wso2.transport.http:org.wso2.transport.http.netty') {
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi'
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi.services'
+    }
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
@@ -87,4 +90,16 @@ createBalo {
 }
 
 description = 'Ballerina - gRPC Implementation'
+
+ext.moduleName = 'grpc'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
 

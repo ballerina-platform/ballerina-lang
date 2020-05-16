@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.core.model.expressions.variablerefs;
 
-import org.ballerinalang.core.model.expressions.AbstractExpression;
 import org.ballerinalang.core.model.NodeLocation;
 import org.ballerinalang.core.model.WhiteSpaceDescriptor;
+import org.ballerinalang.core.model.expressions.AbstractExpression;
 
 /**
  * {@code SimpleVarRefExpr} represents a variable reference expression with just the variable name.

@@ -57,6 +57,7 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2:1.4.200'
+    testCompile 'commons-io:commons-io'
 }
 
 configurations {
