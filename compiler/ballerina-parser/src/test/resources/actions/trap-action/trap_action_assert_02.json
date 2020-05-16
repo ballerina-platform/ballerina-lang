@@ -44,17 +44,48 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "ACTION_STATEMENT",
+                            "kind": "INVALID",
                             "children": [
                                 {
-                                    "kind": "CHECK_ACTION",
+                                    "kind": "TRAP_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "CHECK_KEYWORD"
+                                            "kind": "TRAP_KEYWORD"
                                         },
                                         {
-                                            "kind": "REMOTE_METHOD_CALL_ACTION",
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "isMissing": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "x"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "TRAP_ACTION",
+                                    "children": [
+                                        {
+                                            "kind": "TRAP_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "START_ACTION",
                                             "children": [
+                                                {
+                                                    "kind": "START_KEYWORD"
+                                                },
                                                 {
                                                     "kind": "FUNCTION_CALL",
                                                     "children": [
@@ -74,24 +105,6 @@
                                                             "kind": "CLOSE_PAREN_TOKEN"
                                                         }
                                                     ]
-                                                },
-                                                {
-                                                    "kind": "RIGHT_ARROW_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "b"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                 }
                                             ]
                                         }

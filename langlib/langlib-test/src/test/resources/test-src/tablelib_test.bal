@@ -87,8 +87,58 @@ function testIterator() returns boolean {
     testPassed = testPassed && person == personList[2];
     person = getPerson(itr.next());
     testPassed = testPassed && person == personList[3];
-
+    person = getPerson(itr.next());
+    testPassed = testPassed && person == ();
     return testPassed;
+}
+
+function testAddNewRecordAfterIteratorCreation() {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    Person p = { name: "Lasini", age: 25 };
+    tab.put(p);
+    var value = itr.next();
+}
+
+function testRemoveAlreadyReturnedRecordFromIterator() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    _ = tab.remove("Chiran");
+    value = itr.next();
+
+    return value?.value?.name == "Gima";
+}
+
+function testChangeValueForAGivenKeyWhileIterating() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    Person p = { name: "Gima", age: 50 };
+    tab["Gima"] = p;
+    value = itr.next();
+
+    return value?.value?.age == 50;
 }
 
 function getValueFromKey() returns boolean {
