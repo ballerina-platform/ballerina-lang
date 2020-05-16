@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -9,7 +11,7 @@ dependencies {
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.7.1'
     implementation project(':ballerina-lang')
     implementation 'org.apache.commons:commons-compress:1.18'
-    implementation files(org.gradle.internal.jvm.Jvm.current().toolsJar)
+    implementation files(Jvm.current().getToolsJar())
 }
 
 shadowJar {
