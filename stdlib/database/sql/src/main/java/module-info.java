@@ -1,10 +1,10 @@
-module ballerina.sql {
-    requires ballerina.runtime;
+module io.ballerina.sql {
+    requires io.ballerina.jvm;
     requires com.zaxxer.hikari;
     requires java.sql;
-    requires ballerina.io;
-    requires ballerina.time;
-    requires ballerina.lang;
+    requires io.ballerina.io;
+    requires io.ballerina.time;
+    requires io.ballerina.lang;
     exports org.ballerinalang.sql.datasource;
     exports org.ballerinalang.sql.utils;
 }

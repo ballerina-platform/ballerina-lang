@@ -1,7 +1,7 @@
-module ballerina.mysql {
+module io.ballerina.mysql {
     requires java.sql;
-    requires transitive ballerina.runtime;
-    requires ballerina.sql;
-    requires ballerina.crypto;
+    requires transitive io.ballerina.jvm;
+    requires io.ballerina.sql;
+    requires io.ballerina.crypto;
     exports org.ballerinalang.mysql;
 }

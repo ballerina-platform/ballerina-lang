@@ -1,4 +1,4 @@
-module ballerina.runtime {
+module io.ballerina.jvm {
     requires java.xml;
     requires woodstox.core.asl;
     requires org.apache.commons.lang3;
@@ -9,8 +9,8 @@ module ballerina.runtime {
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;
-    requires ballerina.config;
-    requires ballerina.logging;
+    requires io.ballerina.config;
+    requires io.ballerina.logging;
     exports org.ballerinalang.jvm.values;
     exports org.ballerinalang.jvm.types;
     exports org.ballerinalang.jvm.util;

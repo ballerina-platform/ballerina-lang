@@ -1,14 +1,14 @@
-module ballerina.lang {
+module io.ballerina.lang {
     requires java.compiler;
     requires org.apache.commons.lang3;
     requires toml4j;
     requires gson;
     requires java.xml;
     requires org.objectweb.asm;
-    requires ballerina.runtime;
+    requires io.ballerina.jvm;
     requires io.netty.buffer;
     requires antlr4.runtime;
-    requires ballerina.cli.module;
+    requires io.ballerina.cli.module;
     exports org.wso2.ballerinalang.compiler.util;
     exports org.ballerinalang.toml.model;
     exports org.wso2.ballerinalang.util;

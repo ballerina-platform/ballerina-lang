@@ -1,5 +1,5 @@
-module ballerina.core {
-    requires ballerina.lang;
+module io.ballerina.core {
+    requires io.ballerina.lang;
     requires axiom.api;
     requires axiom.impl;
     requires org.apache.commons.lang3;
