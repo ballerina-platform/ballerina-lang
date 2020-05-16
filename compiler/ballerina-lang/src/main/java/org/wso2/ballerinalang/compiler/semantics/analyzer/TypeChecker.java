@@ -3413,6 +3413,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultType = checkXmlSubTypeLiteralCompatibility(bLangXMLElementLiteral.pos, symTable.xmlElementType,
                                                          this.expType);
+
+        if (!Symbols.isFlagOn(resultType.flags, Flags.READONLY)) {
+            return;
+        }
+
+        markChildrenAsImmutable(bLangXMLElementLiteral);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -6367,6 +6373,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
         dlog.error(pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
         return symTable.semanticError;
+    }
+
+    private void markChildrenAsImmutable(BLangXMLElementLiteral bLangXMLElementLiteral) {
+        for (BLangExpression modifiedChild : bLangXMLElementLiteral.modifiedChildren) {
+            BType childType = modifiedChild.type;
+            if (Symbols.isFlagOn(childType.flags, Flags.READONLY) || !types.isSelectivelyImmutableType(childType)) {
+                continue;
+            }
+            modifiedChild.type = ImmutableTypeCloner.setImmutableType(modifiedChild.pos, types, childType, env,
+                                                                      symTable, anonymousModelHelper, names);
+
+            if (modifiedChild.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
+                markChildrenAsImmutable((BLangXMLElementLiteral) modifiedChild);
+            }
+        }
     }
 
     private static class FieldInfo {

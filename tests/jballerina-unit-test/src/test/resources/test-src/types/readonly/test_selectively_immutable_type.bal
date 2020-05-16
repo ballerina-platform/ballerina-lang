@@ -45,6 +45,7 @@ function testReadonlyType() {
     testSimpleAssignmentForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
+    testImmutabilityOfNestedXmlWithAttributes();
     testImmutableTypedRecordFields();
 }
 
@@ -366,6 +367,104 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an7 is 'xml:Element & readonly);
     assertFalse(an7 is readonly);
     assertFalse(a7.isReadOnly());
+}
+
+function testImmutabilityOfNestedXmlWithAttributes() {
+    xml x1 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(<'xml:Element> x1, false);
+
+    xml & readonly x2 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(<'xml:Element & readonly> x2, true);
+
+    'xml:Element x3 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(x3, false);
+
+    'xml:Element & readonly x4 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
+    checkXmlValueAndMutability(x4, true);
+}
+
+function checkXmlValueAndMutability('xml:Element value, boolean isReaodnly) {
+    function (any|error) func = isReaodnly ? assertTrue : assertFalse;
+
+    any anyVal = value;
+    anydata anydataVal = value;
+    func(anyVal is readonly);
+    func(anydataVal.isReadOnly());
+    func(value.isReadOnly());
+    func(value is 'xml:Element & readonly);
+
+    map<string> attribs = value.getAttributes();
+    assertEquality(2, attribs.length());
+    assertEquality(attribs["status"], "available");
+    assertEquality(attribs["count"], "5");
+    func(attribs is map<string> & readonly);
+
+    if isReaodnly {
+        map<string> & readonly readonlyAttribs = <map<string> & readonly> attribs;
+        assertEquality(2, readonlyAttribs.length());
+    }
+
+    xml children = value/*;
+    assertEquality(4, children.length());
+
+    xml c1 = children.get(0);
+    assertEquality(xml `Book One`, c1);
+    assertTrue(c1 is 'xml:Text);
+    assertTrue(c1.isReadOnly());
+
+    'xml:Element c2 = <'xml:Element> children.get(1);
+    assertEquality(xml `<name lang="english">Great Expectations</name>`, c2);
+    func(c2.isReadOnly());
+    func(c2 is 'xml:Element & readonly);
+
+    attribs = c2.getAttributes();
+    assertEquality(1, attribs.length());
+    assertEquality(attribs["lang"], "english");
+    func(attribs is map<string> & readonly);
+
+    xml c3 = children.get(2);
+    assertEquality(xml `<!-- This is a classic-->`, c3);
+    assertTrue(c3 is 'xml:Comment);
+    func(c3.isReadOnly());
+    func(c3 is 'xml:Comment & readonly);
+
+    'xml:Element c4 = <'xml:Element> children.get(3);
+    assertEquality(xml `<author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author>`, c4);
+    func(c4.isReadOnly());
+    func(c4 is 'xml:Element & readonly);
+
+    attribs = c4.getAttributes();
+    assertEquality(1, attribs.length());
+    assertEquality(attribs["gender"], "male");
+    func(attribs is map<string> & readonly);
+
+    xml nestedChildren = c4/*;
+    assertEquality(3, nestedChildren.length());
+
+    xml nc1 = nestedChildren.get(0);
+    assertEquality(xml `<?action concat?>`, nc1);
+    assertTrue(nc1 is 'xml:ProcessingInstruction);
+    func(nc1.isReadOnly());
+    func(nc1 is 'xml:ProcessingInstruction & readonly);
+
+    'xml:Element nc2 = <'xml:Element> nestedChildren.get(1);
+    assertEquality(xml `<firstName index="C">Charles</firstName>`, nc2);
+    func(nc2.isReadOnly());
+    func(nc2 is 'xml:Element & readonly);
+
+    attribs = nc2.getAttributes();
+    assertEquality(1, attribs.length());
+    assertEquality(attribs["index"], "C");
+    func(attribs is map<string> & readonly);
+
+    'xml:Element nc3 = <'xml:Element> nestedChildren.get(2);
+    assertEquality(xml `<lastName>Dickens</lastName>`, nc3);
+    func(nc3.isReadOnly());
+    func(nc3 is 'xml:Element & readonly);
+
+    attribs = nc3.getAttributes();
+    assertEquality(0, attribs.length());
+    func(attribs is map<string> & readonly);
 }
 
 type Foo record {|
