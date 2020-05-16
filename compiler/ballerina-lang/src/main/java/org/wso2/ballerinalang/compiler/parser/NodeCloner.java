@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangEqualsExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -1325,15 +1324,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.resultType = source.resultType;
         clone.nillableResultType = source.nillableResultType;
 
-    }
-
-    @Override
-    public void visit(BLangEqualsExpr source) {
-
-        BLangEqualsExpr clone = new BLangEqualsExpr();
-        source.cloneRef = clone;
-        clone.lhsExpr = clone(source.lhsExpr);
-        clone.rhsExpr = clone(source.rhsExpr);
     }
 
     @Override

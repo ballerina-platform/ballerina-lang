@@ -828,6 +828,7 @@ expression
     |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression JOIN_EQUALS expression                                   # binaryEqualsExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
@@ -846,7 +847,6 @@ expression
     |   queryExpr                                                           # queryExpression
     |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
-    |   expression JOIN_EQUALS expression                                   # joinEqualsExpression
     ;
 
 constantExpression

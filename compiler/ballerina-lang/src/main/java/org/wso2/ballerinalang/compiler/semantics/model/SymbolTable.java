@@ -414,7 +414,7 @@ public class SymbolTable {
         defineIntegerRightShiftOperations(OperatorKind.BITWISE_RIGHT_SHIFT);
         defineIntegerRightShiftOperations(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT);
 
-        // Binary equality operators ==, !=
+        // Binary equality operators ==, !=, equals
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType);
@@ -445,6 +445,21 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, anydataType, nilType, booleanType);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, anydataType, booleanType);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, intType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, byteType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, floatType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, decimalType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, intType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, byteType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, jsonType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, jsonType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, anyType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, anyType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, anydataType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, anydataType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUALS, nilType, nilType, booleanType);
 
         // Binary reference equality operators ===, !==
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, intType, booleanType);

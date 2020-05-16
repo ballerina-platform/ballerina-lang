@@ -122,7 +122,6 @@ public enum NodeKind {
     SERVICE_CONSTRUCTOR,
     LET_EXPR,
     TABLE_CONSTRUCTOR_EXPR,
-    EQUALS_EXPR,
 
     /* Statements */
     ABORT,

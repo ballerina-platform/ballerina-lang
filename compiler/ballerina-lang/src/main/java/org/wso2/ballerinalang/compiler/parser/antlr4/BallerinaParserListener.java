@@ -2234,18 +2234,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code joinEqualsExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterJoinEqualsExpression(BallerinaParser.JoinEqualsExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code joinEqualsExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitJoinEqualsExpression(BallerinaParser.JoinEqualsExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code binaryDivMulModExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2281,6 +2269,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code binaryEqualsExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryEqualsExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code queryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

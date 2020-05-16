@@ -2879,11 +2879,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitJoinEqualsExpression(BallerinaParser.JoinEqualsExpressionContext ctx) {
+    public void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.createEqualsExpr(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
     @Override

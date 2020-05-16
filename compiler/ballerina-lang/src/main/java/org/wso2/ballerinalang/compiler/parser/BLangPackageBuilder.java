@@ -102,7 +102,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangEqualsExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -2056,15 +2055,6 @@ public class BLangPackageBuilder {
         queryClauseStack.push(onClause);
 
         isInOnCondition = false;
-    }
-
-    void createEqualsExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangEqualsExpr equalsExpr = (BLangEqualsExpr) TreeBuilder.createEqualsExprNode();
-        equalsExpr.pos = pos;
-        equalsExpr.addWS(ws);
-        equalsExpr.rhsExpr = (BLangExpression) exprNodeStack.pop();
-        equalsExpr.lhsExpr = (BLangExpression) exprNodeStack.pop();
-        addExpressionNode(equalsExpr);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
