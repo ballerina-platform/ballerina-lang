@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -71,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -82,6 +84,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -814,6 +818,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
             symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+            symTable.futureType.constraint = symTable.anyOrErrorType;
             return;
         }
         throw new IllegalStateException("built-in error not found ?");
@@ -892,6 +898,65 @@ public class SymbolResolver extends BLangNodeVisitor {
         unionTypeSymbol.type = unionType;
 
         resultType = unionType;
+    }
+
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+
+        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
+
+        boolean validIntersection = true;
+
+        BType typeOne = resolveTypeNode(constituentTypeNodes.get(0), env);
+        BType typeTwo = resolveTypeNode(constituentTypeNodes.get(1), env);
+
+        boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
+
+        BType intersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
+
+        if (intersectionType == symTable.semanticError) {
+            validIntersection = false;
+        } else {
+            for (int i = 2; i < constituentTypeNodes.size(); i++) {
+                BType type = resolveTypeNode(constituentTypeNodes.get(i), env);
+
+                if (!hasReadOnlyType) {
+                    hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                intersectionType = getPotentialReadOnlyIntersection(intersectionType, type);
+                if (intersectionType == symTable.semanticError) {
+                    validIntersection = false;
+                    break;
+                }
+            }
+        }
+
+        if (!validIntersection) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!hasReadOnlyType) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
+                       intersectionTypeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (types.isInherentlyImmutableType(intersectionType)) {
+            resultType = intersectionType;
+            return;
+        }
+
+        if (!types.isSelectivelyImmutableType(intersectionType)) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE, intersectionType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types, intersectionType, env,
+                                                          symTable, anonymousModelHelper, names);
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
@@ -1358,5 +1423,53 @@ public class SymbolResolver extends BLangNodeVisitor {
                 && env.enclInvokable.symbol.receiverSymbol != null
                 && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
                 || isMemberAllowed(env.enclEnv, symbol));
+    }
+
+    public void loadFunctionalConstructors() {
+        BPackageSymbol xmlModuleSymbol = symTable.langXmlModuleSymbol;
+        if (xmlModuleSymbol == null) {
+            return;
+        }
+
+        BConstructorSymbol elementCtor =
+                FunctionalConstructorBuilder.newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType)
+                    .addParam("name", symTable.stringType)
+                    .addDefaultableParam("attributes", symTable.mapStringType)
+                    .addDefaultableParam("children", symTable.xmlType)
+                    .build();
+        xmlModuleSymbol.scope.define(elementCtor.name, elementCtor);
+
+        BConstructorSymbol piCtor =
+                FunctionalConstructorBuilder.newConstructor("ProcessingInstruction",
+                        xmlModuleSymbol,
+                        symTable.xmlPIType)
+                    .addParam("target", symTable.stringType)
+                    .addDefaultableParam("content", symTable.stringType)
+                    .build();
+        xmlModuleSymbol.scope.define(piCtor.name, piCtor);
+
+        BConstructorSymbol commentCtor =
+                FunctionalConstructorBuilder.newConstructor("Comment", xmlModuleSymbol, symTable.xmlCommentType)
+                    .addDefaultableParam("comment", symTable.stringType)
+                    .build();
+        xmlModuleSymbol.scope.define(commentCtor.name, commentCtor);
+
+        BConstructorSymbol textCtor =
+                FunctionalConstructorBuilder.newConstructor("Text", xmlModuleSymbol, symTable.xmlTextType)
+                    .addDefaultableParam("characters", symTable.stringType)
+                    .build();
+        xmlModuleSymbol.scope.define(textCtor.name, textCtor);
+    }
+
+    private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {
+        if (lhsType == symTable.readonlyType) {
+            return rhsType;
+        }
+
+        if (rhsType == symTable.readonlyType) {
+            return lhsType;
+        }
+
+        return types.getTypeIntersection(lhsType, rhsType);
     }
 }

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1242,6 +1243,19 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+        for (RecordLiteralNode.RecordField field : mapLiteral.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                keyValueField.key.expr = rewriteExpr(keyValueField.key.expr);
+                keyValueField.valueExpr = rewriteExpr(keyValueField.valueExpr);
+                continue;
+            }
+
+            BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField =
+                    (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+            spreadField.expr = rewriteExpr(spreadField.expr);
+        }
         result = mapLiteral;
     }
 
@@ -1250,6 +1264,21 @@ public class ClosureDesugar extends BLangNodeVisitor {
         SymbolEnv symbolEnv = env.createClone();
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
         structLiteral.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, false);
+
+        for (RecordLiteralNode.RecordField field : structLiteral.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                keyValueField.key.expr = rewriteExpr(keyValueField.key.expr);
+                keyValueField.valueExpr = rewriteExpr(keyValueField.valueExpr);
+                continue;
+            }
+
+            BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField =
+                    (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+            spreadField.expr = rewriteExpr(spreadField.expr);
+        }
+
         result = structLiteral;
     }
 

@@ -44,6 +44,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   constantDefinition
+    |   enumDefinition
     ;
 
 serviceDefinition
@@ -56,6 +57,10 @@ serviceBody
 
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
+    ;
+
+blockStatement
+    :   LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 externalFunctionBody
@@ -156,9 +161,18 @@ constantDefinition
     :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
+enumDefinition
+    :   documentationString? annotationAttachment* PUBLIC? ENUM Identifier LEFT_BRACE
+            (enumMember (COMMA enumMember)*)? RIGHT_BRACE
+    ;
+
+enumMember
+    :   documentationString? annotationAttachment* Identifier (ASSIGN constantExpression)?
+    ;
+
 globalVariableDefinition
     :   PUBLIC? LISTENER typeName? Identifier ASSIGN expression SEMICOLON
-    |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 attachmentPoint
@@ -213,10 +227,11 @@ typeName
     :   simpleTypeName                                                                          # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
+    |   typeName BIT_AND typeName                                                               # intersectionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
-    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
+    |   DISTINCT? ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
     |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
     |   tableTypeDescriptor                                                                     # tableTypeNameLabel
@@ -274,10 +289,10 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
-    |   TYPE_FUTURE LT typeName GT
+    |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_DESC LT typeName GT
+    |   TYPE_DESC (LT typeName GT)?
     |   SERVICE
     |   errorTypeName
     |   streamTypeName
@@ -317,7 +332,7 @@ functionTypeName
     ;
 
 errorTypeName
-    :   TYPE_ERROR (LT (typeName | MUL) GT)?
+    :   DISTINCT? TYPE_ERROR (LT (typeName | MUL) GT)?
     ;
 
 xmlNamespaceName
@@ -360,6 +375,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   blockStatement
     ;
 
 variableDefinitionStatement

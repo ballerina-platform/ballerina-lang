@@ -1,6 +1,0 @@
-// Workers within a fork can access the variables that are declared within the scope of that block.
-// The variables can be value-type variables or reference -ype variables.
-// Both value-type variables such as `string`, `int`, `float`, and `byte` and reference-type
-// variables such as `map`, `json`, `xml`, and `record` are passed into the workers as a reference to the
-// original data. Therefore, if you update the value of these variables within a worker, the value gets
-// updated for the entire function. You may wait until the worker finishes by using the `wait` expression.

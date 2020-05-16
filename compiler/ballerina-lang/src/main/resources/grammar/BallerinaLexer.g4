@@ -32,10 +32,12 @@ CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
 CONST       : 'const' ;
+ENUM        : 'enum' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
 ON          : 'on' ;
 FIELD       : 'field' ;
+DISTINCT    : 'distinct' ;
 
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;

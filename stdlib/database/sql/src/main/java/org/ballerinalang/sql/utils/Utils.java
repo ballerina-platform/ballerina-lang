@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
@@ -153,16 +152,13 @@ class Utils {
                     throw new ApplicationError("Only byte[] is supported can be set directly into " +
                             "ParameterizedString, any other array types should be wrapped as sql:Value");
                 }
-            } else if (object instanceof MapValue) {
-                MapValue<String, Object> recordValue = (MapValue<String, Object>) object;
-                if ((recordValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
-                    setSqlTypedParam(connection, preparedStatement, index, recordValue);
-                } else if (recordValue.getType() instanceof BMapType &&
-                        ((BMapType) recordValue.getType()).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
-                    preparedStatement.setString(index, ((MapValueImpl) recordValue).getJSONString());
+            } else if (object instanceof ObjectValue) {
+                ObjectValue objectValue = (ObjectValue) object;
+                if ((objectValue.getType().getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                    setSqlTypedParam(connection, preparedStatement, index, objectValue);
                 } else {
                     throw new ApplicationError("Unsupported type:" +
-                            recordValue.getType().getQualifiedName() + " in column index: " + index);
+                            objectValue.getType().getQualifiedName() + " in column index: " + index);
                 }
             } else if (object instanceof XMLValue) {
                 preparedStatement.setObject(index, ((XMLValue) object).getTextValue(), Types.SQLXML);
@@ -173,9 +169,9 @@ class Utils {
     }
 
     private static void setSqlTypedParam(Connection connection, PreparedStatement preparedStatement, int index,
-                                         MapValue<String, Object> typedValue)
+                                         ObjectValue typedValue)
             throws SQLException, ApplicationError, IOException {
-        String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
+        String sqlType = typedValue.getType().getName();
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
             case Constants.SqlTypes.VARCHAR:
@@ -467,35 +463,35 @@ class Utils {
                 for (int i = 0; i < arrayLength; i++) {
                     arrayData[i] = ((ArrayValue) value).getInt(i);
                 }
-                return new Object[]{arrayData, Constants.SqlTypes.BIGINT};
+                return new Object[]{arrayData, "BIGINT"};
             case TypeTags.FLOAT_TAG:
                 arrayLength = ((ArrayValue) value).size();
                 arrayData = new Double[arrayLength];
                 for (int i = 0; i < arrayLength; i++) {
                     arrayData[i] = ((ArrayValue) value).getFloat(i);
                 }
-                return new Object[]{arrayData, Constants.SqlTypes.DOUBLE};
+                return new Object[]{arrayData, "DOUBLE"};
             case TypeTags.DECIMAL_TAG:
                 arrayLength = ((ArrayValue) value).size();
                 arrayData = new BigDecimal[arrayLength];
                 for (int i = 0; i < arrayLength; i++) {
                     arrayData[i] = ((DecimalValue) ((ArrayValue) value).getRefValue(i)).value();
                 }
-                return new Object[]{arrayData, Constants.SqlTypes.DECIMAL};
+                return new Object[]{arrayData, "DECIMAL"};
             case TypeTags.STRING_TAG:
                 arrayLength = ((ArrayValue) value).size();
                 arrayData = new String[arrayLength];
                 for (int i = 0; i < arrayLength; i++) {
                     arrayData[i] = ((ArrayValue) value).getString(i);
                 }
-                return new Object[]{arrayData, Constants.SqlTypes.VARCHAR};
+                return new Object[]{arrayData, "VARCHAR"};
             case TypeTags.BOOLEAN_TAG:
                 arrayLength = ((ArrayValue) value).size();
                 arrayData = new Boolean[arrayLength];
                 for (int i = 0; i < arrayLength; i++) {
                     arrayData[i] = ((ArrayValue) value).getBoolean(i);
                 }
-                return new Object[]{arrayData, Constants.SqlTypes.BOOLEAN};
+                return new Object[]{arrayData, "BOOLEAN"};
             case TypeTags.ARRAY_TAG:
                 BType elementTypeOfArrayElement = ((BArrayType) elementType)
                         .getElementType();
@@ -505,7 +501,7 @@ class Utils {
                     for (int i = 0; i < arrayData.length; i++) {
                         arrayData[i] = ((ArrayValue) arrayValue.get(i)).getBytes();
                     }
-                    return new Object[]{arrayData, Constants.SqlTypes.BINARY};
+                    return new Object[]{arrayData, "BINARY"};
                 } else {
                     throw throwInvalidParameterError(value, Constants.SqlTypes.ARRAY);
                 }

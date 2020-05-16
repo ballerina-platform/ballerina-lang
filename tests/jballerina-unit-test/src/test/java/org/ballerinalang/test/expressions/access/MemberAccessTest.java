@@ -312,4 +312,9 @@ public class MemberAccessTest {
         BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testMemberAccessInUnionType() {
+        BRunUtil.invoke(result, "testMemberAccessInUnionType");
+    }
 }

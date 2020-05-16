@@ -190,6 +190,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -224,6 +225,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -387,6 +389,32 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(unionTypeNode);
     }
 
+    void addIntersectionType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangType rhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        BLangType lhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        addIntersectionType(lhsTypeNode, rhsTypeNode, pos, ws);
+    }
+
+    private void addIntersectionType(BLangType lhsTypeNode, BLangType rhsTypeNode, DiagnosticPos pos,
+                                     Set<Whitespace> ws) {
+        BLangIntersectionTypeNode intersectionTypeNode;
+        if (rhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionTypeNode = (BLangIntersectionTypeNode) rhsTypeNode;
+            intersectionTypeNode.constituentTypeNodes.add(0, lhsTypeNode);
+        } else if (lhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            intersectionTypeNode = (BLangIntersectionTypeNode) lhsTypeNode;
+            intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
+        } else {
+            intersectionTypeNode = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            intersectionTypeNode.constituentTypeNodes.add(lhsTypeNode);
+            intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
+        }
+
+        intersectionTypeNode.pos = pos;
+        intersectionTypeNode.addWS(ws);
+        this.typeNodeStack.push(intersectionTypeNode);
+    }
+
     void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
         if (hasRestParam) {
@@ -438,9 +466,9 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         recordTypeNode.isLocal = isInLocalDefinition();
-        this.varListStack.pop().forEach(variableNode -> {
+        for (BLangVariable variableNode : this.varListStack.pop()) {
             recordTypeNode.addField((SimpleVariableNode) variableNode);
-        });
+        }
         return recordTypeNode;
     }
 
@@ -570,7 +598,7 @@ public class BLangPackageBuilder {
     }
 
     void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsTypeExists, boolean isErrorTypeInfer,
-                      boolean isAnonymous) {
+                      boolean isAnonymous, boolean isDistinct) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
@@ -579,6 +607,10 @@ public class BLangPackageBuilder {
             errorType.inferErrorType = true;
         } else if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
+        }
+
+        if (isDistinct) {
+            errorType.flagSet.add(Flag.DISTINCT);
         }
 
         endErrorType();
@@ -595,7 +627,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = errorType;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -2405,6 +2439,24 @@ public class BLangPackageBuilder {
         return identifier;
     }
 
+    void addEnumMember(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
+                       boolean isPublic, boolean hasExpression) {
+        // Set typenode as string
+        addValueType(pos, null, STRING_TYPE);
+
+        // Set expression value if not set
+        if (!hasExpression) {
+            addLiteralValue(pos, null, TypeTags.STRING, identifier);
+        }
+
+        // Add enum member as constant
+        addConstant(pos, ws, identifier, identifierPos, isPublic, true);
+
+        // Create typenode for enum type definition member
+        addNameReference(pos, ws, null, identifier);
+        addUserDefineType(ws);
+    }
+
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                            boolean isPublic, boolean isFinal, boolean isDeclaredWithVar, boolean isExpressionAvailable,
                            boolean isListenerVar, boolean isTypeNameProvided) {
@@ -2465,7 +2517,7 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
-                       boolean isClient, boolean isService) {
+                       boolean isClient, boolean isService, boolean isDistinct) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
@@ -2481,6 +2533,10 @@ public class BLangPackageBuilder {
             objectTypeNode.flagSet.add(Flag.SERVICE);
         }
 
+        if (isDistinct) {
+            objectTypeNode.flagSet.add(Flag.DISTINCT);
+        }
+
         if (!isAnonymous) {
             addType(objectTypeNode);
             return;
@@ -2492,7 +2548,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -3034,6 +3092,17 @@ public class BLangPackageBuilder {
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
         addStmtToCurrentBlock(whileNode);
+    }
+
+    void startBlockStmt() {
+        startBlock();
+    }
+
+    void addBlockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangBlockStmt block = (BLangBlockStmt) this.blockNodeStack.pop();
+        block.pos = pos;
+        block.addWS(ws);
+        addStmtToCurrentBlock(block);
     }
 
     void startLockStmt() {

@@ -257,7 +257,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true, false);
     }
 
     /**
@@ -488,12 +488,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Only difference is that in object type definition, object body's parent's parent does not have siblings.
         boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)
                 || (ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext
-                    && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
-                    && ctx.parent.parent.parent.getChildCount() > 1);
+                && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
+                && ctx.parent.parent.parent.getChildCount() > 1);
 
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false);
+        boolean isDistinct = ((ObjectTypeNameLabelContext) ctx.parent).DISTINCT() != null;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false,
+                isDistinct);
     }
 
     /**
@@ -505,6 +507,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.addObjectTypeName(getWS(ctx));
+    }
+
+    @Override
+    public void exitIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addIntersectionType(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -675,6 +686,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isTypeAvailable = ctx.typeName() != null;
         this.pkgBuilder.addConstant(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                     getCurrentPos(ctx.Identifier()), isPublic, isTypeAvailable);
+    }
+
+    @Override
+    public void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPos(ctx.Identifier()), ctx.PUBLIC() != null);
+    }
+
+    @Override
+    public void exitEnumMember(BallerinaParser.EnumMemberContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addEnumMember(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPos(ctx.Identifier()), ((BallerinaParser.EnumDefinitionContext) ctx.parent).PUBLIC() != null,
+                ctx.constantExpression() != null);
     }
 
     @Override
@@ -866,9 +898,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        // Validate type AB "A"| record { string f; };
+        boolean isAnonymous = checkIfAnonymousInTypeDef(ctx);
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isAnonymous, false, false);
+    }
+
+    /**
+     * Validate if this is a anonymous record type describe in union with a type descriptor.
+     *
+     * @param ctx the current context to be validated. can be InclusiveRecordTypeDescriptor or ExclusiveRecordTypeDes.
+     * @return true if is part of a union type descriptor with on the fly definition
+     */
+    private boolean checkIfAnonymousInTypeDef(ParserRuleContext ctx) {
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        return isAnonymous ? isAnonymous : (ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext &&
+            ctx.parent.parent.parent.getChildCount() > 1);
     }
 
     @Override
@@ -886,7 +931,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        // Validate type AB "A"| record {| string f; |};
+        boolean isAnonymous = checkIfAnonymousInTypeDef(ctx);
 
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
@@ -1013,8 +1059,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean detailsTypeExists = ctx.typeName() != null;
         boolean isErrorTypeInfer = ctx.MUL() != null;
         boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
-                                        instanceof BallerinaParser.FiniteTypeContext) && detailsTypeExists;
-        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), detailsTypeExists, isErrorTypeInfer, isAnonymous);
+                instanceof BallerinaParser.FiniteTypeContext) && detailsTypeExists;
+        boolean isDistinct = ctx.DISTINCT() != null;
+        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), detailsTypeExists, isErrorTypeInfer, isAnonymous,
+                isDistinct);
     }
 
     @Override
@@ -2434,6 +2482,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addLockStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterBlockStatement(BallerinaParser.BlockStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startBlockStmt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitBlockStatement(BallerinaParser.BlockStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addBlockStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

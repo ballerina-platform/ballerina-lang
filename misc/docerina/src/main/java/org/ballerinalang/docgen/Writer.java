@@ -91,7 +91,7 @@ public class Writer {
                 Context context = options.context;
                 String root = getRootPath(context);
                 String link = root + type.moduleName + "/" + type.category + "/" + name + ".html";
-                if (type.category.equals("objects")) {
+                if (type.category.equals("objects") && !name.equals("()")) {
                     defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
                             "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
                 } else {
@@ -109,6 +109,15 @@ public class Writer {
                     return splits[0];
                 } else {
                     return splits[0] + ".";
+                }
+            });
+
+            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+                //remove paragraph tags
+                if (string != null) {
+                    return string.replaceAll("<\\/?p>", "");
+                } else {
+                    return "";
                 }
             });
 

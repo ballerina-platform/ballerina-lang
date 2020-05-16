@@ -1,3 +1,0 @@
-// This sample demonstrates how an HTTP endpoint is updated to a WebSocket endpoint using an upgrade resource.<br/><br/>
-// For more information on the underlying module, 
-// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).

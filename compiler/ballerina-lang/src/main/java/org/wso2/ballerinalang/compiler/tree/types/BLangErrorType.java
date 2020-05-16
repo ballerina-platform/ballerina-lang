@@ -17,10 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ErrorTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.Set;
 
 /**
  * Implementation of {@link ErrorTypeNode}.
@@ -31,6 +34,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangErrorType extends BLangType implements ErrorTypeNode {
     public BLangType detailType;
     public boolean inferErrorType;
+
+    public Set<Flag> flagSet;
 
     public BLangErrorType() {
     }

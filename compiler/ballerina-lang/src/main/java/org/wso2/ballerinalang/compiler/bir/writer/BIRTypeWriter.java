@@ -263,7 +263,7 @@ public class BIRTypeWriter implements TypeVisitor {
         writeTypeCpIndex(bRecordType.restFieldType);
 
         buff.writeInt(bRecordType.fields.size());
-        for (BField field : bRecordType.fields) {
+        for (BField field : bRecordType.fields.values()) {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
             buff.writeInt(symbol.flags);
@@ -302,7 +302,7 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
         buff.writeInt(bObjectType.fields.size());
-        for (BField field : bObjectType.fields) {
+        for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeInt(field.symbol.flags);

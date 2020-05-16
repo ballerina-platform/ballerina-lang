@@ -26,13 +26,21 @@ import org.ballerinalang.jvm.values.RefValue;
  */
 public class BAnydataType extends BType {
 
+    private final boolean readonly;
+    private BAnydataType immutableType;
+
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
      * @param typeName string name of the type
      */
-    BAnydataType(String typeName, BPackage pkg) {
+    BAnydataType(String typeName, BPackage pkg, boolean readonly) {
         super(typeName, pkg, RefValue.class);
+        this.readonly = readonly;
+
+        if (!readonly) {
+            this.immutableType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
+        }
     }
 
     @Override
@@ -52,5 +60,20 @@ public class BAnydataType extends BType {
 
     public boolean isNilable() {
         return true;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BAnydataType) immutableType;
     }
 }

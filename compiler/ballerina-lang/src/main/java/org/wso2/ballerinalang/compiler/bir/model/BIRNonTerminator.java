@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -169,11 +170,21 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewStructure extends BIRNonTerminator {
         public BIROperand rhsOp;
+        public List<BIRMappingConstructorEntry> initialValues;
 
         public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
+            this.initialValues = new ArrayList<>();
+        }
+
+        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp,
+                            List<BIRMappingConstructorEntry> initialValues) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+            this.initialValues = initialValues;
         }
 
         @Override
@@ -229,12 +240,14 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewArray extends BIRNonTerminator {
         public BIROperand sizeOp;
         public BType type;
+        public List<BIROperand> values;
 
-        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp) {
+        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp, List<BIROperand> values) {
             super(pos, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
             this.sizeOp = sizeOp;
+            this.values = values;
         }
 
         @Override
@@ -257,7 +270,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public boolean optionalFieldAccess = false;
         public boolean fillingRead = false;
-        public boolean isStoreOnCreation = false;
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
@@ -265,15 +277,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
-        }
-
-        public FieldAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand keyOp,
-                           BIROperand rhsOp, boolean isStoreOnCreation) {
-            super(pos, kind);
-            this.lhsOp = lhsOp;
-            this.keyOp = keyOp;
-            this.rhsOp = rhsOp;
-            this.isStoreOnCreation = isStoreOnCreation;
         }
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
@@ -406,12 +409,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLElement extends BIRNonTerminator {
         public BIROperand startTagOp;
         public BIROperand defaultNsURIOp;
+        public boolean readonly;
 
-        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp) {
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp,
+                             boolean readonly) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
+            this.readonly = readonly;
         }
 
         @Override
@@ -497,12 +503,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLProcIns extends BIRNonTerminator {
         public BIROperand dataOp;
         public BIROperand targetOp;
+        public boolean readonly;
 
-        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp) {
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp,
+                             boolean readonly) {
             super(pos, InstructionKind.NEW_XML_PI);
             this.lhsOp = lhsOp;
             this.dataOp = dataOp;
             this.targetOp = targetOp;
+            this.readonly = readonly;
         }
 
         @Override
@@ -518,11 +527,13 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class NewXMLComment extends BIRNonTerminator {
         public BIROperand textOp;
+        public boolean readonly;
 
-        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp, boolean readonly) {
             super(pos, InstructionKind.NEW_XML_COMMENT);
             this.lhsOp = lhsOp;
             this.textOp = textOp;
+            this.readonly = readonly;
         }
 
         @Override
