@@ -117,9 +117,4 @@ public class TableConstructorTest extends AbstractExpressionsTest {
         test("table foo key() [{k1:v1}]", "table-constructor/table_constructor_assert_24.json");
         test("table foo [{k1:v1}]", "table-constructor/table_constructor_assert_25.json");
     }
-
-    @Test
-    public void testTableWithTwoKeySpecifiersWithExtraTokenInBetween() {
-        test("table key(a) foo key(b) []", "table-constructor/table_constructor_assert_26.json");
-    }
 }
