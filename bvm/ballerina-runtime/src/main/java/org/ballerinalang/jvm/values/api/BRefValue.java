@@ -19,8 +19,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
@@ -73,17 +71,7 @@ public interface BRefValue extends BValue {
      * @return Flag indicating whether the value is frozen or not
      */
     default boolean isFrozen() {
-        return false;
-    }
-
-    /**
-     * Method to attempt freezing a {@link BRefValue}, to disallow further modification.
-     *
-     * @param freezeStatus the {@link Status} instance to keep track of the
-     *            freeze result of this attempt
-     */
-    default void attemptFreeze(Status freezeStatus) {
-        throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
+        return this.getType().isReadOnly();
     }
 
     /**
@@ -92,35 +80,6 @@ public interface BRefValue extends BValue {
      */
      default void freezeDirect() {
         throw new BLangFreezeException("'freezeDirect()' not allowed on '" + getType() + "'");
-    }
-
-    /**
-     * Freeze the value. If freeze is successful, the status is updated to frozen and
-     * the same value itself will return. If the freezing fails, frozen status of the
-     * value and its constituents is set to false, and an error is returned.
-     * 
-     * @return if freeze is successful, same value is returned. Else an error is returned
-     */
-    default Object freeze() {
-        Status freezeStatus = new Status(State.MID_FREEZE);
-        try {
-            // if freeze is successful, set the status as frozen and the value itself as the return value
-            attemptFreeze(freezeStatus);
-            freezeStatus.setFrozen();
-            return this;
-        } catch (BLangFreezeException e) {
-            // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
-            // constituents to false, and return an error
-            freezeStatus.setUnfrozen();
-
-            // TODO: return an error value
-            return null;
-        } catch (BallerinaException e) {
-            // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
-            // and its constituents to false, and panic
-            freezeStatus.setUnfrozen();
-            throw e;
-        }
     }
 
     /**

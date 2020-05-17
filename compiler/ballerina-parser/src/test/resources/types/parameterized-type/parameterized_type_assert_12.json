@@ -1,0 +1,44 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "TABLE_TYPE_DESC",
+            "children": [
+                {
+                    "kind": "TABLE_KEYWORD",
+                    "isMissing": true
+                },
+                {
+                    "kind": "TYPE_PARAMETER",
+                    "children": [
+                        {
+                            "kind": "LT_TOKEN"
+                        },
+                        {
+                            "kind": "INT_KEYWORD"
+                        },
+                        {
+                            "kind": "GT_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

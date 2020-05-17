@@ -119,4 +119,9 @@ public class BFiniteType extends BType {
     public boolean isPureType() {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

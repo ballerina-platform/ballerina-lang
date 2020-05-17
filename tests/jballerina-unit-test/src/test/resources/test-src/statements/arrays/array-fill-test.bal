@@ -338,4 +338,3 @@ function assertEquality(any|error expected, any|error actual) {
 
     panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
-

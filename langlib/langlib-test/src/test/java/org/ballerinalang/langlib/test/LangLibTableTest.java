@@ -179,4 +179,63 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<anydata>', found 'table<Person>'", 127, 30);
     }
+
+    @Test
+    public void testAddData() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddData");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation message=A value found for key '5'.*")
+    public void testAddExistingMember() {
+        BRunUtil.invoke(compileResult, "testAddExistingMember");
+        Assert.fail();
+    }
+
+    @Test
+    public void testPutData() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutData");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    //todo @Chiran as per spec if the member being put is inconsistent, it should panic.
+    // Here, it throws type check error
+    @Test(enabled = false)
+    public void testPutInconsistentData() {
+        BRunUtil.invoke(compileResult, "testPutInconsistentData");
+        Assert.fail();
+    }
+
+    @Test
+    public void testPutWithKeyLessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAddWithKeyLessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError message=Table was " +
+                    "mutated after the iterator was created.*")
+    public void testAddNewRecordAfterIteratorCreation() {
+        BRunUtil.invoke(compileResult, "testAddNewRecordAfterIteratorCreation");
+    }
+
+    @Test
+    public void testRemoveAlreadyReturnedRecordFromIterator() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testChangeValueForAGivenKeyWhileIterating() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

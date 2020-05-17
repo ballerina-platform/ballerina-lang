@@ -18,17 +18,22 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
  * 
  * @since 0.985.0
  */
-public class BAnydataType extends BBuiltInRefType {
+public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
+    public BAnydataType immutableType;
 
     public BAnydataType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -40,8 +45,17 @@ public class BAnydataType extends BBuiltInRefType {
         this.name = name;
         this.flags = flag;
     }
+
     public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tag, tsymbol);
+        this.nullable = nullable;
+    }
+
+    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+
+        super(tag, tsymbol);
+        this.name = name;
+        this.flags = flags;
         this.nullable = nullable;
     }
 
@@ -57,5 +71,16 @@ public class BAnydataType extends BBuiltInRefType {
     @Override
     public TypeKind getKind() {
         return TypeKind.ANYDATA;
+    }
+
+    @Override
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
     }
 }
