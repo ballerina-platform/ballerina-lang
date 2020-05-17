@@ -46,6 +46,9 @@ import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 /**
  * Test cases for Kafka abortTransaction method on kafka producer.
  */
+
+//TODO Transaction
+@Test(enabled = false)
 public class TransactionalProducerTest {
 
     private static File dataDir;
