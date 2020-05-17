@@ -1,9 +1,9 @@
-module ballerina.email {
-    requires ballerina.runtime;
+module io.ballerina.email {
+    requires io.ballerina.jvm;
     requires slf4j.api;
     requires java.mail;
     requires activation;
-    requires ballerina.io;
-    requires ballerina.mime;
-    requires ballerina.lang;
+    requires io.ballerina.io;
+    requires io.ballerina.mime;
+    requires io.ballerina.lang;
 }

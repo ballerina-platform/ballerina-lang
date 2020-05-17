@@ -4,6 +4,6 @@ module ballerina.debug.adapter.core {
     requires jdk.jdi;
     requires slf4j.api;
     requires org.apache.commons.compress;
-    requires ballerina.lang;
+    requires io.ballerina.lang;
     requires org.eclipse.lsp4j.jsonrpc;
 }

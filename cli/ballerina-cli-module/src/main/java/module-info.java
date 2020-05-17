@@ -1,5 +1,5 @@
-module ballerina.cli.module {
-    requires ballerina.runtime;
+module io.ballerina.cli.module {
+    requires io.ballerina.jvm;
     requires progressbar;
     requires java.ws.rs;
     requires jdk.httpserver;

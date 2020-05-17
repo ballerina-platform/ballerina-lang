@@ -41,3 +41,15 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+ext.moduleName = 'ballerina-tool'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

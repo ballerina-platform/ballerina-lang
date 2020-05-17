@@ -1,7 +1,7 @@
-module ballerina.file {
+module io.ballerina.file {
     requires slf4j.api;
-    requires ballerina.runtime;
+    requires io.ballerina.jvm;
     requires org.wso2.transport.local.file.system;
-    requires ballerina.lang;
-    requires ballerina.time;
+    requires io.ballerina.lang;
+    requires io.ballerina.time;
 }
