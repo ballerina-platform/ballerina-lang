@@ -392,6 +392,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgEnd();
             case MAPPING_FIELD_END:
                 return parseMappingFieldEnd();
+            case FUNCTION_KEYWORD:
+                return parseFunctionKeyword();
+            case FIELD_OR_REST_DESCIPTOR_RHS:
+                return parseFieldOrRestDescriptorRhs((STNode) args[0], (STNode) args[1]);
+            case TYPE_DESC_IN_TUPLE_RHS:
+                return parseTupleMemberRhs();
+            case CONSTANT_EXPRESSION_START:
+                return parseConstExpr();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -1564,8 +1572,11 @@ public class BallerinaParser extends AbstractParser {
 
             STNode paramEnd = parseParameterRhs(token.kind);
             if (paramEnd.kind != SyntaxKind.COMMA_TOKEN) {
+                endContext();
                 break;
             }
+
+            // context is ended inside parseParameter() method
             STNode param = parseParameter(paramEnd, prevParamKind, isParamNameOptional);
             prevParamKind = param.kind;
             paramsList.add(param);
@@ -8675,9 +8686,11 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTupleTypeDesc() {
         STNode openBracket = parseOpenBracket();
+        startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
         STNode memberTypeDesc = parseTupleMemberTypeDescList();
         STNode restTypeDesc = parseTupleRestTypeDesc();
         STNode closeBracket = parseCloseBracket();
+        endContext();
         return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, restTypeDesc, closeBracket);
     }
 
@@ -8697,21 +8710,49 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first typedesc, that has no leading comma
-        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        STNode typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
         typeDescList.add(typeDesc);
 
         // Parse the remaining type descs
         nextToken = peek();
-        STNode leadingComma;
+        STNode tupleMemberRhs;
         while (!isEndOfTypeList(nextToken.kind)) {
-            leadingComma = parseComma();
-            typeDescList.add(leadingComma);
-            typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            tupleMemberRhs = parseTupleMemberRhs(nextToken.kind);
+            if (tupleMemberRhs.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                break;
+            }
+
+            typeDescList.add(tupleMemberRhs);
+            typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
             typeDescList.add(typeDesc);
             nextToken = peek();
         }
 
         return STNodeFactory.createNodeList(typeDescList);
+    }
+
+    private STNode parseTupleMemberRhs() {
+        return parseTupleMemberRhs(peek().kind);
+    }
+
+    private STNode parseTupleMemberRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+                return parseCloseBracket();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseTupleMemberRhs(solution.tokenKind);
+        }
     }
 
     private boolean isEndOfTypeList(SyntaxKind nextTokenKind) {

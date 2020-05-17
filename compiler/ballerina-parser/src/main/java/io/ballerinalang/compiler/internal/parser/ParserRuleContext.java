@@ -150,6 +150,7 @@ public enum ParserRuleContext {
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
     PEER_WORKER("peer-worker"),
     FLUSH_WORKER_NAME("flush-worker-name"),
+    TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -273,6 +274,7 @@ public enum ParserRuleContext {
     PARENTHESISED_TYPE_DESC_START("("),
     BITWISE_AND_OPERATOR("&"),
     EXPR_FUNC_BODY_START("=>"),
+    TUPLE_TYPE_DESC_START("["),
 
     // Other terminals
     FUNC_NAME("function-name"),
