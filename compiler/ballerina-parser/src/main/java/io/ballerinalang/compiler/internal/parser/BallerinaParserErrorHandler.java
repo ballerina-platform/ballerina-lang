@@ -213,12 +213,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] EXPRESSION_START = { ParserRuleContext.BASIC_LITERAL,
             ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
-            ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
+            ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_KEYWORD, ParserRuleContext.UNARY_EXPRESSION,
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
             ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
-            ParserRuleContext.NEW_KEYWORD };
+            ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -369,6 +369,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] INFER_PARAM_END_OR_PARENTHESIS_END =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.EXPR_FUNC_BODY_START };
+
+    private static final ParserRuleContext[] PEER_WORKER = { ParserRuleContext.FLUSH_WORKER_NAME,
+            ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.EXPRESSION_RHS };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -523,6 +526,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NAMESPACE_PREFIX:
                 case WORKER_NAME:
                 case IMPLICIT_ANON_FUNC_PARAM:
+                case FLUSH_WORKER_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -1103,6 +1107,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case INFER_PARAM_END_OR_PARENTHESIS_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             INFER_PARAM_END_OR_PARENTHESIS_END, isEntryPoint);
+                case START_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.START_KEYWORD;
+                    break;
+                case PEER_WORKER:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PEER_WORKER,
+                            isEntryPoint);
+                case FLUSH_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FLUSH_KEYWORD;
+                    break;
+                case DEFAULT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD;
+                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1162,7 +1178,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NIL_LITERAL:
                 case LOCK_STMT:
                 case FORK_STMT:
-                case TRAP_EXPRESSION:
                 case LIST_CONSTRUCTOR:
                 case FOREACH_STMT:
                 case TYPE_CAST:
@@ -1784,7 +1799,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case ANNOTATION_DECL:
                         return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
                     default:
-                        throw new IllegalStateException();
+                        throw new IllegalStateException(parentCtx.toString());
                 }
             case IS_KEYWORD:
                 return ParserRuleContext.TYPE_DESC_IN_EXPRESSION;
@@ -1852,8 +1867,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FORK_KEYWORD;
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
-            case TRAP_EXPRESSION:
-                return ParserRuleContext.TRAP_KEYWORD;
             case TRAP_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case LIST_CONSTRUCTOR:
@@ -2028,6 +2041,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OBJECT_MEMBER_START;
             case ANNOTATION_END:
                 return getNextRuleForAnnotationEnd(nextLookahead);
+            case START_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+            case FLUSH_KEYWORD:
+                return ParserRuleContext.PEER_WORKER;
+            case FLUSH_WORKER_NAME:
+            case DEFAULT_KEYWORD:
+                return ParserRuleContext.EXPRESSION_RHS;
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -3220,6 +3240,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
+            case START_KEYWORD:
+                return SyntaxKind.START_KEYWORD;
+            case FLUSH_KEYWORD:
+                return SyntaxKind.FLUSH_KEYWORD;
+            case DEFAULT_KEYWORD:
+            case PEER_WORKER:
+                return SyntaxKind.DEFAULT_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -3287,7 +3314,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ATTACH_POINT:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
-            case TRAP_EXPRESSION:
             case LIST_CONSTRUCTOR:
             case FOREACH_STMT:
             case TYPE_CAST:

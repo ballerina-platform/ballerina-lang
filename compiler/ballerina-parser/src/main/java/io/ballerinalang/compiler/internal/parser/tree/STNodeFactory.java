@@ -333,7 +333,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode typeDescriptor,
             STNode variableName,
             STNode inKeyword,
-            STNode ActionOrExpressionNode,
+            STNode actionOrExpressionNode,
             STNode blockStatement) {
 
         return new STForEachStatementNode(
@@ -341,7 +341,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor,
                 variableName,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement);
     }
 
@@ -1014,10 +1014,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createTrapExpressionNode(
+            SyntaxKind kind,
             STNode trapKeyword,
             STNode expression) {
 
         return new STTrapExpressionNode(
+                kind,
                 trapKeyword,
                 expression);
     }
@@ -1547,6 +1549,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 params,
                 rightDoubleArrow,
                 expression);
+    }
+
+    public static STNode createStartActionNode(
+            STNode startKeyword,
+            STNode expression) {
+
+        return new STStartActionNode(
+                startKeyword,
+                expression);
+    }
+
+    public static STNode createFlushActionNode(
+            STNode flushKeyword,
+            STNode peerWorker) {
+
+        return new STFlushActionNode(
+                flushKeyword,
+                peerWorker);
     }
 }
 

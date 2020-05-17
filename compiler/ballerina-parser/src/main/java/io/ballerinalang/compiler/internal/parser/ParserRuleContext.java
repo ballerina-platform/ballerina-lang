@@ -148,6 +148,8 @@ public enum ParserRuleContext {
     BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
     BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
+    PEER_WORKER("peer-worker"),
+    FLUSH_WORKER_NAME("flush-worker-name"),
 
     // Statements
     STATEMENT("statement"),
@@ -236,6 +238,9 @@ public enum ParserRuleContext {
     FROM_KEYWORD("from"),
     WHERE_KEYWORD("where"),
     SELECT_KEYWORD("select"),
+    START_KEYWORD("start"),
+    FLUSH_KEYWORD("flush"),
+    DEFAULT_KEYWORD("default"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -317,7 +322,6 @@ public enum ParserRuleContext {
     CONSTANT_EXPRESSION_START("constant-expr-start"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
-    TRAP_EXPRESSION("trap-expr"),
     LIST_CONSTRUCTOR("list-constructor"),
     LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
     TYPE_CAST("type-cast"),
@@ -336,6 +340,7 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
+    START_ACTION("start-action"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
