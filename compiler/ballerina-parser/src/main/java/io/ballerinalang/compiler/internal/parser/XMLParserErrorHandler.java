@@ -151,7 +151,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             }
         }
 
-        Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
+        Result result = new Result(new ArrayDeque<>(), matchingRulesCount);
         result.solution =
                 new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
         return result;

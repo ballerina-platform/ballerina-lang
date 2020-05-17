@@ -184,7 +184,6 @@ public abstract class AbstractParserErrorHandler {
         ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
         this.ctxStack = getCtxStackSnapshot();
         Result result = seekMatch(currentCtx, lookahead, currentDepth, isEntryPoint);
-        result.ctx = currentCtx;
         this.ctxStack = tempCtxStack;
         return result;
     }
@@ -249,7 +248,7 @@ public abstract class AbstractParserErrorHandler {
 
         // This means there are no matches for any of the statements
         if (bestMatchIndex == 0) {
-            return new Result(new ArrayDeque<>(), currentMatches, alternativeRules[0]);
+            return new Result(new ArrayDeque<>(), currentMatches);
         }
 
         // If there is only one 'best' match, then return it. If there are more than one
@@ -453,15 +452,9 @@ public abstract class AbstractParserErrorHandler {
          */
         protected Solution solution;
 
-        /**
-         * Rule that produced this result.
-         */
-        protected ParserRuleContext ctx;
-
-        public Result(ArrayDeque<Solution> fixes, int matches, ParserRuleContext ctx) {
+        public Result(ArrayDeque<Solution> fixes, int matches) {
             this.fixes = fixes;
             this.matches = matches;
-            this.ctx = ctx;
         }
     }
 

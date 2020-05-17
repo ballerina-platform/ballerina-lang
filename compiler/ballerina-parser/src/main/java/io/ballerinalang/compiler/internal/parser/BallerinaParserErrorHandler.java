@@ -1236,7 +1236,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             }
         }
 
-        Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
+        Result result = new Result(new ArrayDeque<>(), matchingRulesCount);
         result.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
     }
@@ -1306,7 +1306,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         currentMatches++;
         lookahead++;
         Result result = seekMatch(nextContext, lookahead, currentDepth, isEntryPoint);
-        result.ctx = currentCtx;
         return getFinalResult(currentMatches, result);
     }
 
