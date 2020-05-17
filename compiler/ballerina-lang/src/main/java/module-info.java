@@ -34,4 +34,14 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.tree.statements;
     exports org.ballerinalang.annotation;
     exports org.ballerinalang.codegen;
+    exports org.ballerinalang.spi;
+    exports org.wso2.ballerinalang.compiler;
+    exports org.wso2.ballerinalang.programfile;
+    exports org.ballerinalang.toml.parser;
+    exports org.ballerinalang.repository;
+    exports org.wso2.ballerinalang.compiler.packaging;
+    exports org.wso2.ballerinalang.compiler.packaging.converters;
+    exports org.wso2.ballerinalang.compiler.packaging.repo;
+    exports org.wso2.ballerinalang.compiler.bir;
+    exports org.ballerinalang.toml.exceptions;
 }

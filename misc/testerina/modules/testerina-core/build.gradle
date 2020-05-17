@@ -72,3 +72,14 @@ createBalo {
 
 description = 'Ballerina - Testerina - Core'
 
+ext.moduleName = 'testerina-core'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

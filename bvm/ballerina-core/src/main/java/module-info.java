@@ -6,4 +6,9 @@ module io.ballerina.core {
     requires java.xml;
     requires axiom.c14n;
     exports org.ballerinalang.core.model;
+    exports org.ballerinalang.util.exceptions;
+    exports org.ballerinalang.core.model.types;
+    exports org.ballerinalang.core.model.values;
+    exports org.ballerinalang.bre;
+    exports org.ballerinalang.bre.bvm;
 }
