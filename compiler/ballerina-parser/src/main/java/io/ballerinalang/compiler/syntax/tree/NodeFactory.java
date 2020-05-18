@@ -1419,9 +1419,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static UnionTypeDescriptorNode createUnionTypeDescriptorNode(
-            Node leftTypeDesc,
+            TypeDescriptorNode leftTypeDesc,
             Token pipeToken,
-            Node rightTypeDesc) {
+            TypeDescriptorNode rightTypeDesc) {
         Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
         Objects.requireNonNull(pipeToken, "pipeToken must not be null");
         Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
@@ -1474,13 +1474,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ErrorTypeDescriptorNode createErrorTypeDescriptorNode(
             Token errorKeywordToken,
-            Node errorTypeParamsNode) {
+            ErrorTypeParamsNode errorTypeParamsNode) {
         Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
-        Objects.requireNonNull(errorTypeParamsNode, "errorTypeParamsNode must not be null");
 
         STNode stErrorTypeDescriptorNode = STNodeFactory.createErrorTypeDescriptorNode(
                 errorKeywordToken.internalNode(),
-                errorTypeParamsNode.internalNode());
+                getOptionalSTNode(errorTypeParamsNode));
         return stErrorTypeDescriptorNode.createUnlinkedFacade();
     }
 

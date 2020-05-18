@@ -127,7 +127,8 @@
 <!--            <package name="org.ballerinalang.test.query.*" />-->
         </packages>
 
-<!--        <classes>-->
+        <classes>
+            <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
@@ -163,6 +164,6 @@
 <!--            </class>-->
 <!--            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />-->
 <!--            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />-->
-<!--        </classes>-->
+        </classes>
     </test>
 </suite>

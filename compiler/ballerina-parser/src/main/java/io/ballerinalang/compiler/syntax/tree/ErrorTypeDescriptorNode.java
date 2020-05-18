@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -34,8 +36,8 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Node errorTypeParamsNode() {
-        return childInBucket(1);
+    public Optional<ErrorTypeParamsNode> errorTypeParamsNode() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
 
     public ErrorTypeDescriptorNode modify(
             Token errorKeywordToken,
-            Node errorTypeParamsNode) {
+            ErrorTypeParamsNode errorTypeParamsNode) {
         if (checkForReferenceEquality(
                 errorKeywordToken,
                 errorTypeParamsNode)) {

@@ -1047,9 +1047,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
-        Node leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
+        TypeDescriptorNode leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
         Token pipeToken = modifyToken(unionTypeDescriptorNode.pipeToken());
-        Node rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
+        TypeDescriptorNode rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
         return unionTypeDescriptorNode.modify(
                 leftTypeDesc,
                 pipeToken,
@@ -1087,7 +1087,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         Token errorKeywordToken = modifyToken(errorTypeDescriptorNode.errorKeywordToken());
-        Node errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode());
+        ErrorTypeParamsNode errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
         return errorTypeDescriptorNode.modify(
                 errorKeywordToken,
                 errorTypeParamsNode);
