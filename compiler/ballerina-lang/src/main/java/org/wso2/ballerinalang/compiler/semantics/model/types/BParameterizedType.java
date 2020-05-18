@@ -30,10 +30,10 @@ public class BParameterizedType extends BType {
     public BVarSymbol paramSymbol;
     public BType paramValueType;
 
-    public BParameterizedType(BVarSymbol paramSymbol, BTypeSymbol tSymbol) {
+    public BParameterizedType(BType valueType, BVarSymbol paramSymbol, BTypeSymbol tSymbol) {
         super(TypeTags.PARAMETERIZED_TYPE, tSymbol);
         this.paramSymbol = paramSymbol;
-        this.paramValueType = ((BTypedescType) this.paramSymbol.type).constraint;
+        this.paramValueType = valueType;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class BParameterizedType extends BType {
 
     @Override
     public String toString() {
-        return this.paramSymbol.type.toString();
+        return "<T>" + this.paramValueType.toString();
     }
 
     @Override

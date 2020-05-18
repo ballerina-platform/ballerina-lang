@@ -357,7 +357,10 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         String paramVarName = originalType.paramSymbol.name.value;
         BType type;
         if (this.isInvocation) {
-            type = ((BTypedescType) paramValueTypes.get(paramVarName)).constraint;
+            // This would return null if the calling function gets analyzed before the callee function. This only
+            // happens when the invocation uses the default value of the param.
+            type = paramValueTypes.get(paramVarName);
+            type = type == null ? originalType.paramValueType : ((BTypedescType) type).constraint;
         } else if (this.funcTSymbol != null && !this.funcTSymbol.paramDefaultValTypes.isEmpty()) {
             type = ((BTypedescType) this.funcTSymbol.paramDefaultValTypes.get(paramVarName)).constraint;
         } else {

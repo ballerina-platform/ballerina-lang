@@ -70,6 +70,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1175,11 +1177,18 @@ public class SymbolResolver extends BLangNodeVisitor {
                 //  TODO: Check what happens when the same param is used in multiple places in the same return type
                 BLangFunction func = (BLangFunction) env.node;
                 if (func.hasBody() && func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
-                    validateTypedescExprDefaultValue(func.requiredParams, tempSymbol.name.value);
+                    BType paramValType = getTypedescParamValueType(func.requiredParams, tempSymbol,
+                                                                   func.returnTypeNode.pos);
+
+                    if (paramValType == symTable.semanticError) {
+                        this.resultType = symTable.semanticError;
+                        return;
+                    }
 
                     BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED, tempSymbol.name,
                                                           tempSymbol.pkgID, null, func.symbol);
-                    this.resultType = tSymbol.type = new BParameterizedType((BVarSymbol) tempSymbol, tSymbol);
+                    this.resultType = tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
+                                                                            tSymbol);
                     this.resultType.flags |= Flags.PARAMETERIZED;
                     return;
                 } else {
@@ -1206,14 +1215,30 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = symbol.type;
     }
 
-    private void validateTypedescExprDefaultValue(List<BLangSimpleVariable> params, String varName) {
+    private BType getTypedescParamValueType(List<BLangSimpleVariable> params, BSymbol varSym,
+                                            DiagnosticPos retTypePos) {
         for (BLangSimpleVariable param : params) {
-            if (param.name.value.equals(varName) && param.expr != null &&
-                    (param.expr.getKind() != NodeKind.TYPEDESC_EXPRESSION &&
-                            param.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF)) {
+            if (param.name.value.equals(varSym.name.value)) {
+                if (param.expr == null) {
+                    return ((BTypedescType) varSym.type).constraint;
+                }
+
+                if (param.expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
+                    return resolveTypeNode(((BLangTypedescExpr) param.expr).typeNode, this.env);
+                }
+
+                if (param.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    Name varName = names.fromIdNode(((BLangSimpleVarRef) param.expr).variableName);
+                    BSymbol typeRefSym = lookupSymbolInMainSpace(this.env, varName);
+                    return typeRefSym.type;
+                }
+
                 dlog.error(param.pos, DiagnosticCode.INVALID_TYPEDESC_PARAM);
             }
         }
+
+        dlog.error(retTypePos, DiagnosticCode.TYPEDESC_PARAM_NOT_FOUND, varSym.name.value);
+        return symTable.semanticError;
     }
 
     @Override
