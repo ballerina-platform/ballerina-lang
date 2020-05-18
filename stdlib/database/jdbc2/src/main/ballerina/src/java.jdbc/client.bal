@@ -44,16 +44,26 @@ public type Client client object {
         return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
-    # Executes the sql query provided by the user, and returns the result as stream.
+    # Queries the database with the query provided by the user, and returns the result as stream.
     #
-    # + sqlQuery - The query which needs to be executed
+    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedString` when the SQL query has
+    #              params to be passed in
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    public remote function query(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
     returns @tainted stream<record{}, sql:Error> {
         if (self.clientActive) {
-            return nativeQuery(self, java:fromString(sqlQuery), rowType);
+            sql:ParameterizedString sqlParamString;
+            if (sqlQuery is string) {
+                sqlParamString = {
+                    parts : [sqlQuery],
+                    insertions: []
+                };
+            } else {
+                sqlParamString = sqlQuery;
+            }
+            return nativeQuery(self, sqlParamString, rowType);
         } else {
             return sql:generateApplicationErrorStream("JDBC Client is already closed, hence "
                 + "further operations are not allowed");
@@ -62,18 +72,27 @@ public type Client client object {
 
     # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
     #
-    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
-    # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
+    #              when the query has params to be passed in
+    # + return - Summary of the sql update query as `ExecuteResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecuteResult|sql:Error? {
         if (self.clientActive) {
-            return nativeExecute(self, java:fromString(sqlQuery));
+            sql:ParameterizedString sqlParamString;
+            if (sqlQuery is string) {
+                sqlParamString = {
+                    parts: [sqlQuery],
+                    insertions: []
+                };
+            } else {
+                sqlParamString = sqlQuery;
+            }
+            return nativeExecute(self, sqlParamString);
         } else {
-            return sql:ApplicationError(message = "JDBC Client is already closed,"
+            return sql:ApplicationError( message = "JDBC Client is already closed,"
                 + " hence further operations are not allowed");
         }
     }
-
 
     # Close the JDBC client.
     #
@@ -112,12 +131,12 @@ function createClient(Client jdbcClient, ClientConfiguration clientConf,
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
-function nativeQuery(Client sqlClient,@untainted handle sqlQuery, typedesc<record {}>? rowtype)
+function nativeQuery(Client sqlClient, sql:ParameterizedString sqlQuery, typedesc<record {}>? rowtype)
 returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
-function nativeExecute(Client sqlClient,@untainted handle sqlQuery)
+function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
 returns sql:ExecuteResult|sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;

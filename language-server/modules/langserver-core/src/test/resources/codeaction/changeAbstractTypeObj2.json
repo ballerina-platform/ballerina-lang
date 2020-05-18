@@ -1,25 +1,21 @@
 {
-    "range": {
-        "start": {
-            "line": 5,
-            "character": 20
-        },
-        "end": {
-            "line": 5,
-            "character": 20
-        }
-    },
+    "line": 5,
+    "character": 4,
     "expected": {
-        "title": "Make 'Orange' an Abstract Object",
-        "command": "CHANGE_ABSTRACT_TYPE_OBJ",
-        "arguments": [
+        "title": "Make 'Orange' an Non-Abstract Object",
+        "edits": [
             {
-                "argumentK": "node.line",
-                "argumentV": "5"
-            },
-            {
-                "argumentK": "node.column",
-                "argumentV": "4"
+                "range": {
+                    "start": {
+                        "line": 4,
+                        "character": 0
+                    },
+                    "end": {
+                        "line": 4,
+                        "character": 40
+                    }
+                },
+                "newText": "type Orange object {"
             }
         ]
     }

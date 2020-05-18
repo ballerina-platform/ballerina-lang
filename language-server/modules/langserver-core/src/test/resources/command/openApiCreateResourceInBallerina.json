@@ -1,0 +1,33 @@
+{
+  "arguments": {
+    "node.line": 15,
+    "node.column": 9,
+    "resource.path": "/pets"
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 17,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 17,
+                    "character": 0
+                  }
+                },
+                "newText": "\n    @http:ResourceConfig {\n        methods:[\"GET\"],\n        path:\"/pets\"\n    }\n    resource function operation1_operation1_listPets (http:Caller caller, http:Request req) returns error? {\n\n    }\n\n    @http:ResourceConfig {\n        methods:[\"POST\"],\n        path:\"/pets\"\n    }\n    resource function operation1_resource_post_pets (http:Caller caller, http:Request req) returns error? {\n\n    }\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

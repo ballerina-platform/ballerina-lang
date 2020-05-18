@@ -1,7 +1,0 @@
-// Task Timer Services are used to execute tasks periodically. A timer should
-// have an `intervalInMillis` specified and an `initialDelayInMillis` if
-// needed. The delay specifies the initial delay before the task is executed
-// for the first time. Thereafter, the timer triggers at the provided interval.
-// The `onTrigger()` resource is called when the timer triggers. An optional
-// `noOfRecurrences` field can be used to provide the maximum number of times
-// the Timer should run before shutting down.

@@ -24,14 +24,12 @@ import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
@@ -64,7 +62,9 @@ public final class XMLSequence extends XMLValue {
 
     public XMLSequence(BXML child) {
         this.children = new ArrayList<>();
-        this.children.add(child);
+        if (!child.isEmpty()) {
+            this.children.add(child);
+        }
     }
 
     public List<BXML> getChildrenList() {
@@ -182,8 +182,8 @@ public final class XMLSequence extends XMLValue {
     @Deprecated
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
+            if (this.type.isReadOnly()) {
+                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
             }
         }
 
@@ -266,8 +266,8 @@ public final class XMLSequence extends XMLValue {
     @Override
     public void setChildren(BXML seq) {
         synchronized (this) {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
+            if (this.type.isReadOnly()) {
+                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
             }
         }
 
@@ -284,12 +284,6 @@ public final class XMLSequence extends XMLValue {
     @Override
     @Deprecated
     public void addChildren(BXML seq) {
-        synchronized (this) {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
-            }
-        }
-
         if (children.size() != 1) {
             throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
@@ -330,6 +324,11 @@ public final class XMLSequence extends XMLValue {
         }
 
         return new XMLSequence(elementsSeq);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(children);
     }
 
     /**
@@ -497,8 +496,8 @@ public final class XMLSequence extends XMLValue {
     @Override
     public void removeAttribute(String qname) {
         synchronized (this) {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
+            if (this.type.isReadOnly()) {
+                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
             }
         }
 
@@ -513,8 +512,8 @@ public final class XMLSequence extends XMLValue {
     @Deprecated
     public void removeChildren(String qname) {
         synchronized (this) {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
+            if (this.type.isReadOnly()) {
+                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
             }
         }
 
@@ -525,22 +524,9 @@ public final class XMLSequence extends XMLValue {
         children.get(0).removeChildren(qname);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void attemptFreeze(Status freezeStatus) {
-        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
-            for (BXML elem : children) {
-                elem.attemptFreeze((freezeStatus));
-            }
-        }
-    }
-
     @Override
     public void freezeDirect() {
-        this.freezeStatus.setFrozen();
+        this.type = ReadOnlyUtils.setImmutableType(this.type);
         for (BXML elem : children) {
             elem.freezeDirect();
         }
@@ -548,15 +534,16 @@ public final class XMLSequence extends XMLValue {
 
     @Override
     public synchronized boolean isFrozen() {
-        if (freezeStatus.isFrozen()) {
+        if (this.type.isReadOnly()) {
             return true;
         }
+
         for (BXML child : this.children) {
             if (!child.isFrozen()) {
                 return false;
             }
         }
-        freezeStatus.setFrozen();
+        freezeDirect();
         return true;
     }
 

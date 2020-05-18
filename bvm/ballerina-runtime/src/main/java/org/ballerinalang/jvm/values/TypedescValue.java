@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,80 +17,14 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.values.api.BTypedesc;
-
-import java.util.Map;
 
 /**
  * <p>
- * Ballerina runtime value representation of a *type*.
+ * Interface to be implemented by the runtime value representation of a *type*.
  *
- * {@code typedesc} is used to describe type of a value in Ballerina.
- * For example {@code typedesc} of number 5 is {@code int}, where as {@code typedesc} of a record value is the
- * record type that used to create this particular value instance.
- * </p>
- * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
- * </p>
- *  
- * @since 0.995.0
+ * @since 1.3.0
  */
-public class TypedescValue implements RefValue, BTypedesc {
+public interface TypedescValue extends RefValue, BTypedesc {
 
-    final BType type;
-    final BType describingType; // Type of the value describe by this typedesc.
-
-    @Deprecated
-    public TypedescValue(BType describingType) {
-        this.type = new BTypedescType(describingType);
-        this.describingType = describingType;
-    }
-
-    /**
-     * Returns the {@code BType} of the value describe by this type descriptor.
-     * @return describing type
-     */
-    public BType getDescribingType() {
-        return describingType;
-    }
-
-    @Override
-    public String stringValue() {
-        return "typedesc " + describingType.toString();
-    }
-
-    @Override
-    public String toString() {
-        return stringValue();
-    }
-
-    @Override
-    public BType getType() {
-        return type;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public boolean isFrozen() {
-        return true;
-    }
-
-    @Override
-    public Object freeze() {
-        return this;
-    }
 }

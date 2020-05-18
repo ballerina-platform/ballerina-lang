@@ -18,14 +18,10 @@
 
 package org.ballerinalang.test.kafka;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Collect;
-import io.debezium.util.Testing;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import kafka.server.KafkaConfig;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -38,9 +34,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import static java.io.File.separator;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getZookeeperTimeoutProperty;
 
 /**
  * Test class for test the functionality of Ballerina Kafka serializers and deserializers.
@@ -57,13 +54,16 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
     private static final String PATH = separator + "sendData";
 
     @BeforeTest(alwaysRun = true)
-    public void start() throws BallerinaTestException, IOException {
+    public void start() throws Throwable {
         int[] requiredPorts = new int[]{14001, 14002, 14003};
         String sourcePath = new File(resourceLocation).getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(sourcePath, requiredPorts);
-        File dataDir = Testing.Files.createTestingDirectory("cluster-kafka-serdes-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14002, 14102).addBrokers(1).startup();
+        String dataDir = "cluster-kafka-serdes-test";
+        kafkaCluster = new KafkaCluster(dataDir)
+                .withZookeeper(14002)
+                .withBroker(PROTOCOL_PLAINTEXT, 14102, getZookeeperTimeoutProperty())
+                .start();
     }
 
     @Test(description = "Tests Kafka custom serializer / deserializer functionality")
@@ -79,20 +79,8 @@ public class KafkaSerializerDeserializerTest extends BaseTest {
 
     @AfterTest(alwaysRun = true)
     private void cleanup() {
-        if (kafkaCluster.isRunning()) {
-            kafkaCluster.shutdown();
+        if (kafkaCluster != null) {
+            kafkaCluster.stop();
         }
-    }
-
-    private static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
-        String timeout = "20000";
-        Properties properties = Collect.propertiesOf(KafkaConfig.ZkSessionTimeoutMsProp(), timeout);
-        KafkaCluster kafkaCluster = new KafkaCluster()
-                .usingDirectory(dataDir)
-                .deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true)
-                .withKafkaConfiguration(properties)
-                .withPorts(zkPort, brokerPort);
-        return kafkaCluster;
     }
 }

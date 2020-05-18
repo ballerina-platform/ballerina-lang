@@ -26,7 +26,7 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class FunctionBodyBlockNode extends StatementNode {
+public class FunctionBodyBlockNode extends FunctionBodyNode {
 
     public FunctionBodyBlockNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

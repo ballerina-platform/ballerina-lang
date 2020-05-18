@@ -25,7 +25,7 @@ import java.util.Set;
 
 /**
  * <p>
- * An interface for map Value. Represents both maps and records in Ballerina.
+ * An interface for map Value. Represents both maps, tables and records in Ballerina.
  * </p>
  * 
  * @param <K> the type of keys maintained by this map

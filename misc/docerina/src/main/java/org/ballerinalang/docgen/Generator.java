@@ -22,7 +22,7 @@ import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
-import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -113,6 +115,7 @@ public class Generator {
      */
     public static void createTypeDefModels(BLangTypeDefinition typeDefinition, Module module) {
         String typeName = typeDefinition.getName().getValue();
+        boolean isDeprecated = isDeprecated(typeDefinition.getAnnotationAttachments());
         BLangType typeNode = typeDefinition.typeNode;
         NodeKind kind = typeNode.getKind();
         boolean added = false;
@@ -125,13 +128,10 @@ public class Generator {
             List<String> values = enumNode.getValueSet().stream()
                     .map(java.lang.Object::toString)
                     .collect(Collectors.toList());
-            module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), values));
+            module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), isDeprecated, values));
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
-            if (recordNode.isAnonymous) {
-                return;
-            }
             addDocForRecordType(typeDefinition, recordNode, module);
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
@@ -139,11 +139,11 @@ public class Generator {
             List<Type> memberTypes = memberTypeNodes.stream()
                     .map(type -> Type.fromTypeNode(type, module.id))
                     .collect(Collectors.toList());
-            module.unionTypes.add(new UnionType(typeName, description(typeDefinition), memberTypes));
+            module.unionTypes.add(new UnionType(typeName, description(typeDefinition), isDeprecated, memberTypes));
             added = true;
         } else if (kind == NodeKind.USER_DEFINED_TYPE) {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
-            module.unionTypes.add(new UnionType(typeName, description(typeDefinition),
+            module.unionTypes.add(new UnionType(typeName, description(typeDefinition), isDeprecated,
                     Collections.singletonList(Type.fromTypeNode(userDefinedType, module.id))));
             added = true;
         } else if (kind == NodeKind.VALUE_TYPE) {
@@ -155,7 +155,8 @@ public class Generator {
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
             Type detailType = errorType.detailType != null ? Type.fromTypeNode(errorType.detailType, module.id) : null;
-            module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition), detailType));
+            module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition), isDeprecated,
+                    detailType));
             added = true;
         } else if (kind == NodeKind.FUNCTION_TYPE) {
             // TODO: handle function type nodes
@@ -182,7 +183,8 @@ public class Generator {
                 .map(attachPoint -> attachPoint.point.getValue())
                 .collect(Collectors.joining(", "));
         Type dataType = annotationNode.typeNode != null ? Type.fromTypeNode(annotationNode.typeNode, module.id) : null;
-        return new Annotation(annotationName, description(annotationNode), dataType, attachments);
+        return new Annotation(annotationName, description(annotationNode),
+                isDeprecated(annotationNode.getAnnotationAttachments()), dataType, attachments);
     }
 
     public static Constant createDocForConstant(BLangConstant constant, Module module) {
@@ -190,7 +192,9 @@ public class Generator {
         java.lang.Object value = constant.symbol.value;
         String desc = description(constant);
         BLangType typeNode = constant.typeNode != null ? constant.typeNode : constant.associatedTypeDefinition.typeNode;
-        return new Constant(constantName, desc, Type.fromTypeNode(typeNode, module.id), value.toString());
+
+        return new Constant(constantName, desc, isDeprecated(constant.getAnnotationAttachments()),
+                Type.fromTypeNode(typeNode, module.id), value.toString());
     }
 
     /**
@@ -202,12 +206,12 @@ public class Generator {
      */
     public static Function createDocForFunction(BLangFunction functionNode, Module module) {
         String functionName = functionNode.getName().value;
-        List<DefaultableVarible> parameters = new ArrayList<>();
+        List<DefaultableVariable> parameters = new ArrayList<>();
         List<Variable> returnParams = new ArrayList<>();
         // Iterate through the parameters
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
-                DefaultableVarible variable = getVariable(functionNode, param, module);
+                DefaultableVariable variable = getVariable(functionNode, param, module);
                 parameters.add(variable);
             }
         }
@@ -216,7 +220,7 @@ public class Generator {
             SimpleVariableNode restParameter = functionNode.getRestParameters();
             if (restParameter instanceof BLangSimpleVariable) {
                 BLangSimpleVariable param = (BLangSimpleVariable) restParameter;
-                DefaultableVarible variable = getVariable(functionNode, param, module);
+                DefaultableVariable variable = getVariable(functionNode, param, module);
                 parameters.add(variable);
             }
         }
@@ -227,7 +231,7 @@ public class Generator {
             String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
-                Variable variable = new Variable(EMPTY_STRING, desc, Type.fromTypeNode(returnType, module.id));
+                Variable variable = new Variable(EMPTY_STRING, desc, false, Type.fromTypeNode(returnType, module.id));
                 returnParams.add(variable);
             }
 
@@ -236,17 +240,18 @@ public class Generator {
         return new Function(functionName, description(functionNode),
                         functionNode.getFlags().contains(Flag.REMOTE),
                         functionNode.getFlags().contains(Flag.NATIVE),
+                        isDeprecated(functionNode.getAnnotationAttachments()),
                         parameters, returnParams);
     }
 
-    private static DefaultableVarible getVariable(BLangFunction functionNode, BLangSimpleVariable param, Module mod) {
+    private static DefaultableVariable getVariable(BLangFunction functionNode, BLangSimpleVariable param, Module mod) {
         String desc = paramAnnotation(functionNode, param);
         String defaultValue = EMPTY_STRING;
         if (null != param.getInitialExpression()) {
             defaultValue = param.getInitialExpression().toString();
         }
-        return new DefaultableVarible(param.getName().value, desc, Type.fromTypeNode(param.typeNode, mod.id),
-                defaultValue);
+        return new DefaultableVariable(param.getName().value, desc, isDeprecated(param.getAnnotationAttachments()),
+                Type.fromTypeNode(param.typeNode, mod.id), defaultValue);
     }
 
     /**
@@ -262,47 +267,67 @@ public class Generator {
         String recordName = typeDefinition.getName().getValue();
         // Check if its an anonymous struct
         if (recordType.isAnonymous) {
-            recordName = "Anonymous Record " + recordName.substring(recordName.lastIndexOf('$') + 1);
+            recordName = "T" + recordName.substring(recordName.lastIndexOf('$') + 1);
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
-        List<DefaultableVarible> fields = getFields(recordType, recordType.fields, documentationNode, module);
-        String documentationText = documentationNode == null ? null : documentationNode.getDocumentation();
+        List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
 
-        module.records.add(new Record(recordName, documentationText, fields));
+        module.records.add(new Record(recordName, description(typeDefinition),
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
     }
 
-    private static List<DefaultableVarible> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
+    private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
                                          BLangMarkdownDocumentation documentation, Module module) {
-        List<DefaultableVarible> fields = new ArrayList<>();
+        List<DefaultableVariable> fields = new ArrayList<>();
         for (BLangSimpleVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
-                String desc = fieldAnnotation(node, param);
-                desc = desc.isEmpty() ? findDescFromList(name, documentation) : desc;
+                String desc = findDescFromList(name, documentation, param);
+                desc = desc.isEmpty() ? fieldAnnotation(node, param) : desc;
 
                 String defaultValue = EMPTY_STRING;
                 if (null != param.getInitialExpression()) {
-                    defaultValue = param.getInitialExpression().toString();
+                    if (param.getInitialExpression() instanceof BLangTypeInit) {
+                        if (null == ((BLangTypeInit) param.getInitialExpression()).getType()) {
+                            defaultValue =
+                                    ((BLangTypeInit) param.getInitialExpression()).expectedType.tsymbol.name.toString();
+                        } else {
+                            defaultValue = ((BLangTypeInit) param.getInitialExpression()).getType().toString();
+                        }
+                    } else {
+                        defaultValue = param.getInitialExpression().toString();
+                    }
                 }
-                DefaultableVarible field = new DefaultableVarible(name, desc,
-                        Type.fromTypeNode(param.typeNode, module.id), defaultValue);
+                DefaultableVariable field = new DefaultableVariable(name, desc,
+                        isDeprecated(param.getAnnotationAttachments()),
+                        Type.fromTypeNode(param.typeNode, param.type, module.id), defaultValue);
                 fields.add(field);
             }
         }
         return fields;
     }
 
-    private static String findDescFromList(String name, BLangMarkdownDocumentation documentation) {
+    private static String findDescFromList(String name, BLangMarkdownDocumentation documentation,
+            BLangSimpleVariable param) {
         if (documentation == null) {
             return EMPTY_STRING;
         }
-        Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
-                documentation.getParameterDocumentations();
-        BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
-        if (parameter == null) {
-            return EMPTY_STRING;
+        Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations = documentation
+                .getParameterDocumentations();
+
+        // Get field documentation from field decl documentation (priority)
+        BLangMarkdownDocumentation paramDocAttach = param.getMarkdownDocumentationAttachment();
+        if (paramDocAttach != null) {
+            return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation());
+        } else {
+            // Get field documentation from object/record def documentation
+            BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
+            if (parameter != null) {
+                return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
+            } else {
+                return EMPTY_STRING;
+            }
         }
-        return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
     }
 
     private static void addDocForObjectType(BLangObjectTypeNode objectType,
@@ -310,9 +335,16 @@ public class Generator {
                                             Module module) {
         List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
-        String description = description(parent);
 
-        List<DefaultableVarible> fields = getFields(parent, objectType.fields,
+        // handle anonymous names
+        if (name != null && name.contains("$anonType$")) {
+            name = "T" + name.substring(name.lastIndexOf('$') + 1);
+        }
+
+        String description = description(parent);
+        boolean isDeprecated = isDeprecated(parent.getAnnotationAttachments());
+
+        List<DefaultableVariable> fields = getFields(parent, objectType.fields,
                     parent.getMarkdownDocumentationAttachment(), module);
 
         if (objectType.initFunction != null) {
@@ -336,11 +368,12 @@ public class Generator {
         }
 
         if (isEndpoint(objectType)) {
-            module.clients.add(new Client(name, description, fields, functions));
+            module.clients.add(new Client(name, description, isDeprecated, fields, functions));
         } else if (isListener(objectType)) {
-            module.listeners.add(new Listener(name, description, fields, functions));
+            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions));
         } else {
-            module.objects.add(new Object(name, description, fields, functions));
+            module.objects.add(new Object(name, description, isDeprecated(parent.getAnnotationAttachments()), fields,
+                    functions));
         }
     }
 
@@ -423,7 +456,9 @@ public class Generator {
         if (isDocumentAttached(node)) {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
+            return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation())
+                    .replace("<p>", "")
+                    .replace("</p>", "");
         }
         return EMPTY_STRING;
     }
@@ -449,5 +484,22 @@ public class Generator {
     private static boolean isDocumentAttached(BLangNode node) {
         return node instanceof DocumentableNode
                 && ((DocumentableNode) node).getMarkdownDocumentationAttachment() != null;
+    }
+
+    /**
+     * Check @deprecated annotation is available in the annotation attachments.
+     *
+     * @param annotationAttachments annotation attachments
+     * @return @deprecated annotation contains
+     */
+    private static boolean isDeprecated(List<BLangAnnotationAttachment> annotationAttachments) {
+        if (annotationAttachments != null) {
+            for (BLangAnnotationAttachment attachment : annotationAttachments) {
+                if (attachment.getAnnotationName().getValue().equals("deprecated")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

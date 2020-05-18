@@ -36,7 +36,7 @@ public type CookieStore object {
     # + cookieConfig - Configurations associated with the cookies
     # + url - Target service URL
     # + requestPath - Resource path
-    # + return - An error will be returned if there is any error occurred when adding a cookie or else nil is returned
+    # + return - An `http:CookieHandlingError` if there is any error occurred when adding a cookie or else `()`
     public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) returns CookieHandlingError? {
         if (self.getAllCookies().length() == cookieConfig.maxTotalCookieCount) {
             return error(COOKIE_HANDLING_ERROR, message = "Number of total cookies in the cookie store can not exceed the maximum amount");
@@ -195,7 +195,7 @@ public type CookieStore object {
     # + name - Name of the cookie to be removed
     # + domain - Domain of the cookie to be removed
     # + path - Path of the cookie to be removed
-    # + return - An error will be returned if there is any error occurred during the removal of the cookie or else nil is returned
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of the cookie or else `()`
     public function removeCookie(string name, string domain, string path) returns CookieHandlingError? {
         lock {
             // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain, and path.
@@ -224,7 +224,7 @@ public type CookieStore object {
     # Removes cookies, which match with the given domain.
     #
     # + domain - Domain of the cookie to be removed
-    # + return - An error will be returned if there is any error occurred during the removal of cookies by domain or else nil is returned
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of cookies by domain or else `()`
     public function removeCookiesByDomain(string domain) returns CookieHandlingError? {
         Cookie[] allCookies = self.getAllCookies();
         lock {
@@ -246,7 +246,7 @@ public type CookieStore object {
 
     # Removes all expired cookies.
     #
-    # + return - An error will be returned if there is any error occurred during the removal of expired cookies or else nil is returned
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of expired cookies or else `()`
     public function removeExpiredCookies() returns CookieHandlingError? {
         var persistentCookieHandler = self.persistentCookieHandler;
         if (persistentCookieHandler is PersistentCookieHandler) {
@@ -278,7 +278,7 @@ public type CookieStore object {
 
     # Removes all the cookies.
     #
-    # + return - An error will be returned if there is any error occurred during the removal of all the cookies or else nil is returned
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of all the cookies or else `()`
     public function removeAllCookies() returns CookieHandlingError? {
         var persistentCookieHandler = self.persistentCookieHandler;
         lock {

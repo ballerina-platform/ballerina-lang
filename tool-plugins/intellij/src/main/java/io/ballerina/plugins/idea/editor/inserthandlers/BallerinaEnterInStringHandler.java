@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.editor.inserthandlers;
 
+import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.CaretModel;
@@ -45,6 +46,12 @@ public class BallerinaEnterInStringHandler extends EnterHandlerDelegateAdapter {
                                   EditorActionHandler originalHandler) {
 
         if (!file.getLanguage().is(BallerinaLanguage.INSTANCE) || editor.isDisposed()) {
+            return Result.Continue;
+        }
+
+        // If the user has configured to automatically hard wrap when typing, skips the processing and lets
+        // "AutoHardWrapHandler" to format the string.
+        if (CodeStyle.getSettings(file).isWrapOnTyping(null)) {
             return Result.Continue;
         }
 

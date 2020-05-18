@@ -1,1 +1,0 @@
-// This example demonstrates how the Ballerina https client can be configured to connect to an https listener through 1-way SSL connection (i.e., the server is verified by the client). This example uses the Ballerina https listener to host a service and the https client sends requests for that listener.

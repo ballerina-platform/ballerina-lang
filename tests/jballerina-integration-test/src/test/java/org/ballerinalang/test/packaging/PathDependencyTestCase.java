@@ -199,7 +199,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test()
+    @Test(enabled = false)
     public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1

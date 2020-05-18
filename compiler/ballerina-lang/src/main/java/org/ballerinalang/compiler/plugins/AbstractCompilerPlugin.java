@@ -72,4 +72,14 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     @Override
     public void codeGenerated(PackageID packageID, Path binaryPath) {
     }
+
+    @Override
+    public void pluginExecutionStarted(PackageID packageID) {
+
+    }
+
+    @Override
+    public void pluginExecutionCompleted(PackageID packageID) {
+
+    }
 }

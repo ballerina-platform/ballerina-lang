@@ -92,7 +92,7 @@ public class BLangNodeTransformerTest {
         this.packageLoader = PackageLoader.getInstance(this.context);
     }
 
-    @Test(dataProvider = "testTransformationTestProvider")
+    @Test(dataProvider = "testTransformationTestProvider", enabled = false)
     public void testTransformation(String configName, String sourcePackage)
             throws IOException, IllegalAccessException {
         // Get expected result json

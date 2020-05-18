@@ -397,7 +397,7 @@ public class RefEqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testEmptyXMLSequencesRefEquality() {
         BValue[] returns = BRunUtil.invoke(result, "testEmptyXMLSequencesRefEquality");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

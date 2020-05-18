@@ -116,8 +116,25 @@ public interface CompilerPlugin {
     /**
      * Notifies when the code generated phase is completed.
      *
-     * @param packageID packageId of the generated code
+     * @param packageID  packageId of the generated code
      * @param binaryPath path to the generated binary file (balx)
      */
     void codeGenerated(PackageID packageID, Path binaryPath);
+
+
+    /**
+     * Notifies when the compiler starts executing compiler plugins for a particular module.
+     *
+     * @param packageID PackageID of the module
+     */
+    default void pluginExecutionStarted(PackageID packageID) {
+    }
+
+    /**
+     * Notifies when the compiler completes executing compiler plugins for a particular module.
+     *
+     * @param packageID PackageID of the module
+     */
+    default void pluginExecutionCompleted(PackageID packageID) {
+    }
 }

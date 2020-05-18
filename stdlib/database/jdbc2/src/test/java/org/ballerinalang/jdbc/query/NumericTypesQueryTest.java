@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
@@ -52,7 +53,7 @@ public class NumericTypesQueryTest {
             new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws SQLException {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "numerical-query-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,

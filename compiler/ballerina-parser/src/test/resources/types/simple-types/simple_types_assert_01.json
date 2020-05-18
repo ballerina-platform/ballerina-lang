@@ -290,6 +290,44 @@
                   "kind": "SEMICOLON_TOKEN"
                 }
               ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "READONLY_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "n"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "DISTINCT_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "o"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
             }
           ]
         },

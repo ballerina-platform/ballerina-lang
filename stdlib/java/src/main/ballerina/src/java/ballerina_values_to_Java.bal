@@ -14,47 +14,63 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Returns a `handle` that refers to the Java string representation of the Ballerina `string`.
+# Returns a `handle`, which refers to the Java string representation of the Ballerina `string`.
+# ```ballerina
+# handle header = java:fromString("Content-Type");
+# ```
 #
-# + value - the Ballerina `string` with which the `handle` is created
-# + return - the `handle` that refers to the Java String representation of the Ballerina `string`
+# + value - The Ballerina `string` with which the `handle` is created
+# + return - The `handle`, which refers to the Java String representation of the Ballerina `string`
 public function fromString(string value) returns handle = external;
 
 # Returns a Ballerina `string` representation of the Java object referred by the `handle`.
-#
 # If the `handle` refers to Java null, then this function returns a `nil` value.
+# ```ballerina
+# string? version = java:toString(versionProperty);
+# ```
 #
-# + value - the `handle` whose referred value to be converted to Ballerina `string`
-# + return - the Ballerina `string` representation of the Java object referred by the `handle` or
-#            returns `nil` of the `handle` refers to Java null
+# + value - The `handle` of which the referred value is to be converted to a Ballerina `string`
+# + return - The Ballerina `string` representation of the Java object referred by the `handle` or else
+#            returns `()` if the `handle` refers to Java null
 public function toString(handle value) returns string? = external;
 
 # Returns `true` if this handle refers to Java null.
+# ```ballerina
+# boolean status = java:isNull(value);
+# ```
 #
-# + value - the `handle` whose referred value to be tested with Java null
+# + value - The `handle` of which the referred value is to be tested with Java null
 # + return - `true` if this handle refers to Java null
 public function isNull(handle value) returns boolean = external;
 
-# Returns a `handle` that refers to Java null.
+# Returns a `handle`, which refers to Java null.
+# ```ballerina
+# handle nullHandle = java:createNull();
+# ```
 #
-# + return - the `handle` that refers to Java null
+# + return - The `handle`, which refers to Java null
 public function createNull() returns handle = external;
 
-# Returns a `handle` that refers to the Java Class object associated
-# with the class or interface with the given string name.
+# Returns a `handle`, which refers to the Java Class object associated with the class or interface with the given
+# string name.
+# ```ballerina
+# handle|error intClass = java:getClass("int");
+# ```
 #
-# This function performs a Java `class.forName(name)` except for following cases:
+# This function performs a Java `class.forName(name)` except for the following cases:
 #
-#   name        output
-#   boolean     the Java Class instance representing the Java primitive type boolean
-#   byte        the Java Class instance representing the Java primitive type byte
-#   char        the Java Class instance representing the Java primitive type char
-#   short       the Java Class instance representing the Java primitive type short
-#   int         the Java Class instance representing the Java primitive type int
-#   long        the Java Class instance representing the Java primitive type long
-#   float       the Java Class instance representing the Java primitive type float
-#   double      the Java Class instance representing the Java primitive type double
-# + name - the name of the Java class
-# + return - the Java Class object for the class with the given name.
+# | Name     |   Output                                                      |
+# |:---------|:--------------------------------------------------------------|
+# | boolean  |   Java Class instance representing the primitive type boolean |
+# | byte     |   Java Class instance representing the primitive type byte    |
+# | char     |   Java Class instance representing the primitive type char    |
+# | short    |   Java Class instance representing the primitive type short   |
+# | int      |   Java Class instance representing the primitive type int     |
+# | long     |   Java Class instance representing the primitive type long    |
+# | float    |   Java Class instance representing the primitive type float   |
+# | double   |   Java Class instance representing the primitive type double  |
+#
+# + name - The name of the Java class
+# + return - The Java Class object for the class with the given name
 public function getClass(string name) returns handle | error = external;
 

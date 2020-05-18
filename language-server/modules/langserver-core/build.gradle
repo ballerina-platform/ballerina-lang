@@ -39,12 +39,12 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')
+    implementation project(':openapi-ballerina:openapi-validator')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
 
     // Standard libs
     implementation project(':ballerina-auth')
-    implementation project(':ballerina-bir')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
@@ -90,9 +90,18 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'commons-io:commons-io'
+    implementation 'io.swagger:swagger-core'
+    implementation 'io.swagger:swagger-models'
+    implementation 'io.swagger:swagger-parser'
+    implementation 'io.swagger.core.v3:swagger-core'
+    implementation 'io.swagger.core.v3:swagger-models'
+    implementation 'io.swagger.parser.v3:swagger-parser'
+    implementation 'io.swagger.parser.v3:swagger-parser-core'
+    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
+    implementation 'io.swagger.parser.v3:swagger-parser-v3'
+    implementation 'com.github.jknack:handlebars:4.0.6'
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
@@ -105,12 +114,11 @@ dependencies {
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation'/**/)
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-nats', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
@@ -134,6 +142,15 @@ dependencies {
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.8.1'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.8.1'
     dependency 'commons-io:commons-io:2.6'
+    dependency 'io.swagger:swagger-core:2.0.0-rc0'
+    dependency 'io.swagger:swagger-models:2.0.0-rc0'
+    dependency 'io.swagger:swagger-parser:2.0.0-rc1'
+    dependency 'io.swagger.core.v3:swagger-core:2.1.1'
+    dependency 'io.swagger.core.v3:swagger-models:2.1.1'
+    dependency 'io.swagger.parser.v3:swagger-parser:2.0.17'
+    dependency 'io.swagger.parser.v3:swagger-parser-core:2.0.17'
+    dependency 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.17'
+    dependency 'io.swagger.parser.v3:swagger-parser-v3:2.0.17'
 
     testCompile 'org.testng:testng'
 }

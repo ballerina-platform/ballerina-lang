@@ -13,6 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'xml;
+
 public type Person record {|
     int id;
     string name;
@@ -20,8 +22,8 @@ public type Person record {|
     string...;
 |};
 
-type Employee record {
-    int id;
+public type Employee record {
+    readonly int id;
     string name;
     float salary;
 };
@@ -93,18 +95,15 @@ public function cloneString() returns [string, string, string] {
     return [a, x, y];
 }
 
-//public function cloneXML() returns [xml, xml, xml] {
-//    xml a = xml `<root><name>Alex</name><id>123</id><age>21</age></root>`;
-//    xml newName = xml `<name>Charlos</name>`;
-//    xml newId = xml `<id>5000</id>`;
-//    xml x = a.clone();
-//    xml y = a.clone();
-//    a.removeChildren("name");
-//    a.appendChildren(newName);
-//    y.removeChildren("id");
-//    y.appendChildren(newId);
-//    return [a, x, y];
-//}
+public function cloneXML() returns [xml, xml] {
+    'xml:Element a = <'xml:Element> xml `<root><name>Alex</name></root>`;
+    xml newName = xml `<name>Charlos</name>`;
+
+    'xml:Element x = <'xml:Element> a.clone();
+    a.setChildren(newName);
+
+    return [a, x];
+}
 
 public function cloneMap() returns [map<any>, map<any>, map<any>] {
 
@@ -124,22 +123,20 @@ public function cloneMap() returns [map<any>, map<any>, map<any>] {
     return [a, x, y];
 }
 
-//public function cloneTable() returns [table<Employee>, table<Employee>, table<Employee>] {
-//
-//    Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
-//    Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
-//    Employee e3 = { id: 3, name: "John", salary: 400.50 };
-//
-//    table<Employee> a = table {
-//        { key id, name, salary },
-//        [e1, e2]
-//    };
-//    table<Employee> x = a.clone();
-//    table<Employee> y = a.clone();
-//    checkpanic a.add(e3);
-//    checkpanic y.add(e3);
-//    return [a, x, y];
-//}
+public function cloneTable() returns [Employee[], Employee[], Employee[]] {
+
+    Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
+    Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
+    Employee e3 = { id: 3, name: "John", salary: 400.50 };
+    table<Employee> key(id) a = table [];
+    a[1] = e1;
+    a[2] = e2;
+    table<Employee> key(id) x = a.clone();
+    table<Employee> key(id) y = a.clone();
+    a[3] = e3;
+    y[3] = e3;
+    return [[a[1], a[2], a[3]], [x[1], x[2]], [y[1], y[2], y[3]]];
+}
 
 public function cloneJSON() returns [json, json, json] {
     map<json> a = {"name": "Alex", "age": 21, "id": 123, "otherData":[1, "EE", 12.3]};
@@ -406,8 +403,8 @@ public function testCloneMapWithError() returns boolean {
                                 <string> ma["two"] == <string> clonedMap["two"];
 
     map<error> clonedErrorMap = <map<error>> clonedMap["errMap"];
-    foreach [string, error] [key, value] in errMapFromValue.entries() {
-        cloneSuccessful = cloneSuccessful && value === clonedErrorMap[key];
+    foreach [string, error] [x, y] in errMapFromValue.entries() {
+        cloneSuccessful = cloneSuccessful && y === clonedErrorMap[x];
     }
     return cloneSuccessful;
 }

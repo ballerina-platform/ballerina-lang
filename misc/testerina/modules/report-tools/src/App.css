@@ -1,0 +1,225 @@
+body {
+    padding : 0% 10%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.App-logo{
+    width: 5em;
+}
+
+/* Bootstrap styles */
+
+.back-arrow {
+    cursor: pointer;
+    margin-right: 1em;
+}
+.back-arrow.report {
+    margin-left: 1em;
+}
+.module-content .row {
+    margin-bottom: 1em;
+}
+.module-content .title {
+    color: #707070;
+}
+.module-content .title h5 {
+    border-bottom: 0.2em solid #24A2B7;
+}
+.module-content .title span {
+    opacity: 0.6;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+header {
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+    color: #4cc7c2;
+}
+.header-section {
+    width: 100vw;
+    position: relative;
+    margin-left: -50vw;
+    left: 50%;
+    background: #FCFCFC 0% 0% no-repeat padding-box;
+    border-bottom: 1px solid rgba(112, 112, 112, 0.1);
+}
+
+.header-title {
+    line-height: 1.5;
+    margin-left: 0.5em;
+}
+.title_projectname {
+    letter-spacing: 0;
+    color: #464646;
+    opacity: 1;
+    text-align: right;
+}
+
+/* Summary view styles */
+.content-section {
+    margin-top: 6%;
+    padding: 0 8em;
+}
+.card {
+    border: 1px solid #EFEFEF;
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+}
+.summary-card {
+    letter-spacing: 0;
+    opacity: 1;
+    font-size: 1rem;
+    font-weight: 100;
+    text-align: center;
+    border: 1px solid #EBEBEB;
+    margin-left: 2.5em;
+    padding: 1.3em 1em;
+}
+.summary-card h3 {
+    margin-bottom: 0;
+    font-weight: 100;
+}
+.summary-card.white-font {
+    color: #fff;
+}
+.summary-card.white-font h1{
+    font-weight: 100;
+}
+.summary-card.white-font h1 small {
+    font-size: 1rem;
+}
+.summary-card > div > div {
+    margin-right: 0;
+}
+.summary-card.progress-card {
+    background: #FCFCFC 0% 0% no-repeat padding-box;
+}
+.progress{
+    background: #F74B5A 0% 0% no-repeat padding-box;
+}
+.progress-bar  {
+    background: #33B4AF 0% 0% no-repeat padding-box;
+}
+.passed {
+    background-color: #33B4AF;
+}
+.failed {
+    background-color: #F74B5A;
+}
+.skipped {
+    background-color: #FEAC39;
+}
+.total {
+    background: #2C2C2C 0% 0% no-repeat padding-box;
+    color: #FFFFFF;
+    margin-left: 0;
+}
+.icon {
+    width: 1.5em;
+    fill: #fff;
+}
+.icon.total {
+    width: 2em;
+}
+.passed-icon {
+    fill: #33B4AF;
+}
+.failed-icon {
+    fill: #F74B5A;
+}
+.skipped-icon {
+    fill: #FEAC39;
+}
+.header-section .icon {
+    width: 1em;
+}
+
+/* Table styles */
+.table {
+    margin-bottom: 0;
+    text-align: center;
+}
+.table.table-coverage th{
+    padding: 0.6rem 1.2rem;
+    vertical-align: middle;
+}
+.table thead {
+    border-bottom: 1px solid rgba(112, 112, 112, 0.1);
+}
+.table, .table td span.link {
+    color: #707070;
+}
+
+.table td, .table th {
+    padding: 1.5rem 1.2rem;
+    word-break: break-word;
+}
+.table td span.link {
+    cursor: pointer;
+    border-bottom: 1px dashed #707070;
+}
+
+.table .PASSED {
+    color: #24A2B7;
+}
+
+.table .FAILURE {
+    color: #F74B5A;
+}
+
+.module-content .table {
+    padding: 0;
+    overflow: hidden;
+}
+
+/* .table-card {
+    border: 1px solid #EFEFEF;
+    border-radius: 16px;
+    padding: 0;
+} */
+
+.module-content .row > .card:first-child {
+    margin-right: 1em;
+}
+
+.module-content .row > .card:last-child {
+    height: fit-content;
+}
+
+.coverage-content thead {
+    text-align: left;
+    background: #FCFCFC 0% 0% no-repeat padding-box;
+}
+.coverage-content td {
+    padding: 0;
+}
+
+code {
+    padding: 1em 0 0 1em;
+    display: block;
+    margin-bottom: -1.21em;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.coverage-content code:last-child > span {
+    padding-left: 1em;
+    border-bottom: 1px solid #EFEFEF;
+}
+
+code.lineNumbers {
+    background-color: #707070;
+    text-align: right !important;
+    margin-right: 1em;
+}
+code.lineNumbers span {
+    display: block;
+    line-height: 1.3em;
+}

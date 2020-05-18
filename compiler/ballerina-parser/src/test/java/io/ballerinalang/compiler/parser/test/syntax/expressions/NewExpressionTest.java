@@ -34,7 +34,6 @@ public class NewExpressionTest extends AbstractExpressionsTest {
         test("new(a)", "new-expr/implicit-new-with-1-arg.json");
     }
 
-    // TODO: Check the issue of json parsing
     @Test
     public void testImplicitNewWithMultipleArgs() {
         test("new(a, 10, \"12\")", "new-expr/implicit-new-with-multiple-args.json");

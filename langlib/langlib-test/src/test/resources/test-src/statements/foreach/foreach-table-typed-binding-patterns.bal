@@ -1,19 +1,16 @@
 string output = "";
 
 type Employee record {
-    int id;
+    readonly int id;
     string name;
     float salary;
 };
 
-table<Employee> data = table {
-    { key id, name, salary },
-    [
-        { 1, "Mary",  300.5 },
-        { 2, "John",  200.5 },
-        { 3, "Jim", 330.5 }
-    ]
-};
+table<Employee> data = table key(id)[
+        { id: 1, name: "Mary", salary: 300.5 },
+        { id: 2, name: "John", salary: 200.5 },
+        { id: 3, name: "Jim", salary: 330.5 }
+    ];
 
 function concatIntAny(int i, any a) {
     output = output + i.toString() + ":" + a.toString() + " ";
@@ -65,9 +62,7 @@ function testRecordInTableWithoutType() returns string {
 function testEmptyTableIteration() returns string {
     output = "";
 
-    table<Employee> d = table {
-        { key id, name, salary }, []
-    };
+    table<Employee> d = table key(id) [];
 
     int i = 0;
     foreach var {id, name, salary} in d {

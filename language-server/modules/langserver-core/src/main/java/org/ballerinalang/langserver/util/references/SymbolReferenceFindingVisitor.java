@@ -116,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -597,6 +598,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+        for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
+            acceptNode(constituentTypeNode);
+        }
+    }
+
+    @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         objectTypeNode.typeRefs.forEach(this::addObjectReferenceType);
         objectTypeNode.fields.forEach(this::acceptNode);
@@ -943,6 +951,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangStreamType streamType) {
         this.acceptNode(streamType.constraint);
         this.acceptNode(streamType.error);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        if (actionInvocationExpr.name.getValue().equals(this.tokenName)) {
+            DiagnosticPos pos = actionInvocationExpr.name.getPosition();
+            this.addSymbol(actionInvocationExpr, actionInvocationExpr.symbol, false, pos);
+        }
+        this.acceptNode(actionInvocationExpr.expr);
+        actionInvocationExpr.argExprs.forEach(this::acceptNode);
     }
 
     protected void acceptNode(BLangNode node) {

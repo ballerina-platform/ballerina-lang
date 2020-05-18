@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -34,5 +35,8 @@ public class FromString {
 
     public static HandleValue fromString(Strand strand, String strValue) {
         return new HandleValue(strValue);
+    }
+    public static HandleValue fromString_bstring(Strand strand, BString strValue) {
+        return new HandleValue(strValue.getValue());
     }
 }

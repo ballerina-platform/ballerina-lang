@@ -12,8 +12,8 @@ type Person record {
 };
 
 type Employee record {
-    int id;
-    int age = -1;
+    readonly int id;
+    int age;
     decimal salary;
     string name;
     boolean married;
@@ -286,13 +286,6 @@ function testToString() returns string[] {
     any[] varObjArr = [varObj, varObj2];
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
 
-    //TODO Table remove - Fix
-    //table<Employee> employeeTable = table{
-    //        { key id, age, salary, name, married },
-    //        [ { 1, 30,  300.5, "Mary", true },
-    //          { 2, 20,  300.5, "John", true }
-    //        ]
-    //    };
     varMap["varInt"] = varInt;
     varMap["varFloat"] = varFloat;
     varMap["varStr"] = varStr;
@@ -307,15 +300,39 @@ function testToString() returns string[] {
     varMap["varObj2"] = varObj2;
     varMap["varObjArr"] = varObjArr;
     varMap["varRecord"] = p;
-    //varMap["varTable"] = employeeTable;
 
     return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
             varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
             varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
 }
 
+function testToStringMethodForTable() {
+    table<Employee> employeeTable = table key(id) [
+            { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
+            { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
+        ];
+
+    assertEquality("id=1 age=30 salary=300.5 name=Mary married=true\nid=2 age=20 salary=300.5 name=John married=true", employeeTable.toString());
+}
+
 public function xmlSequenceFragmentToString() returns string {
    xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
 
    return (x/*).toString();
+}
+
+type AssertionError error<ASSERTION_ERROR_REASON>;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

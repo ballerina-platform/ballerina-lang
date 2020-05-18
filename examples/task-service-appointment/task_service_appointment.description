@@ -1,5 +1,0 @@
-// Task Appointment Services are used to schedule and execute tasks.
-// An appointment should have an `appointmentData` field. It can be either a
-// `string` representing a CRON expression or an `AppointmentData` record.
-// An optional `noOfRecurrences` field can be used to provide the maximum
-// number of times the appointment should run before shutting down.
