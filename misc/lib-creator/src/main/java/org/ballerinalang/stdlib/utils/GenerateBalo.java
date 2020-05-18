@@ -116,13 +116,19 @@ public class GenerateBalo {
 
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
+        Path jarOutputDirectory = Paths.get("./build/generated-bir-jar/");
+        Path parent = jarOutputDirectory.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+
         CompilerPhase compilerPhase = CompilerPhase.CODE_GEN;
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
         options.put(SOURCE_PATH, String.valueOf(sourceRootDir));
-        options.put(TARGET_BINARY_PATH, targetDir);
+        options.put(TARGET_BINARY_PATH, jarOutputDirectory.toString());
         options.put(SOURCE_TYPE, String.valueOf(SourceType.SINGLE_MODULE));
         options.put(BALO_GENERATION, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
@@ -138,22 +144,6 @@ public class GenerateBalo {
         printErrors(reportWarnings, diagListner, diagnostics);
 
         compiler.write(buildPackages);
-
-        for (BLangPackage pkg : buildPackages) {
-            String suffix = "";
-            String bStringProp = System.getProperty("ballerina.bstring");
-            if (bStringProp != null && !"".equals(bStringProp)) {
-                suffix = "-bstring";
-            }
-            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
-                                       suffix + ".jar");
-            Path parent = jarOutput.getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
-            }
-
-            printErrors(reportWarnings, diagListner, diagnostics);
-        }
 
         // Generate api doc
         genApiDoc(sourceRootDir, docModuleFilter, buildPackages);
