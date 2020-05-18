@@ -30,6 +30,7 @@ public class BXmlItem extends BCompoundVariable {
 
     @Override
     public void computeChildVariables() {
+        // Todo
         this.setChildVariables(new HashMap<>());
     }
 }
