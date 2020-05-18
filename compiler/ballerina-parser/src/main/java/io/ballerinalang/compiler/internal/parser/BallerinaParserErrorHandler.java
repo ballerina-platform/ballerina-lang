@@ -377,6 +377,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESC_IN_TUPLE_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
 
+    private static final ParserRuleContext[] LIST_CONSTRUCTOR_MEMBER_END =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
+
+    private static final ParserRuleContext[] NIL_OR_PARENTHESISED_TYPE_DESC_RHS =
+            { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.TYPE_DESCRIPTOR };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -981,7 +987,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TRAP_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
                     break;
-                case LIST_CONSTRUCTOR_RHS:
+                case LIST_CONSTRUCTOR_FIRST_MEMBER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LIST_CONSTRUCTOR_RHS,
                             isEntryPoint);
                 case FOREACH_KEYWORD:
@@ -1101,6 +1107,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.RIGHT_DOUBLE_ARROW;
                     break;
                 case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
+                case ANON_FUNC_PARAM_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS, isEntryPoint);
                 case PARAM_END:
@@ -1127,6 +1134,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_IN_TUPLE_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_DESC_IN_TUPLE_RHS,
                             isEntryPoint);
+                case LIST_CONSTRUCTOR_MEMBER_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            LIST_CONSTRUCTOR_MEMBER_END, isEntryPoint);
+                case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            NIL_OR_PARENTHESISED_TYPE_DESC_RHS, isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -2112,7 +2125,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
             case NAMED_WORKERS:
-            case LIST_CONSTRUCTOR_RHS:
+            case LIST_CONSTRUCTOR_FIRST_MEMBER:
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
             case TABLE_KEYWORD_RHS:
@@ -2738,7 +2751,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
                 return ParserRuleContext.ARRAY_LENGTH;
             case LIST_CONSTRUCTOR:
-                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
+                return ParserRuleContext.LIST_CONSTRUCTOR_FIRST_MEMBER;
             case TABLE_CONSTRUCTOR:
                 return ParserRuleContext.ROW_LIST_RHS;
             default:

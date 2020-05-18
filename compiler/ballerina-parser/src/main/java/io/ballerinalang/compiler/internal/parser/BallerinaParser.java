@@ -400,6 +400,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseTupleMemberRhs();
             case CONSTANT_EXPRESSION_START:
                 return parseConstExpr();
+            case LIST_CONSTRUCTOR_MEMBER_END:
+                return parseListConstructorMemberEnd();
+            case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
+                return parseNilOrParenthesisedTypeDescRhs((STNode) args[0]);
+            case ANON_FUNC_PARAM_RHS:
+                return parseImplicitAnonFuncParamEnd();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2010,12 +2016,7 @@ public class BallerinaParser extends AbstractParser {
                 // Object type descriptor
                 return parseObjectTypeDescriptor();
             case OPEN_PAREN_TOKEN:
-                // nil type descriptor '()'
-                if (getNextNextToken(tokenKind).kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-                    return parseNilTypeDescriptor();
-                }
-
-                return parseParenthesisedTypeDesc();
+                return parseNilOrParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
@@ -2046,6 +2047,42 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 return parseTypeDescriptorInternal(solution.tokenKind, context);
+        }
+    }
+
+    private STNode parseNilOrParenthesisedTypeDesc() {
+        STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
+        return parseNilOrParenthesisedTypeDescRhs(openParen);
+    }
+
+    private STNode parseNilOrParenthesisedTypeDescRhs(STNode openParen) {
+        return parseNilOrParenthesisedTypeDescRhs(peek().kind, openParen);
+    }
+
+    private STNode parseNilOrParenthesisedTypeDescRhs(SyntaxKind nextTokenKind, STNode openParen) {
+        STNode closeParen;
+        switch (nextTokenKind) {
+            case CLOSE_PAREN_TOKEN:
+                closeParen = parseCloseParenthesis();
+                return STNodeFactory.createNilTypeDescriptorNode(openParen, closeParen);
+            default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
+                    closeParen = parseCloseParenthesis();
+                    return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
+                }
+
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.NIL_OR_PARENTHESISED_TYPE_DESC_RHS, openParen);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseNilOrParenthesisedTypeDescRhs(solution.tokenKind, openParen);
         }
     }
 
@@ -2490,6 +2527,7 @@ public class BallerinaParser extends AbstractParser {
             case PIPE_TOKEN:
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
+            case PERCENT_TOKEN:
                 return true;
             default:
                 return false;
@@ -2506,6 +2544,7 @@ public class BallerinaParser extends AbstractParser {
         switch (binaryOpKind) {
             case ASTERISK_TOKEN: // multiplication
             case SLASH_TOKEN: // division
+            case PERCENT_TOKEN:
                 return OperatorPrecedence.MULTIPLICATIVE;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -7657,16 +7696,43 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining expressions
         nextToken = peek();
-        STNode leadingComma;
+        STNode listConstructorMemberEnd;
         while (!isEndOfExpressionsList(nextToken.kind)) {
-            leadingComma = parseComma();
-            expressions.add(leadingComma);
+            listConstructorMemberEnd = parseListConstructorMemberEnd(nextToken.kind);
+            if (listConstructorMemberEnd.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                break;
+            }
+
+            expressions.add(listConstructorMemberEnd);
             expr = parseExpression();
             expressions.add(expr);
             nextToken = peek();
         }
 
         return STNodeFactory.createNodeList(expressions);
+    }
+
+    private STNode parseListConstructorMemberEnd() {
+        return parseListConstructorMemberEnd(peek().kind);
+    }
+
+    private STNode parseListConstructorMemberEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+                return parseCloseBracket();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseListConstructorMemberEnd(solution.tokenKind);
+        }
     }
 
     /**
@@ -8633,11 +8699,15 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining params
         STToken nextToken = peek();
-        STNode leadingComma;
+        STNode paramEnd;
         STNode param;
         while (!isEndOfAnonFuncParametersList(nextToken.kind)) {
-            leadingComma = parseComma();
-            paramList.add(leadingComma);
+            paramEnd = parseImplicitAnonFuncParamEnd(nextToken.kind);
+            if (paramEnd.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                break;
+            }
+
+            paramList.add(paramEnd);
             param = parseIdentifier(ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM);
             paramList.add(param);
             nextToken = peek();
@@ -8649,6 +8719,30 @@ public class BallerinaParser extends AbstractParser {
 
         STNode inferedParams = STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
         return parseImplicitAnonFunc(inferedParams);
+    }
+
+    private STNode parseImplicitAnonFuncParamEnd() {
+        return parseImplicitAnonFuncParamEnd(peek().kind);
+    }
+
+    private STNode parseImplicitAnonFuncParamEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_PAREN_TOKEN:
+                return parseCloseParenthesis();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_PARAM_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseImplicitAnonFuncParamEnd(solution.tokenKind);
+        }
     }
 
     private boolean isEndOfAnonFuncParametersList(SyntaxKind tokenKind) {
@@ -8772,18 +8866,6 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTupleRestTypeDesc() {
         return STNodeFactory.createEmptyNode();
-    }
-
-    /**
-     * Parse type-desc with enclosing parenthesis.
-     * 
-     * @return Type-desc with enclosing parenthesis
-     */
-    private STNode parseParenthesisedTypeDesc() {
-        STNode openParen = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
-        STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
-        STNode closeParen = parseCloseParenthesis();
-        return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
     }
 
     /**

@@ -147,10 +147,12 @@ public enum ParserRuleContext {
     EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
     BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
     BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
+    ANON_FUNC_PARAM_RHS("anon-func-param-rhs"),
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
     PEER_WORKER("peer-worker"),
     FLUSH_WORKER_NAME("flush-worker-name"),
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
+    NIL_OR_PARENTHESISED_TYPE_DESC_RHS("nil-or-parenthesised-tpe-desc-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -184,6 +186,7 @@ public enum ParserRuleContext {
     FORK_STMT("fork-stmt"),
     FOREACH_STMT("foreach-stmt"),
     INFER_PARAM_END_OR_PARENTHESIS_END("infer-param-end-or-parenthesis-end"),
+    LIST_CONSTRUCTOR_MEMBER_END("list-constructor-member-end"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -325,7 +328,7 @@ public enum ParserRuleContext {
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
     LIST_CONSTRUCTOR("list-constructor"),
-    LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
+    LIST_CONSTRUCTOR_FIRST_MEMBER("list-constructor-first-member"),
     TYPE_CAST("type-cast"),
     TYPE_CAST_PARAM("type-cast-param"),
     TYPE_CAST_PARAM_RHS("type-cast-param-rhs"),
