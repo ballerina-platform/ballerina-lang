@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utilities for Maven dependency resolving.
+ * Maven dependency resolving.
  */
 public class MavenResolver {
     org.ballerinalang.maven.Dependency rootNode = null;
@@ -177,7 +177,7 @@ public class MavenResolver {
                 artifactRequest.setArtifact(artifact);
                 artifactRequest.setRepositories(repositories);
                 system.resolveArtifact(session, artifactRequest);
-                rootNode = new org.ballerinalang.maven.Dependency(artifact.getGroupId(), artifact.getGroupId(),
+                rootNode = new org.ballerinalang.maven.Dependency(artifact.getGroupId(), artifact.getArtifactId(),
                         artifact.getVersion());
             } catch (ArtifactResolutionException e) {
                 throw new MavenResolverException(e.getMessage());

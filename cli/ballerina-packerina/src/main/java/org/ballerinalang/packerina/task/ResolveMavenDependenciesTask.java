@@ -18,7 +18,9 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
+import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -49,13 +51,9 @@ public class ResolveMavenDependenciesTask implements Task {
         for (Library library : manifest.getPlatform().getLibraries()) {
             buildContext.out().println("Resolving " + library.getArtifactId());
             try {
-                resolver.resolve(library.getGroupId(), library.getArtifactId(), library.getVersion(), false);
-
-
-                String jarPath = targetRepo + File.separator + library.getGroupId().replace('.', File.separatorChar)
-                        + File.separator + library.getArtifactId() + File.separator + library.getVersion()
-                        + File.separator + library.getArtifactId() + "-" + library.getVersion() + ".jar";
-                library.setPath(jarPath);
+                Dependency dependency = resolver.resolve(library.getGroupId(), library.getArtifactId(),
+                        library.getVersion(), false);
+                library.setPath(Utils.getJarPath(targetRepo, dependency));
             } catch (MavenResolverException e) {
                 buildContext.err().print("cannot resolve " + library.getArtifactId());
             }
