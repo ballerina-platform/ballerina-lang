@@ -90,10 +90,12 @@ public class CodeGenerator {
     private BIREmitter birEmitter;
     private Path jarCachePath;
     private Path projectRoot;
+    private Path targetRoot;
     private boolean isBaloGen;
     private SourceType sourceType;
     private Path sourcePath;
     private Manifest manifest;
+    private CompilerOptions compilerOptions;
     private boolean skipTests;
     private boolean dumbBIR;
     private boolean skipAddDependencies;
@@ -109,8 +111,8 @@ public class CodeGenerator {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.birEmitter = BIREmitter.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
-
-        init(CompilerOptions.getInstance(context));
+        this.compilerOptions = CompilerOptions.getInstance(context);
+        init();
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -123,23 +125,23 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    private void init(CompilerOptions compilerOptions) {
+    private void init() {
 
         // skip initialization of this instance if the phase is not codegen
-        if (compilerOptions.getCompilerPhase().compareTo(CompilerPhase.CODE_GEN) < 0) {
+        if (this.compilerOptions.getCompilerPhase().compareTo(CompilerPhase.CODE_GEN) < 0) {
             return;
         }
 
-        Path targetDirPath = Paths.get(compilerOptions.get(CompilerOptionName.TARGET_BINARY_PATH));
-        this.jarCachePath = targetDirPath.resolve(ProjectDirConstants.CACHES_DIR_NAME)
+        this.targetRoot = Paths.get(this.compilerOptions.get(CompilerOptionName.TARGET_BINARY_PATH));
+        this.jarCachePath = targetRoot.resolve(ProjectDirConstants.CACHES_DIR_NAME)
                 .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-        this.projectRoot = Paths.get(compilerOptions.get(CompilerOptionName.PROJECT_DIR));
-        this.sourceType = SourceType.valueOf(compilerOptions.get(CompilerOptionName.SOURCE_TYPE));
-        this.sourcePath = Paths.get(compilerOptions.get(CompilerOptionName.SOURCE_PATH));
-        this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
-        this.isBaloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
-        this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
-        this.skipAddDependencies = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_ADD_DEPENDENCIES);
+        this.projectRoot = Paths.get(this.compilerOptions.get(CompilerOptionName.PROJECT_DIR));
+        this.sourceType = SourceType.valueOf(this.compilerOptions.get(CompilerOptionName.SOURCE_TYPE));
+        this.sourcePath = Paths.get(this.compilerOptions.get(CompilerOptionName.SOURCE_PATH));
+        this.skipTests = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.SKIP_TESTS);
+        this.isBaloGen = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.BALO_GENERATION);
+        this.dumbBIR = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.skipAddDependencies = getBooleanValueIfSet(this.compilerOptions, CompilerOptionName.SKIP_ADD_DEPENDENCIES);
         this.supportedPlatforms.add(ProgramFileConstants.ANY_PLATFORM);
         findProjectDependenciesInManifest();
     }
@@ -149,7 +151,7 @@ public class CodeGenerator {
         return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
     }
 
-    public void generate(BLangPackage entryMod) {
+    public BLangPackage generate(BLangPackage entryMod) {
 
         if (dumbBIR) {
             birEmitter.emit(entryMod.symbol.bir);
@@ -165,7 +167,7 @@ public class CodeGenerator {
         generate(entryMod.symbol.bir, targetJarName, moduleDependencies);
 
         if (skipTests || !entryMod.hasTestablePackage()) {
-            return;
+            return entryMod;
         }
 
         entryMod.getTestablePkgs().forEach(testablePackage -> {
@@ -175,6 +177,8 @@ public class CodeGenerator {
             // generate test module jar
             generate(testablePackage.symbol.bir, targetTestJarName, moduleDependencies);
         });
+
+        return entryMod;
     }
 
     private void generate(BIRNode.BIRPackage entryMod, Path target, Set<Path> moduleDependencies) {
@@ -191,20 +195,29 @@ public class CodeGenerator {
 
     private Path calculateTargetFilePath(PackageID moduleID) {
 
+        String suffix = "";
+        String bStringProp = System.getProperty("ballerina.bstring");
+        if (bStringProp != null && !"".equals(bStringProp)) {
+            suffix = "-bstring";
+        }
+
+        Path targetRoot = isBaloGen ? this.targetRoot : this.jarCachePath;
+
         try {
-            Files.createDirectories(jarCachePath);
+            Files.createDirectories(targetRoot);
             switch (sourceType) {
                 case SINGLE_BAL_FILE:
-                    String birFileName = FileUtils.geFileNameWithoutExtension(sourcePath);
-                    return jarCachePath.resolve(birFileName);
+                    String fileName = FileUtils.geFileNameWithoutExtension(sourcePath);
+                    return targetRoot.resolve(fileName + suffix);
                 case SINGLE_MODULE:
                 case ALL_MODULES:
-                    Path moduleBirCacheDir = Files.createDirectories(jarCachePath
+                    Path moduleJarCacheDir = Files.createDirectories(targetRoot
                             .resolve(moduleID.orgName.value)
                             .resolve(moduleID.name.value)
                             .resolve(moduleID.version.value));
-                    return moduleBirCacheDir.resolve(moduleID.orgName.value + "-" + moduleID.name.value + "-" +
-                            moduleID.version.value);
+                    return moduleJarCacheDir.resolve(moduleID.orgName.value + "-" + moduleID.name.value +
+                            (moduleID.version.value == null || moduleID.version.value.isEmpty() ? "" :
+                                    "-" + moduleID.version.value) + suffix);
                 default:
                     throw new BLangCompilerException("unknown source type found: " + sourceType);
             }
@@ -218,14 +231,14 @@ public class CodeGenerator {
 
         Path testFilePath = calculateTargetFilePath(bLangPackage.packageID);
 
-        return Paths.get(testFilePath.toString(), BLANG_COMPILED_JAR_EXT);
+        return Paths.get(testFilePath.toString() + BLANG_COMPILED_JAR_EXT);
     }
 
     private Path findTargetTestJarName(BLangTestablePackage testablePackage) {
 
         Path testFilePath = calculateTargetFilePath(testablePackage.packageID);
 
-        return Paths.get(testFilePath.toString(), "-testable", BLANG_COMPILED_JAR_EXT);
+        return Paths.get(testFilePath.toString() + "-testable" + BLANG_COMPILED_JAR_EXT);
     }
 
     private Set<Path> findDependencies(BPackageSymbol packageSymbol) {
