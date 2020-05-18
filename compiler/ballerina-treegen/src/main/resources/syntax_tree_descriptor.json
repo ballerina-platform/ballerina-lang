@@ -2489,6 +2489,11 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                },
+                {
+                    "name": "semiColon",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },

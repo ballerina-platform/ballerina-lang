@@ -399,7 +399,7 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_DESC_IN_TUPLE_RHS:
                 return parseTupleMemberRhs();
             case CONSTANT_EXPRESSION_START:
-                return parseConstExpr();
+                return parseConstExprInternal();
             case LIST_CONSTRUCTOR_MEMBER_END:
                 return parseListConstructorMemberEnd();
             case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
@@ -2132,6 +2132,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseExternalFunctionBody();
             case OPEN_BRACE_TOKEN:
                 return parseFunctionBodyBlock(false);
+            case RIGHT_DOUBLE_ARROW:
+                return parseExpressionFuncBody(false);
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.FUNC_BODY);
@@ -3214,7 +3216,7 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case SEMICOLON_TOKEN:
                 this.errorHandler.removeInvalidToken();
-                return parseStatement(tokenKind, annots);
+                return parseStatement(annots);
             case FINAL_KEYWORD:
                 STNode finalKeyword = parseFinalKeyword();
                 return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
@@ -3658,6 +3660,8 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case AT_TOKEN:
             case NEW_KEYWORD:
+            case START_KEYWORD:
+            case FLUSH_KEYWORD:
                 return true;
             default:
                 return false;
@@ -4605,7 +4609,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_KEYWORD:
                 STNode remoteKeyword = parseRemoteKeyword();
                 ArrayList<STNode> methodQualifiers = new ArrayList<>();
-                if (visibilityQualifiers.kind != SyntaxKind.NONE) {
+                if (!isEmpty(visibilityQualifiers)) {
                     methodQualifiers.add(visibilityQualifiers);
                 }
                 methodQualifiers.add(remoteKeyword);
@@ -7181,16 +7185,25 @@ public class BallerinaParser extends AbstractParser {
         return expr;
     }
 
+    private STNode parseConstExpr() {
+        startContext(ParserRuleContext.CONSTANT_EXPRESSION);
+        STNode expr = parseConstExprInternal();
+        endContext();
+        return expr;
+    }
+
+    private STNode parseConstExprInternal() {
+        STToken nextToken = peek();
+        return parseConstExprInternal(nextToken.kind);
+    }
+
     /**
      * Parse constants expr.
      *
      * @return Parsed node
      */
-    private STNode parseConstExpr() {
-        startContext(ParserRuleContext.CONSTANT_EXPRESSION);
-        STToken nextToken = peek();
-        STNode expr;
-        switch (nextToken.kind) {
+    private STNode parseConstExprInternal(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
             case STRING_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -7199,22 +7212,16 @@ public class BallerinaParser extends AbstractParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
-                expr = consume();
-                break;
+                return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
-                expr = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
-                break;
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_BRACE_TOKEN:
                 // TODO: nil-literal
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
-                expr = solution.recoveredNode;
-                break;
+                return solution.recoveredNode;
         }
-
-        endContext();
-        return expr;
     }
 
     /**
@@ -8612,6 +8619,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAnonFuncBody(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case OPEN_BRACE_TOKEN:
+            case EOF_TOKEN:
                 STNode body = parseFunctionBodyBlock(true);
                 endContext();
                 return body;
@@ -8619,7 +8627,7 @@ public class BallerinaParser extends AbstractParser {
                 // we end the anon-func context here, before going for expressions.
                 // That is because we wouldn't know when will it end inside expressions.
                 endContext();
-                return parseExpressionFuncBody();
+                return parseExpressionFuncBody(true);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_BODY);
                 if (solution.action == Action.REMOVE) {
@@ -8636,10 +8644,17 @@ public class BallerinaParser extends AbstractParser {
      * 
      * @return Expression function body node
      */
-    private STNode parseExpressionFuncBody() {
+    private STNode parseExpressionFuncBody(boolean isAnon) {
         STNode rightDoubleArrow = parseDoubleRightArrow();
         STNode expression = parseExpression();
-        return STNodeFactory.createExpressionFunctionBodyNode(rightDoubleArrow, expression);
+
+        STNode semiColon;
+        if (isAnon) {
+            semiColon = STNodeFactory.createEmptyNode();
+        } else {
+            semiColon = parseSemicolon();
+        }
+        return STNodeFactory.createExpressionFunctionBodyNode(rightDoubleArrow, expression, semiColon);
     }
 
     /**

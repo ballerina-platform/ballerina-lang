@@ -1385,11 +1385,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
-            STNode expression) {
+            STNode expression,
+            STNode semiColon) {
 
         return new STExpressionFunctionBodyNode(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semiColon);
     }
 
     public static STNode createTupleTypeDescriptorNode(

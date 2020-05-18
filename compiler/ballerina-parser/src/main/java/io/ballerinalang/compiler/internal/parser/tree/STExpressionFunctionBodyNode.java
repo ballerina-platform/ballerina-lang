@@ -30,17 +30,21 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
     public final STNode rightDoubleArrow;
     public final STNode expression;
+    public final STNode semiColon;
 
     STExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
-            STNode expression) {
+            STNode expression,
+            STNode semiColon) {
         super(SyntaxKind.EXPRESSION_FUNCTION_BODY);
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
+        this.semiColon = semiColon;
 
         addChildren(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semiColon);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

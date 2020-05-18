@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -38,6 +40,10 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
         return childInBucket(1);
     }
 
+    public Optional<Token> semiColon() {
+        return optionalChildInBucket(2);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -52,20 +58,24 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
     protected String[] childNames() {
         return new String[]{
                 "rightDoubleArrow",
-                "expression"};
+                "expression",
+                "semiColon"};
     }
 
     public ExpressionFunctionBodyNode modify(
             Token rightDoubleArrow,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            Token semiColon) {
         if (checkForReferenceEquality(
                 rightDoubleArrow,
-                expression)) {
+                expression,
+                semiColon)) {
             return this;
         }
 
         return NodeFactory.createExpressionFunctionBodyNode(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semiColon);
     }
 }

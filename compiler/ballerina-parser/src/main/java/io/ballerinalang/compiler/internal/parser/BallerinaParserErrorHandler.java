@@ -1412,6 +1412,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.CLOSE_BRACE;
         } else if (parentCtx == ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS) {
             nextContext = ParserRuleContext.CLOSE_PARENTHESIS;
+        } else if (parentCtx == ParserRuleContext.FUNC_DEF) {
+            // expression bodied func in module level
+            nextContext = ParserRuleContext.SEMICOLON;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -2711,6 +2714,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
+        } else if (parentCtx == ParserRuleContext.FUNC_DEF) {
+            endContext(); // end func-def
+            nextToken = this.tokenReader.peek(nextLookahead);
+            if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
+                return ParserRuleContext.EOF;
+            }
+            return ParserRuleContext.TOP_LEVEL_NODE;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -2816,7 +2826,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XML_NAMESPACE_PREFIX_DECL;
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException(parentCtx.toString());
         }
     }
 
