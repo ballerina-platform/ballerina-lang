@@ -29,14 +29,14 @@ kafka:AuthenticationConfiguration authConfigInvalidUsername = {
 };
 
 kafka:ProducerConfiguration producerConfigsValid = {
-    bootstrapServers: "localhost:14115",
+    bootstrapServers: "localhost:14121",
     valueSerializerType: kafka:SER_STRING,
     maxBlock: 10000,
     authenticationConfiguration: authConfigValid
 };
 
 kafka:ProducerConfiguration producerConfigsInvalidUsername = {
-    bootstrapServers: "localhost:14115",
+    bootstrapServers: "localhost:14121",
     valueSerializerType: kafka:SER_STRING,
     maxBlock: 10000,
     authenticationConfiguration: authConfigInvalidUsername
@@ -44,7 +44,7 @@ kafka:ProducerConfiguration producerConfigsInvalidUsername = {
 
 public function sendFromValidProducer() returns kafka:ProducerError? {
     kafka:Producer kafkaProducer = new (producerConfigsValid);
-    return kafkaProducer->send("Hello", "test-1");
+    return kafkaProducer->send("Hello from Ballerina", "test-1");
 }
 
 public function sendFromInvalidUsernameProducer() returns kafka:ProducerError? {

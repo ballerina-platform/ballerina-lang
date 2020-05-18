@@ -16,14 +16,14 @@
 
 import ballerina/filepath;
 import ballerina/kafka;
-import ballerina/lang.'string as strings;
 
 string topic = "test-topic-ssl";
 
 kafka:ProducerConfiguration producerConfigs = {
-    bootstrapServers: "localhost:14111",
+    bootstrapServers: "localhost:14122",
     clientId:"ssl-producer",
     acks: kafka:ACKS_ALL,
+    valueSerializerType: kafka:SER_STRING,
     retryCount:3,
     secureSocket: {
         keyStore:{
@@ -43,23 +43,25 @@ kafka:ProducerConfiguration producerConfigs = {
     }
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfigs);
 
 kafka:ProducerConfiguration producerNegativeConfigs = {
-    bootstrapServers: "localhost:14111",
+    bootstrapServers: "localhost:14122",
     clientId:"ssl-producer-negative",
     acks: kafka:ACKS_ALL,
     maxBlock: 1000,
+    valueSerializerType: kafka:SER_STRING,
     retryCount:3
 };
 
 kafka:Producer negativeProducer = new (producerNegativeConfigs);
 
 kafka:ConsumerConfiguration consumerConfig = {
-    bootstrapServers:"localhost:14111",
+    bootstrapServers:"localhost:14122",
     groupId:"test-group",
     clientId: "ssl-consumer",
     offsetReset:"earliest",
+    valueDeserializerType: kafka:DES_STRING,
     topics:["test-topic-ssl"],
     secureSocket: {
         keyStore:{
@@ -79,11 +81,10 @@ kafka:ConsumerConfiguration consumerConfig = {
     }
 };
 
-kafka:Consumer consumer = new(consumerConfig);
+kafka:Consumer consumer = new (consumerConfig);
 
-function funcTestKafkaProduceWithSSL(string msg) returns boolean|error {
-    byte[] byteMsg = msg.toBytes();
-    var result = kafkaProducer->send(byteMsg, topic);
+function testProducerWithSsl(string message) returns boolean|error {
+    var result = kafkaProducer->send(message, topic);
     if (result is error) {
         return result;
     } else {
@@ -91,17 +92,16 @@ function funcTestKafkaProduceWithSSL(string msg) returns boolean|error {
     }
 }
 
-function funcKafkaPollWithSSL() returns string|error {
-
+function testPollWithSsl() returns string|error {
     var results = consumer->poll(1000);
     if (results is error) {
         return results;
     } else {
         if (results.length() == 1) {
             var kafkaRecord = results[0];
-            var serializedMsg = kafkaRecord.value;
-            if (serializedMsg is byte[]) {
-                return strings:fromBytes(serializedMsg);
+            var message = kafkaRecord.value;
+            if (message is string) {
+                return message;
             } else {
                 panic error("Incorrect type");
             }
@@ -113,10 +113,9 @@ function funcKafkaPollWithSSL() returns string|error {
     }
 }
 
-function funcKafkaSSLConnectNegative() returns int|error {
-    string msg = "Hello World SSL Negative Test";
-    byte[] byteMsg = msg.toBytes();
-    var result = negativeProducer->send(byteMsg, topic);
+function testSslConnectNegative() returns int|error {
+    string message = "Hello World SSL Negative Test";
+    var result = negativeProducer->send(message, topic);
     if (result is error) {
         return result;
     } else {

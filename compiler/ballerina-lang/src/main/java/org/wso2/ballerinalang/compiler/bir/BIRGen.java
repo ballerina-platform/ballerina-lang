@@ -1362,7 +1362,9 @@ public class BIRGen extends BLangNodeVisitor {
                                                        VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, toVarRef, this.env.targetOperand));
+
+        emit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, toVarRef, this.env.targetOperand,
+                                               generateMappingConstructorEntries(astMapLiteralExpr.fields)));
         this.env.targetOperand = toVarRef;
     }
 
@@ -1393,7 +1395,8 @@ public class BIRGen extends BLangNodeVisitor {
 
 
         BIRNonTerminator.NewStructure instruction =
-                new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, toVarRef, this.env.targetOperand);
+                new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, toVarRef, this.env.targetOperand,
+                                                  generateMappingConstructorEntries(astStructLiteralExpr.fields));
         emit(instruction);
 
         this.env.targetOperand = toVarRef;
@@ -1487,7 +1490,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp, astMapAccessExpr.isStoreOnCreation));
+                                                  keyRegIndex, rhsOp));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
@@ -1830,8 +1833,10 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand defaultNsURIVarRef = generateNamespaceRef(xmlElementLiteral.defaultNsSymbol, xmlElementLiteral.pos);
 
         // Create xml element
-        BIRNonTerminator.NewXMLElement newXMLElement = new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos,
-                toVarRef, startTagNameIndex, defaultNsURIVarRef);
+        BIRNonTerminator.NewXMLElement newXMLElement =
+                new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos, toVarRef, startTagNameIndex,
+                                                   defaultNsURIVarRef,
+                                                   Symbols.isFlagOn(xmlElementLiteral.type.flags, Flags.READONLY));
         emit(newXMLElement);
 
         // Populate the XML by adding namespace declarations, attributes and children
@@ -1879,7 +1884,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand xmlCommentIndex = this.env.targetOperand;
 
         BIRNonTerminator.NewXMLComment newXMLComment =
-                new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex);
+                new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex,
+                                                   Symbols.isFlagOn(xmlCommentLiteral.type.flags, Flags.READONLY));
         emit(newXMLComment);
         this.env.targetOperand = toVarRef;
     }
@@ -1898,7 +1904,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand targetIndex = this.env.targetOperand;
 
         BIRNonTerminator.NewXMLProcIns newXMLProcIns =
-                new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex);
+                new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex,
+                                                   Symbols.isFlagOn(xmlProcInsLiteral.type.flags, Flags.READONLY));
         emit(newXMLProcIns);
         this.env.targetOperand = toVarRef;
     }
@@ -2208,11 +2215,12 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         long size = -1L;
+        List<BLangExpression> exprs = listConstructorExpr.exprs;
         if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
             size = ((BArrayType) listConstructorExpr.type).size;
         } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
-            size = listConstructorExpr.exprs.size();
+            size = exprs.size();
         }
 
         BLangLiteral literal = new BLangLiteral();
@@ -2222,24 +2230,15 @@ public class BIRGen extends BLangNodeVisitor {
         literal.accept(this);
         BIROperand sizeOp = this.env.targetOperand;
 
-        emit(new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExpr.type, toVarRef, sizeOp));
+        List<BIROperand> valueOperands = new ArrayList<>(exprs.size());
 
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-            BLangExpression argExpr = listConstructorExpr.exprs.get(i);
-            argExpr.accept(this);
-            BIROperand exprIndex = this.env.targetOperand;
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = listConstructorExpr.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            indexLiteral.accept(this);
-            BIROperand arrayIndex = this.env.targetOperand;
-
-            emit(new BIRNonTerminator.FieldAccess(listConstructorExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
-                                                  arrayIndex, exprIndex, true));
+        for (BLangExpression expr : exprs) {
+            expr.accept(this);
+            valueOperands.add(this.env.targetOperand);
         }
+
+        emit(new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExpr.type, toVarRef, sizeOp,
+                                           valueOperands));
         this.env.targetOperand = toVarRef;
     }
 
@@ -2257,7 +2256,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_STORE, varRefRegIndex,
-                                                  keyRegIndex, rhsOp, astArrayAccessExpr.isStoreOnCreation));
+                                                  keyRegIndex, rhsOp));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2299,7 +2298,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_STORE;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
-                                                  rhsOp, astIndexBasedAccessExpr.isStoreOnCreation));
+                                                  rhsOp));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);
@@ -2518,5 +2517,30 @@ public class BIRGen extends BLangNodeVisitor {
         //reset function annotations
         currentEnv.enclAnnotAttachments = functionAnnotAttachments;
         return statementAnnots;
+    }
+
+    private List<BIRNode.BIRMappingConstructorEntry> generateMappingConstructorEntries(
+            List<RecordLiteralNode.RecordField> fields) {
+
+        List<BIRNode.BIRMappingConstructorEntry> initialValues = new ArrayList<>(fields.size());
+
+        for (RecordLiteralNode.RecordField field : fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
+                keyValueField.key.expr.accept(this);
+                BIROperand keyOperand = this.env.targetOperand;
+
+                keyValueField.valueExpr.accept(this);
+                BIROperand valueOperand = this.env.targetOperand;
+                initialValues.add(new BIRNode.BIRMappingConstructorKeyValueEntry(keyOperand, valueOperand));
+                continue;
+            }
+
+            BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField =
+                    (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+            spreadField.expr.accept(this);
+            initialValues.add(new BIRNode.BIRMappingConstructorSpreadFieldEntry(this.env.targetOperand));
+        }
+        return initialValues;
     }
 }

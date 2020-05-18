@@ -98,6 +98,7 @@ dependencies {
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
 
+    dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-cli-module')
@@ -365,14 +366,6 @@ def copyComposerFontsSpec = {
     }
 }
 
-def examplesSpec = {
-    path -> copySpec {
-        from fileTree(project.rootDir.path + '/examples');
-        into(path + '/examples')
-        exclude('**/**/tests')
-    }
-}
-
 def apiDocsSpec = {
     path -> copySpec {
         from generateDocs.outputs.files
@@ -453,7 +446,6 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
-    with examplesSpec(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyResourceSpec(basePath)
@@ -478,7 +470,6 @@ task updateBalHome(type: Copy) {
     with copydebugAdapterDistributionSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
-    with examplesSpec(installDir)
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
@@ -505,7 +496,6 @@ task createDistribution(type: Copy) {
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
-    with examplesSpec("")
     with copyStaticSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")

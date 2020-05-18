@@ -1,6 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run if_else.bal
-a == 10
-a >= b
-b == 0

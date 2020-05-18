@@ -171,6 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -1463,6 +1464,15 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangUnionTypeNode clone = new BLangUnionTypeNode();
         source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        cloneBLangType(source, clone);
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode source) {
+
+        BLangIntersectionTypeNode clone = new BLangIntersectionTypeNode();
+        source.cloneRef = clone;
+        clone.constituentTypeNodes = cloneList(source.constituentTypeNodes);
         cloneBLangType(source, clone);
     }
 

@@ -31,7 +31,7 @@ function testReceiveComplexEmail(string host, string username, string password) 
         email:Email|email:Error? emailResponse = popClient->read();
         if (emailResponse is email:Email) {
             returnArray[0] = emailResponse.subject;
-            returnArray[1] = emailResponse.body;
+            returnArray[1] = <string>emailResponse.body;
             returnArray[2] = emailResponse.'from;
             returnArray[3] = getNonNilString(emailResponse?.sender);
             returnArray[4] = concatStrings(emailResponse.to);

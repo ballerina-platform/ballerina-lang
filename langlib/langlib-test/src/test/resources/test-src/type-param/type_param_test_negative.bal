@@ -130,3 +130,10 @@ function testInvalidArgOnUnionTypedValue() {
     arr.push(true);
     array:unshift(arr, 13.2);
 }
+
+function testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing() {
+    string[]|int[]|int|float[]|float arr = <int[]>[1, 2];
+    if (arr is int[]|float[]|string[]) {
+        [int, (int|float)][] y = arr.enumerate();
+    }
+}

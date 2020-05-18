@@ -17,55 +17,61 @@
 import ballerina/kafka;
 
 kafka:ConsumerConfiguration consumerConfig = {
-    bootstrapServers: "localhost:14107",
+    bootstrapServers: "localhost:14101",
     groupId: "test-group",
     clientId: "basic-consumer",
     offsetReset: "earliest",
-    topics: ["test"]
+    valueDeserializerType: kafka:DES_STRING,
+    autoCommit: true,
+    topics: ["consumer-functions-test-topic"]
 };
 
-function funcKafkaConnect() returns kafka:Consumer {
-    kafka:Consumer consumer= new(consumerConfig);
+int retrievedRecordsCount = 0;
+string receivedMessage = "";
+
+function testCreateConsumer() returns kafka:Consumer {
+    kafka:Consumer consumer = new (consumerConfig);
     return consumer;
 }
 
-function funcKafkaClose() returns boolean {
-    kafka:Consumer consumer= new(consumerConfig);
-    var result = consumer->close();
-    return !(result is error);
+function testClose() returns kafka:ConsumerError? {
+    kafka:Consumer consumer = new (consumerConfig);
+    return consumer->close();
 }
 
-function funcKafkaGetSubscription() returns string[]|error {
-    kafka:Consumer consumer= new(consumerConfig);
+function testGetSubscription() returns string[]|error {
+    kafka:Consumer consumer = new (consumerConfig);
     return consumer->getSubscription();
 }
 
-function funcKafkaGetAssignment() returns kafka:TopicPartition[]|error {
-    kafka:Consumer consumer= new(consumerConfig);
-    return consumer->getAssignment();
-}
-
-function funcKafkaPoll() returns int|error {
-    kafka:Consumer consumer= new(consumerConfig);
+function testPoll() returns int|kafka:ConsumerError {
+    kafka:Consumer consumer = new (consumerConfig);
     var results = consumer->poll(1000);
     if (results is error) {
         return results;
     } else {
-        return results.length();
+        if (results.length() > 0) {
+            retrievedRecordsCount += results.length();
+            receivedMessage = <string> results[0].value;
+        }
     }
+    return retrievedRecordsCount;
+}
+
+function getReceivedMessage() returns string {
+    return receivedMessage;
 }
 
 string topic1 = "consumer-unsubscribe-test-1";
 string topic2 = "consumer-unsubscribe-test-2";
 
-function funcKafkaTestUnsubscribe() returns boolean {
-    kafka:Consumer kafkaConsumer = new({
-            bootstrapServers: "localhost:9100",
-            groupId: "test-group",
-            clientId: "unsubscribe-consumer",
-            offsetReset: "earliest",
-            topics: [topic1, topic2]
-        });
+function testTestUnsubscribe() returns boolean {
+    kafka:Consumer kafkaConsumer = new ({
+        bootstrapServers: "localhost:14101",
+        groupId: "test-group",
+        clientId: "unsubscribe-consumer",
+        topics: [topic1, topic2]
+    });
     var subscribedTopics = kafkaConsumer->getSubscription();
     if (subscribedTopics is error) {
         return false;

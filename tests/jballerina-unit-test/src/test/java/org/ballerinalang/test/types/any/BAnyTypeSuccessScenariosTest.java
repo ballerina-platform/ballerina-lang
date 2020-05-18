@@ -52,12 +52,12 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
     }
 
-    @Test(description = "Test any type as a return value with actual table returning")
+    @Test(description = "Test any type as a return value with actual table returning", groups = "brokenOnJBallerina")
     public void testAnyReturnWithTable() {
         BRunUtil.invoke(result, "tableReturnTestAsAny");
     }
 
-    @Test(description = "Test any type as a return value with actual table returning")
+    @Test(description = "Test any type as a return value with actual table returning", groups = "brokenOnJBallerina")
     public void testInputAnyAsTable() {
         BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
     }

@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.observability.metrics;
 
-import io.debezium.kafka.KafkaCluster;
-import io.debezium.util.Collect;
-import io.debezium.util.Testing;
 import kafka.server.KafkaConfig;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.MetricsTestUtil;
@@ -41,8 +39,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.PROTOCOL_PLAINTEXT;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.STRING_SERIALIZER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.finishTest;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getDataDirectoryName;
 
 /**
  * Integration test for observability of metrics in Kafka producer.
@@ -51,6 +55,10 @@ import java.util.stream.Collectors;
 public class KafkaMetricsTestCase extends BaseTest {
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "metrics" + File.separator;
+    private static final String propertyResources =
+            "messaging" + File.separator + "kafka" + File.separator + "resources" + File.separator + "properties" +
+                    File.separator;
+    private static final String dataDir = getDataDirectoryName(KafkaMetricsTestCase.class.getSimpleName());
     private static KafkaCluster kafkaCluster;
     private static final String TOPIC1 = "t1";
     private static final String TOPIC2 = "t2";
@@ -58,12 +66,22 @@ public class KafkaMetricsTestCase extends BaseTest {
     List<String> args = new ArrayList<>();
 
     @BeforeGroups(value = "kafka-metrics-test", alwaysRun = true)
-    private void setup() throws Exception {
+    private void setup() throws Throwable {
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
-        args.add("--b7a.log.console.loglevel=INFO");
-        File dataDir = Testing.Files.createTestingDirectory("cluster-kafka-producer-metrics-test");
-        kafkaCluster = createKafkaCluster(dataDir, 14010, 14110).addBrokers(1).startup();
-        kafkaCluster.createTopics("t1", "t2", "t3", "t4");
+        args.add("--b7a.log.console.loglevel=ERROR");
+        Properties brokerProperties = new Properties();
+        brokerProperties.setProperty(KafkaConfig.ZkSessionTimeoutMsProp(), Integer.toString(20000));
+        brokerProperties.setProperty(KafkaConfig.AutoCreateTopicsEnableProp(), "false");
+        kafkaCluster = new KafkaCluster(dataDir, null, propertyResources)
+                .withZookeeper(14010)
+                .withBroker(PROTOCOL_PLAINTEXT, 14110, brokerProperties)
+                .withAdminClient()
+                .withProducer(STRING_SERIALIZER, STRING_SERIALIZER)
+                .start();
+        kafkaCluster.createTopic("t1", 1, 1);
+        kafkaCluster.createTopic("t2", 1, 1);
+        kafkaCluster.createTopic("t3", 1, 1);
+        kafkaCluster.createTopic("t4", 1, 1);
     }
 
     @Test
@@ -80,8 +98,8 @@ public class KafkaMetricsTestCase extends BaseTest {
         BServerInstance serverInstance = startBalServer("kafka-consumer-metrics-test.bal");
         CountDownLatch countDownLatch = new CountDownLatch(1);
         countDownLatch.await(20, TimeUnit.SECONDS);
-        produceToKafkaCluster(kafkaCluster, TOPIC1, MESSAGE);
-        produceToKafkaCluster(kafkaCluster, TOPIC2, MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC1);
+        produceToKafkaCluster(kafkaCluster, TOPIC2);
         countDownLatch = new CountDownLatch(1);
         countDownLatch.await(20, TimeUnit.SECONDS);
         readAndValidateMetrics(getConsumerMetrics());
@@ -95,13 +113,6 @@ public class KafkaMetricsTestCase extends BaseTest {
         countDownLatch.await(20, TimeUnit.SECONDS);
         readAndValidateMetrics(getErrorMetrics());
         serverInstance.shutdownServer();
-    }
-
-    @AfterGroups(value = "kafka-metrics-test", alwaysRun = true)
-    private void cleanup() throws Exception {
-        if (kafkaCluster.isRunning()) {
-            kafkaCluster.shutdown();
-        }
     }
 
     private BServerInstance startBalServer(String fileName) throws Exception {
@@ -195,26 +206,15 @@ public class KafkaMetricsTestCase extends BaseTest {
         return expectedMetrics;
     }
 
-    private static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
-        String timeout = "20000";
-        Properties properties = Collect.propertiesOf(KafkaConfig.ZkSessionTimeoutMsProp(), timeout);
-        properties.setProperty(KafkaConfig.AutoCreateTopicsEnableProp(), "false");
-        KafkaCluster kafkaCluster = new KafkaCluster()
-                .usingDirectory(dataDir)
-                .deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true)
-                .withKafkaConfiguration(properties)
-                .withPorts(zkPort, brokerPort);
-        return  kafkaCluster;
+    private static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic)
+            throws ExecutionException, InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            kafkaCluster.sendMessage(topic, KafkaMetricsTestCase.MESSAGE);
+        }
     }
 
-    private static void produceToKafkaCluster(KafkaCluster kafkaCluster, String topic, String message) {
-        CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings(topic, 10, completion::countDown, () -> message);
-        try {
-            completion.await();
-        } catch (Exception ex) {
-            //Ignore
-        }
+    @AfterGroups(value = "kafka-metrics-test", alwaysRun = true)
+    private void cleanup() {
+        finishTest(kafkaCluster, dataDir);
     }
 }

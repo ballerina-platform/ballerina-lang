@@ -33,6 +33,7 @@ CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
 CONST       : 'const' ;
+ENUM        : 'enum' ;
 TYPEOF      : 'typeof';
 SOURCE      : 'source' ;
 ON          : 'on' { inOnCondition = true; };

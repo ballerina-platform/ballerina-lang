@@ -51,6 +51,7 @@ import java.util.Properties;
 
 import static org.ballerinalang.jvm.BallerinaValues.createRecord;
 import static org.ballerinalang.messaging.kafka.utils.AvroUtils.handleAvroConsumer;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ADDITIONAL_PROPERTIES_MAP_FIELD;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_CONCURRENT_CONSUMERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DECOUPLE_PROCESSING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_OFFSET;
@@ -74,7 +75,6 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_KE
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_KEY_SERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_ARRAY;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SASL_PLAIN;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
@@ -159,7 +159,6 @@ public class KafkaUtils {
 
         addStringArrayParamIfPresent(ALIAS_TOPICS, configurations, properties,
                                      ALIAS_TOPICS);
-        addStringArrayParamIfPresent(PROPERTIES_ARRAY, configurations, properties, PROPERTIES_ARRAY);
 
         addIntParamIfPresent(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, configurations, properties,
                              KafkaConstants.CONSUMER_SESSION_TIMEOUT_MS_CONFIG);
@@ -225,6 +224,9 @@ public class KafkaUtils {
         }
         if (Objects.nonNull(configurations.get(AUTHENTICATION_CONFIGURATION))) {
             processSaslProperties(configurations, properties);
+        }
+        if (Objects.nonNull(configurations.getMapValue(ADDITIONAL_PROPERTIES_MAP_FIELD))) {
+            processAdditionalProperties(configurations.getMapValue(ADDITIONAL_PROPERTIES_MAP_FIELD), properties);
         }
         return properties;
     }
@@ -304,6 +306,9 @@ public class KafkaUtils {
         if (Objects.nonNull(configurations.get(AUTHENTICATION_CONFIGURATION))) {
             processSaslProperties(configurations, properties);
         }
+        if (Objects.nonNull(configurations.getMapValue(ADDITIONAL_PROPERTIES_MAP_FIELD))) {
+            processAdditionalProperties(configurations.getMapValue(ADDITIONAL_PROPERTIES_MAP_FIELD), properties);
+        }
         return properties;
     }
 
@@ -371,6 +376,13 @@ public class KafkaUtils {
             addStringParamIfPresent(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, authenticationConfig, properties,
                                     SECURITY_PROTOCOL_CONFIG);
             properties.put(SaslConfigs.SASL_JAAS_CONFIG, jaasConfigValue);
+        }
+    }
+
+    private static void processAdditionalProperties(MapValue propertiesMap, Properties kafkaProperties) {
+        for (Object keyValue : propertiesMap.getKeys()) {
+            String key = (String) keyValue;
+            kafkaProperties.setProperty(key, propertiesMap.getStringValue(key));
         }
     }
 
@@ -463,7 +475,7 @@ public class KafkaUtils {
         if (Objects.nonNull(configs.get(key))) {
             String value = (String) configs.get(key);
             if (!(value == null || value.equals(""))) {
-                configParams.put(paramName, value);
+                configParams.setProperty(paramName, value);
             }
         }
     }

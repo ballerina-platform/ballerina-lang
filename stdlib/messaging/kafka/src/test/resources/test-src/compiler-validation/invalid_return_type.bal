@@ -19,14 +19,14 @@ import ballerina/kafka;
 string topic = "service-invalid-return-type-test";
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:14191",
     groupId: "service-test-invalid-return-type-group",
     clientId: "service-invalid-return-consumer",
     offsetReset: "earliest",
     topics: [topic]
 };
 
-listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
+listener kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 service kafkaTestService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) returns int {

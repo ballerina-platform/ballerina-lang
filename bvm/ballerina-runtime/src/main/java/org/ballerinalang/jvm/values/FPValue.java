@@ -103,16 +103,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public boolean isFrozen() {
-        return true;
-    }
-
-    @Override
-    public Object freeze() {
-        return this;
-    }
-
-    @Override
     public String toString() {
         return BLangConstants.EMPTY;
     }
