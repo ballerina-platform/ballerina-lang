@@ -464,7 +464,8 @@ class JvmObservabilityGen {
                 Call callIns = (Call) currentBB.terminator;
                 DiagnosticPos desugaredInsPosition = callIns.pos;
                 BIRBasicBlock observeStartBB = insertBasicBlock(func, i + 1);
-                BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 2);
+                int newCurrentIndex = i + 2;
+                BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
                 {
                     BIROperand objectTypeOperand;
@@ -583,7 +584,6 @@ class JvmObservabilityGen {
                         observeEndBB.terminator.thenBB = newTargetBB;
                         fixErrorTable(func, errorEntry.targetBB, newTargetBB);
                     } else {
-                        int newCurrentIndex = i + 1;
                         BIRBasicBlock errorCheckBB = insertBasicBlock(func, newCurrentIndex + 1);
                         BIRBasicBlock errorReportBB = insertBasicBlock(func, newCurrentIndex + 2);
                         BIRBasicBlock observeEndBB = insertBasicBlock(func, newCurrentIndex + 3);
