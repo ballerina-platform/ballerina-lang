@@ -1908,28 +1908,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ExplicitNewExpressionNode createExplicitNewExpressionNode(
-            Token NewKeyword,
-            TypeDescriptorNode TypeDescriptor,
-            Node ParenthesizedArgList) {
-        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
-        Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
-        Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
+            Token newKeyword,
+            TypeDescriptorNode typeDescriptor,
+            Node parenthesizedArgList) {
+        Objects.requireNonNull(newKeyword, "newKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
 
         STNode stExplicitNewExpressionNode = STNodeFactory.createExplicitNewExpressionNode(
-                NewKeyword.internalNode(),
-                TypeDescriptor.internalNode(),
-                ParenthesizedArgList.internalNode());
+                newKeyword.internalNode(),
+                typeDescriptor.internalNode(),
+                parenthesizedArgList.internalNode());
         return stExplicitNewExpressionNode.createUnlinkedFacade();
     }
 
     public static ImplicitNewExpressionNode createImplicitNewExpressionNode(
-            Token NewKeyword,
-            ParenthesizedArgList ParenthesizedArgList) {
-        Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+            Token newKeyword,
+            ParenthesizedArgList parenthesizedArgList) {
+        Objects.requireNonNull(newKeyword, "newKeyword must not be null");
 
         STNode stImplicitNewExpressionNode = STNodeFactory.createImplicitNewExpressionNode(
-                NewKeyword.internalNode(),
-                getOptionalSTNode(ParenthesizedArgList));
+                newKeyword.internalNode(),
+                getOptionalSTNode(parenthesizedArgList));
         return stImplicitNewExpressionNode.createUnlinkedFacade();
     }
 

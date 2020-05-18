@@ -2547,15 +2547,15 @@
             "kind": "EXPLICIT_NEW_EXPRESSION",
             "attributes": [
                 {
-                    "name": "NewKeyword",
+                    "name": "newKeyword",
                     "type": "Token"
                 },
                 {
-                    "name": "TypeDescriptor",
+                    "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
                 },
                 {
-                    "name": "ParenthesizedArgList",
+                    "name": "parenthesizedArgList",
                     "type": "Node"
                 }
             ]
@@ -2566,11 +2566,11 @@
             "kind": "IMPLICIT_NEW_EXPRESSION",
             "attributes": [
                 {
-                    "name": "NewKeyword",
+                    "name": "newKeyword",
                     "type": "Token"
                 },
                 {
-                    "name": "ParenthesizedArgList",
+                    "name": "parenthesizedArgList",
                     "type": "ParenthesizedArgList",
                     "isOptional": true
                 }

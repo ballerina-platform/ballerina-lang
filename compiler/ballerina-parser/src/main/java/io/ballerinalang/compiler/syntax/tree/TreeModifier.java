@@ -1405,22 +1405,22 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
-        Token NewKeyword = modifyToken(explicitNewExpressionNode.NewKeyword());
-        TypeDescriptorNode TypeDescriptor = modifyNode(explicitNewExpressionNode.TypeDescriptor());
-        Node ParenthesizedArgList = modifyNode(explicitNewExpressionNode.ParenthesizedArgList());
+        Token newKeyword = modifyToken(explicitNewExpressionNode.newKeyword());
+        TypeDescriptorNode typeDescriptor = modifyNode(explicitNewExpressionNode.typeDescriptor());
+        Node parenthesizedArgList = modifyNode(explicitNewExpressionNode.parenthesizedArgList());
         return explicitNewExpressionNode.modify(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
     }
 
     @Override
     public Node transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
-        Token NewKeyword = modifyToken(implicitNewExpressionNode.NewKeyword());
-        ParenthesizedArgList ParenthesizedArgList = modifyNode(implicitNewExpressionNode.ParenthesizedArgList().orElse(null));
+        Token newKeyword = modifyToken(implicitNewExpressionNode.newKeyword());
+        ParenthesizedArgList parenthesizedArgList = modifyNode(implicitNewExpressionNode.parenthesizedArgList().orElse(null));
         return implicitNewExpressionNode.modify(
-                NewKeyword,
-                ParenthesizedArgList);
+                newKeyword,
+                parenthesizedArgList);
     }
 
     @Override

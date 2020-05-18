@@ -773,7 +773,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ImplicitNewExpressionNode implicitNewExprNode) {
         BLangTypeInit initNode = createTypeInit(implicitNewExprNode);
-        BLangInvocation invocationNode = createInvocation(implicitNewExprNode, implicitNewExprNode.NewKeyword());
+        BLangInvocation invocationNode = createInvocation(implicitNewExprNode, implicitNewExprNode.newKeyword());
         // Populate the argument expressions on initNode as well.
         initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
@@ -784,7 +784,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ExplicitNewExpressionNode explicitNewExprNode) {
         BLangTypeInit initNode = createTypeInit(explicitNewExprNode);
-        BLangInvocation invocationNode = createInvocation(explicitNewExprNode, explicitNewExprNode.NewKeyword());
+        BLangInvocation invocationNode = createInvocation(explicitNewExprNode, explicitNewExprNode.newKeyword());
         // Populate the argument expressions on initNode as well.
         initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
@@ -795,7 +795,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = getPosition(expression);
         if (expression.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
-            Node type = ((ExplicitNewExpressionNode) expression).TypeDescriptor();
+            Node type = ((ExplicitNewExpressionNode) expression).typeDescriptor();
             initNode.userDefinedType = createTypeNode(type);
         }
 
@@ -829,14 +829,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Iterator<FunctionArgumentNode> argumentsIter = null;
 
         if (expression.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
-            Optional<ParenthesizedArgList> argsList = ((ImplicitNewExpressionNode) expression).ParenthesizedArgList();
+            Optional<ParenthesizedArgList> argsList = ((ImplicitNewExpressionNode) expression).parenthesizedArgList();
             if (argsList.isPresent()) {
                 ParenthesizedArgList argList = argsList.get();
                 argumentsIter = argList.arguments().iterator();
             }
         } else {
             ParenthesizedArgList argList =
-                    (ParenthesizedArgList) ((ExplicitNewExpressionNode) expression).ParenthesizedArgList();
+                    (ParenthesizedArgList) ((ExplicitNewExpressionNode) expression).parenthesizedArgList();
             argumentsIter = argList.arguments().iterator();
         }
 
