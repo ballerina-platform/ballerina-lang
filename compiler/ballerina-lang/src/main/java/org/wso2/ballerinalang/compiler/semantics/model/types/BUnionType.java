@@ -108,7 +108,12 @@ public class BUnionType extends BType implements UnionType {
      * @return The created union type.
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
-        LinkedHashSet<BType> memberTypes = toFlatTypeSet(types);
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        for (BType memBType : toFlatTypeSet(types)) {
+            if (memBType.tag != TypeTags.NEVER) {
+                memberTypes.add(memBType);
+            }
+        }
         boolean hasNilableType = memberTypes.stream().anyMatch(t -> t.isNullable() && t.tag != TypeTags.NIL);
         if (hasNilableType) {
             memberTypes = memberTypes.stream().filter(t -> t.tag != TypeTags.NIL)
