@@ -334,6 +334,7 @@ StringTemplateText=243
 'from'=91
 'let'=95
 'conflict'=96
+'equals'=97
 'Deprecated'=98
 'Deprecated parameters'=100
 ';'=101
