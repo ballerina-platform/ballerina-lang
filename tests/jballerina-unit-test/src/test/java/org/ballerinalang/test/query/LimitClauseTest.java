@@ -30,34 +30,16 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
- * This contains methods to test on conflict clause in query expression.
+ * This contains methods to test limit in query expression and query action.
  *
  * @since 1.3.0
  */
-public class OnConflictClauseLimitClauseTest {
+public class LimitClauseTest {
     private CompileResult result;
-    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/query/onConflictClause-limitClause.bal");
-        negativeResult = BCompileUtil.compile("test-src/query/onConflictClause-limitClause-negative.bal");
-    }
-
-    @Test(description = "Test on conflict clause")
-    public void testOnConflictClause() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testOnConflictClause");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
-
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
-
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+        result = BCompileUtil.compile("test-src/query/limit-clause.bal");
     }
 
     @Test(description = "Test limit clause")
@@ -76,7 +58,7 @@ public class OnConflictClauseLimitClauseTest {
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
     }
 
-    @Test(description = "Test simple query action statement")
+    @Test(description = "Test query action with limit clause")
     public void testLimitClauseWithQueryAction() {
         BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryAction");
         Assert.assertNotNull(returnValues);
@@ -91,20 +73,13 @@ public class OnConflictClauseLimitClauseTest {
         Assert.assertEquals(person3.get("lastName").stringValue(), "David");
     }
 
-    @Test(description = "Test on conflict clause and limit clause with incompatible types")
-    public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        int index = 0;
-        validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
-                29, 25);
-        validateError(negativeResult, index++, "type 'error' not allowed here; expected an 'error' " +
-                        "or a subtype of 'error'.",
-                29, 25);
-        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'boolean'",
-                49, 19);
-        validateError(negativeResult, index, "incompatible types: expected 'int', found 'boolean'",
-                68, 19);
-    }
-
-
+//    @Test(description = "Test limit clause with incompatible types")
+//    public void testNegativeScenarios() {
+//        Assert.assertEquals(result.getErrorCount(), 4);
+//        int index = 0;
+//        validateError(result, index++, "incompatible types: expected 'int', found 'boolean'",
+//                68, 19);
+//        validateError(result, index, "incompatible types: expected 'int', found 'boolean'",
+//                87, 19);
+//    }
 }
