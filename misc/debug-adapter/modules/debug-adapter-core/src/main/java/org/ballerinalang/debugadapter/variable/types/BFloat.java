@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class BFloat extends BPrimitiveVariable {
     private final DoubleValueImpl jvmValueRef;
 
     public BFloat(Value value, Variable dapVariable) {
-        this.jvmValueRef = (DoubleValueImpl) value;
+        this.jvmValueRef = value instanceof DoubleValueImpl ? (DoubleValueImpl) value : null;
         dapVariable.setType(BVariableType.FLOAT.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -38,6 +38,6 @@ public class BFloat extends BPrimitiveVariable {
 
     @Override
     public String getValue() {
-        return jvmValueRef.toString();
+        return jvmValueRef != null ? jvmValueRef.toString() : "unknown";
     }
 }

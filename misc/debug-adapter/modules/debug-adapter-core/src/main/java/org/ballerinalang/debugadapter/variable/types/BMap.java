@@ -38,7 +38,7 @@ public class BMap extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BMap(Value value, Variable dapVariable) {
-        this.jvmValueRef = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.MAP.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -76,6 +76,8 @@ public class BMap extends BCompoundVariable {
                 }
             });
             this.setChildVariables(values);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }

@@ -30,7 +30,7 @@ public class BString extends BPrimitiveVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BString(Value value, Variable dapVariable) {
-        this.jvmValueRef = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.STRING.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);

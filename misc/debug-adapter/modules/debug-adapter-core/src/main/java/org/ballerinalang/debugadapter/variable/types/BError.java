@@ -35,7 +35,7 @@ public class BError extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BError(Value value, Variable dapVariable) {
-        this.jvmValueRef = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.ERROR.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -50,7 +50,9 @@ public class BError extends BCompoundVariable {
                     .collect(Collectors.toList()).get(0);
             Value error = jvmValueRef.getValue(valueField);
             return error.toString();
-        } catch (Error e) {
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
             return "unknown";
         }
     }

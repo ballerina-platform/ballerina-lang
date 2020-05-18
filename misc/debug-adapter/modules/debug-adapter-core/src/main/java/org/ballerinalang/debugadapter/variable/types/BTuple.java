@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class BTuple extends BCompoundVariable {
 
     public BTuple(Value value, Variable dapVariable) {
 
-        this.jvmValueRef = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.TUPLE.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -66,6 +66,8 @@ public class BTuple extends BCompoundVariable {
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
             int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
             return String.format("%s[%d]", arrayType, arraySize);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception ignored) {
             return "unknown";
         }
@@ -97,6 +99,8 @@ public class BTuple extends BCompoundVariable {
                 values.put("[" + varIndex + "]", valueSubList.get(varIndex));
             });
             this.setChildVariables(values);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception ignored) {
             this.setChildVariables(new HashMap<>());
         }
