@@ -162,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -367,21 +366,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 
         return tupleTypeNode;
-    }
-
-    @Override
-    public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        // TODO: Anonymous error type handling, and inferred-type-descriptor handling.
-        BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        errorType.pos = getPosition(errorTypeDescriptorNode);
-
-        Optional<ErrorTypeParamsNode> errorTypeParamsNode = errorTypeDescriptorNode.errorTypeParamsNode();
-        if (errorTypeParamsNode.isPresent()) {
-            ErrorTypeParamsNode paramNode = errorTypeParamsNode.get();
-            errorType.reasonType = createTypeNode(paramNode.parameter());
-        }
-
-        return errorType;
     }
 
     @Override
@@ -1567,7 +1551,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         unionTypeNode.pos = position;
-
         return unionTypeNode;
     }
 }
