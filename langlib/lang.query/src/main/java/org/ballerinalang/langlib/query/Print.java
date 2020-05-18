@@ -23,6 +23,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import java.io.PrintStream;
+
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.query", functionName = "print",
         args = {@Argument(name = "data", type = TypeKind.ANY)}
@@ -30,7 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Print {
 
     public static void print(Strand strand, Object obj) {
-        System.out.println(obj);
+        PrintStream p = System.out;
+        p.println(obj);
     }
 
 }

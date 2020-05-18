@@ -133,6 +133,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -219,14 +221,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
+        // TODO check queryExpr.isTable
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
-        }
-//        else if (queryExpr.isTable) {
-//            //TO DO
-//        }
-        else {
+        } else {
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
@@ -689,10 +688,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVarRef varRefExpr) {
-        if(varRefExpr.reason != null) {
+        if (varRefExpr.reason != null) {
             varRefExpr.reason.accept(this);
         }
-        if(varRefExpr.restVar != null) {
+        if (varRefExpr.restVar != null) {
             varRefExpr.restVar.accept(this);
         }
         varRefExpr.detail.forEach(bLangNamedArgsExpression -> bLangNamedArgsExpression.accept(this));
@@ -915,7 +914,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVariable bLangTupleVariable) {
-        if(bLangTupleVariable.restVariable != null) {
+        if (bLangTupleVariable.restVariable != null) {
             bLangTupleVariable.restVariable.accept(this);
         }
         bLangTupleVariable.memberVariables.forEach(var -> var.accept(this));
@@ -934,14 +933,14 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        if(bLangErrorVariable.reason != null) {
+        if (bLangErrorVariable.reason != null) {
             bLangErrorVariable.reason.accept(this);
         }
         bLangErrorVariable.detail.forEach(var -> var.valueBindingPattern.accept(this));
-        if(bLangErrorVariable.restDetail != null) {
+        if (bLangErrorVariable.restDetail != null) {
             bLangErrorVariable.restDetail.accept(this);
         }
-        if(bLangErrorVariable.detailExpr != null) {
+        if (bLangErrorVariable.detailExpr != null) {
             bLangErrorVariable.detailExpr.accept(this);
         }
     }
@@ -950,11 +949,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         bLangErrorVariableDef.errorVariable.accept(this);
     }
 
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
+    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
         bLangMatchStmtStaticBindingPatternClause.literal.accept(this);
     }
 
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
+    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
         if (bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable != null) {
             bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable.accept(this);
         }
