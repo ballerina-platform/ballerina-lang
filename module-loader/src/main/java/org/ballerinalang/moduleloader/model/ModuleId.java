@@ -2,10 +2,13 @@ package org.ballerinalang.moduleloader.model;
 
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.nio.file.Path;
+
 public class ModuleId {
     private String orgName;
     private String moduleName;
-    private ModuleVersion version;
+    private String version;
+    private Path resolution;
 
     @Override
     public String toString() {
@@ -41,11 +44,19 @@ public class ModuleId {
         this.moduleName = moduleName;
     }
 
-    public ModuleVersion getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(ModuleVersion version) {
+    public void setVersion(String version) {
         this.version = version;
+    }
+
+    public Path getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(Path resolution) {
+        this.resolution = resolution;
     }
 }

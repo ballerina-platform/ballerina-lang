@@ -1,11 +1,13 @@
 package org.ballerinalang.moduleloader;
 
+import org.ballerinalang.cli.module.Pull;
 import org.ballerinalang.cli.module.util.Utils;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.moduleloader.model.ModuleId;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,22 +25,25 @@ import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.ballerinalang.moduleloader.Util.isValidVersion;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 
 public class Central implements Repo {
+
+    private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0";
 
     @Override
     public List<String> resolveVersions(ModuleId moduleId, String filter) throws IOException {
         try {
-            List<String> versions = getCentralVersions(moduleId.orgName, moduleId.moduleName);
+            List<String> versions = getCentralVersions(moduleId.getOrgName(), moduleId.getModuleName());
             for (String version : versions) {
-                if (!isValidVersion(moduleId.version, filter)) {
+                if (!isValidVersion(moduleId.getVersion(), filter)) {
                     versions.remove(version);
                 }
             }
             return versions;
         } catch (IOException e) {
-            throw new IOException(
-                    "retrieving versions from central failed for " + moduleId.orgName + "/" + moduleId.moduleName, e);
+            throw new IOException("retrieving versions from central failed for " + moduleId.getOrgName() + "/"
+                    + moduleId.getModuleName(), e);
         }
     }
 
@@ -46,9 +52,16 @@ public class Central implements Repo {
         return false;
     }
 
-    @Override
-    public void pullModule(ModuleId moduleId, Cache cache) {
+    public void pullModule(ModuleId moduleId) {
+        String remoteUri = PRODUCTION_URL+ "/modules/" + moduleId.getOrgName() + "/" + moduleId.getModuleName() + "/*/";
+        Path modulePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME)
+                .resolve(moduleId.getOrgName())
+                .resolve(moduleId.getModuleName());
+        String moduleNameWithOrg = moduleId.getOrgName() + "/" + moduleId.getModuleName();
 
+        Pull.execute(remoteUri, String.valueOf(modulePathInBaloCache), moduleNameWithOrg, null, 0, null, null, "",
+                false, true, IMPLEMENTATION_VERSION, "java8");
     }
 
     public static List<String> getCentralVersions(String orgName, String moduleName) throws IOException {
@@ -79,6 +92,8 @@ public class Central implements Repo {
                     return versions;
                 }
             }
+        } else if (statusCode == 404) { // module not found in the central
+            return versions;
         }
         throw new IOException("retrieving central versions failed");
     }

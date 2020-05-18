@@ -86,9 +86,5 @@ test {
     }
 }
 
-//plugins {
-//    id 'jacoco'
-//}
-
 description = 'Ballerina - Module Loader'
 

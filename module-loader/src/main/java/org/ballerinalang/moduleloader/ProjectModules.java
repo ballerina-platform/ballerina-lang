@@ -24,12 +24,12 @@ public class ProjectModules extends Cache {
     @Override
     public List<String> resolveVersions(ModuleId moduleId, String filter) {
         List<String> versions = new ArrayList<>();
-        if (moduleId.orgName.equals(this.orgName)) {
+        if (moduleId.getOrgName().equals(this.orgName)) {
             Path srcPath = Paths.get(String.valueOf(this.projectPath), "src");
             File[] fileEntries = new File(String.valueOf(srcPath)).listFiles();
             if (fileEntries != null) {
                 for (File fileEntry : fileEntries) {
-                    if (fileEntry.isDirectory() && fileEntry.getName().equals(moduleId.moduleName)) {
+                    if (fileEntry.isDirectory() && fileEntry.getName().equals(moduleId.getModuleName())) {
                         versions.add(this.version);
                     }
                 }
@@ -40,8 +40,8 @@ public class ProjectModules extends Cache {
 
     @Override
     public boolean isModuleExists(ModuleId moduleId) {
-        if (moduleId.orgName.equals(this.orgName) && moduleId.version.equals(this.version)) {
-            Path modulePath = Paths.get(String.valueOf(this.projectPath), "src", moduleId.moduleName);
+        if (moduleId.getOrgName().equals(this.orgName) && moduleId.getVersion().equals(this.version)) {
+            Path modulePath = Paths.get(String.valueOf(this.projectPath), "src", moduleId.getModuleName());
             return modulePath.toFile().exists();
         }
         return false;

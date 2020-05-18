@@ -21,7 +21,7 @@ public abstract class FileSystemCache extends Cache {
     @Override
     public List<String> resolveVersions(ModuleId moduleId, String filter) {
         List<String> versions = new ArrayList<>();
-        Path modulePath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.orgName, moduleId.moduleName);
+        Path modulePath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName(), moduleId.getModuleName());
         File[] fileEntries = new File(String.valueOf(modulePath)).listFiles();
         if (modulePath.toFile().exists() && fileEntries != null) {
             for (final File fileEntry : fileEntries) {
@@ -36,7 +36,7 @@ public abstract class FileSystemCache extends Cache {
     @Override
     public boolean isModuleExists(ModuleId moduleId) {
         Path modulePath = Paths
-                .get(String.valueOf(this.fileSystemCachePath), moduleId.orgName, moduleId.moduleName, moduleId.version);
+                .get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName(), moduleId.getModuleName(), moduleId.getVersion());
         return modulePath.toFile().exists();
     }
 }
