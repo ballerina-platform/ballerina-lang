@@ -809,11 +809,11 @@
         "category": "Working over the network",
         "samples": [{
                 "name": "HTTP 1.1 to 2.0 Protocol Switch",
-                "url": "http-1.1-to-2.0-protocol-switch"
+                "url": "http-1-1-to-2-0-protocol-switch"
             },
             {
                 "name": "HTTP 2.0 Server Push",
-                "url": "http-2.0-server-push"
+                "url": "http-2-0-server-push"
             }
         ]
     },
