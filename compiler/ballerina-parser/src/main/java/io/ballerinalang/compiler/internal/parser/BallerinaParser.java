@@ -2047,6 +2047,7 @@ public class BallerinaParser extends AbstractParser {
     private Boolean isFollowTypedBindingPattern(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case IN_KEYWORD:
+            case EOF_TOKEN:
                 return true;
             default:
                 return false;
@@ -8577,15 +8578,18 @@ public class BallerinaParser extends AbstractParser {
         bindingPatterns.add(listBindingPatternContent);
 
         //parsing the main chunck of list-binding-pattern
-        STToken token = getNextLBPToken(); // get next valid token
+        STToken token = peek(); // get next valid token
         STNode comma = null;
         while (!isEndOfListBindingPattern(token.kind) &&
                 listBindingPatternContent.kind != SyntaxKind.REST_BINDING_PATTERN) {
-            comma = parseComma();
+            comma = parseLBPRhs(peek().kind);
+            if (comma == null) {
+                break;
+            }
             bindingPatterns.add(comma);
             listBindingPatternContent = parselistBindingPatternContent();
             bindingPatterns.add(listBindingPatternContent);
-            token = getNextLBPToken();
+            token = peek();
         }
         STNode closeBracket = parseCloseBracket();
 
@@ -8606,24 +8610,23 @@ public class BallerinaParser extends AbstractParser {
                                                     closeBracket);
     }
 
-    private STToken getNextLBPToken() {
-        STToken token = peek();
-
-        if (isEndOfListBindingPattern(token.kind)) {
-            return token;
-        }
-
-        switch (token.kind) {
-            case IDENTIFIER_TOKEN:
-            case ELLIPSIS_TOKEN:
-            case OPEN_BRACKET_TOKEN:
+    private STNode parseLBPRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
             case COMMA_TOKEN:
-                return token;
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+                return null;
             default:
-                consume(); // use the invalid token
-                this.errorHandler.reportInvalidNode(token,
-                        "invalid Token in list-binding-pattern");
-                return getNextLBPToken();
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseLBPRhs(solution.tokenKind);
         }
     }
 
@@ -8693,6 +8696,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPattern() {
         startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+
         STNode bindingPattern = parseBindingPattern();
         endContext();
         return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
