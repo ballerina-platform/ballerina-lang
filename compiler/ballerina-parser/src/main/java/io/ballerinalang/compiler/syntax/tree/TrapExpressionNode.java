@@ -107,6 +107,7 @@ public class TrapExpressionNode extends ExpressionNode {
 
         public TrapExpressionNode apply() {
             return oldNode.modify(
+                    oldNode.kind(),
                     trapKeyword,
                     expression);
         }

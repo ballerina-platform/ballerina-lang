@@ -90,40 +90,40 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
      */
     public static class ExplicitNewExpressionNodeModifier {
         private final ExplicitNewExpressionNode oldNode;
-        private Token NewKeyword;
-        private TypeDescriptorNode TypeDescriptor;
-        private Node ParenthesizedArgList;
+        private Token newKeyword;
+        private TypeDescriptorNode typeDescriptor;
+        private Node parenthesizedArgList;
 
         public ExplicitNewExpressionNodeModifier(ExplicitNewExpressionNode oldNode) {
             this.oldNode = oldNode;
-            this.NewKeyword = oldNode.NewKeyword();
-            this.TypeDescriptor = oldNode.TypeDescriptor();
-            this.ParenthesizedArgList = oldNode.ParenthesizedArgList();
+            this.newKeyword = oldNode.newKeyword();
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.parenthesizedArgList = oldNode.parenthesizedArgList();
         }
 
-        public ExplicitNewExpressionNodeModifier withNewKeyword(Token NewKeyword) {
-            Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
-            this.NewKeyword = NewKeyword;
+        public ExplicitNewExpressionNodeModifier withNewKeyword(Token newKeyword) {
+            Objects.requireNonNull(newKeyword, "newKeyword must not be null");
+            this.newKeyword = newKeyword;
             return this;
         }
 
-        public ExplicitNewExpressionNodeModifier withTypeDescriptor(TypeDescriptorNode TypeDescriptor) {
-            Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
-            this.TypeDescriptor = TypeDescriptor;
+        public ExplicitNewExpressionNodeModifier withTypeDescriptor(TypeDescriptorNode typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public ExplicitNewExpressionNodeModifier withParenthesizedArgList(Node ParenthesizedArgList) {
-            Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
-            this.ParenthesizedArgList = ParenthesizedArgList;
+        public ExplicitNewExpressionNodeModifier withParenthesizedArgList(Node parenthesizedArgList) {
+            Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
+            this.parenthesizedArgList = parenthesizedArgList;
             return this;
         }
 
         public ExplicitNewExpressionNode apply() {
             return oldNode.modify(
-                    NewKeyword,
-                    TypeDescriptor,
-                    ParenthesizedArgList);
+                    newKeyword,
+                    typeDescriptor,
+                    parenthesizedArgList);
         }
     }
 }

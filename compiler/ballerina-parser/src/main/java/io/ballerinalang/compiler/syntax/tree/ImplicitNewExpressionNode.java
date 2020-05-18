@@ -83,31 +83,31 @@ public class ImplicitNewExpressionNode extends NewExpressionNode {
      */
     public static class ImplicitNewExpressionNodeModifier {
         private final ImplicitNewExpressionNode oldNode;
-        private Token NewKeyword;
-        private ParenthesizedArgList ParenthesizedArgList;
+        private Token newKeyword;
+        private ParenthesizedArgList parenthesizedArgList;
 
         public ImplicitNewExpressionNodeModifier(ImplicitNewExpressionNode oldNode) {
             this.oldNode = oldNode;
-            this.NewKeyword = oldNode.NewKeyword();
-            this.ParenthesizedArgList = oldNode.ParenthesizedArgList().orElse(null);
+            this.newKeyword = oldNode.newKeyword();
+            this.parenthesizedArgList = oldNode.parenthesizedArgList().orElse(null);
         }
 
-        public ImplicitNewExpressionNodeModifier withNewKeyword(Token NewKeyword) {
-            Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
-            this.NewKeyword = NewKeyword;
+        public ImplicitNewExpressionNodeModifier withNewKeyword(Token newKeyword) {
+            Objects.requireNonNull(newKeyword, "newKeyword must not be null");
+            this.newKeyword = newKeyword;
             return this;
         }
 
-        public ImplicitNewExpressionNodeModifier withParenthesizedArgList(ParenthesizedArgList ParenthesizedArgList) {
-            Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
-            this.ParenthesizedArgList = ParenthesizedArgList;
+        public ImplicitNewExpressionNodeModifier withParenthesizedArgList(ParenthesizedArgList parenthesizedArgList) {
+            Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
+            this.parenthesizedArgList = parenthesizedArgList;
             return this;
         }
 
         public ImplicitNewExpressionNode apply() {
             return oldNode.modify(
-                    NewKeyword,
-                    ParenthesizedArgList);
+                    newKeyword,
+                    parenthesizedArgList);
         }
     }
 }

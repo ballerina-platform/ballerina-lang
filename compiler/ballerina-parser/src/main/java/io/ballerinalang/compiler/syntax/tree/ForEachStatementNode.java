@@ -118,7 +118,7 @@ public class ForEachStatementNode extends StatementNode {
         private Node typeDescriptor;
         private Token variableName;
         private Token inKeyword;
-        private Node ActionOrExpressionNode;
+        private Node actionOrExpressionNode;
         private StatementNode blockStatement;
 
         public ForEachStatementNodeModifier(ForEachStatementNode oldNode) {
@@ -127,7 +127,7 @@ public class ForEachStatementNode extends StatementNode {
             this.typeDescriptor = oldNode.typeDescriptor();
             this.variableName = oldNode.variableName();
             this.inKeyword = oldNode.inKeyword();
-            this.ActionOrExpressionNode = oldNode.ActionOrExpressionNode();
+            this.actionOrExpressionNode = oldNode.actionOrExpressionNode();
             this.blockStatement = oldNode.blockStatement();
         }
 
@@ -155,9 +155,9 @@ public class ForEachStatementNode extends StatementNode {
             return this;
         }
 
-        public ForEachStatementNodeModifier withActionOrExpressionNode(Node ActionOrExpressionNode) {
-            Objects.requireNonNull(ActionOrExpressionNode, "ActionOrExpressionNode must not be null");
-            this.ActionOrExpressionNode = ActionOrExpressionNode;
+        public ForEachStatementNodeModifier withActionOrExpressionNode(Node actionOrExpressionNode) {
+            Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
+            this.actionOrExpressionNode = actionOrExpressionNode;
             return this;
         }
 
@@ -173,7 +173,7 @@ public class ForEachStatementNode extends StatementNode {
                     typeDescriptor,
                     variableName,
                     inKeyword,
-                    ActionOrExpressionNode,
+                    actionOrExpressionNode,
                     blockStatement);
         }
     }
