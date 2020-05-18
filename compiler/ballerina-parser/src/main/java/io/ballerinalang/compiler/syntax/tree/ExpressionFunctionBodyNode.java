@@ -40,7 +40,7 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
         return childInBucket(1);
     }
 
-    public Optional<Token> semiColon() {
+    public Optional<Token> semicolon() {
         return optionalChildInBucket(2);
     }
 
@@ -59,23 +59,23 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
         return new String[]{
                 "rightDoubleArrow",
                 "expression",
-                "semiColon"};
+                "semicolon"};
     }
 
     public ExpressionFunctionBodyNode modify(
             Token rightDoubleArrow,
             ExpressionNode expression,
-            Token semiColon) {
+            Token semicolon) {
         if (checkForReferenceEquality(
                 rightDoubleArrow,
                 expression,
-                semiColon)) {
+                semicolon)) {
             return this;
         }
 
         return NodeFactory.createExpressionFunctionBodyNode(
                 rightDoubleArrow,
                 expression,
-                semiColon);
+                semicolon);
     }
 }

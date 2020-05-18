@@ -1866,14 +1866,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ExpressionFunctionBodyNode createExpressionFunctionBodyNode(
             Token rightDoubleArrow,
             ExpressionNode expression,
-            Token semiColon) {
+            Token semicolon) {
         Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stExpressionFunctionBodyNode = STNodeFactory.createExpressionFunctionBodyNode(
                 rightDoubleArrow.internalNode(),
                 expression.internalNode(),
-                getOptionalSTNode(semiColon));
+                getOptionalSTNode(semicolon));
         return stExpressionFunctionBodyNode.createUnlinkedFacade();
     }
 

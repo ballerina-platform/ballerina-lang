@@ -1374,11 +1374,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
         Token rightDoubleArrow = modifyToken(expressionFunctionBodyNode.rightDoubleArrow());
         ExpressionNode expression = modifyNode(expressionFunctionBodyNode.expression());
-        Token semiColon = modifyToken(expressionFunctionBodyNode.semiColon().orElse(null));
+        Token semicolon = modifyToken(expressionFunctionBodyNode.semicolon().orElse(null));
         return expressionFunctionBodyNode.modify(
                 rightDoubleArrow,
                 expression,
-                semiColon);
+                semicolon);
     }
 
     @Override

@@ -2491,7 +2491,7 @@
                     "type": "ExpressionNode"
                 },
                 {
-                    "name": "semiColon",
+                    "name": "semicolon",
                     "type": "Token",
                     "isOptional": true
                 }
