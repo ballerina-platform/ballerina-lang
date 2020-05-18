@@ -1496,6 +1496,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse open parenthesis.
      *
+     * @param ctx Context of the parenthesis
      * @return Parsed node
      */
     private STNode parseOpenParenthesis(ParserRuleContext ctx) {
@@ -2124,7 +2125,8 @@ public class BallerinaParser extends AbstractParser {
      * external-function-body := = annots external ;
      * function-body-block := { [default-worker-init, named-worker-decl+] default-worker }
      * </code>
-     *
+     * 
+     * @param isObjectMethod Flag indicating whether this is an object-method
      * @return Parsed node
      */
     private STNode parseFunctionBody(boolean isObjectMethod) {
@@ -2136,6 +2138,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse function body, given the next token kind.
      *
      * @param tokenKind Next token kind
+     * @param isObjectMethod Flag indicating whether this is an object-method
      * @return Parsed node
      */
     protected STNode parseFunctionBody(SyntaxKind tokenKind, boolean isObjectMethod) {
