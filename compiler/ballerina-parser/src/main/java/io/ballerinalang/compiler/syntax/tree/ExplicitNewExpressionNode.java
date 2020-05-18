@@ -30,15 +30,15 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Token NewKeyword() {
+    public Token newKeyword() {
         return childInBucket(0);
     }
 
-    public TypeDescriptorNode TypeDescriptor() {
+    public TypeDescriptorNode typeDescriptor() {
         return childInBucket(1);
     }
 
-    public Node ParenthesizedArgList() {
+    public Node parenthesizedArgList() {
         return childInBucket(2);
     }
 
@@ -55,25 +55,25 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "NewKeyword",
-                "TypeDescriptor",
-                "ParenthesizedArgList"};
+                "newKeyword",
+                "typeDescriptor",
+                "parenthesizedArgList"};
     }
 
     public ExplicitNewExpressionNode modify(
-            Token NewKeyword,
-            TypeDescriptorNode TypeDescriptor,
-            Node ParenthesizedArgList) {
+            Token newKeyword,
+            TypeDescriptorNode typeDescriptor,
+            Node parenthesizedArgList) {
         if (checkForReferenceEquality(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList)) {
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList)) {
             return this;
         }
 
         return NodeFactory.createExplicitNewExpressionNode(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
     }
 }
