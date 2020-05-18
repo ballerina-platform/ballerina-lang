@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
@@ -88,15 +89,32 @@ public class BallerinaValues {
         //This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
-        Scheduler scheduler =  currentStrand != null ? currentStrand.scheduler : null;
+        Scheduler scheduler = currentStrand != null ? currentStrand.scheduler : null;
+        State prevState = currentStrand != null ? currentStrand.getState() : State.RUNNABLE;
+        boolean prevBlockedOnExtern = currentStrand != null && currentStrand.blockedOnExtern;
+        ObjectValue returnObjectValue;
 
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
             fields[j++] = true;
         }
-        //passing scheduler of current strand
-        return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
+        try {
+            //Check for non-blocking call
+            if (currentStrand != null && currentStrand.getState() != State.RUNNABLE) {
+                currentStrand.blockedOnExtern = false;
+                currentStrand.setState(State.RUNNABLE);
+            }
+            //passing scheduler of current strand
+            returnObjectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                    null, fields);
+        } finally {
+            if (currentStrand != null) {
+                currentStrand.blockedOnExtern = prevBlockedOnExtern;
+                currentStrand.setState(prevState);
+            }
+        }
+        return returnObjectValue;
     }
 
     private static Strand getStrand() {
