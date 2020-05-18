@@ -17,7 +17,6 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
@@ -27,10 +26,7 @@ import org.eclipse.lsp4j.debug.Variable;
  */
 public class BDecimal extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BDecimal(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.DECIMAL.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -38,6 +34,7 @@ public class BDecimal extends BPrimitiveVariable {
 
     @Override
     public String getValue() {
-        return jvmValueRef.toString();
+        // Todo - how to extract value?
+        return "unknown";
     }
 }

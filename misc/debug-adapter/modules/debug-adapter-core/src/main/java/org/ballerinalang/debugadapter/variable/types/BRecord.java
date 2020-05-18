@@ -34,7 +34,7 @@ public class BRecord extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BRecord(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.RECORD.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -67,7 +67,6 @@ public class BRecord extends BCompoundVariable {
             // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
             String balRecordFiledIdentifier = this.getValue() + ".";
             fieldValueMap.forEach((field, value) -> {
-                // Filter out internal variables.
                 if (field.toString().contains(balRecordFiledIdentifier)) {
                     values.put(field.name(), value);
                 }
