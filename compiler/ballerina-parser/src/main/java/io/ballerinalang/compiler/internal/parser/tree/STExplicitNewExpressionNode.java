@@ -36,7 +36,7 @@ public class STExplicitNewExpressionNode extends STNewExpressionNode {
             STNode NewKeyword,
             STNode TypeDescriptor,
             STNode ParenthesizedArgList) {
-        super(SyntaxKind.EXPLICIT_NEW);
+        super(SyntaxKind.EXPLICIT_NEW_EXPRESSION);
         this.NewKeyword = NewKeyword;
         this.TypeDescriptor = TypeDescriptor;
         this.ParenthesizedArgList = ParenthesizedArgList;

@@ -1,5 +1,5 @@
 {
-  "kind": "EXPLICIT_NEW",
+  "kind": "EXPLICIT_NEW_EXPRESSION",
   "children": [
     {
       "kind": "NEW_KEYWORD"
