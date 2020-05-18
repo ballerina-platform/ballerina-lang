@@ -58,6 +58,5 @@ public class ResolveMavenDependenciesTask implements Task {
                 buildContext.err().print("cannot resolve " + library.getArtifactId());
             }
         }
-
     }
 }
