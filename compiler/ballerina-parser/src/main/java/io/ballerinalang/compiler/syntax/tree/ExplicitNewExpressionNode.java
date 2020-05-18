@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ExplicitNewExpressionNode extends NewExpressionNode {
 
@@ -75,5 +77,53 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
                 NewKeyword,
                 TypeDescriptor,
                 ParenthesizedArgList);
+    }
+
+    public ExplicitNewExpressionNodeModifier modify() {
+        return new ExplicitNewExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ExplicitNewExpressionNodeModifier {
+        private final ExplicitNewExpressionNode oldNode;
+        private Token NewKeyword;
+        private TypeDescriptorNode TypeDescriptor;
+        private Node ParenthesizedArgList;
+
+        public ExplicitNewExpressionNodeModifier(ExplicitNewExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.NewKeyword = oldNode.NewKeyword();
+            this.TypeDescriptor = oldNode.TypeDescriptor();
+            this.ParenthesizedArgList = oldNode.ParenthesizedArgList();
+        }
+
+        public ExplicitNewExpressionNodeModifier withNewKeyword(Token NewKeyword) {
+            Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+            this.NewKeyword = NewKeyword;
+            return this;
+        }
+
+        public ExplicitNewExpressionNodeModifier withTypeDescriptor(TypeDescriptorNode TypeDescriptor) {
+            Objects.requireNonNull(TypeDescriptor, "TypeDescriptor must not be null");
+            this.TypeDescriptor = TypeDescriptor;
+            return this;
+        }
+
+        public ExplicitNewExpressionNodeModifier withParenthesizedArgList(Node ParenthesizedArgList) {
+            Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
+            this.ParenthesizedArgList = ParenthesizedArgList;
+            return this;
+        }
+
+        public ExplicitNewExpressionNode apply() {
+            return oldNode.modify(
+                    NewKeyword,
+                    TypeDescriptor,
+                    ParenthesizedArgList);
+        }
     }
 }

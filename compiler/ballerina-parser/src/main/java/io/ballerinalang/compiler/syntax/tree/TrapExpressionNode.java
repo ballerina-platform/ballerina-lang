@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TrapExpressionNode extends ExpressionNode {
 
@@ -67,5 +69,44 @@ public class TrapExpressionNode extends ExpressionNode {
         return NodeFactory.createTrapExpressionNode(
                 trapKeyword,
                 expression);
+    }
+
+    public TrapExpressionNodeModifier modify() {
+        return new TrapExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TrapExpressionNodeModifier {
+        private final TrapExpressionNode oldNode;
+        private Token trapKeyword;
+        private ExpressionNode expression;
+
+        public TrapExpressionNodeModifier(TrapExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.trapKeyword = oldNode.trapKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public TrapExpressionNodeModifier withTrapKeyword(Token trapKeyword) {
+            Objects.requireNonNull(trapKeyword, "trapKeyword must not be null");
+            this.trapKeyword = trapKeyword;
+            return this;
+        }
+
+        public TrapExpressionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public TrapExpressionNode apply() {
+            return oldNode.modify(
+                    trapKeyword,
+                    expression);
+        }
     }
 }

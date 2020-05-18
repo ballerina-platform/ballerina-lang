@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ParenthesizedArgList extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class ParenthesizedArgList extends NonTerminalNode {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public ParenthesizedArgListModifier modify() {
+        return new ParenthesizedArgListModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ParenthesizedArgListModifier {
+        private final ParenthesizedArgList oldNode;
+        private Token openParenToken;
+        private NodeList<FunctionArgumentNode> arguments;
+        private Token closeParenToken;
+
+        public ParenthesizedArgListModifier(ParenthesizedArgList oldNode) {
+            this.oldNode = oldNode;
+            this.openParenToken = oldNode.openParenToken();
+            this.arguments = oldNode.arguments();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public ParenthesizedArgListModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public ParenthesizedArgListModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+            Objects.requireNonNull(arguments, "arguments must not be null");
+            this.arguments = arguments;
+            return this;
+        }
+
+        public ParenthesizedArgListModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public ParenthesizedArgList apply() {
+            return oldNode.modify(
+                    openParenToken,
+                    arguments,
+                    closeParenToken);
+        }
     }
 }

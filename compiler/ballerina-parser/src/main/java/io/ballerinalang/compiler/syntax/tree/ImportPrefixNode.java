@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ImportPrefixNode extends NonTerminalNode {
 
@@ -67,5 +69,44 @@ public class ImportPrefixNode extends NonTerminalNode {
         return NodeFactory.createImportPrefixNode(
                 asKeyword,
                 prefix);
+    }
+
+    public ImportPrefixNodeModifier modify() {
+        return new ImportPrefixNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ImportPrefixNodeModifier {
+        private final ImportPrefixNode oldNode;
+        private Token asKeyword;
+        private Token prefix;
+
+        public ImportPrefixNodeModifier(ImportPrefixNode oldNode) {
+            this.oldNode = oldNode;
+            this.asKeyword = oldNode.asKeyword();
+            this.prefix = oldNode.prefix();
+        }
+
+        public ImportPrefixNodeModifier withAsKeyword(Token asKeyword) {
+            Objects.requireNonNull(asKeyword, "asKeyword must not be null");
+            this.asKeyword = asKeyword;
+            return this;
+        }
+
+        public ImportPrefixNodeModifier withPrefix(Token prefix) {
+            Objects.requireNonNull(prefix, "prefix must not be null");
+            this.prefix = prefix;
+            return this;
+        }
+
+        public ImportPrefixNode apply() {
+            return oldNode.modify(
+                    asKeyword,
+                    prefix);
+        }
     }
 }

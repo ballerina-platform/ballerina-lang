@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ImplicitNewExpressionNode extends NewExpressionNode {
 
@@ -69,5 +70,44 @@ public class ImplicitNewExpressionNode extends NewExpressionNode {
         return NodeFactory.createImplicitNewExpressionNode(
                 NewKeyword,
                 ParenthesizedArgList);
+    }
+
+    public ImplicitNewExpressionNodeModifier modify() {
+        return new ImplicitNewExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ImplicitNewExpressionNodeModifier {
+        private final ImplicitNewExpressionNode oldNode;
+        private Token NewKeyword;
+        private ParenthesizedArgList ParenthesizedArgList;
+
+        public ImplicitNewExpressionNodeModifier(ImplicitNewExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.NewKeyword = oldNode.NewKeyword();
+            this.ParenthesizedArgList = oldNode.ParenthesizedArgList().orElse(null);
+        }
+
+        public ImplicitNewExpressionNodeModifier withNewKeyword(Token NewKeyword) {
+            Objects.requireNonNull(NewKeyword, "NewKeyword must not be null");
+            this.NewKeyword = NewKeyword;
+            return this;
+        }
+
+        public ImplicitNewExpressionNodeModifier withParenthesizedArgList(ParenthesizedArgList ParenthesizedArgList) {
+            Objects.requireNonNull(ParenthesizedArgList, "ParenthesizedArgList must not be null");
+            this.ParenthesizedArgList = ParenthesizedArgList;
+            return this;
+        }
+
+        public ImplicitNewExpressionNode apply() {
+            return oldNode.modify(
+                    NewKeyword,
+                    ParenthesizedArgList);
+        }
     }
 }

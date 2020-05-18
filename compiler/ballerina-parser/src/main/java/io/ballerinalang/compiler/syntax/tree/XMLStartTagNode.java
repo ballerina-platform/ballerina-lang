@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLStartTagNode extends XMLElementTagNode {
 
@@ -83,5 +85,62 @@ public class XMLStartTagNode extends XMLElementTagNode {
                 name,
                 attributes,
                 getToken);
+    }
+
+    public XMLStartTagNodeModifier modify() {
+        return new XMLStartTagNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLStartTagNodeModifier {
+        private final XMLStartTagNode oldNode;
+        private Token ltToken;
+        private XMLNameNode name;
+        private NodeList<XMLAttributeNode> attributes;
+        private Token getToken;
+
+        public XMLStartTagNodeModifier(XMLStartTagNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.name = oldNode.name();
+            this.attributes = oldNode.attributes();
+            this.getToken = oldNode.getToken();
+        }
+
+        public XMLStartTagNodeModifier withLtToken(Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public XMLStartTagNodeModifier withName(XMLNameNode name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
+            return this;
+        }
+
+        public XMLStartTagNodeModifier withAttributes(NodeList<XMLAttributeNode> attributes) {
+            Objects.requireNonNull(attributes, "attributes must not be null");
+            this.attributes = attributes;
+            return this;
+        }
+
+        public XMLStartTagNodeModifier withGetToken(Token getToken) {
+            Objects.requireNonNull(getToken, "getToken must not be null");
+            this.getToken = getToken;
+            return this;
+        }
+
+        public XMLStartTagNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    name,
+                    attributes,
+                    getToken);
+        }
     }
 }

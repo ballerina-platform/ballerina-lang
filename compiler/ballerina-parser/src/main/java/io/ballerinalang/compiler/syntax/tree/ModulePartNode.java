@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ModulePartNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class ModulePartNode extends NonTerminalNode {
                 imports,
                 members,
                 eofToken);
+    }
+
+    public ModulePartNodeModifier modify() {
+        return new ModulePartNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ModulePartNodeModifier {
+        private final ModulePartNode oldNode;
+        private NodeList<ImportDeclarationNode> imports;
+        private NodeList<ModuleMemberDeclarationNode> members;
+        private Token eofToken;
+
+        public ModulePartNodeModifier(ModulePartNode oldNode) {
+            this.oldNode = oldNode;
+            this.imports = oldNode.imports();
+            this.members = oldNode.members();
+            this.eofToken = oldNode.eofToken();
+        }
+
+        public ModulePartNodeModifier withImports(NodeList<ImportDeclarationNode> imports) {
+            Objects.requireNonNull(imports, "imports must not be null");
+            this.imports = imports;
+            return this;
+        }
+
+        public ModulePartNodeModifier withMembers(NodeList<ModuleMemberDeclarationNode> members) {
+            Objects.requireNonNull(members, "members must not be null");
+            this.members = members;
+            return this;
+        }
+
+        public ModulePartNodeModifier withEofToken(Token eofToken) {
+            Objects.requireNonNull(eofToken, "eofToken must not be null");
+            this.eofToken = eofToken;
+            return this;
+        }
+
+        public ModulePartNode apply() {
+            return oldNode.modify(
+                    imports,
+                    members,
+                    eofToken);
+        }
     }
 }

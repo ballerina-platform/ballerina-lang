@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLAttributeNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class XMLAttributeNode extends NonTerminalNode {
                 attributeName,
                 equalToken,
                 value);
+    }
+
+    public XMLAttributeNodeModifier modify() {
+        return new XMLAttributeNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLAttributeNodeModifier {
+        private final XMLAttributeNode oldNode;
+        private XMLNameNode attributeName;
+        private Token equalToken;
+        private XMLAttributeValue value;
+
+        public XMLAttributeNodeModifier(XMLAttributeNode oldNode) {
+            this.oldNode = oldNode;
+            this.attributeName = oldNode.attributeName();
+            this.equalToken = oldNode.equalToken();
+            this.value = oldNode.value();
+        }
+
+        public XMLAttributeNodeModifier withAttributeName(XMLNameNode attributeName) {
+            Objects.requireNonNull(attributeName, "attributeName must not be null");
+            this.attributeName = attributeName;
+            return this;
+        }
+
+        public XMLAttributeNodeModifier withEqualToken(Token equalToken) {
+            Objects.requireNonNull(equalToken, "equalToken must not be null");
+            this.equalToken = equalToken;
+            return this;
+        }
+
+        public XMLAttributeNodeModifier withValue(XMLAttributeValue value) {
+            Objects.requireNonNull(value, "value must not be null");
+            this.value = value;
+            return this;
+        }
+
+        public XMLAttributeNode apply() {
+            return oldNode.modify(
+                    attributeName,
+                    equalToken,
+                    value);
+        }
     }
 }

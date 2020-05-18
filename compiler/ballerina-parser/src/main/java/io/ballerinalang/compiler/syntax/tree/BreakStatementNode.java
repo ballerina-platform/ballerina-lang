@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BreakStatementNode extends StatementNode {
 
@@ -67,5 +69,44 @@ public class BreakStatementNode extends StatementNode {
         return NodeFactory.createBreakStatementNode(
                 breakToken,
                 semicolonToken);
+    }
+
+    public BreakStatementNodeModifier modify() {
+        return new BreakStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class BreakStatementNodeModifier {
+        private final BreakStatementNode oldNode;
+        private Token breakToken;
+        private Token semicolonToken;
+
+        public BreakStatementNodeModifier(BreakStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.breakToken = oldNode.breakToken();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public BreakStatementNodeModifier withBreakToken(Token breakToken) {
+            Objects.requireNonNull(breakToken, "breakToken must not be null");
+            this.breakToken = breakToken;
+            return this;
+        }
+
+        public BreakStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public BreakStatementNode apply() {
+            return oldNode.modify(
+                    breakToken,
+                    semicolonToken);
+        }
     }
 }
