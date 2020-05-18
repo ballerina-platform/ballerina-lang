@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -630,44 +629,6 @@ public class BCompileUtil {
                                                      boolean temp, boolean init, boolean withTests) {
 
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
-    }
-
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                     boolean temp, boolean init, boolean inProc, boolean withTests) {
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRoot);
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-        options.put(LOCK_ENABLED, Boolean.toString(true));
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
-        options.put(OFFLINE, "true");
-        if (withTests) {
-            options.put(CompilerOptionName.SKIP_TESTS, "false");
-            options.put(CompilerOptionName.TEST_ENABLED, "true");
-        }
-
-        CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, withTests);
-        if (compileResult.getErrorCount() > 0) {
-            return compileResult;
-        }
-
-        BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        BackendDriver backendDriver = BackendDriver.getInstance(context);
-        try {
-            Path buildDir = Paths.get("build").toAbsolutePath().normalize();
-            Path systemBirCache = buildDir.resolve("bir-cache");
-            URLClassLoader cl = createClassLoaders(backendDriver, bLangPackage, systemBirCache, buildDir,
-                    Optional.empty(), false, inProc);
-            compileResult.setClassLoader(cl);
-
-            // TODO: calling run on compile method is wrong, should be called from BRunUtil
-            if (compileResult.getErrorCount() == 0 && init) {
-                runInit(bLangPackage, cl, temp);
-            }
-            return compileResult;
-        } catch (ClassNotFoundException | IOException e) {
-            throw new BLangRuntimeException("Error during jvm code gen of the test", e);
-        }
     }
 
     public static String runMain(CompileResult compileResult, String[] args) {
