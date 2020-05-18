@@ -537,7 +537,8 @@ public enum DiagnosticCode {
     INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
     INVALID_SEND_EXPR("invalid.send.expr"),
 
-    INVALID_RETURN_TYPE_PARAMETERIZATION("invalid.return.type.parameterization")
+    INVALID_RETURN_TYPE_PARAMETERIZATION("invalid.return.type.parameterization"),
+    INVALID_TYPEDESC_PARAM("invalid.typedesc.param")
     ;
     private String value;
 

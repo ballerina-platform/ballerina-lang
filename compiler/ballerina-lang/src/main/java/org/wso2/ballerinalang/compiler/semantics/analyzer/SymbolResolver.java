@@ -1175,6 +1175,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 //  TODO: Check what happens when the same param is used in multiple places in the same return type
                 BLangFunction func = (BLangFunction) env.node;
                 if (func.hasBody() && func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+                    validateTypedescExprDefaultValue(func.requiredParams, tempSymbol.name.value);
+
                     BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED, tempSymbol.name,
                                                           tempSymbol.pkgID, null, func.symbol);
                     this.resultType = tSymbol.type = new BParameterizedType((BVarSymbol) tempSymbol, tSymbol);
@@ -1202,6 +1204,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         resultType = symbol.type;
+    }
+
+    private void validateTypedescExprDefaultValue(List<BLangSimpleVariable> params, String varName) {
+        for (BLangSimpleVariable param : params) {
+            if (param.name.value.equals(varName) && param.expr != null &&
+                    (param.expr.getKind() != NodeKind.TYPEDESC_EXPRESSION &&
+                            param.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF)) {
+                dlog.error(param.pos, DiagnosticCode.INVALID_TYPEDESC_PARAM);
+            }
+        }
     }
 
     @Override
