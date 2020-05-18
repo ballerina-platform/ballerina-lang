@@ -64,9 +64,10 @@ public class BObjectValue extends BCompoundVariable {
         try {
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
+            // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
+            String balObjectFiledIdentifier = this.getValue() + ".";
             fieldValueMap.forEach((field, value) -> {
-                // Filter out internal variables
-                if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
+                if (field.toString().contains(balObjectFiledIdentifier)) {
                     values.put(field.name(), value);
                 }
             });

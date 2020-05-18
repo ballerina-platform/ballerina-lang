@@ -16,21 +16,25 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.LongValueImpl;
+import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
+
+import java.util.stream.Collectors;
 
 /**
  * Ballerina integer type.
  */
 public class BInt extends BPrimitiveVariable {
 
-    private final LongValueImpl jvmValueRef;
+    private final Value jvmValue;
 
     public BInt(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof LongValueImpl ? (LongValueImpl) value : null;
+        this.jvmValue = value;
         dapVariable.setType(BVariableType.INT.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
@@ -38,6 +42,15 @@ public class BInt extends BPrimitiveVariable {
 
     @Override
     public String getValue() {
-        return jvmValueRef != null ? jvmValueRef.toString() : "unknown";
+        if (jvmValue instanceof LongValueImpl) {
+            return jvmValue.toString();
+        } else if (jvmValue instanceof ObjectReferenceImpl) {
+            ObjectReferenceImpl valueObjectRef = ((ObjectReferenceImpl) jvmValue);
+            Field valueField = valueObjectRef.referenceType().allFields().stream().filter(field ->
+                    field.name().equals("value")).collect(Collectors.toList()).get(0);
+            return valueObjectRef.getValue(valueField).toString();
+        } else {
+            return "unknown";
+        }
     }
 }
