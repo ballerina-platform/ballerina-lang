@@ -11,7 +11,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.TreeMap;
@@ -22,10 +21,26 @@ import static org.ballerinalang.moduleloader.Util.isGreaterVersion;
 public class ModuleLoaderImpl implements ModuleLoader {
 
     private Project project;
-    List<Repo> repos;
+    private List<Repo> repos;
 
     public ModuleLoaderImpl(Project project, List<Repo> repos) {
         this.project = project;
+        this.repos = repos;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public List<Repo> getRepos() {
+        return repos;
+    }
+
+    public void setRepos(List<Repo> repos) {
         this.repos = repos;
     }
 
@@ -44,13 +59,12 @@ public class ModuleLoaderImpl implements ModuleLoader {
 
         // if lock file exists
         if (enclModuleId != null && this.project.hasLockFile()) {
-            System.out.println("yo");
             // not a top level module or bal
             String versionFromLockfile = resolveVersionFromLockFile(moduleId, enclModuleId);
-            System.out.println(versionFromLockfile);
             // version in lock can be null if the import is added after creating the lock
             if (versionFromLockfile != null) {
-                moduleId.setVersion(resolveModuleVersionFromRepos(this.repos, moduleId, versionFromLockfile));
+                String resolvedVersion =  resolveModuleVersionFromRepos(this.repos, moduleId, versionFromLockfile);
+                moduleId.setVersion(resolvedVersion);
                 if (moduleId.getVersion() != null) {
                     return moduleId;
                 }
@@ -61,8 +75,10 @@ public class ModuleLoaderImpl implements ModuleLoader {
         // if it is an immediate import check the Ballerina.toml
         // Set version from the Ballerina.toml of the current project
         if (enclModuleId != null && this.project.getManifest() != null && this.project.isModuleExists(enclModuleId)) {
+            System.out.println("yo");
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(moduleId, this.project.getManifest());
+            System.out.println(versionFromManifest);
             if (versionFromManifest != null) {
                 moduleId.setVersion(resolveModuleVersionFromRepos(this.repos, moduleId, versionFromManifest));
                 if (moduleId.getVersion() != null) {
@@ -157,7 +173,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
         TreeMap<String, Repo> moduleVersions = new TreeMap<>();
         for (Repo repo : repos) {
             for (String versionStr : repo.resolveVersions(moduleId, filter)) {
-                if (isGreaterVersion(moduleVersions.lastKey(), versionStr)) {
+                if (moduleVersions.isEmpty() || isGreaterVersion(moduleVersions.lastKey(), versionStr)) {
                     moduleVersions.put(versionStr, repo);
                 }
             }
