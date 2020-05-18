@@ -1589,7 +1589,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             STNode paramEnd = parseParameterRhs(token.kind);
-            if (paramEnd.kind != SyntaxKind.COMMA_TOKEN) {
+            if (paramEnd == null) {
                 endContext();
                 break;
             }
@@ -1610,7 +1610,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_PAREN_TOKEN:
-                return parseCloseParenthesis();
+                return null;
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAM_END);
@@ -5130,7 +5130,7 @@ public class BallerinaParser extends AbstractParser {
         nextToken = peek();
         while (!isEndOfMappingConstructor(nextToken.kind)) {
             mappingFieldEnd = parseMappingFieldEnd(nextToken.kind);
-            if (mappingFieldEnd.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            if (mappingFieldEnd == null) {
                 break;
             }
 
@@ -5152,7 +5152,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACE_TOKEN:
-                return parseCloseBrace();
+                return null;
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.MAPPING_FIELD_END);
@@ -7724,7 +7724,7 @@ public class BallerinaParser extends AbstractParser {
         STNode listConstructorMemberEnd;
         while (!isEndOfExpressionsList(nextToken.kind)) {
             listConstructorMemberEnd = parseListConstructorMemberEnd(nextToken.kind);
-            if (listConstructorMemberEnd.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+            if (listConstructorMemberEnd == null) {
                 break;
             }
 
@@ -7746,7 +7746,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACKET_TOKEN:
-                return parseCloseBracket();
+                return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
 
@@ -8736,7 +8736,7 @@ public class BallerinaParser extends AbstractParser {
         STNode param;
         while (!isEndOfAnonFuncParametersList(nextToken.kind)) {
             paramEnd = parseImplicitAnonFuncParamEnd(nextToken.kind);
-            if (paramEnd.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+            if (paramEnd == null) {
                 break;
             }
 
@@ -8763,7 +8763,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_PAREN_TOKEN:
-                return parseCloseParenthesis();
+                return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.ANON_FUNC_PARAM_RHS);
 
@@ -8845,7 +8845,7 @@ public class BallerinaParser extends AbstractParser {
         STNode tupleMemberRhs;
         while (!isEndOfTypeList(nextToken.kind)) {
             tupleMemberRhs = parseTupleMemberRhs(nextToken.kind);
-            if (tupleMemberRhs.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+            if (tupleMemberRhs == null) {
                 break;
             }
 
@@ -8867,7 +8867,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACKET_TOKEN:
-                return parseCloseBracket();
+                return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
 
