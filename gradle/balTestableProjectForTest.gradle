@@ -1,0 +1,43 @@
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/birTestableProject.gradle"
+
+configurations {
+
+    testCompile.extendsFrom(birJar)
+    jacocoPath
+}
+
+dependencies {
+    compile project(':ballerina-lang:testutils')
+    jacocoPath  group: 'org.jacoco', name: 'org.jacoco.agent',classifier: 'runtime' , version: '0.8.5'
+
+}
+
+class execsuite extends JavaExec{
+
+    @Input def  libPath = []
+
+    execsuite(){
+        setMain('org.ballerinalang.langlib.testutils.TestMain')
+    }
+
+    @Override
+    void exec() {
+        def args = libPath
+        super.setArgs(args)
+        super.exec()
+    }
+}
+
+task runtask(type:execsuite){
+    dependsOn createTestBalHome
+    jvmArgs "-javaagent:${configurations.jacocoPath.asPath}=destfile=build/jacoco/test.exec,classdumpdir=build/jacocodumpclass/"
+
+    inputs.files(configurations.baloTestImplementation);
+
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
+    systemProperty "enableJBallerinaTests", "true"
+
+    classpath = sourceSets.test.runtimeClasspath
+    libPath << "${file("$projectDir")}/"
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="ABC">
+    <description>str1234</description>
+    <test name="xyz">
+        <description>str1234</description>
+        <source>
+            <file>test-src/function-test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testValueAssignment">
+                    <parameters>
+                        <int>10</int>
+                        <string>hello</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>5</int>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>
