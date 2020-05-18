@@ -56,12 +56,13 @@ public class TransactionalProducerTest {
     private CompileResult result;
 
     @BeforeClass
+    @Test(enabled = false)
     public void setup() throws IOException {
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
         kafkaCluster = createKafkaCluster(dataDir, 14012, 14112).addBrokers(3).startup();
     }
 
-    @Test(description = "Test Kafka producer send function within transaction")
+    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
     public void testKafkaSend() {
         result = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_TRANSACTIONS, "transactional_send.bal")));
@@ -79,7 +80,7 @@ public class TransactionalProducerTest {
         }
     }
 
-    @Test(description = "Test kafka producer commitConsumerOffsets() function")
+    @Test(description = "Test kafka producer commitConsumerOffsets() function", enabled = false)
     public void testKafkaCommitConsumerOffsetsTest() {
         result = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_TRANSACTIONS, "commit_consumer_offsets.bal")));
@@ -108,7 +109,7 @@ public class TransactionalProducerTest {
         }
     }
 
-    @Test(description = "Test producer commit consumer functionality")
+    @Test(description = "Test producer commit consumer functionality", enabled = false)
     public void testKafkaCommitConsumerTest() {
         result = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_TRANSACTIONS, "commit_consumer.bal")));
@@ -126,7 +127,7 @@ public class TransactionalProducerTest {
         }
     }
 
-    @Test(description = "Test transactional producer with idempotence false")
+    @Test(description = "Test transactional producer with idempotence false", enabled = false)
     public void testKafkaTransactionalProducerWithoutIdempotenceTest() {
         String message = "Failed to initialize the producer: configuration enableIdempotence must be set to true to " +
                 "enable transactional producer";
