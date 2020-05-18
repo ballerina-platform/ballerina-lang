@@ -1570,5 +1570,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 flushKeyword,
                 peerWorker);
     }
+
+    public static STNode createFunctionDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode semicolon) {
+
+        return new STFunctionDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                semicolon);
+    }
 }
 

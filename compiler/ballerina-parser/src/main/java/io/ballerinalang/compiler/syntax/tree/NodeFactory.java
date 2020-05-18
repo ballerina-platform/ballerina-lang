@@ -2115,5 +2115,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stFlushActionNode.createUnlinkedFacade();
     }
+
+    public static FunctionDeclarationNode createFunctionDeclarationNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            Token functionKeyword,
+            IdentifierToken functionName,
+            FunctionSignatureNode functionSignature,
+            Token semicolon) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+        Objects.requireNonNull(functionName, "functionName must not be null");
+        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+        Objects.requireNonNull(semicolon, "semicolon must not be null");
+
+        STNode stFunctionDeclarationNode = STNodeFactory.createFunctionDeclarationNode(
+                metadata.internalNode(),
+                getOptionalSTNode(visibilityQualifier),
+                functionKeyword.internalNode(),
+                functionName.internalNode(),
+                functionSignature.internalNode(),
+                semicolon.internalNode());
+        return stFunctionDeclarationNode.createUnlinkedFacade();
+    }
 }
 

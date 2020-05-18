@@ -2815,6 +2815,38 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "FunctionDeclarationNode",
+            "base": "Node",
+            "kind": "FUNCTION_DECLARATION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "semicolon",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

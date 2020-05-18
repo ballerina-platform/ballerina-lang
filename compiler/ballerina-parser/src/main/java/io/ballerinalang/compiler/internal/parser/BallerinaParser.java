@@ -113,7 +113,7 @@ public class BallerinaParser extends AbstractParser {
             case EXTERNAL_FUNC_BODY:
                 return parseExternalFunctionBody();
             case FUNC_BODY:
-                return parseFunctionBody();
+                return parseFunctionBody((boolean) args[0]);
             case OPEN_BRACE:
                 return parseOpenBrace();
             case CLOSE_BRACE:
@@ -359,7 +359,8 @@ public class BallerinaParser extends AbstractParser {
             case KEY_CONSTRAINTS_RHS:
                 return parseKeyConstraint((STNode) args[0]);
             case FUNCTION_KEYWORD_RHS:
-                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
+                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3],
+                        (boolean) args[3]);
             case FUNC_OPTIONAL_RETURNS:
                 return parseFuncReturnTypeDescriptor();
             case RETURNS_KEYWORD:
@@ -1112,7 +1113,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 // ANything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
-                return parseFuncDefOrFuncTypeDesc(metadata, getQualifier(qualifier));
+                return parseFuncDefOrFuncTypeDesc(metadata, getQualifier(qualifier), false);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
@@ -1211,10 +1212,10 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseFuncDefinition(STNode metadata, STNode visibilityQualifier) {
+    private STNode parseFuncDefinition(STNode metadata, STNode visibilityQualifier, boolean isObjectMethod) {
         startContext(ParserRuleContext.FUNC_DEF);
         STNode functionKeyword = parseFunctionKeyword();
-        STNode funcDef = parseFunctionKeywordRhs(metadata, visibilityQualifier, functionKeyword, true);
+        STNode funcDef = parseFunctionKeywordRhs(metadata, visibilityQualifier, functionKeyword, true, isObjectMethod);
         endContext();
         return funcDef;
     }
@@ -1232,21 +1233,23 @@ public class BallerinaParser extends AbstractParser {
      * @param visibilityQualifier Visibility qualifier
      * @return Parsed node
      */
-    private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, STNode visibilityQualifier) {
+    private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, STNode visibilityQualifier, boolean isObjectMethod) {
         startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
         STNode functionKeyword = parseFunctionKeyword();
-        STNode funcDefOrType = parseFunctionKeywordRhs(metadata, visibilityQualifier, functionKeyword, false);
+        STNode funcDefOrType =
+                parseFunctionKeywordRhs(metadata, visibilityQualifier, functionKeyword, false, isObjectMethod);
         endContext();
         return funcDefOrType;
     }
 
     private STNode parseFunctionKeywordRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
-                                           boolean isFuncDef) {
-        return parseFunctionKeywordRhs(peek().kind, metadata, visibilityQualifier, functionKeyword, isFuncDef);
+                                           boolean isFuncDef, boolean isObjectMethod) {
+        return parseFunctionKeywordRhs(peek().kind, metadata, visibilityQualifier, functionKeyword, isFuncDef,
+                isObjectMethod);
     }
 
     private STNode parseFunctionKeywordRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
-                                           STNode functionKeyword, boolean isFuncDef) {
+                                           STNode functionKeyword, boolean isFuncDef, boolean isObjectMethod) {
         STNode name;
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
@@ -1259,27 +1262,37 @@ public class BallerinaParser extends AbstractParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.FUNCTION_KEYWORD_RHS, metadata,
-                        visibilityQualifier, functionKeyword, isFuncDef);
+                        visibilityQualifier, functionKeyword, isFuncDef, isObjectMethod);
 
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
                 }
                 return parseFunctionKeywordRhs(solution.tokenKind, metadata, visibilityQualifier, functionKeyword,
-                        isFuncDef);
+                        isFuncDef, isObjectMethod);
         }
 
         // If the function name is present, treat this as a function def
         if (isFuncDef) {
             switchContext(ParserRuleContext.FUNC_DEF);
             STNode funcSignature = parseFuncSignature(false);
-            STNode body = parseFunctionBody();
-            return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
-                    funcSignature, body);
+            return createFuncDefOrMethodDecl(metadata, visibilityQualifier, functionKeyword, isObjectMethod, name,
+                    funcSignature);
         }
 
         // Otherwise it could be a func-def or a func-type
         STNode funcSignature = parseFuncSignature(true);
-        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, funcSignature);
+        return parseReturnTypeDescRhs(metadata, visibilityQualifier, functionKeyword, funcSignature, isObjectMethod);
+    }
+
+    private STNode createFuncDefOrMethodDecl(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                             boolean isObjectMethod, STNode name, STNode funcSignature) {
+        STNode body = parseFunctionBody(isObjectMethod);
+        if (body.kind == SyntaxKind.SEMICOLON_TOKEN) {
+            return STNodeFactory.createFunctionDeclarationNode(metadata, visibilityQualifier, functionKeyword, name,
+                    funcSignature, body);
+        }
+        return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
+                funcSignature, body);
     }
 
     /**
@@ -1305,7 +1318,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseReturnTypeDescRhs(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
-                                          STNode funcSignature) {
+                                          STNode funcSignature, boolean isObjectMethod) {
         switch (peek().kind) {
             // TODO: add binding-patterns
 
@@ -1336,9 +1349,8 @@ public class BallerinaParser extends AbstractParser {
         // Function definition cannot have missing param-names. So validate it.
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
 
-        STNode body = parseFunctionBody();
-        return STNodeFactory.createFunctionDefinitionNode(metadata, visibilityQualifier, functionKeyword, name,
-                funcSignature, body);
+        return createFuncDefOrMethodDecl(metadata, visibilityQualifier, functionKeyword, isObjectMethod, name,
+                funcSignature);
     }
 
     /**
@@ -2115,9 +2127,9 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseFunctionBody() {
+    private STNode parseFunctionBody(boolean isObjectMethod) {
         STToken token = peek();
-        return parseFunctionBody(token.kind);
+        return parseFunctionBody(token.kind, isObjectMethod);
     }
 
     /**
@@ -2126,7 +2138,7 @@ public class BallerinaParser extends AbstractParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    protected STNode parseFunctionBody(SyntaxKind tokenKind) {
+    protected STNode parseFunctionBody(SyntaxKind tokenKind, boolean isObjectMethod) {
         switch (tokenKind) {
             case EQUAL_TOKEN:
                 return parseExternalFunctionBody();
@@ -2134,9 +2146,15 @@ public class BallerinaParser extends AbstractParser {
                 return parseFunctionBodyBlock(false);
             case RIGHT_DOUBLE_ARROW:
                 return parseExpressionFuncBody(false);
+            case SEMICOLON_TOKEN:
+                if (isObjectMethod) {
+                    return parseSemicolon();
+                }
+
+                // else fall through
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.FUNC_BODY);
+                Solution solution = recover(token, ParserRuleContext.FUNC_BODY, isObjectMethod);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -2152,7 +2170,7 @@ public class BallerinaParser extends AbstractParser {
                     return STNodeFactory.createMissingToken(solution.tokenKind);
                 }
 
-                return parseFunctionBody(solution.tokenKind);
+                return parseFunctionBody(solution.tokenKind, isObjectMethod);
         }
     }
 
@@ -4737,7 +4755,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMethod(STNode metadata, STNode methodQualifiers) {
-        return parseFuncDefOrFuncTypeDesc(metadata, methodQualifiers);
+        return parseFuncDefOrFuncTypeDesc(metadata, methodQualifiers, true);
     }
 
     /**
@@ -5682,9 +5700,9 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case RESOURCE_KEYWORD:
                 STNode resourceKeyword = parseResourceKeyword();
-                return parseFuncDefinition(metadata, resourceKeyword);
+                return parseFuncDefinition(metadata, resourceKeyword, false);
             case FUNCTION_KEYWORD:
-                return parseFuncDefinition(metadata, STNodeFactory.createEmptyNode());
+                return parseFuncDefinition(metadata, STNodeFactory.createEmptyNode(), false);
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RESOURCE_DEF, metadata);

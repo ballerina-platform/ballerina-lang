@@ -68,6 +68,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] FUNC_BODY =
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
+    private static final ParserRuleContext[] OBJECT_FUNC_BODY =
+            { ParserRuleContext.SEMICOLON, ParserRuleContext.EXTERNAL_FUNC_BODY };
+
     /**
      * ANNON_FUNC--> When a anonymous function is possible.
      */
@@ -574,6 +577,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                             nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
+                case OBJECT_FUNC_BODY:
+                    if (getGrandParentContext() == ParserRuleContext.OBJECT_MEMBER) {
+                        return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, OBJECT_FUNC_BODY,
+                                isEntryPoint);
+                    }
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, FUNC_BODY,
                             isEntryPoint);
                 case OPEN_BRACE:
@@ -2714,7 +2722,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
-        } else if (parentCtx == ParserRuleContext.FUNC_DEF) {
+        } else if (parentCtx == ParserRuleContext.FUNC_DEF || parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE) {
             endContext(); // end func-def
             nextToken = this.tokenReader.peek(nextLookahead);
             if (nextToken.kind == SyntaxKind.EOF_TOKEN) {

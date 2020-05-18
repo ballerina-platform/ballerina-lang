@@ -1558,6 +1558,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 peerWorker);
     }
 
+    @Override
+    public Node transform(FunctionDeclarationNode functionDeclarationNode) {
+        MetadataNode metadata = modifyNode(functionDeclarationNode.metadata());
+        Token visibilityQualifier = modifyToken(functionDeclarationNode.visibilityQualifier().orElse(null));
+        Token functionKeyword = modifyToken(functionDeclarationNode.functionKeyword());
+        IdentifierToken functionName = modifyNode(functionDeclarationNode.functionName());
+        FunctionSignatureNode functionSignature = modifyNode(functionDeclarationNode.functionSignature());
+        Token semicolon = modifyToken(functionDeclarationNode.semicolon());
+        return functionDeclarationNode.modify(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                semicolon);
+    }
+
     // Tokens
 
     @Override

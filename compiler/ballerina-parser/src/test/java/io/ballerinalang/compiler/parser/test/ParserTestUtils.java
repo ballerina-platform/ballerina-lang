@@ -856,6 +856,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_FUNCTION_BODY;
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
+            case "FUNCTION_DECLARATION":
+                return SyntaxKind.FUNCTION_DECLARATION;
 
             // XML template
             case "XML_ELEMENT":

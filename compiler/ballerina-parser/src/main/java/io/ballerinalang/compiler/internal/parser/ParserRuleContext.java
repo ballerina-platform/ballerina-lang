@@ -45,6 +45,7 @@ public enum ParserRuleContext {
     REQUIRED_PARAM_NAME_RHS("required-param-name-rhs"),
     FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
+    OBJECT_FUNC_BODY("object-method-body"),
     FUNC_BODY_OR_TYPE_DESC_RHS("func-body-or-type-desc-rhs"),
     ANON_FUNC_BODY("annon-func-body"),
     FUNC_TYPE_DESC_END("func-type-desc-end"),

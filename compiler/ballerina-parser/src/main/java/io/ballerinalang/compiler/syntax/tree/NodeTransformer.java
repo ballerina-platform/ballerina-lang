@@ -548,6 +548,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(FunctionDeclarationNode functionDeclarationNode) {
+        return transformSyntaxNode(functionDeclarationNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

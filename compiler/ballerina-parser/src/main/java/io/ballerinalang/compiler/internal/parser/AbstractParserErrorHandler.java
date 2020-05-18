@@ -213,6 +213,13 @@ public abstract class AbstractParserErrorHandler {
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
+    
+    protected ParserRuleContext getGrandParentContext() {
+        ParserRuleContext parent = this.ctxStack.pop();
+        ParserRuleContext grandParent = this.ctxStack.peek();
+        this.ctxStack.push(parent);
+        return grandParent;
+    }
 
     /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
