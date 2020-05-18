@@ -674,12 +674,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     // -----------------------------------------------Expressions-------------------------------------------------------
     @Override
-    public BLangNode transform(IndexedExpressionNode indexedExpressionNode) {
-        // TODO: Fix Indexed expression context aware.
-        return null;
-    }
-
-    @Override
     public BLangNode transform(CheckExpressionNode checkExpressionNode) {
         BLangCheckedExpr checkedExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
         checkedExpr.pos = getPosition(checkExpressionNode);
@@ -882,15 +876,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         typeConversionNode.expr = createExpression(typeCastExpressionNode.expression());
         return typeConversionNode;
-    }
-
-    @Override
-    public BLangNode transform(TypeTestExpressionNode typeTestExpressionNode) {
-        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
-        typeTestExpr.expr = createExpression(typeTestExpressionNode.expression());
-        typeTestExpr.typeNode = createTypeNode(typeTestExpressionNode.typeDescriptor());
-        typeTestExpr.pos = getPosition(typeTestExpressionNode);
-        return typeTestExpr;
     }
 
     @Override
