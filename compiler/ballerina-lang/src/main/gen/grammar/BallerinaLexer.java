@@ -1,5 +1,5 @@
-// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
-package org.wso2.ballerinalang.compiler.parser.antlr4;
+// Generated from /Users/wso2/Desktop/StreamDesugar/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaLexer.g4 by ANTLR 4.8
+package grammar;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.8", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -69,21 +69,16 @@ public class BallerinaLexer extends Lexer {
 		DoubleBackTickInlineCodeEnd=238, DoubleBackTickInlineCode=239, SingleBackTickInlineCodeEnd=240, 
 		SingleBackTickInlineCode=241, StringTemplateLiteralEnd=242, StringTemplateExpressionStart=243, 
 		StringTemplateText=244;
-	public static final int MARKDOWN_DOCUMENTATION = 1;
-	public static final int MARKDOWN_DOCUMENTATION_PARAM = 2;
-	public static final int SINGLE_BACKTICKED_DOCUMENTATION = 3;
-	public static final int DOUBLE_BACKTICKED_DOCUMENTATION = 4;
-	public static final int TRIPLE_BACKTICKED_DOCUMENTATION = 5;
-	public static final int XML = 6;
-	public static final int XML_TAG = 7;
-	public static final int DOUBLE_QUOTED_XML_STRING = 8;
-	public static final int SINGLE_QUOTED_XML_STRING = 9;
-	public static final int XML_PI = 10;
-	public static final int XML_COMMENT = 11;
-	public static final int TRIPLE_BACKTICK_INLINE_CODE = 12;
-	public static final int DOUBLE_BACKTICK_INLINE_CODE = 13;
-	public static final int SINGLE_BACKTICK_INLINE_CODE = 14;
-	public static final int STRING_TEMPLATE = 15;
+	public static final int
+		MARKDOWN_DOCUMENTATION=1, MARKDOWN_DOCUMENTATION_PARAM=2, SINGLE_BACKTICKED_DOCUMENTATION=3, 
+		DOUBLE_BACKTICKED_DOCUMENTATION=4, TRIPLE_BACKTICKED_DOCUMENTATION=5, 
+		XML=6, XML_TAG=7, DOUBLE_QUOTED_XML_STRING=8, SINGLE_QUOTED_XML_STRING=9, 
+		XML_PI=10, XML_COMMENT=11, TRIPLE_BACKTICK_INLINE_CODE=12, DOUBLE_BACKTICK_INLINE_CODE=13, 
+		SINGLE_BACKTICK_INLINE_CODE=14, STRING_TEMPLATE=15;
+	public static String[] channelNames = {
+		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
+	};
+
 	public static String[] modeNames = {
 		"DEFAULT_MODE", "MARKDOWN_DOCUMENTATION", "MARKDOWN_DOCUMENTATION_PARAM", 
 		"SINGLE_BACKTICKED_DOCUMENTATION", "DOUBLE_BACKTICKED_DOCUMENTATION", 
@@ -92,151 +87,162 @@ public class BallerinaLexer extends Lexer {
 		"DOUBLE_BACKTICK_INLINE_CODE", "SINGLE_BACKTICK_INLINE_CODE", "STRING_TEMPLATE"
 	};
 
-	public static final String[] ruleNames = {
-		"IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERNAL", "FINAL", "SERVICE", "RESOURCE", 
-		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
-		"WORKER", "LISTENER", "REMOTE", "XMLNS", "RETURNS", "VERSION", "CHANNEL", 
-		"ABSTRACT", "CLIENT", "CONST", "ENUM", "TYPEOF", "SOURCE", "ON", "FIELD", 
-		"TYPE_INT", "TYPE_BYTE", "TYPE_FLOAT", "TYPE_DECIMAL", "TYPE_BOOL", "TYPE_STRING", 
-		"TYPE_ERROR", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM", 
-		"TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", "TYPE_ANYDATA", "TYPE_HANDLE", 
-		"TYPE_READONLY", "VAR", "NEW", "OBJECT_INIT", "IF", "MATCH", "ELSE", "FOREACH", 
-		"WHILE", "CONTINUE", "BREAK", "FORK", "JOIN", "OUTER", "SOME", "ALL", 
-		"TRY", "CATCH", "FINALLY", "THROW", "PANIC", "TRAP", "RETURN", "TRANSACTION", 
-		"ABORT", "RETRY", "ONRETRY", "RETRIES", "COMMITTED", "ABORTED", "WITH", 
-		"IN", "LOCK", "UNTAINT", "START", "BUT", "CHECK", "CHECKPANIC", "PRIMARYKEY", 
-		"IS", "FLUSH", "WAIT", "DEFAULT", "FROM", "SELECT", "DO", "WHERE", "LET", 
-		"CONFLICT", "JOIN_EQUALS", "LIMIT", "DEPRECATED", "KEY", "DEPRECATED_PARAMETERS", 
-		"SEMICOLON", "COLON", "DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", 
-		"RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", 
-		"OPTIONAL_FIELD_ACCESS", "LEFT_CLOSED_RECORD_DELIMITER", "RIGHT_CLOSED_RECORD_DELIMITER", 
-		"HASH", "ASSIGN", "ADD", "SUB", "MUL", "DIV", "MOD", "NOT", "EQUAL", "NOT_EQUAL", 
-		"GT", "LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", "REF_EQUAL", "REF_NOT_EQUAL", 
-		"BIT_AND", "BIT_XOR", "BIT_COMPLEMENT", "RARROW", "LARROW", "AT", "BACKTICK", 
-		"RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", "ELVIS", "SYNCRARROW", "COMPOUND_ADD", 
-		"COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", "COMPOUND_BIT_AND", "COMPOUND_BIT_OR", 
-		"COMPOUND_BIT_XOR", "COMPOUND_LEFT_SHIFT", "COMPOUND_RIGHT_SHIFT", "COMPOUND_LOGICAL_SHIFT", 
-		"HALF_OPEN_RANGE", "ANNOTATION_ACCESS", "DecimalIntegerLiteral", "HexIntegerLiteral", 
-		"DecimalNumeral", "Digits", "Digit", "NonZeroDigit", "HexNumeral", "DottedHexNumber", 
-		"DottedDecimalNumber", "HexDigits", "HexDigit", "HexadecimalFloatingPointLiteral", 
-		"DecimalFloatingPointNumber", "DecimalExtendedFloatingPointNumber", "ExponentPart", 
-		"ExponentIndicator", "SignedInteger", "Sign", "DecimalFloatSelector", 
-		"HexIndicator", "HexFloatingPointNumber", "BinaryExponent", "BinaryExponentIndicator", 
-		"BooleanLiteral", "QuotedStringLiteral", "StringCharacters", "StringCharacter", 
-		"EscapeSequence", "UnicodeEscape", "Base16BlobLiteral", "HexGroup", "Base64BlobLiteral", 
-		"Base64Group", "PaddedBase64Group", "Base64Char", "PaddingChar", "NullLiteral", 
-		"Identifier", "UnquotedIdentifier", "QuotedIdentifier", "QuotedIdentifierChar", 
-		"IdentifierInitialChar", "IdentifierFollowingChar", "QuotedIdentifierEscape", 
-		"StringNumericEscape", "Letter", "LetterOrDigit", "XMLLiteralStart", "StringTemplateLiteralStart", 
-		"DocumentationLineStart", "ParameterDocumentationStart", "ReturnParameterDocumentationStart", 
-		"DeprecatedDocumentation", "DeprecatedParametersDocumentation", "WS", 
-		"NEW_LINE", "LINE_COMMENT", "DOCTYPE", "DOCSERVICE", "DOCVARIABLE", "DOCVAR", 
-		"DOCANNOTATION", "DOCMODULE", "DOCFUNCTION", "DOCPARAMETER", "DOCCONST", 
-		"SingleBacktickStart", "DocumentationText", "DoubleBacktickStart", "TripleBacktickStart", 
-		"DocumentationTextCharacter", "DocumentationEscapedCharacters", "DocumentationSpace", 
-		"DocumentationEnd", "ParameterName", "DescriptionSeparator", "DocumentationParamEnd", 
-		"SingleBacktickContent", "SingleBacktickEnd", "DoubleBacktickContent", 
-		"DoubleBacktickEnd", "TripleBacktickContent", "TripleBacktickEnd", "XML_COMMENT_START", 
-		"CDATA", "DTD", "EntityRef", "CharRef", "XML_WS", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", 
-		"XML_TAG_SPECIAL_OPEN", "XMLLiteralEnd", "INTERPOLATION_START", "XMLTemplateText", 
-		"XMLText", "XMLTextChar", "DollarSequence", "XMLEscapedSequence", "XMLBracesSequence", 
-		"XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE", "XML_TAG_SLASH_CLOSE", "SLASH", 
-		"QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE", "SINGLE_QUOTE", "XMLQName", 
-		"XML_TAG_WS", "HEXDIGIT", "DIGIT", "NameChar", "NameStartChar", "DOUBLE_QUOTE_END", 
-		"XMLDoubleQuotedTemplateString", "XMLDoubleQuotedString", "XMLDoubleQuotedStringChar", 
-		"SINGLE_QUOTE_END", "XMLSingleQuotedTemplateString", "XMLSingleQuotedString", 
-		"XMLSingleQuotedStringChar", "XML_PI_END", "XMLPIText", "XMLPITemplateText", 
-		"XMLPITextFragment", "XMLPIChar", "XMLPIAllowedSequence", "XMLPISpecialSequence", 
-		"XML_COMMENT_END", "XMLCommentTemplateText", "XMLCommentTextFragment", 
-		"XMLCommentText", "XMLCommentChar", "LookAheadTokenIsNotOpenBrace", "XMLCommentAllowedSequence", 
-		"XMLCommentSpecialSequence", "LookAheadTokenIsNotHypen", "TripleBackTickInlineCodeEnd", 
-		"TripleBackTickInlineCode", "TripleBackTickInlineCodeChar", "DoubleBackTickInlineCodeEnd", 
-		"DoubleBackTickInlineCode", "DoubleBackTickInlineCodeChar", "SingleBackTickInlineCodeEnd", 
-		"SingleBackTickInlineCode", "SingleBackTickInlineCodeChar", "StringTemplateLiteralEnd", 
-		"StringTemplateExpressionStart", "StringTemplateText", "DOLLAR", "StringTemplateValidCharSequence", 
-		"StringLiteralEscapedSequence"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERNAL", "FINAL", "SERVICE", 
+			"RESOURCE", "FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", 
+			"TRANSFORMER", "WORKER", "LISTENER", "REMOTE", "XMLNS", "RETURNS", "VERSION", 
+			"CHANNEL", "ABSTRACT", "CLIENT", "CONST", "ENUM", "TYPEOF", "SOURCE", 
+			"ON", "FIELD", "TYPE_INT", "TYPE_BYTE", "TYPE_FLOAT", "TYPE_DECIMAL", 
+			"TYPE_BOOL", "TYPE_STRING", "TYPE_ERROR", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", 
+			"TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", 
+			"TYPE_ANYDATA", "TYPE_HANDLE", "TYPE_READONLY", "VAR", "NEW", "OBJECT_INIT", 
+			"IF", "MATCH", "ELSE", "FOREACH", "WHILE", "CONTINUE", "BREAK", "FORK", 
+			"JOIN", "OUTER", "SOME", "ALL", "TRY", "CATCH", "FINALLY", "THROW", "PANIC", 
+			"TRAP", "RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY", "RETRIES", 
+			"COMMITTED", "ABORTED", "WITH", "IN", "LOCK", "UNTAINT", "START", "BUT", 
+			"CHECK", "CHECKPANIC", "PRIMARYKEY", "IS", "FLUSH", "WAIT", "DEFAULT", 
+			"FROM", "SELECT", "DO", "WHERE", "LET", "CONFLICT", "JOIN_EQUALS", "LIMIT", 
+			"DEPRECATED", "KEY", "DEPRECATED_PARAMETERS", "SEMICOLON", "COLON", "DOT", 
+			"COMMA", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+			"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "OPTIONAL_FIELD_ACCESS", 
+			"LEFT_CLOSED_RECORD_DELIMITER", "RIGHT_CLOSED_RECORD_DELIMITER", "HASH", 
+			"ASSIGN", "ADD", "SUB", "MUL", "DIV", "MOD", "NOT", "EQUAL", "NOT_EQUAL", 
+			"GT", "LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", "REF_EQUAL", "REF_NOT_EQUAL", 
+			"BIT_AND", "BIT_XOR", "BIT_COMPLEMENT", "RARROW", "LARROW", "AT", "BACKTICK", 
+			"RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", "ELVIS", "SYNCRARROW", "COMPOUND_ADD", 
+			"COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", "COMPOUND_BIT_AND", "COMPOUND_BIT_OR", 
+			"COMPOUND_BIT_XOR", "COMPOUND_LEFT_SHIFT", "COMPOUND_RIGHT_SHIFT", "COMPOUND_LOGICAL_SHIFT", 
+			"HALF_OPEN_RANGE", "ANNOTATION_ACCESS", "DecimalIntegerLiteral", "HexIntegerLiteral", 
+			"DecimalNumeral", "Digits", "Digit", "NonZeroDigit", "HexNumeral", "DottedHexNumber", 
+			"DottedDecimalNumber", "HexDigits", "HexDigit", "HexadecimalFloatingPointLiteral", 
+			"DecimalFloatingPointNumber", "DecimalExtendedFloatingPointNumber", "ExponentPart", 
+			"ExponentIndicator", "SignedInteger", "Sign", "DecimalFloatSelector", 
+			"HexIndicator", "HexFloatingPointNumber", "BinaryExponent", "BinaryExponentIndicator", 
+			"BooleanLiteral", "QuotedStringLiteral", "StringCharacters", "StringCharacter", 
+			"EscapeSequence", "UnicodeEscape", "Base16BlobLiteral", "HexGroup", "Base64BlobLiteral", 
+			"Base64Group", "PaddedBase64Group", "Base64Char", "PaddingChar", "NullLiteral", 
+			"Identifier", "UnquotedIdentifier", "QuotedIdentifier", "QuotedIdentifierChar", 
+			"IdentifierInitialChar", "IdentifierFollowingChar", "QuotedIdentifierEscape", 
+			"StringNumericEscape", "Letter", "LetterOrDigit", "XMLLiteralStart", 
+			"StringTemplateLiteralStart", "DocumentationLineStart", "ParameterDocumentationStart", 
+			"ReturnParameterDocumentationStart", "DeprecatedDocumentation", "DeprecatedParametersDocumentation", 
+			"WS", "NEW_LINE", "LINE_COMMENT", "DOCTYPE", "DOCSERVICE", "DOCVARIABLE", 
+			"DOCVAR", "DOCANNOTATION", "DOCMODULE", "DOCFUNCTION", "DOCPARAMETER", 
+			"DOCCONST", "SingleBacktickStart", "DocumentationText", "DoubleBacktickStart", 
+			"TripleBacktickStart", "DocumentationTextCharacter", "DocumentationEscapedCharacters", 
+			"DocumentationSpace", "DocumentationEnd", "ParameterName", "DescriptionSeparator", 
+			"DocumentationParamEnd", "SingleBacktickContent", "SingleBacktickEnd", 
+			"DoubleBacktickContent", "DoubleBacktickEnd", "TripleBacktickContent", 
+			"TripleBacktickEnd", "XML_COMMENT_START", "CDATA", "DTD", "EntityRef", 
+			"CharRef", "XML_WS", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", "XML_TAG_SPECIAL_OPEN", 
+			"XMLLiteralEnd", "INTERPOLATION_START", "XMLTemplateText", "XMLText", 
+			"XMLTextChar", "DollarSequence", "XMLEscapedSequence", "XMLBracesSequence", 
+			"XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE", "XML_TAG_SLASH_CLOSE", "SLASH", 
+			"QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE", "SINGLE_QUOTE", "XMLQName", 
+			"XML_TAG_WS", "HEXDIGIT", "DIGIT", "NameChar", "NameStartChar", "DOUBLE_QUOTE_END", 
+			"XMLDoubleQuotedTemplateString", "XMLDoubleQuotedString", "XMLDoubleQuotedStringChar", 
+			"SINGLE_QUOTE_END", "XMLSingleQuotedTemplateString", "XMLSingleQuotedString", 
+			"XMLSingleQuotedStringChar", "XML_PI_END", "XMLPIText", "XMLPITemplateText", 
+			"XMLPITextFragment", "XMLPIChar", "XMLPIAllowedSequence", "XMLPISpecialSequence", 
+			"XML_COMMENT_END", "XMLCommentTemplateText", "XMLCommentTextFragment", 
+			"XMLCommentText", "XMLCommentChar", "LookAheadTokenIsNotOpenBrace", "XMLCommentAllowedSequence", 
+			"XMLCommentSpecialSequence", "LookAheadTokenIsNotHypen", "TripleBackTickInlineCodeEnd", 
+			"TripleBackTickInlineCode", "TripleBackTickInlineCodeChar", "DoubleBackTickInlineCodeEnd", 
+			"DoubleBackTickInlineCode", "DoubleBackTickInlineCodeChar", "SingleBackTickInlineCodeEnd", 
+			"SingleBackTickInlineCode", "SingleBackTickInlineCodeChar", "StringTemplateLiteralEnd", 
+			"StringTemplateExpressionStart", "StringTemplateText", "DOLLAR", "StringTemplateValidCharSequence", 
+			"StringLiteralEscapedSequence"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'import'", "'as'", "'public'", "'private'", "'external'", "'final'", 
-		"'service'", "'resource'", "'function'", "'object'", "'record'", "'annotation'", 
-		"'parameter'", "'transformer'", "'worker'", "'listener'", "'remote'", 
-		"'xmlns'", "'returns'", "'version'", "'channel'", "'abstract'", "'client'", 
-		"'const'", "'enum'", "'typeof'", "'source'", "'on'", "'field'", "'int'", 
-		"'byte'", "'float'", "'decimal'", "'boolean'", "'string'", "'error'", 
-		"'map'", "'json'", "'xml'", "'table'", "'stream'", "'any'", "'typedesc'", 
-		"'type'", "'future'", "'anydata'", "'handle'", "'readonly'", "'var'", 
-		"'new'", "'__init'", "'if'", "'match'", "'else'", "'foreach'", "'while'", 
-		"'continue'", "'break'", "'fork'", "'join'", "'outer'", "'some'", "'all'", 
-		"'try'", "'catch'", "'finally'", "'throw'", "'panic'", "'trap'", "'return'", 
-		"'transaction'", "'abort'", "'retry'", "'onretry'", "'retries'", "'committed'", 
-		"'aborted'", "'with'", "'in'", "'lock'", "'untaint'", "'start'", "'but'", 
-		"'check'", "'checkpanic'", "'primarykey'", "'is'", "'flush'", "'wait'", 
-		"'default'", "'from'", null, null, null, "'let'", "'conflict'", null, 
-		"'limit'", "'Deprecated'", null, "'Deprecated parameters'", "';'", "':'", 
-		"'.'", "','", "'{'", "'}'", "'('", "')'", "'['", "']'", "'?'", "'?.'", 
-		"'{|'", "'|}'", "'='", "'+'", "'-'", "'*'", "'/'", "'%'", "'!'", "'=='", 
-		"'!='", "'>'", "'<'", "'>='", "'<='", "'&&'", "'||'", "'==='", "'!=='", 
-		"'&'", "'^'", "'~'", "'->'", "'<-'", "'@'", "'`'", "'..'", "'...'", "'|'", 
-		"'=>'", "'?:'", "'->>'", "'+='", "'-='", "'*='", "'/='", "'&='", "'|='", 
-		"'^='", "'<<='", "'>>='", "'>>>='", "'..<'", "'.@'", null, null, null, 
-		null, null, null, null, null, null, "'null'", null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, null, null, "'<!--'", null, null, 
-		null, null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'", 
-		null, null, null, "'\"'", "'''", null, null, null, null, null, null, null, 
-		null, null, null, "'-->'"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERNAL", "FINAL", "SERVICE", 
-		"RESOURCE", "FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", 
-		"TRANSFORMER", "WORKER", "LISTENER", "REMOTE", "XMLNS", "RETURNS", "VERSION", 
-		"CHANNEL", "ABSTRACT", "CLIENT", "CONST", "ENUM", "TYPEOF", "SOURCE", 
-		"ON", "FIELD", "TYPE_INT", "TYPE_BYTE", "TYPE_FLOAT", "TYPE_DECIMAL", 
-		"TYPE_BOOL", "TYPE_STRING", "TYPE_ERROR", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", 
-		"TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", 
-		"TYPE_ANYDATA", "TYPE_HANDLE", "TYPE_READONLY", "VAR", "NEW", "OBJECT_INIT", 
-		"IF", "MATCH", "ELSE", "FOREACH", "WHILE", "CONTINUE", "BREAK", "FORK", 
-		"JOIN", "OUTER", "SOME", "ALL", "TRY", "CATCH", "FINALLY", "THROW", "PANIC", 
-		"TRAP", "RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY", "RETRIES", 
-		"COMMITTED", "ABORTED", "WITH", "IN", "LOCK", "UNTAINT", "START", "BUT", 
-		"CHECK", "CHECKPANIC", "PRIMARYKEY", "IS", "FLUSH", "WAIT", "DEFAULT", 
-		"FROM", "SELECT", "DO", "WHERE", "LET", "CONFLICT", "JOIN_EQUALS", "LIMIT", 
-		"DEPRECATED", "KEY", "DEPRECATED_PARAMETERS", "SEMICOLON", "COLON", "DOT", 
-		"COMMA", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
-		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "OPTIONAL_FIELD_ACCESS", 
-		"LEFT_CLOSED_RECORD_DELIMITER", "RIGHT_CLOSED_RECORD_DELIMITER", "ASSIGN", 
-		"ADD", "SUB", "MUL", "DIV", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", 
-		"LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", "REF_EQUAL", "REF_NOT_EQUAL", 
-		"BIT_AND", "BIT_XOR", "BIT_COMPLEMENT", "RARROW", "LARROW", "AT", "BACKTICK", 
-		"RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", "ELVIS", "SYNCRARROW", "COMPOUND_ADD", 
-		"COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", "COMPOUND_BIT_AND", "COMPOUND_BIT_OR", 
-		"COMPOUND_BIT_XOR", "COMPOUND_LEFT_SHIFT", "COMPOUND_RIGHT_SHIFT", "COMPOUND_LOGICAL_SHIFT", 
-		"HALF_OPEN_RANGE", "ANNOTATION_ACCESS", "DecimalIntegerLiteral", "HexIntegerLiteral", 
-		"HexadecimalFloatingPointLiteral", "DecimalFloatingPointNumber", "DecimalExtendedFloatingPointNumber", 
-		"BooleanLiteral", "QuotedStringLiteral", "Base16BlobLiteral", "Base64BlobLiteral", 
-		"NullLiteral", "Identifier", "XMLLiteralStart", "StringTemplateLiteralStart", 
-		"DocumentationLineStart", "ParameterDocumentationStart", "ReturnParameterDocumentationStart", 
-		"DeprecatedDocumentation", "DeprecatedParametersDocumentation", "WS", 
-		"NEW_LINE", "LINE_COMMENT", "DOCTYPE", "DOCSERVICE", "DOCVARIABLE", "DOCVAR", 
-		"DOCANNOTATION", "DOCMODULE", "DOCFUNCTION", "DOCPARAMETER", "DOCCONST", 
-		"SingleBacktickStart", "DocumentationText", "DoubleBacktickStart", "TripleBacktickStart", 
-		"DocumentationEscapedCharacters", "DocumentationSpace", "DocumentationEnd", 
-		"ParameterName", "DescriptionSeparator", "DocumentationParamEnd", "SingleBacktickContent", 
-		"SingleBacktickEnd", "DoubleBacktickContent", "DoubleBacktickEnd", "TripleBacktickContent", 
-		"TripleBacktickEnd", "XML_COMMENT_START", "CDATA", "DTD", "EntityRef", 
-		"CharRef", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", "XML_TAG_SPECIAL_OPEN", 
-		"XMLLiteralEnd", "XMLTemplateText", "XMLText", "XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE", 
-		"XML_TAG_SLASH_CLOSE", "SLASH", "QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE", 
-		"SINGLE_QUOTE", "XMLQName", "XML_TAG_WS", "DOUBLE_QUOTE_END", "XMLDoubleQuotedTemplateString", 
-		"XMLDoubleQuotedString", "SINGLE_QUOTE_END", "XMLSingleQuotedTemplateString", 
-		"XMLSingleQuotedString", "XMLPIText", "XMLPITemplateText", "XML_COMMENT_END", 
-		"XMLCommentTemplateText", "XMLCommentText", "TripleBackTickInlineCodeEnd", 
-		"TripleBackTickInlineCode", "DoubleBackTickInlineCodeEnd", "DoubleBackTickInlineCode", 
-		"SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", "StringTemplateLiteralEnd", 
-		"StringTemplateExpressionStart", "StringTemplateText"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'import'", "'as'", "'public'", "'private'", "'external'", "'final'", 
+			"'service'", "'resource'", "'function'", "'object'", "'record'", "'annotation'", 
+			"'parameter'", "'transformer'", "'worker'", "'listener'", "'remote'", 
+			"'xmlns'", "'returns'", "'version'", "'channel'", "'abstract'", "'client'", 
+			"'const'", "'enum'", "'typeof'", "'source'", "'on'", "'field'", "'int'", 
+			"'byte'", "'float'", "'decimal'", "'boolean'", "'string'", "'error'", 
+			"'map'", "'json'", "'xml'", "'table'", "'stream'", "'any'", "'typedesc'", 
+			"'type'", "'future'", "'anydata'", "'handle'", "'readonly'", "'var'", 
+			"'new'", "'__init'", "'if'", "'match'", "'else'", "'foreach'", "'while'", 
+			"'continue'", "'break'", "'fork'", "'join'", "'outer'", "'some'", "'all'", 
+			"'try'", "'catch'", "'finally'", "'throw'", "'panic'", "'trap'", "'return'", 
+			"'transaction'", "'abort'", "'retry'", "'onretry'", "'retries'", "'committed'", 
+			"'aborted'", "'with'", "'in'", "'lock'", "'untaint'", "'start'", "'but'", 
+			"'check'", "'checkpanic'", "'primarykey'", "'is'", "'flush'", "'wait'", 
+			"'default'", "'from'", null, null, null, "'let'", "'conflict'", null, 
+			"'limit'", "'Deprecated'", null, "'Deprecated parameters'", "';'", "':'", 
+			"'.'", "','", "'{'", "'}'", "'('", "')'", "'['", "']'", "'?'", "'?.'", 
+			"'{|'", "'|}'", "'='", "'+'", "'-'", "'*'", "'/'", "'%'", "'!'", "'=='", 
+			"'!='", "'>'", "'<'", "'>='", "'<='", "'&&'", "'||'", "'==='", "'!=='", 
+			"'&'", "'^'", "'~'", "'->'", "'<-'", "'@'", "'`'", "'..'", "'...'", "'|'", 
+			"'=>'", "'?:'", "'->>'", "'+='", "'-='", "'*='", "'/='", "'&='", "'|='", 
+			"'^='", "'<<='", "'>>='", "'>>>='", "'..<'", "'.@'", null, null, null, 
+			null, null, null, null, null, null, "'null'", null, null, null, null, 
+			null, null, null, null, null, null, null, null, null, null, null, null, 
+			null, null, null, null, null, null, null, null, null, null, null, null, 
+			null, null, null, null, null, null, null, null, "'<!--'", null, null, 
+			null, null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'", 
+			null, null, null, "'\"'", "'''", null, null, null, null, null, null, 
+			null, null, null, null, "'-->'"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERNAL", "FINAL", "SERVICE", 
+			"RESOURCE", "FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", 
+			"TRANSFORMER", "WORKER", "LISTENER", "REMOTE", "XMLNS", "RETURNS", "VERSION", 
+			"CHANNEL", "ABSTRACT", "CLIENT", "CONST", "ENUM", "TYPEOF", "SOURCE", 
+			"ON", "FIELD", "TYPE_INT", "TYPE_BYTE", "TYPE_FLOAT", "TYPE_DECIMAL", 
+			"TYPE_BOOL", "TYPE_STRING", "TYPE_ERROR", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", 
+			"TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", 
+			"TYPE_ANYDATA", "TYPE_HANDLE", "TYPE_READONLY", "VAR", "NEW", "OBJECT_INIT", 
+			"IF", "MATCH", "ELSE", "FOREACH", "WHILE", "CONTINUE", "BREAK", "FORK", 
+			"JOIN", "OUTER", "SOME", "ALL", "TRY", "CATCH", "FINALLY", "THROW", "PANIC", 
+			"TRAP", "RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY", "RETRIES", 
+			"COMMITTED", "ABORTED", "WITH", "IN", "LOCK", "UNTAINT", "START", "BUT", 
+			"CHECK", "CHECKPANIC", "PRIMARYKEY", "IS", "FLUSH", "WAIT", "DEFAULT", 
+			"FROM", "SELECT", "DO", "WHERE", "LET", "CONFLICT", "JOIN_EQUALS", "LIMIT", 
+			"DEPRECATED", "KEY", "DEPRECATED_PARAMETERS", "SEMICOLON", "COLON", "DOT", 
+			"COMMA", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+			"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "OPTIONAL_FIELD_ACCESS", 
+			"LEFT_CLOSED_RECORD_DELIMITER", "RIGHT_CLOSED_RECORD_DELIMITER", "ASSIGN", 
+			"ADD", "SUB", "MUL", "DIV", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", 
+			"LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", "REF_EQUAL", "REF_NOT_EQUAL", 
+			"BIT_AND", "BIT_XOR", "BIT_COMPLEMENT", "RARROW", "LARROW", "AT", "BACKTICK", 
+			"RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", "ELVIS", "SYNCRARROW", "COMPOUND_ADD", 
+			"COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", "COMPOUND_BIT_AND", "COMPOUND_BIT_OR", 
+			"COMPOUND_BIT_XOR", "COMPOUND_LEFT_SHIFT", "COMPOUND_RIGHT_SHIFT", "COMPOUND_LOGICAL_SHIFT", 
+			"HALF_OPEN_RANGE", "ANNOTATION_ACCESS", "DecimalIntegerLiteral", "HexIntegerLiteral", 
+			"HexadecimalFloatingPointLiteral", "DecimalFloatingPointNumber", "DecimalExtendedFloatingPointNumber", 
+			"BooleanLiteral", "QuotedStringLiteral", "Base16BlobLiteral", "Base64BlobLiteral", 
+			"NullLiteral", "Identifier", "XMLLiteralStart", "StringTemplateLiteralStart", 
+			"DocumentationLineStart", "ParameterDocumentationStart", "ReturnParameterDocumentationStart", 
+			"DeprecatedDocumentation", "DeprecatedParametersDocumentation", "WS", 
+			"NEW_LINE", "LINE_COMMENT", "DOCTYPE", "DOCSERVICE", "DOCVARIABLE", "DOCVAR", 
+			"DOCANNOTATION", "DOCMODULE", "DOCFUNCTION", "DOCPARAMETER", "DOCCONST", 
+			"SingleBacktickStart", "DocumentationText", "DoubleBacktickStart", "TripleBacktickStart", 
+			"DocumentationEscapedCharacters", "DocumentationSpace", "DocumentationEnd", 
+			"ParameterName", "DescriptionSeparator", "DocumentationParamEnd", "SingleBacktickContent", 
+			"SingleBacktickEnd", "DoubleBacktickContent", "DoubleBacktickEnd", "TripleBacktickContent", 
+			"TripleBacktickEnd", "XML_COMMENT_START", "CDATA", "DTD", "EntityRef", 
+			"CharRef", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", "XML_TAG_SPECIAL_OPEN", 
+			"XMLLiteralEnd", "XMLTemplateText", "XMLText", "XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE", 
+			"XML_TAG_SLASH_CLOSE", "SLASH", "QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE", 
+			"SINGLE_QUOTE", "XMLQName", "XML_TAG_WS", "DOUBLE_QUOTE_END", "XMLDoubleQuotedTemplateString", 
+			"XMLDoubleQuotedString", "SINGLE_QUOTE_END", "XMLSingleQuotedTemplateString", 
+			"XMLSingleQuotedString", "XMLPIText", "XMLPITemplateText", "XML_COMMENT_END", 
+			"XMLCommentTemplateText", "XMLCommentText", "TripleBackTickInlineCodeEnd", 
+			"TripleBackTickInlineCode", "DoubleBackTickInlineCodeEnd", "DoubleBackTickInlineCode", 
+			"SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", "StringTemplateLiteralEnd", 
+			"StringTemplateExpressionStart", "StringTemplateText"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**
@@ -290,6 +296,9 @@ public class BallerinaLexer extends Lexer {
 
 	@Override
 	public String getSerializedATN() { return _serializedATN; }
+
+	@Override
+	public String[] getChannelNames() { return channelNames; }
 
 	@Override
 	public String[] getModeNames() { return modeNames; }
@@ -499,7 +508,7 @@ public class BallerinaLexer extends Lexer {
 
 	private static final int _serializedATNSegments = 2;
 	private static final String _serializedATNSegment0 =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\2\u00f6\u0b98\b\1\b"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\u00f6\u0b98\b\1\b"+
 		"\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\b\1\4\2\t\2\4\3"+
 		"\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13"+
 		"\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23"+
@@ -851,13 +860,13 @@ public class BallerinaLexer extends Lexer {
 		"\u00b9\u0302\u0371\u2041\u2042\n\2C\\aac|\u2072\u2191\u2c02\u2ff1\u3003"+
 		"\ud801\uf902\ufdd1\ufdf2\uffff\b\2$$&&>>^^}}\177\177\b\2&&))>>^^}}\177"+
 		"\177\6\2&&@A}}\177\177\6\2&&//@@}}\5\2&&^^bb\6\2&&^^bb}}\f\2$$))^^bbd"+
-		"dhhppttvv}}\u0c2b\2\22\3\2\2\2\2\24\3\2\2\2\2\26\3\2\2\2\2\30\3\2\2\2"+
-		"\2\32\3\2\2\2\2\34\3\2\2\2\2\36\3\2\2\2\2 \3\2\2\2\2\"\3\2\2\2\2$\3\2"+
-		"\2\2\2&\3\2\2\2\2(\3\2\2\2\2*\3\2\2\2\2,\3\2\2\2\2.\3\2\2\2\2\60\3\2\2"+
-		"\2\2\62\3\2\2\2\2\64\3\2\2\2\2\66\3\2\2\2\28\3\2\2\2\2:\3\2\2\2\2<\3\2"+
-		"\2\2\2>\3\2\2\2\2@\3\2\2\2\2B\3\2\2\2\2D\3\2\2\2\2F\3\2\2\2\2H\3\2\2\2"+
-		"\2J\3\2\2\2\2L\3\2\2\2\2N\3\2\2\2\2P\3\2\2\2\2R\3\2\2\2\2T\3\2\2\2\2V"+
-		"\3\2\2\2\2X\3\2\2\2\2Z\3\2\2\2\2\\\3\2\2\2\2^\3\2\2\2\2`\3\2\2\2\2b\3"+
+		"dhhppttvv}}\2\u0c2b\2\22\3\2\2\2\2\24\3\2\2\2\2\26\3\2\2\2\2\30\3\2\2"+
+		"\2\2\32\3\2\2\2\2\34\3\2\2\2\2\36\3\2\2\2\2 \3\2\2\2\2\"\3\2\2\2\2$\3"+
+		"\2\2\2\2&\3\2\2\2\2(\3\2\2\2\2*\3\2\2\2\2,\3\2\2\2\2.\3\2\2\2\2\60\3\2"+
+		"\2\2\2\62\3\2\2\2\2\64\3\2\2\2\2\66\3\2\2\2\28\3\2\2\2\2:\3\2\2\2\2<\3"+
+		"\2\2\2\2>\3\2\2\2\2@\3\2\2\2\2B\3\2\2\2\2D\3\2\2\2\2F\3\2\2\2\2H\3\2\2"+
+		"\2\2J\3\2\2\2\2L\3\2\2\2\2N\3\2\2\2\2P\3\2\2\2\2R\3\2\2\2\2T\3\2\2\2\2"+
+		"V\3\2\2\2\2X\3\2\2\2\2Z\3\2\2\2\2\\\3\2\2\2\2^\3\2\2\2\2`\3\2\2\2\2b\3"+
 		"\2\2\2\2d\3\2\2\2\2f\3\2\2\2\2h\3\2\2\2\2j\3\2\2\2\2l\3\2\2\2\2n\3\2\2"+
 		"\2\2p\3\2\2\2\2r\3\2\2\2\2t\3\2\2\2\2v\3\2\2\2\2x\3\2\2\2\2z\3\2\2\2\2"+
 		"|\3\2\2\2\2~\3\2\2\2\2\u0080\3\2\2\2\2\u0082\3\2\2\2\2\u0084\3\2\2\2\2"+
@@ -1523,9 +1532,9 @@ public class BallerinaLexer extends Lexer {
 		"\5\u0226\u010c\2\u0952\u0953\7=\2\2\u0953\u01fb\3\2\2\2\u0954\u0955\7"+
 		"(\2\2\u0955\u0956\7%\2\2\u0956\u0958\3\2\2\2\u0957\u0959\5\u0156\u00a4"+
 		"\2\u0958\u0957\3\2\2\2\u0959\u095a\3\2\2\2\u095a\u0958\3\2\2\2\u095a\u095b"+
-		"\3\2";
+		"\3";
 	private static final String _serializedATNSegment1 =
-		"\2\2\u095b\u095c\3\2\2\2\u095c\u095d\7=\2\2\u095d\u096a\3\2\2\2\u095e"+
+		"\2\2\2\u095b\u095c\3\2\2\2\u095c\u095d\7=\2\2\u095d\u096a\3\2\2\2\u095e"+
 		"\u095f\7(\2\2\u095f\u0960\7%\2\2\u0960\u0961\7z\2\2\u0961\u0963\3\2\2"+
 		"\2\u0962\u0964\5\u0160\u00a9\2\u0963\u0962\3\2\2\2\u0964\u0965\3\2\2\2"+
 		"\u0965\u0963\3\2\2\2\u0965\u0966\3\2\2\2\u0966\u0967\3\2\2\2\u0967\u0968"+
