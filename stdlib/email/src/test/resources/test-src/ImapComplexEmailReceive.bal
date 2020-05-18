@@ -64,6 +64,22 @@ function testReceiveComplexEmail(string host, string username, string password) 
                 } else {
                     return [];
                 }
+                returnArray[11] = attachments[0].getHeader("H1");
+                returnArray[12] = attachments[0].getContentType();
+                email:Header[]? headers = emailResponse?.headers;
+                if (headers is email:Header[]) {
+                    foreach var header in headers {
+                        json? tmpHeader = header;
+                        if (!(tmpHeader is error?)) {
+                            json|error name = tmpHeader.name;
+                            json|error value = tmpHeader.value;
+                            if (name is string && name == "header1_name" && value is string) {
+                                returnArray[13] = <string>name;
+                                returnArray[14] = <string>value;
+                            }
+                        }
+                    }
+                }
             }
             return returnArray;
         } else if (emailResponse is ()) {
@@ -76,9 +92,9 @@ function testReceiveComplexEmail(string host, string username, string password) 
     }
 }
 
-function getNonNilString(string? sender) returns string {
-    if sender is string {
-        return sender;
+function getNonNilString(string? nilableString) returns string {
+    if nilableString is string {
+        return nilableString;
     } else {
         return "";
     }

@@ -152,6 +152,7 @@ public class EmailAccessUtil {
         BArray replyToAddressArrayValue = getAddressBArrayList(message.getReplyTo());
         String subject = getStringNullChecked(message.getSubject());
         String messageBody = extractBodyFromMessage(message);
+        BArray headers = extractHeadersFromMessage(message);
         String messageContentType = message.getContentType();
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
@@ -171,12 +172,32 @@ public class EmailAccessUtil {
         if (messageContentType != null && !messageContentType.equals("")) {
             valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE, messageContentType);
         }
+        if (headers != null) {
+            valueMap.put(EmailConstants.MESSAGE_HEADERS, headers);
+        }
         valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
         valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
         if (attachments != null && attachments.size() > 0) {
             valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS, attachments);
         }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
+    }
+
+    private static BArray extractHeadersFromMessage(Message message) throws MessagingException {
+        BType typeOfHeader = createHeaderMap().getType();
+        ArrayValue headersArrayValue = new ArrayValueImpl(new BArrayType(typeOfHeader));
+        Enumeration<Header> headers = message.getAllHeaders();
+        if (headers.hasMoreElements()) {
+            while (headers.hasMoreElements()) {
+                Header header = headers.nextElement();
+                MapValue messageHeader = createHeaderMap();
+                messageHeader.put(EmailConstants.MESSAGE_HEADER_NAME, header.getName());
+                messageHeader.put(EmailConstants.MESSAGE_HEADER_VALUE, header.getValue());
+                headersArrayValue.append(messageHeader);
+            }
+            return headersArrayValue;
+        }
+        return null;
     }
 
     private static XMLSequence parseToXml(String xmlStr) {
@@ -333,6 +354,10 @@ public class EmailAccessUtil {
 
     private static ObjectValue createEntityObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+    }
+
+    private static MapValue createHeaderMap() {
+        return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.HEADER);
     }
 
     private static String extractFromAddressFromMessage(Message message) throws MessagingException {

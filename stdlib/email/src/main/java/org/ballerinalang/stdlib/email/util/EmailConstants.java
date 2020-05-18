@@ -44,10 +44,11 @@ public class EmailConstants {
     public static final String MESSAGE_SENDER = "sender";
     public static final String MESSAGE_REPLY_TO = "replyTo";
     public static final String MESSAGE_ATTACHMENTS = "attachments";
+    public static final String MESSAGE_HEADERS = "headers";
+    public static final String MESSAGE_HEADER_NAME = "name";
+    public static final String MESSAGE_HEADER_VALUE = "value";
 
     // Common constants to POP and IMAP
-    public static final String KEY = "key";
-    public static final String VALUE = "value";
     public static final String PROPS_PROPERTIES = "properties";
     public static final String PROPS_SSL = "enableSsl";
     public static final String PROPS_HOST = "host";
@@ -103,6 +104,7 @@ public class EmailConstants {
 
     public static final String EMAIL = "Email";
     public static final String ERROR = "Error";
+    public static final String HEADER = "Header";
 
     private EmailConstants() {
         // private constructor

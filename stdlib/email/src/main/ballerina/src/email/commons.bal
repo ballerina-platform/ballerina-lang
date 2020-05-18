@@ -24,6 +24,7 @@ import ballerina/mime;
 # + subject - Subject of email
 # + body - Body of the email message
 # + contentType - Content Type of the Body
+# + headers - Header list
 # + from - From address
 # + sender - Sender's address
 # + replyTo - Reply To addresses
@@ -35,10 +36,20 @@ public type Email record {|
     string subject;
     string|xml|json body;
     string contentType?;
+    Header[] headers?;
     string 'from;
     string sender?;
     string[] replyTo?;
     mime:Entity[] attachments?;
+|};
+
+# Email message headers.
+#
+# + name - Header name
+# + value - Header value
+public type Header record {|
+    string name;
+    string value;
 |};
 
 # Default folder to read emails.

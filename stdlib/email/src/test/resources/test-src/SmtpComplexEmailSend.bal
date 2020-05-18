@@ -76,11 +76,13 @@ function testSendComplexEmail(string host, string username, string password, str
         subject: subject,
         body: body,
         contentType: contentType,
+        headers: [{name: "header1_name", value: "header1_value"}],
         'from: fromAddress,
         sender: sender,
         replyTo: replyToAddresses,
         attachments: bodyParts
     };
+
     if (smtpClient is email:SmtpClient) {
         return smtpClient->send(email);
     } else {
