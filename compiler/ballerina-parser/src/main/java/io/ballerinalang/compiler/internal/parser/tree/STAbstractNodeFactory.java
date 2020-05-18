@@ -41,6 +41,10 @@ public abstract class STAbstractNodeFactory {
         return new STNodeList(children);
     }
 
+    public static STNode createNodeList(STNode... children) {
+        return new STNodeList(children);
+    }
+
     public static STNode createEmptyNode() {
         return null;
     }

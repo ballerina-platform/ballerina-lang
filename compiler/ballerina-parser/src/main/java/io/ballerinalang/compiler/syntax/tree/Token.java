@@ -56,6 +56,15 @@ public class Token extends Node {
         return trailingMinutiaeList;
     }
 
+    public Token modify(MinutiaeList leadingMinutiae, MinutiaeList trailingMinutiae) {
+        if (internalNode.leadingMinutiae() == leadingMinutiae.internalNode() &&
+                internalNode.trailingMinutiae() == trailingMinutiae.internalNode()) {
+            return this;
+        } else {
+            return NodeFactory.createToken(this.kind(), leadingMinutiae, trailingMinutiae);
+        }
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
