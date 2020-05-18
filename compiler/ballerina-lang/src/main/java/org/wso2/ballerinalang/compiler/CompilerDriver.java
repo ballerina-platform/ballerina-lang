@@ -271,8 +271,8 @@ public class CompilerDriver {
         codeGen(pkgNode);
     }
 
-    private void codeGen(BLangPackage pkgNode) {
-        codeGenerator.generate(pkgNode);
+    private BLangPackage codeGen(BLangPackage pkgNode) {
+        return this.codeGenerator.generate(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -337,7 +337,7 @@ public class CompilerDriver {
             return null;
         }
 
-        return birGen(desugar(pkg)).symbol;
+        return codeGen(birGen(desugar(pkg))).symbol;
     }
 
 }
