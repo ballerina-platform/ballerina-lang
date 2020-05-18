@@ -1253,9 +1253,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         xmlElement.startTagName = createExpression(xmlElementNode.startTag());
         xmlElement.endTagName = createExpression(xmlElementNode.endTag());
 
-        for (Node node: xmlElementNode.content()) {
+        for (Node node : xmlElementNode.content()) {
             if (node.kind() == SyntaxKind.XML_TEXT) {
-                xmlElement.children.add(createSimpleLiteral(((XMLTextNode)node).content()));
+                xmlElement.children.add(createSimpleLiteral(((XMLTextNode) node).content()));
                 continue;
             }
             xmlElement.children.add(createExpression(node));
