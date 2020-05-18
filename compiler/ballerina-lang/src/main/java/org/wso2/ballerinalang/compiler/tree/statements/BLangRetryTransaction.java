@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,13 +18,36 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.AbortNode;
+import org.ballerinalang.model.tree.RetryTransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 
 /**
- * @since 0.94
+ * {@code BLangRetryTransaction} represents a retry transaction statement within a transaction in Ballerina.
+ *
+ * @since 1.3.0
  */
-public class BLangAbort extends BLangStatement implements AbortNode {
+public class BLangRetryTransaction extends BLangStatement implements RetryTransactionNode {
+
+    public BLangRetrySpec retrySpec;
+    public BLangTransaction transaction;
+
+    public BLangRetrySpec getRetrySpec() {
+        return retrySpec;
+    }
+
+    public void setRetrySpec(BLangRetrySpec retrySpec) {
+        this.retrySpec = retrySpec;
+    }
+
+    public BLangTransaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(BLangTransaction transaction) {
+        this.transaction = transaction;
+    }
+
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -32,11 +55,13 @@ public class BLangAbort extends BLangStatement implements AbortNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ABORT;
+        return NodeKind.RETRY_TRANSACTION;
     }
 
     @Override
     public String toString() {
-        return "Abort";
+
+        //TODO Transaction
+        return "Retry";
     }
 }

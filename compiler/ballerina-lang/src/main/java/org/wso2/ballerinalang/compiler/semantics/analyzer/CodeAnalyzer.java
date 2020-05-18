@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -114,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -137,7 +139,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -159,7 +160,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -492,52 +495,40 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(transactionNode.transactionBody, env);
         this.transactionCount--;
         this.resetLastStatement();
-        if (transactionNode.onRetryBody != null) {
-            this.withinRetryBlock = true;
-            analyzeNode(transactionNode.onRetryBody, env);
-            this.resetStatementReturns();
-            this.resetLastStatement();
-            this.withinRetryBlock = false;
-        }
-
-        if (transactionNode.abortedBody != null) {
-            this.withinAbortedBlock = true;
-            analyzeNode(transactionNode.abortedBody, env);
-            this.resetStatementReturns();
-            this.resetLastStatement();
-            this.withinAbortedBlock = false;
-        }
-
-        if (transactionNode.committedBody != null) {
-            this.withinCommittedBlock = true;
-            analyzeNode(transactionNode.committedBody, env);
-            this.resetStatementReturns();
-            this.resetLastStatement();
-            this.withinCommittedBlock = false;
-        }
 
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
-        analyzeExpr(transactionNode.retryCount);
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
-        if (this.transactionCount == 0) {
-            this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
-            return;
-        }
-        this.lastStatement = true;
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        //TODO Transactions
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        //TODO Transactions
+    }
+
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        analyzeExpr(rollbackNode.expr);
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if (this.transactionCount == 0) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
-            return;
-        }
-        this.lastStatement = true;
+        //TODO Transactions
+//        if (this.transactionCount == 0) {
+//            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+//            return;
+//        }
+//        this.lastStatement = true;
+    }
+
+    @Override
+    public void visit(BLangRetryTransaction retryTransaction) {
+        //TODO Transactions
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -2210,6 +2201,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                       .map(bLangNode -> (BLangWorkerSend) bLangNode)
                       .collect(Collectors.toList());
     }
+
     @Override
     public void visit(BLangTrapExpr trapExpr) {
         analyzeExpr(trapExpr.expr);
@@ -2493,10 +2485,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
-        if (checkReturnValidityInTransaction()) {
-            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
-            return;
-        }
+        //TODO Transaction - not required
+//        if (checkReturnValidityInTransaction()) {
+//            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
+//            return;
+//        }
 
         returnTypes.peek().add(exprType);
     }

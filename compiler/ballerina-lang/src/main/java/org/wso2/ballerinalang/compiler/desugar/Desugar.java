@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -101,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -155,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -179,7 +180,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -203,7 +203,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
@@ -266,7 +268,6 @@ import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_C
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
-import static org.wso2.ballerinalang.compiler.util.Names.TRX_INITIATOR_BEGIN_FUNCTION;
 import static org.wso2.ballerinalang.compiler.util.Names.TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION;
 import static org.wso2.ballerinalang.compiler.util.Names.TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION;
 
@@ -2523,15 +2524,25 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
-        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(abortNode.pos, symTable.intType, -1L);
-        result = rewrite(returnStmt, env);
+    public void visit(BLangRetry retryNode) {
+        //TODO Transaction
+        if (retryNode.retrySpec != null) {
+            rewriteExprs(retryNode.retrySpec.argExprs);
+        }
+
+        rewriteStmt(retryNode.retryBody.stmts, env);
+        result = retryNode;
     }
 
     @Override
-    public void visit(BLangRetry retryNode) {
-        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(retryNode.pos, symTable.intType, 1L);
-        result = rewrite(returnStmt, env);
+    public void visit(BLangRetryTransaction retryTransaction) {
+        //TODO Transactions
+        if (retryTransaction.retrySpec != null) {
+            rewriteExprs(retryTransaction.retrySpec.argExprs);
+        }
+
+        rewrite(retryTransaction.transaction, env);
+        result = retryTransaction;
     }
 
     @Override
@@ -2994,90 +3005,102 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
 
-        // Transaction node will be desugar to beginTransactionInitiator function  in transaction package.
-        // function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
-        //                                    function () retryFunc, function () committedFunc,
-        //                                    function () abortedFunc) {
+//        // Transaction node will be desugar to beginTransactionInitiator function  in transaction package.
+//        // function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
+//        //                                    function () retryFunc, function () committedFunc,
+//        //                                    function () abortedFunc) {
+//
+//        DiagnosticPos pos = transactionNode.pos;
+//        BType trxReturnType = symTable.intType;
+//        BType otherReturnType = symTable.nilType;
+//        BLangType trxReturnNode = ASTBuilderUtil.createTypeNode(trxReturnType);
+//        BLangType otherReturnNode = ASTBuilderUtil.createTypeNode(otherReturnType);
+//        DiagnosticPos invPos = transactionNode.pos;
+//        /* transaction block code will be desugar to function which returns int. Return value determines the status of
+//         the transaction code.
+//         ex.
+//            0 = successful
+//            1 = retry
+//            -1 = abort
+//
+//            Since transaction block code doesn't return anything, we need to add return statement at end of the
+//            block unless we have abort or retry statement.
+//        */
+//        DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.src,
+//                invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
+//        BLangStatement statement = null;
+//        if (!transactionNode.transactionBody.stmts.isEmpty()) {
+//            statement = transactionNode.transactionBody.stmts.get(transactionNode.transactionBody.stmts.size() - 1);
+//        }
+//        if (statement == null || !(statement.getKind() == NodeKind.ABORT) &&
+//        !(statement.getKind() == NodeKind.ABORT)) {
+//            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(returnStmtPos, trxReturnType, 0L);
+//            transactionNode.transactionBody.addStatement(returnStmt);
+//        }
+//
+//        // Need to add empty block statement if on abort or on retry blocks do not exsist.
+//        if (transactionNode.abortedBody == null) {
+//            transactionNode.abortedBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
+//        }
+//        if (transactionNode.committedBody == null) {
+//            transactionNode.committedBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
+//        }
+//        if (transactionNode.onRetryBody == null) {
+//            transactionNode.onRetryBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
+//        }
+//
+//        if (transactionNode.retryCount == null) {
+//            transactionNode.retryCount = ASTBuilderUtil.createLiteral(pos, symTable.intType, 3L);
+//        }
+//
+//        // Desugar transaction code, on retry and on abort code to separate functions.
+//        BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$", Collections.emptyList(),
+//                trxReturnNode, transactionNode.transactionBody.stmts,
+//                env, transactionNode.transactionBody.scope);
+//        BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$",
+//        Collections.emptyList(),
+//                otherReturnNode, transactionNode.onRetryBody.stmts,
+//                env, transactionNode.onRetryBody.scope);
+//        BLangLambdaFunction trxCommittedFunc = createLambdaFunction(pos, "$anonTrxCommittedFunc$",
+//                Collections.emptyList(), otherReturnNode,
+//                transactionNode.committedBody.stmts, env,
+//                transactionNode.committedBody.scope);
+//        BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
+//        Collections.emptyList(),
+//                otherReturnNode, transactionNode.abortedBody.stmts,
+//                env, transactionNode.abortedBody.scope);
+//        trxMainFunc.capturedClosureEnv = env.createClone();
+//        trxOnRetryFunc.capturedClosureEnv = env.createClone();
+//        trxCommittedFunc.capturedClosureEnv = env.createClone();
+//        trxAbortedFunc.capturedClosureEnv = env.createClone();
+//
+//        // Retrive the symbol for beginTransactionInitiator function.
+//        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
+//        BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
+//        BInvokableSymbol invokableSymbol =
+//                (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionPkgSymbol),
+//                        TRX_INITIATOR_BEGIN_FUNCTION);
+//        BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
+//                getTransactionBlockId());
+//        List<BLangExpression> requiredArgs = Lists.of(transactionBlockId, transactionNode.retryCount, trxMainFunc,
+//                trxOnRetryFunc,
+//                trxCommittedFunc, trxAbortedFunc);
+//        BLangInvocation trxInvocation = ASTBuilderUtil.createInvocationExprMethod(pos, invokableSymbol,
+//                requiredArgs,
+//                Collections.emptyList(),
+//                symResolver);
+//        BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, ASTBuilderUtil.createBlockStmt(pos));
+//        stmt.expr = trxInvocation;
+//        result = rewrite(stmt, env);
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(transactionNode.transactionBody, env);
+        rewriteStmt(transactionNode.transactionBody.stmts, blockEnv);
+        result = transactionNode;
+    }
 
-        DiagnosticPos pos = transactionNode.pos;
-        BType trxReturnType = symTable.intType;
-        BType otherReturnType = symTable.nilType;
-        BLangType trxReturnNode = ASTBuilderUtil.createTypeNode(trxReturnType);
-        BLangType otherReturnNode = ASTBuilderUtil.createTypeNode(otherReturnType);
-        DiagnosticPos invPos = transactionNode.pos;
-        /* transaction block code will be desugar to function which returns int. Return value determines the status of
-         the transaction code.
-         ex.
-            0 = successful
-            1 = retry
-            -1 = abort
-
-            Since transaction block code doesn't return anything, we need to add return statement at end of the
-            block unless we have abort or retry statement.
-        */
-        DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.src,
-                                                        invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
-        BLangStatement statement = null;
-        if (!transactionNode.transactionBody.stmts.isEmpty()) {
-            statement = transactionNode.transactionBody.stmts.get(transactionNode.transactionBody.stmts.size() - 1);
-        }
-        if (statement == null || !(statement.getKind() == NodeKind.ABORT) && !(statement.getKind() == NodeKind.ABORT)) {
-            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(returnStmtPos, trxReturnType, 0L);
-            transactionNode.transactionBody.addStatement(returnStmt);
-        }
-
-        // Need to add empty block statement if on abort or on retry blocks do not exsist.
-        if (transactionNode.abortedBody == null) {
-            transactionNode.abortedBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
-        }
-        if (transactionNode.committedBody == null) {
-            transactionNode.committedBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
-        }
-        if (transactionNode.onRetryBody == null) {
-            transactionNode.onRetryBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
-        }
-
-        if (transactionNode.retryCount == null) {
-            transactionNode.retryCount = ASTBuilderUtil.createLiteral(pos, symTable.intType, 3L);
-        }
-
-        // Desugar transaction code, on retry and on abort code to separate functions.
-        BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$", Collections.emptyList(),
-                                                               trxReturnNode, transactionNode.transactionBody.stmts,
-                                                               env, transactionNode.transactionBody.scope);
-        BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$", Collections.emptyList(),
-                                                                  otherReturnNode, transactionNode.onRetryBody.stmts,
-                                                                  env, transactionNode.onRetryBody.scope);
-        BLangLambdaFunction trxCommittedFunc = createLambdaFunction(pos, "$anonTrxCommittedFunc$",
-                                                                    Collections.emptyList(), otherReturnNode,
-                                                                    transactionNode.committedBody.stmts, env,
-                                                                    transactionNode.committedBody.scope);
-        BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$", Collections.emptyList(),
-                                                                  otherReturnNode, transactionNode.abortedBody.stmts,
-                                                                  env, transactionNode.abortedBody.scope);
-        trxMainFunc.capturedClosureEnv = env.createClone();
-        trxOnRetryFunc.capturedClosureEnv = env.createClone();
-        trxCommittedFunc.capturedClosureEnv = env.createClone();
-        trxAbortedFunc.capturedClosureEnv = env.createClone();
-
-        // Retrive the symbol for beginTransactionInitiator function.
-        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
-        BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
-        BInvokableSymbol invokableSymbol =
-                (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionPkgSymbol),
-                        TRX_INITIATOR_BEGIN_FUNCTION);
-        BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                                                                       getTransactionBlockId());
-        List<BLangExpression> requiredArgs = Lists.of(transactionBlockId, transactionNode.retryCount, trxMainFunc,
-                                                      trxOnRetryFunc,
-                                                      trxCommittedFunc, trxAbortedFunc);
-        BLangInvocation trxInvocation = ASTBuilderUtil.createInvocationExprMethod(pos, invokableSymbol,
-                                                                                  requiredArgs,
-                                                                                  Collections.emptyList(),
-                                                                                  symResolver);
-        BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, ASTBuilderUtil.createBlockStmt(pos));
-        stmt.expr = trxInvocation;
-        result = rewrite(stmt, env);
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        rollbackNode.expr = rewriteExpr(rollbackNode.expr);
+        result = rollbackNode;
     }
 
     private String getTransactionBlockId() {
@@ -4363,6 +4386,16 @@ public class Desugar extends BLangNodeVisitor {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
                 .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
         result = workerFlushExpr;
+    }
+
+    @Override
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        result = transactionalExpr;
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        result = commitExpr;
     }
 
     @Override

@@ -18,32 +18,25 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BlockStatementNode;
-import org.ballerinalang.model.tree.statements.TransactionNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.RollbackNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 1.3.0
  */
-public class BLangTransaction extends BLangStatement implements TransactionNode {
+public class BLangRollback extends BLangStatement implements RollbackNode {
+    public BLangExpression expr;
 
-    public BLangBlockStmt transactionBody;
-
-    public BLangTransaction() {
-    }
-
-    public BLangTransaction(BLangBlockStmt transactionBody) {
-        this.transactionBody = transactionBody;
+    @Override
+    public BLangExpression getExpression() {
+        return expr;
     }
 
     @Override
-    public BLangBlockStmt getTransactionBody() {
-        return transactionBody;
-    }
-
-    @Override
-    public void setTransactionBody(BlockStatementNode body) {
-        this.transactionBody = (BLangBlockStmt) body;
+    public void setExpression(ExpressionNode expressionNode) {
+        this.expr = (BLangExpression) expressionNode;
     }
 
     @Override
@@ -53,11 +46,12 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TRANSACTION;
+        return NodeKind.ROLLBACK;
     }
 
     @Override
     public String toString() {
-        return "Transaction: {" + transactionBody + "} ";
+        return "Rollback: " + (this.expr != null ? this.expr : "");
     }
+
 }

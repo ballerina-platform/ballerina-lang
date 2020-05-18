@@ -17,14 +17,16 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
 /**
- * {@code TransactionNode} represents the transaction statement in Ballerina.
+ * Interface of rollback statement node.
  *
  * @since 1.3.0
  */
-public interface TransactionNode extends StatementNode {
+public interface RollbackNode extends StatementNode {
 
-    BlockStatementNode getTransactionBody();
+    ExpressionNode getExpression();
 
-    void setTransactionBody(BlockStatementNode body);
+    void setExpression(ExpressionNode expressionNode);
 }
