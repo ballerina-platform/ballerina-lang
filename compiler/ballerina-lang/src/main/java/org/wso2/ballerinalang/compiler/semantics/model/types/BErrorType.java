@@ -31,20 +31,21 @@ import org.wso2.ballerinalang.util.Flags;
 public class BErrorType extends BType implements ErrorType {
 
     public BType detailType;
+    public BTypeIdSet typeIdSet;
 
     private static final String DOLLAR = "$";
     private static final String ERROR = "error<";
-    private static final String SPACE = " ";
-    private static final String COMMA = ",";
     private static final String CLOSE_ERROR = ">";
 
     public BErrorType(BTypeSymbol tSymbol, BType detailType) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.detailType = detailType;
+        this.typeIdSet = BTypeIdSet.emptySet();
     }
 
     public BErrorType(BTypeSymbol tSymbol) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
+        this.typeIdSet = BTypeIdSet.emptySet();
     }
 
     @Override

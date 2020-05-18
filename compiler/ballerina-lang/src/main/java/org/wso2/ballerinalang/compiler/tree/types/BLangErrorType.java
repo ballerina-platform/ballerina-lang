@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.types.ErrorTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -35,7 +36,7 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
     public BLangType detailType;
     public boolean inferErrorType;
 
-    public Set<Flag> flagSet;
+    public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
 
     public BLangErrorType() {
     }

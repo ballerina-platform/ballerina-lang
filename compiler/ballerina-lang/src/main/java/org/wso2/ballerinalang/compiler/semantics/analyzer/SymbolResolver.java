@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -1100,17 +1101,23 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (detailType == symTable.detailType) {
+        boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
+        if (detailType == symTable.detailType && !distinctErrorDef) {
             resultType = symTable.errorType;
             return;
         }
 
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols
-                .createErrorSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID,
+                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
                         null, env.scope.owner);
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+        errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
+
+        if (distinctErrorDef) {
+            errorType.typeIdSet = BTypeIdSet.emptySet();
+        }
 
         resultType = errorType;
     }

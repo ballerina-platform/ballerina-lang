@@ -36,6 +36,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> anonServiceCount;
     private Map<PackageID, Integer> anonFunctionCount;
     private Map<PackageID, Integer> anonForkCount;
+    private Map<PackageID, Integer> errorTypeIdCount;
 
     private static final String ANON_TYPE = "$anonType$";
     private static final String LAMBDA = "$lambda$";
@@ -54,6 +55,7 @@ public class BLangAnonymousModelHelper {
         anonServiceCount = new HashMap<>();
         anonFunctionCount = new HashMap<>();
         anonForkCount = new HashMap<>();
+        errorTypeIdCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -95,6 +97,12 @@ public class BLangAnonymousModelHelper {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
         return FORK + nextValue;
+    }
+
+    public String getNextDistinctErrorId(PackageID packageID) {
+        Integer nextValue = Optional.ofNullable(errorTypeIdCount.get(packageID)).orElse(0);
+        anonFunctionCount.put(packageID, nextValue + 1);
+        return String.valueOf(nextValue);
     }
 
     public boolean isAnonymousType(BSymbol symbol) {

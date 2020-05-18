@@ -756,7 +756,8 @@ public class Types {
             return true;
         }
         unresolvedTypes.add(pair);
-        return isAssignable(source.detailType, target.detailType, unresolvedTypes, unresolvedReadonlyTypes);
+        return isAssignable(source.detailType, target.detailType, unresolvedTypes, unresolvedReadonlyTypes)
+                && target.typeIdSet.isAssignableFrom(source.typeIdSet);
     }
 
     // TODO: Recheck this to support finite types
@@ -2109,6 +2110,10 @@ public class Types {
                 return false;
             }
             BErrorType source = (BErrorType) s;
+
+            if (!(source.typeIdSet.isAssignableFrom(t.typeIdSet) && t.typeIdSet.isAssignableFrom(source.typeIdSet))) {
+                return false;
+            }
 
             if (source.detailType == t.detailType) {
                 return true;
