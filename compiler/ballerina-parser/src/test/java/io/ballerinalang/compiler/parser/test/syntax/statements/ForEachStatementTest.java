@@ -116,4 +116,10 @@ public class ForEachStatementTest extends AbstractStatementTest {
         testFile("forEach-stmt/forEach_stmt_source_15.bal",
         "forEach-stmt/forEach_stmt_assert_15.json");
     }
+
+    @Test
+    public void testListBindingPatterninvalidcomponentsForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_16.bal",
+                "forEach-stmt/forEach_stmt_assert_16.json");
+    }
 }

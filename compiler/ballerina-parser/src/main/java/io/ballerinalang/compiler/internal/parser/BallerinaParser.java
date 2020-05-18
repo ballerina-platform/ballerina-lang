@@ -8577,14 +8577,15 @@ public class BallerinaParser extends AbstractParser {
         bindingPatterns.add(listBindingPatternContent);
 
         //parsing the main chunck of list-binding-pattern
-        STToken token = peek();
+        STToken token = getNextLBPToken(); // get next valid token
+        STNode comma = null;
         while (!isEndOfListBindingPattern(token.kind) &&
                 listBindingPatternContent.kind != SyntaxKind.REST_BINDING_PATTERN) {
-            bindingPatterns.add(parseComma());
+            comma = parseComma();
+            bindingPatterns.add(comma);
             listBindingPatternContent = parselistBindingPatternContent();
-            System.out.println(listBindingPatternContent.kind);
             bindingPatterns.add(listBindingPatternContent);
-            token = peek();
+            token = getNextLBPToken();
         }
         STNode closeBracket = parseCloseBracket();
 
@@ -8603,6 +8604,27 @@ public class BallerinaParser extends AbstractParser {
                                                     bindingPatternsNode,
                                                     restBindingPattern,
                                                     closeBracket);
+    }
+
+    private STToken getNextLBPToken() {
+        STToken token = peek();
+
+        if (isEndOfListBindingPattern(token.kind)) {
+            return token;
+        }
+
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+            case ELLIPSIS_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+            case COMMA_TOKEN:
+                return token;
+            default:
+                consume(); // use the invalid token
+                this.errorHandler.reportInvalidNode(token,
+                        "invalid Token in list-binding-pattern");
+                return getNextLBPToken();
+        }
     }
 
     private boolean isEndOfListBindingPattern(SyntaxKind nextTokenKind) {

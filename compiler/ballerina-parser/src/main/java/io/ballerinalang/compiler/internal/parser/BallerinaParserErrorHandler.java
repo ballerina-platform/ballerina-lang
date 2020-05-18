@@ -2517,6 +2517,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             } else {
                 return ParserRuleContext.ASSIGN_OP;
             }
+        } else if (parentCtx == ParserRuleContext.TYPED_BINDING_PATTERN) {
+            return getNextRuleForTypedBindingPattern();
         } else if (parentCtx == ParserRuleContext.CAPTURE_BINDING_PATTERN) {
             return getNextRuleForTypedBindingPattern();
         } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN) {
