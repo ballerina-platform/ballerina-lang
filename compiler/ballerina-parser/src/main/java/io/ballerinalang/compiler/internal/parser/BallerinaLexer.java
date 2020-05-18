@@ -485,7 +485,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.GT:
                 // this is '=>'
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.EQUAL_GT_TOKEN);
+                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW);
             default:
                 // this is '='
                 return getSyntaxToken(SyntaxKind.EQUAL_TOKEN);
@@ -906,6 +906,22 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.STREAM_KEYWORD);
             case LexerTerminals.NEW:
                 return getSyntaxToken(SyntaxKind.NEW_KEYWORD);
+            case LexerTerminals.READONLY:
+                return getSyntaxToken(SyntaxKind.READONLY_KEYWORD);
+            case LexerTerminals.DISTINCT:
+                return getSyntaxToken(SyntaxKind.DISTINCT_KEYWORD);
+            case LexerTerminals.FROM:
+                return getSyntaxToken(SyntaxKind.FROM_KEYWORD);
+            case LexerTerminals.WHERE:
+                return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
+            case LexerTerminals.SELECT:
+                return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
+            case LexerTerminals.START:
+                return getSyntaxToken(SyntaxKind.START_KEYWORD);
+            case LexerTerminals.FLUSH:
+                return getSyntaxToken(SyntaxKind.FLUSH_KEYWORD);
+            case LexerTerminals.DEFAULT:
+                return getSyntaxToken(SyntaxKind.DEFAULT_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

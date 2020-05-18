@@ -52,7 +52,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(4);
     }
 
-    public Node functionBody() {
+    public FunctionBodyNode functionBody() {
         return childInBucket(5);
     }
 
@@ -83,7 +83,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             Token functionKeyword,
             IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
-            Node functionBody) {
+            FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,

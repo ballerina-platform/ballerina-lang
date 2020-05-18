@@ -43,8 +43,9 @@ public enum ParserRuleContext {
     PARAMETER_NAME_RHS("parameter-name-rhs"),
     FUNC_OPTIONAL_RETURNS("func-optional-returns"),
     FUNC_BODY("func-body"),
-    FUNC_TYPE_OR_DEF_SIGNATURE_RHS("func-signature-rhs"),
-    ANNON_FUNC_BODY("annon-func-body"),
+    FUNC_BODY_OR_TYPE_DESC_RHS("func-body-or-type-desc-rhs"),
+    ANON_FUNC_BODY("annon-func-body"),
+    FUNC_TYPE_DESC_END("func-type-desc-end"),
 
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
@@ -125,13 +126,24 @@ public enum ParserRuleContext {
     KEY_SPECIFIER("key-specifier"),
     KEY_SPECIFIER_RHS("key-specifier-rhs"),
     TABLE_KEY_RHS("table-key-rhs"),
-    LET_VAR_DECL("let-var-decl"),
+    LET_EXPR_LET_VAR_DECL("let-expr-let-var-decl"),
+    LET_CLAUSE_LET_VAR_DECL("let-clause-let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
     FUNC_TYPE_DESC("func-type-desc"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
-    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
+    SELECT_CLAUSE("select-clause"),
+    WHERE_CLAUSE("where-clause"),
+    FROM_CLAUSE("from-clause"),
+    LET_CLAUSE("let-clause"),
+    AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
+    EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
+    BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
+    BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
+    IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
+    PEER_WORKER("peer-worker"),
+    FLUSH_WORKER_NAME("flush-worker-name"),
 
     // Statements
     STATEMENT("statement"),
@@ -216,6 +228,12 @@ public enum ParserRuleContext {
     XML_KEYWORD("xml"),
     STRING_KEYWORD("string"),
     NEW_KEYWORD("new"),
+    FROM_KEYWORD("from"),
+    WHERE_KEYWORD("where"),
+    SELECT_KEYWORD("select"),
+    START_KEYWORD("start"),
+    FLUSH_KEYWORD("flush"),
+    DEFAULT_KEYWORD("default"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -246,6 +264,8 @@ public enum ParserRuleContext {
     GT_TOKEN(">"),
     ERROR_TYPE_PARAM_START("<"),
     PARENTHESISED_TYPE_DESC_START("("),
+    BITWISE_AND_OPERATOR("&"),
+    EXPR_FUNC_BODY_START("=>"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -293,7 +313,6 @@ public enum ParserRuleContext {
     CONSTANT_EXPRESSION_START("constant-expr-start"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
-    TRAP_EXPRESSION("trap-expr"),
     LIST_CONSTRUCTOR("list-constructor"),
     LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
     TYPE_CAST_EXPRESSION("type-cast-expr"),
@@ -307,6 +326,12 @@ public enum ParserRuleContext {
     IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
+    TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
+    TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
+    TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
+    QUERY_EXPRESSION("query-expr"),
+    QUERY_EXPRESSION_RHS("query-expr-rhs"),
+    START_ACTION("start-action"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -321,6 +346,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_STREAM_TYPE_DESC("type-desc-in-stream-type-desc"),
     TYPE_DESC_IN_TUPLE("type-desc-in-tuple"),
     TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
+    TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
 
     // XML

@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STExternalFunctionBodyNode extends STStatementNode {
+public class STExternalFunctionBodyNode extends STFunctionBodyNode {
     public final STNode equalsToken;
     public final STNode annotations;
     public final STNode externalKeyword;

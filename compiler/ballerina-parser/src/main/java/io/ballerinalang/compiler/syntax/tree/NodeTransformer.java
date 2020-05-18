@@ -468,12 +468,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -484,16 +488,64 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesisedTypeDescriptorNode);
     }
 
-    public T transform(ExplicitNewExpression explicitNewExpression) {
-        return transformSyntaxNode(explicitNewExpression);
+    public T transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        return transformSyntaxNode(explicitNewExpressionNode);
     }
 
-    public T transform(ImplicitNewExpression implicitNewExpression) {
-        return transformSyntaxNode(implicitNewExpression);
+    public T transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        return transformSyntaxNode(implicitNewExpressionNode);
     }
 
     public T transform(ParenthesizedArgList parenthesizedArgList) {
         return transformSyntaxNode(parenthesizedArgList);
+    }
+
+    public T transform(QueryConstructTypeNode queryConstructTypeNode) {
+        return transformSyntaxNode(queryConstructTypeNode);
+    }
+
+    public T transform(FromClauseNode fromClauseNode) {
+        return transformSyntaxNode(fromClauseNode);
+    }
+
+    public T transform(WhereClauseNode whereClauseNode) {
+        return transformSyntaxNode(whereClauseNode);
+    }
+
+    public T transform(LetClauseNode letClauseNode) {
+        return transformSyntaxNode(letClauseNode);
+    }
+
+    public T transform(QueryPipelineNode queryPipelineNode) {
+        return transformSyntaxNode(queryPipelineNode);
+    }
+
+    public T transform(SelectClauseNode selectClauseNode) {
+        return transformSyntaxNode(selectClauseNode);
+    }
+
+    public T transform(QueryExpressionNode queryExpressionNode) {
+        return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
+    public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        return transformSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public T transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(StartActionNode startActionNode) {
+        return transformSyntaxNode(startActionNode);
+    }
+
+    public T transform(FlushActionNode flushActionNode) {
+        return transformSyntaxNode(flushActionNode);
     }
 
     // Tokens
