@@ -328,14 +328,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeDescriptor = modifyNode(forEachStatementNode.typeDescriptor());
         Token variableName = modifyToken(forEachStatementNode.variableName());
         Token inKeyword = modifyToken(forEachStatementNode.inKeyword());
-        Node ActionOrExpressionNode = modifyNode(forEachStatementNode.ActionOrExpressionNode());
+        Node actionOrExpressionNode = modifyNode(forEachStatementNode.actionOrExpressionNode());
         StatementNode blockStatement = modifyNode(forEachStatementNode.blockStatement());
         return forEachStatementNode.modify(
                 forEachKeyword,
                 typeDescriptor,
                 variableName,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement);
     }
 
@@ -1007,6 +1007,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token trapKeyword = modifyToken(trapExpressionNode.trapKeyword());
         ExpressionNode expression = modifyNode(trapExpressionNode.expression());
         return trapExpressionNode.modify(
+                trapExpressionNode.kind(),
                 trapKeyword,
                 expression);
     }
@@ -1046,9 +1047,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
-        Node leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
+        TypeDescriptorNode leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
         Token pipeToken = modifyToken(unionTypeDescriptorNode.pipeToken());
-        Node rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
+        TypeDescriptorNode rightTypeDesc = modifyNode(unionTypeDescriptorNode.rightTypeDesc());
         return unionTypeDescriptorNode.modify(
                 leftTypeDesc,
                 pipeToken,
@@ -1086,7 +1087,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         Token errorKeywordToken = modifyToken(errorTypeDescriptorNode.errorKeywordToken());
-        Node errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode());
+        ErrorTypeParamsNode errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
         return errorTypeDescriptorNode.modify(
                 errorKeywordToken,
                 errorTypeParamsNode);
@@ -1404,22 +1405,22 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
-        Token NewKeyword = modifyToken(explicitNewExpressionNode.NewKeyword());
-        TypeDescriptorNode TypeDescriptor = modifyNode(explicitNewExpressionNode.TypeDescriptor());
-        Node ParenthesizedArgList = modifyNode(explicitNewExpressionNode.ParenthesizedArgList());
+        Token newKeyword = modifyToken(explicitNewExpressionNode.newKeyword());
+        TypeDescriptorNode typeDescriptor = modifyNode(explicitNewExpressionNode.typeDescriptor());
+        Node parenthesizedArgList = modifyNode(explicitNewExpressionNode.parenthesizedArgList());
         return explicitNewExpressionNode.modify(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
     }
 
     @Override
     public Node transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
-        Token NewKeyword = modifyToken(implicitNewExpressionNode.NewKeyword());
-        ParenthesizedArgList ParenthesizedArgList = modifyNode(implicitNewExpressionNode.ParenthesizedArgList().orElse(null));
+        Token newKeyword = modifyToken(implicitNewExpressionNode.newKeyword());
+        ParenthesizedArgList parenthesizedArgList = modifyNode(implicitNewExpressionNode.parenthesizedArgList().orElse(null));
         return implicitNewExpressionNode.modify(
-                NewKeyword,
-                ParenthesizedArgList);
+                newKeyword,
+                parenthesizedArgList);
     }
 
     @Override
@@ -1535,6 +1536,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 params,
                 rightDoubleArrow,
                 expression);
+    }
+
+    @Override
+    public Node transform(StartActionNode startActionNode) {
+        Token startKeyword = modifyToken(startActionNode.startKeyword());
+        ExpressionNode expression = modifyNode(startActionNode.expression());
+        return startActionNode.modify(
+                startKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(FlushActionNode flushActionNode) {
+        Token flushKeyword = modifyToken(flushActionNode.flushKeyword());
+        Token peerWorker = modifyToken(flushActionNode.peerWorker());
+        return flushActionNode.modify(
+                flushKeyword,
+                peerWorker);
     }
 
     // Tokens

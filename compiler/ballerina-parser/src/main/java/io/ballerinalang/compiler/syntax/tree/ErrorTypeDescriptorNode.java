@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Node errorTypeParamsNode() {
-        return childInBucket(1);
+    public Optional<ErrorTypeParamsNode> errorTypeParamsNode() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
 
     public ErrorTypeDescriptorNode modify(
             Token errorKeywordToken,
-            Node errorTypeParamsNode) {
+            ErrorTypeParamsNode errorTypeParamsNode) {
         if (checkForReferenceEquality(
                 errorKeywordToken,
                 errorTypeParamsNode)) {
@@ -83,12 +84,12 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
     public static class ErrorTypeDescriptorNodeModifier {
         private final ErrorTypeDescriptorNode oldNode;
         private Token errorKeywordToken;
-        private Node errorTypeParamsNode;
+        private ErrorTypeParamsNode errorTypeParamsNode;
 
         public ErrorTypeDescriptorNodeModifier(ErrorTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.errorKeywordToken = oldNode.errorKeywordToken();
-            this.errorTypeParamsNode = oldNode.errorTypeParamsNode();
+            this.errorTypeParamsNode = oldNode.errorTypeParamsNode().orElse(null);
         }
 
         public ErrorTypeDescriptorNodeModifier withErrorKeywordToken(Token errorKeywordToken) {
@@ -97,7 +98,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
             return this;
         }
 
-        public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(Node errorTypeParamsNode) {
+        public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(ErrorTypeParamsNode errorTypeParamsNode) {
             Objects.requireNonNull(errorTypeParamsNode, "errorTypeParamsNode must not be null");
             this.errorTypeParamsNode = errorTypeParamsNode;
             return this;

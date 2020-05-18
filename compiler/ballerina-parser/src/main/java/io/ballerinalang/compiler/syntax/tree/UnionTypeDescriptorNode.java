@@ -32,7 +32,7 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
         super(internalNode, position, parent);
     }
 
-    public Node leftTypeDesc() {
+    public TypeDescriptorNode leftTypeDesc() {
         return childInBucket(0);
     }
 
@@ -40,7 +40,7 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(1);
     }
 
-    public Node rightTypeDesc() {
+    public TypeDescriptorNode rightTypeDesc() {
         return childInBucket(2);
     }
 
@@ -63,9 +63,9 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
     }
 
     public UnionTypeDescriptorNode modify(
-            Node leftTypeDesc,
+            TypeDescriptorNode leftTypeDesc,
             Token pipeToken,
-            Node rightTypeDesc) {
+            TypeDescriptorNode rightTypeDesc) {
         if (checkForReferenceEquality(
                 leftTypeDesc,
                 pipeToken,

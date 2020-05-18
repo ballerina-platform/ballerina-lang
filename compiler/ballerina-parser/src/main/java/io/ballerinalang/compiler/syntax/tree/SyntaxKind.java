@@ -74,6 +74,9 @@ public enum SyntaxKind {
     FROM_KEYWORD(225, "from"),
     WHERE_KEYWORD(226, "where"),
     SELECT_KEYWORD(227, "select"),
+    START_KEYWORD(228, "start"),
+    FLUSH_KEYWORD(229, "flush"),
+    DEFAULT_KEYWORD(230, "default"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -261,6 +264,9 @@ public enum SyntaxKind {
     REMOTE_METHOD_CALL_ACTION(2500),
     BRACED_ACTION(2501),
     CHECK_ACTION(2502),
+    START_ACTION(2503),
+    TRAP_ACTION(2504),
+    FLUSH_ACTION(2505),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

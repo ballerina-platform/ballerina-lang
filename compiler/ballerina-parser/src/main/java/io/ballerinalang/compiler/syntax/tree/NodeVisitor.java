@@ -539,6 +539,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
     }
 
+    public void visit(StartActionNode startActionNode) {
+        visitSyntaxNode(startActionNode);
+    }
+
+    public void visit(FlushActionNode flushActionNode) {
+        visitSyntaxNode(flushActionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -48,7 +48,7 @@ public class ForEachStatementNode extends StatementNode {
         return childInBucket(3);
     }
 
-    public Node ActionOrExpressionNode() {
+    public Node actionOrExpressionNode() {
         return childInBucket(4);
     }
 
@@ -73,7 +73,7 @@ public class ForEachStatementNode extends StatementNode {
                 "typeDescriptor",
                 "variableName",
                 "inKeyword",
-                "ActionOrExpressionNode",
+                "actionOrExpressionNode",
                 "blockStatement"};
     }
 
@@ -82,14 +82,14 @@ public class ForEachStatementNode extends StatementNode {
             Node typeDescriptor,
             Token variableName,
             Token inKeyword,
-            Node ActionOrExpressionNode,
+            Node actionOrExpressionNode,
             StatementNode blockStatement) {
         if (checkForReferenceEquality(
                 forEachKeyword,
                 typeDescriptor,
                 variableName,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement)) {
             return this;
         }
@@ -99,7 +99,7 @@ public class ForEachStatementNode extends StatementNode {
                 typeDescriptor,
                 variableName,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement);
     }
 

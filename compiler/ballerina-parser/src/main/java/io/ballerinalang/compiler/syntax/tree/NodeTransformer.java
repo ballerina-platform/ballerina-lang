@@ -540,6 +540,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
     }
 
+    public T transform(StartActionNode startActionNode) {
+        return transformSyntaxNode(startActionNode);
+    }
+
+    public T transform(FlushActionNode flushActionNode) {
+        return transformSyntaxNode(flushActionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
