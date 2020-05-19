@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -30,15 +31,13 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.FileUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.SourceType;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -68,11 +67,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_PATH;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
-import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_ADD_DEPENDENCIES;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
@@ -596,6 +593,7 @@ public class BCompileUtil {
     }
 
     public static boolean newParserEnabled() {
+
         return Boolean.parseBoolean(System.getProperty(ENABLE_NEW_PARSER_FOR_TESTS));
     }
 
@@ -718,8 +716,7 @@ public class BCompileUtil {
     private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
                                                      boolean temp, boolean init, boolean inProc, boolean withTests) {
 
-        SourceType sourceType = packageName.endsWith(BLANG_SOURCE_EXT) ? SourceType.SINGLE_BAL_FILE :
-                SourceType.SINGLE_MODULE;
+        String sourceType = packageName.endsWith(BLANG_SOURCE_EXT) ? "SINGLE_BAL_FILE" : "SINGLE_MODULE";
 
         try {
             Path buildDir = Paths.get("build").toAbsolutePath().normalize();
@@ -730,9 +727,7 @@ public class BCompileUtil {
             CompilerOptions options = CompilerOptions.getInstance(context);
             options.put(PROJECT_DIR, sourceRoot);
             options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-            options.put(SOURCE_PATH, Paths.get(sourceRoot, packageName).toString());
-            options.put(TARGET_BINARY_PATH, String.valueOf(jarTargetRoot));
-            options.put(SOURCE_TYPE, sourceType.toString());
+            options.put(SOURCE_TYPE, sourceType);
             options.put(PRESERVE_WHITESPACE, Boolean.FALSE.toString());
             options.put(LOCK_ENABLED, Boolean.TRUE.toString());
             options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
@@ -755,7 +750,9 @@ public class BCompileUtil {
 
             BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
 
-            URLClassLoader cl = createClassLoader(bLangPackage, buildDir, jarTargetRoot);
+            JarFileWriter jarFileWriter = JarFileWriter.getInstance(context);
+
+            URLClassLoader cl = createClassLoaderWithCompiledJars(bLangPackage, buildDir, jarTargetRoot, jarFileWriter);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -768,14 +765,19 @@ public class BCompileUtil {
         }
     }
 
-    private static URLClassLoader createClassLoader(BLangPackage bLangPackage, Path buildRoot, Path jarTargetRoot)
+    private static URLClassLoader createClassLoaderWithCompiledJars(BLangPackage bLangPackage, Path buildRoot,
+                                                                    Path jarTargetRoot, JarFileWriter jarFileWriter)
             throws IOException {
 
-        Path buildJarCacheDir = jarTargetRoot.resolve(ProjectDirConstants.CACHES_DIR_NAME).
-                resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        Path importsTarget = jarTargetRoot.resolve("imports");
+        Files.createDirectories(importsTarget);
 
-        String fileName = calcFileNameForJar(bLangPackage, buildJarCacheDir);
+        writeImportModuleJars(bLangPackage.symbol.imports, importsTarget, jarFileWriter);
+
+        String fileName = calcFileNameForJar(bLangPackage);
         Path jarTarget = jarTargetRoot.resolve(fileName + BLANG_COMPILED_JAR_EXT);
+
+        jarFileWriter.write(bLangPackage, jarTarget);
 
         if (!Files.exists(jarTarget)) {
             throw new RuntimeException("Compiled binary jar is not found : " + jarTarget);
@@ -783,7 +785,7 @@ public class BCompileUtil {
 
         List<URL> jarFiles = new ArrayList<>();
 
-        addClasspathEntries(buildJarCacheDir, jarFiles);
+        addClasspathEntries(jarTargetRoot, jarFiles);
 
         Path importsJarCacheDir = buildRoot.resolve(Paths.get(System.getProperty(BALLERINA_HOME))).
                 resolve(BALLERINA_HOME_LIB).resolve(JAR_CACHE_DIR_NAME);
@@ -793,6 +795,21 @@ public class BCompileUtil {
         URL[] urls = new URL[jarFiles.size()];
         urls = jarFiles.toArray(urls);
         return new URLClassLoader(urls);
+    }
+
+    private static void writeImportModuleJars(List<BPackageSymbol> imports, Path jarTargetDir,
+                                              JarFileWriter jarFileWriter) {
+
+        for (BPackageSymbol pkg : imports) {
+            PackageID id = pkg.pkgID;
+            // Todo: ballerinax check shouldn't be here. This should be fixed by having a proper package hierarchy.
+            // Todo: Remove ballerinax check after fixing it by the packerina team
+            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
+                writeImportModuleJars(pkg.imports, jarTargetDir, jarFileWriter);
+                Path jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar");
+                jarFileWriter.write(pkg, jarOutputPath);
+            }
+        }
     }
 
     private static void addClasspathEntries(Path path, List<URL> jarFiles) throws IOException {
@@ -814,23 +831,16 @@ public class BCompileUtil {
 
     }
 
-    private static String calcFileNameForJar(BLangPackage bLangPackage, Path jarCachePath) {
+    private static String calcFileNameForJar(BLangPackage bLangPackage) {
 
-        PackageID moduleID = bLangPackage.pos.src.pkgID;
-        Name sourceFileName = moduleID.sourceFileName;
+        PackageID pkgID = bLangPackage.pos.src.pkgID;
+        Name sourceFileName = pkgID.sourceFileName;
         if (sourceFileName != null) {
-            String birFileName = FileUtils.geFileNameWithoutExtension(Paths.get(sourceFileName.value));
-            return jarCachePath.resolve(birFileName).toString();
-        } else {
-            Path moduleBirCacheDir = jarCachePath
-                    .resolve(moduleID.orgName.value)
-                    .resolve(moduleID.name.value)
-                    .resolve(moduleID.version.value);
-            return moduleBirCacheDir.resolve(moduleID.orgName.value + "-" +
-                    moduleID.name.value + "-" +
-                    moduleID.version.value).toString();
+            return sourceFileName.value.replaceAll("\\.bal$", "");
         }
+        return pkgID.name.value;
     }
+
     /**
      * Class to hold program execution outputs.
      */
