@@ -2125,7 +2125,7 @@ public class BallerinaParser extends AbstractParser {
      * external-function-body := = annots external ;
      * function-body-block := { [default-worker-init, named-worker-decl+] default-worker }
      * </code>
-     * 
+     *
      * @param isObjectMethod Flag indicating whether this is an object-method
      * @return Parsed node
      */
@@ -2567,7 +2567,7 @@ public class BallerinaParser extends AbstractParser {
         switch (binaryOpKind) {
             case ASTERISK_TOKEN: // multiplication
             case SLASH_TOKEN: // division
-            case PERCENT_TOKEN:
+            case PERCENT_TOKEN: // remainder
                 return OperatorPrecedence.MULTIPLICATIVE;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -5201,7 +5201,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse mapping constructor field.
      * <p>
      * <code>field := specific-field | computed-name-field | spread-field</code>
-     * 
+     *
      * @param fieldContext Context of the mapping field
      * @param leadingComma Leading comma
      * @return Parsed node
@@ -6112,7 +6112,7 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case ASTERISK_TOKEN:
-                return consume();
+                return parseBasicLiteral();
             case CLOSE_BRACKET_TOKEN:
                 return STNodeFactory.createEmptyNode();
             // Parsing variable-reference-expr is same as parsing qualified identifier
@@ -9241,7 +9241,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse start action.
      * <p>
      * <code>start-action := [annots] start (function-call-expr|method-call-expr|remote-method-call-action)</code>
-     * 
+     *
      * @return Start action node
      */
     private STNode parseStartAction(STNode annots) {
@@ -9287,7 +9287,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse flush action.
      * <p>
      * <code>flush-action := flush [peer-worker]</code>
-     * 
+     *
      * @return flush action node
      */
     private STNode parseFlushAction() {

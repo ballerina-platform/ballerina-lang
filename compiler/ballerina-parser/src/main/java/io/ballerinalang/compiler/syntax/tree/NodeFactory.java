@@ -1642,7 +1642,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static XMLSimpleNameNode createXMLSimpleNameNode(
-            XMLSimpleNameNode name) {
+            Token name) {
         Objects.requireNonNull(name, "name must not be null");
 
         STNode stXMLSimpleNameNode = STNodeFactory.createXMLSimpleNameNode(

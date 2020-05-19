@@ -2100,7 +2100,7 @@
         },
         {
             "name": "XMLItemNode",
-            "base": "BacktickTemplateMemberNode",
+            "base": "TemplateMemberNode",
             "isAbstract": true
         },
         {
@@ -2187,7 +2187,7 @@
             "attributes": [
                 {
                     "name": "name",
-                    "type": "XMLSimpleNameNode"
+                    "type": "Token"
                 }
             ]
         },
