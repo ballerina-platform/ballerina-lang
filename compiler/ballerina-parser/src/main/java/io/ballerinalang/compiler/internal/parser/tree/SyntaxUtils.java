@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
 /**
@@ -52,5 +53,9 @@ public class SyntaxUtils {
 
     public static boolean isSTNodePresent(STNode node) {
         return node != null;
+    }
+
+    public static boolean isSTNodeList(STNode node) {
+        return node.kind == SyntaxKind.LIST;
     }
 }

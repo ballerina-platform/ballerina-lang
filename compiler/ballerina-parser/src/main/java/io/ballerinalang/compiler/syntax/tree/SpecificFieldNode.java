@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SpecificFieldNode extends MappingFieldNode {
 
@@ -83,5 +85,62 @@ public class SpecificFieldNode extends MappingFieldNode {
                 fieldName,
                 colon,
                 valueExpr);
+    }
+
+    public SpecificFieldNodeModifier modify() {
+        return new SpecificFieldNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class SpecificFieldNodeModifier {
+        private final SpecificFieldNode oldNode;
+        private Token leadingComma;
+        private Token fieldName;
+        private Token colon;
+        private ExpressionNode valueExpr;
+
+        public SpecificFieldNodeModifier(SpecificFieldNode oldNode) {
+            this.oldNode = oldNode;
+            this.leadingComma = oldNode.leadingComma();
+            this.fieldName = oldNode.fieldName();
+            this.colon = oldNode.colon();
+            this.valueExpr = oldNode.valueExpr();
+        }
+
+        public SpecificFieldNodeModifier withLeadingComma(Token leadingComma) {
+            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
+            this.leadingComma = leadingComma;
+            return this;
+        }
+
+        public SpecificFieldNodeModifier withFieldName(Token fieldName) {
+            Objects.requireNonNull(fieldName, "fieldName must not be null");
+            this.fieldName = fieldName;
+            return this;
+        }
+
+        public SpecificFieldNodeModifier withColon(Token colon) {
+            Objects.requireNonNull(colon, "colon must not be null");
+            this.colon = colon;
+            return this;
+        }
+
+        public SpecificFieldNodeModifier withValueExpr(ExpressionNode valueExpr) {
+            Objects.requireNonNull(valueExpr, "valueExpr must not be null");
+            this.valueExpr = valueExpr;
+            return this;
+        }
+
+        public SpecificFieldNode apply() {
+            return oldNode.modify(
+                    leadingComma,
+                    fieldName,
+                    colon,
+                    valueExpr);
+        }
     }
 }

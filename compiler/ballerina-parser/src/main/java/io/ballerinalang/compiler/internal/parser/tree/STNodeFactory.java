@@ -1419,23 +1419,23 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createExplicitNewExpressionNode(
-            STNode NewKeyword,
-            STNode TypeDescriptor,
-            STNode ParenthesizedArgList) {
+            STNode newKeyword,
+            STNode typeDescriptor,
+            STNode parenthesizedArgList) {
 
         return new STExplicitNewExpressionNode(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
     }
 
     public static STNode createImplicitNewExpressionNode(
-            STNode NewKeyword,
-            STNode ParenthesizedArgList) {
+            STNode newKeyword,
+            STNode parenthesizedArgList) {
 
         return new STImplicitNewExpressionNode(
-                NewKeyword,
-                ParenthesizedArgList);
+                newKeyword,
+                parenthesizedArgList);
     }
 
     public static STNode createParenthesizedArgList(

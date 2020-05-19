@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TableTypeDescriptorNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class TableTypeDescriptorNode extends NonTerminalNode {
                 tableKeywordToken,
                 rowTypeParameterNode,
                 keyConstraintNode);
+    }
+
+    public TableTypeDescriptorNodeModifier modify() {
+        return new TableTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TableTypeDescriptorNodeModifier {
+        private final TableTypeDescriptorNode oldNode;
+        private Token tableKeywordToken;
+        private Node rowTypeParameterNode;
+        private Node keyConstraintNode;
+
+        public TableTypeDescriptorNodeModifier(TableTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.tableKeywordToken = oldNode.tableKeywordToken();
+            this.rowTypeParameterNode = oldNode.rowTypeParameterNode();
+            this.keyConstraintNode = oldNode.keyConstraintNode();
+        }
+
+        public TableTypeDescriptorNodeModifier withTableKeywordToken(Token tableKeywordToken) {
+            Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
+            this.tableKeywordToken = tableKeywordToken;
+            return this;
+        }
+
+        public TableTypeDescriptorNodeModifier withRowTypeParameterNode(Node rowTypeParameterNode) {
+            Objects.requireNonNull(rowTypeParameterNode, "rowTypeParameterNode must not be null");
+            this.rowTypeParameterNode = rowTypeParameterNode;
+            return this;
+        }
+
+        public TableTypeDescriptorNodeModifier withKeyConstraintNode(Node keyConstraintNode) {
+            Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
+            this.keyConstraintNode = keyConstraintNode;
+            return this;
+        }
+
+        public TableTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    tableKeywordToken,
+                    rowTypeParameterNode,
+                    keyConstraintNode);
+        }
     }
 }

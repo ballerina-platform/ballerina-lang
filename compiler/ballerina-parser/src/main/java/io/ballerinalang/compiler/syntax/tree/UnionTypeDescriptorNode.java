@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class UnionTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -30,7 +32,7 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
         super(internalNode, position, parent);
     }
 
-    public Node leftTypeDesc() {
+    public TypeDescriptorNode leftTypeDesc() {
         return childInBucket(0);
     }
 
@@ -38,7 +40,7 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(1);
     }
 
-    public Node rightTypeDesc() {
+    public TypeDescriptorNode rightTypeDesc() {
         return childInBucket(2);
     }
 
@@ -61,9 +63,9 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
     }
 
     public UnionTypeDescriptorNode modify(
-            Node leftTypeDesc,
+            TypeDescriptorNode leftTypeDesc,
             Token pipeToken,
-            Node rightTypeDesc) {
+            TypeDescriptorNode rightTypeDesc) {
         if (checkForReferenceEquality(
                 leftTypeDesc,
                 pipeToken,
@@ -75,5 +77,53 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
                 leftTypeDesc,
                 pipeToken,
                 rightTypeDesc);
+    }
+
+    public UnionTypeDescriptorNodeModifier modify() {
+        return new UnionTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class UnionTypeDescriptorNodeModifier {
+        private final UnionTypeDescriptorNode oldNode;
+        private TypeDescriptorNode leftTypeDesc;
+        private Token pipeToken;
+        private TypeDescriptorNode rightTypeDesc;
+
+        public UnionTypeDescriptorNodeModifier(UnionTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.leftTypeDesc = oldNode.leftTypeDesc();
+            this.pipeToken = oldNode.pipeToken();
+            this.rightTypeDesc = oldNode.rightTypeDesc();
+        }
+
+        public UnionTypeDescriptorNodeModifier withLeftTypeDesc(TypeDescriptorNode leftTypeDesc) {
+            Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
+            this.leftTypeDesc = leftTypeDesc;
+            return this;
+        }
+
+        public UnionTypeDescriptorNodeModifier withPipeToken(Token pipeToken) {
+            Objects.requireNonNull(pipeToken, "pipeToken must not be null");
+            this.pipeToken = pipeToken;
+            return this;
+        }
+
+        public UnionTypeDescriptorNodeModifier withRightTypeDesc(TypeDescriptorNode rightTypeDesc) {
+            Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
+            this.rightTypeDesc = rightTypeDesc;
+            return this;
+        }
+
+        public UnionTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    leftTypeDesc,
+                    pipeToken,
+                    rightTypeDesc);
+        }
     }
 }

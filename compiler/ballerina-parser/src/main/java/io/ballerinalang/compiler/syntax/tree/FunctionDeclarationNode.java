@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FunctionDeclarationNode extends NonTerminalNode {
 
@@ -101,5 +102,80 @@ public class FunctionDeclarationNode extends NonTerminalNode {
                 functionName,
                 functionSignature,
                 semicolon);
+    }
+
+    public FunctionDeclarationNodeModifier modify() {
+        return new FunctionDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FunctionDeclarationNodeModifier {
+        private final FunctionDeclarationNode oldNode;
+        private MetadataNode metadata;
+        private Token visibilityQualifier;
+        private Token functionKeyword;
+        private IdentifierToken functionName;
+        private FunctionSignatureNode functionSignature;
+        private Token semicolon;
+
+        public FunctionDeclarationNodeModifier(FunctionDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.functionKeyword = oldNode.functionKeyword();
+            this.functionName = oldNode.functionName();
+            this.functionSignature = oldNode.functionSignature();
+            this.semicolon = oldNode.semicolon();
+        }
+
+        public FunctionDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public FunctionDeclarationNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+            this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public FunctionDeclarationNodeModifier withFunctionKeyword(Token functionKeyword) {
+            Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+            this.functionKeyword = functionKeyword;
+            return this;
+        }
+
+        public FunctionDeclarationNodeModifier withFunctionName(IdentifierToken functionName) {
+            Objects.requireNonNull(functionName, "functionName must not be null");
+            this.functionName = functionName;
+            return this;
+        }
+
+        public FunctionDeclarationNodeModifier withFunctionSignature(FunctionSignatureNode functionSignature) {
+            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+            this.functionSignature = functionSignature;
+            return this;
+        }
+
+        public FunctionDeclarationNodeModifier withSemicolon(Token semicolon) {
+            Objects.requireNonNull(semicolon, "semicolon must not be null");
+            this.semicolon = semicolon;
+            return this;
+        }
+
+        public FunctionDeclarationNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    visibilityQualifier,
+                    functionKeyword,
+                    functionName,
+                    functionSignature,
+                    semicolon);
+        }
     }
 }

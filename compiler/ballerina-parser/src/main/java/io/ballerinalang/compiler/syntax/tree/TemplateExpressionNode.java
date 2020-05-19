@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TemplateExpressionNode extends ExpressionNode {
 
@@ -85,5 +87,63 @@ public class TemplateExpressionNode extends ExpressionNode {
                 startBacktick,
                 content,
                 endBacktick);
+    }
+
+    public TemplateExpressionNodeModifier modify() {
+        return new TemplateExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TemplateExpressionNodeModifier {
+        private final TemplateExpressionNode oldNode;
+        private Token type;
+        private Token startBacktick;
+        private NodeList<TemplateMemberNode> content;
+        private Token endBacktick;
+
+        public TemplateExpressionNodeModifier(TemplateExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.type = oldNode.type();
+            this.startBacktick = oldNode.startBacktick();
+            this.content = oldNode.content();
+            this.endBacktick = oldNode.endBacktick();
+        }
+
+        public TemplateExpressionNodeModifier withType(Token type) {
+            Objects.requireNonNull(type, "type must not be null");
+            this.type = type;
+            return this;
+        }
+
+        public TemplateExpressionNodeModifier withStartBacktick(Token startBacktick) {
+            Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+            this.startBacktick = startBacktick;
+            return this;
+        }
+
+        public TemplateExpressionNodeModifier withContent(NodeList<TemplateMemberNode> content) {
+            Objects.requireNonNull(content, "content must not be null");
+            this.content = content;
+            return this;
+        }
+
+        public TemplateExpressionNodeModifier withEndBacktick(Token endBacktick) {
+            Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+            this.endBacktick = endBacktick;
+            return this;
+        }
+
+        public TemplateExpressionNode apply() {
+            return oldNode.modify(
+                    oldNode.kind(),
+                    type,
+                    startBacktick,
+                    content,
+                    endBacktick);
+        }
     }
 }

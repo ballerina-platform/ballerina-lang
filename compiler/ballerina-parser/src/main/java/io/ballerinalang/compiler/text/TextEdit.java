@@ -26,9 +26,13 @@ public class TextEdit {
     private final TextRange range;
     private final String text;
 
-    public TextEdit(TextRange range, String text) {
+    private TextEdit(TextRange range, String text) {
         this.range = range;
         this.text = text;
+    }
+
+    public static TextEdit from(TextRange range, String text) {
+        return new TextEdit(range, text);
     }
 
     public TextRange range() {

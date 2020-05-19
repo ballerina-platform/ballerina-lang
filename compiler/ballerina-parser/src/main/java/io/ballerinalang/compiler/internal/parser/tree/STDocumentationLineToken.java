@@ -31,7 +31,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STDocumentationLineToken extends STToken {
 
-    public final String text;
+    private final String text;
 
     STDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
         super(SyntaxKind.DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia);
@@ -49,6 +49,6 @@ public class STDocumentationLineToken extends STToken {
 
     @Override
     public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+        return leadingMinutiae + text + trailingMinutiae;
     }
 }

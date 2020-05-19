@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ForEachStatementNode extends StatementNode {
 
@@ -99,5 +101,80 @@ public class ForEachStatementNode extends StatementNode {
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement);
+    }
+
+    public ForEachStatementNodeModifier modify() {
+        return new ForEachStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ForEachStatementNodeModifier {
+        private final ForEachStatementNode oldNode;
+        private Token forEachKeyword;
+        private Node typeDescriptor;
+        private Token variableName;
+        private Token inKeyword;
+        private Node actionOrExpressionNode;
+        private StatementNode blockStatement;
+
+        public ForEachStatementNodeModifier(ForEachStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.forEachKeyword = oldNode.forEachKeyword();
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.variableName = oldNode.variableName();
+            this.inKeyword = oldNode.inKeyword();
+            this.actionOrExpressionNode = oldNode.actionOrExpressionNode();
+            this.blockStatement = oldNode.blockStatement();
+        }
+
+        public ForEachStatementNodeModifier withForEachKeyword(Token forEachKeyword) {
+            Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
+            this.forEachKeyword = forEachKeyword;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withTypeDescriptor(Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withVariableName(Token variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withInKeyword(Token inKeyword) {
+            Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+            this.inKeyword = inKeyword;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withActionOrExpressionNode(Node actionOrExpressionNode) {
+            Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
+            this.actionOrExpressionNode = actionOrExpressionNode;
+            return this;
+        }
+
+        public ForEachStatementNodeModifier withBlockStatement(StatementNode blockStatement) {
+            Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+            this.blockStatement = blockStatement;
+            return this;
+        }
+
+        public ForEachStatementNode apply() {
+            return oldNode.modify(
+                    forEachKeyword,
+                    typeDescriptor,
+                    variableName,
+                    inKeyword,
+                    actionOrExpressionNode,
+                    blockStatement);
+        }
     }
 }
