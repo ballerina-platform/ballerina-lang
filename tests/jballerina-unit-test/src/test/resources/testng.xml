@@ -133,6 +133,7 @@
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.statements.transaction.RetryStmtTest"/>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->

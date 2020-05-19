@@ -2477,6 +2477,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetrySpec retrySpec) {
+        if (retrySpec.retryManagerType != null) {
+            retrySpec.type = symResolver.resolveTypeNode(retrySpec.retryManagerType, env);
+        }
+
         if (retrySpec.argExprs != null) {
             retrySpec.argExprs.forEach(arg -> this.typeChecker.checkExpr(arg, env));
         }
