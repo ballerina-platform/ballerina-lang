@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
+import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -33,7 +34,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.SourceType;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,9 +52,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_PATH;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
-import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
@@ -116,20 +114,12 @@ public class GenerateBalo {
 
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
-        Path jarOutputDirectory = Paths.get("./build/generated-bir-jar/");
-        Path parent = jarOutputDirectory.getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
-
         CompilerPhase compilerPhase = CompilerPhase.CODE_GEN;
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
-        options.put(SOURCE_PATH, String.valueOf(sourceRootDir));
-        options.put(TARGET_BINARY_PATH, jarOutputDirectory.toString());
-        options.put(SOURCE_TYPE, String.valueOf(SourceType.SINGLE_MODULE));
+        options.put(SOURCE_TYPE, "SINGLE_MODULE");
         options.put(BALO_GENERATION, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
@@ -144,6 +134,24 @@ public class GenerateBalo {
         printErrors(reportWarnings, diagListner, diagnostics);
 
         compiler.write(buildPackages);
+
+        JarFileWriter jarFileWriter = JarFileWriter.getInstance(context);
+
+        for (BLangPackage pkg : buildPackages) {
+            String suffix = "";
+            String bStringProp = System.getProperty("ballerina.bstring");
+            if (bStringProp != null && !"".equals(bStringProp)) {
+                suffix = "-bstring";
+            }
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
+                    suffix + ".jar");
+            Path parent = jarOutput.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
+            jarFileWriter.write(pkg, jarOutput);
+        }
 
         // Generate api doc
         genApiDoc(sourceRootDir, docModuleFilter, buildPackages);
