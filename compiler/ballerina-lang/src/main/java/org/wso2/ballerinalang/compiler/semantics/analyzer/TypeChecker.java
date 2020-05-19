@@ -4007,50 +4007,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
-        BType expectedType = this.expType;
+        BErrorType errorType = (BErrorType) iExpr.symbol.type;
 
-        if (expType.getKind() == TypeKind.UNION) {
-            List<BType> list = new ArrayList<>();
-            for (BType memberType : ((BUnionType) expectedType).getMemberTypes()) {
-                if (types.isAssignable(memberType, symTable.errorType)) {
-                    list.add(memberType);
-                }
-            }
-            BType[] errorMembers = list.toArray(new BType[0]);
-            if (errorMembers.length > 0) {
-                expectedType = BUnionType.create(null, errorMembers);
-            }
+        if (!types.isAssignable(errorType, this.expType)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, this.expType, errorType);
+            resultType = symTable.semanticError;
         }
-
-        if (expType.getKind() == TypeKind.UNION && iExpr.symbol.type == symTable.errorType) {
-            BUnionType unionType = (BUnionType) expType;
-            long count = unionType.getMemberTypes().stream()
-                    .filter(member -> types.isAssignable(iExpr.symbol.type, member))
-                    .count();
-            // More than one compatible members found, this is ambiguous.
-            if (count > 1) {
-                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
-                return;
-            }
-        } else if (!types.isAssignable(expectedType, symTable.errorType)) {
-            if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-                expectedType = iExpr.type;
-            } else if (expectedType != symTable.noType) {
-                // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
-                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
-                resultType = symTable.semanticError;
-                return;
-            } else {
-                // var e = <error> error("r");
-                expectedType = symTable.errorType;
-            }
-        }
-
-        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expectedType, iExpr.symbol);
-        if (expectedError == null) {
-            return;
-        }
-
 
         if (iExpr.argExprs.isEmpty()) {
             dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_ARG_ERROR_MESSAGE);
@@ -4074,62 +4036,64 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (expectedError.detailType.tag != TypeTags.RECORD) {
-            // This is when there is a semantic error in error type, bail out!
-            return;
-        }
-
-        BRecordType targetErrorDetailRec = (BRecordType) expectedError.detailType;
+        BRecordType targetErrorDetailRec = (BRecordType) errorType.detailType;
         BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec, isErrorCauseArgProvided);
-        if (resultType == symTable.semanticError) {
+        if (resultType == symTable.semanticError || targetErrorDetailRec == null) {
             return;
         }
 
-        // TODO: Improve error detail args mismatch error message by explicitly checking each named arg against
-        // error detail record fieldds.
         if (!types.isAssignable(recordType, targetErrorDetailRec)) {
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
+            reportErrorDetailMissmatchError(iExpr, targetErrorDetailRec, recordType);
             resultType = symTable.semanticError;
             return;
         }
         setErrorDetailArgsToNamedArgsList(iExpr, isErrorCauseArgProvided);
 
-        resultType = expectedError;
+        resultType = errorType;
         if (iExpr.symbol == symTable.errorType.tsymbol) {
-            iExpr.symbol = ((BErrorTypeSymbol) expectedError.tsymbol).ctorSymbol;
+            iExpr.symbol = ((BErrorTypeSymbol) errorType.tsymbol).ctorSymbol;
         }
     }
 
-    private BErrorType getExpectedErrorType(DiagnosticPos pos, BType expType, BSymbol iExprSymbol) {
-        // Direct error ctor invocation.
-        if (iExprSymbol == symTable.errorType.tsymbol) {
-            if (expType.tag == TypeTags.UNION) {
-                List<BType> matchedErrors = ((BUnionType) expType).getMemberTypes().stream()
-                        .filter(m -> types.isAssignable(m, iExprSymbol.type))
-                        .collect(Collectors.toList());
-                if (matchedErrors.size() == 1) {
-                    return (BErrorType) matchedErrors.get(0);
-                } else {
-                    // More than one matched, Cannot infer error type from error constructor.
-                    // 'Error0|Error1|T3 e = error(...);
-                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
-                    resultType = symTable.semanticError;
-                    return null;
+    private void reportErrorDetailMissmatchError(BLangInvocation iExpr, BRecordType targetErrorDetailRec, BRecordType recordType) {
+        boolean detailedErrorReported = false;
+        Set<String> checkedFieldNames = new HashSet<>();
+        for (Map.Entry<String, BField> fieldEntry : targetErrorDetailRec.fields.entrySet()) {
+            checkedFieldNames.add(fieldEntry.getKey());
+            BField argField = recordType.fields.get(fieldEntry.getKey());
+            if (argField == null && !Symbols.isOptional(fieldEntry.getValue().symbol)) {
+                dlog.error(iExpr.pos, DiagnosticCode.MISSING_ERROR_DETAIL_ARG, fieldEntry.getKey());
+                detailedErrorReported = true;
+            } else if (!types.isAssignable(argField.type, fieldEntry.getValue().type)) {
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_DETAIL_ARG_TYPE, fieldEntry.getKey(),
+                        fieldEntry.getValue().type, argField.type);
+            }
+        }
+        if (recordType.fields.size() > checkedFieldNames.size()) {
+            for (Map.Entry<String, BField> fieldEntry : recordType.fields.entrySet()) {
+                if (!checkedFieldNames.contains(fieldEntry.getKey())) {
+                    BField field = fieldEntry.getValue();
+                    if (targetErrorDetailRec.sealed) {
+                        dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC,
+                                fieldEntry.getKey(), targetErrorDetailRec);
+                        detailedErrorReported = true;
+                    } else if (!types.isAssignable(field.type, targetErrorDetailRec.restFieldType)) {
+                        dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_DETAIL_REST_ARG_TYPE,
+                                fieldEntry.getKey(), targetErrorDetailRec);
+                        detailedErrorReported = true;
+                    }
                 }
             }
-            return (BErrorType) expType;
-        } else {
-            // Indirect error constructor.
-            return (BErrorType) iExprSymbol.type;
+        }
+        if (!detailedErrorReported) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
         }
     }
 
     private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr, boolean isErrorCauseArgProvided) {
-//        BType defaultErrorRestFieldType = ((BRecordType) symTable.errorType.detailType).restFieldType;
         List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
         for (int i = getErrorCtorNamedArgStartingIndex(isErrorCauseArgProvided); i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
-            //checkExpr(argExpr, env, defaultErrorRestFieldType);
             if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 iExpr.requiredArgs.add(argExpr);
                 namedArgPositions.add(argExpr);

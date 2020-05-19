@@ -1115,9 +1115,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
 
-        if (distinctErrorDef) {
-            errorType.typeIdSet = BTypeIdSet.emptySet();
-        }
+        errorType.typeIdSet = BTypeIdSet.emptySet();
 
         resultType = errorType;
     }

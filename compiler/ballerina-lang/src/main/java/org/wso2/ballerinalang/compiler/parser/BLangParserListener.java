@@ -959,7 +959,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addUserDefineType(getWS(ctx));
+        RuleContext paren3Up = ctx.parent.parent.parent;
+        boolean isDistinct = (paren3Up instanceof BallerinaParser.SimpleTypeNameLabelContext)
+            && ((BallerinaParser.SimpleTypeNameLabelContext) paren3Up).DISTINCT() != null;
+
+        this.pkgBuilder.addUserDefineType(getWS(ctx), isDistinct);
     }
 
     @Override
@@ -1060,7 +1064,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isErrorTypeInfer = ctx.MUL() != null;
         boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
                 instanceof BallerinaParser.FiniteTypeContext) && detailsTypeExists;
-        boolean isDistinct = ctx.DISTINCT() != null;
+
+        RuleContext parent4up = ctx.parent.parent.parent.parent;
+        boolean isDistinct = parent4up instanceof BallerinaParser.SimpleTypeNameLabelContext
+                && ((BallerinaParser.SimpleTypeNameLabelContext) parent4up).DISTINCT() != null;
+
         this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), detailsTypeExists, isErrorTypeInfer, isAnonymous,
                 isDistinct);
     }

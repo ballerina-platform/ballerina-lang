@@ -573,11 +573,14 @@ public class BLangPackageBuilder {
         typeNode.grouped = true;
     }
 
-    void addUserDefineType(Set<Whitespace> ws) {
+    void addUserDefineType(Set<Whitespace> ws, boolean isDistinct) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
                 (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
         userDefinedType.addWS(nameReference.ws);
+        if (isDistinct) {
+            userDefinedType.flagSet.add(Flag.DISTINCT);
+        }
         addType(userDefinedType);
     }
 
@@ -2454,7 +2457,7 @@ public class BLangPackageBuilder {
 
         // Create typenode for enum type definition member
         addNameReference(pos, ws, null, identifier);
-        addUserDefineType(ws);
+        addUserDefineType(ws, false);
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
