@@ -92,7 +92,6 @@ import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
@@ -389,7 +388,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
         SeparatedNodeList<TypeDescriptorNode> types = tupleTypeDescriptorNode.memberTypeDesc();
         for (int i = 0; i < types.size(); i++) {
-            tupleTypeNode.memberTypeNodes.add(0, createTypeNode(types.get(i)));
+            tupleTypeNode.memberTypeNodes.add(createTypeNode(types.get(i)));
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 
@@ -1065,15 +1064,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLExpressionStmt;
     }
 
-    @Override
-    public BLangNode transform(TypeTestExpressionNode typeTestExpressionNode) {
-        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
-        typeTestExpr.expr = (BLangExpression) typeTestExpressionNode.expression().apply(this);
-        typeTestExpr.typeNode = createTypeNode(typeTestExpressionNode.typeDescriptor());
-        typeTestExpr.pos = getPosition(typeTestExpressionNode);
-        return typeTestExpr;
-    }
-
     // -------------------------------------------------Misc------------------------------------------------------------
 
     @Override
@@ -1219,32 +1209,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         xmlCommentLiteral.pos = getPosition(xmlComment);
         return xmlCommentLiteral;
-    }
-
-    @Override
-    public BLangNode transform(Token token) {
-        BLangNode node = null;
-        if (token.kind() == SyntaxKind.XML_TEXT_CONTENT) {
-            node = createSimpleLiteral(token);
-        }
-        return node;
-    }
-
-    @Override
-    public BLangNode transform(InterpolationNode interpolationNode) {
-        return createExpression(interpolationNode.expression());
-    }
-
-    @Override
-    public BLangNode transform(TemplateExpressionNode expressionNode) {
-        SyntaxKind kind = expressionNode.kind();
-        switch (kind) {
-            case XML_TEMPLATE_EXPRESSION:
-                return expressionNode.content().get(0).apply(this);
-            default:
-                throw new RuntimeException("Syntax kind is not supported: " + kind);
-
-        }
     }
 
     @Override

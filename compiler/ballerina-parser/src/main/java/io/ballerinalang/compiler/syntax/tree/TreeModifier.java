@@ -1209,7 +1209,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
-        Token name = modifyNode(xMLSimpleNameNode.name());
+        Token name = modifyToken(xMLSimpleNameNode.name());
         return xMLSimpleNameNode.modify(
                 name);
     }
