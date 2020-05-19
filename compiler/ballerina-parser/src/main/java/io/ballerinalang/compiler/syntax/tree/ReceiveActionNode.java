@@ -26,17 +26,17 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class FlushActionNode extends ExpressionNode {
+public class ReceiveActionNode extends ActionNode {
 
-    public FlushActionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ReceiveActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token flushKeyword() {
+    public Token leftArrow() {
         return childInBucket(0);
     }
 
-    public NameReferenceNode peerWorker() {
+    public Node receiveWorkers() {
         return childInBucket(1);
     }
 
@@ -53,26 +53,26 @@ public class FlushActionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "flushKeyword",
-                "peerWorker"};
+                "leftArrow",
+                "receiveWorkers"};
     }
 
-    public FlushActionNode modify(
-            Token flushKeyword,
-            NameReferenceNode peerWorker) {
+    public ReceiveActionNode modify(
+            Token leftArrow,
+            Node receiveWorkers) {
         if (checkForReferenceEquality(
-                flushKeyword,
-                peerWorker)) {
+                leftArrow,
+                receiveWorkers)) {
             return this;
         }
 
-        return NodeFactory.createFlushActionNode(
-                flushKeyword,
-                peerWorker);
+        return NodeFactory.createReceiveActionNode(
+                leftArrow,
+                receiveWorkers);
     }
 
-    public FlushActionNodeModifier modify() {
-        return new FlushActionNodeModifier(this);
+    public ReceiveActionNodeModifier modify() {
+        return new ReceiveActionNodeModifier(this);
     }
 
     /**
@@ -80,33 +80,33 @@ public class FlushActionNode extends ExpressionNode {
      *
      * @since 2.0.0
      */
-    public static class FlushActionNodeModifier {
-        private final FlushActionNode oldNode;
-        private Token flushKeyword;
-        private NameReferenceNode peerWorker;
+    public static class ReceiveActionNodeModifier {
+        private final ReceiveActionNode oldNode;
+        private Token leftArrow;
+        private Node receiveWorkers;
 
-        public FlushActionNodeModifier(FlushActionNode oldNode) {
+        public ReceiveActionNodeModifier(ReceiveActionNode oldNode) {
             this.oldNode = oldNode;
-            this.flushKeyword = oldNode.flushKeyword();
-            this.peerWorker = oldNode.peerWorker();
+            this.leftArrow = oldNode.leftArrow();
+            this.receiveWorkers = oldNode.receiveWorkers();
         }
 
-        public FlushActionNodeModifier withFlushKeyword(Token flushKeyword) {
-            Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
-            this.flushKeyword = flushKeyword;
+        public ReceiveActionNodeModifier withLeftArrow(Token leftArrow) {
+            Objects.requireNonNull(leftArrow, "leftArrow must not be null");
+            this.leftArrow = leftArrow;
             return this;
         }
 
-        public FlushActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
-            Objects.requireNonNull(peerWorker, "peerWorker must not be null");
-            this.peerWorker = peerWorker;
+        public ReceiveActionNodeModifier withReceiveWorkers(Node receiveWorkers) {
+            Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
+            this.receiveWorkers = receiveWorkers;
             return this;
         }
 
-        public FlushActionNode apply() {
+        public ReceiveActionNode apply() {
             return oldNode.modify(
-                    flushKeyword,
-                    peerWorker);
+                    leftArrow,
+                    receiveWorkers);
         }
     }
 }

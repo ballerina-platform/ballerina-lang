@@ -47,29 +47,20 @@
                             "kind": "ACTION_STATEMENT",
                             "children": [
                                 {
-                                    "kind": "FLUSH_ACTION",
+                                    "kind": "SYNC_SEND_ACTION",
                                     "children": [
                                         {
-                                            "kind": "FLUSH_KEYWORD"
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "a"
+                                        },
+                                        {
+                                            "kind": "SYNC_SEND_TOKEN"
                                         },
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
-                                            "value": "w1"
+                                            "value": "b"
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN",
-                                    "isMissing": true
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "INVALID",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "w2"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN"
@@ -84,14 +75,71 @@
                                     "value": "x"
                                 },
                                 {
-                                    "kind": "EQUAL_TOKEN",
-                                    "isMissing": true
+                                    "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "FLUSH_ACTION",
+                                    "kind": "SYNC_SEND_ACTION",
                                     "children": [
                                         {
-                                            "kind": "FLUSH_KEYWORD"
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "a"
+                                        },
+                                        {
+                                            "kind": "SYNC_SEND_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "b"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ACTION_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "SYNC_SEND_ACTION",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "a"
+                                        },
+                                        {
+                                            "kind": "SYNC_SEND_TOKEN"
+                                        },
+                                        {
+                                            "kind": "DEFAULT_KEYWORD"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "x"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "SYNC_SEND_ACTION",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "a"
+                                        },
+                                        {
+                                            "kind": "SYNC_SEND_TOKEN"
                                         },
                                         {
                                             "kind": "DEFAULT_KEYWORD"
