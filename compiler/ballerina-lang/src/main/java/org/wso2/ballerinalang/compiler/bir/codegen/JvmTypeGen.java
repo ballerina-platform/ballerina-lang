@@ -1230,14 +1230,30 @@ class JvmTypeGen {
                 mv.visitInsn(AASTORE);
                 i += 1;
             }
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V",
-                    BTYPE, STRING_VALUE), false);
+
+            loadReadOnlyFlagAndType(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;ZL%s;)V",
+                    BTYPE, STRING_VALUE, TABLE_TYPE), false);
         } else if (bType.keyTypeConstraint != null) {
             loadType(mv, bType.keyTypeConstraint);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;)V",
-                    BTYPE, BTYPE), false);
+            loadReadOnlyFlagAndType(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;ZL%s;)V",
+                    BTYPE, BTYPE, TABLE_TYPE), false);
         } else {
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+            loadReadOnlyFlagAndType(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, TABLE_TYPE),
+                               false);
+        }
+    }
+
+    private static void loadReadOnlyFlagAndType(MethodVisitor mv, BTableType bType) {
+        loadReadonlyFlag(mv, bType);
+
+        BType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
         }
     }
 
