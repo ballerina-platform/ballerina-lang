@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -69,6 +70,28 @@ public abstract class AbstractNodeFactory {
         STToken token = STNodeFactory.createToken(kind, leadingMinutiaeSTNode,
                 trailingMinutiaeSTNode);
         return token.createUnlinkedFacade();
+    }
+
+    public static Minutiae createCommentMinutiae(String text) {
+        // TODO Validate the given text for comment characters
+        // TODO Can we invoke the lexer here to get the minutiae
+        STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
+                SyntaxKind.COMMENT_MINUTIAE, text);
+        return Minutiae.createUnlinked(internalNode);
+    }
+
+    public static Minutiae createWhitespaceMinutiae(String text) {
+        // TODO Validate the given text for whitespace characters
+        STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
+                SyntaxKind.WHITESPACE_MINUTIAE, text);
+        return Minutiae.createUnlinked((STMinutiae) internalNode);
+    }
+
+    public static Minutiae createEndOfLineMinutiae(String text) {
+        // TODO Validate the given text for end of line characters
+        STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
+                SyntaxKind.END_OF_LINE_MINUTIAE, text);
+        return Minutiae.createUnlinked(internalNode);
     }
 
     protected static STNode getOptionalSTNode(Node node) {

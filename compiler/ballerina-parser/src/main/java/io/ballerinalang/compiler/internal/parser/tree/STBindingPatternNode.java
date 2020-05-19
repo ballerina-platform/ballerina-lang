@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public abstract class STBacktickTemplateMemberNode extends STNode {
+public abstract class STBindingPatternNode extends STNode {
 
-    STBacktickTemplateMemberNode(SyntaxKind kind) {
+    STBindingPatternNode(SyntaxKind kind) {
         super(kind);
     }
 }

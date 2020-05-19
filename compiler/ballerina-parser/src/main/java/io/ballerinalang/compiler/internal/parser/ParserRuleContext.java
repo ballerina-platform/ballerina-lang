@@ -197,6 +197,13 @@ public enum ParserRuleContext {
     FOREACH_STMT("foreach-stmt"),
     INFER_PARAM_END_OR_PARENTHESIS_END("infer-param-end-or-parenthesis-end"),
     LIST_CONSTRUCTOR_MEMBER_END("list-constructor-member-end"),
+    TYPED_BINDING_PATTERN("typed-binding-pattern"),
+    BINDING_PATTERN("binding-pattern"),
+    CAPTURE_BINDING_PATTERN("capture-binding-pattern"),
+    REST_BINDING_PATTERN("rest-binding-pattern"),
+    LIST_BINDING_PATTERN("list-binding-pattern"),
+    LIST_BINDING_PATTERN_CONTENTS("list-binding-pattern-content"),
+    LIST_BINDING_PATTERN_END_OR_CONTINUE("list-binding-pattern-end-or-continue"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

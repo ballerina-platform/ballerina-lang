@@ -471,7 +471,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIA, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIAE, getLexeme());
     }
 
     /**

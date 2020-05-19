@@ -429,22 +429,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ForEachStatementNode createForEachStatementNode(
             Token forEachKeyword,
-            Node typeDescriptor,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
             StatementNode blockStatement) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
         Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stForEachStatementNode = STNodeFactory.createForEachStatementNode(
                 forEachKeyword.internalNode(),
-                typeDescriptor.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
                 actionOrExpressionNode.internalNode(),
                 blockStatement.internalNode());
@@ -1642,7 +1639,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static XMLSimpleNameNode createXMLSimpleNameNode(
-            XMLSimpleNameNode name) {
+            Token name) {
         Objects.requireNonNull(name, "name must not be null");
 
         STNode stXMLSimpleNameNode = STNodeFactory.createXMLSimpleNameNode(
@@ -2136,6 +2133,55 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 functionSignature.internalNode(),
                 semicolon.internalNode());
         return stFunctionDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static TypedBindingPatternNode createTypedBindingPatternNode(
+            TypeDescriptorNode typeDescriptor,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stTypedBindingPatternNode = STNodeFactory.createTypedBindingPatternNode(
+                typeDescriptor.internalNode(),
+                bindingPattern.internalNode());
+        return stTypedBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static CaptureBindingPatternNode createCaptureBindingPatternNode(
+            SimpleNameReferenceNode variableName) {
+
+        STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
+                getOptionalSTNode(variableName));
+        return stCaptureBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static ListBindingPatternNode createListBindingPatternNode(
+            Token openBracket,
+            SeparatedNodeList<BindingPatternNode> bindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(bindingPatterns, "bindingPatterns must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stListBindingPatternNode = STNodeFactory.createListBindingPatternNode(
+                openBracket.internalNode(),
+                bindingPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restBindingPattern),
+                closeBracket.internalNode());
+        return stListBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static RestBindingPatternNode createRestBindingPatternNode(
+            Token ellipsisToken,
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stRestBindingPatternNode = STNodeFactory.createRestBindingPatternNode(
+                ellipsisToken.internalNode(),
+                variableName.internalNode());
+        return stRestBindingPatternNode.createUnlinkedFacade();
     }
 
     public static AsyncSendActionNode createAsyncSendActionNode(
