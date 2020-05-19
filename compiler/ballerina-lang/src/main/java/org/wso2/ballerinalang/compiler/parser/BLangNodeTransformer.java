@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
@@ -129,6 +130,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
@@ -149,6 +151,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -218,8 +221,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * Generates a {@code BLandCompilationUnit} from the given {@code ModulePart}.
@@ -734,8 +737,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
 
-        // Attach worker annotation to the function node.
-//        attachAnnotations(bLangFunction, numAnnotations, true);
+        NodeList<AnnotationNode> annotations = namedWorkerDeclNode.annotations();
+        bLFunction.annAttachments = applyAll(annotations);
 
         // Set Return Type
         Optional<Node> retNode = namedWorkerDeclNode.returnTypeDesc();
@@ -762,6 +765,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .with(workerLambdaName)
                 .setExpression(lambdaExpr)
                 .isDeclaredWithVar()
+                .isFinal()
                 .build();
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
@@ -784,6 +788,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLInvocation.name = (BLangIdentifier) reference.name;
         bLInvocation.pos = workerNamePos;
         bLInvocation.flagSet = new HashSet<>();
+        bLInvocation.annAttachments = bLFunction.annAttachments;
 
         if (bLInvocation.getKind() == NodeKind.INVOCATION) {
             bLInvocation.async = true;
@@ -793,10 +798,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerLambdaName, getPosition(namedWorkerDeclNode.workerName()))
+                .with(workerName, getPosition(namedWorkerDeclNode.workerName()))
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
+                .isFinal()
                 .build();
 
         BLangSimpleVariableDef workerInvoc = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
@@ -806,6 +812,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         this.additionalStatements.push(workerInvoc);
 
         return lamdaWrkr;
+    }
+
+    private <A extends BLangNode, B extends Node> List<A> applyAll(NodeList<B> annotations) {
+        ArrayList<A> annAttachments = new ArrayList<>();
+        for (B annotation : annotations) {
+            A blNode = (A) annotation.apply(this);
+            annAttachments.add(blNode);
+        }
+        return annAttachments;
+    }
+
+    @Override
+    public BLangNode transform(AnnotationNode annotation) {
+        Node name = annotation.annotReference();
+        BLangAnnotationAttachment bLAnnotationAttachment =
+                (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        if (annotation.annotValue().isPresent()) {
+            MappingConstructorExpressionNode map = annotation.annotValue().get();
+            BLangExpression bLExpression = (BLangExpression) map.apply(this);
+            bLAnnotationAttachment.setExpression(bLExpression);
+        }
+        BLangNameReference nameReference = createBLangNameReference(name);
+        bLAnnotationAttachment.setAnnotationName(nameReference.name);
+        bLAnnotationAttachment.setPackageAlias(nameReference.pkgAlias);
+        return bLAnnotationAttachment;
     }
 
     // -----------------------------------------------Expressions-------------------------------------------------------
@@ -1436,17 +1467,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isSimpleLiteral(expression.kind())) {
             return createSimpleLiteral(expression);
         } else if (expression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
-                expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                   expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                   expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             // Variable References
             BLangNameReference nameReference = createBLangNameReference(expression);
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             bLVarRef.pos = getPosition(expression);
             bLVarRef.pkgAlias = this.createIdentifier((DiagnosticPos) nameReference.pkgAlias.getPosition(),
-                    nameReference.pkgAlias.getValue());
+                                                      nameReference.pkgAlias.getValue());
             bLVarRef.variableName = this.createIdentifier((DiagnosticPos) nameReference.name.getPosition(),
-                    nameReference.name.getValue());
+                                                          nameReference.name.getValue());
             return bLVarRef;
+        } else if (expression.kind() == SyntaxKind.BRACED_EXPRESSION) {
+            BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
+            group.expression = (BLangExpression) expression.apply(this);
+            return group;
         } else {
             return (BLangExpression) expression.apply(this);
         }

@@ -129,6 +129,8 @@
 
         <classes>
             <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
+            <class name="org.ballerinalang.test.worker.StackOverflowTest"></class>
+            <class name="org.ballerinalang.test.worker.WaitForAllWorkersTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
