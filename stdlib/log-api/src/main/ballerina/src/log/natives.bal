@@ -22,7 +22,7 @@ import ballerina/java;
 # ```
 #
 # + msg - The message to be logged
-public function printDebug(any msg) = @java:Method {
+public function printDebug(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -34,7 +34,7 @@ public function printDebug(any msg) = @java:Method {
 # 
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public function printError(any msg, public error? err = ()) = @java:Method {
+public function printError(anydata|(function () returns (anydata)) msg, public error? err = ()) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -44,7 +44,7 @@ public function printError(any msg, public error? err = ()) = @java:Method {
 # ```
 # 
 # + msg - The message to be logged
-public function printInfo(any msg) = @java:Method {
+public function printInfo(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -54,7 +54,7 @@ public function printInfo(any msg) = @java:Method {
 # ```
 # 
 # + msg - The message to be logged
-public function printTrace(any msg) = @java:Method {
+public function printTrace(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -64,166 +64,6 @@ public function printTrace(any msg) = @java:Method {
 # ```
 # 
 # + msg - The message to be logged
-public function printWarn(any msg) = @java:Method {
-    class: "org.ballerinalang.stdlib.log.Utils"
-} external;
-
-# Logs a formatted string using the specified format string and arguments at DEBUG level.
-#
-# b - boolean
-#
-# B - boolean (ALL_CAPS)
-#
-# d - int
-#
-# f - float
-#
-# x - hex
-#
-# X - HEX (ALL_CAPS)
-#
-# s - string (This specifier is applicable for any of the supported types in Ballerina.
-#             These values will be converted to their string representation.)
-#
-# ```ballerina
-# log:sprintDebug("Employee %s is %d years old", "John", 28);
-# ```
-#
-# + format - A format string
-# + args   - The value(s) to be logged.
-public function sprintDebug(string format, (any|error)... args) {
-    var result = sprintDebugExtern(java:fromString(format), ...args);
-}
-
-# Logs a formatted string using the specified format string and arguments at ERROR level.
-#
-# b - boolean
-#
-# B - boolean (ALL_CAPS)
-#
-# d - int
-#
-# f - float
-#
-# x - hex
-#
-# X - HEX (ALL_CAPS)
-#
-# s - string (This specifier is applicable for any of the supported types in Ballerina.
-#             These values will be converted to their string representation.)
-#
-# ```ballerina
-# log:sprintError("Employee %s is %d years old", "John", 28);
-# ```
-#
-# + format - A format string
-# + args   - The value(s) to be logged.
-public function sprintError(string format, (any|error)... args) {
-    var result = sprintErrorExtern(java:fromString(format), ...args);
-}
-
-# Logs a formatted string using the specified format string and arguments at INFO level.
-#
-# b - boolean
-#
-# B - boolean (ALL_CAPS)
-#
-# d - int
-#
-# f - float
-#
-# x - hex
-#
-# X - HEX (ALL_CAPS)
-#
-# s - string (This specifier is applicable for any of the supported types in Ballerina.
-#             These values will be converted to their string representation.)
-#
-# ```ballerina
-# log:sprintInfo("Employee %s is %d years old", "John", 28);
-# ```
-#
-# + format - A format string
-# + args   - The value(s) to be logged.
-public function sprintInfo(string format, (any|error)... args) {
-    var result = sprintInfoExtern(java:fromString(format), ...args);
-}
-
-# Logs a formatted string using the specified format string and arguments at TRACE level.
-#
-# b - boolean
-#
-# B - boolean (ALL_CAPS)
-#
-# d - int
-#
-# f - float
-#
-# x - hex
-#
-# X - HEX (ALL_CAPS)
-#
-# s - string (This specifier is applicable for any of the supported types in Ballerina.
-#             These values will be converted to their string representation.)
-#
-# ```ballerina
-# log:sprintTrace("Employee %s is %d years old", "John", 28);
-# ```
-#
-# + format - A format string
-# + args   - The value(s) to be logged.
-public function sprintTrace(string format, (any|error)... args) {
-    var result = sprintTraceExtern(java:fromString(format), ...args);
-}
-
-# Logs a formatted string using the specified format string and arguments at WARN level.
-#
-# b - boolean
-#
-# B - boolean (ALL_CAPS)
-#
-# d - int
-#
-# f - float
-#
-# x - hex
-#
-# X - HEX (ALL_CAPS)
-#
-# s - string (This specifier is applicable for any of the supported types in Ballerina.
-#             These values will be converted to their string representation.)
-#
-# ```ballerina
-# log:sprintWarn("Employee %s is %d years old", "John", 28);
-# ```
-#
-# + format - A format string
-# + args   - The value(s) to be logged.
-public function sprintWarn(string format, (any|error)... args) {
-    var result = sprintWarnExtern(java:fromString(format), ...args);
-}
-
-function sprintDebugExtern(handle format, (any|error)... args) = @java:Method {
-    name: "sprintDebug",
-    class: "org.ballerinalang.stdlib.log.Utils"
-} external;
-
-function sprintErrorExtern(handle format, (any|error)... args) = @java:Method {
-    name: "sprintError",
-    class: "org.ballerinalang.stdlib.log.Utils"
-} external;
-
-function sprintInfoExtern(handle format, (any|error)... args) = @java:Method {
-    name: "sprintInfo",
-    class: "org.ballerinalang.stdlib.log.Utils"
-} external;
-
-function sprintTraceExtern(handle format, (any|error)... args) = @java:Method {
-    name: "sprintTrace",
-    class: "org.ballerinalang.stdlib.log.Utils"
-} external;
-
-function sprintWarnExtern(handle format, (any|error)... args) = @java:Method {
-    name: "sprintWarn",
+public function printWarn(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;

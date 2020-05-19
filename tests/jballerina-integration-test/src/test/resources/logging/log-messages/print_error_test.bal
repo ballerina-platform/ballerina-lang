@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/log;
 
 public function main() {
+    error e = error("error occurred");
     Fruit apple = new ("Apple");
 
     log:printError("ERROR level log");
@@ -27,6 +28,7 @@ public function main() {
     log:printError(function() returns string {
         return io:sprintf("Name of the fruit is is %s", apple.getName());
         });
+    log:printError("error log with cause", e);
 }
 
 public type Fruit object {
