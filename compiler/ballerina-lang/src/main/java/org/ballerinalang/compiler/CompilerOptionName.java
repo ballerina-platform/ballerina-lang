@@ -46,10 +46,6 @@ public enum CompilerOptionName {
 
     TEST_ENABLED("testEnabled"),
 
-    TARGET_BINARY_PATH("targetBinaryPath"),
-
-    SOURCE_PATH("sourcePath"),
-
     BALO_GENERATION("genBalo"),
 
     SKIP_ADD_DEPENDENCIES("skipAddDependencies"),

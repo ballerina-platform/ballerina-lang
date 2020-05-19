@@ -59,8 +59,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_PATH;
-import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
@@ -258,8 +256,6 @@ public class RunCommand implements BLauncherCmd {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(SOURCE_PATH, String.valueOf(sourcePath));
-        options.put(TARGET_BINARY_PATH, String.valueOf(targetPath));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(DUMP_BIR, Boolean.toString(dumpBIR));
         options.put(LOCK_ENABLED, Boolean.toString(true));

@@ -63,8 +63,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_PATH;
-import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
@@ -381,8 +379,6 @@ public class BuildCommand implements BLauncherCmd {
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
-        options.put(SOURCE_PATH, String.valueOf(sourcePath));
-        options.put(TARGET_BINARY_PATH, String.valueOf(targetPath));
         options.put(DUMP_BIR, Boolean.toString(dumpBIR));
         options.put(OFFLINE, Boolean.toString(this.offline));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
