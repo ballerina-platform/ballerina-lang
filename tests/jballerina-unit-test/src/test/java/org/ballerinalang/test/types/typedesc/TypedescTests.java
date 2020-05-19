@@ -61,13 +61,7 @@ public class TypedescTests {
 
     @Test(description = "Test buildin ref types")
     public void testRefTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testRefTypes");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "xml");
-        Assert.assertEquals(returns[1].stringValue(), "json");
-        //TODO Table remove - Fix
-//        Assert.assertEquals(returns[2].stringValue(), "map");
-//        Assert.assertEquals(returns[3].stringValue(), "table<Employee>");
+        BRunUtil.invoke(result, "testRefTypes");
     }
 
 
@@ -135,4 +129,54 @@ public class TypedescTests {
     public void testCustomErrorTypeDesc() {
         BValue[] returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
     }
+
+    @Test
+    public void testBasicTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testBasicTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testRefTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testRefTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testObjectTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testObjectTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testArrayTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testArrayTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testRecordTypesWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testRecordTypesWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testTuplesWithExpressionsWithoutTypedescConstraint() {
+        BRunUtil.invoke(result, "testTuplesWithExpressionsWithoutTypedescConstraint");
+    }
+
+    @Test
+    public void testAnyToTypedescWithoutConstraint() {
+        BRunUtil.invoke(result, "testAnyToTypedescWithoutConstraint");
+    }
+
+    @Test
+    public void testModuleLevelTypeDescWithoutConstraint() {
+        BRunUtil.invoke(result, "testModuleLevelTypeDescWithoutConstraint");
+    }
+
+    @Test
+    public void testMethodLevelTypeDescWithoutConstraint() {
+        BRunUtil.invoke(result, "testMethodLevelTypeDescWithoutConstraint");
+    }
+
+   @Test
+   public void testCustomErrorTypeDescWithoutConstraint() {
+       BRunUtil.invoke(result, "testCustomErrorTypeDescWithoutConstraint");
+   }
 }

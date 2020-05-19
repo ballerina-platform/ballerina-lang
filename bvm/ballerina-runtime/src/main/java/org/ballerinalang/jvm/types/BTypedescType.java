@@ -67,4 +67,9 @@ public class BTypedescType extends BType {
     public BType getConstraint() {
         return constraint;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

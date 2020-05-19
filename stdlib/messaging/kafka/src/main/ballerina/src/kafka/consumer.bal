@@ -21,6 +21,7 @@ import ballerina/java;
 #
 # + bootstrapServers - List of remote server endpoints of kafka brokers
 # + groupId - Unique string that identifies the consumer
+# + topics - Topics to be subscribed by the consumer
 # + offsetReset - Offset reset strategy if no initial offset
 # + partitionAssignmentStrategy - Strategy class for handling the partition assignment among consumers
 # + metricsRecordingLevel - Metrics recording level
@@ -36,8 +37,9 @@ import ballerina/java;
 #                       `kafka:Deserializer` object
 # + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url, if Avro serializer
 #                       is used
-# + topics - Topics to be subscribed by the consumer
-# + properties - Additional properties if required
+# + properties - Additional properties for the property fields not provided by Ballerina Kafka module. Use this with
+#                caution since this can override any of the fields. It is not recomendded to use this field except
+#                in an extreme situation
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached
 # + heartBeatIntervalInMillis - Expected time between heartbeats
 # + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata
@@ -67,11 +69,13 @@ import ballerina/java;
 #               performance is required
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer
 # + decoupleProcessing - Decouples processing
-# + secureSocket - Configurations related to SSL/TLS
+# + secureSocket - Configurations related to SSL/TLS encryption
+# + authenticationConfiguration - Authentication-related configurations for the Kafka consumer
 public type ConsumerConfiguration record {|
     string bootstrapServers;
     string groupId?;
-    string offsetReset?;
+    string[] topics?;
+    string offsetReset?; // TODO: Introduce a type instead of `string`.
     string partitionAssignmentStrategy?;
     string metricsRecordingLevel?;
     string metricsReporterClasses?;
@@ -85,8 +89,7 @@ public type ConsumerConfiguration record {|
     Deserializer valueDeserializer?;
     string schemaRegistryUrl?;
 
-    string[] topics?;
-    string[] properties?;
+    map<string> properties?; // TODO: This should be renamed to additionalProperties in future releases.
 
     int sessionTimeoutInMillis?;
     int heartBeatIntervalInMillis?;
@@ -118,6 +121,7 @@ public type ConsumerConfiguration record {|
     boolean decoupleProcessing = false;
 
     SecureSocket secureSocket?;
+    AuthenticationConfiguration authenticationConfiguration?;
 |};
 
 # Type related to consumer record.
@@ -154,7 +158,7 @@ public type IsolationLevel ISOLATION_COMMITTED|ISOLATION_UNCOMMITTED;
 public type Consumer client object {
     *'object:Listener;
 
-    public ConsumerConfiguration? consumerConfig = ();
+    public ConsumerConfiguration consumerConfig;
     private string keyDeserializerType;
     private string valueDeserializerType;
     private Deserializer? keyDeserializer = ();
@@ -260,23 +264,23 @@ public type Consumer client object {
         return consumerAssign(self, partitions);
     }
 
-# Closes consumer connection to the external Kafka broker.
-# ```ballerina
-# kafka:ConsumerError? result = consumer->close();
-# ```
-#
-# + duration - Timeout duration for the close operation execution
-# + return - `kafka:ConsumerError` if an error is encountered or else nil
+    # Closes the consumer connection of the external Kafka broker.
+    # ```ballerina
+    # kafka:ConsumerError? result = consumer->close();
+    # ```
+    #
+    # + duration - Timeout duration for the close operation execution
+    # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function close(public int duration = -1) returns ConsumerError? {
         return consumerClose(self, duration);
     }
 
-# Commits current consumed offsets for consumer.
-# ```ballerina
-# kafka:ConsumerError? result = consumer->commit();
-# ```
-#
-# + return - `kafka:ConsumerError` if an error is encountered or else nil
+    # Commits the current consumed offsets for the consumer.
+    # ```ballerina
+    # kafka:ConsumerError? result = consumer->commit();
+    # ```
+    #
+    # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function commit() returns ConsumerError? {
         return consumerCommit(self);
     }
@@ -290,34 +294,34 @@ public type Consumer client object {
         return consumerCommitOffset(self, offsets, duration);
     }
 
-# Connects consumer to the provided host in the consumer configs.
-# ```ballerina
-# kafka:ConsumerError? result = consumer->connect();
-# ```
-#
-# + return - `kafka:ConsumerError` if an error is encountered or else nil
+    # Connects the consumer to the provided host in the consumer configs.
+    # ```ballerina
+    # kafka:ConsumerError? result = consumer->connect();
+    # ```
+    #
+    # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function connect() returns ConsumerError? {
         return consumerConnect(self);
     }
 
-# Retrieves the currently assigned partitions for the consumer.
-# ```ballerina
-# kafka:TopicPartition[]|kafka:ConsumerError result = consumer->getAssignment();
-# ```
-#
-# + return - Array of assigned partitions for the consumer if executes successfully or else `kafka:ConsumerError`
+    # Retrieves the currently-assigned partitions for the consumer.
+    # ```ballerina
+    # kafka:TopicPartition[]|kafka:ConsumerError result = consumer->getAssignment();
+    # ```
+    #
+    # + return - Array of assigned partitions for the consumer if executes successfully or else a `kafka:ConsumerError`
     public remote function getAssignment() returns TopicPartition[]|ConsumerError {
         return consumerGetAssignment(self);
     }
 
-# Retrieves the available list of topics for a particular consumer.
-# ```ballerina
-# string[]|kafka:ConsumerError result = consumer->getAvailableTopics();
-# ```
-#
-# + duration - Timeout duration for the get available topics execution
-# + return - Array of topics currently available (authorized) for the consumer to subscribe or else
-#           `kafka:ConsumerError`
+    # Retrieves the available list of topics for a particular consumer.
+    # ```ballerina
+    # string[]|kafka:ConsumerError result = consumer->getAvailableTopics();
+    # ```
+    #
+    # + duration - Timeout duration for the execution of the `get available topics` operation
+    # + return - Array of topics currently available (authorized) for the consumer to subscribe or else
+    #           a `kafka:ConsumerError`
     public remote function getAvailableTopics(public int duration = -1) returns string[]|ConsumerError {
         return consumerGetAvailableTopics(self, duration);
     }
@@ -353,13 +357,13 @@ public type Consumer client object {
         return consumerGetEndOffsets(self, partitions, duration);
     }
 
-# Retrieves the partitions, which are currently paused.
-# ```ballerina
-# kafka:TopicPartition[]|kafka:ConsumerError result = consumer->getPausedPartitions();
-# ```
-#
-# + return - Set of partitions paused from message retrieval if executes successfully or else
-#            `kafka:ConsumerError`
+    # Retrieves the partitions, which are currently paused.
+    # ```ballerina
+    # kafka:TopicPartition[]|kafka:ConsumerError result = consumer->getPausedPartitions();
+    # ```
+    #
+    # + return - Set of partitions paused from message retrieval if executes successfully or else
+    #            a `kafka:ConsumerError`
     public remote function getPausedPartitions() returns TopicPartition[]|ConsumerError {
         return consumerGetPausedPartitions(self);
     }
@@ -375,24 +379,24 @@ public type Consumer client object {
         return consumerGetPositionOffset(self, partition, duration);
     }
 
-# Retrieves the set of topics which are currently subscribed by the consumer.
-# ```ballerina
-# string[]|kafka:ConsumerError result = consumer->getSubscription();
-# ```
-#
-# + return - Array of subscribed topics for the consumer if executes successfully or else `kafka:ConsumerError`
+    # Retrieves the set of topics, which are currently subscribed by the consumer.
+    # ```ballerina
+    # string[]|kafka:ConsumerError result = consumer->getSubscription();
+    # ```
+    #
+    # + return - Array of subscribed topics for the consumer if executes successfully or else a `kafka:ConsumerError`
     public remote function getSubscription() returns string[]|ConsumerError {
         return consumerGetSubscription(self);
     }
 
-# Retrieves the set of partitions in which the topic belongs to.
-# ```ballerina
-# kafka:TopicPartition[]|kafka:ConsumerError result = consumer->getTopicPartitions("kafka-topic");
-# ```
-#
-# + topic - The topic for which the partition information is needed
-# + duration - Timeout duration for the get topic partitions operation to execute
-# + return - Array of partitions for the given topic if executes successfully or else `kafka:ConsumerError`
+    # Retrieves the set of partitions to which the topic belongs.
+    # ```ballerina
+    # kafka:TopicPartition[]|kafka:ConsumerError result = consumer->getTopicPartitions("kafka-topic");
+    # ```
+    #
+    # + topic - The topic for which the partition information is needed
+    # + duration - Timeout duration for the `get topic partitions` operation to execute
+    # + return - Array of partitions for the given topic if executes successfully or else a `kafka:ConsumerError`
     public remote function getTopicPartitions(string topic, public int duration = -1)
     returns TopicPartition[]|ConsumerError {
         return consumerGetTopicPartitions(self, java:fromString(topic), duration);
@@ -406,13 +410,13 @@ public type Consumer client object {
         return consumerPause(self, partitions);
     }
 
-# Polls the consumer for external broker for records.
-# ```ballerina
-# kafka:ConsumerRecord[]|kafka:ConsumerError result = consumer->poll(1000);
-# ```
-#
-# + timeoutValue - Polling time in milliseconds
-# + return - Array of consumer records if executed successfully or else `kafka:ConsumerError`
+    # Polls the consumer for the records of an external broker.
+    # ```ballerina
+    # kafka:ConsumerRecord[]|kafka:ConsumerError result = consumer->poll(1000);
+    # ```
+    #
+    # + timeoutValue - Polling time in milliseconds
+    # + return - Array of consumer records if executed successfully or else a `kafka:ConsumerError`
     public remote function poll(int timeoutValue) returns ConsumerRecord[]|ConsumerError {
         return consumerPoll(self, timeoutValue);
     }
@@ -449,24 +453,28 @@ public type Consumer client object {
         return consumerSeekToEnd(self, partitions);
     }
 
-# Subscribes the consumer to the provided set of topics.
-# ```ballerina
-# kafka:ConsumerError? result = consumer->subscribe(["kafka-topic-1", "kafka-topic-2"]);
-# ```
-#
-# + topics - Array of topics to be subscribed to
-# + return - `kafka:ConsumerError` if an error is encountered or else ()
+    # Subscribes the consumer to the provided set of topics.
+    # ```ballerina
+    # kafka:ConsumerError? result = consumer->subscribe(["kafka-topic-1", "kafka-topic-2"]);
+    # ```
+    #
+    # + topics - Array of topics to be subscribed to
+    # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function subscribe(string[] topics) returns ConsumerError? {
-        return consumerSubscribe(self, topics);
+        if (self.consumerConfig?.groupId is string) {
+            return consumerSubscribe(self, topics);
+        } else {
+            panic error(CONSUMER_ERROR, message = "The groupId of the consumer must be set to subscribe to the topics");
+        }
     }
 
-# Subscribes the consumer to the topics which matches to the provided pattern.
-# ```ballerina
-# kafka:ConsumerError? result = consumer->subscribeToPattern("kafka.*");
-# ```
-#
-# + regex - Pattern which should be matched with the topics to be subscribed to
-# + return - `kafka:ConsumerError` if an error is encountered or else ()
+    # Subscribes the consumer to the topics, which match the provided pattern.
+    # ```ballerina
+    # kafka:ConsumerError? result = consumer->subscribeToPattern("kafka.*");
+    # ```
+    #
+    # + regex - Pattern, which should be matched with the topics to be subscribed to
+    # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function subscribeToPattern(string regex) returns ConsumerError? {
         return consumerSubscribeToPattern(self, java:fromString(regex));
     }
@@ -486,12 +494,12 @@ public type Consumer client object {
         return consumerSubscribeWithPartitionRebalance(self, topics, onPartitionsRevoked, onPartitionsAssigned);
     }
 
-# Unsubscribes from all the topic subscriptions.
-# ```ballerina
-# kafka:ConsumerError? result = consumer->unsubscribe();
-# ```
-#
-# + return - `kafka:ConsumerError` if an error is encountered or else ()
+    # Unsubscribes from all the topic subscriptions.
+    # ```ballerina
+    # kafka:ConsumerError? result = consumer->unsubscribe();
+    # ```
+    #
+    # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function unsubscribe() returns ConsumerError? {
         return consumerUnsubscribe(self);
     }

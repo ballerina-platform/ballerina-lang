@@ -1,0 +1,37 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "kind": "INTERSECTION_TYPE_DESC",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "T"
+                },
+                {
+                    "kind": "BITWISE_AND_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "A"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

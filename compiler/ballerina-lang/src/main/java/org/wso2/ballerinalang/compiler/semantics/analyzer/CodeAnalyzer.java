@@ -176,6 +176,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -1149,12 +1150,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     // if match type is record, the fields must match to the static pattern fields
                     BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
                     BRecordType recordMatchType = (BRecordType) matchType;
-                    Map<String, BType> recordFields = recordMatchType.fields
-                            .stream()
-                            .collect(Collectors.toMap(
-                                    field -> field.getName().getValue(),
-                                    BField::getType
-                            ));
+                    Map<String, BField> recordFields = recordMatchType.fields;
 
                     for (RecordLiteralNode.RecordField field : mapLiteral.fields) {
                         BLangRecordKeyValueField literalKeyValue = (BLangRecordKeyValueField) field;
@@ -1170,7 +1166,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                         if (recordFields.containsKey(literalKeyName)) {
                             if (!isValidStaticMatchPattern(
-                                    recordFields.get(literalKeyName), literalKeyValue.valueExpr)) {
+                                    recordFields.get(literalKeyName).type, literalKeyValue.valueExpr)) {
                                 return false;
                             }
                         } else if (recordMatchType.sealed ||
@@ -1309,7 +1305,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                     BRecordType recordType = (BRecordType) symbol.type;
-                    recordType.fields.forEach(f -> checkForExportableType(f.type.tsymbol, pos));
+                    recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos));
                     if (recordType.restFieldType != null) {
                         checkForExportableType(recordType.restFieldType.tsymbol, pos);
                     }
@@ -1908,7 +1904,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                for (BField bField : ((BRecordType) spreadOpExpr.type).fields) {
+                for (BField bField : ((BRecordType) spreadOpExpr.type).fields.values()) {
                     if (Symbols.isOptional(bField.symbol)) {
                         continue;
                     }
@@ -1941,8 +1937,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                         recordLiteral.expectedType.getKind().typeName(), name);
                     }
 
-                    if (isOpenRecord && ((BRecordType) type).fields.stream()
-                            .noneMatch(recField -> name.equals(recField.name.value))) {
+                    if (isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
                         dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
                     }
 
@@ -2448,6 +2443,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangUnionTypeNode unionTypeNode) {
 
         unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env));
+    }
+
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+
+        for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
+            analyzeTypeNode(constituentTypeNode, env);
+        }
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {

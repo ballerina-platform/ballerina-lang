@@ -24,7 +24,7 @@ public type Person record {|
 |};
 
 kafka:ProducerConfiguration avroProducerWithoutSchemaUrlConfig = {
-    bootstrapServers: "localhost:14113",
+    bootstrapServers: "localhost:14131",
     clientId: "basic-producer",
     acks: kafka:ACKS_ALL,
     requestTimeoutInMillis: 1000,
@@ -33,7 +33,7 @@ kafka:ProducerConfiguration avroProducerWithoutSchemaUrlConfig = {
 };
 
 kafka:ProducerConfiguration avroKeySerializerProducerWithoutSchemaUrlConfig = {
-    bootstrapServers: "localhost:14113",
+    bootstrapServers: "localhost:14131",
     clientId: "basic-producer",
     acks: kafka:ACKS_ALL,
     requestTimeoutInMillis: 1000,
@@ -42,7 +42,7 @@ kafka:ProducerConfiguration avroKeySerializerProducerWithoutSchemaUrlConfig = {
 };
 
 kafka:ProducerConfiguration customSerializerWithoutSerializerObject = {
-    bootstrapServers: "localhost:14113",
+    bootstrapServers: "localhost:14131",
     clientId: "basic-producer",
     acks: kafka:ACKS_ALL,
     requestTimeoutInMillis: 1000,
@@ -51,7 +51,7 @@ kafka:ProducerConfiguration customSerializerWithoutSerializerObject = {
 };
 
 kafka:ProducerConfiguration customValueSerializerWithoutSerializerObject = {
-    bootstrapServers: "localhost:14113",
+    bootstrapServers: "localhost:14131",
     clientId: "basic-producer",
     acks: kafka:ACKS_ALL,
     requestTimeoutInMillis: 1000,

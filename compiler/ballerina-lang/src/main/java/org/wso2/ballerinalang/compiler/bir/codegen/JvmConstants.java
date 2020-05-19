@@ -50,6 +50,7 @@ public class JvmConstants {
     public static final String XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
     public static final String FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
     public static final String TYPEDESC_VALUE_IMPL = "org/ballerinalang/jvm/values/TypedescValueImpl";
+    public static final String TYPEDESC_VALUE_IMPL_CLOSURES = "closures";
     public static final String TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
     public static final String HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
     public static final String LOCK_VALUE = "org/ballerinalang/jvm/BLock";
@@ -61,6 +62,16 @@ public class JvmConstants {
     public static final String SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
 
     public static final String BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
+
+    public static final String BINITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/api/BInitialValueEntry";
+    public static final String MAPPING_INITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/MappingInitialValueEntry";
+    public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
+            "org/ballerinalang/jvm/values/MappingInitialValueEntry$KeyValueEntry";
+    public static final String MAPPING_INITIAL_SPREAD_FIELD_ENTRY =
+            "org/ballerinalang/jvm/values/MappingInitialValueEntry$SpreadFieldEntry";
+    public static final String LIST_INITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/ListInitialValueEntry";
+    public static final String LIST_INITIAL_EXPRESSION_ENTRY =
+            "org/ballerinalang/jvm/values/ListInitialValueEntry$ExpressionEntry";
 
     // types related classes
     public static final String BTYPE = "org/ballerinalang/jvm/types/BType";

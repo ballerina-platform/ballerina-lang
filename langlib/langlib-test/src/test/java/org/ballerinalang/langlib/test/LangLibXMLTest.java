@@ -266,6 +266,16 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLFunctionalCtor() {
+        BRunUtil.invoke(compileResult, "testXMLFunctionalCtor");
+        BRunUtil.invoke(compileResult, "testXMLFunctionalConstructorWithAttributes");
+        BRunUtil.invoke(compileResult, "testXMLFunctionalConstructorWithAChild");
+        BRunUtil.invoke(compileResult, "testXMLCommentCtor");
+        BRunUtil.invoke(compileResult, "testXMLPICtor");
+        BRunUtil.invoke(compileResult, "testXMLTextCtor");
+    }
+
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 21, 12);
