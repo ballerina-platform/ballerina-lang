@@ -23,11 +23,15 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
 /**
- * The interface with the APIs to implement the "from" clause.
+ * The interface with the APIs to implement the from/join clauses.
  *
- * @since 1.2.0
+ * @since 1.3.0
  */
-public interface FromClauseNode extends Node {
+public interface InputClauseNode extends Node {
+
+    boolean isOuterJoin();
+
+    void setIsOuterJoin(boolean isOuterJoin);
 
     ExpressionNode getCollection();
 
@@ -40,4 +44,5 @@ public interface FromClauseNode extends Node {
     VariableDefinitionNode getVariableDefinitionNode();
 
     void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
+
 }
