@@ -19,34 +19,107 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * The {@code MinutiaeList} represents a immutable list of {@code Minutiae} values.
  *
  * @since 2.0.0
  */
-public class MinutiaeList implements Iterable<Minutiae> {
+public final class MinutiaeList implements Iterable<Minutiae> {
+    private static final MinutiaeList EMPTY_LIST = new MinutiaeList(null, STNodeList.emptyList(), -1);
+
     private final Token token;
-    private final STNode internalMinutia;
+    private final STNodeList internalNode;
+    private final int position;
     private final int size;
     private final Minutiae[] minutiaeNodes;
 
     MinutiaeList(Token token, STNode internalMinutiae, int position) {
+        if (!SyntaxUtils.isSTNodeList(internalMinutiae)) {
+            throw new IllegalStateException("An STNodeList instance expected here");
+        }
+        this.internalNode = (STNodeList) internalMinutiae;
         this.token = token;
-        this.internalMinutia = internalMinutiae;
+        this.position = position;
         this.size = getMinutiaeCount(internalMinutiae);
+
         // The following method eagerly create all the minutiae nodes at the moment
         // Do we need to create them on-demand?
+        // TODO Update the implementation with an lazy loading algorithm.
         this.minutiaeNodes = loadMinutiaeNodes(internalMinutiae, size, position);
     }
+
+    public static MinutiaeList emptyList() {
+        return EMPTY_LIST;
+    }
+
+    // Positional access methods
 
     public Minutiae get(int index) {
         rangeCheck(index);
         return minutiaeNodes[index];
     }
+
+    // Modification Operations
+
+    public MinutiaeList add(Minutiae minutiae) {
+        return new MinutiaeList(token, internalNode.add(minutiae.internalNode()), position);
+    }
+
+    public MinutiaeList add(int index, Minutiae minutiae) {
+        rangeCheck(index);
+        return new MinutiaeList(token, internalNode.add(index, minutiae.internalNode()), position);
+    }
+
+    public MinutiaeList addAll(Collection<Minutiae> c) {
+        return new MinutiaeList(token,
+                internalNode.addAll(c.stream()
+                        .map(Minutiae::internalNode)
+                        .collect(Collectors.toList())),
+                position);
+    }
+
+    public MinutiaeList set(int index, Minutiae minutiae) {
+        rangeCheck(index);
+        return new MinutiaeList(token, internalNode.set(index, minutiae.internalNode()), position);
+    }
+
+    public MinutiaeList remove(int index) {
+        rangeCheck(index);
+        return new MinutiaeList(token, internalNode.remove(index), position);
+    }
+
+    public MinutiaeList remove(Minutiae minutiae) {
+        Objects.requireNonNull(minutiae, "minutiae cannot be null");
+        for (int i = 0; i < minutiaeNodes.length; i++) {
+            if (minutiae.equals(minutiaeNodes[i])) {
+                return remove(i);
+            }
+        }
+        return this;
+    }
+
+    public MinutiaeList removeAll(Collection<Minutiae> c) {
+        List<STNode> internalNodeList = new ArrayList<>();
+        for (Minutiae minutiae : minutiaeNodes) {
+            if (c.contains(minutiae)) {
+                internalNodeList.add(minutiae.internalNode());
+            }
+        }
+
+        return new MinutiaeList(token, internalNode.removeAll(internalNodeList), position);
+    }
+
+    //query methods
 
     public int size() {
         return size;
@@ -73,21 +146,13 @@ public class MinutiaeList implements Iterable<Minutiae> {
         };
     }
 
-    public MinutiaeList emptyList() {
-        throw new UnsupportedOperationException();
-    }
-
     protected STNode internalNode() {
-        return internalMinutia;
+        return internalNode;
     }
 
     private Minutiae[] loadMinutiaeNodes(STNode internalMinutiae, int size, int position) {
         if (size == 0) {
             return new Minutiae[0];
-        }
-
-        if (!SyntaxUtils.isSTNodeList(internalMinutiae)) {
-            return new Minutiae[]{createMinutiae(internalMinutiae, position)};
         }
 
         int index = 0;
@@ -110,24 +175,22 @@ public class MinutiaeList implements Iterable<Minutiae> {
     }
 
     private int getMinutiaeCount(STNode internalMinutiae) {
-        int count = 0;
         for (int bucket = 0; bucket < internalMinutiae.bucketCount(); bucket++) {
             STNode child = internalMinutiae.childInBucket(bucket);
             if (!SyntaxUtils.isSTNodePresent(child)) {
-                continue;
+                throw new IllegalStateException("No minutia nodes with 'null' values are allowed in MinutiaeList");
             }
-            count++;
         }
-        return count;
+        return internalMinutiae.bucketCount();
     }
 
-    private void rangeCheck(int childIndex) {
-        if (childIndex >= size || childIndex < 0)
-            throw new IndexOutOfBoundsException("Index: '" + childIndex + "', Size: '" + size + "'");
+    private void rangeCheck(int index) {
+        if (index >= size || index < 0)
+            throw new IndexOutOfBoundsException("Index: '" + index + "', Size: '" + size + "'");
     }
 
     @Override
     public String toString() {
-        return internalMinutia.toString();
+        return internalNode.toString();
     }
 }

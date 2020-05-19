@@ -271,7 +271,7 @@ public class ParserTestUtils {
         switch (syntaxKind) {
             case WHITESPACE_MINUTIAE:
             case END_OF_LINE_MINUTIAE:
-            case COMMENT_MINUTIA:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return true;
             default:
@@ -294,7 +294,7 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text();
             case WHITESPACE_MINUTIAE:
-            case COMMENT_MINUTIA:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return ((STMinutiae) token).text();
             case END_OF_LINE_MINUTIAE:
@@ -921,7 +921,7 @@ public class ParserTestUtils {
             case "WHITESPACE_TRIVIA":
                 return SyntaxKind.WHITESPACE_MINUTIAE;
             case "COMMENT":
-                return SyntaxKind.COMMENT_MINUTIA;
+                return SyntaxKind.COMMENT_MINUTIAE;
             case "INVALID":
                 return SyntaxKind.INVALID;
 

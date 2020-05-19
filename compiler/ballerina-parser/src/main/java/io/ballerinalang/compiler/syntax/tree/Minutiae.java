@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
@@ -27,7 +28,7 @@ import io.ballerinalang.compiler.text.TextRange;
  *
  * @since 2.0.0
  */
-public class Minutiae {
+public final class Minutiae {
     private final STMinutiae internalMinutiae;
     private final Token token;
     private final int position;
@@ -39,6 +40,14 @@ public class Minutiae {
         this.internalMinutiae = internalMinutiae;
         this.token = token;
         this.position = position;
+    }
+
+    static Minutiae createUnlinked(STMinutiae internalMinutiae) {
+        return new Minutiae(internalMinutiae, null, -1);
+    }
+
+    public String text() {
+        return internalMinutiae.text();
     }
 
     public SyntaxKind kind() {
@@ -63,5 +72,9 @@ public class Minutiae {
         lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
+    }
+
+    STNode internalNode() {
+        return internalMinutiae;
     }
 }

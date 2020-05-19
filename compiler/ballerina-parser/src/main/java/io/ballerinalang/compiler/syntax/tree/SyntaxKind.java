@@ -163,7 +163,7 @@ public enum SyntaxKind {
     // Trivia
     WHITESPACE_MINUTIAE(1500),
     END_OF_LINE_MINUTIAE(1501),
-    COMMENT_MINUTIA(1502),
+    COMMENT_MINUTIAE(1502),
     DOCUMENTATION_LINE(1503),
 
     // module-level declarations
