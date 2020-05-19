@@ -199,7 +199,8 @@ public class HeaderUtil {
      */
     public static String extractBoundaryParameter(String contentType) {
         MapValue<BString, BString> paramMap = HeaderUtil.getParamMap(contentType);
-        return paramMap.get(BOUNDARY) != null ? paramMap.get(BOUNDARY).getValue() : null;
+        return paramMap.get(StringUtils.fromString(BOUNDARY)) != null ?
+                paramMap.get(StringUtils.fromString(BOUNDARY)).getValue() : null;
     }
 
     public static void setHeaderToEntity(ObjectValue entity, String key, String value) {
