@@ -403,7 +403,20 @@ function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
     return [p4, p2];
 }
 
-type ObjectWithRemoteMethod client object {
+type ObjWithOnlyRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function __init(string name) {
+        self.name = name;
+    }
+    public remote function send(string message) returns error? {
+    }
+    public remote function receive(string message) {
+    }
+};
+
+type ObjWithRemoteMethod client object {
     public string name;
     public string id = "";
 
@@ -416,7 +429,7 @@ type ObjectWithRemoteMethod client object {
     }
 };
 
-type NonClientObject object {
+type NonClientObj object {
     public string name;
     public string id = "";
 
@@ -429,7 +442,35 @@ type NonClientObject object {
     }
 };
 
-function testEqOfObjectsWithAndWithoutRemoteMethods() {
-    NonClientObject e = new ("email-1");
-    ObjectWithRemoteMethod p = e;
+type ClientObjWithoutRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function __init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+function testEqOfObjectsWithAndWithoutRemoteMethods1() {
+    NonClientObj e = new ("email-1");
+    ObjWithRemoteMethod p = e;
+}
+
+function testEqOfObjectsWithAndWithoutRemoteMethods2() {
+    ClientObjWithoutRemoteMethod e = new ("email-2");
+    ObjWithRemoteMethod p = e;
+}
+
+function testEqOfObjectsWithAndWithoutRemoteMethods3() {
+    ClientObjWithoutRemoteMethod e = new ("email-3");
+    ObjWithOnlyRemoteMethod = e;
+}
+
+function testEqOfObjectsWithAndWithoutRemoteMethods4() {
+    NonClientObj e = new ("email-4");
+    ObjWithOnlyRemoteMethod = e;
 }

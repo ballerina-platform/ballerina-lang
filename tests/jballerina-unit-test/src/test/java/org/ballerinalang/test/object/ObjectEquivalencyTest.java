@@ -143,9 +143,4 @@ public class ObjectEquivalencyTest {
     public void testObjectEqualityBetweenNonClientAndClientObject() {
         BRunUtil.invoke(compileResult, "testObjectEqualityBetweenNonClientAndClientObject");
     }
-
-    @Test
-    public void testObjectEqualityBetweenClientObjects() {
-        BRunUtil.invoke(compileResult, "testObjectEqualityBetweenClientObjects");
-    }
 }

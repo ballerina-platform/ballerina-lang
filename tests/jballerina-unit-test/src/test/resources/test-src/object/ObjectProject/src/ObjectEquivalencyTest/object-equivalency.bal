@@ -627,32 +627,6 @@ function testInherentTypeViolationWithNilType() {
     o2.x = (); // panic
 }
 
-type ObjectWithOnlyRemoteMethod client object {
-    public string name;
-    public string id = "";
-
-    function __init(string name) {
-        self.name = name;
-    }
-    public remote function send(string message) returns error? {
-    }
-    public remote function receive(string message) {
-    }
-};
-
-type ObjectWithRemoteMethod client object {
-    public string name;
-    public string id = "";
-
-    function __init(string name) {
-        self.name = name;
-    }
-    public remote function send(string message) returns error? {
-    }
-    public function receive(string message) {
-    }
-};
-
 type NonClientObject object {
     public string name;
     public string id = "";
@@ -680,33 +654,14 @@ type ClientObjectWithoutRemoteMethod client object {
 };
 
 function testObjectEqualityBetweenNonClientAndClientObject() {
-    ObjectWithRemoteMethod obj1 = new("ObjectWithRemoteMethod");
-    ObjectWithOnlyRemoteMethod obj2 = new("ObjectWithOnlyRemoteMethod");
-    NonClientObject obj3 = new("NonClientObject");
-    ClientObjectWithoutRemoteMethod obj4 = new("ClientObjectWithoutRemoteMethod");
+    NonClientObject obj1 = new("NonClientObject");
+    ClientObjectWithoutRemoteMethod obj2 = new("ClientObjectWithoutRemoteMethod");
 
-    NonClientObject obj5 = obj1;
-    NonClientObject obj6 = obj2;
-    NonClientObject obj7 = obj4;
+    NonClientObject obj3 = obj2;
+    ClientObjectWithoutRemoteMethod obj4 = obj1;
 
-    assertEquality("ObjectWithRemoteMethod", obj5.name);
-    assertEquality("ObjectWithOnlyRemoteMethod", obj6.name);
-    assertEquality("ClientObjectWithoutRemoteMethod", obj7.name);
-}
-
-function testObjectEqualityBetweenClientObjects() {
-    ObjectWithRemoteMethod obj1 = new("ObjectWithRemoteMethod");
-    ObjectWithOnlyRemoteMethod obj2 = new("ObjectWithOnlyRemoteMethod");
-    NonClientObject obj3 = new("NonClientObject");
-    ClientObjectWithoutRemoteMethod obj4 = new("ClientObjectWithoutRemoteMethod");
-
-    ObjectWithRemoteMethod obj5 = obj2;
-    ClientObjectWithoutRemoteMethod obj6 = obj2;
-    ClientObjectWithoutRemoteMethod obj7 = obj4;
-
-    assertEquality("ObjectWithOnlyRemoteMethod", obj5.name);
-    assertEquality("ObjectWithOnlyRemoteMethod", obj6.name);
-    assertEquality("ClientObjectWithoutRemoteMethod", obj7.name);
+    assertEquality("NonClientObject", obj4.name);
+    assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
