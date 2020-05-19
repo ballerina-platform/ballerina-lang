@@ -535,7 +535,9 @@ public class ParserTestUtils {
             case "NEGATION_TOKEN":
                 return SyntaxKind.NEGATION_TOKEN;
             case "OPTIONAL_FIELD_ACCESS_TOKEN":
-                return SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN;
+                return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+            case "ELVIS_TOKEN":
+                return SyntaxKind.ELVIS_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
