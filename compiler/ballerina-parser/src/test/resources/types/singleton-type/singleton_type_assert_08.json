@@ -225,6 +225,47 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "INDEXED_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "SINGLETON_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "STRING_LITERAL",
+                                                    "value": "mystring"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "4"
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACKET_TOKEN",
+                                            "isMissing": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "g"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
                         }
                     ]
                 },

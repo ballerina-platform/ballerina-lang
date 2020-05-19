@@ -5,4 +5,5 @@ public function foo(){
     0x2c true d;
     null 43 e;
     % true f;
+    "mystring"[4 g;
 }

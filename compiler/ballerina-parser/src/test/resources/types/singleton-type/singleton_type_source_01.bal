@@ -8,4 +8,6 @@ public function foo(){
     false g;
     null h;
     () i;
+    "dulmina"[6] j;
+    "mystring"? k;
 }
