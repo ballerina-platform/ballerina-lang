@@ -555,7 +555,7 @@ public abstract class NodeTransformer<T> {
     }
 
     public T transform(IdentifierToken identifier) {
-        return null;
+        return transform((Token) identifier);
     }
 
     // Misc
