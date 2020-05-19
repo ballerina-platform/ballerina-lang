@@ -76,10 +76,10 @@ public class WebSocketConstants {
     public static final String NATIVE_DATA_BASE_PATH = "BASE_PATH";
 
     public static final BString CLIENT_URL_CONFIG = StringUtils.fromString("url");
-    public static final String CLIENT_SERVICE_CONFIG = "callbackService";
+    public static final BString CLIENT_SERVICE_CONFIG = StringUtils.fromString("callbackService");
     public static final BString CLIENT_CUSTOM_HEADERS_CONFIG = StringUtils.fromString("customHeaders");
     public static final BString CLIENT_READY_ON_CONNECT = StringUtils.fromString("readyOnConnect");
-    public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
+    public static final BString WEBSOCKET_UPGRADE_SERVICE_CONFIG = StringUtils.fromString("upgradeService");
 
     public static final BString RETRY_CONTEXT = StringUtils.fromString("retryConfig");
     public static final String COUNT_DOWN_LATCH = "countDownLatch";

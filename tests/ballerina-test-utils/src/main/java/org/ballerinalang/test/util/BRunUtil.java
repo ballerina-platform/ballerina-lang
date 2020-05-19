@@ -501,11 +501,12 @@ public class BRunUtil {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 BMap<String, BValue> record = (BMap) value;
-                MapValueImpl<String, Object> jvmRecord = new MapValueImpl<>(getJVMType(type));
+                MapValueImpl<org.ballerinalang.jvm.values.api.BString, Object> jvmRecord = new MapValueImpl<>(
+                        getJVMType(type));
                 for (Map.Entry<String, BValue> entry : record.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
                     Object jvmVal = entryVal == null ? null : getJVMValue(entryVal.getType(), entryVal);
-                    jvmRecord.put(entry.getKey(), jvmVal);
+                    jvmRecord.put(StringUtils.fromString(entry.getKey()), jvmVal);
                 }
                 return jvmRecord;
             case TypeTags.OBJECT_TYPE_TAG:

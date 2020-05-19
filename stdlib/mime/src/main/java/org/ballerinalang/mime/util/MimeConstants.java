@@ -118,7 +118,7 @@ public class MimeConstants {
     public static final String BODY_PARTS = "body_parts";
     public static final String ENTITY_HEADERS = "entity_headers";
     public static final String ENTITY_TRAILER_HEADERS = "entity_trailer_headers";
-    public static final String LEADING_HEADER = "leading";
+    public static final BString LEADING_HEADER = StringUtils.fromString("leading");
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String PARSE_AS_JSON = "PARSE_AS_TEXT";
 

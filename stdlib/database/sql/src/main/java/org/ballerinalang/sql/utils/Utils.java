@@ -35,8 +35,8 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
@@ -870,13 +870,13 @@ class Utils {
         }
     }
 
-    private static MapValue<String, Object> createUserDefinedType(Struct structValue, BStructureType structType)
+    private static MapValue<BString, Object> createUserDefinedType(Struct structValue, BStructureType structType)
             throws ApplicationError {
         if (structValue == null) {
             return null;
         }
         BField[] internalStructFields = structType.getFields().values().toArray(new BField[0]);
-        MapValue<String, Object> struct = new MapValueImpl<>(structType);
+        MapValue<BString, Object> struct = new MapValueImpl<>(structType);
         try {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
@@ -887,7 +887,7 @@ class Utils {
                 int index = 0;
                 for (BField internalField : internalStructFields) {
                     int type = internalField.getFieldType().getTag();
-                    String fieldName = internalField.getFieldName();
+                    BString fieldName = StringUtils.fromString(internalField.getFieldName());
                     Object value = dataArray[index];
                     switch (type) {
                         case TypeTags.INT_TAG:

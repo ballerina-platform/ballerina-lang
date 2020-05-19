@@ -45,7 +45,7 @@ public class RetryInitEndpoint {
 
     public static void initEndpoint(ObjectValue retryClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) retryClient.getMapValue(
+        MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) retryClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> retryConfig = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(

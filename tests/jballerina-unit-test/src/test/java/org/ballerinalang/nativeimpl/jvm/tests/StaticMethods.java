@@ -102,14 +102,14 @@ public class StaticMethods {
 
     public static MapValue acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
                                                       ErrorValue d, Object e, Object f, MapValue g) {
-        MapValue<String, Object> mapValue = new MapValueImpl();
-        mapValue.put("a", a);
-        mapValue.put("b", b);
-        mapValue.put("c", c);
+        MapValue<BString, Object> mapValue = new MapValueImpl<>();
+        mapValue.put(StringUtils.fromString("a"), a);
+        mapValue.put(StringUtils.fromString("b"), b);
+        mapValue.put(StringUtils.fromString("c"), c);
 //        mapValue.put("d", d);
-        mapValue.put("e", e);
-        mapValue.put("f", f);
-        mapValue.put("g", g);
+        mapValue.put(StringUtils.fromString("e"), e);
+        mapValue.put(StringUtils.fromString("f"), f);
+        mapValue.put(StringUtils.fromString("g"), g);
         return mapValue;
     }
 

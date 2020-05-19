@@ -19,6 +19,7 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.metrics.Counter;
 import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
 import org.ballerinalang.jvm.observability.metrics.Gauge;
@@ -103,11 +104,11 @@ public class GetAllMetrics {
         return bMetrics;
     }
 
-    private static MapValue<String, Object> getTags(MetricId metricId) {
-        MapValue<String, Object> bTags = new MapValueImpl<>(new BMapType(BTypes.typeString));
+    private static MapValue<BString, Object> getTags(MetricId metricId) {
+        MapValue<BString, Object> bTags = new MapValueImpl<>(new BMapType(BTypes.typeString));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
-            bTags.put(tag.getKey(), tag.getValue());
+            bTags.put(StringUtils.fromString(tag.getKey()), StringUtils.fromString(tag.getValue()));
         }
         return bTags;
     }

@@ -160,7 +160,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
             ObjectValue intentVerificationRequest = createIntentVerificationRequest();
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-                MapValue<String, Object> params = new MapValueImpl<>();
+                MapValue<BString, Object> params = new MapValueImpl<>();
                 try {
                     URIUtil.populateQueryParamMap(queryString, params);
                     intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_MODE),
@@ -170,7 +170,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                     intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_CHALLENGE),
                                                   getParamStringValue(params, PARAM_HUB_CHALLENGE));
                     if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
-                        long leaseSec = Long.parseLong(getParamStringValue(params, PARAM_HUB_LEASE_SECONDS));
+                        long leaseSec = Long.parseLong(getParamStringValue(params, PARAM_HUB_LEASE_SECONDS).getValue());
                         intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_LEASE_SECONDS),
                                                       leaseSec);
                     }
@@ -314,7 +314,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
 
         String annotatedTopic = httpCarbonMessage.getProperty(ANNOTATED_TOPIC).toString();
         String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-        MapValue<String, Object> params = new MapValueImpl<>();
+        MapValue<BString, Object> params = new MapValueImpl<>();
         try {
             URIUtil.populateQueryParamMap(queryString, params);
             if (!params.containsKey(PARAM_HUB_MODE) || !params.containsKey(PARAM_HUB_TOPIC) ||
@@ -325,12 +325,12 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                 return;
             }
 
-            String mode = getParamStringValue(params, PARAM_HUB_MODE);
+            BString mode = getParamStringValue(params, PARAM_HUB_MODE);
             if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
-                    && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC))) {
-                String challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
+                    && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC).getValue())) {
+                BString challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
                 response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
-                        challenge.getBytes(StandardCharsets.UTF_8))));
+                        challenge.getValue().getBytes(StandardCharsets.UTF_8))));
                 response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
                 response.setHttpStatusCode(HttpResponseStatus.ACCEPTED.code());
                 String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
@@ -360,14 +360,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
     }
 
-    private String getParamStringValue(MapValue<String, Object> params, String key) {
+    private BString getParamStringValue(MapValue<BString, Object> params, BString key) {
         if (!params.containsKey(key)) {
-            return "";
+            return StringUtils.fromString("");
         }
         Object param = params.get(key);
         if (TypeChecker.getType(param).getTag() != TypeTags.ARRAY_TAG || ((ArrayValue) param).size() < 1) {
-            return "";
+            return StringUtils.fromString("");
         }
-        return ((ArrayValue) param).get(0).toString();
+        return StringUtils.fromString(((ArrayValue) param).get(0).toString());
     }
 }

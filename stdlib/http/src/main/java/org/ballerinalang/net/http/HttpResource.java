@@ -242,8 +242,8 @@ public class HttpResource {
 
     protected static MapValue getPathParamOrderMap(AttachedFunction resource) {
         Object annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_PARAM_ORDER_CONFIG);
-        return annotation == null ? new MapValueImpl() :
-                (MapValue) ((MapValue) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
+        return annotation == null ? new MapValueImpl<BString, Object>() :
+                (MapValue<BString, Object>) ((MapValue<BString, Object>) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {

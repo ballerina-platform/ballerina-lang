@@ -682,7 +682,8 @@ public class HttpUtil {
     private static void enrichWithInboundRequestHeaders(ObjectValue inboundRequestObj,
                                                         HttpCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
-            String agent = inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString());
+            BString agent = org.ballerinalang.jvm.StringUtils.fromString(
+                    inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
             inboundRequestObj.set(HttpConstants.REQUEST_USER_AGENT_FIELD, agent);
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
@@ -732,7 +733,7 @@ public class HttpUtil {
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            String remoteHost = inetSocketAddress.getHostString();
+            BString remoteHost = org.ballerinalang.jvm.StringUtils.fromString(inetSocketAddress.getHostString());
             long remotePort = inetSocketAddress.getPort();
             remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);

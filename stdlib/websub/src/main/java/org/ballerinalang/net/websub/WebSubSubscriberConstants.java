@@ -18,7 +18,9 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -64,13 +66,13 @@ public class WebSubSubscriberConstants {
     public static final String STRUCT_WEBSUB_BALLERINA_HUB = "Hub";
     public static final String STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR = "HubStartedUpError";
 
-    static final String PARAM_HUB_MODE = "hub.mode";
-    static final String PARAM_HUB_TOPIC = "hub.topic";
-    static final String PARAM_HUB_CHALLENGE = "hub.challenge";
-    static final String PARAM_HUB_LEASE_SECONDS = "hub.lease_seconds";
+    static final BString PARAM_HUB_MODE = StringUtils.fromString("hub.mode");
+    static final BString PARAM_HUB_TOPIC = StringUtils.fromString("hub.topic");
+    static final BString PARAM_HUB_CHALLENGE = StringUtils.fromString("hub.challenge");
+    static final BString PARAM_HUB_LEASE_SECONDS = StringUtils.fromString("hub.lease_seconds");
 
-    static final String SUBSCRIBE = "subscribe";
-    static final String UNSUBSCRIBE = "unsubscribe";
+    static final BString SUBSCRIBE = StringUtils.fromString("subscribe");
+    static final BString UNSUBSCRIBE = StringUtils.fromString("unsubscribe");
 
     static final String ANNOTATED_TOPIC = "annotatedTopic";
     static final String DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING = "deferredForPayloadBasedDispatching";
