@@ -34,6 +34,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "createDoFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createDoFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getStreamFromPipeline()(stream<(any|error),error?><(any|error)>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "getStreamFromPipeline()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "remove(string k)((any|error))",
       "kind": "Function",
       "detail": "Function",
@@ -50,6 +78,20 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "createFilterFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createFilterFunction()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "removeAll()",
@@ -131,6 +173,20 @@
       "detail": "Person",
       "sortText": "130",
       "insertText": "employer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createJoinFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createJoinFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -248,6 +304,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "createInputFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createInputFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "removeIfHasKey(string k)(((any|error)|()))",
       "kind": "Function",
       "detail": "Function",
@@ -284,6 +354,38 @@
       }
     },
     {
+      "label": "createPipeline(typedesc<(any|error)> resType)(_StreamPipeline)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `typedesc<(any|error)>` resType  \n  \n**Returns** `_StreamPipeline`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createPipeline(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "print()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "print();",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "entries()(map<[string,(any|error)]>)",
       "kind": "Function",
       "detail": "Function",
@@ -295,6 +397,38 @@
       },
       "sortText": "120",
       "insertText": "entries()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "addStreamFunction(_StreamFunction streamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `_StreamFunction` streamFunction"
+        }
+      },
+      "sortText": "120",
+      "insertText": "addStreamFunction(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "createSelectFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createSelectFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -316,11 +450,31 @@
       }
     },
     {
-      "label": "name",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "130",
-      "insertText": "name",
+      "label": "consumeStream()((()|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `(()|error)`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "consumeStream()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createLetFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createLetFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -335,6 +489,14 @@
       },
       "sortText": "120",
       "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "130",
+      "insertText": "name",
       "insertTextFormat": "Snippet"
     },
     {
