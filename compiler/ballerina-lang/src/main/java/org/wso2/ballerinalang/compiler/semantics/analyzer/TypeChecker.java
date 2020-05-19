@@ -740,7 +740,6 @@ public class TypeChecker extends BLangNodeVisitor {
             if (checkKeySpecifier(tableConstructorExpr, tableType)) {
                 return;
             }
-
             resultType = tableType;
         } else if (expType.tag == TypeTags.TABLE) {
             List<BType> memTypes = new ArrayList<>();
@@ -880,9 +879,44 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BType memberType = memTypes.get(0);
-        ((BRecordType) memberType).fields = allFieldSet.stream().collect(getFieldCollector());
-        return memberType;
+        return createTableConstraintRecordType(allFieldSet, tableConstructorExpr.pos);
+    }
+
+    private BRecordType createTableConstraintRecordType(Set<BField> allFieldSet, DiagnosticPos pos) {
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        BRecordTypeSymbol recordSymbol =
+                Symbols.createRecordSymbol(0, names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
+                        pkgID, null, env.scope.owner);
+        BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
+                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false);
+        initFuncSymbol.retType = symTable.nilType;
+        recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
+                bInvokableType);
+
+        recordSymbol.scope = new Scope(recordSymbol);
+        recordSymbol.scope.define(
+                names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
+                recordSymbol.initializerFunc.symbol);
+
+        for (BField field : allFieldSet) {
+            recordSymbol.scope.define(field.name, field.symbol);
+        }
+
+        BRecordType recordType = new BRecordType(recordSymbol);
+        recordType.fields = allFieldSet.stream().collect(getFieldCollector());
+
+        recordSymbol.type = recordType;
+        recordType.tsymbol = recordSymbol;
+
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType, pkgID, symTable,
+                pos);
+        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names,
+                symTable);
+        TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
+        recordType.sealed = true;
+        recordType.restFieldType = symTable.noType;
+        return recordType;
     }
 
     private Collector<BField, ?, LinkedHashMap<String, BField>> getFieldCollector() {
