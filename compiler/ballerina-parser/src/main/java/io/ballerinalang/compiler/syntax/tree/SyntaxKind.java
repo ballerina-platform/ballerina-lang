@@ -318,6 +318,7 @@ public enum SyntaxKind {
     LET_CLAUSE(3046),
     QUERY_PIPELINE(3047),
     SELECT_CLAUSE(3048),
+    FUNCTION_DECLARATION(3049),
 
     // XML
     XML_ELEMENT(4000),

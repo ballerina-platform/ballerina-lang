@@ -1864,13 +1864,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ExpressionFunctionBodyNode createExpressionFunctionBodyNode(
             Token rightDoubleArrow,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            Token semicolon) {
         Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stExpressionFunctionBodyNode = STNodeFactory.createExpressionFunctionBodyNode(
                 rightDoubleArrow.internalNode(),
-                expression.internalNode());
+                expression.internalNode(),
+                getOptionalSTNode(semicolon));
         return stExpressionFunctionBodyNode.createUnlinkedFacade();
     }
 
@@ -2111,6 +2113,29 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 flushKeyword.internalNode(),
                 peerWorker.internalNode());
         return stFlushActionNode.createUnlinkedFacade();
+    }
+
+    public static FunctionDeclarationNode createFunctionDeclarationNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            Token functionKeyword,
+            IdentifierToken functionName,
+            FunctionSignatureNode functionSignature,
+            Token semicolon) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+        Objects.requireNonNull(functionName, "functionName must not be null");
+        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+        Objects.requireNonNull(semicolon, "semicolon must not be null");
+
+        STNode stFunctionDeclarationNode = STNodeFactory.createFunctionDeclarationNode(
+                metadata.internalNode(),
+                getOptionalSTNode(visibilityQualifier),
+                functionKeyword.internalNode(),
+                functionName.internalNode(),
+                functionSignature.internalNode(),
+                semicolon.internalNode());
+        return stFunctionDeclarationNode.createUnlinkedFacade();
     }
 }
 

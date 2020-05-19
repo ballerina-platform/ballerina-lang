@@ -1385,11 +1385,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
-            STNode expression) {
+            STNode expression,
+            STNode semicolon) {
 
         return new STExpressionFunctionBodyNode(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semicolon);
     }
 
     public static STNode createTupleTypeDescriptorNode(
@@ -1567,6 +1569,23 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STFlushActionNode(
                 flushKeyword,
                 peerWorker);
+    }
+
+    public static STNode createFunctionDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode semicolon) {
+
+        return new STFunctionDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                semicolon);
     }
 }
 

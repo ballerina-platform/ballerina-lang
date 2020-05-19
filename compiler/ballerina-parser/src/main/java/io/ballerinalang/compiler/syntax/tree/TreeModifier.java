@@ -1374,9 +1374,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ExpressionFunctionBodyNode transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
         Token rightDoubleArrow = modifyToken(expressionFunctionBodyNode.rightDoubleArrow());
         ExpressionNode expression = modifyNode(expressionFunctionBodyNode.expression());
+        Token semicolon = modifyToken(expressionFunctionBodyNode.semicolon().orElse(null));
         return expressionFunctionBodyNode.modify(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semicolon);
     }
 
     @Override
@@ -1554,6 +1556,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return flushActionNode.modify(
                 flushKeyword,
                 peerWorker);
+    }
+
+    @Override
+    public FunctionDeclarationNode transform(FunctionDeclarationNode functionDeclarationNode) {
+        MetadataNode metadata = modifyNode(functionDeclarationNode.metadata());
+        Token visibilityQualifier = modifyToken(functionDeclarationNode.visibilityQualifier().orElse(null));
+        Token functionKeyword = modifyToken(functionDeclarationNode.functionKeyword());
+        IdentifierToken functionName = modifyNode(functionDeclarationNode.functionName());
+        FunctionSignatureNode functionSignature = modifyNode(functionDeclarationNode.functionSignature());
+        Token semicolon = modifyToken(functionDeclarationNode.semicolon());
+        return functionDeclarationNode.modify(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                semicolon);
     }
 
     // Tokens

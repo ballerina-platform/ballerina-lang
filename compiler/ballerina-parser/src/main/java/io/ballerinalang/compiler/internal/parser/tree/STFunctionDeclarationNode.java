@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,27 +27,39 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
-    public final STNode rightDoubleArrow;
-    public final STNode expression;
+public class STFunctionDeclarationNode extends STNode {
+    public final STNode metadata;
+    public final STNode visibilityQualifier;
+    public final STNode functionKeyword;
+    public final STNode functionName;
+    public final STNode functionSignature;
     public final STNode semicolon;
 
-    STExpressionFunctionBodyNode(
-            STNode rightDoubleArrow,
-            STNode expression,
+    STFunctionDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
             STNode semicolon) {
-        super(SyntaxKind.EXPRESSION_FUNCTION_BODY);
-        this.rightDoubleArrow = rightDoubleArrow;
-        this.expression = expression;
+        super(SyntaxKind.FUNCTION_DECLARATION);
+        this.metadata = metadata;
+        this.visibilityQualifier = visibilityQualifier;
+        this.functionKeyword = functionKeyword;
+        this.functionName = functionName;
+        this.functionSignature = functionSignature;
         this.semicolon = semicolon;
 
         addChildren(
-                rightDoubleArrow,
-                expression,
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                functionSignature,
                 semicolon);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ExpressionFunctionBodyNode(this, position, parent);
+        return new FunctionDeclarationNode(this, position, parent);
     }
 }
