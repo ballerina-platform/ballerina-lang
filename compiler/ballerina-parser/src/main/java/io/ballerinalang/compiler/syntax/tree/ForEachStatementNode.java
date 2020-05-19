@@ -36,24 +36,20 @@ public class ForEachStatementNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public Node typeDescriptor() {
+    public TypedBindingPatternNode typedBindingPattern() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Token inKeyword() {
         return childInBucket(2);
     }
 
-    public Token inKeyword() {
+    public Node actionOrExpressionNode() {
         return childInBucket(3);
     }
 
-    public Node actionOrExpressionNode() {
-        return childInBucket(4);
-    }
-
     public StatementNode blockStatement() {
-        return childInBucket(5);
+        return childInBucket(4);
     }
 
     @Override
@@ -70,8 +66,7 @@ public class ForEachStatementNode extends StatementNode {
     protected String[] childNames() {
         return new String[]{
                 "forEachKeyword",
-                "typeDescriptor",
-                "variableName",
+                "typedBindingPattern",
                 "inKeyword",
                 "actionOrExpressionNode",
                 "blockStatement"};
@@ -79,15 +74,13 @@ public class ForEachStatementNode extends StatementNode {
 
     public ForEachStatementNode modify(
             Token forEachKeyword,
-            Node typeDescriptor,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
             StatementNode blockStatement) {
         if (checkForReferenceEquality(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement)) {
@@ -96,8 +89,7 @@ public class ForEachStatementNode extends StatementNode {
 
         return NodeFactory.createForEachStatementNode(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement);
@@ -115,8 +107,7 @@ public class ForEachStatementNode extends StatementNode {
     public static class ForEachStatementNodeModifier {
         private final ForEachStatementNode oldNode;
         private Token forEachKeyword;
-        private Node typeDescriptor;
-        private Token variableName;
+        private TypedBindingPatternNode typedBindingPattern;
         private Token inKeyword;
         private Node actionOrExpressionNode;
         private StatementNode blockStatement;
@@ -124,8 +115,7 @@ public class ForEachStatementNode extends StatementNode {
         public ForEachStatementNodeModifier(ForEachStatementNode oldNode) {
             this.oldNode = oldNode;
             this.forEachKeyword = oldNode.forEachKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor();
-            this.variableName = oldNode.variableName();
+            this.typedBindingPattern = oldNode.typedBindingPattern();
             this.inKeyword = oldNode.inKeyword();
             this.actionOrExpressionNode = oldNode.actionOrExpressionNode();
             this.blockStatement = oldNode.blockStatement();
@@ -138,17 +128,10 @@ public class ForEachStatementNode extends StatementNode {
             return this;
         }
 
-        public ForEachStatementNodeModifier withTypeDescriptor(
-                Node typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-            this.typeDescriptor = typeDescriptor;
-            return this;
-        }
-
-        public ForEachStatementNodeModifier withVariableName(
-                Token variableName) {
-            Objects.requireNonNull(variableName, "variableName must not be null");
-            this.variableName = variableName;
+        public ForEachStatementNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -176,8 +159,7 @@ public class ForEachStatementNode extends StatementNode {
         public ForEachStatementNode apply() {
             return oldNode.modify(
                     forEachKeyword,
-                    typeDescriptor,
-                    variableName,
+                    typedBindingPattern,
                     inKeyword,
                     actionOrExpressionNode,
                     blockStatement);

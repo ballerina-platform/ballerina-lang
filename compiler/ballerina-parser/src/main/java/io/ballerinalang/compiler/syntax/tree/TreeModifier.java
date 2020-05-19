@@ -439,10 +439,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ForEachStatementNode forEachStatementNode) {
         Token forEachKeyword =
                 modifyToken(forEachStatementNode.forEachKeyword());
-        Node typeDescriptor =
-                modifyNode(forEachStatementNode.typeDescriptor());
-        Token variableName =
-                modifyToken(forEachStatementNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(forEachStatementNode.typedBindingPattern());
         Token inKeyword =
                 modifyToken(forEachStatementNode.inKeyword());
         Node actionOrExpressionNode =
@@ -451,8 +449,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(forEachStatementNode.blockStatement());
         return forEachStatementNode.modify(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement);
@@ -1653,8 +1650,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public XMLSimpleNameNode transform(
             XMLSimpleNameNode xMLSimpleNameNode) {
-        XMLSimpleNameNode name =
-                modifyNode(xMLSimpleNameNode.name());
+        Token name =
+                modifyToken(xMLSimpleNameNode.name());
         return xMLSimpleNameNode.modify(
                 name);
     }
@@ -2149,6 +2146,57 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 functionName,
                 functionSignature,
                 semicolon);
+    }
+
+    @Override
+    public TypedBindingPatternNode transform(
+            TypedBindingPatternNode typedBindingPatternNode) {
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(typedBindingPatternNode.typeDescriptor());
+        BindingPatternNode bindingPattern =
+                modifyNode(typedBindingPatternNode.bindingPattern());
+        return typedBindingPatternNode.modify(
+                typeDescriptor,
+                bindingPattern);
+    }
+
+    @Override
+    public CaptureBindingPatternNode transform(
+            CaptureBindingPatternNode captureBindingPatternNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(captureBindingPatternNode.variableName().orElse(null));
+        return captureBindingPatternNode.modify(
+                variableName);
+    }
+
+    @Override
+    public ListBindingPatternNode transform(
+            ListBindingPatternNode listBindingPatternNode) {
+        Token openBracket =
+                modifyToken(listBindingPatternNode.openBracket());
+        SeparatedNodeList<BindingPatternNode> bindingPatterns =
+                modifySeparatedNodeList(listBindingPatternNode.bindingPatterns());
+        RestBindingPatternNode restBindingPattern =
+                modifyNode(listBindingPatternNode.restBindingPattern().orElse(null));
+        Token closeBracket =
+                modifyToken(listBindingPatternNode.closeBracket());
+        return listBindingPatternNode.modify(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket);
+    }
+
+    @Override
+    public RestBindingPatternNode transform(
+            RestBindingPatternNode restBindingPatternNode) {
+        Token ellipsisToken =
+                modifyToken(restBindingPatternNode.ellipsisToken());
+        SimpleNameReferenceNode variableName =
+                modifyNode(restBindingPatternNode.variableName());
+        return restBindingPatternNode.modify(
+                ellipsisToken,
+                variableName);
     }
 
     // Tokens
