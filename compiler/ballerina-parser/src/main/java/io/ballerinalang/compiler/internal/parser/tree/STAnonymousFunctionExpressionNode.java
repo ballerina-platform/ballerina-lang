@@ -17,9 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.AnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,31 +24,9 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STAnonymousFunctionExpressionNode extends STExpressionNode {
-    public final STNode annotations;
-    public final STNode functionKeyword;
-    public final STNode functionSignature;
-    public final STNode functionBody;
+public abstract class STAnonymousFunctionExpressionNode extends STNode {
 
-    STAnonymousFunctionExpressionNode(
-            STNode annotations,
-            STNode functionKeyword,
-            STNode functionSignature,
-            STNode functionBody) {
-        super(SyntaxKind.ANONYMOUS_FUNCTION_EXPRESSION);
-        this.annotations = annotations;
-        this.functionKeyword = functionKeyword;
-        this.functionSignature = functionSignature;
-        this.functionBody = functionBody;
-
-        addChildren(
-                annotations,
-                functionKeyword,
-                functionSignature,
-                functionBody);
-    }
-
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new AnonymousFunctionExpressionNode(this, position, parent);
+    STAnonymousFunctionExpressionNode(SyntaxKind kind) {
+        super(kind);
     }
 }

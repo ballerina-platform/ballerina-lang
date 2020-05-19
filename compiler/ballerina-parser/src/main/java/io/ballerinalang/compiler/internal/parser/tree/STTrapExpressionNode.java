@@ -32,9 +32,10 @@ public class STTrapExpressionNode extends STExpressionNode {
     public final STNode expression;
 
     STTrapExpressionNode(
+            SyntaxKind kind,
             STNode trapKeyword,
             STNode expression) {
-        super(SyntaxKind.TRAP_EXPRESSION);
+        super(kind);
         this.trapKeyword = trapKeyword;
         this.expression = expression;
 

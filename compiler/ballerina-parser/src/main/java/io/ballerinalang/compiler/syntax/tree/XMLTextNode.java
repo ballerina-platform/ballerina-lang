@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLTextNode extends XMLItemNode {
 
@@ -59,5 +61,35 @@ public class XMLTextNode extends XMLItemNode {
 
         return NodeFactory.createXMLTextNode(
                 content);
+    }
+
+    public XMLTextNodeModifier modify() {
+        return new XMLTextNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLTextNodeModifier {
+        private final XMLTextNode oldNode;
+        private Token content;
+
+        public XMLTextNodeModifier(XMLTextNode oldNode) {
+            this.oldNode = oldNode;
+            this.content = oldNode.content();
+        }
+
+        public XMLTextNodeModifier withContent(Token content) {
+            Objects.requireNonNull(content, "content must not be null");
+            this.content = content;
+            return this;
+        }
+
+        public XMLTextNode apply() {
+            return oldNode.modify(
+                    content);
+        }
     }
 }

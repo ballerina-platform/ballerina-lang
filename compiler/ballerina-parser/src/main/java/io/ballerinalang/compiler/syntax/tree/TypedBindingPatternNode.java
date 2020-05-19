@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypedBindingPatternNode extends NonTerminalNode {
 
@@ -67,5 +69,44 @@ public class TypedBindingPatternNode extends NonTerminalNode {
         return NodeFactory.createTypedBindingPatternNode(
                 typeDescriptor,
                 bindingPattern);
+    }
+
+    public TypedBindingPatternNodeModifier modify() {
+        return new TypedBindingPatternNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypedBindingPatternNodeModifier {
+        private final TypedBindingPatternNode oldNode;
+        private Node typeDescriptor;
+        private BindingPatternNode bindingPattern;
+
+        public TypedBindingPatternNodeModifier(TypedBindingPatternNode oldNode) {
+            this.oldNode = oldNode;
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.bindingPattern = oldNode.bindingPattern();
+        }
+
+        public TypedBindingPatternNodeModifier withTypeDescriptor(Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public TypedBindingPatternNodeModifier withBindingPattern(BindingPatternNode bindingPattern) {
+            Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+            this.bindingPattern = bindingPattern;
+            return this;
+        }
+
+        public TypedBindingPatternNode apply() {
+            return oldNode.modify(
+                    typeDescriptor,
+                    bindingPattern);
+        }
     }
 }

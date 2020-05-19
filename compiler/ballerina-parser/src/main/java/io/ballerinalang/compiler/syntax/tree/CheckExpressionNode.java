@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class CheckExpressionNode extends ExpressionNode {
 
@@ -69,5 +71,45 @@ public class CheckExpressionNode extends ExpressionNode {
                 kind,
                 checkKeyword,
                 expression);
+    }
+
+    public CheckExpressionNodeModifier modify() {
+        return new CheckExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class CheckExpressionNodeModifier {
+        private final CheckExpressionNode oldNode;
+        private Token checkKeyword;
+        private ExpressionNode expression;
+
+        public CheckExpressionNodeModifier(CheckExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.checkKeyword = oldNode.checkKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public CheckExpressionNodeModifier withCheckKeyword(Token checkKeyword) {
+            Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
+            this.checkKeyword = checkKeyword;
+            return this;
+        }
+
+        public CheckExpressionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public CheckExpressionNode apply() {
+            return oldNode.modify(
+                    oldNode.kind(),
+                    checkKeyword,
+                    expression);
+        }
     }
 }

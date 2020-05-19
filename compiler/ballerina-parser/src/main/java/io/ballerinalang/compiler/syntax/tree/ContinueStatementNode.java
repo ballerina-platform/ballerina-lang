@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ContinueStatementNode extends StatementNode {
 
@@ -67,5 +69,44 @@ public class ContinueStatementNode extends StatementNode {
         return NodeFactory.createContinueStatementNode(
                 continueToken,
                 semicolonToken);
+    }
+
+    public ContinueStatementNodeModifier modify() {
+        return new ContinueStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ContinueStatementNodeModifier {
+        private final ContinueStatementNode oldNode;
+        private Token continueToken;
+        private Token semicolonToken;
+
+        public ContinueStatementNodeModifier(ContinueStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.continueToken = oldNode.continueToken();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ContinueStatementNodeModifier withContinueToken(Token continueToken) {
+            Objects.requireNonNull(continueToken, "continueToken must not be null");
+            this.continueToken = continueToken;
+            return this;
+        }
+
+        public ContinueStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public ContinueStatementNode apply() {
+            return oldNode.modify(
+                    continueToken,
+                    semicolonToken);
+        }
     }
 }

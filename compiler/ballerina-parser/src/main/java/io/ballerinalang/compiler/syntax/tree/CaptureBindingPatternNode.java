@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class CaptureBindingPatternNode extends BindingPatternNode {
 
@@ -61,5 +62,35 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
 
         return NodeFactory.createCaptureBindingPatternNode(
                 variableName);
+    }
+
+    public CaptureBindingPatternNodeModifier modify() {
+        return new CaptureBindingPatternNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class CaptureBindingPatternNodeModifier {
+        private final CaptureBindingPatternNode oldNode;
+        private Token variableName;
+
+        public CaptureBindingPatternNodeModifier(CaptureBindingPatternNode oldNode) {
+            this.oldNode = oldNode;
+            this.variableName = oldNode.variableName().orElse(null);
+        }
+
+        public CaptureBindingPatternNodeModifier withVariableName(Token variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
+            return this;
+        }
+
+        public CaptureBindingPatternNode apply() {
+            return oldNode.modify(
+                    variableName);
+        }
     }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLElementNode extends XMLItemNode {
 
@@ -75,5 +77,53 @@ public class XMLElementNode extends XMLItemNode {
                 startTag,
                 content,
                 endTag);
+    }
+
+    public XMLElementNodeModifier modify() {
+        return new XMLElementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLElementNodeModifier {
+        private final XMLElementNode oldNode;
+        private XMLStartTagNode startTag;
+        private NodeList<XMLItemNode> content;
+        private XMLEndTagNode endTag;
+
+        public XMLElementNodeModifier(XMLElementNode oldNode) {
+            this.oldNode = oldNode;
+            this.startTag = oldNode.startTag();
+            this.content = oldNode.content();
+            this.endTag = oldNode.endTag();
+        }
+
+        public XMLElementNodeModifier withStartTag(XMLStartTagNode startTag) {
+            Objects.requireNonNull(startTag, "startTag must not be null");
+            this.startTag = startTag;
+            return this;
+        }
+
+        public XMLElementNodeModifier withContent(NodeList<XMLItemNode> content) {
+            Objects.requireNonNull(content, "content must not be null");
+            this.content = content;
+            return this;
+        }
+
+        public XMLElementNodeModifier withEndTag(XMLEndTagNode endTag) {
+            Objects.requireNonNull(endTag, "endTag must not be null");
+            this.endTag = endTag;
+            return this;
+        }
+
+        public XMLElementNode apply() {
+            return oldNode.modify(
+                    startTag,
+                    content,
+                    endTag);
+        }
     }
 }

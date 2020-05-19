@@ -31,27 +31,27 @@ public class STForEachStatementNode extends STStatementNode {
     public final STNode forEachKeyword;
     public final STNode typedBindingPattern;
     public final STNode inKeyword;
-    public final STNode ActionOrExpressionNode;
+    public final STNode actionOrExpressionNode;
     public final STNode blockStatement;
 
     STForEachStatementNode(
             STNode forEachKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode ActionOrExpressionNode,
+            STNode actionOrExpressionNode,
             STNode blockStatement) {
         super(SyntaxKind.FOREACH_STATEMENT);
         this.forEachKeyword = forEachKeyword;
         this.typedBindingPattern = typedBindingPattern;
         this.inKeyword = inKeyword;
-        this.ActionOrExpressionNode = ActionOrExpressionNode;
+        this.actionOrExpressionNode = actionOrExpressionNode;
         this.blockStatement = blockStatement;
 
         addChildren(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
-                ActionOrExpressionNode,
+                actionOrExpressionNode,
                 blockStatement);
     }
 

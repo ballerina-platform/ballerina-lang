@@ -20,32 +20,30 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 
-// TODO find a better replacement for trivia. So C# like... ;-)
-public class SyntaxTrivia extends STNode {
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STWhereClauseNode extends STClauseNode {
+    public final STNode whereKeyword;
+    public final STNode expression;
 
-    public final String text;
+    STWhereClauseNode(
+            STNode whereKeyword,
+            STNode expression) {
+        super(SyntaxKind.WHERE_CLAUSE);
+        this.whereKeyword = whereKeyword;
+        this.expression = expression;
 
-    public SyntaxTrivia(SyntaxKind kind, String text) {
-        this(kind, text, text.length());
+        addChildren(
+                whereKeyword,
+                expression);
     }
 
-    public SyntaxTrivia(SyntaxKind kind, String text, int width) {
-        super(kind);
-        this.text = text;
-        this.width = width;
-        this.widthWithLeadingMinutiae = width;
-        this.widthWithTrailingMinutiae = width;
-        this.widthWithMinutiae = width;
-    }
-
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String toString() {
-        return text;
+        return new WhereClauseNode(this, position, parent);
     }
 }

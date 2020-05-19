@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLEndTagNode extends XMLElementTagNode {
 
@@ -83,5 +85,62 @@ public class XMLEndTagNode extends XMLElementTagNode {
                 slashToken,
                 name,
                 getToken);
+    }
+
+    public XMLEndTagNodeModifier modify() {
+        return new XMLEndTagNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLEndTagNodeModifier {
+        private final XMLEndTagNode oldNode;
+        private Token ltToken;
+        private Token slashToken;
+        private XMLNameNode name;
+        private Token getToken;
+
+        public XMLEndTagNodeModifier(XMLEndTagNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.slashToken = oldNode.slashToken();
+            this.name = oldNode.name();
+            this.getToken = oldNode.getToken();
+        }
+
+        public XMLEndTagNodeModifier withLtToken(Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public XMLEndTagNodeModifier withSlashToken(Token slashToken) {
+            Objects.requireNonNull(slashToken, "slashToken must not be null");
+            this.slashToken = slashToken;
+            return this;
+        }
+
+        public XMLEndTagNodeModifier withName(XMLNameNode name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
+            return this;
+        }
+
+        public XMLEndTagNodeModifier withGetToken(Token getToken) {
+            Objects.requireNonNull(getToken, "getToken must not be null");
+            this.getToken = getToken;
+            return this;
+        }
+
+        public XMLEndTagNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    slashToken,
+                    name,
+                    getToken);
+        }
     }
 }

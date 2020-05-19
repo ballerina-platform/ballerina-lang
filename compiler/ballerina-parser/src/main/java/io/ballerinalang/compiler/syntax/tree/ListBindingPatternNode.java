@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ListBindingPatternNode extends BindingPatternNode {
 
@@ -85,5 +86,62 @@ public class ListBindingPatternNode extends BindingPatternNode {
                 bindingPatterns,
                 restBindingPattern,
                 closeBracket);
+    }
+
+    public ListBindingPatternNodeModifier modify() {
+        return new ListBindingPatternNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ListBindingPatternNodeModifier {
+        private final ListBindingPatternNode oldNode;
+        private Token openBracket;
+        private SeparatedNodeList<BindingPatternNode> bindingPatterns;
+        private RestBindingPatternNode restBindingPattern;
+        private Token closeBracket;
+
+        public ListBindingPatternNodeModifier(ListBindingPatternNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBracket = oldNode.openBracket();
+            this.bindingPatterns = oldNode.bindingPatterns();
+            this.restBindingPattern = oldNode.restBindingPattern().orElse(null);
+            this.closeBracket = oldNode.closeBracket();
+        }
+
+        public ListBindingPatternNodeModifier withOpenBracket(Token openBracket) {
+            Objects.requireNonNull(openBracket, "openBracket must not be null");
+            this.openBracket = openBracket;
+            return this;
+        }
+
+        public ListBindingPatternNodeModifier withBindingPatterns(SeparatedNodeList<BindingPatternNode> bindingPatterns) {
+            Objects.requireNonNull(bindingPatterns, "bindingPatterns must not be null");
+            this.bindingPatterns = bindingPatterns;
+            return this;
+        }
+
+        public ListBindingPatternNodeModifier withRestBindingPattern(RestBindingPatternNode restBindingPattern) {
+            Objects.requireNonNull(restBindingPattern, "restBindingPattern must not be null");
+            this.restBindingPattern = restBindingPattern;
+            return this;
+        }
+
+        public ListBindingPatternNodeModifier withCloseBracket(Token closeBracket) {
+            Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+            this.closeBracket = closeBracket;
+            return this;
+        }
+
+        public ListBindingPatternNode apply() {
+            return oldNode.modify(
+                    openBracket,
+                    bindingPatterns,
+                    restBindingPattern,
+                    closeBracket);
+        }
     }
 }

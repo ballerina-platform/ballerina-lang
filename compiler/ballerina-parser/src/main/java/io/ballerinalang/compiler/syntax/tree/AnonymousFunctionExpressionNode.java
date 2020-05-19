@@ -19,69 +19,16 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class AnonymousFunctionExpressionNode extends ExpressionNode {
+public abstract class AnonymousFunctionExpressionNode extends NonTerminalNode {
 
     public AnonymousFunctionExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
-    }
-
-    public NodeList<AnnotationNode> annotations() {
-        return new NodeList<>(childInBucket(0));
-    }
-
-    public Token functionKeyword() {
-        return childInBucket(1);
-    }
-
-    public FunctionSignatureNode functionSignature() {
-        return childInBucket(2);
-    }
-
-    public Node functionBody() {
-        return childInBucket(3);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
-
-    @Override
-    protected String[] childNames() {
-        return new String[]{
-                "annotations",
-                "functionKeyword",
-                "functionSignature",
-                "functionBody"};
-    }
-
-    public AnonymousFunctionExpressionNode modify(
-            NodeList<AnnotationNode> annotations,
-            Token functionKeyword,
-            FunctionSignatureNode functionSignature,
-            Node functionBody) {
-        if (checkForReferenceEquality(
-                annotations.underlyingListNode(),
-                functionKeyword,
-                functionSignature,
-                functionBody)) {
-            return this;
-        }
-
-        return NodeFactory.createAnonymousFunctionExpressionNode(
-                annotations,
-                functionKeyword,
-                functionSignature,
-                functionBody);
     }
 }

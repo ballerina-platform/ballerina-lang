@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SimpleNameReferenceNode extends NameReferenceNode {
 
@@ -59,5 +61,35 @@ public class SimpleNameReferenceNode extends NameReferenceNode {
 
         return NodeFactory.createSimpleNameReferenceNode(
                 name);
+    }
+
+    public SimpleNameReferenceNodeModifier modify() {
+        return new SimpleNameReferenceNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class SimpleNameReferenceNodeModifier {
+        private final SimpleNameReferenceNode oldNode;
+        private Token name;
+
+        public SimpleNameReferenceNodeModifier(SimpleNameReferenceNode oldNode) {
+            this.oldNode = oldNode;
+            this.name = oldNode.name();
+        }
+
+        public SimpleNameReferenceNodeModifier withName(Token name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
+            return this;
+        }
+
+        public SimpleNameReferenceNode apply() {
+            return oldNode.modify(
+                    name);
+        }
     }
 }

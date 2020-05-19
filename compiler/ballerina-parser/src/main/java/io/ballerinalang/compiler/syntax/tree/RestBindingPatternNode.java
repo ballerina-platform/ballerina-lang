@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RestBindingPatternNode extends NonTerminalNode {
 
@@ -67,5 +69,44 @@ public class RestBindingPatternNode extends NonTerminalNode {
         return NodeFactory.createRestBindingPatternNode(
                 ellipsisToken,
                 variableName);
+    }
+
+    public RestBindingPatternNodeModifier modify() {
+        return new RestBindingPatternNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RestBindingPatternNodeModifier {
+        private final RestBindingPatternNode oldNode;
+        private Token ellipsisToken;
+        private Token variableName;
+
+        public RestBindingPatternNodeModifier(RestBindingPatternNode oldNode) {
+            this.oldNode = oldNode;
+            this.ellipsisToken = oldNode.ellipsisToken();
+            this.variableName = oldNode.variableName();
+        }
+
+        public RestBindingPatternNodeModifier withEllipsisToken(Token ellipsisToken) {
+            Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+            this.ellipsisToken = ellipsisToken;
+            return this;
+        }
+
+        public RestBindingPatternNodeModifier withVariableName(Token variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
+            return this;
+        }
+
+        public RestBindingPatternNode apply() {
+            return oldNode.modify(
+                    ellipsisToken,
+                    variableName);
+        }
     }
 }

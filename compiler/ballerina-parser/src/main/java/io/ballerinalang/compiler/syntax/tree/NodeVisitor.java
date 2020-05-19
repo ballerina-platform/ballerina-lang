@@ -467,12 +467,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public void visit(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        visitSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public void visit(FunctionSignatureNode functionSignatureNode) {
         visitSyntaxNode(functionSignatureNode);
+    }
+
+    public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public void visit(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        visitSyntaxNode(expressionFunctionBodyNode);
     }
 
     public void visit(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -493,6 +497,58 @@ public abstract class NodeVisitor {
 
     public void visit(ParenthesizedArgList parenthesizedArgList) {
         visitSyntaxNode(parenthesizedArgList);
+    }
+
+    public void visit(QueryConstructTypeNode queryConstructTypeNode) {
+        visitSyntaxNode(queryConstructTypeNode);
+    }
+
+    public void visit(FromClauseNode fromClauseNode) {
+        visitSyntaxNode(fromClauseNode);
+    }
+
+    public void visit(WhereClauseNode whereClauseNode) {
+        visitSyntaxNode(whereClauseNode);
+    }
+
+    public void visit(LetClauseNode letClauseNode) {
+        visitSyntaxNode(letClauseNode);
+    }
+
+    public void visit(QueryPipelineNode queryPipelineNode) {
+        visitSyntaxNode(queryPipelineNode);
+    }
+
+    public void visit(SelectClauseNode selectClauseNode) {
+        visitSyntaxNode(selectClauseNode);
+    }
+
+    public void visit(QueryExpressionNode queryExpressionNode) {
+        visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        visitSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
+    public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        visitSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public void visit(StartActionNode startActionNode) {
+        visitSyntaxNode(startActionNode);
+    }
+
+    public void visit(FlushActionNode flushActionNode) {
+        visitSyntaxNode(flushActionNode);
+    }
+
+    public void visit(FunctionDeclarationNode functionDeclarationNode) {
+        visitSyntaxNode(functionDeclarationNode);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {
@@ -517,9 +573,6 @@ public abstract class NodeVisitor {
     }
 
     // Misc
-
-    public void visit(Minutiae minutiae) {
-    }
 
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token

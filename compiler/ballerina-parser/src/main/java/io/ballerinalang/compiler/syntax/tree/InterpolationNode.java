@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class InterpolationNode extends XMLItemNode {
 
@@ -75,5 +77,53 @@ public class InterpolationNode extends XMLItemNode {
                 interpolationStartToken,
                 expression,
                 interpolationEndToken);
+    }
+
+    public InterpolationNodeModifier modify() {
+        return new InterpolationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class InterpolationNodeModifier {
+        private final InterpolationNode oldNode;
+        private Token interpolationStartToken;
+        private ExpressionNode expression;
+        private Token interpolationEndToken;
+
+        public InterpolationNodeModifier(InterpolationNode oldNode) {
+            this.oldNode = oldNode;
+            this.interpolationStartToken = oldNode.interpolationStartToken();
+            this.expression = oldNode.expression();
+            this.interpolationEndToken = oldNode.interpolationEndToken();
+        }
+
+        public InterpolationNodeModifier withInterpolationStartToken(Token interpolationStartToken) {
+            Objects.requireNonNull(interpolationStartToken, "interpolationStartToken must not be null");
+            this.interpolationStartToken = interpolationStartToken;
+            return this;
+        }
+
+        public InterpolationNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public InterpolationNodeModifier withInterpolationEndToken(Token interpolationEndToken) {
+            Objects.requireNonNull(interpolationEndToken, "interpolationEndToken must not be null");
+            this.interpolationEndToken = interpolationEndToken;
+            return this;
+        }
+
+        public InterpolationNode apply() {
+            return oldNode.modify(
+                    interpolationStartToken,
+                    expression,
+                    interpolationEndToken);
+        }
     }
 }
