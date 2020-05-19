@@ -92,7 +92,7 @@ public function printWarn(any msg) = @java:Method {
 # + format - A format string
 # + args   - The value(s) to be logged.
 public function sprintDebug(string format, (any|error)... args) {
-    var result = sprintDebugExtern(java:fromString(format), ...args);
+    var result = sprintDebugExtern(format, ...args);
 }
 
 # Logs a formatted string using the specified format string and arguments at ERROR level.
@@ -119,7 +119,7 @@ public function sprintDebug(string format, (any|error)... args) {
 # + format - A format string
 # + args   - The value(s) to be logged.
 public function sprintError(string format, (any|error)... args) {
-    var result = sprintErrorExtern(java:fromString(format), ...args);
+    var result = sprintErrorExtern(format, ...args);
 }
 
 # Logs a formatted string using the specified format string and arguments at INFO level.
@@ -146,7 +146,7 @@ public function sprintError(string format, (any|error)... args) {
 # + format - A format string
 # + args   - The value(s) to be logged.
 public function sprintInfo(string format, (any|error)... args) {
-    var result = sprintInfoExtern(java:fromString(format), ...args);
+    var result = sprintInfoExtern(format, ...args);
 }
 
 # Logs a formatted string using the specified format string and arguments at TRACE level.
@@ -173,7 +173,7 @@ public function sprintInfo(string format, (any|error)... args) {
 # + format - A format string
 # + args   - The value(s) to be logged.
 public function sprintTrace(string format, (any|error)... args) {
-    var result = sprintTraceExtern(java:fromString(format), ...args);
+    var result = sprintTraceExtern(format, ...args);
 }
 
 # Logs a formatted string using the specified format string and arguments at WARN level.
@@ -200,30 +200,30 @@ public function sprintTrace(string format, (any|error)... args) {
 # + format - A format string
 # + args   - The value(s) to be logged.
 public function sprintWarn(string format, (any|error)... args) {
-    var result = sprintWarnExtern(java:fromString(format), ...args);
+    var result = sprintWarnExtern(format, ...args);
 }
 
-function sprintDebugExtern(handle format, (any|error)... args) = @java:Method {
+function sprintDebugExtern(string format, (any|error)... args) = @java:Method {
     name: "sprintDebug",
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
-function sprintErrorExtern(handle format, (any|error)... args) = @java:Method {
+function sprintErrorExtern(string format, (any|error)... args) = @java:Method {
     name: "sprintError",
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
-function sprintInfoExtern(handle format, (any|error)... args) = @java:Method {
+function sprintInfoExtern(string format, (any|error)... args) = @java:Method {
     name: "sprintInfo",
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
-function sprintTraceExtern(handle format, (any|error)... args) = @java:Method {
+function sprintTraceExtern(string format, (any|error)... args) = @java:Method {
     name: "sprintTrace",
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
-function sprintWarnExtern(handle format, (any|error)... args) = @java:Method {
+function sprintWarnExtern(string format, (any|error)... args) = @java:Method {
     name: "sprintWarn",
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;

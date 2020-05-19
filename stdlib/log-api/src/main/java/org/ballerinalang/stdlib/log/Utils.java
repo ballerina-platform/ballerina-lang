@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.logging.util.BLogLevel;
 
@@ -73,42 +74,42 @@ public class Utils extends AbstractLogFunction {
         });
     }
 
-    public static void sprintDebug(String format, Object... args) {
-        logMessage(Scheduler.getStrand(), createMessage(format, args), BLogLevel.DEBUG, getPackagePath(),
+    public static void sprintDebug(BString format, Object... args) {
+        logMessage(Scheduler.getStrand(), createFormattedString(format, args), BLogLevel.DEBUG, getPackagePath(),
                 (pkg, message) -> {
             getLogger(pkg).debug(message);
         });
     }
 
-    public static void sprintError(String format, Object... args) {
-        logMessage(Scheduler.getStrand(), createMessage(format, args), BLogLevel.ERROR, getPackagePath(),
+    public static void sprintError(BString format, Object... args) {
+        logMessage(Scheduler.getStrand(), createFormattedString(format, args), BLogLevel.ERROR, getPackagePath(),
                 (pkg, message) -> {
             getLogger(pkg).error(message);
         });
     }
 
-    public static void sprintInfo(String format, Object... args) {
-        logMessage(Scheduler.getStrand(), createMessage(format, args), BLogLevel.INFO, getPackagePath(),
+    public static void sprintInfo(BString format, Object... args) {
+        logMessage(Scheduler.getStrand(), createFormattedString(format, args), BLogLevel.INFO, getPackagePath(),
                 (pkg, message) -> {
             getLogger(pkg).info(message);
         });
     }
 
-    public static void sprintTrace(String format, Object... args) {
-        logMessage(Scheduler.getStrand(), createMessage(format, args), BLogLevel.TRACE, getPackagePath(),
+    public static void sprintTrace(BString format, Object... args) {
+        logMessage(Scheduler.getStrand(), createFormattedString(format, args), BLogLevel.TRACE, getPackagePath(),
                 (pkg, message) -> {
             getLogger(pkg).trace(message);
         });
     }
 
-    public static void sprintWarn(String format, Object... args) {
-        logMessage(Scheduler.getStrand(), createMessage(format, args), BLogLevel.WARN, getPackagePath(),
+    public static void sprintWarn(BString format, Object... args) {
+        logMessage(Scheduler.getStrand(), createFormattedString(format, args), BLogLevel.WARN, getPackagePath(),
                 (pkg, message) -> {
             getLogger(pkg).warn(message);
         });
     }
 
-    private static Object createMessage(String format, Object... args) {
+    private static Object createFormattedString(BString format, Object... args) {
         StringBuilder result = new StringBuilder();
 
         /* Special chars in case additional formatting is required later
@@ -130,7 +131,7 @@ public class Utils extends AbstractLogFunction {
         // j reads format specifier to apply
         // k records number of format specifiers seen so far, used to read respective array element
         for (int i = 0, j, k = 0; i < format.length(); i++) {
-            if (format.charAt(i) == '%' && ((i + 1) < format.length())) {
+            if (StringUtils.getStringValue(format).charAt(i) == '%' && ((i + 1) < format.length())) {
 
                 // skip % character
                 j = i + 1;
@@ -140,12 +141,13 @@ public class Utils extends AbstractLogFunction {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
-                while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
-                    padding.append(format.charAt(j));
+                while (Character.isDigit(StringUtils.getStringValue(format).charAt(j)) ||
+                        StringUtils.getStringValue(format).charAt(j) == '.') {
+                    padding.append(StringUtils.getStringValue(format).charAt(j));
                     j += 1;
                 }
                 try {
-                    char formatSpecifier = format.charAt(j);
+                    char formatSpecifier = StringUtils.getStringValue(format).charAt(j);
                     Object ref = args[k];
                     switch (formatSpecifier) {
                         case 'b':
@@ -154,7 +156,7 @@ public class Utils extends AbstractLogFunction {
                         case 'f':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                        StringUtils.getStringValue(format).charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref));
                             break;
@@ -162,7 +164,7 @@ public class Utils extends AbstractLogFunction {
                         case 'X':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                        StringUtils.getStringValue(format).charAt(j) + " != ()");
                             }
                             formatHexString(result, k, padding, formatSpecifier, args);
                             break;
@@ -177,13 +179,13 @@ public class Utils extends AbstractLogFunction {
                         default:
                             // format string not supported
                             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_FORMAT_SPECIFIER,
-                                    format.charAt(j));
+                                    StringUtils.getStringValue(format).charAt(j));
                     }
                 } catch (IllegalFormatConversionException e) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                            format.charAt(j) + " != " + TypeChecker.getType(args[k]));
+                            StringUtils.getStringValue(format).charAt(j) + " != " + TypeChecker.getType(args[k]));
                 }
-                if (format.charAt(j) == '%') {
+                if (StringUtils.getStringValue(format).charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
                     i++;
                 } else {
@@ -193,7 +195,7 @@ public class Utils extends AbstractLogFunction {
                 continue;
             }
             // no match, copy and continue
-            result.append(format.charAt(i));
+            result.append(StringUtils.getStringValue(format).charAt(i));
         }
         return result.toString();
     }
