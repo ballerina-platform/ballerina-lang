@@ -36,7 +36,7 @@ package io.ballerinalang.compiler.syntax.tree;
  *
  * @param <T> the type of class that is returned by visit methods
  * @see NodeVisitor
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeTransformer<T> {
 

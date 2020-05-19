@@ -35,7 +35,7 @@ package io.ballerinalang.compiler.syntax.tree;
  * This is a generated class.
  *
  * @see NodeTransformer
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeVisitor {
 

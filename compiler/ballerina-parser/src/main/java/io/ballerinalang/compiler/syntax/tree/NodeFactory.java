@@ -27,7 +27,7 @@ import java.util.Objects;
  *
  * This is a generated class.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeFactory extends AbstractNodeFactory {
 
