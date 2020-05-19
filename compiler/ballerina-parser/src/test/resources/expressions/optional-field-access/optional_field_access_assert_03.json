@@ -1,0 +1,16 @@
+{
+    "kind": "OPTIONAL_FIELD_ACCESS",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "expression"
+        },
+        {
+            "kind": "OPTIONAL_FIELD_ACCESS_TOKEN"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "isMissing": true
+        }
+    ]
+}

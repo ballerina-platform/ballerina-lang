@@ -534,6 +534,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LOGICAL_OR_TOKEN;
             case "NEGATION_TOKEN":
                 return SyntaxKind.NEGATION_TOKEN;
+            case "OPTIONAL_FIELD_ACCESS_TOKEN":
+                return SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -650,6 +652,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
             case "EXPLICIT_NEW_EXPRESSION":
                 return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
+            case "OPTIONAL_FIELD_ACCESS":
+                return SyntaxKind.OPTIONAL_FIELD_ACCESS;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
