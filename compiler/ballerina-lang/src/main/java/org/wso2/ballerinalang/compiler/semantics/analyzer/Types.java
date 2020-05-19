@@ -1176,8 +1176,10 @@ public class Types {
 
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes,
                                                                  unresolvedReadonlyTypes);
-            if (rhsFunc == null || !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)
-                    || !isSameMethodType(lhsFunc.symbol, rhsFunc.symbol)) {
+            if (rhsFunc == null || !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+                return false;
+            }
+            if (Symbols.isRemote(lhsFunc.symbol) != Symbols.isRemote(rhsFunc.symbol)) {
                 return false;
             }
         }
@@ -2199,13 +2201,6 @@ public class Types {
             return Symbols.isPublic(rhsSym);
         }
         return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
-    }
-
-    private boolean isSameMethodType(BSymbol lhsSym, BSymbol rhsSym) {
-        if (Symbols.isRemote(lhsSym)) {
-            return Symbols.isRemote(rhsSym);
-        }
-        return true;
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes,

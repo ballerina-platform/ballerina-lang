@@ -1073,7 +1073,10 @@ public class TypeChecker {
                                     .map(BPackage::getName)
                                     .orElse(""),
                             Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
-                            lhsFunc.flags, rhsFunc.flags) || !isSameMethodType(lhsFunc.flags, rhsFunc.flags)) {
+                            lhsFunc.flags, rhsFunc.flags)) {
+                return false;
+            }
+            if (Flags.isFlagOn(lhsFunc.flags, Flags.REMOTE) != Flags.isFlagOn(rhsFunc.flags, Flags.REMOTE)) {
                 return false;
             }
         }
@@ -1089,13 +1092,6 @@ public class TypeChecker {
         }
         return !Flags.isFlagOn(rhsFlags, Flags.PRIVATE) && !Flags.isFlagOn(rhsFlags, Flags.PUBLIC) &&
                 lhsTypePkg.equals(rhsTypePkg);
-    }
-
-    private static boolean isSameMethodType(int lhsFlags, int rhsFlags) {
-        if (Flags.isFlagOn(lhsFlags, Flags.REMOTE)) {
-            return Flags.isFlagOn(rhsFlags, Flags.REMOTE);
-        }
-        return true;
     }
 
     private static AttachedFunction getMatchingInvokableType(AttachedFunction[] rhsFuncs, AttachedFunction lhsFunc,
