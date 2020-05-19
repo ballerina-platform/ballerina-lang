@@ -57,11 +57,41 @@
                       "kind": "VAR_KEYWORD"
                     },
                     {
-                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "kind": "LIST_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "v"
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "fruits"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     }
@@ -72,7 +102,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "fruits"
+                  "value": "test"
                 },
                 {
                   "kind": "BLOCK_STATEMENT",
@@ -134,8 +164,7 @@
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACE_TOKEN",
-                      "isMissing": true
+                      "kind": "CLOSE_BRACE_TOKEN"
                     }
                   ]
                 }
@@ -144,8 +173,7 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true
+          "kind": "CLOSE_BRACE_TOKEN"
         }
       ]
     }

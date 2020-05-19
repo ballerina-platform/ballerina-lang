@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,35 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STForEachStatementNode extends STStatementNode {
-    public final STNode forEachKeyword;
-    public final STNode typedBindingPattern;
-    public final STNode inKeyword;
-    public final STNode actionOrExpressionNode;
-    public final STNode blockStatement;
+public class STRestBindingPatternNode extends STNode {
+    public final STNode ellipsisToken;
+    public final STNode variableName;
 
-    STForEachStatementNode(
-            STNode forEachKeyword,
-            STNode typedBindingPattern,
-            STNode inKeyword,
-            STNode actionOrExpressionNode,
-            STNode blockStatement) {
-        super(SyntaxKind.FOREACH_STATEMENT);
-        this.forEachKeyword = forEachKeyword;
-        this.typedBindingPattern = typedBindingPattern;
-        this.inKeyword = inKeyword;
-        this.actionOrExpressionNode = actionOrExpressionNode;
-        this.blockStatement = blockStatement;
+    STRestBindingPatternNode(
+            STNode ellipsisToken,
+            STNode variableName) {
+        super(SyntaxKind.REST_BINDING_PATTERN);
+        this.ellipsisToken = ellipsisToken;
+        this.variableName = variableName;
 
         addChildren(
-                forEachKeyword,
-                typedBindingPattern,
-                inKeyword,
-                actionOrExpressionNode,
-                blockStatement);
+                ellipsisToken,
+                variableName);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ForEachStatementNode(this, position, parent);
+        return new RestBindingPatternNode(this, position, parent);
     }
 }

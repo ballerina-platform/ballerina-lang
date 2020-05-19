@@ -858,6 +858,16 @@ public class ParserTestUtils {
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
                 return SyntaxKind.FUNCTION_DECLARATION;
+            case "TYPED_BINDING_PATTERN":
+                return SyntaxKind.TYPED_BINDING_PATTERN;
+            case "BINDING_PATTERN":
+                return SyntaxKind.BINDING_PATTERN;
+            case "CAPTURE_BINDING_PATTERN":
+                return SyntaxKind.CAPTURE_BINDING_PATTERN;
+            case "LIST_BINDING_PATTERN":
+                return SyntaxKind.LIST_BINDING_PATTERN;
+            case "REST_BINDING_PATTERN":
+                return SyntaxKind.REST_BINDING_PATTERN;
 
             // XML template
             case "XML_ELEMENT":

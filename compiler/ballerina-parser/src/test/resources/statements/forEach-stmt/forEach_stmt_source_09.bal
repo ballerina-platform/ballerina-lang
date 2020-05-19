@@ -1,6 +1,6 @@
 public function foo() {
 
-    foreach var [ fruits , public , public] in test {
+    foreach in fruits {
         int k = 2;
         k+=5;
     }

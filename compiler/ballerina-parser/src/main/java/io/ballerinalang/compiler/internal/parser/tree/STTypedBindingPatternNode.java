@@ -17,45 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STForEachStatementNode extends STStatementNode {
-    public final STNode forEachKeyword;
-    public final STNode typedBindingPattern;
-    public final STNode inKeyword;
-    public final STNode actionOrExpressionNode;
-    public final STNode blockStatement;
+public class STTypedBindingPatternNode extends STNode {
+    public final STNode typeDescriptor;
+    public final STNode bindingPattern;
 
-    STForEachStatementNode(
-            STNode forEachKeyword,
-            STNode typedBindingPattern,
-            STNode inKeyword,
-            STNode actionOrExpressionNode,
-            STNode blockStatement) {
-        super(SyntaxKind.FOREACH_STATEMENT);
-        this.forEachKeyword = forEachKeyword;
-        this.typedBindingPattern = typedBindingPattern;
-        this.inKeyword = inKeyword;
-        this.actionOrExpressionNode = actionOrExpressionNode;
-        this.blockStatement = blockStatement;
+    STTypedBindingPatternNode(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+        super(SyntaxKind.TYPED_BINDING_PATTERN);
+        this.typeDescriptor = typeDescriptor;
+        this.bindingPattern = bindingPattern;
 
         addChildren(
-                forEachKeyword,
-                typedBindingPattern,
-                inKeyword,
-                actionOrExpressionNode,
-                blockStatement);
+                typeDescriptor,
+                bindingPattern);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ForEachStatementNode(this, position, parent);
+        return new TypedBindingPatternNode(this, position, parent);
     }
 }
