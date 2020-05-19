@@ -3701,9 +3701,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // TODO: Add a good comment
-        if (tokenKind == SyntaxKind.LT_TOKEN && peek(2).kind == SyntaxKind.LT_TOKEN) {
-            tokenKind = SyntaxKind.DOUBLE_LT_TOKEN;
-        } else if (tokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
+        if (tokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
             if (peek(3).kind == SyntaxKind.GT_TOKEN) {
                 tokenKind = SyntaxKind.TRIPPLE_GT_TOKEN;
             } else {
@@ -3741,9 +3739,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             default:
-                if (tokenKind == SyntaxKind.DOUBLE_LT_TOKEN) {
-                    operator = parseDoubleLTToken();
-                } else if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
+                if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseDoubleGTToken();
                 } else if (tokenKind == SyntaxKind.TRIPPLE_GT_TOKEN) {
                     operator = parseTrippleGTToken();
@@ -8823,23 +8819,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse double-LT token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseDoubleLTToken() {
-        STNode openLTToken = parseLTToken();
-        STNode endLTToken = parseLTToken();
-        return STNodeFactory.createDoubleLTTokenNode(openLTToken, endLTToken);
-    }
-
-    /**
      * Parse double-GT token.
      *
      * @return Parsed node
      */
     private STNode parseDoubleGTToken() {
         STNode openGTToken = parseGTToken();
+        reportInvalidShiftOperator(openGTToken);
+
         STNode endLGToken = parseGTToken();
         return STNodeFactory.createDoubleGTTokenNode(openGTToken, endLGToken);
     }
@@ -8851,8 +8838,24 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrippleGTToken() {
         STNode openGTToken = parseGTToken();
-        STNode middleLGToken = parseGTToken();
+        reportInvalidShiftOperator(openGTToken);
+
+        STNode middleGTToken = parseGTToken();
+        reportInvalidShiftOperator(middleGTToken);
+
         STNode endLGToken = parseGTToken();
-        return STNodeFactory.createTrippleGTTokenNode(openGTToken, middleLGToken, endLGToken);
+        return STNodeFactory.createTrippleGTTokenNode(openGTToken, middleGTToken, endLGToken);
+    }
+
+    /**
+     * Report invalid double-GT and tripple-GT tokens.
+     *
+     * @param node Preceding node
+     */
+    private void reportInvalidShiftOperator(STNode node) {
+        int diff = node.widthWithTrailingMinutiae() - node.width();
+        if (diff > 0) {
+            this.errorHandler.reportMissingTokenError("no whitespaces allowed between >>");
+        }
     }
 }

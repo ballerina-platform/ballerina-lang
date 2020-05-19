@@ -147,6 +147,7 @@ public enum SyntaxKind {
     XML_COMMENT_START_TOKEN(577, "<!--"),
     XML_COMMENT_END_TOKEN(578, "-->"),
     DOUBLE_DOT_LT_TOKEN(579, "..<"),
+    DOUBLE_LT_TOKEN(580, "<<"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -308,9 +309,8 @@ public enum SyntaxKind {
     LET_CLAUSE(3044),
     QUERY_PIPELINE(3045),
     SELECT_CLAUSE(3046),
-    DOUBLE_LT_TOKEN(3047, "<<"),
-    DOUBLE_GT_TOKEN(3048, ">>"),
-    TRIPPLE_GT_TOKEN(3049, ">>>"),
+    DOUBLE_GT_TOKEN(3047, ">>"),
+    TRIPPLE_GT_TOKEN(3048, ">>>"),
 
     // XML
     XML_ELEMENT(4000),

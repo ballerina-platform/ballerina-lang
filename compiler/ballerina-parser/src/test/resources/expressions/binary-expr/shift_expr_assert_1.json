@@ -6,15 +6,7 @@
             "value": "a"
         },
         {
-            "kind": "DOUBLE_LT_TOKEN",
-            "children": [
-                {
-                    "kind": "LT_TOKEN"
-                },
-                {
-                    "kind": "LT_TOKEN"
-                }
-            ]
+            "kind": "DOUBLE_LT_TOKEN"
         },
         {
             "kind": "IDENTIFIER_TOKEN",

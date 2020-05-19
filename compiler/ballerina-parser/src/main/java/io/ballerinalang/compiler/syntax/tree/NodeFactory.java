@@ -2043,18 +2043,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stQueryExpressionNode.createUnlinkedFacade();
     }
 
-    public static DoubleLTTokenNode createDoubleLTTokenNode(
-            Token openLTToken,
-            Token endLTToken) {
-        Objects.requireNonNull(openLTToken, "openLTToken must not be null");
-        Objects.requireNonNull(endLTToken, "endLTToken must not be null");
-
-        STNode stDoubleLTTokenNode = STNodeFactory.createDoubleLTTokenNode(
-                openLTToken.internalNode(),
-                endLTToken.internalNode());
-        return stDoubleLTTokenNode.createUnlinkedFacade();
-    }
-
     public static DoubleGTTokenNode createDoubleGTTokenNode(
             Token openGTToken,
             Token endGTToken) {

@@ -2715,21 +2715,6 @@
             ]
         },
         {
-            "name": "DoubleLTTokenNode",
-            "base": "Node",
-            "kind": "DOUBLE_LT_TOKEN",
-            "attributes": [
-                {
-                    "name": "openLTToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "endLTToken",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
             "name": "DoubleGTTokenNode",
             "base": "Node",
             "kind": "DOUBLE_GT_TOKEN",

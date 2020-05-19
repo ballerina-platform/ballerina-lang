@@ -1516,15 +1516,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 selectClause);
     }
 
-    public static STNode createDoubleLTTokenNode(
-            STNode openLTToken,
-            STNode endLTToken) {
-
-        return new STDoubleLTTokenNode(
-                openLTToken,
-                endLTToken);
-    }
-
     public static STNode createDoubleGTTokenNode(
             STNode openGTToken,
             STNode endGTToken) {

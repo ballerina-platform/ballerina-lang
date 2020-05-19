@@ -527,10 +527,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(queryExpressionNode);
     }
 
-    public void visit(DoubleLTTokenNode doubleLTTokenNode) {
-        visitSyntaxNode(doubleLTTokenNode);
-    }
-
     public void visit(DoubleGTTokenNode doubleGTTokenNode) {
         visitSyntaxNode(doubleGTTokenNode);
     }

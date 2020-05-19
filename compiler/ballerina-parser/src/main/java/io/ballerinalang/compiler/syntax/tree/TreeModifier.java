@@ -1505,15 +1505,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(DoubleLTTokenNode doubleLTTokenNode) {
-        Token openLTToken = modifyToken(doubleLTTokenNode.openLTToken());
-        Token endLTToken = modifyToken(doubleLTTokenNode.endLTToken());
-        return doubleLTTokenNode.modify(
-                openLTToken,
-                endLTToken);
-    }
-
-    @Override
     public Node transform(DoubleGTTokenNode doubleGTTokenNode) {
         Token openGTToken = modifyToken(doubleGTTokenNode.openGTToken());
         Token endGTToken = modifyToken(doubleGTTokenNode.endGTToken());

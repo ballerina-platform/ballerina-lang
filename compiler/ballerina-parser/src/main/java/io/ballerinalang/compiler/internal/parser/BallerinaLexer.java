@@ -169,6 +169,9 @@ public class BallerinaLexer extends AbstractLexer {
                 if (peek() == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else if (peek() == LexerTerminals.LT) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
