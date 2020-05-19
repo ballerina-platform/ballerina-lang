@@ -27,10 +27,6 @@ dependencies {
 
 description = 'Ballerina - Parser'
 
-checkstyleMain {
-    exclude 'io/ballerinalang/compiler/internal/parser/tree/**'
-}
-
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'

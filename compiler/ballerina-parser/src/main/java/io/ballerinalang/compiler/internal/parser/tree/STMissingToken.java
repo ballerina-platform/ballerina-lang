@@ -21,6 +21,11 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 2.0.0
+ */
 public class STMissingToken extends STToken {
 
     // TODO consider using a flags here. Node flags
@@ -29,7 +34,7 @@ public class STMissingToken extends STToken {
     STMissingToken(SyntaxKind kind) {
         super(kind, 0, new STNodeList(new ArrayList<>(0)), new STNodeList(new ArrayList<>(0)));
     }
-    
+
     @Override
     public String toString() {
         // TODO for testing purpose only
