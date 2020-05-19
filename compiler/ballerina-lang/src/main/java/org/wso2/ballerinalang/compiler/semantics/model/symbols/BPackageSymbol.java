@@ -23,6 +23,7 @@ import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
@@ -51,8 +52,9 @@ public class BPackageSymbol extends BTypeSymbol {
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
     public BIRPackageFile birPackageFile;
-    // store platform dependency libs locations
-    public Set<Path> moduleDependencies = new HashSet<>();
+
+    // kep code generated jar binary content in memory
+    public CompiledJarFile compiledJarFile;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
