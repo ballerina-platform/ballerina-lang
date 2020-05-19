@@ -53,6 +53,7 @@ function testSimpleAssignmentForSelectivelyImmutableTypes() {
     testSimpleAssignmentForSelectivelyImmutableXmlTypes();
     testSimpleAssignmentForSelectivelyImmutableListTypes();
     testSimpleAssignmentForSelectivelyImmutableMappingTypes();
+    testSimpleAssignmentForSelectivelyImmutableTableTypes();
 }
 
 function testSimpleAssignmentForSelectivelyImmutableXmlTypes() {
@@ -209,6 +210,50 @@ function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
     assertEquality(<[RESULT, int]> ["P", 65], stVal["science"]);
 }
 
+type Identifier record {|
+    readonly string name;
+    int id;
+|};
+
+function testSimpleAssignmentForSelectivelyImmutableTableTypes() {
+    table<map<string>> & readonly a = table [
+        {x: "x", y: "y"},
+        {z: "z"}
+    ];
+
+    readonly r1 = a;
+    assertTrue(r1 is table<map<string>> & readonly);
+
+    table<map<string>> tbString = <table<map<string>>> <any> r1;
+    assertEquality(2, tbString.length());
+
+    map<string>[] mapArr = tbString.toArray();
+    assertTrue( mapArr[0] is map<string> & readonly);
+    assertEquality(<map<string>> {x: "x", y: "y"}, mapArr[0]);
+    assertTrue( mapArr[1] is map<string> & readonly);
+    assertEquality(<map<string>> {z: "z"}, mapArr[1]);
+
+    table<Identifier> key(name) & readonly b = table [
+        {name: "Jo", id: 4567},
+        {name: "Emma", id: 1234},
+        {name: "Amy", id: 678}
+    ];
+    readonly r2 = b;
+    assertTrue(r2 is table<Identifier> key(name) & readonly);
+    assertTrue(r2 is table<Identifier> & readonly);
+
+    table<Identifier> tbDetails = <table<Identifier>> <any> r2;
+    assertEquality(3, tbDetails.length());
+
+    Identifier[] detailsArr = tbDetails.toArray();
+    assertTrue(detailsArr[0] is Identifier & readonly);
+    assertEquality(<Identifier> {name: "Jo", id: 4567}, detailsArr[0]);
+    assertTrue(detailsArr[1] is Identifier & readonly);
+    assertEquality(<Identifier> {name: "Emma", id: 1234}, detailsArr[1]);
+    assertTrue(detailsArr[2] is Identifier & readonly);
+    assertEquality(<Identifier> {name: "Amy", id: 678}, detailsArr[2]);
+}
+
 type RESULT "P"|"F";
 
 type Student record {|
@@ -252,8 +297,6 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     any o = m.cloneReadOnly();
     assertFalse(n is readonly);
     assertTrue(o is readonly);
-
-    // TODO: table.
 }
 
 function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
@@ -367,6 +410,18 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an7 is 'xml:Element & readonly);
     assertFalse(an7 is readonly);
     assertFalse(a7.isReadOnly());
+
+    table<Identifier> key(name) j = table [
+        {name: "Jo", id: 4567},
+        {name: "Emma", id: 1234},
+        {name: "Amy", id: 678}
+    ];
+    anydata a9 = j;
+    any an9 = j;
+    assertTrue(an9 is table<Identifier>);
+    assertFalse(an9 is table<Identifier> & readonly);
+    assertFalse(an9 is readonly);
+    assertFalse(a9.isReadOnly());
 }
 
 function testImmutabilityOfNestedXmlWithAttributes() {
