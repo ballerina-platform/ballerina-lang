@@ -1,7 +1,7 @@
 package org.ballerinalang.debugadapter.exeption;
 
 /**
- * Error type implementation for debug expression evaluation related exceptions.
+ * Error type definition for debug expression evaluation related exceptions.
  */
 public class JBalDebugEvaluationException extends Exception {
 
