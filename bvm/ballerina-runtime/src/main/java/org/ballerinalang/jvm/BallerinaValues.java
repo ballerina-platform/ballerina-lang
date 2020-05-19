@@ -89,9 +89,9 @@ public class BallerinaValues {
         //This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
-        Scheduler scheduler = currentStrand != null ? currentStrand.scheduler : null;
-        State prevState = currentStrand != null ? currentStrand.getState() : State.RUNNABLE;
-        boolean prevBlockedOnExtern = currentStrand != null && currentStrand.blockedOnExtern;
+        Scheduler scheduler = null;
+        State prevState = State.RUNNABLE;
+        boolean prevBlockedOnExtern = false;
         ObjectValue returnObjectValue;
 
         // Adding boolean values for each arg
@@ -101,7 +101,10 @@ public class BallerinaValues {
         }
         try {
             //Check for non-blocking call
-            if (currentStrand != null && currentStrand.getState() != State.RUNNABLE) {
+            if (currentStrand != null) {
+                scheduler = currentStrand.scheduler;
+                prevState = currentStrand.getState();
+                prevBlockedOnExtern = currentStrand.blockedOnExtern;
                 currentStrand.blockedOnExtern = false;
                 currentStrand.setState(State.RUNNABLE);
             }
