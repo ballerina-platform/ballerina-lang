@@ -45,14 +45,10 @@ public class OnClauseTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleOnClause");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
-
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+        BMap<String, BValue> person = (BMap<String, BValue>) returnValues[0];
+        Assert.assertEquals(person.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 23);
     }
 }

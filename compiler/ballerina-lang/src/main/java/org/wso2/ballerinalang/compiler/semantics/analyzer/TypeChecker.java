@@ -181,6 +181,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -3556,6 +3557,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 case TypeTags.TABLE:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
                             true, true));
+                    break;
                 case TypeTags.STREAM:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
                             true, true));

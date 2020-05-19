@@ -1,9 +1,11 @@
-import ballerina/io;
-
 type Person record {|
     string firstName;
     string lastName;
     int age;
+|};
+
+type Department record {|
+   string name;
 |};
 
 function testSimpleOnClause() returns Person[] {
@@ -12,11 +14,16 @@ function testSimpleOnClause() returns Person[] {
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};
 
+    Department d1 = {name:"HR"};
+    Department d2 = {name:"Operations"};
+
     Person[] personList = [p1, p2, p3];
+    Department[] deptList = [d1, d2];
 
     Person[] outputPersonList =
             from var person in personList
-            on printHello()
+            join var dept in deptList
+            on condition(person.firstName)
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,
@@ -26,7 +33,6 @@ function testSimpleOnClause() returns Person[] {
     return outputPersonList;
 }
 
-function printHello() returns boolean{
-    io:println("Hello");
-    return true;
+function condition(string name) returns boolean{
+    return name == "Alex";
 }

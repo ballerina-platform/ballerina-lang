@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -60,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -1364,7 +1362,8 @@ public class Types {
                     bLangInputClause.varType = ((BRecordType) bLangInputClause.resultType).fields.get("value").type;
                     return;
                 }
-                dlogHelper.error(bLangInputClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlogHelper.error(bLangInputClause.collection.pos,
+                        DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 bLangInputClause.varType = symTable.semanticError;
