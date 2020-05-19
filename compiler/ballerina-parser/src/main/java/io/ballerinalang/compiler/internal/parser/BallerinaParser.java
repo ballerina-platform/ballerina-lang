@@ -8698,10 +8698,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode mergeTypeDescAndListBindingPattern(STNode typeDesc,
                                                       STNode bindingPattern) {
         STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
-        STNodeList childArray = (STNodeList)listBindingPattern.bindingPatterns;
+        STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         STNode child = childArray.childInBucket(0);
         if (child.kind == SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            child = ((STCaptureBindingPatternNode)child).variableName;
+            child = ((STCaptureBindingPatternNode) child).variableName;
         }
         return STNodeFactory.createIndexedExpressionNode(typeDesc, listBindingPattern.openBracket,
                 child,
@@ -8710,12 +8710,12 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode cleanListBindingPattern(STNode bindingPattern) {
         STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
-        STNodeList childArray = (STNodeList)listBindingPattern.bindingPatterns;
+        STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         int numberOfChildren = childArray.bucketCount();
 
         ArrayList<STNode> cleanedChildren = new ArrayList<>();
         STNode child = null;
-        for (int i =0; i<numberOfChildren;i++) {
+        for (int i = 0; i < numberOfChildren; i++) {
             child = childArray.childInBucket(i);
             switch (child.kind) {
                 case DECIMAL_INTEGER_LITERAL:
@@ -8739,14 +8739,14 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isListBindingPatternDefinitively(STNode bindingPattern) {
         STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
-        STNodeList childArray = (STNodeList)listBindingPattern.bindingPatterns;
+        STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         int numberOfChildren = childArray.bucketCount();
 
         if (listBindingPattern.restBindingPattern != null) {
             return true;
         }
 
-        if (numberOfChildren ==1 ) {
+        if (numberOfChildren == 1) {
             STNode child = childArray.childInBucket(0);
             switch (child.kind) {
                 case LIST_BINDING_PATTERN:
