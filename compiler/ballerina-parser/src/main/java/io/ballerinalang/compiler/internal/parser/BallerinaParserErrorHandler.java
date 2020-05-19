@@ -144,7 +144,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
             ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
             ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
-            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START };
+            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
+            ParserRuleContext.CONSTANT_EXPRESSION };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_BODY_END, ParserRuleContext.RECORD_FIELD };
@@ -284,7 +285,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
-            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
+            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.PLUS_TOKEN,
+              ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
@@ -355,6 +357,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] PEER_WORKER = { ParserRuleContext.FLUSH_WORKER_NAME,
             ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.EXPRESSION_RHS };
+
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1179,7 +1182,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case DEFAULT_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD;
                     break;
-
+                case PLUS_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN;
+                    break;
+                case MINUS_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.MINUS_TOKEN;
+                    break;
+                case SIGNED_INT_OR_FLOAT_RHS:
+                    hasMatch = isIntOrFloat(nextToken);
+                    break;
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
                 case FUNC_DEF:
@@ -2100,6 +2111,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FLUSH_WORKER_NAME:
             case DEFAULT_KEYWORD:
                 return ParserRuleContext.EXPRESSION_RHS;
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return ParserRuleContext.SIGNED_INT_OR_FLOAT_RHS;
+            case SIGNED_INT_OR_FLOAT_RHS:
+                return getNextRuleForExpr();
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2185,7 +2201,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.TYPEDESC_RHS;
         } else if (parentCtx == ParserRuleContext.NIL_LITERAL) {
             endContext();
-            return ParserRuleContext.EXPRESSION_RHS;
+            return getNextRuleForExpr();
         } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
             endContext(); // end key-specifier
             if (isInTypeDescContext()) {
@@ -2853,6 +2869,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext getNextRuleForDecimalIntegerLiteral() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
+            case CONSTANT_EXPRESSION:
+                endContext();
+                return getNextRuleForConstExpr();
             case ARRAY_TYPE_DESCRIPTOR:
             default:
                 return ParserRuleContext.CLOSE_BRACKET;
@@ -2875,6 +2894,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XML_NAMESPACE_PREFIX_DECL;
             default:
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
                 throw new IllegalStateException();
         }
     }
@@ -2997,6 +3019,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
             case PARAM_LIST:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isIntOrFloat(STToken token) {
+        switch (token.kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return true;
             default:
                 return false;
@@ -3335,6 +3369,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DEFAULT_KEYWORD:
             case PEER_WORKER:
                 return SyntaxKind.DEFAULT_KEYWORD;
+            case DECIMAL_INTEGER_LITERAL:
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
 
             // TODO:
             case COMP_UNIT:
@@ -3363,7 +3399,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BLOCK_STMT:
             case CALL_STMT:
             case CALL_STMT_START:
-            case DECIMAL_INTEGER_LITERAL:
             case ELSE_BLOCK:
             case ELSE_BODY:
             case IF_BLOCK:

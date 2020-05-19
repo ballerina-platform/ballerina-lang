@@ -1568,5 +1568,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 flushKeyword,
                 peerWorker);
     }
+
+    public static STNode createSingletonTypeDescriptorNode(
+            STNode simpleContExprNode) {
+
+        return new STSingletonTypeDescriptorNode(
+                simpleContExprNode);
+    }
 }
 

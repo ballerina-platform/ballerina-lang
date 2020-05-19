@@ -2810,6 +2810,17 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "SingletonTypeDescriptorNode",
+            "base": "Node",
+            "kind": "SINGLETON_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "simpleContExprNode",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

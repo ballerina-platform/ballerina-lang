@@ -2044,6 +2044,9 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
             default:
+                if (isSingletonTypeDescStartToken()) {
+                    return parseSingletonTypeDesc();
+                }
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
                 }
@@ -7011,7 +7014,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseXMLNamespaceUri() {
-        STNode expr = parseConstExpr();
+        STNode expr = parseSimpleConstExpr();
         switch (expr.kind) {
             case STRING_LITERAL:
             case IDENTIFIER_TOKEN:
@@ -7029,7 +7032,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseConstExpr() {
+    private STNode parseSimpleConstExpr() {
         startContext(ParserRuleContext.CONSTANT_EXPRESSION);
         STToken nextToken = peek();
         STNode expr;
@@ -7047,8 +7050,13 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 expr = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 break;
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                expr = parseSignedIntOrFloat();
+                break;
             case OPEN_BRACE_TOKEN:
-                // TODO: nil-literal
+                expr = parseNilLiteral();
+                break;
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
@@ -7298,10 +7306,11 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
-            case READONLY_KEYWORD:
-            case DISTINCT_KEYWORD:
                 return true;
             default:
+                if (isSingletonTypeDescStartToken()) {
+                    return true;
+                }
                 return isSimpleType(nodeKind);
         }
     }
@@ -9076,5 +9085,56 @@ public class BallerinaParser extends AbstractParser {
         STNode bitwiseAndToken = consume();
         STNode rightTypeDesc = parseTypeDescriptor(context);
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
+    }
+
+    /**
+     * Parse singleton type descriptor.
+     * <p>singleton-type-descriptor := simple-const-expr
+     * simple-const-expr :=
+     *   nil-literal
+     *   | boolean-literal
+     *   | [Sign] int-literal
+     *   | [Sign] floating-point-literal
+     *   | string-literal
+     *   | constant-reference-expr</p>
+     */
+    private STNode parseSingletonTypeDesc() {
+        STNode simpleContExpr =  parseSimpleConstExpr();
+        return STNodeFactory.createSingletonTypeDescriptorNode(simpleContExpr);
+    }
+
+    private STNode parseSignedIntOrFloat() {
+        STNode operator = parseUnaryOperator();
+        STNode literal;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+                literal = consume();
+                break;
+            default:   //decimal integer literal
+                literal = parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL);
+        }
+        return STNodeFactory.createUnaryExpressionNode(operator, literal);
+    }
+
+    private boolean isSingletonTypeDescStartToken() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case NULL_KEYWORD:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 }

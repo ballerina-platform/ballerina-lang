@@ -1556,6 +1556,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 peerWorker);
     }
 
+    @Override
+    public Node transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        Node simpleContExprNode = modifyNode(singletonTypeDescriptorNode.simpleContExprNode());
+        return singletonTypeDescriptorNode.modify(
+                simpleContExprNode);
+    }
+
     // Tokens
 
     @Override

@@ -2113,5 +2113,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stFlushActionNode.createUnlinkedFacade();
     }
+
+    public static SingletonTypeDescriptorNode createSingletonTypeDescriptorNode(
+            Node simpleContExprNode) {
+        Objects.requireNonNull(simpleContExprNode, "simpleContExprNode must not be null");
+
+        STNode stSingletonTypeDescriptorNode = STNodeFactory.createSingletonTypeDescriptorNode(
+                simpleContExprNode.internalNode());
+        return stSingletonTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 
