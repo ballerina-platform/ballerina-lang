@@ -807,10 +807,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
-            symTable.detailType = (BRecordType) symTable.errorType.detailType;
+            symTable.detailType = (BMapType) symTable.errorType.detailType;
             symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
-            symTable.detailType.restFieldType = symTable.pureType;
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
@@ -1091,18 +1090,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
 
-        // TODO: 7/12/19 FIX ME!!! This is a temporary hack to ensure the detail type is set to the error type when
-        //  compiling the annotations module which contains the error def
-        if (detailType == null && PackageID.ANNOTATIONS.equals(env.enclPkg.packageID)) {
-            BSymbol symbol = this.lookupSymbolInMainSpace(env, Names.ERROR);
-            resultType = symbol.type;
-            symTable.errorType = (BErrorType) resultType;
-            symTable.detailType = (BRecordType) symTable.errorType.detailType;
-            return;
-        }
-
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
-        if (detailType == symTable.detailType && !distinctErrorDef) {
+        if (detailType == symTable.detailType && !distinctErrorDef &&
+                !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
             resultType = symTable.errorType;
             return;
         }

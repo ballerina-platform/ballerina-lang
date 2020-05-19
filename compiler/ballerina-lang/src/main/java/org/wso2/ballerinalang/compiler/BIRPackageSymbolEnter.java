@@ -1111,6 +1111,8 @@ public class BIRPackageSymbolEnter {
                     return symTable.xmlCommentType;
                 case TypeTags.XML_TEXT:
                     return symTable.xmlTextType;
+                case TypeTags.READONLY:
+                    return symTable.readonlyType;
             }
             return null;
         }

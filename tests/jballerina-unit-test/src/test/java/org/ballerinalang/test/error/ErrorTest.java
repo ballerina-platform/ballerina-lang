@@ -43,7 +43,9 @@ import org.testng.annotations.Test;
 public class ErrorTest {
 
     private CompileResult errorTestResult;
+    private CompileResult distinctErrorTestResult;
     private CompileResult negativeCompileResult;
+    private CompileResult negativeDistinctErrorRes;
 
     private static final String ERROR1 = "error1";
     private static final String ERROR2 = "error2";
@@ -53,8 +55,24 @@ public class ErrorTest {
 
     @BeforeClass
     public void setup() {
-        errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
-        negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
+        //errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
+        //distinctErrorTestResult = BCompileUtil.compile("test-src/error/distinct_error_test.bal");
+        negativeDistinctErrorRes = BCompileUtil.compile("test-src/error/distinct_error_test_negative.bal");
+        //negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
+    }
+
+    @Test
+    public void testDistinctFooError() {
+        BValue[] errors = BRunUtil.invoke(distinctErrorTestResult, "testFooError");
+        Assert.assertEquals(errors[0].stringValue(), "arg {message:\"\", data:{}}");
+    }
+
+    @Test
+    public void testNegativeDistinctError() {
+        int i = 0;
+        BAssertUtil.validateError(negativeDistinctErrorRes, i++,
+                "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
+        Assert.assertEquals(negativeDistinctErrorRes.getErrorCount(), 18);
     }
 
     @Test

@@ -4036,16 +4036,37 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BRecordType targetErrorDetailRec = (BRecordType) errorType.detailType;
-        BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec, isErrorCauseArgProvided);
-        if (resultType == symTable.semanticError || targetErrorDetailRec == null) {
-            return;
-        }
+        if (errorType.detailType.tag == TypeTags.MAP) {
+            BMapType detailMapType = (BMapType) errorType.detailType;
+            List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr, isErrorCauseArgProvided);
+            if (namedArgs == null) {
+                resultType = symTable.semanticError;
+                return;
+            }
 
-        if (!types.isAssignable(recordType, targetErrorDetailRec)) {
-            reportErrorDetailMissmatchError(iExpr, targetErrorDetailRec, recordType);
-            resultType = symTable.semanticError;
-            return;
+            for (BLangNamedArgsExpression namedArg : namedArgs) {
+                if (!types.isAssignable(namedArg.expr.type, detailMapType.constraint)) {
+                    dlog.error(namedArg.pos, DiagnosticCode.INVALID_ERROR_DETAIL_ARG_TYPE, namedArg.name,
+                            detailMapType.constraint, namedArg.expr.type);
+                    resultType = symTable.semanticError;
+                }
+            }
+
+            if (resultType == symTable.semanticError) {
+                return;
+            }
+        } else {
+            BRecordType targetErrorDetailRec = (BRecordType) errorType.detailType;
+            BRecordType recordType = createErrorDetailRecordType(iExpr, targetErrorDetailRec, isErrorCauseArgProvided);
+            if (resultType == symTable.semanticError || targetErrorDetailRec == null) {
+                return;
+            }
+
+            if (!types.isAssignable(recordType, targetErrorDetailRec)) {
+                reportErrorDetailMissmatchError(iExpr, targetErrorDetailRec, recordType);
+                resultType = symTable.semanticError;
+                return;
+            }
         }
         setErrorDetailArgsToNamedArgsList(iExpr, isErrorCauseArgProvided);
 

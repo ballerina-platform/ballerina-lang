@@ -1320,6 +1320,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
+        // todo: Support error detal to be a map
         BRecordType recordType = (BRecordType) errorType.detailType;
         LinkedHashMap<String, BField> detailFields = recordType.fields;
         Set<String> matchedDetailFields = new HashSet<>();

@@ -15,10 +15,6 @@
 // under the License.
 
 
-//todo: update doc comment
 # Default error type.
-# The first type parameter describe reason type which must be a subtype of string,
-# and the second type parameter is for the error detail.
-# The error detail record type may contain an optional message, optional cause,
-# and any other pure constrained mapping values.
-public type 'error error<record {| (anydata|error)...; |}>;
+# The type parameter is for the error detail type. It's constrained to anydata or readonly type.
+public type 'error error<map<anydata|error>>;

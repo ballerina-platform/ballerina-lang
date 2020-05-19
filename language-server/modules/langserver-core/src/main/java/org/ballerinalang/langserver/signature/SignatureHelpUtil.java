@@ -490,6 +490,7 @@ public class SignatureHelpUtil {
                     BType reasonType = bErrorType.reasonType;
                     parameters.add(new Parameter(" ", reasonType, false, false));
                 }
+                // todo: need to support error detail map case
                 if (bErrorType.detailType instanceof BRecordType) {
                     BRecordType bRecordType = (BRecordType) bErrorType.detailType;
                     bRecordType.fields.values().forEach(p -> {
