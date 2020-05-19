@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.promise;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -153,7 +154,8 @@ public class PushPromiseNativeFunctionTest {
 
         String targetHeaderValue = "value2";
         BValue[] returnVal = BRunUtil.invoke(result, "testSetHeader",
-                                             new Object[]{ promise, headerName, targetHeaderValue });
+                                             new Object[]{ promise, StringUtils.fromString(headerName),
+                                                     StringUtils.fromString(targetHeaderValue) });
 
         Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVal[0] instanceof BMap);
