@@ -19,20 +19,29 @@ package org.ballerinalang.net.grpc.callback;
 
 import org.ballerinalang.jvm.values.ErrorValue;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * Call back class registered for client message listener service in B7a executor.
  *
  * @since 0.995.0
  */
 public class ClientCallableUnitCallBack extends AbstractCallableUnitCallBack {
-    
+    private Semaphore semaphore;
+
+    public ClientCallableUnitCallBack(Semaphore semaphore) {
+        this.semaphore = semaphore;
+    }
+
     @Override
     public void notifySuccess() {
         super.notifySuccess();
+        semaphore.release();
     }
     
     @Override
     public void notifyFailure(ErrorValue error) {
         super.notifyFailure(error);
+        semaphore.release();
     }
 }

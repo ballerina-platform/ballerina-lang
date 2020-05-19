@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
@@ -48,8 +49,9 @@ import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 public class DefaultStreamObserver implements StreamObserver {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, ServiceResource> resourceMap = new HashMap<>();
+    private Semaphore semaphore;
     
-    public DefaultStreamObserver(BRuntime runtime, ObjectValue callbackService) throws
+    public DefaultStreamObserver(BRuntime runtime, ObjectValue callbackService, Semaphore semaphore) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
@@ -57,6 +59,7 @@ public class DefaultStreamObserver implements StreamObserver {
         for (AttachedFunction function : callbackService.getType().getAttachedFunctions()) {
             resourceMap.put(function.getName(), new ServiceResource(runtime, callbackService, function));
         }
+        this.semaphore = semaphore;
     }
     
     @Override
@@ -85,9 +88,18 @@ public class DefaultStreamObserver implements StreamObserver {
             paramValues[2] = headerObject;
             paramValues[3] = true;
         }
-        CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback, null,
-                paramValues);
+        try {
+            semaphore.acquire();
+            CallableUnitCallback callback = new ClientCallableUnitCallBack(semaphore);
+            resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
+                    null, paramValues);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            String message = "Internal error occurred. The current thread got interrupted";
+            LOG.error(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
+        }
     }
     
     @Override
@@ -115,9 +127,18 @@ public class DefaultStreamObserver implements StreamObserver {
             paramValues[2] = headerObject;
             paramValues[3] = true;
         }
-        CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        onError.getRuntime().invokeMethodAsync(onError.getService(), onError.getFunctionName(), callback, null,
-                paramValues);
+        try {
+            semaphore.acquire();
+            CallableUnitCallback callback = new ClientCallableUnitCallBack(semaphore);
+            onError.getRuntime().invokeMethodAsync(onError.getService(), onError.getFunctionName(), callback,
+                    null, paramValues);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            String message = "Internal error occurred. The current thread got interrupted";
+            LOG.error(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
+        }
     }
     
     @Override
@@ -131,8 +152,17 @@ public class DefaultStreamObserver implements StreamObserver {
         }
         List<BType> signatureParams = onCompleted.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
-        CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(), callback,
-                null, paramValues);
+        try {
+            semaphore.acquire();
+            CallableUnitCallback callback = new ClientCallableUnitCallBack(semaphore);
+            onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(),
+                    callback, null, paramValues);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            String message = "Internal error occurred. The current thread got interrupted";
+            LOG.error(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
+        }
     }
 }
