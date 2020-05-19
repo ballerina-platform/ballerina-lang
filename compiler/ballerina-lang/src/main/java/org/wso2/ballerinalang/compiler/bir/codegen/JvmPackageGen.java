@@ -26,7 +26,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
@@ -57,6 +56,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -427,7 +427,7 @@ public class JvmPackageGen {
         throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
-    JarFile generate(BIRNode.BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
+    CompiledJarFile generate(BIRNode.BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -442,7 +442,7 @@ public class JvmPackageGen {
                     importModule.name.value));
             generateDependencyList(pkgSymbol, interopValidator);
             if (dlog.getErrorCount() > 0) {
-                return new JarFile(Collections.emptyMap());
+                return new CompiledJarFile(Collections.emptyMap());
             }
         }
 
@@ -450,7 +450,7 @@ public class JvmPackageGen {
         Map<String, JavaClass> jvmClassMapping = generateClassNameMapping(module, pkgName, moduleInitClass,
                 interopValidator, isEntry);
         if (!isEntry || dlog.getErrorCount() > 0) {
-            return new JarFile(Collections.emptyMap());
+            return new CompiledJarFile(Collections.emptyMap());
         }
 
         // using a concurrent hash map to store class byte values, which are generated in parallel
@@ -485,7 +485,7 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new JarFile(moduleInitClass, jarEntries);
+        return new CompiledJarFile(moduleInitClass, jarEntries);
     }
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
