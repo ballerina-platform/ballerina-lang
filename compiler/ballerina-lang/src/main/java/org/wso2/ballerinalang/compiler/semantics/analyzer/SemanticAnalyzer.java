@@ -2453,7 +2453,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRollback rollbackNode) {
         if (rollbackNode.expr != null) {
-            this.typeChecker.checkExpr(rollbackNode.expr, this.env);
+            BType expectedType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            this.typeChecker.checkExpr(rollbackNode.expr, this.env, expectedType);
         }
     }
 

@@ -476,9 +476,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-
         checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS, transactionNode.pos);
         this.checkStatementExecutionValidity(transactionNode);
+        //Check whether transaction statement occurred in a transactional scope
+        BLangInvokableNode encInvokable = env.enclInvokable;
+        if (encInvokable != null && encInvokable.flagSet.contains(Flag.TRANSACTIONAL)) {
+            this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
+            return;
+        }
         //Check whether transaction is within a handler function or retry block. This can check for single level only.
         // We need data flow analysis to check for further levels.
         if (!isValidTransactionBlock()) {
