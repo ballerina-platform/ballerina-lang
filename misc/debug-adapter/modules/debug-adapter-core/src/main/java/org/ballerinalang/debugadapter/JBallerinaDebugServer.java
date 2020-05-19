@@ -33,6 +33,7 @@ import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.toml.model.Manifest;
@@ -347,6 +348,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 BVariable variable = VariableFactory.getVariable(value, varTypeStr, name);
                 if (variable == null) {
                     return null;
+                } else if (variable instanceof BPrimitiveVariable) {
+                    variable.getDapVariable().setVariablesReference(0L);
                 } else if (variable instanceof BCompoundVariable) {
                     long variableReference = nextVarReference.getAndIncrement();
                     variable.getDapVariable().setVariablesReference(variableReference);
@@ -364,8 +367,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             } catch (ClassNotLoadedException e) {
                                 varType = varValueEntry.getKey().toString();
                             }
-                            String name = varValueEntry.getKey() == null ? "" :
-                                    varValueEntry.getKey().name();
+                            String name = varValueEntry.getKey() != null ? varValueEntry.getKey().name() : "";
                             if (name.equals("__strand")) {
                                 return null;
                             }
@@ -373,8 +375,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             BVariable variable = VariableFactory.getVariable(varValueEntry.getValue(), varType, name);
                             if (variable == null) {
                                 return null;
-                            }
-                            if (variable instanceof BCompoundVariable) {
+                            } else if (variable instanceof BPrimitiveVariable) {
+                                variable.getDapVariable().setVariablesReference(0L);
+                            } else if (variable instanceof BCompoundVariable) {
                                 long variableReference = nextVarReference.getAndIncrement();
                                 variable.getDapVariable().setVariablesReference(variableReference);
                                 this.childVariables.put(variableReference, ((BCompoundVariable) variable)
