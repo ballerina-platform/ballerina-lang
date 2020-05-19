@@ -745,14 +745,12 @@ public class JvmMethodGen {
 
     private static boolean isModuleInitFunction(BIRPackage module, BIRFunction func) {
 
-        String moduleInit = getModuleInitFuncName(module);
-        return func.name.value.equals(moduleInit);
+        return func.name.value.equals(calculateModuleInitFuncName(packageToModuleId(module)));
     }
 
-    // TODO: remove and use calculateModuleInitFuncName
-    private static String getModuleInitFuncName(BIRPackage module) {
+    private static boolean isModuleTestInitFunction(BIRPackage module, BIRFunction func) {
 
-        return calculateModuleInitFuncName(packageToModuleId(module));
+        return func.name.value.equals(calculateModuleSpecialFuncName(packageToModuleId(module), "<testinit>"));
     }
 
     private static String calculateModuleInitFuncName(PackageID id) {
@@ -1916,7 +1914,8 @@ public class JvmMethodGen {
             // process terminator
             if (!isArg || (!(terminator instanceof Return))) {
                 generateDiagnosticPos(terminator.pos, mv);
-                if (isModuleInitFunction(module, func) && terminator instanceof Return) {
+                if ((isModuleInitFunction(module, func) || isModuleTestInitFunction(module, func)) &&
+                        terminator instanceof Return) {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
