@@ -101,19 +101,22 @@ public class ListConstructorExpressionNode extends ExpressionNode {
             this.closeBracket = oldNode.closeBracket();
         }
 
-        public ListConstructorExpressionNodeModifier withOpenBracket(Token openBracket) {
+        public ListConstructorExpressionNodeModifier withOpenBracket(
+                Token openBracket) {
             Objects.requireNonNull(openBracket, "openBracket must not be null");
             this.openBracket = openBracket;
             return this;
         }
 
-        public ListConstructorExpressionNodeModifier withExpressions(SeparatedNodeList<Node> expressions) {
+        public ListConstructorExpressionNodeModifier withExpressions(
+                SeparatedNodeList<Node> expressions) {
             Objects.requireNonNull(expressions, "expressions must not be null");
             this.expressions = expressions;
             return this;
         }
 
-        public ListConstructorExpressionNodeModifier withCloseBracket(Token closeBracket) {
+        public ListConstructorExpressionNodeModifier withCloseBracket(
+                Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
             this.closeBracket = closeBracket;
             return this;

@@ -91,13 +91,15 @@ public class WhereClauseNode extends ClauseNode {
             this.expression = oldNode.expression();
         }
 
-        public WhereClauseNodeModifier withWhereKeyword(Token whereKeyword) {
+        public WhereClauseNodeModifier withWhereKeyword(
+                Token whereKeyword) {
             Objects.requireNonNull(whereKeyword, "whereKeyword must not be null");
             this.whereKeyword = whereKeyword;
             return this;
         }
 
-        public WhereClauseNodeModifier withExpression(ExpressionNode expression) {
+        public WhereClauseNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

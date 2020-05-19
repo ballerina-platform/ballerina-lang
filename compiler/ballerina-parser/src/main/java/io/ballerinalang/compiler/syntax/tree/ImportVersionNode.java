@@ -91,13 +91,15 @@ public class ImportVersionNode extends NonTerminalNode {
             this.versionNumber = oldNode.versionNumber();
         }
 
-        public ImportVersionNodeModifier withVersionKeyword(Token versionKeyword) {
+        public ImportVersionNodeModifier withVersionKeyword(
+                Token versionKeyword) {
             Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
             this.versionKeyword = versionKeyword;
             return this;
         }
 
-        public ImportVersionNodeModifier withVersionNumber(Node versionNumber) {
+        public ImportVersionNodeModifier withVersionNumber(
+                Node versionNumber) {
             Objects.requireNonNull(versionNumber, "versionNumber must not be null");
             this.versionNumber = versionNumber;
             return this;

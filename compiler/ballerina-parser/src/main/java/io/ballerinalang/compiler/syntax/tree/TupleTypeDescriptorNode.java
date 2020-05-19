@@ -111,25 +111,29 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
             this.closeBracketToken = oldNode.closeBracketToken();
         }
 
-        public TupleTypeDescriptorNodeModifier withOpenBracketToken(Token openBracketToken) {
+        public TupleTypeDescriptorNodeModifier withOpenBracketToken(
+                Token openBracketToken) {
             Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
             this.openBracketToken = openBracketToken;
             return this;
         }
 
-        public TupleTypeDescriptorNodeModifier withMemberTypeDesc(SeparatedNodeList<TypeDescriptorNode> memberTypeDesc) {
+        public TupleTypeDescriptorNodeModifier withMemberTypeDesc(
+                SeparatedNodeList<TypeDescriptorNode> memberTypeDesc) {
             Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
             this.memberTypeDesc = memberTypeDesc;
             return this;
         }
 
-        public TupleTypeDescriptorNodeModifier withRestTypeDesc(Node restTypeDesc) {
+        public TupleTypeDescriptorNodeModifier withRestTypeDesc(
+                Node restTypeDesc) {
             Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
             this.restTypeDesc = restTypeDesc;
             return this;
         }
 
-        public TupleTypeDescriptorNodeModifier withCloseBracketToken(Token closeBracketToken) {
+        public TupleTypeDescriptorNodeModifier withCloseBracketToken(
+                Token closeBracketToken) {
             Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
             this.closeBracketToken = closeBracketToken;
             return this;

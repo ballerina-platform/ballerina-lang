@@ -91,13 +91,15 @@ public class ImportPrefixNode extends NonTerminalNode {
             this.prefix = oldNode.prefix();
         }
 
-        public ImportPrefixNodeModifier withAsKeyword(Token asKeyword) {
+        public ImportPrefixNodeModifier withAsKeyword(
+                Token asKeyword) {
             Objects.requireNonNull(asKeyword, "asKeyword must not be null");
             this.asKeyword = asKeyword;
             return this;
         }
 
-        public ImportPrefixNodeModifier withPrefix(Token prefix) {
+        public ImportPrefixNodeModifier withPrefix(
+                Token prefix) {
             Objects.requireNonNull(prefix, "prefix must not be null");
             this.prefix = prefix;
             return this;

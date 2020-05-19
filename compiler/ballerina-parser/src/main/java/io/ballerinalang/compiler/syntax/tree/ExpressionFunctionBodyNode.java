@@ -102,19 +102,22 @@ public class ExpressionFunctionBodyNode extends FunctionBodyNode {
             this.semicolon = oldNode.semicolon().orElse(null);
         }
 
-        public ExpressionFunctionBodyNodeModifier withRightDoubleArrow(Token rightDoubleArrow) {
+        public ExpressionFunctionBodyNodeModifier withRightDoubleArrow(
+                Token rightDoubleArrow) {
             Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
             this.rightDoubleArrow = rightDoubleArrow;
             return this;
         }
 
-        public ExpressionFunctionBodyNodeModifier withExpression(ExpressionNode expression) {
+        public ExpressionFunctionBodyNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public ExpressionFunctionBodyNodeModifier withSemicolon(Token semicolon) {
+        public ExpressionFunctionBodyNodeModifier withSemicolon(
+                Token semicolon) {
             Objects.requireNonNull(semicolon, "semicolon must not be null");
             this.semicolon = semicolon;
             return this;

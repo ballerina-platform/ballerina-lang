@@ -103,19 +103,22 @@ public class BinaryExpressionNode extends ExpressionNode {
             this.rhsExpr = oldNode.rhsExpr();
         }
 
-        public BinaryExpressionNodeModifier withLhsExpr(Node lhsExpr) {
+        public BinaryExpressionNodeModifier withLhsExpr(
+                Node lhsExpr) {
             Objects.requireNonNull(lhsExpr, "lhsExpr must not be null");
             this.lhsExpr = lhsExpr;
             return this;
         }
 
-        public BinaryExpressionNodeModifier withOperator(Token operator) {
+        public BinaryExpressionNodeModifier withOperator(
+                Token operator) {
             Objects.requireNonNull(operator, "operator must not be null");
             this.operator = operator;
             return this;
         }
 
-        public BinaryExpressionNodeModifier withRhsExpr(Node rhsExpr) {
+        public BinaryExpressionNodeModifier withRhsExpr(
+                Node rhsExpr) {
             Objects.requireNonNull(rhsExpr, "rhsExpr must not be null");
             this.rhsExpr = rhsExpr;
             return this;

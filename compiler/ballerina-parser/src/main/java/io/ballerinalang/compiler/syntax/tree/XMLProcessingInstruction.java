@@ -111,25 +111,29 @@ public class XMLProcessingInstruction extends XMLItemNode {
             this.piEnd = oldNode.piEnd();
         }
 
-        public XMLProcessingInstructionModifier withPiStart(Token piStart) {
+        public XMLProcessingInstructionModifier withPiStart(
+                Token piStart) {
             Objects.requireNonNull(piStart, "piStart must not be null");
             this.piStart = piStart;
             return this;
         }
 
-        public XMLProcessingInstructionModifier withTarget(XMLNameNode target) {
+        public XMLProcessingInstructionModifier withTarget(
+                XMLNameNode target) {
             Objects.requireNonNull(target, "target must not be null");
             this.target = target;
             return this;
         }
 
-        public XMLProcessingInstructionModifier withData(NodeList<Node> data) {
+        public XMLProcessingInstructionModifier withData(
+                NodeList<Node> data) {
             Objects.requireNonNull(data, "data must not be null");
             this.data = data;
             return this;
         }
 
-        public XMLProcessingInstructionModifier withPiEnd(Token piEnd) {
+        public XMLProcessingInstructionModifier withPiEnd(
+                Token piEnd) {
             Objects.requireNonNull(piEnd, "piEnd must not be null");
             this.piEnd = piEnd;
             return this;

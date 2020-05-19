@@ -121,31 +121,36 @@ public class XMLNamespaceDeclarationNode extends NonTerminalNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public XMLNamespaceDeclarationNodeModifier withXmlnsKeyword(Token xmlnsKeyword) {
+        public XMLNamespaceDeclarationNodeModifier withXmlnsKeyword(
+                Token xmlnsKeyword) {
             Objects.requireNonNull(xmlnsKeyword, "xmlnsKeyword must not be null");
             this.xmlnsKeyword = xmlnsKeyword;
             return this;
         }
 
-        public XMLNamespaceDeclarationNodeModifier withNamespaceuri(ExpressionNode namespaceuri) {
+        public XMLNamespaceDeclarationNodeModifier withNamespaceuri(
+                ExpressionNode namespaceuri) {
             Objects.requireNonNull(namespaceuri, "namespaceuri must not be null");
             this.namespaceuri = namespaceuri;
             return this;
         }
 
-        public XMLNamespaceDeclarationNodeModifier withAsKeyword(Token asKeyword) {
+        public XMLNamespaceDeclarationNodeModifier withAsKeyword(
+                Token asKeyword) {
             Objects.requireNonNull(asKeyword, "asKeyword must not be null");
             this.asKeyword = asKeyword;
             return this;
         }
 
-        public XMLNamespaceDeclarationNodeModifier withNamespacePrefix(IdentifierToken namespacePrefix) {
+        public XMLNamespaceDeclarationNodeModifier withNamespacePrefix(
+                IdentifierToken namespacePrefix) {
             Objects.requireNonNull(namespacePrefix, "namespacePrefix must not be null");
             this.namespacePrefix = namespacePrefix;
             return this;
         }
 
-        public XMLNamespaceDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+        public XMLNamespaceDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

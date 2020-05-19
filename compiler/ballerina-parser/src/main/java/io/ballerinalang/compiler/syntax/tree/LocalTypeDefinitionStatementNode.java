@@ -121,31 +121,36 @@ public class LocalTypeDefinitionStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public LocalTypeDefinitionStatementNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public LocalTypeDefinitionStatementNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public LocalTypeDefinitionStatementNodeModifier withTypeKeyword(Token typeKeyword) {
+        public LocalTypeDefinitionStatementNodeModifier withTypeKeyword(
+                Token typeKeyword) {
             Objects.requireNonNull(typeKeyword, "typeKeyword must not be null");
             this.typeKeyword = typeKeyword;
             return this;
         }
 
-        public LocalTypeDefinitionStatementNodeModifier withTypeName(Node typeName) {
+        public LocalTypeDefinitionStatementNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public LocalTypeDefinitionStatementNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public LocalTypeDefinitionStatementNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public LocalTypeDefinitionStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public LocalTypeDefinitionStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

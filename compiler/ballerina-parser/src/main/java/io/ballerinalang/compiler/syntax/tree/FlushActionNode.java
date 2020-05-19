@@ -91,13 +91,15 @@ public class FlushActionNode extends ExpressionNode {
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public FlushActionNodeModifier withFlushKeyword(Token flushKeyword) {
+        public FlushActionNodeModifier withFlushKeyword(
+                Token flushKeyword) {
             Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
             this.flushKeyword = flushKeyword;
             return this;
         }
 
-        public FlushActionNodeModifier withPeerWorker(Token peerWorker) {
+        public FlushActionNodeModifier withPeerWorker(
+                Token peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;

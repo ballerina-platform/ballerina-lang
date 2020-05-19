@@ -101,19 +101,22 @@ public class ServiceBodyNode extends NonTerminalNode {
             this.closeBraceToken = oldNode.closeBraceToken();
         }
 
-        public ServiceBodyNodeModifier withOpenBraceToken(Token openBraceToken) {
+        public ServiceBodyNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
             Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
             this.openBraceToken = openBraceToken;
             return this;
         }
 
-        public ServiceBodyNodeModifier withResources(NodeList<Node> resources) {
+        public ServiceBodyNodeModifier withResources(
+                NodeList<Node> resources) {
             Objects.requireNonNull(resources, "resources must not be null");
             this.resources = resources;
             return this;
         }
 
-        public ServiceBodyNodeModifier withCloseBraceToken(Token closeBraceToken) {
+        public ServiceBodyNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
             Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
             this.closeBraceToken = closeBraceToken;
             return this;

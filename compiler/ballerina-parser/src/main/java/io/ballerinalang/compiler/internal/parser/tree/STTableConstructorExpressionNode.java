@@ -29,27 +29,27 @@ import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
  */
 public class STTableConstructorExpressionNode extends STExpressionNode {
     public final STNode tableKeyword;
-    public final STNode KeySpecifier;
+    public final STNode keySpecifier;
     public final STNode openBracket;
     public final STNode mappingConstructors;
     public final STNode closeBracket;
 
     STTableConstructorExpressionNode(
             STNode tableKeyword,
-            STNode KeySpecifier,
+            STNode keySpecifier,
             STNode openBracket,
             STNode mappingConstructors,
             STNode closeBracket) {
         super(SyntaxKind.TABLE_CONSTRUCTOR);
         this.tableKeyword = tableKeyword;
-        this.KeySpecifier = KeySpecifier;
+        this.keySpecifier = keySpecifier;
         this.openBracket = openBracket;
         this.mappingConstructors = mappingConstructors;
         this.closeBracket = closeBracket;
 
         addChildren(
                 tableKeyword,
-                KeySpecifier,
+                keySpecifier,
                 openBracket,
                 mappingConstructors,
                 closeBracket);

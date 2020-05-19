@@ -91,13 +91,15 @@ public class ImportSubVersionNode extends NonTerminalNode {
             this.versionNumber = oldNode.versionNumber();
         }
 
-        public ImportSubVersionNodeModifier withLeadingDot(Token leadingDot) {
+        public ImportSubVersionNodeModifier withLeadingDot(
+                Token leadingDot) {
             Objects.requireNonNull(leadingDot, "leadingDot must not be null");
             this.leadingDot = leadingDot;
             return this;
         }
 
-        public ImportSubVersionNodeModifier withVersionNumber(Token versionNumber) {
+        public ImportSubVersionNodeModifier withVersionNumber(
+                Token versionNumber) {
             Objects.requireNonNull(versionNumber, "versionNumber must not be null");
             this.versionNumber = versionNumber;
             return this;

@@ -1070,14 +1070,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTableConstructorExpressionNode(
             STNode tableKeyword,
-            STNode KeySpecifier,
+            STNode keySpecifier,
             STNode openBracket,
             STNode mappingConstructors,
             STNode closeBracket) {
 
         return new STTableConstructorExpressionNode(
                 tableKeyword,
-                KeySpecifier,
+                keySpecifier,
                 openBracket,
                 mappingConstructors,
                 closeBracket);
@@ -1451,11 +1451,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createQueryConstructTypeNode(
             STNode tableKeyword,
-            STNode KeySpecifier) {
+            STNode keySpecifier) {
 
         return new STQueryConstructTypeNode(
                 tableKeyword,
-                KeySpecifier);
+                keySpecifier);
     }
 
     public static STNode createFromClauseNode(

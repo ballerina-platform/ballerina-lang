@@ -1435,19 +1435,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TableConstructorExpressionNode createTableConstructorExpressionNode(
             Token tableKeyword,
-            KeySpecifierNode KeySpecifier,
+            KeySpecifierNode keySpecifier,
             Token openBracket,
             SeparatedNodeList<Node> mappingConstructors,
             Token closeBracket) {
         Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(mappingConstructors, "mappingConstructors must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
 
         STNode stTableConstructorExpressionNode = STNodeFactory.createTableConstructorExpressionNode(
                 tableKeyword.internalNode(),
-                KeySpecifier.internalNode(),
+                keySpecifier.internalNode(),
                 openBracket.internalNode(),
                 mappingConstructors.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
@@ -1952,13 +1952,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static QueryConstructTypeNode createQueryConstructTypeNode(
             Token tableKeyword,
-            KeySpecifierNode KeySpecifier) {
+            KeySpecifierNode keySpecifier) {
         Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
 
         STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
                 tableKeyword.internalNode(),
-                KeySpecifier.internalNode());
+                keySpecifier.internalNode());
         return stQueryConstructTypeNode.createUnlinkedFacade();
     }
 

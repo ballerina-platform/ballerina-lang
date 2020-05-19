@@ -92,13 +92,15 @@ public class MetadataNode extends NonTerminalNode {
             this.annotations = oldNode.annotations();
         }
 
-        public MetadataNodeModifier withDocumentationString(Node documentationString) {
+        public MetadataNodeModifier withDocumentationString(
+                Node documentationString) {
             Objects.requireNonNull(documentationString, "documentationString must not be null");
             this.documentationString = documentationString;
             return this;
         }
 
-        public MetadataNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public MetadataNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;

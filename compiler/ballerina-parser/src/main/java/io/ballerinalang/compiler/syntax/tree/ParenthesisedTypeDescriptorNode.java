@@ -101,19 +101,22 @@ public class ParenthesisedTypeDescriptorNode extends TypeDescriptorNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public ParenthesisedTypeDescriptorNodeModifier withOpenParenToken(Token openParenToken) {
+        public ParenthesisedTypeDescriptorNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public ParenthesisedTypeDescriptorNodeModifier withTypedesc(TypeDescriptorNode typedesc) {
+        public ParenthesisedTypeDescriptorNodeModifier withTypedesc(
+                TypeDescriptorNode typedesc) {
             Objects.requireNonNull(typedesc, "typedesc must not be null");
             this.typedesc = typedesc;
             return this;
         }
 
-        public ParenthesisedTypeDescriptorNodeModifier withCloseParenToken(Token closeParenToken) {
+        public ParenthesisedTypeDescriptorNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

@@ -102,19 +102,22 @@ public class AnnotationNode extends NonTerminalNode {
             this.annotValue = oldNode.annotValue().orElse(null);
         }
 
-        public AnnotationNodeModifier withAtToken(Token atToken) {
+        public AnnotationNodeModifier withAtToken(
+                Token atToken) {
             Objects.requireNonNull(atToken, "atToken must not be null");
             this.atToken = atToken;
             return this;
         }
 
-        public AnnotationNodeModifier withAnnotReference(Node annotReference) {
+        public AnnotationNodeModifier withAnnotReference(
+                Node annotReference) {
             Objects.requireNonNull(annotReference, "annotReference must not be null");
             this.annotReference = annotReference;
             return this;
         }
 
-        public AnnotationNodeModifier withAnnotValue(MappingConstructorExpressionNode annotValue) {
+        public AnnotationNodeModifier withAnnotValue(
+                MappingConstructorExpressionNode annotValue) {
             Objects.requireNonNull(annotValue, "annotValue must not be null");
             this.annotValue = annotValue;
             return this;

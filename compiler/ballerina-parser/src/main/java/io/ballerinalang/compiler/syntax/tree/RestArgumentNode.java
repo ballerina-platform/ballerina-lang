@@ -101,19 +101,22 @@ public class RestArgumentNode extends FunctionArgumentNode {
             this.expression = oldNode.expression();
         }
 
-        public RestArgumentNodeModifier withLeadingComma(Token leadingComma) {
+        public RestArgumentNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public RestArgumentNodeModifier withEllipsis(Token ellipsis) {
+        public RestArgumentNodeModifier withEllipsis(
+                Token ellipsis) {
             Objects.requireNonNull(ellipsis, "ellipsis must not be null");
             this.ellipsis = ellipsis;
             return this;
         }
 
-        public RestArgumentNodeModifier withExpression(ExpressionNode expression) {
+        public RestArgumentNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

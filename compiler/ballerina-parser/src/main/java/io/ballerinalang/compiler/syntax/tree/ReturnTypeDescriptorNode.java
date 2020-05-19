@@ -101,19 +101,22 @@ public class ReturnTypeDescriptorNode extends NonTerminalNode {
             this.type = oldNode.type();
         }
 
-        public ReturnTypeDescriptorNodeModifier withReturnsKeyword(Token returnsKeyword) {
+        public ReturnTypeDescriptorNodeModifier withReturnsKeyword(
+                Token returnsKeyword) {
             Objects.requireNonNull(returnsKeyword, "returnsKeyword must not be null");
             this.returnsKeyword = returnsKeyword;
             return this;
         }
 
-        public ReturnTypeDescriptorNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public ReturnTypeDescriptorNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public ReturnTypeDescriptorNodeModifier withType(Node type) {
+        public ReturnTypeDescriptorNodeModifier withType(
+                Node type) {
             Objects.requireNonNull(type, "type must not be null");
             this.type = type;
             return this;

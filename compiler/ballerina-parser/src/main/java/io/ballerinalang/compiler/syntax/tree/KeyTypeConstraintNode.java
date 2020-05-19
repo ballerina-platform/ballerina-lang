@@ -91,13 +91,15 @@ public class KeyTypeConstraintNode extends NonTerminalNode {
             this.typeParameterNode = oldNode.typeParameterNode();
         }
 
-        public KeyTypeConstraintNodeModifier withKeyKeywordToken(Token keyKeywordToken) {
+        public KeyTypeConstraintNodeModifier withKeyKeywordToken(
+                Token keyKeywordToken) {
             Objects.requireNonNull(keyKeywordToken, "keyKeywordToken must not be null");
             this.keyKeywordToken = keyKeywordToken;
             return this;
         }
 
-        public KeyTypeConstraintNodeModifier withTypeParameterNode(Node typeParameterNode) {
+        public KeyTypeConstraintNodeModifier withTypeParameterNode(
+                Node typeParameterNode) {
             Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
             this.typeParameterNode = typeParameterNode;
             return this;

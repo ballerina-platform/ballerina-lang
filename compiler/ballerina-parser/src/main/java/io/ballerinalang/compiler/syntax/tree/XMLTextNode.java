@@ -81,7 +81,8 @@ public class XMLTextNode extends XMLItemNode {
             this.content = oldNode.content();
         }
 
-        public XMLTextNodeModifier withContent(Token content) {
+        public XMLTextNodeModifier withContent(
+                Token content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;

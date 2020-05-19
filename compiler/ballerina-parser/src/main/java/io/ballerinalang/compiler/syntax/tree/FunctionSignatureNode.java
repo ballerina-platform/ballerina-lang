@@ -112,25 +112,29 @@ public class FunctionSignatureNode extends NonTerminalNode {
             this.returnTypeDesc = oldNode.returnTypeDesc().orElse(null);
         }
 
-        public FunctionSignatureNodeModifier withOpenParenToken(Token openParenToken) {
+        public FunctionSignatureNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public FunctionSignatureNodeModifier withParameters(NodeList<ParameterNode> parameters) {
+        public FunctionSignatureNodeModifier withParameters(
+                NodeList<ParameterNode> parameters) {
             Objects.requireNonNull(parameters, "parameters must not be null");
             this.parameters = parameters;
             return this;
         }
 
-        public FunctionSignatureNodeModifier withCloseParenToken(Token closeParenToken) {
+        public FunctionSignatureNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;
         }
 
-        public FunctionSignatureNodeModifier withReturnTypeDesc(ReturnTypeDescriptorNode returnTypeDesc) {
+        public FunctionSignatureNodeModifier withReturnTypeDesc(
+                ReturnTypeDescriptorNode returnTypeDesc) {
             Objects.requireNonNull(returnTypeDesc, "returnTypeDesc must not be null");
             this.returnTypeDesc = returnTypeDesc;
             return this;

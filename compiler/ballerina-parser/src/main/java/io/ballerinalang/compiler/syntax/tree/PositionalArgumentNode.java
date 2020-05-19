@@ -91,13 +91,15 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
             this.expression = oldNode.expression();
         }
 
-        public PositionalArgumentNodeModifier withLeadingComma(Token leadingComma) {
+        public PositionalArgumentNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public PositionalArgumentNodeModifier withExpression(ExpressionNode expression) {
+        public PositionalArgumentNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

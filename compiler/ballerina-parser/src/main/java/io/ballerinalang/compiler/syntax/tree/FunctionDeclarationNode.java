@@ -132,37 +132,43 @@ public class FunctionDeclarationNode extends NonTerminalNode {
             this.semicolon = oldNode.semicolon();
         }
 
-        public FunctionDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+        public FunctionDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public FunctionDeclarationNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withFunctionKeyword(Token functionKeyword) {
+        public FunctionDeclarationNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
             Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
             this.functionKeyword = functionKeyword;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withFunctionName(IdentifierToken functionName) {
+        public FunctionDeclarationNodeModifier withFunctionName(
+                IdentifierToken functionName) {
             Objects.requireNonNull(functionName, "functionName must not be null");
             this.functionName = functionName;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withFunctionSignature(FunctionSignatureNode functionSignature) {
+        public FunctionDeclarationNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
             Objects.requireNonNull(functionSignature, "functionSignature must not be null");
             this.functionSignature = functionSignature;
             return this;
         }
 
-        public FunctionDeclarationNodeModifier withSemicolon(Token semicolon) {
+        public FunctionDeclarationNodeModifier withSemicolon(
+                Token semicolon) {
             Objects.requireNonNull(semicolon, "semicolon must not be null");
             this.semicolon = semicolon;
             return this;

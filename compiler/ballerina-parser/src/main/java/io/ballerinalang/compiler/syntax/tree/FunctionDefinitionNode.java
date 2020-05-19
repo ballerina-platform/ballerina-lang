@@ -132,37 +132,43 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             this.functionBody = oldNode.functionBody();
         }
 
-        public FunctionDefinitionNodeModifier withMetadata(MetadataNode metadata) {
+        public FunctionDefinitionNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public FunctionDefinitionNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public FunctionDefinitionNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public FunctionDefinitionNodeModifier withFunctionKeyword(Token functionKeyword) {
+        public FunctionDefinitionNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
             Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
             this.functionKeyword = functionKeyword;
             return this;
         }
 
-        public FunctionDefinitionNodeModifier withFunctionName(IdentifierToken functionName) {
+        public FunctionDefinitionNodeModifier withFunctionName(
+                IdentifierToken functionName) {
             Objects.requireNonNull(functionName, "functionName must not be null");
             this.functionName = functionName;
             return this;
         }
 
-        public FunctionDefinitionNodeModifier withFunctionSignature(FunctionSignatureNode functionSignature) {
+        public FunctionDefinitionNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
             Objects.requireNonNull(functionSignature, "functionSignature must not be null");
             this.functionSignature = functionSignature;
             return this;
         }
 
-        public FunctionDefinitionNodeModifier withFunctionBody(FunctionBodyNode functionBody) {
+        public FunctionDefinitionNodeModifier withFunctionBody(
+                FunctionBodyNode functionBody) {
             Objects.requireNonNull(functionBody, "functionBody must not be null");
             this.functionBody = functionBody;
             return this;

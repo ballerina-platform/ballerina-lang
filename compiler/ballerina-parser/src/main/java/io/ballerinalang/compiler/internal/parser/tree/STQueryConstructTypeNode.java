@@ -29,18 +29,18 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STQueryConstructTypeNode extends STNode {
     public final STNode tableKeyword;
-    public final STNode KeySpecifier;
+    public final STNode keySpecifier;
 
     STQueryConstructTypeNode(
             STNode tableKeyword,
-            STNode KeySpecifier) {
+            STNode keySpecifier) {
         super(SyntaxKind.QUERY_CONSTRUCT_TYPE);
         this.tableKeyword = tableKeyword;
-        this.KeySpecifier = KeySpecifier;
+        this.keySpecifier = keySpecifier;
 
         addChildren(
                 tableKeyword,
-                KeySpecifier);
+                keySpecifier);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

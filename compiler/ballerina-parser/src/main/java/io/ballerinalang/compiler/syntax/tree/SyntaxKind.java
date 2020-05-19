@@ -17,6 +17,11 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+/**
+ * Define various kinds of syntax tree nodes, tokens and minutiae.
+ *
+ * @since 2.0.0
+ */
 public enum SyntaxKind {
 
     // Keywords
@@ -57,16 +62,16 @@ public enum SyntaxKind {
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
     PANIC_KEYWORD(210, "panic"),
-    CONTINUE_KEYWORD(211,"continue"),
-    BREAK_KEYWORD(212,"break"),
-    TYPEOF_KEYWORD(213,"typeof"),
+    CONTINUE_KEYWORD(211, "continue"),
+    BREAK_KEYWORD(212, "break"),
+    TYPEOF_KEYWORD(213, "typeof"),
     IS_KEYWORD(214, "is"),
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     FORK_KEYWORD(217, "fork"),
-    TRAP_KEYWORD(218,"trap"),
-    IN_KEYWORD(219,"in"),
-    FOREACH_KEYWORD(220,"foreach"),
+    TRAP_KEYWORD(218, "trap"),
+    IN_KEYWORD(219, "in"),
+    FOREACH_KEYWORD(220, "foreach"),
     TABLE_KEYWORD(221, "table"),
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
@@ -92,13 +97,13 @@ public enum SyntaxKind {
     ANYDATA_KEYWORD(260, "anydata"),
     NEVER_KEYWORD(261, "never"),
     VAR_KEYWORD(262, "var"),
-    MAP_KEYWORD(263,"map"),
+    MAP_KEYWORD(263, "map"),
     FUTURE_KEYWORD(264, "future"),
     TYPEDESC_KEYWORD(265, "typedesc"),
-    ERROR_KEYWORD(266,"error"),
-    STREAM_KEYWORD(267,"stream"),
+    ERROR_KEYWORD(266, "error"),
+    STREAM_KEYWORD(267, "stream"),
     READONLY_KEYWORD(268, "readonly"),
-    DISTINCT_KEYWORD(269,"distinct"),
+    DISTINCT_KEYWORD(269, "distinct"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),

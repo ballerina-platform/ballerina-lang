@@ -131,37 +131,43 @@ public class ComputedNameFieldNode extends NonTerminalNode {
             this.valueExpr = oldNode.valueExpr();
         }
 
-        public ComputedNameFieldNodeModifier withLeadingComma(Token leadingComma) {
+        public ComputedNameFieldNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public ComputedNameFieldNodeModifier withOpenBracket(Token openBracket) {
+        public ComputedNameFieldNodeModifier withOpenBracket(
+                Token openBracket) {
             Objects.requireNonNull(openBracket, "openBracket must not be null");
             this.openBracket = openBracket;
             return this;
         }
 
-        public ComputedNameFieldNodeModifier withFieldNameExpr(ExpressionNode fieldNameExpr) {
+        public ComputedNameFieldNodeModifier withFieldNameExpr(
+                ExpressionNode fieldNameExpr) {
             Objects.requireNonNull(fieldNameExpr, "fieldNameExpr must not be null");
             this.fieldNameExpr = fieldNameExpr;
             return this;
         }
 
-        public ComputedNameFieldNodeModifier withCloseBracket(Token closeBracket) {
+        public ComputedNameFieldNodeModifier withCloseBracket(
+                Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
             this.closeBracket = closeBracket;
             return this;
         }
 
-        public ComputedNameFieldNodeModifier withColonToken(Token colonToken) {
+        public ComputedNameFieldNodeModifier withColonToken(
+                Token colonToken) {
             Objects.requireNonNull(colonToken, "colonToken must not be null");
             this.colonToken = colonToken;
             return this;
         }
 
-        public ComputedNameFieldNodeModifier withValueExpr(ExpressionNode valueExpr) {
+        public ComputedNameFieldNodeModifier withValueExpr(
+                ExpressionNode valueExpr) {
             Objects.requireNonNull(valueExpr, "valueExpr must not be null");
             this.valueExpr = valueExpr;
             return this;

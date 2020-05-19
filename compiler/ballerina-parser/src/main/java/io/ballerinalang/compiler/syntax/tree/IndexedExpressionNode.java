@@ -111,25 +111,29 @@ public class IndexedExpressionNode extends ExpressionNode {
             this.closeBracket = oldNode.closeBracket();
         }
 
-        public IndexedExpressionNodeModifier withContainerExpression(ExpressionNode containerExpression) {
+        public IndexedExpressionNodeModifier withContainerExpression(
+                ExpressionNode containerExpression) {
             Objects.requireNonNull(containerExpression, "containerExpression must not be null");
             this.containerExpression = containerExpression;
             return this;
         }
 
-        public IndexedExpressionNodeModifier withOpenBracket(Token openBracket) {
+        public IndexedExpressionNodeModifier withOpenBracket(
+                Token openBracket) {
             Objects.requireNonNull(openBracket, "openBracket must not be null");
             this.openBracket = openBracket;
             return this;
         }
 
-        public IndexedExpressionNodeModifier withKeyExpression(ExpressionNode keyExpression) {
+        public IndexedExpressionNodeModifier withKeyExpression(
+                ExpressionNode keyExpression) {
             Objects.requireNonNull(keyExpression, "keyExpression must not be null");
             this.keyExpression = keyExpression;
             return this;
         }
 
-        public IndexedExpressionNodeModifier withCloseBracket(Token closeBracket) {
+        public IndexedExpressionNodeModifier withCloseBracket(
+                Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
             this.closeBracket = closeBracket;
             return this;

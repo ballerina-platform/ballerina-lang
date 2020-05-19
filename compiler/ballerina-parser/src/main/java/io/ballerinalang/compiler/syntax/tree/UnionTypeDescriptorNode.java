@@ -101,19 +101,22 @@ public class UnionTypeDescriptorNode extends TypeDescriptorNode {
             this.rightTypeDesc = oldNode.rightTypeDesc();
         }
 
-        public UnionTypeDescriptorNodeModifier withLeftTypeDesc(TypeDescriptorNode leftTypeDesc) {
+        public UnionTypeDescriptorNodeModifier withLeftTypeDesc(
+                TypeDescriptorNode leftTypeDesc) {
             Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
             this.leftTypeDesc = leftTypeDesc;
             return this;
         }
 
-        public UnionTypeDescriptorNodeModifier withPipeToken(Token pipeToken) {
+        public UnionTypeDescriptorNodeModifier withPipeToken(
+                Token pipeToken) {
             Objects.requireNonNull(pipeToken, "pipeToken must not be null");
             this.pipeToken = pipeToken;
             return this;
         }
 
-        public UnionTypeDescriptorNodeModifier withRightTypeDesc(TypeDescriptorNode rightTypeDesc) {
+        public UnionTypeDescriptorNodeModifier withRightTypeDesc(
+                TypeDescriptorNode rightTypeDesc) {
             Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
             this.rightTypeDesc = rightTypeDesc;
             return this;
