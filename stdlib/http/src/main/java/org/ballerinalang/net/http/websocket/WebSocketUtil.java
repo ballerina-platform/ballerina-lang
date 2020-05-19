@@ -108,9 +108,10 @@ public class WebSocketUtil {
     }
 
     public static void populateWebSocketEndpoint(WebSocketConnection webSocketConnection, ObjectValue webSocketClient) {
-        webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
-        String negotiatedSubProtocol = webSocketConnection.getNegotiatedSubProtocol();
-        webSocketClient.set(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD, negotiatedSubProtocol);
+        webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD,
+                            StringUtils.fromString(webSocketConnection.getChannelId()));
+        webSocketClient.set(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
+                            StringUtils.fromString(webSocketConnection.getNegotiatedSubProtocol()));
         webSocketClient.set(WebSocketConstants.LISTENER_IS_SECURE_FIELD, webSocketConnection.isSecure());
         webSocketClient.set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, webSocketConnection.isOpen());
     }
@@ -477,21 +478,23 @@ public class WebSocketUtil {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
+        MapValue<BString, Object> headerValues = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
         }
 
         long idleTimeoutInSeconds = findTimeoutInSeconds(clientEndpointConfig,
-                WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT, 0);
+                                                         WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT, 0);
         if (idleTimeoutInSeconds > 0) {
             clientConnectorConfig.setIdleTimeoutInMillis((int) (idleTimeoutInSeconds * 1000));
         }
 
         clientConnectorConfig.setMaxFrameSize(findMaxFrameSize(clientEndpointConfig));
 
-        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        MapValue<BString, Object> secureSocket =
+                (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+                        HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
         } else if (scheme.equals(WebSocketConstants.WSS_SCHEME)) {
@@ -501,10 +504,10 @@ public class WebSocketUtil {
                 clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
     }
 
-    private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
+    private static Map<String, String> getCustomHeaders(MapValue<BString, Object> headers) {
         Map<String, String> customHeaders = new HashMap<>();
         headers.entrySet().forEach(
-                entry -> customHeaders.put(entry.getKey(), headers.get(entry.getKey()).toString())
+                entry -> customHeaders.put(entry.getKey().getValue(), headers.get(entry.getKey()).toString())
         );
         return customHeaders;
     }

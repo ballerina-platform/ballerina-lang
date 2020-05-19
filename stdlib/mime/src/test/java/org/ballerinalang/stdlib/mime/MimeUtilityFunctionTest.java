@@ -146,8 +146,10 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContentDispositionObject", args);
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> contentDisposition = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD.getValue()).stringValue(), "file-01.txt");
-        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD.getValue()).stringValue(), "filepart");
+        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD.getValue()).stringValue(),
+                            "file-01.txt");
+        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD.getValue()).stringValue(),
+                            "filepart");
         Assert.assertEquals(contentDisposition.get(DISPOSITION_FIELD.getValue()).stringValue(), "form-data");
         BMap map = (BMap) contentDisposition.get(PARAMETER_MAP_FIELD.getValue());
         Assert.assertEquals(map.size(), 0);

@@ -60,21 +60,6 @@ public class MapUtils {
         }
     }
 
-    @Deprecated
-    public static void handleMapStore(MapValue<String, Object> mapValue, String fieldName, Object value) {
-        BType mapType = mapValue.getType();
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
-                mapValue.put(fieldName, value);
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false);
-                mapValue.put(fieldName, value);
-                break;
-        }
-    }
-
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
         if (TypeChecker.checkIsType(value, mapType.getConstrainedType())) {
             return;

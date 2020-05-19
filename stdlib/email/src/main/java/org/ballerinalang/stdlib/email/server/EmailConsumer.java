@@ -51,11 +51,11 @@ public class EmailConsumer {
      */
     public EmailConsumer(Map<String, Object> emailProperties, EmailListener listener) throws EmailConnectorException {
         this.emailListener = listener;
-        String host = (String) emailProperties.get(EmailConstants.PROPS_HOST);
-        String username = (String) emailProperties.get(EmailConstants.PROPS_USERNAME);
-        String password = (String) emailProperties.get(EmailConstants.PROPS_PASSWORD);
-        String protocol = (String) emailProperties.get(EmailConstants.PROPS_PROTOCOL);
-        MapValue protocolConfig = (MapValue) emailProperties.get(EmailConstants.PROTOCOL_CONFIG);
+        String host = (String) emailProperties.get(EmailConstants.PROPS_HOST.getValue());
+        String username = (String) emailProperties.get(EmailConstants.PROPS_USERNAME.getValue());
+        String password = (String) emailProperties.get(EmailConstants.PROPS_PASSWORD.getValue());
+        String protocol = (String) emailProperties.get(EmailConstants.PROPS_PROTOCOL.getValue());
+        MapValue protocolConfig = (MapValue) emailProperties.get(EmailConstants.PROTOCOL_CONFIG.getValue());
         if (protocol.equals(EmailConstants.IMAP)) {
             client = BallerinaValues.createObjectValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.IMAP_CLIENT,
                     host, username, password, (MapValue<Object, Object>) protocolConfig);
