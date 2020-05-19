@@ -1588,14 +1588,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolon);
     }
 
-    public static STNode createAsyncActionNode(
+    public static STNode createAsyncSendActionNode(
             STNode expression,
             STNode rightArrowToken,
             STNode peerWorker) {
 
-        return new STAsyncActionNode(
+        return new STAsyncSendActionNode(
                 expression,
                 rightArrowToken,
+                peerWorker);
+    }
+
+    public static STNode createSyncSendActionNode(
+            STNode expression,
+            STNode syncSendToken,
+            STNode peerWorker) {
+
+        return new STSyncSendActionNode(
+                expression,
+                syncSendToken,
                 peerWorker);
     }
 }

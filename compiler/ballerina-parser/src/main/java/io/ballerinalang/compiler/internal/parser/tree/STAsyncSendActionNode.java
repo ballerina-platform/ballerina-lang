@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.AsyncActionNode;
+import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,12 +27,12 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STAsyncActionNode extends STActionNode {
+public class STAsyncSendActionNode extends STActionNode {
     public final STNode expression;
     public final STNode rightArrowToken;
     public final STNode peerWorker;
 
-    STAsyncActionNode(
+    STAsyncSendActionNode(
             STNode expression,
             STNode rightArrowToken,
             STNode peerWorker) {
@@ -48,6 +48,6 @@ public class STAsyncActionNode extends STActionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new AsyncActionNode(this, position, parent);
+        return new AsyncSendActionNode(this, position, parent);
     }
 }

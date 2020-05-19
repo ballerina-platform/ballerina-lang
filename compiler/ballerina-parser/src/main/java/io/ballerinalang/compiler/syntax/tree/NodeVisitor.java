@@ -551,8 +551,12 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionDeclarationNode);
     }
 
-    public void visit(AsyncActionNode asyncActionNode) {
-        visitSyntaxNode(asyncActionNode);
+    public void visit(AsyncSendActionNode asyncSendActionNode) {
+        visitSyntaxNode(asyncSendActionNode);
+    }
+
+    public void visit(SyncSendActionNode syncSendActionNode) {
+        visitSyntaxNode(syncSendActionNode);
     }
 
     // Tokens

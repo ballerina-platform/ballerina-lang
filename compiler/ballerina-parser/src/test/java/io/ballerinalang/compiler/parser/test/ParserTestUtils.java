@@ -576,6 +576,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
             case "RIGHT_DOUBLE_ARROW":
                 return SyntaxKind.RIGHT_DOUBLE_ARROW;
+            case "SYNC_SEND_TOKEN":
+                return SyntaxKind.SYNC_SEND_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -664,6 +666,10 @@ public class ParserTestUtils {
                 return SyntaxKind.TRAP_ACTION;
             case "FLUSH_ACTION":
                 return SyntaxKind.FLUSH_ACTION;
+            case "ASYNC_SEND_ACTION":
+                return SyntaxKind.ASYNC_SEND_ACTION;
+            case "SYNC_SEND_ACTION":
+                return SyntaxKind.SYNC_SEND_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":

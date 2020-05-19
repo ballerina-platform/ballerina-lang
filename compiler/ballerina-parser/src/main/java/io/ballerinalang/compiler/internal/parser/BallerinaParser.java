@@ -2600,6 +2600,7 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
                 return OperatorPrecedence.REMOTE_CALL_ACTION;
             case RIGHT_DOUBLE_ARROW:
+            case SYNC_SEND_TOKEN:
                 return OperatorPrecedence.ACTION;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
@@ -3140,10 +3141,10 @@ public class BallerinaParser extends AbstractParser {
      */
     protected STNode parseStatement() {
         STToken token = peek();
-        return parseStatement(token.kind);
+        return parseStatement(token.kind, 1);
     }
 
-    private STNode parseStatement(SyntaxKind tokenKind) {
+    private STNode parseStatement(SyntaxKind tokenKind, int nextTokenIndex) {
         STNode annots = null;
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
@@ -3195,7 +3196,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.STATEMENT);
+                Solution solution = recover(token, ParserRuleContext.STATEMENT, nextTokenIndex);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3204,10 +3205,10 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseStatement(solution.tokenKind);
+                return parseStatement(solution.tokenKind, nextTokenIndex);
         }
 
-        return parseStatement(tokenKind, annots);
+        return parseStatement(tokenKind, annots, nextTokenIndex);
     }
 
     private STNode getAnnotations(STNode nullbaleAnnot) {
@@ -3219,7 +3220,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseStatement(STNode annots) {
-        return parseStatement(peek().kind, annots);
+        return parseStatement(peek().kind, annots, 1);
     }
 
     /**
@@ -3228,7 +3229,7 @@ public class BallerinaParser extends AbstractParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseStatement(SyntaxKind tokenKind, STNode annots) {
+    private STNode parseStatement(SyntaxKind tokenKind, STNode annots, int nextTokenIndex) {
         // TODO: validate annotations: not every statement supports annots
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
@@ -3279,11 +3280,6 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             default:
-                if (isValidExpressionStart(tokenKind)) {
-                    STNode expression = parseActionOrExpression(false);
-                    return parseStamentStartWithExpr(annots, expression);
-                }
-
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
@@ -3291,8 +3287,13 @@ public class BallerinaParser extends AbstractParser {
                     finalKeyword = STNodeFactory.createEmptyNode();
                     return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
                 }
+
+                if (isValidExpressionStart(tokenKind, nextTokenIndex)) {
+                    return parseStamentStartWithExpr(tokenKind, getAnnotations(annots));
+                }
+
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
+                Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots, nextTokenIndex);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3301,7 +3302,9 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseStatement(solution.tokenKind, annots);
+                // we come here if a token was inserted. Then the current token become the
+                // next token. So 'nextTokenIndex = nextTokenIndex - 1'
+                return parseStatement(solution.tokenKind, annots, nextTokenIndex - 1);
         }
     }
 
@@ -3464,8 +3467,8 @@ public class BallerinaParser extends AbstractParser {
         return parseExpression(DEFAULT_OP_PRECEDENCE, true, true);
     }
 
-    private STNode parseActionOrExpression(SyntaxKind tokenKind) {
-        return parseExpression(tokenKind, DEFAULT_OP_PRECEDENCE, true, true);
+    private STNode parseActionOrExpressionInLhs(SyntaxKind tokenKind) {
+        return parseExpression(tokenKind, DEFAULT_OP_PRECEDENCE, false, true);
     }
 
     private STNode parseActionOrExpression(boolean isRhsExpr) {
@@ -3844,6 +3847,13 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
+        if (lhsExpr.kind == SyntaxKind.ASYNC_SEND_ACTION) {
+            // Async-send action can only exists in an action-statement.
+            // It also has to be the right-most action. i.e: Should be
+            // followed by a semicolon
+            return lhsExpr;
+        }
+
         if (!isValidExprRhsStart(tokenKind)) {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
@@ -3898,6 +3908,12 @@ public class BallerinaParser extends AbstractParser {
                     this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
                 }
                 break;
+            case SYNC_SEND_TOKEN:
+                newLhsExpr = parseSyncSendAction(lhsExpr);
+                if (!allowActions) {
+                    this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
+                }
+                break;
             case RIGHT_DOUBLE_ARROW:
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr);
                 break;
@@ -3929,6 +3945,7 @@ public class BallerinaParser extends AbstractParser {
             case IS_KEYWORD:
             case RIGHT_ARROW_TOKEN:
             case RIGHT_DOUBLE_ARROW:
+            case SYNC_SEND_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -6368,8 +6385,16 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExpressionStament(SyntaxKind nextTokenKind, STNode annots) {
         startContext(ParserRuleContext.EXPRESSION_STATEMENT);
-        STNode expression = parseActionOrExpression(nextTokenKind);
+        STNode expression = parseActionOrExpressionInLhs(nextTokenKind);
         STNode stmt = getExpressionAsStatement(expression);
+        endContext();
+        return stmt;
+    }
+
+    private STNode parseStamentStartWithExpr(SyntaxKind nextTokenKind, STNode annots) {
+        startContext(ParserRuleContext.EXPRESSION_STATEMENT);
+        STNode expression = parseActionOrExpressionInLhs(nextTokenKind);
+        STNode stmt = parseStamentStartWithExpr(annots, expression);
         endContext();
         return stmt;
     }
@@ -6519,7 +6544,11 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse remote method call action, given the starting expression.
      * <p>
-     * <code>remote-method-call-action := expression -> method-name ( arg-list )</code>
+     * <code>
+     * remote-method-call-action := expression -> method-name ( arg-list )
+     * <br/>
+     * async-send-action := expression -> peer-worker ;
+     * </code>
      * 
      * @param isRhsExpr Is this an RHS action
      * @param expression LHS expression
@@ -6533,10 +6562,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseRemoteCallOrAsyncSendActionRhs(SyntaxKind nextTokenKind, STNode expression, boolean isRhsExpr,
                                                        STNode rightArrow) {
         STNode name;
-        switch (peek().kind) {
+        switch (nextTokenKind) {
             case DEFAULT_KEYWORD:
                 name = parseDefaultKeyword();
-                return parseSyncSendAction(expression, rightArrow, name);
+                return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
                 name = parseFunctionName();
                 break;
@@ -6556,10 +6585,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseRemoteCallOrAsyncSendActionRhs(solution.tokenKind, expression, isRhsExpr, rightArrow);
         }
 
-        // if (isRhsExpr) {
-        // return parseRemoteMethodCallAction(expression, rightArrow, name);
-        // }
-
         return parseRemoteCallOrAsyncSendEnd(peek().kind, expression, rightArrow, name);
     }
 
@@ -6569,7 +6594,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseRemoteMethodCallAction(expression, rightArrow, name);
             case SEMICOLON_TOKEN:
-                return parseSyncSendAction(expression, rightArrow, name);
+                return parseAsyncSendAction(expression, rightArrow, name);
             default:
                 STToken token = peek();
                 Solution solution =
@@ -6601,8 +6626,8 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseSyncSendAction(STNode expression, STNode rightArrow, STNode peerWorker) {
-        return STNodeFactory.createAsyncActionNode(expression, rightArrow, peerWorker);
+    private STNode parseAsyncSendAction(STNode expression, STNode rightArrow, STNode peerWorker) {
+        return STNodeFactory.createAsyncSendActionNode(expression, rightArrow, peerWorker);
     }
 
     private STNode parseRemoteMethodCallAction(STNode expression, STNode rightArrow, STNode name) {
@@ -9378,7 +9403,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFlushAction() {
         STNode flushKeyword = parseFlushKeyword();
-        STNode peerWorker = parsePeerWorkerName();
+        STNode peerWorker = parseOptionalPeerWorkerName();
         return STNodeFactory.createFlushActionNode(flushKeyword, peerWorker);
     }
 
@@ -9404,7 +9429,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return peer worker name node
      */
-    private STNode parsePeerWorkerName() {
+    private STNode parseOptionalPeerWorkerName() {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
@@ -9430,7 +9455,14 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 
-    private boolean isValidExpressionStart(SyntaxKind kind) {
+    /**
+     * Check whether the parser reached to a valid expression start.
+     * 
+     * @param kind Kind of the next immediate token.
+     * @param nextTokenIndex Index to the next token.
+     * @return <code>true</code> if this is a start of a valid expression. <code>false</code> otherwise
+     */
+    private boolean isValidExpressionStart(SyntaxKind kind, int nextTokenIndex) {
         switch (kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -9441,13 +9473,13 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
             case IDENTIFIER_TOKEN:
+                return isValidExprRhsStart(peek(nextTokenIndex).kind);
+
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
             case OPEN_BRACE_TOKEN:
             case TYPEOF_KEYWORD:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
             case TRAP_KEYWORD:
@@ -9464,10 +9496,66 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case NEW_KEYWORD:
                 return true;
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex + 1);
+
+            // 'start' and 'flush' are start of actions, but not expressions.
             case START_KEYWORD:
             case FLUSH_KEYWORD:
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Parse sync send action.
+     * <p>
+     * <code>sync-send-action := expression ->> peer-worker</code>
+     * 
+     * @param expression LHS expression of the sync send action
+     * @return Sync send action node
+     */
+    private STNode parseSyncSendAction(STNode expression) {
+        STNode syncSendToken = parseSyncSendToken();
+        STNode peerWorker = parsePeerWorkerName();
+        return STNodeFactory.createSyncSendActionNode(expression, syncSendToken, peerWorker);
+    }
+
+    /**
+     * Parse sync send token.
+     * <p>
+     * <code>sync-send-token :=  --> </code>
+     *
+     * @return sync send token
+     */
+    private STNode parseSyncSendToken() {
+        STToken token = peek();
+        switch (token.kind) {
+            case SYNC_SEND_TOKEN:
+                return consume();
+            default:
+                Solution sol = recover(token, ParserRuleContext.SYNC_SEND_TOKEN);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse peer worker.
+     * <p>
+     * <code>peer-worker := worker-name | default</code>
+     *
+     * @return peer worker name node
+     */
+    private STNode parsePeerWorkerName() {
+        STToken token = peek();
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+            case DEFAULT_KEYWORD:
+                return consume();
+            default:
+                Solution sol = recover(token, ParserRuleContext.PEER_WORKER_NAME);
+                return sol.recoveredNode;
         }
     }
 }

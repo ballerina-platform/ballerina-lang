@@ -150,6 +150,7 @@ public enum SyntaxKind {
     XML_PI_END_TOKEN(576, "?>"),
     XML_COMMENT_START_TOKEN(577, "<!--"),
     XML_COMMENT_END_TOKEN(578, "-->"),
+    SYNC_SEND_TOKEN(579, "->>"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),

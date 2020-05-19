@@ -1576,13 +1576,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public AsyncActionNode transform(AsyncActionNode asyncActionNode) {
-        ExpressionNode expression = modifyNode(asyncActionNode.expression());
-        Token rightArrowToken = modifyToken(asyncActionNode.rightArrowToken());
-        Token peerWorker = modifyToken(asyncActionNode.peerWorker());
-        return asyncActionNode.modify(
+    public AsyncSendActionNode transform(AsyncSendActionNode asyncSendActionNode) {
+        ExpressionNode expression = modifyNode(asyncSendActionNode.expression());
+        Token rightArrowToken = modifyToken(asyncSendActionNode.rightArrowToken());
+        Token peerWorker = modifyToken(asyncSendActionNode.peerWorker());
+        return asyncSendActionNode.modify(
                 expression,
                 rightArrowToken,
+                peerWorker);
+    }
+
+    @Override
+    public SyncSendActionNode transform(SyncSendActionNode syncSendActionNode) {
+        ExpressionNode expression = modifyNode(syncSendActionNode.expression());
+        Token syncSendToken = modifyToken(syncSendActionNode.syncSendToken());
+        Token peerWorker = modifyToken(syncSendActionNode.peerWorker());
+        return syncSendActionNode.modify(
+                expression,
+                syncSendToken,
                 peerWorker);
     }
 

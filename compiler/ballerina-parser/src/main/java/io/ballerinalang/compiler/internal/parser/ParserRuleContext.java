@@ -150,13 +150,14 @@ public enum ParserRuleContext {
     BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
     ANON_FUNC_PARAM_RHS("anon-func-param-rhs"),
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
-    PEER_WORKER("peer-worker"),
-    ASYNC_SEND_PEER_WORKER("async-send-peer-worker"),
-    FLUSH_WORKER_NAME("flush-worker-name"),
+    OPTIONAL_PEER_WORKER("optional-peer-worker"),
+    WORKER_NAME_OR_METHOD_NAME("worker-name-or-method-name"),
+    PEER_WORKER_NAME("peer-worker-name"),
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
     NIL_OR_PARENTHESISED_TYPE_DESC_RHS("nil-or-parenthesised-tpe-desc-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
+    DEFAULT_WORKER_NAME_IN_ASYNC_SEND("default-worker-name-in-async-send"),
 
     // Statements
     STATEMENT("statement"),
@@ -282,6 +283,7 @@ public enum ParserRuleContext {
     BITWISE_AND_OPERATOR("&"),
     EXPR_FUNC_BODY_START("=>"),
     TUPLE_TYPE_DESC_START("["),
+    SYNC_SEND_TOKEN("->>"),
 
     // Other terminals
     FUNC_NAME("function-name"),

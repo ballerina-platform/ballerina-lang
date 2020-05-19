@@ -272,7 +272,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.VAR_DECL_STARTED_WITH_DENTIFIER };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
-            { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
+            { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
+                    ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD };
 
     private static final ParserRuleContext[] ANNOT_DECL_OPTIONAL_TYPE =
             { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.ANNOTATION_TAG };
@@ -374,8 +375,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] INFER_PARAM_END_OR_PARENTHESIS_END =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.EXPR_FUNC_BODY_START };
 
-    private static final ParserRuleContext[] PEER_WORKER = { ParserRuleContext.FLUSH_WORKER_NAME,
-            ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.EXPRESSION_RHS };
+    private static final ParserRuleContext[] OPTIONAL_PEER_WORKER =
+            { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] TYPE_DESC_IN_TUPLE_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
@@ -386,11 +387,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NIL_OR_PARENTHESISED_TYPE_DESC_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_RHS = { ParserRuleContext.ASYNC_SEND_PEER_WORKER,
-            ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.IDENTIFIER };
-
-    private static final ParserRuleContext[] ASYNC_SEND_PEER_WORKER =
-            { ParserRuleContext.FLUSH_WORKER_NAME, ParserRuleContext.DEFAULT_KEYWORD, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_RHS =
+            { ParserRuleContext.WORKER_NAME_OR_METHOD_NAME, ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND };
 
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_END =
             { ParserRuleContext.ARG_LIST_START, ParserRuleContext.SEMICOLON };
@@ -458,6 +456,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
             case QUERY_EXPRESSION_RHS:
             case ANON_FUNC_BODY:
+            case REMOTE_CALL_OR_ASYNC_SEND_RHS:
+            case REMOTE_CALL_OR_ASYNC_SEND_END:
                 return true;
             default:
                 return false;
@@ -548,7 +548,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case NAMESPACE_PREFIX:
                 case WORKER_NAME:
                 case IMPLICIT_ANON_FUNC_PARAM:
-                case FLUSH_WORKER_NAME:
+                case WORKER_NAME_OR_METHOD_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -1139,13 +1139,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case START_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.START_KEYWORD;
                     break;
-                case PEER_WORKER:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PEER_WORKER,
+                case OPTIONAL_PEER_WORKER:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, OPTIONAL_PEER_WORKER,
                             isEntryPoint);
                 case FLUSH_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.FLUSH_KEYWORD;
                     break;
                 case DEFAULT_KEYWORD:
+                case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                     hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD;
                     break;
                 case TYPE_DESC_IN_TUPLE_RHS:
@@ -1163,6 +1164,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case REMOTE_CALL_OR_ASYNC_SEND_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             REMOTE_CALL_OR_ASYNC_SEND_END, isEntryPoint);
+                case SYNC_SEND_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.SYNC_SEND_TOKEN;
+                    break;
+                case PEER_WORKER_NAME:
+                    hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1443,7 +1451,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
-                ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START, nextContext };
+                ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START,
+                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
@@ -2092,14 +2101,20 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case START_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case FLUSH_KEYWORD:
-                return ParserRuleContext.PEER_WORKER;
-            case FLUSH_WORKER_NAME:
+                return ParserRuleContext.OPTIONAL_PEER_WORKER;
+            case PEER_WORKER_NAME:
             case DEFAULT_KEYWORD:
                 return ParserRuleContext.EXPRESSION_RHS;
             case TUPLE_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
             case TYPE_DESC_IN_TUPLE_RHS:
                 return ParserRuleContext.OPEN_BRACKET;
+            case WORKER_NAME_OR_METHOD_NAME:
+                return ParserRuleContext.WORKER_NAME_OR_METHOD_NAME;
+            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
+                return ParserRuleContext.SEMICOLON;
+            case SYNC_SEND_TOKEN:
+                return ParserRuleContext.PEER_WORKER_NAME;
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -3116,6 +3131,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case QUALIFIED_IDENTIFIER:
             case NAMESPACE_PREFIX:
             case IMPLICIT_ANON_FUNC_PARAM:
+            case WORKER_NAME_OR_METHOD_NAME:
+            case PEER_WORKER_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -3312,8 +3329,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FLUSH_KEYWORD:
                 return SyntaxKind.FLUSH_KEYWORD;
             case DEFAULT_KEYWORD:
-            case PEER_WORKER:
+            case OPTIONAL_PEER_WORKER:
+            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return SyntaxKind.DEFAULT_KEYWORD;
+            case SYNC_SEND_TOKEN:
+                return SyntaxKind.SYNC_SEND_TOKEN;
 
             // TODO:
             case COMP_UNIT:

@@ -552,8 +552,12 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionDeclarationNode);
     }
 
-    public T transform(AsyncActionNode asyncActionNode) {
-        return transformSyntaxNode(asyncActionNode);
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
     }
 
     // Tokens

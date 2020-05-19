@@ -149,9 +149,14 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
             case LexerTerminals.MINUS:
-                if (peek() == LexerTerminals.GT) {
+                if (reader.peek() == LexerTerminals.GT) {
                     reader.advance();
-                    token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                    if (peek() == LexerTerminals.GT) {
+                        reader.advance();
+                        token = getSyntaxToken(SyntaxKind.SYNC_SEND_TOKEN);
+                    } else {
+                        token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                    }
                 } else {
                     token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 }

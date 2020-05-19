@@ -2138,7 +2138,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionDeclarationNode.createUnlinkedFacade();
     }
 
-    public static AsyncActionNode createAsyncActionNode(
+    public static AsyncSendActionNode createAsyncSendActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
             Token peerWorker) {
@@ -2146,11 +2146,26 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
         Objects.requireNonNull(peerWorker, "peerWorker must not be null");
 
-        STNode stAsyncActionNode = STNodeFactory.createAsyncActionNode(
+        STNode stAsyncSendActionNode = STNodeFactory.createAsyncSendActionNode(
                 expression.internalNode(),
                 rightArrowToken.internalNode(),
                 peerWorker.internalNode());
-        return stAsyncActionNode.createUnlinkedFacade();
+        return stAsyncSendActionNode.createUnlinkedFacade();
+    }
+
+    public static SyncSendActionNode createSyncSendActionNode(
+            ExpressionNode expression,
+            Token syncSendToken,
+            Token peerWorker) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
+        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+
+        STNode stSyncSendActionNode = STNodeFactory.createSyncSendActionNode(
+                expression.internalNode(),
+                syncSendToken.internalNode(),
+                peerWorker.internalNode());
+        return stSyncSendActionNode.createUnlinkedFacade();
     }
 }
 

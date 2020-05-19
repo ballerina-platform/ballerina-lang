@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class AsyncActionNode extends ActionNode {
+public class SyncSendActionNode extends ActionNode {
 
-    public AsyncActionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public SyncSendActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -36,7 +36,7 @@ public class AsyncActionNode extends ActionNode {
         return childInBucket(0);
     }
 
-    public Token rightArrowToken() {
+    public Token syncSendToken() {
         return childInBucket(1);
     }
 
@@ -58,29 +58,29 @@ public class AsyncActionNode extends ActionNode {
     protected String[] childNames() {
         return new String[]{
                 "expression",
-                "rightArrowToken",
+                "syncSendToken",
                 "peerWorker"};
     }
 
-    public AsyncActionNode modify(
+    public SyncSendActionNode modify(
             ExpressionNode expression,
-            Token rightArrowToken,
+            Token syncSendToken,
             Token peerWorker) {
         if (checkForReferenceEquality(
                 expression,
-                rightArrowToken,
+                syncSendToken,
                 peerWorker)) {
             return this;
         }
 
-        return NodeFactory.createAsyncActionNode(
+        return NodeFactory.createSyncSendActionNode(
                 expression,
-                rightArrowToken,
+                syncSendToken,
                 peerWorker);
     }
 
-    public AsyncActionNodeModifier modify() {
-        return new AsyncActionNodeModifier(this);
+    public SyncSendActionNodeModifier modify() {
+        return new SyncSendActionNodeModifier(this);
     }
 
     /**
@@ -88,41 +88,41 @@ public class AsyncActionNode extends ActionNode {
      *
      * @since 2.0.0
      */
-    public static class AsyncActionNodeModifier {
-        private final AsyncActionNode oldNode;
+    public static class SyncSendActionNodeModifier {
+        private final SyncSendActionNode oldNode;
         private ExpressionNode expression;
-        private Token rightArrowToken;
+        private Token syncSendToken;
         private Token peerWorker;
 
-        public AsyncActionNodeModifier(AsyncActionNode oldNode) {
+        public SyncSendActionNodeModifier(SyncSendActionNode oldNode) {
             this.oldNode = oldNode;
             this.expression = oldNode.expression();
-            this.rightArrowToken = oldNode.rightArrowToken();
+            this.syncSendToken = oldNode.syncSendToken();
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public AsyncActionNodeModifier withExpression(ExpressionNode expression) {
+        public SyncSendActionNodeModifier withExpression(ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public AsyncActionNodeModifier withRightArrowToken(Token rightArrowToken) {
-            Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
-            this.rightArrowToken = rightArrowToken;
+        public SyncSendActionNodeModifier withSyncSendToken(Token syncSendToken) {
+            Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
+            this.syncSendToken = syncSendToken;
             return this;
         }
 
-        public AsyncActionNodeModifier withPeerWorker(Token peerWorker) {
+        public SyncSendActionNodeModifier withPeerWorker(Token peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;
         }
 
-        public AsyncActionNode apply() {
+        public SyncSendActionNode apply() {
             return oldNode.modify(
                     expression,
-                    rightArrowToken,
+                    syncSendToken,
                     peerWorker);
         }
     }

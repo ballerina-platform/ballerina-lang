@@ -2850,7 +2850,7 @@
             ]
         },
         {
-            "name": "AsyncActionNode",
+            "name": "AsyncSendActionNode",
             "base": "ActionNode",
             "kind": "ASYNC_SEND_ACTION",
             "attributes": [
@@ -2860,6 +2860,25 @@
                 },
                 {
                     "name": "rightArrowToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "SyncSendActionNode",
+            "base": "ActionNode",
+            "kind": "SYNC_SEND_ACTION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "syncSendToken",
                     "type": "Token"
                 },
                 {
