@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RecordFieldNode extends NonTerminalNode {
 
@@ -93,5 +94,71 @@ public class RecordFieldNode extends NonTerminalNode {
                 fieldName,
                 questionMarkToken,
                 semicolonToken);
+    }
+
+    public RecordFieldNodeModifier modify() {
+        return new RecordFieldNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RecordFieldNodeModifier {
+        private final RecordFieldNode oldNode;
+        private MetadataNode metadata;
+        private Node typeName;
+        private Token fieldName;
+        private Token questionMarkToken;
+        private Token semicolonToken;
+
+        public RecordFieldNodeModifier(RecordFieldNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.typeName = oldNode.typeName();
+            this.fieldName = oldNode.fieldName();
+            this.questionMarkToken = oldNode.questionMarkToken().orElse(null);
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public RecordFieldNodeModifier withMetadata(MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public RecordFieldNodeModifier withTypeName(Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public RecordFieldNodeModifier withFieldName(Token fieldName) {
+            Objects.requireNonNull(fieldName, "fieldName must not be null");
+            this.fieldName = fieldName;
+            return this;
+        }
+
+        public RecordFieldNodeModifier withQuestionMarkToken(Token questionMarkToken) {
+            Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+            this.questionMarkToken = questionMarkToken;
+            return this;
+        }
+
+        public RecordFieldNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public RecordFieldNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    typeName,
+                    fieldName,
+                    questionMarkToken,
+                    semicolonToken);
+        }
     }
 }

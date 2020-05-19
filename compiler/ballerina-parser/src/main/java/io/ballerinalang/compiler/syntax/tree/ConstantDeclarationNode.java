@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
 
@@ -115,5 +117,98 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public ConstantDeclarationNodeModifier modify() {
+        return new ConstantDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ConstantDeclarationNodeModifier {
+        private final ConstantDeclarationNode oldNode;
+        private MetadataNode metadata;
+        private Token visibilityQualifier;
+        private Token constKeyword;
+        private Node typeDescriptor;
+        private Token variableName;
+        private Token equalsToken;
+        private Node initializer;
+        private Token semicolonToken;
+
+        public ConstantDeclarationNodeModifier(ConstantDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.visibilityQualifier = oldNode.visibilityQualifier();
+            this.constKeyword = oldNode.constKeyword();
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.variableName = oldNode.variableName();
+            this.equalsToken = oldNode.equalsToken();
+            this.initializer = oldNode.initializer();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ConstantDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+            this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withConstKeyword(Token constKeyword) {
+            Objects.requireNonNull(constKeyword, "constKeyword must not be null");
+            this.constKeyword = constKeyword;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withTypeDescriptor(Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withVariableName(Token variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withEqualsToken(Token equalsToken) {
+            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+            this.equalsToken = equalsToken;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withInitializer(Node initializer) {
+            Objects.requireNonNull(initializer, "initializer must not be null");
+            this.initializer = initializer;
+            return this;
+        }
+
+        public ConstantDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public ConstantDeclarationNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    visibilityQualifier,
+                    constKeyword,
+                    typeDescriptor,
+                    variableName,
+                    equalsToken,
+                    initializer,
+                    semicolonToken);
+        }
     }
 }

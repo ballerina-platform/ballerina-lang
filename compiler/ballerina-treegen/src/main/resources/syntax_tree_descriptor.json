@@ -1877,7 +1877,7 @@
             "attributes": [
                 {
                     "name": "leftTypeDesc",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "pipeToken",
@@ -1885,7 +1885,7 @@
                 },
                 {
                     "name": "rightTypeDesc",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 }
             ]
         },
@@ -1952,7 +1952,8 @@
                 },
                 {
                     "name": "errorTypeParamsNode",
-                    "type": "Node"
+                    "type": "ErrorTypeParamsNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -2489,6 +2490,11 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                },
+                {
+                    "name": "semicolon",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -2546,15 +2552,15 @@
             "kind": "EXPLICIT_NEW_EXPRESSION",
             "attributes": [
                 {
-                    "name": "NewKeyword",
+                    "name": "newKeyword",
                     "type": "Token"
                 },
                 {
-                    "name": "TypeDescriptor",
+                    "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
                 },
                 {
-                    "name": "ParenthesizedArgList",
+                    "name": "parenthesizedArgList",
                     "type": "Node"
                 }
             ]
@@ -2565,11 +2571,11 @@
             "kind": "IMPLICIT_NEW_EXPRESSION",
             "attributes": [
                 {
-                    "name": "NewKeyword",
+                    "name": "newKeyword",
                     "type": "Token"
                 },
                 {
-                    "name": "ParenthesizedArgList",
+                    "name": "parenthesizedArgList",
                     "type": "ParenthesizedArgList",
                     "isOptional": true
                 }
@@ -2819,6 +2825,38 @@
                 {
                     "name": "simpleContExprNode",
                     "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "FunctionDeclarationNode",
+            "base": "Node",
+            "kind": "FUNCTION_DECLARATION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "semicolon",
+                    "type": "Token"
                 }
             ]
         }

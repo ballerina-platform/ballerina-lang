@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class DocumentationStringNode extends NonTerminalNode {
 
@@ -59,5 +61,35 @@ public class DocumentationStringNode extends NonTerminalNode {
 
         return NodeFactory.createDocumentationStringNode(
                 documentationLines);
+    }
+
+    public DocumentationStringNodeModifier modify() {
+        return new DocumentationStringNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class DocumentationStringNodeModifier {
+        private final DocumentationStringNode oldNode;
+        private NodeList<Token> documentationLines;
+
+        public DocumentationStringNodeModifier(DocumentationStringNode oldNode) {
+            this.oldNode = oldNode;
+            this.documentationLines = oldNode.documentationLines();
+        }
+
+        public DocumentationStringNodeModifier withDocumentationLines(NodeList<Token> documentationLines) {
+            Objects.requireNonNull(documentationLines, "documentationLines must not be null");
+            this.documentationLines = documentationLines;
+            return this;
+        }
+
+        public DocumentationStringNode apply() {
+            return oldNode.modify(
+                    documentationLines);
+        }
     }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ErrorTypeParamsNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class ErrorTypeParamsNode extends NonTerminalNode {
                 ltToken,
                 parameter,
                 gtToken);
+    }
+
+    public ErrorTypeParamsNodeModifier modify() {
+        return new ErrorTypeParamsNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ErrorTypeParamsNodeModifier {
+        private final ErrorTypeParamsNode oldNode;
+        private Token ltToken;
+        private Node parameter;
+        private Token gtToken;
+
+        public ErrorTypeParamsNodeModifier(ErrorTypeParamsNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.parameter = oldNode.parameter();
+            this.gtToken = oldNode.gtToken();
+        }
+
+        public ErrorTypeParamsNodeModifier withLtToken(Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public ErrorTypeParamsNodeModifier withParameter(Node parameter) {
+            Objects.requireNonNull(parameter, "parameter must not be null");
+            this.parameter = parameter;
+            return this;
+        }
+
+        public ErrorTypeParamsNodeModifier withGtToken(Token gtToken) {
+            Objects.requireNonNull(gtToken, "gtToken must not be null");
+            this.gtToken = gtToken;
+            return this;
+        }
+
+        public ErrorTypeParamsNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    parameter,
+                    gtToken);
+        }
     }
 }

@@ -551,15 +551,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(singletonTypeDescriptorNode);
     }
 
+    public void visit(FunctionDeclarationNode functionDeclarationNode) {
+        visitSyntaxNode(functionDeclarationNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
     }
 
     // Misc
-
-    public void visit(Minutiae minutiae) {
-    }
 
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token

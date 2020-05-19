@@ -35,7 +35,7 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     {{^isAbstract}}
 
     @Override
-    public Node transform({{externalClassName}} {{camelCaseExternalClassName}}) {
+    public {{externalClassName}} transform({{externalClassName}} {{camelCaseExternalClassName}}) {
         {{#fields}}
         {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} = modify{{#isList}}{{listClassName}}{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}});
         {{/fields}}
@@ -48,12 +48,12 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     // Tokens
 
     @Override
-    public Node transform(Token token) {
+    public Token transform(Token token) {
         return token;
     }
 
     @Override
-    public Node transform(IdentifierToken identifier) {
+    public IdentifierToken transform(IdentifierToken identifier) {
         return identifier;
     }
 

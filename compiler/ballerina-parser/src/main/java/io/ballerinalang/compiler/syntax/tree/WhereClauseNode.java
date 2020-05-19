@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class WhereClauseNode extends ClauseNode {
 
@@ -67,5 +69,44 @@ public class WhereClauseNode extends ClauseNode {
         return NodeFactory.createWhereClauseNode(
                 whereKeyword,
                 expression);
+    }
+
+    public WhereClauseNodeModifier modify() {
+        return new WhereClauseNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class WhereClauseNodeModifier {
+        private final WhereClauseNode oldNode;
+        private Token whereKeyword;
+        private ExpressionNode expression;
+
+        public WhereClauseNodeModifier(WhereClauseNode oldNode) {
+            this.oldNode = oldNode;
+            this.whereKeyword = oldNode.whereKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public WhereClauseNodeModifier withWhereKeyword(Token whereKeyword) {
+            Objects.requireNonNull(whereKeyword, "whereKeyword must not be null");
+            this.whereKeyword = whereKeyword;
+            return this;
+        }
+
+        public WhereClauseNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public WhereClauseNode apply() {
+            return oldNode.modify(
+                    whereKeyword,
+                    expression);
+        }
     }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ServiceBodyNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class ServiceBodyNode extends NonTerminalNode {
                 openBraceToken,
                 resources,
                 closeBraceToken);
+    }
+
+    public ServiceBodyNodeModifier modify() {
+        return new ServiceBodyNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ServiceBodyNodeModifier {
+        private final ServiceBodyNode oldNode;
+        private Token openBraceToken;
+        private NodeList<Node> resources;
+        private Token closeBraceToken;
+
+        public ServiceBodyNodeModifier(ServiceBodyNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBraceToken = oldNode.openBraceToken();
+            this.resources = oldNode.resources();
+            this.closeBraceToken = oldNode.closeBraceToken();
+        }
+
+        public ServiceBodyNodeModifier withOpenBraceToken(Token openBraceToken) {
+            Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+            this.openBraceToken = openBraceToken;
+            return this;
+        }
+
+        public ServiceBodyNodeModifier withResources(NodeList<Node> resources) {
+            Objects.requireNonNull(resources, "resources must not be null");
+            this.resources = resources;
+            return this;
+        }
+
+        public ServiceBodyNodeModifier withCloseBraceToken(Token closeBraceToken) {
+            Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+            this.closeBraceToken = closeBraceToken;
+            return this;
+        }
+
+        public ServiceBodyNode apply() {
+            return oldNode.modify(
+                    openBraceToken,
+                    resources,
+                    closeBraceToken);
+        }
     }
 }

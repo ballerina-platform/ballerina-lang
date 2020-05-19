@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
@@ -99,5 +101,80 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 onKeyword,
                 expressions,
                 serviceBody);
+    }
+
+    public ServiceDeclarationNodeModifier modify() {
+        return new ServiceDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ServiceDeclarationNodeModifier {
+        private final ServiceDeclarationNode oldNode;
+        private MetadataNode metadata;
+        private Token serviceKeyword;
+        private IdentifierToken serviceName;
+        private Token onKeyword;
+        private NodeList<ExpressionNode> expressions;
+        private Node serviceBody;
+
+        public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.serviceKeyword = oldNode.serviceKeyword();
+            this.serviceName = oldNode.serviceName();
+            this.onKeyword = oldNode.onKeyword();
+            this.expressions = oldNode.expressions();
+            this.serviceBody = oldNode.serviceBody();
+        }
+
+        public ServiceDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withServiceKeyword(Token serviceKeyword) {
+            Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
+            this.serviceKeyword = serviceKeyword;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withServiceName(IdentifierToken serviceName) {
+            Objects.requireNonNull(serviceName, "serviceName must not be null");
+            this.serviceName = serviceName;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withOnKeyword(Token onKeyword) {
+            Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+            this.onKeyword = onKeyword;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withExpressions(NodeList<ExpressionNode> expressions) {
+            Objects.requireNonNull(expressions, "expressions must not be null");
+            this.expressions = expressions;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withServiceBody(Node serviceBody) {
+            Objects.requireNonNull(serviceBody, "serviceBody must not be null");
+            this.serviceBody = serviceBody;
+            return this;
+        }
+
+        public ServiceDeclarationNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    serviceKeyword,
+                    serviceName,
+                    onKeyword,
+                    expressions,
+                    serviceBody);
+        }
     }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SingletonTypeDescriptorNode extends NonTerminalNode {
 
@@ -59,5 +61,35 @@ public class SingletonTypeDescriptorNode extends NonTerminalNode {
 
         return NodeFactory.createSingletonTypeDescriptorNode(
                 simpleContExprNode);
+    }
+
+    public SingletonTypeDescriptorNodeModifier modify() {
+        return new SingletonTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class SingletonTypeDescriptorNodeModifier {
+        private final SingletonTypeDescriptorNode oldNode;
+        private Node simpleContExprNode;
+
+        public SingletonTypeDescriptorNodeModifier(SingletonTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.simpleContExprNode = oldNode.simpleContExprNode();
+        }
+
+        public SingletonTypeDescriptorNodeModifier withSimpleContExprNode(Node simpleContExprNode) {
+            Objects.requireNonNull(simpleContExprNode, "simpleContExprNode must not be null");
+            this.simpleContExprNode = simpleContExprNode;
+            return this;
+        }
+
+        public SingletonTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    simpleContExprNode);
+        }
     }
 }

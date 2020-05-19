@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class QueryConstructTypeNode extends NonTerminalNode {
 
@@ -67,5 +69,44 @@ public class QueryConstructTypeNode extends NonTerminalNode {
         return NodeFactory.createQueryConstructTypeNode(
                 tableKeyword,
                 KeySpecifier);
+    }
+
+    public QueryConstructTypeNodeModifier modify() {
+        return new QueryConstructTypeNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class QueryConstructTypeNodeModifier {
+        private final QueryConstructTypeNode oldNode;
+        private Token tableKeyword;
+        private KeySpecifierNode KeySpecifier;
+
+        public QueryConstructTypeNodeModifier(QueryConstructTypeNode oldNode) {
+            this.oldNode = oldNode;
+            this.tableKeyword = oldNode.tableKeyword();
+            this.KeySpecifier = oldNode.KeySpecifier();
+        }
+
+        public QueryConstructTypeNodeModifier withTableKeyword(Token tableKeyword) {
+            Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
+            this.tableKeyword = tableKeyword;
+            return this;
+        }
+
+        public QueryConstructTypeNodeModifier withKeySpecifier(KeySpecifierNode KeySpecifier) {
+            Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+            this.KeySpecifier = KeySpecifier;
+            return this;
+        }
+
+        public QueryConstructTypeNode apply() {
+            return oldNode.modify(
+                    tableKeyword,
+                    KeySpecifier);
+        }
     }
 }
