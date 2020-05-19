@@ -104,8 +104,8 @@ public abstract class LauncherImpl {
 
     public VirtualMachine attachToLaunchedProcess() {
         try {
-            DebugExecutionManager execManager = new DebugExecutionManager(debuggeePort);
-            VirtualMachine attachedVm = execManager.attach();
+            DebugExecutionManager execManager = new DebugExecutionManager();
+            VirtualMachine attachedVm = execManager.attach(debuggeePort);
             EventRequestManager erm = attachedVm.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();

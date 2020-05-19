@@ -39,56 +39,54 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Debug process related low-level task executioner through JDI.
+ * Debug process related low-level task executor through JDI.
  */
 public class DebugExecutionManager {
 
     private VirtualMachine attachedVm;
-    private final String hostName;
-    private final String portName;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
 
-    public DebugExecutionManager(String portName) {
-        this("", portName);
-    }
-
-    public DebugExecutionManager(String hostName, String portName) {
-        this.hostName = hostName;
-        this.portName = portName;
+    /**
+     * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
+     */
+    public VirtualMachine attach(String port) throws IOException, IllegalConnectorArgumentsException {
+        return attach("", port);
     }
 
     /**
      * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
      */
-    public VirtualMachine attach() throws IOException, IllegalConnectorArgumentsException {
-
+    public VirtualMachine attach(String hostName, String port) throws IOException, IllegalConnectorArgumentsException {
+        if (port == null || port.isEmpty()) {
+            throw new IllegalConnectorArgumentsException("Port is not defined.", "port");
+        }
         AttachingConnector ac = Bootstrap.virtualMachineManager().attachingConnectors().stream()
                 .filter(c -> c instanceof SocketAttachingConnector).findFirst().orElseThrow(() ->
                         new RuntimeException("Unable to locate SocketAttachingConnector"));
-
         Map<String, Connector.Argument> connectorArgs = ac.defaultArguments();
         if (!hostName.isEmpty()) {
-            connectorArgs.get("hostname").setValue(this.hostName);
+            connectorArgs.get("hostname").setValue(hostName);
         }
-        connectorArgs.get("port").setValue(portName);
-        LOGGER.info("Debugger is attaching to: " + this.hostName + ":" + this.portName);
+        connectorArgs.get("port").setValue(port);
+        LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
         attachedVm = ac.attach(connectorArgs);
         return attachedVm;
     }
 
     /**
-     * Evaluates an expression for a given stack frame(state).
+     * Evaluates a given expression w.r.t. the provided debug state(stack frame).
      */
-    public Optional<Value> evaluate(final StackFrame f, String expr) throws JBalDebugEvaluationException {
+    public Optional<Value> evaluate(final StackFrame f, String expression) throws JBalDebugEvaluationException {
         try {
             ExpressionParser.GetFrame frameGetter = () -> f;
-            return Optional.ofNullable(ExpressionParser.evaluate(expr, attachedVm, frameGetter));
+            return Optional.ofNullable(ExpressionParser.evaluate(expression, attachedVm, frameGetter));
         } catch (ParseException | InvocationException | InvalidTypeException | ClassNotLoadedException |
                 IncompatibleThreadStateException e) {
             // Todo - Handling errors more specifically
-            String errorMsg = "Failed to execute the expression: \"" + expr + "\", due to: " + e.getMessage();
-            LOGGER.error(errorMsg, e);
-            throw new JBalDebugEvaluationException(errorMsg, e);
+            String message = String.format("Failed to execute the expression: \"%s\", due to:c%s", expression,
+                    e.getMessage());
+            LOGGER.error(message, e);
+            throw new JBalDebugEvaluationException(message, e);
         }
     }
 }

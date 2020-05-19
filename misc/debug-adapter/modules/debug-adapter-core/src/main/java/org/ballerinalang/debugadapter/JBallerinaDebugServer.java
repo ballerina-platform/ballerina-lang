@@ -242,8 +242,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String entryPointFilePath = args.get("script").toString();
             updateProjectRoot(entryPointFilePath);
 
-            executionManager = new DebugExecutionManager(hostName, portName);
-            debuggeeVM = executionManager.attach();
+            executionManager = new DebugExecutionManager();
+            debuggeeVM = executionManager.attach(hostName, portName);
             EventRequestManager erm = debuggeeVM.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
@@ -286,22 +286,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            stackTraceResponse.setStackFrames(new StackFrame[0]);
             StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId()).frames().stream()
                     .map(this::toDapStackFrame).toArray(StackFrame[]::new);
-
-            StackFrame[] filteredStackFrames = Arrays.stream(stackFrames).filter(stackFrame -> {
-                if (stackFrame == null || stackFrame.getSource() == null || stackFrame.getSource().getPath() == null) {
-                    return false;
-                } else {
-                    return stackFrame.getSource().getName().endsWith(".bal");
-                }
-            }).toArray(StackFrame[]::new);
+            StackFrame[] filteredStackFrames = Arrays.stream(stackFrames).filter(stackFrame ->
+                    stackFrame != null && stackFrame.getSource() != null && stackFrame.getSource().getPath() != null
+                            && stackFrame.getSource().getName().endsWith(".bal")).toArray(StackFrame[]::new);
             stackTraceResponse.setStackFrames(filteredStackFrames);
+            return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (IncompatibleThreadStateException e) {
             LOGGER.error(e.getMessage(), e);
+            stackTraceResponse.setStackFrames(new StackFrame[0]);
+            return CompletableFuture.completedFuture(stackTraceResponse);
         }
-        return CompletableFuture.completedFuture(stackTraceResponse);
     }
 
     @Nullable
@@ -469,13 +465,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             Optional<Value> result = executionManager.evaluate(frame, args.getExpression());
             if (result.isPresent()) {
                 Value value = result.get();
-                VariableImpl variable =
-                        new VariableFactory().getVariable(value, value.type().toString(), args.getExpression());
+                String valueTypeName = value.type().name();
+                VariableImpl variable = new VariableFactory().getVariable(value, valueTypeName, args.getExpression());
                 if (variable != null) {
                     Variable dapVariable = variable.getDapVariable();
                     long variableReference = nextVarReference.getAndIncrement();
                     dapVariable.setVariablesReference(variableReference);
-                    this.childVariables.put(variableReference, variable.getChildVariables());
                     response.setResult(dapVariable.getValue());
                     response.setType(dapVariable.getType());
                     response.setIndexedVariables(dapVariable.getIndexedVariables());
