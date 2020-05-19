@@ -96,7 +96,7 @@ public class PackerinaTestUtils {
      * @return token required to push the module.
      */
     public static String getToken() {
-        return new String(Base64.getDecoder().decode("MTAzNDcwNDUtOTViOS0zOGVkLTgwNGUtYWYwMmZhMDllNjdi"));
+        return new String(Base64.getDecoder().decode("MTUyYTEyNTItZWE2OS0zMmQ3LWIyOGQtMGJhYzAxZjZkMzRm"));
     }
 
     /**
