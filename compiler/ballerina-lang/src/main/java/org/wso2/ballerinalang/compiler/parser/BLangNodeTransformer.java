@@ -96,6 +96,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
@@ -732,11 +733,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
-        BLangUnaryExpr bLUnaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
-        bLUnaryExpr.pos = getPosition(unaryExprNode);
-        bLUnaryExpr.expr = createExpression(unaryExprNode.expression());
-        bLUnaryExpr.operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
-        return bLUnaryExpr;
+        DiagnosticPos pos = getPosition(unaryExprNode);
+        OperatorKind operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
+        BLangExpression expr = createExpression(unaryExprNode.expression());
+        return createBLangUnaryExpr(pos, operator, expr);
+    }
+
+    @Override
+    public BLangNode transform(TypeofExpressionNode typeofExpressionNode) {
+        DiagnosticPos pos = getPosition(typeofExpressionNode);
+        OperatorKind operator = OperatorKind.valueFrom(typeofExpressionNode.typeofKeyword().text());
+        BLangExpression expr = createExpression(typeofExpressionNode.expression());
+        return createBLangUnaryExpr(pos, operator, expr);
     }
 
     @Override
@@ -906,16 +914,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
-    }
-
-    private BLangNode createStringTemplateLiteral(NodeList<TemplateMemberNode> memberNodes, DiagnosticPos pos) {
-        BLangStringTemplateLiteral stringTemplateLiteral =
-                (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
-        for (Node memberNode : memberNodes) {
-            stringTemplateLiteral.exprs.add((BLangExpression) memberNode.apply(this));
-        }
-        stringTemplateLiteral.pos = pos;
-        return stringTemplateLiteral;
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
@@ -1184,6 +1182,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
+    private BLangUnaryExpr createBLangUnaryExpr(DiagnosticPos pos, OperatorKind operatorKind, BLangExpression expr) {
+        BLangUnaryExpr bLUnaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        bLUnaryExpr.pos = pos;
+        bLUnaryExpr.operator = operatorKind;
+        bLUnaryExpr.expr = expr;
+        return bLUnaryExpr;
+    }
+
     private BLangExpression createExpression(Node expression) {
         if (isSimpleLiteral(expression.kind())) {
             return createSimpleLiteral(expression);
@@ -1202,6 +1208,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             return (BLangExpression) expression.apply(this);
         }
+    }
+
+    private BLangNode createStringTemplateLiteral(NodeList<TemplateMemberNode> memberNodes, DiagnosticPos pos) {
+        BLangStringTemplateLiteral stringTemplateLiteral =
+                (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
+        for (Node memberNode : memberNodes) {
+            stringTemplateLiteral.exprs.add((BLangExpression) memberNode.apply(this));
+        }
+        stringTemplateLiteral.pos = pos;
+        return stringTemplateLiteral;
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node type) {
