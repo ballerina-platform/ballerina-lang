@@ -1,71 +1,56 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": []
+          "kind": "XML_NAMESPACE_DECLARATION",
+          "children": [
+            {
+              "kind": "XMLNS_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "constRef"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true
+            }
+          ]
         },
         {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "XML_NAMESPACE_DECLARATION",
-                    "children": [
-                        {
-                            "kind": "XMLNS_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "constRef"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
-                },
-                {
-                    "kind": "MODULE_VAR_DECL",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "SINGLETON_TYPE_DESC",
-                            "children": [
-                                {
-                                    "kind": "STRING_LITERAL",
-                                    "value": "http://ballerinalang.org/ns1"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "ns1"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "ns2"
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "EOF_TOKEN"
+          "kind": "XML_NAMESPACE_DECLARATION",
+          "children": [
+            {
+              "kind": "XMLNS_KEYWORD",
+              "isMissing": true
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "value": "http://ballerinalang.org/ns1"
+            },
+            {
+              "kind": "AS_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "ns1"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

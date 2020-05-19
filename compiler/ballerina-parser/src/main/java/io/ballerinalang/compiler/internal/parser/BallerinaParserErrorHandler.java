@@ -1147,7 +1147,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.MINUS_TOKEN;
                     break;
                 case SIGNED_INT_OR_FLOAT_RHS:
-                    hasMatch = isIntOrFloat(nextToken);
+                    hasMatch = BallerinaParser.isIntOrFloat(nextToken);
                     break;
                 case TYPE_DESC_IN_TUPLE_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_DESC_IN_TUPLE_RHS,
@@ -2983,17 +2983,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
-    private boolean isIntOrFloat(STToken token) {
-        switch (token.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
-                return true;
-            default:
-                return false;
-        }
-    }
 
     /**
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,
@@ -3333,7 +3322,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PEER_WORKER:
                 return SyntaxKind.DEFAULT_KEYWORD;
             case DECIMAL_INTEGER_LITERAL:
+            case SIGNED_INT_OR_FLOAT_RHS:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
+
 
             // TODO:
             case COMP_UNIT:

@@ -2045,7 +2045,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
             default:
-                if (isSingletonTypeDescStartToken()) {
+                if (isSingletonTypeDescStart(tokenKind, true)) {
                     return parseSingletonTypeDesc();
                 }
                 if (isSimpleType(tokenKind)) {
@@ -3200,6 +3200,11 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT);
 
+                if (solution.action == Action.KEEP) {
+                    //singleton type starting tokens can be correct one's hence keep them.
+                    break;
+                }
+
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
@@ -3292,6 +3297,11 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
 
+                if (solution.action == Action.KEEP) {
+                    //singleton type starting tokens can be correct one's hence keep them.
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
@@ -7491,7 +7501,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return true;
             default:
-                if (isSingletonTypeDescStartToken()) {
+                if (isSingletonTypeDescStart(nodeKind, false)) {
                     return true;
                 }
                 return isSimpleType(nodeKind);
@@ -9383,9 +9393,17 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
 
-    private boolean isSingletonTypeDescStartToken() {
+    private boolean isSingletonTypeDescStart(SyntaxKind tokenKind, boolean inTypeDescCtx) {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
+        STToken nextNextToken, nextNextNextToken;
+        if (tokenKind != nextToken.kind) { //this will be true if and only if we come here after recovering
+            nextNextToken = nextToken;
+            nextNextNextToken = peek(2);
+        } else {
+            nextNextToken = peek(2);
+            nextNextNextToken = peek(3);
+        }
+        switch (tokenKind) {
             case STRING_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -9394,8 +9412,30 @@ public class BallerinaParser extends AbstractParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
+                if (inTypeDescCtx || nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    return true;
+                }
+                return false;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
+                if (inTypeDescCtx) {
+                    return true;
+                }
+                if (isIntOrFloat(nextNextToken) && nextNextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    return true;
+                }
+                // fall through
+            default:
+                return false;
+        }
+    }
+
+    static boolean isIntOrFloat(STToken token) {
+        switch (token.kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return true;
             default:
                 return false;
