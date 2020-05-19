@@ -2983,7 +2983,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
-
     /**
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,
      * then the corresponding terminal token kind is returned. If the parser rule is a production,
@@ -3324,7 +3323,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DECIMAL_INTEGER_LITERAL:
             case SIGNED_INT_OR_FLOAT_RHS:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
-
 
             // TODO:
             case COMP_UNIT:
