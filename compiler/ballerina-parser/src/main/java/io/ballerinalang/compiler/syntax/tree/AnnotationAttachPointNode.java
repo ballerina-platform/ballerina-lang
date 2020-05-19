@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class AnnotationAttachPointNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
                 sourceKeyword,
                 firstIdent,
                 secondIdent);
+    }
+
+    public AnnotationAttachPointNodeModifier modify() {
+        return new AnnotationAttachPointNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class AnnotationAttachPointNodeModifier {
+        private final AnnotationAttachPointNode oldNode;
+        private Token sourceKeyword;
+        private Token firstIdent;
+        private Token secondIdent;
+
+        public AnnotationAttachPointNodeModifier(AnnotationAttachPointNode oldNode) {
+            this.oldNode = oldNode;
+            this.sourceKeyword = oldNode.sourceKeyword();
+            this.firstIdent = oldNode.firstIdent();
+            this.secondIdent = oldNode.secondIdent();
+        }
+
+        public AnnotationAttachPointNodeModifier withSourceKeyword(Token sourceKeyword) {
+            Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
+            this.sourceKeyword = sourceKeyword;
+            return this;
+        }
+
+        public AnnotationAttachPointNodeModifier withFirstIdent(Token firstIdent) {
+            Objects.requireNonNull(firstIdent, "firstIdent must not be null");
+            this.firstIdent = firstIdent;
+            return this;
+        }
+
+        public AnnotationAttachPointNodeModifier withSecondIdent(Token secondIdent) {
+            Objects.requireNonNull(secondIdent, "secondIdent must not be null");
+            this.secondIdent = secondIdent;
+            return this;
+        }
+
+        public AnnotationAttachPointNode apply() {
+            return oldNode.modify(
+                    sourceKeyword,
+                    firstIdent,
+                    secondIdent);
+        }
     }
 }

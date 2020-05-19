@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLSimpleNameNode extends XMLNameNode {
 
@@ -30,7 +32,7 @@ public class XMLSimpleNameNode extends XMLNameNode {
         super(internalNode, position, parent);
     }
 
-    public XMLSimpleNameNode name() {
+    public Token name() {
         return childInBucket(0);
     }
 
@@ -51,7 +53,7 @@ public class XMLSimpleNameNode extends XMLNameNode {
     }
 
     public XMLSimpleNameNode modify(
-            XMLSimpleNameNode name) {
+            Token name) {
         if (checkForReferenceEquality(
                 name)) {
             return this;
@@ -59,5 +61,35 @@ public class XMLSimpleNameNode extends XMLNameNode {
 
         return NodeFactory.createXMLSimpleNameNode(
                 name);
+    }
+
+    public XMLSimpleNameNodeModifier modify() {
+        return new XMLSimpleNameNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLSimpleNameNodeModifier {
+        private final XMLSimpleNameNode oldNode;
+        private Token name;
+
+        public XMLSimpleNameNodeModifier(XMLSimpleNameNode oldNode) {
+            this.oldNode = oldNode;
+            this.name = oldNode.name();
+        }
+
+        public XMLSimpleNameNodeModifier withName(Token name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
+            return this;
+        }
+
+        public XMLSimpleNameNode apply() {
+            return oldNode.modify(
+                    name);
+        }
     }
 }

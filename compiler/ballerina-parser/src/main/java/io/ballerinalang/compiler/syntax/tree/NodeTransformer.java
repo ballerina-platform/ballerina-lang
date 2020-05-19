@@ -468,12 +468,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -524,6 +528,30 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(queryExpressionNode);
     }
 
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
+    public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        return transformSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public T transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(StartActionNode startActionNode) {
+        return transformSyntaxNode(startActionNode);
+    }
+
+    public T transform(FlushActionNode flushActionNode) {
+        return transformSyntaxNode(flushActionNode);
+    }
+
+    public T transform(FunctionDeclarationNode functionDeclarationNode) {
+        return transformSyntaxNode(functionDeclarationNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
@@ -535,11 +563,6 @@ public abstract class NodeTransformer<T> {
     }
 
     // Misc
-
-    // TODO Why Minutiae is in this visitor? Check on this.
-    public T transform(Minutiae minutiae) {
-        return transformSyntaxNode(minutiae);
-    }
 
     /**
      * Transforms the given {@code Node} into an object of type T.

@@ -15,18 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.parser.test.lexer;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocuments;
 
 /**
- * This is a generated syntax tree node.
+ * An abstract class that contains utilities for {@code BallerinaLexer} tests.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public abstract class BacktickTemplateMemberNode extends NonTerminalNode {
+public class AbstractLexerTest {
 
-    public BacktickTemplateMemberNode(STNode internalNode, int position, NonTerminalNode parent) {
-        super(internalNode, position, parent);
+    public STToken lexToken(String sourceText) {
+        TextDocument textDocument = TextDocuments.from(sourceText);
+        BallerinaLexer lexer = new BallerinaLexer(textDocument.getCharacterReader());
+        return lexer.nextToken();
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.email.server;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -59,12 +60,14 @@ public class EmailConsumer {
         if (protocol.equals(EmailConstants.IMAP)) {
             client = BallerinaValues.createObjectValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.IMAP_CLIENT,
                     host, username, password, (MapValue<Object, Object>) protocolConfig);
-            EmailAccessClient.initImapClientEndpoint(client, host, username, password,
+            EmailAccessClient.initImapClientEndpoint(client, StringUtils.fromString(host),
+                    StringUtils.fromString(username), StringUtils.fromString(password),
                     (MapValue<Object, Object>) protocolConfig);
         } else if (protocol.equals(EmailConstants.POP)) {
             client = BallerinaValues.createObjectValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.POP_CLIENT,
                     host, username, password, (MapValue<Object, Object>) protocolConfig);
-            EmailAccessClient.initPopClientEndpoint(client, host, username, password,
+            EmailAccessClient.initPopClientEndpoint(client, StringUtils.fromString(host),
+                    StringUtils.fromString(username), StringUtils.fromString(password),
                     (MapValue<Object, Object>) protocolConfig);
         } else {
             String errorMsg = "Protocol should either be 'IMAP' or 'POP'.";
@@ -82,7 +85,8 @@ public class EmailConsumer {
             log.debug("Consumer hashcode: " + this.hashCode());
             log.debug("Polling for an email...");
         }
-        Object message = EmailAccessClient.readMessage(client, EmailConstants.DEFAULT_STORE_LOCATION);
+        Object message = EmailAccessClient.readMessage(client,
+                StringUtils.fromString(EmailConstants.DEFAULT_STORE_LOCATION));
         if (message != null) {
             if (message instanceof MapValue) {
                 emailListener.onMessage(new EmailEvent(message));

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TableConstructorExpressionNode extends ExpressionNode {
 
@@ -91,5 +93,71 @@ public class TableConstructorExpressionNode extends ExpressionNode {
                 openBracket,
                 mappingConstructors,
                 closeBracket);
+    }
+
+    public TableConstructorExpressionNodeModifier modify() {
+        return new TableConstructorExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TableConstructorExpressionNodeModifier {
+        private final TableConstructorExpressionNode oldNode;
+        private Token tableKeyword;
+        private KeySpecifierNode KeySpecifier;
+        private Token openBracket;
+        private SeparatedNodeList<Node> mappingConstructors;
+        private Token closeBracket;
+
+        public TableConstructorExpressionNodeModifier(TableConstructorExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.tableKeyword = oldNode.tableKeyword();
+            this.KeySpecifier = oldNode.KeySpecifier();
+            this.openBracket = oldNode.openBracket();
+            this.mappingConstructors = oldNode.mappingConstructors();
+            this.closeBracket = oldNode.closeBracket();
+        }
+
+        public TableConstructorExpressionNodeModifier withTableKeyword(Token tableKeyword) {
+            Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
+            this.tableKeyword = tableKeyword;
+            return this;
+        }
+
+        public TableConstructorExpressionNodeModifier withKeySpecifier(KeySpecifierNode KeySpecifier) {
+            Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+            this.KeySpecifier = KeySpecifier;
+            return this;
+        }
+
+        public TableConstructorExpressionNodeModifier withOpenBracket(Token openBracket) {
+            Objects.requireNonNull(openBracket, "openBracket must not be null");
+            this.openBracket = openBracket;
+            return this;
+        }
+
+        public TableConstructorExpressionNodeModifier withMappingConstructors(SeparatedNodeList<Node> mappingConstructors) {
+            Objects.requireNonNull(mappingConstructors, "mappingConstructors must not be null");
+            this.mappingConstructors = mappingConstructors;
+            return this;
+        }
+
+        public TableConstructorExpressionNodeModifier withCloseBracket(Token closeBracket) {
+            Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+            this.closeBracket = closeBracket;
+            return this;
+        }
+
+        public TableConstructorExpressionNode apply() {
+            return oldNode.modify(
+                    tableKeyword,
+                    KeySpecifier,
+                    openBracket,
+                    mappingConstructors,
+                    closeBracket);
+        }
     }
 }

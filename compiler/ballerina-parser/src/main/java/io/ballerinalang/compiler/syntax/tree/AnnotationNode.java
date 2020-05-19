@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class AnnotationNode extends NonTerminalNode {
 
@@ -77,5 +78,53 @@ public class AnnotationNode extends NonTerminalNode {
                 atToken,
                 annotReference,
                 annotValue);
+    }
+
+    public AnnotationNodeModifier modify() {
+        return new AnnotationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class AnnotationNodeModifier {
+        private final AnnotationNode oldNode;
+        private Token atToken;
+        private Node annotReference;
+        private MappingConstructorExpressionNode annotValue;
+
+        public AnnotationNodeModifier(AnnotationNode oldNode) {
+            this.oldNode = oldNode;
+            this.atToken = oldNode.atToken();
+            this.annotReference = oldNode.annotReference();
+            this.annotValue = oldNode.annotValue().orElse(null);
+        }
+
+        public AnnotationNodeModifier withAtToken(Token atToken) {
+            Objects.requireNonNull(atToken, "atToken must not be null");
+            this.atToken = atToken;
+            return this;
+        }
+
+        public AnnotationNodeModifier withAnnotReference(Node annotReference) {
+            Objects.requireNonNull(annotReference, "annotReference must not be null");
+            this.annotReference = annotReference;
+            return this;
+        }
+
+        public AnnotationNodeModifier withAnnotValue(MappingConstructorExpressionNode annotValue) {
+            Objects.requireNonNull(annotValue, "annotValue must not be null");
+            this.annotValue = annotValue;
+            return this;
+        }
+
+        public AnnotationNode apply() {
+            return oldNode.modify(
+                    atToken,
+                    annotReference,
+                    annotValue);
+        }
     }
 }
