@@ -402,3 +402,34 @@ function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
 
     return [p4, p2];
 }
+
+type ObjectWithRemoteMethod client object {
+    public string name;
+    public string id = "";
+
+    function __init(string name) {
+        self.name = name;
+    }
+    public remote function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+type NonClientObject object {
+    public string name;
+    public string id = "";
+
+    function __init(string name) {
+        self.name = name;
+    }
+    public function send(string message) returns error? {
+    }
+    public function receive(string message) {
+    }
+};
+
+function testEqOfObjectsWithAndWithoutRemoteMethods() {
+    NonClientObject e = new ("email-1");
+    ObjectWithRemoteMethod p = e;
+}

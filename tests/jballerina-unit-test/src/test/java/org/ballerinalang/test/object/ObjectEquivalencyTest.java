@@ -138,4 +138,14 @@ public class ObjectEquivalencyTest {
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }
+
+    @Test
+    public void testObjectEqualityBetweenNonClientAndClientObject() {
+        BRunUtil.invoke(compileResult, "testObjectEqualityBetweenNonClientAndClientObject");
+    }
+
+    @Test
+    public void testObjectEqualityBetweenClientObjects() {
+        BRunUtil.invoke(compileResult, "testObjectEqualityBetweenClientObjects");
+    }
 }
