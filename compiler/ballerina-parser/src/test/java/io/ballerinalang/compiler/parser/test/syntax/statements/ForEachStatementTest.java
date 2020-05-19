@@ -118,7 +118,13 @@ public class ForEachStatementTest extends AbstractStatementTest {
     }
 
     @Test
-    public void testListBindingPatterninvalidcomponentsForEachStmt() {
+    public void testListBindingPatternInvalidComponentsForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_16.bal",
+                "forEach-stmt/forEach_stmt_assert_16.json");
+    }
+
+    @Test
+    public void testListBindingPatternInvalidComponents2ForEachStmt() {
         testFile("forEach-stmt/forEach_stmt_source_16.bal",
                 "forEach-stmt/forEach_stmt_assert_16.json");
     }
