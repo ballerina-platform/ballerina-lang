@@ -48,11 +48,6 @@ public class LogAPITestCase extends BaseTest {
     private static final String logMessageTraceTestFileName = "print_trace_test.bal";
     private static final String logMessageErrorTestFileName = "print_error_test.bal";
     private static final String logMessageWarnTestFileName = "print_warn_test.bal";
-    private static final String logMessageSprintInfoTestFileName = "sprint_info_test.bal";
-    private static final String logMessageSprintErrorTestFileName = "sprint_error_test.bal";
-    private static final String logMessageSprintDebugTestFileName = "sprint_debug_test.bal";
-    private static final String logMessageSprintWarnTestFileName = "sprint_warn_test.bal";
-    private static final String logMessageSprintTraceTestFileName = "sprint_trace_test.bal";
     private static final String logLevelProperty = "b7a.log.level";
 
     private static final String errLog = "ERROR level log";
@@ -65,7 +60,7 @@ public class LogAPITestCase extends BaseTest {
     private static final String floatOutput = "123456.789";
     private static final String booleanOutput = "true";
     private static final String functionOutput = "Name of the fruit is is Apple";
-    private static final String formattedOutput = "Employee John is 28 years old";
+    private static final String errorWithCauseOutput = "error log with cause : error error occurred";
 
     private static final PrintStream console = System.out;
 
@@ -257,10 +252,11 @@ public class LogAPITestCase extends BaseTest {
     public void testErrorMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageErrorTestFileName, "--" + logLevelProperty + "=ERROR"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 9);
+        assertEquals(logLines.length, 10);
 
         console.println(logLines[4]);
         validateLog(logLines[4], "ERROR", "[]", errLog);
@@ -276,13 +272,17 @@ public class LogAPITestCase extends BaseTest {
 
         console.println(logLines[8]);
         validateLog(logLines[8], "ERROR", "[]", functionOutput);
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "ERROR", "[]", errorWithCauseOutput);
     }
 
     @Test(description = "Tests printWarn functionality")
     public void testWarnMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageWarnTestFileName, "--" + logLevelProperty + "=WARN"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
         String[] logLines = output.split("\n");
 
         assertEquals(logLines.length, 9);
@@ -307,7 +307,8 @@ public class LogAPITestCase extends BaseTest {
     public void testInfoMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageInfoTestFileName, "--" + logLevelProperty + "=INFO"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
         String[] logLines = output.split("\n");
 
         assertEquals(logLines.length, 9);
@@ -332,7 +333,8 @@ public class LogAPITestCase extends BaseTest {
     public void testDebugMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageDebugTestFileName, "--" + logLevelProperty + "=DEBUG"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
         String[] logLines = output.split("\n");
 
         assertEquals(logLines.length, 9);
@@ -357,7 +359,8 @@ public class LogAPITestCase extends BaseTest {
     public void testTraceMessage() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{logMessageTraceTestFileName, "--" + logLevelProperty + "=TRACE"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
         String[] logLines = output.split("\n");
 
         assertEquals(logLines.length, 9);
@@ -376,71 +379,6 @@ public class LogAPITestCase extends BaseTest {
 
         console.println(logLines[8]);
         validateLog(logLines[8], "TRACE", "[]", functionOutput);
-    }
-
-    @Test(description = "Tests sprintError functionality")
-    public void testSprintErrorMessage() throws BallerinaTestException {
-        BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{logMessageSprintErrorTestFileName, "--" + logLevelProperty + "=ERROR"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
-        String[] logLines = output.split("\n");
-
-        assertEquals(logLines.length, 5);
-
-        console.println(logLines[4]);
-        validateLog(logLines[4], "ERROR", "[ballerina/log]", formattedOutput);
-    }
-
-    @Test(description = "Tests sprintWarn functionality")
-    public void testSprintWarnMessage() throws BallerinaTestException {
-        BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{logMessageSprintWarnTestFileName, "--" + logLevelProperty + "=WARN"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
-        String[] logLines = output.split("\n");
-
-        assertEquals(logLines.length, 5);
-
-        console.println(logLines[4]);
-        validateLog(logLines[4], "WARN", "[ballerina/log]", formattedOutput);
-    }
-
-    @Test(description = "Tests sprintInfo functionality")
-    public void testSprintInfoMessage() throws BallerinaTestException {
-        BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{logMessageSprintInfoTestFileName, "--" + logLevelProperty + "=INFO"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
-        String[] logLines = output.split("\n");
-
-        assertEquals(logLines.length, 5);
-
-        console.println(logLines[4]);
-        validateLog(logLines[4], "INFO", "[ballerina/log]", formattedOutput);
-    }
-
-    @Test(description = "Tests sprintDebug functionality")
-    public void testSprintDebugMessage() throws BallerinaTestException {
-        BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{logMessageSprintDebugTestFileName, "--" + logLevelProperty + "=DEBUG"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
-        String[] logLines = output.split("\n");
-
-        assertEquals(logLines.length, 5);
-
-        console.println(logLines[4]);
-        validateLog(logLines[4], "DEBUG", "[ballerina/log]", formattedOutput);
-    }
-
-    @Test(description = "Tests sprintTrace functionality")
-    public void testSprintTraceMessage() throws BallerinaTestException {
-        BMainInstance bMainInstance = new BMainInstance(balServer);
-        String[] args = new String[]{logMessageSprintTraceTestFileName, "--" + logLevelProperty + "=TRACE"};
-        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation, true);
-        String[] logLines = output.split("\n");
-
-        assertEquals(logLines.length, 5);
-
-        console.println(logLines[4]);
-        validateLog(logLines[4], "TRACE", "[ballerina/log]", formattedOutput);
     }
 
     private void validateLog(String log, String logLevel, String logLocation, String logMsg) {
