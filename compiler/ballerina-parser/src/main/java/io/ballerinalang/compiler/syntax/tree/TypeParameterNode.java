@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypeParameterNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class TypeParameterNode extends NonTerminalNode {
                 ltToken,
                 typeNode,
                 gtToken);
+    }
+
+    public TypeParameterNodeModifier modify() {
+        return new TypeParameterNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypeParameterNodeModifier {
+        private final TypeParameterNode oldNode;
+        private Token ltToken;
+        private Node typeNode;
+        private Token gtToken;
+
+        public TypeParameterNodeModifier(TypeParameterNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.typeNode = oldNode.typeNode();
+            this.gtToken = oldNode.gtToken();
+        }
+
+        public TypeParameterNodeModifier withLtToken(Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public TypeParameterNodeModifier withTypeNode(Node typeNode) {
+            Objects.requireNonNull(typeNode, "typeNode must not be null");
+            this.typeNode = typeNode;
+            return this;
+        }
+
+        public TypeParameterNodeModifier withGtToken(Token gtToken) {
+            Objects.requireNonNull(gtToken, "gtToken must not be null");
+            this.gtToken = gtToken;
+            return this;
+        }
+
+        public TypeParameterNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    typeNode,
+                    gtToken);
+        }
     }
 }

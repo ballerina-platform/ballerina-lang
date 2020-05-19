@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class VariableDeclarationNode extends StatementNode {
 
@@ -109,5 +110,89 @@ public class VariableDeclarationNode extends StatementNode {
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public VariableDeclarationNodeModifier modify() {
+        return new VariableDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class VariableDeclarationNodeModifier {
+        private final VariableDeclarationNode oldNode;
+        private NodeList<AnnotationNode> annotations;
+        private Token finalKeyword;
+        private Node typeName;
+        private Token variableName;
+        private Token equalsToken;
+        private ExpressionNode initializer;
+        private Token semicolonToken;
+
+        public VariableDeclarationNodeModifier(VariableDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
+            this.finalKeyword = oldNode.finalKeyword().orElse(null);
+            this.typeName = oldNode.typeName();
+            this.variableName = oldNode.variableName();
+            this.equalsToken = oldNode.equalsToken().orElse(null);
+            this.initializer = oldNode.initializer().orElse(null);
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public VariableDeclarationNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public VariableDeclarationNodeModifier withFinalKeyword(Token finalKeyword) {
+            Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
+            this.finalKeyword = finalKeyword;
+            return this;
+        }
+
+        public VariableDeclarationNodeModifier withTypeName(Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public VariableDeclarationNodeModifier withVariableName(Token variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
+            return this;
+        }
+
+        public VariableDeclarationNodeModifier withEqualsToken(Token equalsToken) {
+            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+            this.equalsToken = equalsToken;
+            return this;
+        }
+
+        public VariableDeclarationNodeModifier withInitializer(ExpressionNode initializer) {
+            Objects.requireNonNull(initializer, "initializer must not be null");
+            this.initializer = initializer;
+            return this;
+        }
+
+        public VariableDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public VariableDeclarationNode apply() {
+            return oldNode.modify(
+                    annotations,
+                    finalKeyword,
+                    typeName,
+                    variableName,
+                    equalsToken,
+                    initializer,
+                    semicolonToken);
+        }
     }
 }

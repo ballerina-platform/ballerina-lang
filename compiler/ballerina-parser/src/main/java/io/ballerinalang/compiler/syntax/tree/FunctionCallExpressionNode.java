@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FunctionCallExpressionNode extends ExpressionNode {
 
@@ -83,5 +85,62 @@ public class FunctionCallExpressionNode extends ExpressionNode {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public FunctionCallExpressionNodeModifier modify() {
+        return new FunctionCallExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FunctionCallExpressionNodeModifier {
+        private final FunctionCallExpressionNode oldNode;
+        private Node functionName;
+        private Token openParenToken;
+        private NodeList<FunctionArgumentNode> arguments;
+        private Token closeParenToken;
+
+        public FunctionCallExpressionNodeModifier(FunctionCallExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.functionName = oldNode.functionName();
+            this.openParenToken = oldNode.openParenToken();
+            this.arguments = oldNode.arguments();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public FunctionCallExpressionNodeModifier withFunctionName(Node functionName) {
+            Objects.requireNonNull(functionName, "functionName must not be null");
+            this.functionName = functionName;
+            return this;
+        }
+
+        public FunctionCallExpressionNodeModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public FunctionCallExpressionNodeModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+            Objects.requireNonNull(arguments, "arguments must not be null");
+            this.arguments = arguments;
+            return this;
+        }
+
+        public FunctionCallExpressionNodeModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public FunctionCallExpressionNode apply() {
+            return oldNode.modify(
+                    functionName,
+                    openParenToken,
+                    arguments,
+                    closeParenToken);
+        }
     }
 }

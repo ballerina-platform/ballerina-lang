@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class IntersectionTypeDescriptorNode extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class IntersectionTypeDescriptorNode extends NonTerminalNode {
                 leftTypeDesc,
                 bitwiseAndToken,
                 rightTypeDesc);
+    }
+
+    public IntersectionTypeDescriptorNodeModifier modify() {
+        return new IntersectionTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class IntersectionTypeDescriptorNodeModifier {
+        private final IntersectionTypeDescriptorNode oldNode;
+        private Node leftTypeDesc;
+        private Token bitwiseAndToken;
+        private Node rightTypeDesc;
+
+        public IntersectionTypeDescriptorNodeModifier(IntersectionTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.leftTypeDesc = oldNode.leftTypeDesc();
+            this.bitwiseAndToken = oldNode.bitwiseAndToken();
+            this.rightTypeDesc = oldNode.rightTypeDesc();
+        }
+
+        public IntersectionTypeDescriptorNodeModifier withLeftTypeDesc(Node leftTypeDesc) {
+            Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
+            this.leftTypeDesc = leftTypeDesc;
+            return this;
+        }
+
+        public IntersectionTypeDescriptorNodeModifier withBitwiseAndToken(Token bitwiseAndToken) {
+            Objects.requireNonNull(bitwiseAndToken, "bitwiseAndToken must not be null");
+            this.bitwiseAndToken = bitwiseAndToken;
+            return this;
+        }
+
+        public IntersectionTypeDescriptorNodeModifier withRightTypeDesc(Node rightTypeDesc) {
+            Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
+            this.rightTypeDesc = rightTypeDesc;
+            return this;
+        }
+
+        public IntersectionTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    leftTypeDesc,
+                    bitwiseAndToken,
+                    rightTypeDesc);
+        }
     }
 }

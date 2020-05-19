@@ -46,7 +46,8 @@ public class IncrementalParser extends BallerinaParser {
 
     protected STNode parseFunctionBody(SyntaxKind tokenKind) {
         STNode funcBodyNode = getIfReusable(subtreeSupplier.peek(), isFunctionBody);
-        return funcBodyNode != null ? funcBodyNode : super.parseFunctionBody(tokenKind);
+        // TODO: How to deal with object methods?
+        return funcBodyNode != null ? funcBodyNode : super.parseFunctionBody(tokenKind, false);
     }
 
     protected STNode parseStatement() {

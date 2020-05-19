@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLEmptyElementNode extends XMLItemNode {
 
@@ -91,5 +93,71 @@ public class XMLEmptyElementNode extends XMLItemNode {
                 attributes,
                 slashToken,
                 getToken);
+    }
+
+    public XMLEmptyElementNodeModifier modify() {
+        return new XMLEmptyElementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLEmptyElementNodeModifier {
+        private final XMLEmptyElementNode oldNode;
+        private Token ltToken;
+        private XMLNameNode name;
+        private NodeList<XMLAttributeNode> attributes;
+        private Token slashToken;
+        private Token getToken;
+
+        public XMLEmptyElementNodeModifier(XMLEmptyElementNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.name = oldNode.name();
+            this.attributes = oldNode.attributes();
+            this.slashToken = oldNode.slashToken();
+            this.getToken = oldNode.getToken();
+        }
+
+        public XMLEmptyElementNodeModifier withLtToken(Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public XMLEmptyElementNodeModifier withName(XMLNameNode name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
+            return this;
+        }
+
+        public XMLEmptyElementNodeModifier withAttributes(NodeList<XMLAttributeNode> attributes) {
+            Objects.requireNonNull(attributes, "attributes must not be null");
+            this.attributes = attributes;
+            return this;
+        }
+
+        public XMLEmptyElementNodeModifier withSlashToken(Token slashToken) {
+            Objects.requireNonNull(slashToken, "slashToken must not be null");
+            this.slashToken = slashToken;
+            return this;
+        }
+
+        public XMLEmptyElementNodeModifier withGetToken(Token getToken) {
+            Objects.requireNonNull(getToken, "getToken must not be null");
+            this.getToken = getToken;
+            return this;
+        }
+
+        public XMLEmptyElementNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    name,
+                    attributes,
+                    slashToken,
+                    getToken);
+        }
     }
 }

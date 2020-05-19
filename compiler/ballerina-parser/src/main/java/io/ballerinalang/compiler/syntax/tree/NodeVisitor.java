@@ -547,6 +547,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(FunctionDeclarationNode functionDeclarationNode) {
+        visitSyntaxNode(functionDeclarationNode);
+    }
+
     public void visit(AsyncActionNode asyncActionNode) {
         visitSyntaxNode(asyncActionNode);
     }
@@ -557,9 +561,6 @@ public abstract class NodeVisitor {
     }
 
     // Misc
-
-    public void visit(Minutiae minutiae) {
-    }
 
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token

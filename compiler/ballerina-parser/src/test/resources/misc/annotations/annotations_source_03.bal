@@ -1,4 +1,4 @@
-@pkg1:annot1 
+@pkg1:annot1 {
     "name": "foo"
     description: "some function",
     "info": { "returns" "none", status: code}

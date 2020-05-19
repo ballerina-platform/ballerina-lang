@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class KeyTypeConstraintNode extends NonTerminalNode {
 
@@ -67,5 +69,44 @@ public class KeyTypeConstraintNode extends NonTerminalNode {
         return NodeFactory.createKeyTypeConstraintNode(
                 keyKeywordToken,
                 typeParameterNode);
+    }
+
+    public KeyTypeConstraintNodeModifier modify() {
+        return new KeyTypeConstraintNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class KeyTypeConstraintNodeModifier {
+        private final KeyTypeConstraintNode oldNode;
+        private Token keyKeywordToken;
+        private Node typeParameterNode;
+
+        public KeyTypeConstraintNodeModifier(KeyTypeConstraintNode oldNode) {
+            this.oldNode = oldNode;
+            this.keyKeywordToken = oldNode.keyKeywordToken();
+            this.typeParameterNode = oldNode.typeParameterNode();
+        }
+
+        public KeyTypeConstraintNodeModifier withKeyKeywordToken(Token keyKeywordToken) {
+            Objects.requireNonNull(keyKeywordToken, "keyKeywordToken must not be null");
+            this.keyKeywordToken = keyKeywordToken;
+            return this;
+        }
+
+        public KeyTypeConstraintNodeModifier withTypeParameterNode(Node typeParameterNode) {
+            Objects.requireNonNull(typeParameterNode, "typeParameterNode must not be null");
+            this.typeParameterNode = typeParameterNode;
+            return this;
+        }
+
+        public KeyTypeConstraintNode apply() {
+            return oldNode.modify(
+                    keyKeywordToken,
+                    typeParameterNode);
+        }
     }
 }

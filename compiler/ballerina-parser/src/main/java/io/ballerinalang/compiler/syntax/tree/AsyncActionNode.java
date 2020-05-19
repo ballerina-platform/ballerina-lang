@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class AsyncActionNode extends ActionNode {
 
@@ -75,5 +77,53 @@ public class AsyncActionNode extends ActionNode {
                 expression,
                 rightArrowToken,
                 peerWorker);
+    }
+
+    public AsyncActionNodeModifier modify() {
+        return new AsyncActionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class AsyncActionNodeModifier {
+        private final AsyncActionNode oldNode;
+        private ExpressionNode expression;
+        private Token rightArrowToken;
+        private Token peerWorker;
+
+        public AsyncActionNodeModifier(AsyncActionNode oldNode) {
+            this.oldNode = oldNode;
+            this.expression = oldNode.expression();
+            this.rightArrowToken = oldNode.rightArrowToken();
+            this.peerWorker = oldNode.peerWorker();
+        }
+
+        public AsyncActionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public AsyncActionNodeModifier withRightArrowToken(Token rightArrowToken) {
+            Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+            this.rightArrowToken = rightArrowToken;
+            return this;
+        }
+
+        public AsyncActionNodeModifier withPeerWorker(Token peerWorker) {
+            Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+            this.peerWorker = peerWorker;
+            return this;
+        }
+
+        public AsyncActionNode apply() {
+            return oldNode.modify(
+                    expression,
+                    rightArrowToken,
+                    peerWorker);
+        }
     }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RecordTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -83,5 +85,62 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
                 bodyStartDelimiter,
                 fields,
                 bodyEndDelimiter);
+    }
+
+    public RecordTypeDescriptorNodeModifier modify() {
+        return new RecordTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RecordTypeDescriptorNodeModifier {
+        private final RecordTypeDescriptorNode oldNode;
+        private Token objectKeyword;
+        private Token bodyStartDelimiter;
+        private NodeList<Node> fields;
+        private Token bodyEndDelimiter;
+
+        public RecordTypeDescriptorNodeModifier(RecordTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.objectKeyword = oldNode.objectKeyword();
+            this.bodyStartDelimiter = oldNode.bodyStartDelimiter();
+            this.fields = oldNode.fields();
+            this.bodyEndDelimiter = oldNode.bodyEndDelimiter();
+        }
+
+        public RecordTypeDescriptorNodeModifier withObjectKeyword(Token objectKeyword) {
+            Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
+            this.objectKeyword = objectKeyword;
+            return this;
+        }
+
+        public RecordTypeDescriptorNodeModifier withBodyStartDelimiter(Token bodyStartDelimiter) {
+            Objects.requireNonNull(bodyStartDelimiter, "bodyStartDelimiter must not be null");
+            this.bodyStartDelimiter = bodyStartDelimiter;
+            return this;
+        }
+
+        public RecordTypeDescriptorNodeModifier withFields(NodeList<Node> fields) {
+            Objects.requireNonNull(fields, "fields must not be null");
+            this.fields = fields;
+            return this;
+        }
+
+        public RecordTypeDescriptorNodeModifier withBodyEndDelimiter(Token bodyEndDelimiter) {
+            Objects.requireNonNull(bodyEndDelimiter, "bodyEndDelimiter must not be null");
+            this.bodyEndDelimiter = bodyEndDelimiter;
+            return this;
+        }
+
+        public RecordTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    objectKeyword,
+                    bodyStartDelimiter,
+                    fields,
+                    bodyEndDelimiter);
+        }
     }
 }

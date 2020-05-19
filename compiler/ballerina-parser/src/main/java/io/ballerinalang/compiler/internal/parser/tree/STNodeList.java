@@ -30,6 +30,11 @@ public class STNodeList extends STNode {
         this.addChildren(nodeList.toArray(new STNode[0]));
     }
 
+    STNodeList(STNode... nodes) {
+        super(SyntaxKind.LIST);
+        this.addChildren(nodes);
+    }
+
     @Override
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
         return new ExternalTreeNodeList(this, position, parent);

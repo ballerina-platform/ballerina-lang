@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class QueryExpressionNode extends ExpressionNode {
 
@@ -75,5 +77,53 @@ public class QueryExpressionNode extends ExpressionNode {
                 queryConstructType,
                 queryPipeline,
                 selectClause);
+    }
+
+    public QueryExpressionNodeModifier modify() {
+        return new QueryExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class QueryExpressionNodeModifier {
+        private final QueryExpressionNode oldNode;
+        private QueryConstructTypeNode queryConstructType;
+        private QueryPipelineNode queryPipeline;
+        private SelectClauseNode selectClause;
+
+        public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.queryConstructType = oldNode.queryConstructType();
+            this.queryPipeline = oldNode.queryPipeline();
+            this.selectClause = oldNode.selectClause();
+        }
+
+        public QueryExpressionNodeModifier withQueryConstructType(QueryConstructTypeNode queryConstructType) {
+            Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
+            this.queryConstructType = queryConstructType;
+            return this;
+        }
+
+        public QueryExpressionNodeModifier withQueryPipeline(QueryPipelineNode queryPipeline) {
+            Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
+            this.queryPipeline = queryPipeline;
+            return this;
+        }
+
+        public QueryExpressionNodeModifier withSelectClause(SelectClauseNode selectClause) {
+            Objects.requireNonNull(selectClause, "selectClause must not be null");
+            this.selectClause = selectClause;
+            return this;
+        }
+
+        public QueryExpressionNode apply() {
+            return oldNode.modify(
+                    queryConstructType,
+                    queryPipeline,
+                    selectClause);
+        }
     }
 }
