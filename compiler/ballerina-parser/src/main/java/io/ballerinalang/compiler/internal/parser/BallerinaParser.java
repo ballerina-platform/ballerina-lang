@@ -9483,9 +9483,11 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBracket = parseCloseBracket();
 
         //seperating out the restbindingpattern
-        STNode restBindingPattern = STNodeFactory.createEmptyNode();
+        STNode restBindingPattern = null;
         if (listBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
             restBindingPattern = bindingPatterns.remove(bindingPatterns.size() - 1);
+        } else {
+            restBindingPattern = STNodeFactory.createEmptyNode();
         }
 
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
@@ -9507,7 +9509,7 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACKET_TOKEN:
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
