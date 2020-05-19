@@ -1552,7 +1552,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FlushActionNode transform(FlushActionNode flushActionNode) {
         Token flushKeyword = modifyToken(flushActionNode.flushKeyword());
-        Token peerWorker = modifyToken(flushActionNode.peerWorker());
+        NameReferenceNode peerWorker = modifyNode(flushActionNode.peerWorker());
         return flushActionNode.modify(
                 flushKeyword,
                 peerWorker);
@@ -1579,7 +1579,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public AsyncSendActionNode transform(AsyncSendActionNode asyncSendActionNode) {
         ExpressionNode expression = modifyNode(asyncSendActionNode.expression());
         Token rightArrowToken = modifyToken(asyncSendActionNode.rightArrowToken());
-        Token peerWorker = modifyToken(asyncSendActionNode.peerWorker());
+        NameReferenceNode peerWorker = modifyNode(asyncSendActionNode.peerWorker());
         return asyncSendActionNode.modify(
                 expression,
                 rightArrowToken,
@@ -1590,11 +1590,31 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public SyncSendActionNode transform(SyncSendActionNode syncSendActionNode) {
         ExpressionNode expression = modifyNode(syncSendActionNode.expression());
         Token syncSendToken = modifyToken(syncSendActionNode.syncSendToken());
-        Token peerWorker = modifyToken(syncSendActionNode.peerWorker());
+        NameReferenceNode peerWorker = modifyNode(syncSendActionNode.peerWorker());
         return syncSendActionNode.modify(
                 expression,
                 syncSendToken,
                 peerWorker);
+    }
+
+    @Override
+    public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
+        Token leftArrow = modifyToken(receiveActionNode.leftArrow());
+        Node receiveWorkers = modifyNode(receiveActionNode.receiveWorkers());
+        return receiveActionNode.modify(
+                leftArrow,
+                receiveWorkers);
+    }
+
+    @Override
+    public ReceiveFieldsNode transform(ReceiveFieldsNode receiveFieldsNode) {
+        Token openBrace = modifyToken(receiveFieldsNode.openBrace());
+        SeparatedNodeList<NameReferenceNode> receiveField = modifySeparatedNodeList(receiveFieldsNode.receiveField());
+        Token closeBrace = modifyToken(receiveFieldsNode.closeBrace());
+        return receiveFieldsNode.modify(
+                openBrace,
+                receiveField,
+                closeBrace);
     }
 
     // Tokens

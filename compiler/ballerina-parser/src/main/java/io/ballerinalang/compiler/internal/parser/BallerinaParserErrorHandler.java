@@ -222,7 +222,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
-            ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD };
+            ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD,
+            ParserRuleContext.LEFT_ARROW_TOKEN };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -393,6 +394,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_END =
             { ParserRuleContext.ARG_LIST_START, ParserRuleContext.SEMICOLON };
 
+    private static final ParserRuleContext[] RECEIVE_WORKERS =
+            { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.MULTI_RECEIVE_WORKERS };
+
+    private static final ParserRuleContext[] RECEIVE_FIELD =
+            { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.RECEIVE_FIELD_NAME };
+
+    private static final ParserRuleContext[] RECEIVE_FIELD_END =
+            { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.COMMA };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -458,6 +468,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANON_FUNC_BODY:
             case REMOTE_CALL_OR_ASYNC_SEND_RHS:
             case REMOTE_CALL_OR_ASYNC_SEND_END:
+            case RECEIVE_FIELD_END:
+            case RECEIVE_WORKERS:
                 return true;
             default:
                 return false;
@@ -549,6 +561,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case WORKER_NAME:
                 case IMPLICIT_ANON_FUNC_PARAM:
                 case WORKER_NAME_OR_METHOD_NAME:
+                case RECEIVE_FIELD_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -1171,6 +1184,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD ||
                             nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
+                case LEFT_ARROW_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.LEFT_ARROW_TOKEN;
+                    break;
+                case RECEIVE_WORKERS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECEIVE_WORKERS,
+                            isEntryPoint);
+                case RECEIVE_FIELD:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECEIVE_FIELD,
+                            isEntryPoint);
+                case RECEIVE_FIELD_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECEIVE_FIELD_END,
+                            isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1531,6 +1556,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ROW_TYPE_PARAM:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
             case OBJECT_MEMBER:
+            case MULTI_RECEIVE_WORKERS:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -1769,6 +1795,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR) {
                     return ParserRuleContext.EXPRESSION;
+                } else if (parentCtx == ParserRuleContext.MULTI_RECEIVE_WORKERS) {
+                    return ParserRuleContext.PEER_WORKER_NAME;
                 }
 
                 return ParserRuleContext.IDENTIFIER;
@@ -2104,6 +2132,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPTIONAL_PEER_WORKER;
             case PEER_WORKER_NAME:
             case DEFAULT_KEYWORD:
+                if (getParentContext() == ParserRuleContext.MULTI_RECEIVE_WORKERS) {
+                    return ParserRuleContext.RECEIVE_FIELD_END;
+                }
                 return ParserRuleContext.EXPRESSION_RHS;
             case TUPLE_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
@@ -2115,6 +2146,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case SYNC_SEND_TOKEN:
                 return ParserRuleContext.PEER_WORKER_NAME;
+            case LEFT_ARROW_TOKEN:
+                return ParserRuleContext.RECEIVE_WORKERS;
+            case MULTI_RECEIVE_WORKERS:
+                return ParserRuleContext.OPEN_BRACE;
+            case RECEIVE_FIELD_NAME:
+                return ParserRuleContext.COLON;
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2256,6 +2293,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FIRST_MAPPING_FIELD;
             case FORK_STMT:
                 return ParserRuleContext.NAMED_WORKER_DECL;
+            case MULTI_RECEIVE_WORKERS:
+                return ParserRuleContext.RECEIVE_FIELD;
             default:
                 return ParserRuleContext.STATEMENT;
         }
@@ -2333,6 +2372,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM;
             case TYPE_DESC_IN_TUPLE:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case MULTI_RECEIVE_WORKERS:
+                return ParserRuleContext.RECEIVE_FIELD;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -2601,6 +2642,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERPOLATION:
                 endContext();
                 return ParserRuleContext.TEMPLATE_MEMBER;
+            case MULTI_RECEIVE_WORKERS:
+                endContext();
+                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3133,6 +3177,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IMPLICIT_ANON_FUNC_PARAM:
             case WORKER_NAME_OR_METHOD_NAME:
             case PEER_WORKER_NAME:
+            case RECEIVE_FIELD_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:

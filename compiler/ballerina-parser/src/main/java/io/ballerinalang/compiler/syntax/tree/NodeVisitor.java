@@ -559,6 +559,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(syncSendActionNode);
     }
 
+    public void visit(ReceiveActionNode receiveActionNode) {
+        visitSyntaxNode(receiveActionNode);
+    }
+
+    public void visit(ReceiveFieldsNode receiveFieldsNode) {
+        visitSyntaxNode(receiveFieldsNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -560,6 +560,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(syncSendActionNode);
     }
 
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

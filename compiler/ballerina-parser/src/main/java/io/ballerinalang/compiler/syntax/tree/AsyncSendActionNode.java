@@ -40,7 +40,7 @@ public class AsyncSendActionNode extends ActionNode {
         return childInBucket(1);
     }
 
-    public Token peerWorker() {
+    public NameReferenceNode peerWorker() {
         return childInBucket(2);
     }
 
@@ -65,7 +65,7 @@ public class AsyncSendActionNode extends ActionNode {
     public AsyncSendActionNode modify(
             ExpressionNode expression,
             Token rightArrowToken,
-            Token peerWorker) {
+            NameReferenceNode peerWorker) {
         if (checkForReferenceEquality(
                 expression,
                 rightArrowToken,
@@ -92,7 +92,7 @@ public class AsyncSendActionNode extends ActionNode {
         private final AsyncSendActionNode oldNode;
         private ExpressionNode expression;
         private Token rightArrowToken;
-        private Token peerWorker;
+        private NameReferenceNode peerWorker;
 
         public AsyncSendActionNodeModifier(AsyncSendActionNode oldNode) {
             this.oldNode = oldNode;
@@ -113,7 +113,7 @@ public class AsyncSendActionNode extends ActionNode {
             return this;
         }
 
-        public AsyncSendActionNodeModifier withPeerWorker(Token peerWorker) {
+        public AsyncSendActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;

@@ -2813,7 +2813,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -2864,7 +2864,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
                 }
             ]
         },
@@ -2883,6 +2883,41 @@
                 },
                 {
                     "name": "peerWorker",
+                    "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "ReceiveActionNode",
+            "base": "ActionNode",
+            "kind": "RECEIVE_SEND_ACTION",
+            "attributes": [
+                {
+                    "name": "leftArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "receiveWorkers",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReceiveFieldsNode",
+            "base": "Node",
+            "kind": "RECEIVE_FIELDS",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "receiveField",
+                    "type": "NameReferenceNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
                     "type": "Token"
                 }
             ]

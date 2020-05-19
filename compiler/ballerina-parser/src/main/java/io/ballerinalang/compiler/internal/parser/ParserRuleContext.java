@@ -158,6 +158,11 @@ public enum ParserRuleContext {
     REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
     DEFAULT_WORKER_NAME_IN_ASYNC_SEND("default-worker-name-in-async-send"),
+    RECEIVE_WORKERS("receive-workers"),
+    MULTI_RECEIVE_WORKERS("multi-receive-workers"),
+    RECEIVE_FIELD_END("receive-field-end"),
+    RECEIVE_FIELD("receive-field"),
+    RECEIVE_FIELD_NAME("receive-field-name"),
 
     // Statements
     STATEMENT("statement"),
@@ -284,6 +289,7 @@ public enum ParserRuleContext {
     EXPR_FUNC_BODY_START("=>"),
     TUPLE_TYPE_DESC_START("["),
     SYNC_SEND_TOKEN("->>"),
+    LEFT_ARROW_TOKEN("<-"),
 
     // Other terminals
     FUNC_NAME("function-name"),

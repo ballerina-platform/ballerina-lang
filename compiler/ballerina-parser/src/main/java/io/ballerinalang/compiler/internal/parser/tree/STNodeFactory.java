@@ -1609,5 +1609,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 syncSendToken,
                 peerWorker);
     }
+
+    public static STNode createReceiveActionNode(
+            STNode leftArrow,
+            STNode receiveWorkers) {
+
+        return new STReceiveActionNode(
+                leftArrow,
+                receiveWorkers);
+    }
+
+    public static STNode createReceiveFieldsNode(
+            STNode openBrace,
+            STNode receiveField,
+            STNode closeBrace) {
+
+        return new STReceiveFieldsNode(
+                openBrace,
+                receiveField,
+                closeBrace);
+    }
 }
 

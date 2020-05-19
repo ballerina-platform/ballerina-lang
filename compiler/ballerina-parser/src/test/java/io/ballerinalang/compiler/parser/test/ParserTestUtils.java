@@ -578,6 +578,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RIGHT_DOUBLE_ARROW;
             case "SYNC_SEND_TOKEN":
                 return SyntaxKind.SYNC_SEND_TOKEN;
+            case "LEFT_ARROW_TOKEN":
+                return SyntaxKind.LEFT_ARROW_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -670,6 +672,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ASYNC_SEND_ACTION;
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
+            case "RECEIVE_SEND_ACTION":
+                return SyntaxKind.RECEIVE_SEND_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -864,6 +868,12 @@ public class ParserTestUtils {
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
                 return SyntaxKind.FUNCTION_DECLARATION;
+            case "TYPE_PARAMETER":
+                return SyntaxKind.TYPE_PARAMETER;
+            case "KEY_TYPE_CONSTRAINT":
+                return SyntaxKind.KEY_TYPE_CONSTRAINT;
+            case "RECEIVE_FIELDS":
+                return SyntaxKind.RECEIVE_FIELDS;
 
             // XML template
             case "XML_ELEMENT":
@@ -904,10 +914,6 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
-            case "TYPE_PARAMETER":
-                return SyntaxKind.TYPE_PARAMETER;
-            case "KEY_TYPE_CONSTRAINT":
-                return SyntaxKind.KEY_TYPE_CONSTRAINT;
 
             // Trivia
             case "EOF_TOKEN":

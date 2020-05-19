@@ -171,9 +171,13 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                if (peek() == LexerTerminals.EQUAL) {
+                int nextChar = peek();
+                if (nextChar == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else if (nextChar == LexerTerminals.MINUS) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }

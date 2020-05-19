@@ -151,6 +151,7 @@ public enum SyntaxKind {
     XML_COMMENT_START_TOKEN(577, "<!--"),
     XML_COMMENT_END_TOKEN(578, "-->"),
     SYNC_SEND_TOKEN(579, "->>"),
+    LEFT_ARROW_TOKEN(580, "<-"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -270,6 +271,7 @@ public enum SyntaxKind {
     FLUSH_ACTION(2505),
     ASYNC_SEND_ACTION(2506),
     SYNC_SEND_ACTION(2507),
+    RECEIVE_SEND_ACTION(2508),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
@@ -322,6 +324,7 @@ public enum SyntaxKind {
     QUERY_PIPELINE(3047),
     SELECT_CLAUSE(3048),
     FUNCTION_DECLARATION(3049),
+    RECEIVE_FIELDS(3050),
 
     // XML
     XML_ELEMENT(4000),
