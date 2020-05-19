@@ -91,13 +91,15 @@ public class RestBindingPatternNode extends NonTerminalNode {
             this.variableName = oldNode.variableName();
         }
 
-        public RestBindingPatternNodeModifier withEllipsisToken(Token ellipsisToken) {
+        public RestBindingPatternNodeModifier withEllipsisToken(
+                Token ellipsisToken) {
             Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
             this.ellipsisToken = ellipsisToken;
             return this;
         }
 
-        public RestBindingPatternNodeModifier withVariableName(SimpleNameReferenceNode variableName) {
+        public RestBindingPatternNodeModifier withVariableName(
+                SimpleNameReferenceNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
