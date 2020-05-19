@@ -26,18 +26,22 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class FlushActionNode extends ExpressionNode {
+public class AsyncSendActionNode extends ActionNode {
 
-    public FlushActionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public AsyncSendActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token flushKeyword() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
-    public NameReferenceNode peerWorker() {
+    public Token rightArrowToken() {
         return childInBucket(1);
+    }
+
+    public NameReferenceNode peerWorker() {
+        return childInBucket(2);
     }
 
     @Override
@@ -53,26 +57,30 @@ public class FlushActionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "flushKeyword",
+                "expression",
+                "rightArrowToken",
                 "peerWorker"};
     }
 
-    public FlushActionNode modify(
-            Token flushKeyword,
+    public AsyncSendActionNode modify(
+            ExpressionNode expression,
+            Token rightArrowToken,
             NameReferenceNode peerWorker) {
         if (checkForReferenceEquality(
-                flushKeyword,
+                expression,
+                rightArrowToken,
                 peerWorker)) {
             return this;
         }
 
-        return NodeFactory.createFlushActionNode(
-                flushKeyword,
+        return NodeFactory.createAsyncSendActionNode(
+                expression,
+                rightArrowToken,
                 peerWorker);
     }
 
-    public FlushActionNodeModifier modify() {
-        return new FlushActionNodeModifier(this);
+    public AsyncSendActionNodeModifier modify() {
+        return new AsyncSendActionNodeModifier(this);
     }
 
     /**
@@ -80,32 +88,41 @@ public class FlushActionNode extends ExpressionNode {
      *
      * @since 2.0.0
      */
-    public static class FlushActionNodeModifier {
-        private final FlushActionNode oldNode;
-        private Token flushKeyword;
+    public static class AsyncSendActionNodeModifier {
+        private final AsyncSendActionNode oldNode;
+        private ExpressionNode expression;
+        private Token rightArrowToken;
         private NameReferenceNode peerWorker;
 
-        public FlushActionNodeModifier(FlushActionNode oldNode) {
+        public AsyncSendActionNodeModifier(AsyncSendActionNode oldNode) {
             this.oldNode = oldNode;
-            this.flushKeyword = oldNode.flushKeyword();
+            this.expression = oldNode.expression();
+            this.rightArrowToken = oldNode.rightArrowToken();
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public FlushActionNodeModifier withFlushKeyword(Token flushKeyword) {
-            Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
-            this.flushKeyword = flushKeyword;
+        public AsyncSendActionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
             return this;
         }
 
-        public FlushActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
+        public AsyncSendActionNodeModifier withRightArrowToken(Token rightArrowToken) {
+            Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+            this.rightArrowToken = rightArrowToken;
+            return this;
+        }
+
+        public AsyncSendActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;
         }
 
-        public FlushActionNode apply() {
+        public AsyncSendActionNode apply() {
             return oldNode.modify(
-                    flushKeyword,
+                    expression,
+                    rightArrowToken,
                     peerWorker);
         }
     }
