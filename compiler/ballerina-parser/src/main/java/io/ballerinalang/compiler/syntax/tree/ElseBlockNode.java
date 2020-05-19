@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ElseBlockNode extends NonTerminalNode {
 
@@ -67,5 +69,44 @@ public class ElseBlockNode extends NonTerminalNode {
         return NodeFactory.createElseBlockNode(
                 elseKeyword,
                 elseBody);
+    }
+
+    public ElseBlockNodeModifier modify() {
+        return new ElseBlockNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ElseBlockNodeModifier {
+        private final ElseBlockNode oldNode;
+        private Token elseKeyword;
+        private StatementNode elseBody;
+
+        public ElseBlockNodeModifier(ElseBlockNode oldNode) {
+            this.oldNode = oldNode;
+            this.elseKeyword = oldNode.elseKeyword();
+            this.elseBody = oldNode.elseBody();
+        }
+
+        public ElseBlockNodeModifier withElseKeyword(Token elseKeyword) {
+            Objects.requireNonNull(elseKeyword, "elseKeyword must not be null");
+            this.elseKeyword = elseKeyword;
+            return this;
+        }
+
+        public ElseBlockNodeModifier withElseBody(StatementNode elseBody) {
+            Objects.requireNonNull(elseBody, "elseBody must not be null");
+            this.elseBody = elseBody;
+            return this;
+        }
+
+        public ElseBlockNode apply() {
+            return oldNode.modify(
+                    elseKeyword,
+                    elseBody);
+        }
     }
 }

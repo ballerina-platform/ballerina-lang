@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ExpressionStatementNode extends StatementNode {
 
@@ -69,5 +71,45 @@ public class ExpressionStatementNode extends StatementNode {
                 kind,
                 expression,
                 semicolonToken);
+    }
+
+    public ExpressionStatementNodeModifier modify() {
+        return new ExpressionStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ExpressionStatementNodeModifier {
+        private final ExpressionStatementNode oldNode;
+        private ExpressionNode expression;
+        private Token semicolonToken;
+
+        public ExpressionStatementNodeModifier(ExpressionStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.expression = oldNode.expression();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ExpressionStatementNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public ExpressionStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public ExpressionStatementNode apply() {
+            return oldNode.modify(
+                    oldNode.kind(),
+                    expression,
+                    semicolonToken);
+        }
     }
 }

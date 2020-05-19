@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -69,5 +70,44 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
         return NodeFactory.createErrorTypeDescriptorNode(
                 errorKeywordToken,
                 errorTypeParamsNode);
+    }
+
+    public ErrorTypeDescriptorNodeModifier modify() {
+        return new ErrorTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ErrorTypeDescriptorNodeModifier {
+        private final ErrorTypeDescriptorNode oldNode;
+        private Token errorKeywordToken;
+        private ErrorTypeParamsNode errorTypeParamsNode;
+
+        public ErrorTypeDescriptorNodeModifier(ErrorTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.errorKeywordToken = oldNode.errorKeywordToken();
+            this.errorTypeParamsNode = oldNode.errorTypeParamsNode().orElse(null);
+        }
+
+        public ErrorTypeDescriptorNodeModifier withErrorKeywordToken(Token errorKeywordToken) {
+            Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
+            this.errorKeywordToken = errorKeywordToken;
+            return this;
+        }
+
+        public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(ErrorTypeParamsNode errorTypeParamsNode) {
+            Objects.requireNonNull(errorTypeParamsNode, "errorTypeParamsNode must not be null");
+            this.errorTypeParamsNode = errorTypeParamsNode;
+            return this;
+        }
+
+        public ErrorTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    errorKeywordToken,
+                    errorTypeParamsNode);
+        }
     }
 }

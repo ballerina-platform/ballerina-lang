@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypeCastExpressionNode extends ExpressionNode {
 
@@ -83,5 +85,62 @@ public class TypeCastExpressionNode extends ExpressionNode {
                 typeCastParam,
                 gtToken,
                 expression);
+    }
+
+    public TypeCastExpressionNodeModifier modify() {
+        return new TypeCastExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypeCastExpressionNodeModifier {
+        private final TypeCastExpressionNode oldNode;
+        private Token ltToken;
+        private TypeCastParamNode typeCastParam;
+        private Token gtToken;
+        private ExpressionNode expression;
+
+        public TypeCastExpressionNodeModifier(TypeCastExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.typeCastParam = oldNode.typeCastParam();
+            this.gtToken = oldNode.gtToken();
+            this.expression = oldNode.expression();
+        }
+
+        public TypeCastExpressionNodeModifier withLtToken(Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public TypeCastExpressionNodeModifier withTypeCastParam(TypeCastParamNode typeCastParam) {
+            Objects.requireNonNull(typeCastParam, "typeCastParam must not be null");
+            this.typeCastParam = typeCastParam;
+            return this;
+        }
+
+        public TypeCastExpressionNodeModifier withGtToken(Token gtToken) {
+            Objects.requireNonNull(gtToken, "gtToken must not be null");
+            this.gtToken = gtToken;
+            return this;
+        }
+
+        public TypeCastExpressionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public TypeCastExpressionNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    typeCastParam,
+                    gtToken,
+                    expression);
+        }
     }
 }

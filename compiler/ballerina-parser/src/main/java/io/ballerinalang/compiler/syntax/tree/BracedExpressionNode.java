@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BracedExpressionNode extends ExpressionNode {
 
@@ -77,5 +79,54 @@ public class BracedExpressionNode extends ExpressionNode {
                 openParen,
                 expression,
                 closeParen);
+    }
+
+    public BracedExpressionNodeModifier modify() {
+        return new BracedExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class BracedExpressionNodeModifier {
+        private final BracedExpressionNode oldNode;
+        private Token openParen;
+        private ExpressionNode expression;
+        private Token closeParen;
+
+        public BracedExpressionNodeModifier(BracedExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.openParen = oldNode.openParen();
+            this.expression = oldNode.expression();
+            this.closeParen = oldNode.closeParen();
+        }
+
+        public BracedExpressionNodeModifier withOpenParen(Token openParen) {
+            Objects.requireNonNull(openParen, "openParen must not be null");
+            this.openParen = openParen;
+            return this;
+        }
+
+        public BracedExpressionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public BracedExpressionNodeModifier withCloseParen(Token closeParen) {
+            Objects.requireNonNull(closeParen, "closeParen must not be null");
+            this.closeParen = closeParen;
+            return this;
+        }
+
+        public BracedExpressionNode apply() {
+            return oldNode.modify(
+                    oldNode.kind(),
+                    openParen,
+                    expression,
+                    closeParen);
+        }
     }
 }

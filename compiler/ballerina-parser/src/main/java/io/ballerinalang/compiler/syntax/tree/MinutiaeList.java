@@ -73,6 +73,14 @@ public class MinutiaeList implements Iterable<Minutiae> {
         };
     }
 
+    public MinutiaeList emptyList() {
+        throw new UnsupportedOperationException();
+    }
+
+    protected STNode internalNode() {
+        return internalMinutia;
+    }
+
     private Minutiae[] loadMinutiaeNodes(STNode internalMinutiae, int size, int position) {
         if (size == 0) {
             return new Minutiae[0];

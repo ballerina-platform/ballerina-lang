@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class NilLiteralNode extends ExpressionNode {
 
@@ -67,5 +69,44 @@ public class NilLiteralNode extends ExpressionNode {
         return NodeFactory.createNilLiteralNode(
                 openParenToken,
                 closeParenToken);
+    }
+
+    public NilLiteralNodeModifier modify() {
+        return new NilLiteralNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class NilLiteralNodeModifier {
+        private final NilLiteralNode oldNode;
+        private Token openParenToken;
+        private Token closeParenToken;
+
+        public NilLiteralNodeModifier(NilLiteralNode oldNode) {
+            this.oldNode = oldNode;
+            this.openParenToken = oldNode.openParenToken();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public NilLiteralNodeModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public NilLiteralNodeModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public NilLiteralNode apply() {
+            return oldNode.modify(
+                    openParenToken,
+                    closeParenToken);
+        }
     }
 }
