@@ -159,8 +159,8 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
             return originalType;
         }
 
-        List<BField> newFields = new ArrayList<>();
-        for (BField field : originalType.fields) {
+        LinkedHashMap<String, BField> newFields = new LinkedHashMap();
+        for (BField field : originalType.fields.values()) {
             if (this.visitedTypes.contains(field.type)) {
                 continue;
             }
@@ -170,13 +170,13 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
             this.visitedTypes.remove(field.type);
 
             if (newFType == field.type) {
-                newFields.add(field);
+                newFields.put(field.name.value, field);
                 continue;
             }
 
             BField newField = new BField(field.name, field.pos, field.symbol);
             newField.type = newFType;
-            newFields.add(newField);
+            newFields.put(newField.name.value, newField);
         }
 
         BType newRestType = originalType.restFieldType.accept(this, null);
