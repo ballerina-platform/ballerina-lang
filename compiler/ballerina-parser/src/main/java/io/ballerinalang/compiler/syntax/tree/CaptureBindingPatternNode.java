@@ -33,7 +33,7 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> variableName() {
+    public Optional<SimpleNameReferenceNode> variableName() {
         return optionalChildInBucket(0);
     }
 
@@ -54,7 +54,7 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
     }
 
     public CaptureBindingPatternNode modify(
-            Token variableName) {
+            SimpleNameReferenceNode variableName) {
         if (checkForReferenceEquality(
                 variableName)) {
             return this;
@@ -75,14 +75,14 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
      */
     public static class CaptureBindingPatternNodeModifier {
         private final CaptureBindingPatternNode oldNode;
-        private Token variableName;
+        private SimpleNameReferenceNode variableName;
 
         public CaptureBindingPatternNodeModifier(CaptureBindingPatternNode oldNode) {
             this.oldNode = oldNode;
             this.variableName = oldNode.variableName().orElse(null);
         }
 
-        public CaptureBindingPatternNodeModifier withVariableName(Token variableName) {
+        public CaptureBindingPatternNodeModifier withVariableName(SimpleNameReferenceNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;

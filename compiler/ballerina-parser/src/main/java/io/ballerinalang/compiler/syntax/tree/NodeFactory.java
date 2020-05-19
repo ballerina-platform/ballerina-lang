@@ -2136,7 +2136,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static TypedBindingPatternNode createTypedBindingPatternNode(
-            Node typeDescriptor,
+            TypeDescriptorNode typeDescriptor,
             BindingPatternNode bindingPattern) {
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
@@ -2148,7 +2148,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static CaptureBindingPatternNode createCaptureBindingPatternNode(
-            Token variableName) {
+            SimpleNameReferenceNode variableName) {
 
         STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
                 getOptionalSTNode(variableName));
@@ -2174,7 +2174,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RestBindingPatternNode createRestBindingPatternNode(
             Token ellipsisToken,
-            Token variableName) {
+            SimpleNameReferenceNode variableName) {
         Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
         Objects.requireNonNull(variableName, "variableName must not be null");
 

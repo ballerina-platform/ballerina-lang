@@ -36,7 +36,7 @@ public class RestBindingPatternNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token variableName() {
+    public SimpleNameReferenceNode variableName() {
         return childInBucket(1);
     }
 
@@ -59,7 +59,7 @@ public class RestBindingPatternNode extends NonTerminalNode {
 
     public RestBindingPatternNode modify(
             Token ellipsisToken,
-            Token variableName) {
+            SimpleNameReferenceNode variableName) {
         if (checkForReferenceEquality(
                 ellipsisToken,
                 variableName)) {
@@ -83,7 +83,7 @@ public class RestBindingPatternNode extends NonTerminalNode {
     public static class RestBindingPatternNodeModifier {
         private final RestBindingPatternNode oldNode;
         private Token ellipsisToken;
-        private Token variableName;
+        private SimpleNameReferenceNode variableName;
 
         public RestBindingPatternNodeModifier(RestBindingPatternNode oldNode) {
             this.oldNode = oldNode;
@@ -97,7 +97,7 @@ public class RestBindingPatternNode extends NonTerminalNode {
             return this;
         }
 
-        public RestBindingPatternNodeModifier withVariableName(Token variableName) {
+        public RestBindingPatternNodeModifier withVariableName(SimpleNameReferenceNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;

@@ -1575,7 +1575,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public TypedBindingPatternNode transform(TypedBindingPatternNode typedBindingPatternNode) {
-        Node typeDescriptor = modifyNode(typedBindingPatternNode.typeDescriptor());
+        TypeDescriptorNode typeDescriptor = modifyNode(typedBindingPatternNode.typeDescriptor());
         BindingPatternNode bindingPattern = modifyNode(typedBindingPatternNode.bindingPattern());
         return typedBindingPatternNode.modify(
                 typeDescriptor,
@@ -1584,7 +1584,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public CaptureBindingPatternNode transform(CaptureBindingPatternNode captureBindingPatternNode) {
-        Token variableName = modifyToken(captureBindingPatternNode.variableName().orElse(null));
+        SimpleNameReferenceNode variableName = modifyNode(captureBindingPatternNode.variableName().orElse(null));
         return captureBindingPatternNode.modify(
                 variableName);
     }
@@ -1605,7 +1605,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public RestBindingPatternNode transform(RestBindingPatternNode restBindingPatternNode) {
         Token ellipsisToken = modifyToken(restBindingPatternNode.ellipsisToken());
-        Token variableName = modifyToken(restBindingPatternNode.variableName());
+        SimpleNameReferenceNode variableName = modifyNode(restBindingPatternNode.variableName());
         return restBindingPatternNode.modify(
                 ellipsisToken,
                 variableName);

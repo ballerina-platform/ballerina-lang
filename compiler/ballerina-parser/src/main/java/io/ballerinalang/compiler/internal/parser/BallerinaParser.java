@@ -9612,26 +9612,23 @@ public class BallerinaParser extends AbstractParser {
 
         STNode arrayDescOrListBindingPattern = parseListBindingPattern();
 
-        if (isListBindingPatternDefinitively(arrayDescOrListBindingPattern)) { // ambiguous means T[a]
+        // if the we definitely know its a list-binding-pattern or if
+        // it is followed by a token that follows a typed-binding-pattern
+        // we can return
+        if (isListBindingPatternDefinitively(arrayDescOrListBindingPattern) ||
+                isFollowTypedBindingPattern(peek().kind)) {
             return STNodeFactory.createTypedBindingPatternNode(typeDesc,
-                    cleanListBindingPattern(arrayDescOrListBindingPattern));
+                    validateListBindingPattern(arrayDescOrListBindingPattern));
         }
 
-        if (isFollowTypedBindingPattern(peek().kind)) {
-            return STNodeFactory.createTypedBindingPatternNode(typeDesc,
-                    cleanListBindingPattern(arrayDescOrListBindingPattern));
-        }
-
+        // at this point we have something like T [a][.... or T[a] b
+        // in either case [a] is parsed as a array type descritor
         typeDesc = mergeTypeDescAndListBindingPattern(typeDesc, arrayDescOrListBindingPattern);
         if (peek().kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-            //this means arrayDescOrBLP is a array type desc
             return parseArrayTypeDescOrListBindingPattern(typeDesc);
-        } else {
-            return STNodeFactory.createTypedBindingPatternNode(typeDesc,
-                    parseBindingPattern());
         }
-
-
+        return STNodeFactory.createTypedBindingPatternNode(typeDesc,
+                parseBindingPattern());
     }
 
     private STNode mergeTypeDescAndListBindingPattern(STNode typeDesc,
@@ -9647,7 +9644,7 @@ public class BallerinaParser extends AbstractParser {
                 listBindingPattern.closeBracket);
     }
 
-    private STNode cleanListBindingPattern(STNode bindingPattern) {
+    private STNode validateListBindingPattern(STNode bindingPattern) {
         STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
         STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         int numberOfChildren = childArray.bucketCount();
@@ -9688,11 +9685,13 @@ public class BallerinaParser extends AbstractParser {
         if (numberOfChildren == 1) {
             STNode child = childArray.childInBucket(0);
             switch (child.kind) {
-                case LIST_BINDING_PATTERN:
-                case REST_BINDING_PATTERN:
-                    return true;
-                default: // cases like [ and {
+                case DECIMAL_INTEGER_LITERAL:
+                case HEX_INTEGER_LITERAL:
+                case ASTERISK_TOKEN:
+                case CAPTURE_BINDING_PATTERN:
                     return false;
+                default: // cases like [ and {
+                    return true;
             }
         } else {
             return true;

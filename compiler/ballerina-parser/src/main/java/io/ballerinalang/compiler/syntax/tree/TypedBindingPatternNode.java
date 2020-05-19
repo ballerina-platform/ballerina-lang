@@ -32,7 +32,7 @@ public class TypedBindingPatternNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node typeDescriptor() {
+    public TypeDescriptorNode typeDescriptor() {
         return childInBucket(0);
     }
 
@@ -58,7 +58,7 @@ public class TypedBindingPatternNode extends NonTerminalNode {
     }
 
     public TypedBindingPatternNode modify(
-            Node typeDescriptor,
+            TypeDescriptorNode typeDescriptor,
             BindingPatternNode bindingPattern) {
         if (checkForReferenceEquality(
                 typeDescriptor,
@@ -82,7 +82,7 @@ public class TypedBindingPatternNode extends NonTerminalNode {
      */
     public static class TypedBindingPatternNodeModifier {
         private final TypedBindingPatternNode oldNode;
-        private Node typeDescriptor;
+        private TypeDescriptorNode typeDescriptor;
         private BindingPatternNode bindingPattern;
 
         public TypedBindingPatternNodeModifier(TypedBindingPatternNode oldNode) {
@@ -91,7 +91,7 @@ public class TypedBindingPatternNode extends NonTerminalNode {
             this.bindingPattern = oldNode.bindingPattern();
         }
 
-        public TypedBindingPatternNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public TypedBindingPatternNodeModifier withTypeDescriptor(TypeDescriptorNode typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;

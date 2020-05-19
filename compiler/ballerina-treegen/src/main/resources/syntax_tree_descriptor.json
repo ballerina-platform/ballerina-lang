@@ -2852,7 +2852,7 @@
             "attributes": [
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "bindingPattern",
@@ -2872,7 +2872,7 @@
             "attributes": [
                 {
                     "name": "variableName",
-                    "type": "Token",
+                    "type": "SimpleNameReferenceNode",
                     "isOptional": true
                 }
             ]
@@ -2913,7 +2913,7 @@
                 },
                 {
                     "name": "variableName",
-                    "type": "Token"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         }
