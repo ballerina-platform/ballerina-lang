@@ -20,8 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-
-import java.util.ArrayList;
+import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
 /**
  * A factory for creating nodes in the syntax tree.
@@ -29,9 +28,46 @@ import java.util.ArrayList;
  * @since 1.3.0
  */
 public abstract class AbstractNodeFactory {
+
     public static IdentifierToken createIdentifierToken(String text) {
-        STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(new ArrayList<>()),
-                STNodeFactory.createNodeList(new ArrayList<>()));
+        STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(),
+                STNodeFactory.createNodeList());
+        return token.createUnlinkedFacade();
+    }
+
+    public static IdentifierToken createIdentifierToken(String text,
+                                                        MinutiaeList leadingMinutiae,
+                                                        MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory.createIdentifierToken(text, leadingMinutiaeSTNode,
+                trailingMinutiaeSTNode);
+        return token.createUnlinkedFacade();
+    }
+
+    public static Token createToken(SyntaxKind kind,
+                                    MinutiaeList leadingMinutiae,
+                                    MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory.createToken(kind, leadingMinutiaeSTNode,
+                trailingMinutiaeSTNode);
         return token.createUnlinkedFacade();
     }
 

@@ -653,7 +653,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordKeyValueField recordKeyValue) {
-        recordKeyValue.key.accept(this);
+        recordKeyValue.key.expr.accept(this);
         recordKeyValue.valueExpr.accept(this);
     }
 
@@ -699,8 +699,10 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
-        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol.name, SymTag.VARIABLE);
-        if (resolvedSymbol == symTable.notFoundSymbol) {
+        BSymbol resolvedSymbol = symResolver
+                .lookupClosureVarSymbol(env, names.fromIdNode(bLangSimpleVarRef.variableName),
+                        SymTag.VARIABLE);
+        if (symbol != null && resolvedSymbol == symTable.notFoundSymbol) {
             String identifier = bLangSimpleVarRef.variableName.getValue();
             if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
                 DiagnosticPos pos = currentLambdaBody.pos;
@@ -718,7 +720,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 identifiers.put(identifier, symbol);
             }
-        } else {
+        } else if (resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
         }
     }

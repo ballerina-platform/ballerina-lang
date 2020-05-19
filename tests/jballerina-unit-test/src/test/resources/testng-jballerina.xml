@@ -164,8 +164,6 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-            <!--Skipping until #22385 is fixed-->
-            <class name="org.ballerinalang.test.query.QueryExpressionIterableObjectTest"/>
         </classes>
     </test>
 </suite>

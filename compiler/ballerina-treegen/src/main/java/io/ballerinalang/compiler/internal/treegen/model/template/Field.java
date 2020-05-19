@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.internal.treegen.model.template;
 
 import io.ballerinalang.compiler.internal.treegen.model.OccurrenceKind;
 
+import java.util.Locale;
+
 /**
  * Represents a instance field of a syntax tree node.
  *
@@ -88,6 +90,11 @@ public class Field {
 
     public boolean isOptional() {
         return isOptional;
+    }
+
+    public String titleCaseFieldName() {
+        String firstChar = fieldName.substring(0, 1);
+        return fieldName.replaceFirst(firstChar, firstChar.toUpperCase(Locale.ENGLISH));
     }
 
     public String listClassName() {

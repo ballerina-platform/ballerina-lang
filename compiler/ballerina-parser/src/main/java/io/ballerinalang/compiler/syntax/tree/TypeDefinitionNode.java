@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
 
@@ -101,5 +102,80 @@ public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
                 typeName,
                 typeDescriptor,
                 semicolonToken);
+    }
+
+    public TypeDefinitionNodeModifier modify() {
+        return new TypeDefinitionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypeDefinitionNodeModifier {
+        private final TypeDefinitionNode oldNode;
+        private MetadataNode metadata;
+        private Token visibilityQualifier;
+        private Token typeKeyword;
+        private Token typeName;
+        private Node typeDescriptor;
+        private Token semicolonToken;
+
+        public TypeDefinitionNodeModifier(TypeDefinitionNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.typeKeyword = oldNode.typeKeyword();
+            this.typeName = oldNode.typeName();
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public TypeDefinitionNodeModifier withMetadata(MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public TypeDefinitionNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+            this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public TypeDefinitionNodeModifier withTypeKeyword(Token typeKeyword) {
+            Objects.requireNonNull(typeKeyword, "typeKeyword must not be null");
+            this.typeKeyword = typeKeyword;
+            return this;
+        }
+
+        public TypeDefinitionNodeModifier withTypeName(Token typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public TypeDefinitionNodeModifier withTypeDescriptor(Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public TypeDefinitionNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public TypeDefinitionNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    visibilityQualifier,
+                    typeKeyword,
+                    typeName,
+                    typeDescriptor,
+                    semicolonToken);
+        }
     }
 }

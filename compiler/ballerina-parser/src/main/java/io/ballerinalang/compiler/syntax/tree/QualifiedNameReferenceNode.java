@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class QualifiedNameReferenceNode extends NameReferenceNode {
 
@@ -75,5 +77,53 @@ public class QualifiedNameReferenceNode extends NameReferenceNode {
                 modulePrefix,
                 colon,
                 identifier);
+    }
+
+    public QualifiedNameReferenceNodeModifier modify() {
+        return new QualifiedNameReferenceNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class QualifiedNameReferenceNodeModifier {
+        private final QualifiedNameReferenceNode oldNode;
+        private Token modulePrefix;
+        private Node colon;
+        private IdentifierToken identifier;
+
+        public QualifiedNameReferenceNodeModifier(QualifiedNameReferenceNode oldNode) {
+            this.oldNode = oldNode;
+            this.modulePrefix = oldNode.modulePrefix();
+            this.colon = oldNode.colon();
+            this.identifier = oldNode.identifier();
+        }
+
+        public QualifiedNameReferenceNodeModifier withModulePrefix(Token modulePrefix) {
+            Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
+            this.modulePrefix = modulePrefix;
+            return this;
+        }
+
+        public QualifiedNameReferenceNodeModifier withColon(Node colon) {
+            Objects.requireNonNull(colon, "colon must not be null");
+            this.colon = colon;
+            return this;
+        }
+
+        public QualifiedNameReferenceNodeModifier withIdentifier(IdentifierToken identifier) {
+            Objects.requireNonNull(identifier, "identifier must not be null");
+            this.identifier = identifier;
+            return this;
+        }
+
+        public QualifiedNameReferenceNode apply() {
+            return oldNode.modify(
+                    modulePrefix,
+                    colon,
+                    identifier);
+        }
     }
 }

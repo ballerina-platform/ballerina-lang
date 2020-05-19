@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLProcessingInstruction extends XMLItemNode {
 
@@ -83,5 +85,62 @@ public class XMLProcessingInstruction extends XMLItemNode {
                 target,
                 data,
                 piEnd);
+    }
+
+    public XMLProcessingInstructionModifier modify() {
+        return new XMLProcessingInstructionModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLProcessingInstructionModifier {
+        private final XMLProcessingInstruction oldNode;
+        private Token piStart;
+        private XMLNameNode target;
+        private NodeList<Node> data;
+        private Token piEnd;
+
+        public XMLProcessingInstructionModifier(XMLProcessingInstruction oldNode) {
+            this.oldNode = oldNode;
+            this.piStart = oldNode.piStart();
+            this.target = oldNode.target();
+            this.data = oldNode.data();
+            this.piEnd = oldNode.piEnd();
+        }
+
+        public XMLProcessingInstructionModifier withPiStart(Token piStart) {
+            Objects.requireNonNull(piStart, "piStart must not be null");
+            this.piStart = piStart;
+            return this;
+        }
+
+        public XMLProcessingInstructionModifier withTarget(XMLNameNode target) {
+            Objects.requireNonNull(target, "target must not be null");
+            this.target = target;
+            return this;
+        }
+
+        public XMLProcessingInstructionModifier withData(NodeList<Node> data) {
+            Objects.requireNonNull(data, "data must not be null");
+            this.data = data;
+            return this;
+        }
+
+        public XMLProcessingInstructionModifier withPiEnd(Token piEnd) {
+            Objects.requireNonNull(piEnd, "piEnd must not be null");
+            this.piEnd = piEnd;
+            return this;
+        }
+
+        public XMLProcessingInstruction apply() {
+            return oldNode.modify(
+                    piStart,
+                    target,
+                    data,
+                    piEnd);
+        }
     }
 }

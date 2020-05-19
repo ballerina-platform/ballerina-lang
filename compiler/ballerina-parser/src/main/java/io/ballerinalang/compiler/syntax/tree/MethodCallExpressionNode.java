@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class MethodCallExpressionNode extends ExpressionNode {
 
@@ -99,5 +101,80 @@ public class MethodCallExpressionNode extends ExpressionNode {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public MethodCallExpressionNodeModifier modify() {
+        return new MethodCallExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class MethodCallExpressionNodeModifier {
+        private final MethodCallExpressionNode oldNode;
+        private ExpressionNode expression;
+        private Token dotToken;
+        private Token methodName;
+        private Token openParenToken;
+        private NodeList<FunctionArgumentNode> arguments;
+        private Token closeParenToken;
+
+        public MethodCallExpressionNodeModifier(MethodCallExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.expression = oldNode.expression();
+            this.dotToken = oldNode.dotToken();
+            this.methodName = oldNode.methodName();
+            this.openParenToken = oldNode.openParenToken();
+            this.arguments = oldNode.arguments();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public MethodCallExpressionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public MethodCallExpressionNodeModifier withDotToken(Token dotToken) {
+            Objects.requireNonNull(dotToken, "dotToken must not be null");
+            this.dotToken = dotToken;
+            return this;
+        }
+
+        public MethodCallExpressionNodeModifier withMethodName(Token methodName) {
+            Objects.requireNonNull(methodName, "methodName must not be null");
+            this.methodName = methodName;
+            return this;
+        }
+
+        public MethodCallExpressionNodeModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public MethodCallExpressionNodeModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+            Objects.requireNonNull(arguments, "arguments must not be null");
+            this.arguments = arguments;
+            return this;
+        }
+
+        public MethodCallExpressionNodeModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public MethodCallExpressionNode apply() {
+            return oldNode.modify(
+                    expression,
+                    dotToken,
+                    methodName,
+                    openParenToken,
+                    arguments,
+                    closeParenToken);
+        }
     }
 }

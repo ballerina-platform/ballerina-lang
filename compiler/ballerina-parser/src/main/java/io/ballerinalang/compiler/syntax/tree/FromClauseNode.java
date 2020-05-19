@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FromClauseNode extends ClauseNode {
 
@@ -91,5 +93,71 @@ public class FromClauseNode extends ClauseNode {
                 variableName,
                 inKeyword,
                 expression);
+    }
+
+    public FromClauseNodeModifier modify() {
+        return new FromClauseNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FromClauseNodeModifier {
+        private final FromClauseNode oldNode;
+        private Token fromKeyword;
+        private Node typeName;
+        private Token variableName;
+        private Token inKeyword;
+        private ExpressionNode expression;
+
+        public FromClauseNodeModifier(FromClauseNode oldNode) {
+            this.oldNode = oldNode;
+            this.fromKeyword = oldNode.fromKeyword();
+            this.typeName = oldNode.typeName();
+            this.variableName = oldNode.variableName();
+            this.inKeyword = oldNode.inKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public FromClauseNodeModifier withFromKeyword(Token fromKeyword) {
+            Objects.requireNonNull(fromKeyword, "fromKeyword must not be null");
+            this.fromKeyword = fromKeyword;
+            return this;
+        }
+
+        public FromClauseNodeModifier withTypeName(Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public FromClauseNodeModifier withVariableName(Token variableName) {
+            Objects.requireNonNull(variableName, "variableName must not be null");
+            this.variableName = variableName;
+            return this;
+        }
+
+        public FromClauseNodeModifier withInKeyword(Token inKeyword) {
+            Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+            this.inKeyword = inKeyword;
+            return this;
+        }
+
+        public FromClauseNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public FromClauseNode apply() {
+            return oldNode.modify(
+                    fromKeyword,
+                    typeName,
+                    variableName,
+                    inKeyword,
+                    expression);
+        }
     }
 }

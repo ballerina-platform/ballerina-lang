@@ -202,23 +202,6 @@
                                       "value": "annot3"
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "MAPPING_CONSTRUCTOR",
-                                  "children": [
-                                    {
-                                      "kind": "OPEN_BRACE_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACE_TOKEN",
-                                      "isMissing": true
-                                    }
-                                  ]
                                 }
                               ]
                             }
@@ -304,22 +287,6 @@
                         {
                           "kind": "IDENTIFIER_TOKEN",
                           "value": "annot4"
-                        },
-                        {
-                          "kind": "MAPPING_CONSTRUCTOR",
-                          "children": [
-                            {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "isMissing": true
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
                         }
                       ]
                     }

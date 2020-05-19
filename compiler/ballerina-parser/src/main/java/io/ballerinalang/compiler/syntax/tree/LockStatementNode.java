@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class LockStatementNode extends StatementNode {
 
@@ -67,5 +69,44 @@ public class LockStatementNode extends StatementNode {
         return NodeFactory.createLockStatementNode(
                 lockKeyword,
                 blockStatement);
+    }
+
+    public LockStatementNodeModifier modify() {
+        return new LockStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class LockStatementNodeModifier {
+        private final LockStatementNode oldNode;
+        private Token lockKeyword;
+        private StatementNode blockStatement;
+
+        public LockStatementNodeModifier(LockStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.lockKeyword = oldNode.lockKeyword();
+            this.blockStatement = oldNode.blockStatement();
+        }
+
+        public LockStatementNodeModifier withLockKeyword(Token lockKeyword) {
+            Objects.requireNonNull(lockKeyword, "lockKeyword must not be null");
+            this.lockKeyword = lockKeyword;
+            return this;
+        }
+
+        public LockStatementNodeModifier withBlockStatement(StatementNode blockStatement) {
+            Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+            this.blockStatement = blockStatement;
+            return this;
+        }
+
+        public LockStatementNode apply() {
+            return oldNode.modify(
+                    lockKeyword,
+                    blockStatement);
+        }
     }
 }
