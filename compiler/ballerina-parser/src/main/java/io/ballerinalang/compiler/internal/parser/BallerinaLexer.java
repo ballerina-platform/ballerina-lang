@@ -303,7 +303,7 @@ public class BallerinaLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     /**
@@ -387,7 +387,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createSyntaxTrivia(SyntaxKind.WHITESPACE_TRIVIA, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
     }
 
     /**
@@ -402,7 +402,7 @@ public class BallerinaLexer extends AbstractLexer {
         switch (c) {
             case LexerTerminals.NEWLINE:
                 reader.advance();
-                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             case LexerTerminals.CARRIAGE_RETURN:
                 reader.advance();
                 if (reader.peek() == LexerTerminals.NEWLINE) {
@@ -416,7 +416,7 @@ public class BallerinaLexer extends AbstractLexer {
                 // This implementation does not replace any characters to maintain
                 // the exact source text as it is, but it does not count \r\n as two characters.
                 // Therefore, we have to specifically send the width of the lexeme when creating the Minutia node.
-                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme(), 1);
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme(), 1);
             default:
                 throw new IllegalStateException();
         }
@@ -462,7 +462,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createSyntaxTrivia(SyntaxKind.COMMENT, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIA, getLexeme());
     }
 
     /**
@@ -940,7 +940,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         String tokenText = getLexeme();
         reportLexerError("invalid token '" + tokenText + "'");
-        STNode trivia = STNodeFactory.createSyntaxTrivia(SyntaxKind.INVALID, tokenText);
+        STNode trivia = STNodeFactory.createMinutiae(SyntaxKind.INVALID, tokenText);
         this.leadingTriviaList.add(trivia);
     }
 
@@ -1313,7 +1313,7 @@ public class BallerinaLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     /*

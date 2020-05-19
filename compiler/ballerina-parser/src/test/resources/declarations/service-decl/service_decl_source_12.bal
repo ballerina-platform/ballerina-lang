@@ -1,7 +1,7 @@
 function foo() {
     service s;
 
-service serviceName1 serviceName2 on someListner1 {
+service serviceName1 on someListner1 {
     function bar() {
 
     

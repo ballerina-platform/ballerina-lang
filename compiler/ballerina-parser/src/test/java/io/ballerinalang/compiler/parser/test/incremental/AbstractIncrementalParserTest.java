@@ -61,7 +61,7 @@ public class AbstractIncrementalParserTest {
         DiffMatchPatch diffMatchPatch = new DiffMatchPatch();
         LinkedList<DiffMatchPatch.Diff> diffList = diffMatchPatch.diffMain(oldText, newText);
         diffMatchPatch.diffCleanupSemantic(diffList);
-        return new TextDocumentChange(getTextEdits(diffList));
+        return TextDocumentChange.from(getTextEdits(diffList));
     }
 
     public static Node[] populateNewNodes(SyntaxTree oldTree, SyntaxTree newTree) {
@@ -161,6 +161,6 @@ public class AbstractIncrementalParserTest {
             newTextChange = insertDiff.text;
             diffEnd = diffStart;
         }
-        return new TextEdit(new TextRange(diffStart, diffEnd - diffStart), newTextChange);
+        return TextEdit.from(TextRange.from(diffStart, diffEnd - diffStart), newTextChange);
     }
 }

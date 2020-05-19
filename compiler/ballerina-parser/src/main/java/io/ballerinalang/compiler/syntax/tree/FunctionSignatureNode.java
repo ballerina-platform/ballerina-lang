@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FunctionSignatureNode extends NonTerminalNode {
 
@@ -85,5 +86,62 @@ public class FunctionSignatureNode extends NonTerminalNode {
                 parameters,
                 closeParenToken,
                 returnTypeDesc);
+    }
+
+    public FunctionSignatureNodeModifier modify() {
+        return new FunctionSignatureNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FunctionSignatureNodeModifier {
+        private final FunctionSignatureNode oldNode;
+        private Token openParenToken;
+        private NodeList<ParameterNode> parameters;
+        private Token closeParenToken;
+        private ReturnTypeDescriptorNode returnTypeDesc;
+
+        public FunctionSignatureNodeModifier(FunctionSignatureNode oldNode) {
+            this.oldNode = oldNode;
+            this.openParenToken = oldNode.openParenToken();
+            this.parameters = oldNode.parameters();
+            this.closeParenToken = oldNode.closeParenToken();
+            this.returnTypeDesc = oldNode.returnTypeDesc().orElse(null);
+        }
+
+        public FunctionSignatureNodeModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public FunctionSignatureNodeModifier withParameters(NodeList<ParameterNode> parameters) {
+            Objects.requireNonNull(parameters, "parameters must not be null");
+            this.parameters = parameters;
+            return this;
+        }
+
+        public FunctionSignatureNodeModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public FunctionSignatureNodeModifier withReturnTypeDesc(ReturnTypeDescriptorNode returnTypeDesc) {
+            Objects.requireNonNull(returnTypeDesc, "returnTypeDesc must not be null");
+            this.returnTypeDesc = returnTypeDesc;
+            return this;
+        }
+
+        public FunctionSignatureNode apply() {
+            return oldNode.modify(
+                    openParenToken,
+                    parameters,
+                    closeParenToken,
+                    returnTypeDesc);
+        }
     }
 }

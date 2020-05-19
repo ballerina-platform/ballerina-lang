@@ -20,11 +20,9 @@ package io.ballerinalang.compiler.parser.test.tree;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.NodeLocation;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -40,9 +38,10 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         SyntaxTree syntaxTree = parseFile(sourceFileName);
         ModulePartNode modulePartNode = syntaxTree.modulePart();
 
-        LinePosition expectedStartPos = new LinePosition(0, 0);
-        LinePosition expectedEndPos = new LinePosition(10, 1);
-        assertNodeLocation(modulePartNode.location(), sourceFileName, expectedStartPos, expectedEndPos);
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(10, 1);
+        LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
+        assertLineRange(modulePartNode.location().lineRange(), expectedLineRange);
     }
 
     @Test
@@ -51,9 +50,10 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         SyntaxTree syntaxTree = parseFile(sourceFileName);
         ImportDeclarationNode importDeclNode = syntaxTree.modulePart().imports().get(0);
 
-        LinePosition expectedStartPos = new LinePosition(0, 0);
-        LinePosition expectedEndPos = new LinePosition(0, 20);
-        assertNodeLocation(importDeclNode.location(), sourceFileName, expectedStartPos, expectedEndPos);
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 20);
+        LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
+        assertLineRange(importDeclNode.location().lineRange(), expectedLineRange);
     }
 
     @Test
@@ -63,9 +63,10 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         ModulePartNode modulePartNode = syntaxTree.modulePart();
         ImportDeclarationNode importDeclarationNode = modulePartNode.imports().get(3);
 
-        LinePosition expectedStartPos = new LinePosition(3, 0);
-        LinePosition expectedEndPos = new LinePosition(3, 29);
-        assertNodeLocation(importDeclarationNode.location(), sourceFileName, expectedStartPos, expectedEndPos);
+        LinePosition expectedStartPos = LinePosition.from(3, 0);
+        LinePosition expectedEndPos = LinePosition.from(3, 29);
+        LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
+        assertLineRange(importDeclarationNode.location().lineRange(), expectedLineRange);
     }
 
     @Test
@@ -75,18 +76,9 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         ModulePartNode modulePartNode = syntaxTree.modulePart();
         FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
 
-        LinePosition expectedStartPos = new LinePosition(5, 0);
-        LinePosition expectedEndPos = new LinePosition(9, 1);
-        assertNodeLocation(functionDefNode.location(), sourceFileName, expectedStartPos, expectedEndPos);
-    }
-
-    private void assertNodeLocation(NodeLocation nodeLocation,
-                                    String sourceFileName,
-                                    LinePosition expectedStartPos,
-                                    LinePosition expectedEndPos) {
-        LineRange lineRange = nodeLocation.lineRange();
-        Assert.assertEquals(lineRange.filePath(), sourceFileName);
-        Assert.assertEquals(lineRange.startLine(), expectedStartPos);
-        Assert.assertEquals(lineRange.endLine(), expectedEndPos);
+        LinePosition expectedStartPos = LinePosition.from(5, 0);
+        LinePosition expectedEndPos = LinePosition.from(9, 1);
+        LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
+        assertLineRange(functionDefNode.location().lineRange(), expectedLineRange);
     }
 }

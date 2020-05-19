@@ -62,6 +62,16 @@ public abstract class STNode {
         return widthWithTrailingMinutiae;
     }
 
+    public STNode leadingMinutiae() {
+        throw new UnsupportedOperationException("" +
+                "The leadingMinutiae() method is only supported for STToken instances");
+    }
+
+    public STNode trailingMinutiae() {
+        throw new UnsupportedOperationException("" +
+                "The trailingMinutiae() method is only supported for STToken instances");
+    }
+
     public int bucketCount() {
         return bucketCount;
     }

@@ -548,6 +548,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(FunctionDeclarationNode functionDeclarationNode) {
+        return transformSyntaxNode(functionDeclarationNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
@@ -559,11 +563,6 @@ public abstract class NodeTransformer<T> {
     }
 
     // Misc
-
-    // TODO Why Minutiae is in this visitor? Check on this.
-    public T transform(Minutiae minutiae) {
-        return transformSyntaxNode(minutiae);
-    }
 
     /**
      * Transforms the given {@code Node} into an object of type T.

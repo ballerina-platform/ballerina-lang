@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class NamedWorkerDeclarationNode extends NonTerminalNode {
 
@@ -93,5 +94,71 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
                 workerName,
                 returnTypeDesc,
                 workerBody);
+    }
+
+    public NamedWorkerDeclarationNodeModifier modify() {
+        return new NamedWorkerDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class NamedWorkerDeclarationNodeModifier {
+        private final NamedWorkerDeclarationNode oldNode;
+        private NodeList<AnnotationNode> annotations;
+        private Token workerKeyword;
+        private IdentifierToken workerName;
+        private Node returnTypeDesc;
+        private BlockStatementNode workerBody;
+
+        public NamedWorkerDeclarationNodeModifier(NamedWorkerDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
+            this.workerKeyword = oldNode.workerKeyword();
+            this.workerName = oldNode.workerName();
+            this.returnTypeDesc = oldNode.returnTypeDesc().orElse(null);
+            this.workerBody = oldNode.workerBody();
+        }
+
+        public NamedWorkerDeclarationNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public NamedWorkerDeclarationNodeModifier withWorkerKeyword(Token workerKeyword) {
+            Objects.requireNonNull(workerKeyword, "workerKeyword must not be null");
+            this.workerKeyword = workerKeyword;
+            return this;
+        }
+
+        public NamedWorkerDeclarationNodeModifier withWorkerName(IdentifierToken workerName) {
+            Objects.requireNonNull(workerName, "workerName must not be null");
+            this.workerName = workerName;
+            return this;
+        }
+
+        public NamedWorkerDeclarationNodeModifier withReturnTypeDesc(Node returnTypeDesc) {
+            Objects.requireNonNull(returnTypeDesc, "returnTypeDesc must not be null");
+            this.returnTypeDesc = returnTypeDesc;
+            return this;
+        }
+
+        public NamedWorkerDeclarationNodeModifier withWorkerBody(BlockStatementNode workerBody) {
+            Objects.requireNonNull(workerBody, "workerBody must not be null");
+            this.workerBody = workerBody;
+            return this;
+        }
+
+        public NamedWorkerDeclarationNode apply() {
+            return oldNode.modify(
+                    annotations,
+                    workerKeyword,
+                    workerName,
+                    returnTypeDesc,
+                    workerBody);
+        }
     }
 }
