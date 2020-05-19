@@ -44,6 +44,7 @@ dependencies {
     testCompile project(':ballerina-lang:object')
     testCompile project(':ballerina-lang:stream')
     testCompile project(':ballerina-lang:table')
+    testCompile project(':ballerina-lang:query')
     testCompile project(':ballerina-lang:string')
     testCompile project(':ballerina-lang:typedesc')
     testCompile project(':ballerina-lang:value')
@@ -76,6 +77,7 @@ dependencies {
     birJar project(path: ':ballerina-lang:typedesc', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:value', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:xml', configuration: 'bStringBirJar')
+    birJar project(path: ':ballerina-lang:query', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-system', configuration: 'bStringBirJar')
 
     baloImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
@@ -85,6 +87,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
@@ -106,6 +110,7 @@ dependencies {
     balHome project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    balHome project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-system', configuration: 'baloImplementation')
 }
 

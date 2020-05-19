@@ -271,7 +271,7 @@ public class ParserTestUtils {
         switch (syntaxKind) {
             case WHITESPACE_MINUTIAE:
             case END_OF_LINE_MINUTIAE:
-            case COMMENT_MINUTIA:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return true;
             default:
@@ -294,7 +294,7 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text();
             case WHITESPACE_MINUTIAE:
-            case COMMENT_MINUTIA:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return ((STMinutiae) token).text();
             case END_OF_LINE_MINUTIAE:
@@ -860,6 +860,16 @@ public class ParserTestUtils {
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
                 return SyntaxKind.FUNCTION_DECLARATION;
+            case "TYPED_BINDING_PATTERN":
+                return SyntaxKind.TYPED_BINDING_PATTERN;
+            case "BINDING_PATTERN":
+                return SyntaxKind.BINDING_PATTERN;
+            case "CAPTURE_BINDING_PATTERN":
+                return SyntaxKind.CAPTURE_BINDING_PATTERN;
+            case "LIST_BINDING_PATTERN":
+                return SyntaxKind.LIST_BINDING_PATTERN;
+            case "REST_BINDING_PATTERN":
+                return SyntaxKind.REST_BINDING_PATTERN;
 
             // XML template
             case "XML_ELEMENT":
@@ -913,7 +923,7 @@ public class ParserTestUtils {
             case "WHITESPACE_TRIVIA":
                 return SyntaxKind.WHITESPACE_MINUTIAE;
             case "COMMENT":
-                return SyntaxKind.COMMENT_MINUTIA;
+                return SyntaxKind.COMMENT_MINUTIAE;
             case "INVALID":
                 return SyntaxKind.INVALID;
 

@@ -330,16 +330,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createForEachStatementNode(
             STNode forEachKeyword,
-            STNode typeDescriptor,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode actionOrExpressionNode,
             STNode blockStatement) {
 
         return new STForEachStatementNode(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement);
@@ -1593,6 +1591,44 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 functionName,
                 functionSignature,
                 semicolon);
+    }
+
+    public static STNode createTypedBindingPatternNode(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+
+        return new STTypedBindingPatternNode(
+                typeDescriptor,
+                bindingPattern);
+    }
+
+    public static STNode createCaptureBindingPatternNode(
+            STNode variableName) {
+
+        return new STCaptureBindingPatternNode(
+                variableName);
+    }
+
+    public static STNode createListBindingPatternNode(
+            STNode openBracket,
+            STNode bindingPatterns,
+            STNode restBindingPattern,
+            STNode closeBracket) {
+
+        return new STListBindingPatternNode(
+                openBracket,
+                bindingPatterns,
+                restBindingPattern,
+                closeBracket);
+    }
+
+    public static STNode createRestBindingPatternNode(
+            STNode ellipsisToken,
+            STNode variableName) {
+
+        return new STRestBindingPatternNode(
+                ellipsisToken,
+                variableName);
     }
 }
 

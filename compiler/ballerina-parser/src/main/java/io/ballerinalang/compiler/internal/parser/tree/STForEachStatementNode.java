@@ -29,31 +29,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STForEachStatementNode extends STStatementNode {
     public final STNode forEachKeyword;
-    public final STNode typeDescriptor;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode inKeyword;
     public final STNode actionOrExpressionNode;
     public final STNode blockStatement;
 
     STForEachStatementNode(
             STNode forEachKeyword,
-            STNode typeDescriptor,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode actionOrExpressionNode,
             STNode blockStatement) {
         super(SyntaxKind.FOREACH_STATEMENT);
         this.forEachKeyword = forEachKeyword;
-        this.typeDescriptor = typeDescriptor;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.inKeyword = inKeyword;
         this.actionOrExpressionNode = actionOrExpressionNode;
         this.blockStatement = blockStatement;
 
         addChildren(
                 forEachKeyword,
-                typeDescriptor,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement);

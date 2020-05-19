@@ -565,12 +565,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeDescriptor",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "inKeyword",
@@ -2100,7 +2096,7 @@
         },
         {
             "name": "XMLItemNode",
-            "base": "BacktickTemplateMemberNode",
+            "base": "TemplateMemberNode",
             "isAbstract": true
         },
         {
@@ -2187,7 +2183,7 @@
             "attributes": [
                 {
                     "name": "name",
-                    "type": "XMLSimpleNameNode"
+                    "type": "Token"
                 }
             ]
         },
@@ -2857,6 +2853,78 @@
                 {
                     "name": "semicolon",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TypedBindingPatternNode",
+            "base": "Node",
+            "kind": "TYPED_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "BindingPatternNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "CaptureBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "CAPTURE_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ListBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "LIST_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPatterns",
+                    "type": "BindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restBindingPattern",
+                    "type": "RestBindingPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestBindingPatternNode",
+            "base": "Node",
+            "kind": "REST_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         }
