@@ -131,7 +131,10 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.QUESTION_MARK:
                 if (peek() == LexerTerminals.DOT) {
                     reader.advance();
-                    token = getSyntaxToken(SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN);
+                    token = getSyntaxToken(SyntaxKind.OPTIONAL_CHAINING_TOKEN);
+                } else if (peek() == LexerTerminals.COLON) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.ELVIS_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
                 }

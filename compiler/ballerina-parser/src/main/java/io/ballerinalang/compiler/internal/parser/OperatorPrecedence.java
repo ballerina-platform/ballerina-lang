@@ -38,6 +38,8 @@ public enum OperatorPrecedence {
     BITWISE_OR(10),         //  (x | y)
     LOGICAL_AND(11),        //  (x && y)
     LOGICAL_OR(12),         //  (x || y)
+    ELVIS_CONDITIONAL(13),  //  x ?: y
+    CONDITIONAL(14),        //  x ? y : z
 
     ANON_FUNC(16),      //  (x) => y
 

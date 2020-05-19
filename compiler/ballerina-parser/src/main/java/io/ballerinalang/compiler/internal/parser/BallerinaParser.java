@@ -2440,6 +2440,9 @@ public class BallerinaParser extends AbstractParser {
             case PIPE_TOKEN:
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
+            case ELVIS_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case COLON_TOKEN:
                 return true;
             default:
                 return false;
@@ -2469,7 +2472,7 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
-            case OPTIONAL_FIELD_ACCESS_TOKEN:
+            case OPTIONAL_CHAINING_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
@@ -2486,6 +2489,11 @@ public class BallerinaParser extends AbstractParser {
                 return OperatorPrecedence.LOGICAL_AND;
             case LOGICAL_OR_TOKEN:
                 return OperatorPrecedence.LOGICAL_OR;
+            case ELVIS_TOKEN:
+                return OperatorPrecedence.ELVIS_CONDITIONAL;
+            case QUESTION_MARK_TOKEN:
+            case COLON_TOKEN:
+                return OperatorPrecedence.CONDITIONAL;
             case RIGHT_ARROW_TOKEN:
                 return OperatorPrecedence.REMOTE_CALL_ACTION;
             case RIGHT_DOUBLE_ARROW:
@@ -2531,6 +2539,8 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.LOGICAL_AND_TOKEN;
             case LOGICAL_OR:
                 return SyntaxKind.LOGICAL_OR_TOKEN;
+            case ELVIS_CONDITIONAL:
+                return SyntaxKind.ELVIS_TOKEN;
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
@@ -2863,20 +2873,20 @@ public class BallerinaParser extends AbstractParser {
      * @return Parse node
      */
     private STNode parseQualifiedIdentifier(STNode identifier) {
-        STToken nextToken = peek(1);
-        if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
+//        STToken nextToken = peek(1);
+//        if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
-        }
+//        }
 
-        STToken nextNextToken = peek(2);
-        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            STToken colon = consume();
-            STToken varOrFuncName = consume();
-            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
-        } else {
-            this.errorHandler.removeInvalidToken();
-            return parseQualifiedIdentifier(identifier);
-        }
+//        STToken nextNextToken = peek(2);
+//        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+//            STToken colon = consume();
+//            STToken varOrFuncName = consume();
+//            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+//        } else {
+//            this.errorHandler.removeInvalidToken();
+//            return parseQualifiedIdentifier(identifier);
+//        }
     }
 
     /**
@@ -3758,11 +3768,17 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW:
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr);
                 break;
-            case OPTIONAL_FIELD_ACCESS_TOKEN:
+            case OPTIONAL_CHAINING_TOKEN:
                 newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr);
                 break;
             default:
                 STNode operator = parseBinaryOperator();
+                SyntaxKind kind;
+                if (tokenKind == SyntaxKind.COLON_TOKEN){
+                    kind = SyntaxKind.CONDITIONAL_EXPRESSION;
+                } else {
+                    kind = SyntaxKind.BINARY_EXPRESSION;
+                }
 
                 // Parse the expression that follows the binary operator, until a operator
                 // with different precedence is encountered. If an operator with a lower
@@ -3772,7 +3788,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // Actions within binary-expressions are not allowed.
                 STNode rhsExpr = parseExpression(nextOperatorPrecedence, isRhsExpr, false);
-                newLhsExpr = STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator,
+                newLhsExpr = STNodeFactory.createBinaryExpressionNode(kind, lhsExpr, operator,
                         rhsExpr);
                 break;
         }
@@ -3789,7 +3805,7 @@ public class BallerinaParser extends AbstractParser {
             case IS_KEYWORD:
             case RIGHT_ARROW_TOKEN:
             case RIGHT_DOUBLE_ARROW:
-            case OPTIONAL_FIELD_ACCESS_TOKEN:
+            case OPTIONAL_CHAINING_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -9104,26 +9120,11 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOptionalFieldAccessToken() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN) {
+        if (token.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN) {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.OPTIONAL_FIELD_ACCESS_TOKEN);
             return sol.recoveredNode;
         }
     }
-
-//    /**
-//     * Parse conditional expression .
-//     *
-//     * @param lhsExpr Preceding expression of the question mark token
-//     * @return One of <code>conditional-expr</code>.
-//     */
-//    private STNode parseConditionalExpression(STNode lhsExpr) {
-//        STNode questionMark = parseQuestionMark();
-//        STNode middleExpression = parseExpression();
-//        STNode colon = parseColon();
-//        STNode fieldName = parseExpression();
-//        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpression, colon,
-//        fieldName);
-//    }
 }

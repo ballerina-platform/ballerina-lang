@@ -1180,7 +1180,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD;
                     break;
                 case OPTIONAL_FIELD_ACCESS_TOKEN:
-                    hasMatch = nextToken.kind == SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN;
+                    hasMatch = nextToken.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN;
                     break;
 
                 case COMP_UNIT:
@@ -2992,6 +2992,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PIPE_TOKEN:
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
+            case ELVIS_TOKEN:
                 return true;
 
             // Treat these also as binary operators.
@@ -3348,7 +3349,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PEER_WORKER:
                 return SyntaxKind.DEFAULT_KEYWORD;
             case OPTIONAL_FIELD_ACCESS_TOKEN:
-                return SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN;
+                return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
 
             // TODO:
             case COMP_UNIT:
