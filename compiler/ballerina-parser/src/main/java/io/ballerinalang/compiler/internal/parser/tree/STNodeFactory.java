@@ -1623,5 +1623,47 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsisToken,
                 variableName);
     }
+
+    public static STNode createAsyncSendActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode peerWorker) {
+
+        return new STAsyncSendActionNode(
+                expression,
+                rightArrowToken,
+                peerWorker);
+    }
+
+    public static STNode createSyncSendActionNode(
+            STNode expression,
+            STNode syncSendToken,
+            STNode peerWorker) {
+
+        return new STSyncSendActionNode(
+                expression,
+                syncSendToken,
+                peerWorker);
+    }
+
+    public static STNode createReceiveActionNode(
+            STNode leftArrow,
+            STNode receiveWorkers) {
+
+        return new STReceiveActionNode(
+                leftArrow,
+                receiveWorkers);
+    }
+
+    public static STNode createReceiveFieldsNode(
+            STNode openBrace,
+            STNode receiveField,
+            STNode closeBrace) {
+
+        return new STReceiveFieldsNode(
+                openBrace,
+                receiveField,
+                closeBrace);
+    }
 }
 

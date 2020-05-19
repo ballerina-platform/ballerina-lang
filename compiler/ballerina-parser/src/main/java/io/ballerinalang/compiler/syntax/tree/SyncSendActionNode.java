@@ -26,18 +26,22 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class FlushActionNode extends ExpressionNode {
+public class SyncSendActionNode extends ActionNode {
 
-    public FlushActionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public SyncSendActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token flushKeyword() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
-    public NameReferenceNode peerWorker() {
+    public Token syncSendToken() {
         return childInBucket(1);
+    }
+
+    public NameReferenceNode peerWorker() {
+        return childInBucket(2);
     }
 
     @Override
@@ -53,26 +57,30 @@ public class FlushActionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "flushKeyword",
+                "expression",
+                "syncSendToken",
                 "peerWorker"};
     }
 
-    public FlushActionNode modify(
-            Token flushKeyword,
+    public SyncSendActionNode modify(
+            ExpressionNode expression,
+            Token syncSendToken,
             NameReferenceNode peerWorker) {
         if (checkForReferenceEquality(
-                flushKeyword,
+                expression,
+                syncSendToken,
                 peerWorker)) {
             return this;
         }
 
-        return NodeFactory.createFlushActionNode(
-                flushKeyword,
+        return NodeFactory.createSyncSendActionNode(
+                expression,
+                syncSendToken,
                 peerWorker);
     }
 
-    public FlushActionNodeModifier modify() {
-        return new FlushActionNodeModifier(this);
+    public SyncSendActionNodeModifier modify() {
+        return new SyncSendActionNodeModifier(this);
     }
 
     /**
@@ -80,34 +88,41 @@ public class FlushActionNode extends ExpressionNode {
      *
      * @since 2.0.0
      */
-    public static class FlushActionNodeModifier {
-        private final FlushActionNode oldNode;
-        private Token flushKeyword;
+    public static class SyncSendActionNodeModifier {
+        private final SyncSendActionNode oldNode;
+        private ExpressionNode expression;
+        private Token syncSendToken;
         private NameReferenceNode peerWorker;
 
-        public FlushActionNodeModifier(FlushActionNode oldNode) {
+        public SyncSendActionNodeModifier(SyncSendActionNode oldNode) {
             this.oldNode = oldNode;
-            this.flushKeyword = oldNode.flushKeyword();
+            this.expression = oldNode.expression();
+            this.syncSendToken = oldNode.syncSendToken();
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public FlushActionNodeModifier withFlushKeyword(
-                Token flushKeyword) {
-            Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
-            this.flushKeyword = flushKeyword;
+        public SyncSendActionNodeModifier withExpression(ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
             return this;
         }
 
-        public FlushActionNodeModifier withPeerWorker(
-                NameReferenceNode peerWorker) {
+        public SyncSendActionNodeModifier withSyncSendToken(Token syncSendToken) {
+            Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
+            this.syncSendToken = syncSendToken;
+            return this;
+        }
+
+        public SyncSendActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;
         }
 
-        public FlushActionNode apply() {
+        public SyncSendActionNode apply() {
             return oldNode.modify(
-                    flushKeyword,
+                    expression,
+                    syncSendToken,
                     peerWorker);
         }
     }

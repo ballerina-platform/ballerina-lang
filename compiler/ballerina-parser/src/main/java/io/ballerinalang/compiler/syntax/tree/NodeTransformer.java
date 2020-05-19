@@ -568,6 +568,22 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
+    }
+
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
