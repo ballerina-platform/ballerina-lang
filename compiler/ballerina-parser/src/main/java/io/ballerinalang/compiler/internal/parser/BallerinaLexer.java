@@ -129,7 +129,12 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
-                token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                if (peek() == LexerTerminals.DOT) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                }
                 break;
             case LexerTerminals.DOUBLE_QUOTE:
                 token = processStringLiteral();

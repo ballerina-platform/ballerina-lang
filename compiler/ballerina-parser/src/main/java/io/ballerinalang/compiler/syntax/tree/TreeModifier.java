@@ -1556,6 +1556,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 peerWorker);
     }
 
+    @Override
+    public Node transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        ExpressionNode expression = modifyNode(optionalFieldAccessExpressionNode.expression());
+        Token optionalFieldAccessToken = modifyToken(optionalFieldAccessExpressionNode.optionalFieldAccessToken());
+        Token fieldName = modifyToken(optionalFieldAccessExpressionNode.fieldName());
+        return optionalFieldAccessExpressionNode.modify(
+                expression,
+                optionalFieldAccessToken,
+                fieldName);
+    }
+
     // Tokens
 
     @Override

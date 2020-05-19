@@ -386,6 +386,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncBody();
             case CLOSE_BRACKET:
                 return parseCloseBracket();
+            case OPTIONAL_FIELD_ACCESS_TOKEN:
+                return parseOptionalFieldAccessToken();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2467,6 +2469,7 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
+            case OPTIONAL_FIELD_ACCESS_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
@@ -3755,6 +3758,9 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW:
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr);
                 break;
+            case OPTIONAL_FIELD_ACCESS_TOKEN:
+                newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
 
@@ -3783,6 +3789,7 @@ public class BallerinaParser extends AbstractParser {
             case IS_KEYWORD:
             case RIGHT_ARROW_TOKEN:
             case RIGHT_DOUBLE_ARROW:
+            case OPTIONAL_FIELD_ACCESS_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -9077,4 +9084,46 @@ public class BallerinaParser extends AbstractParser {
         STNode rightTypeDesc = parseTypeDescriptor(context);
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
+
+    /**
+     * Parse optional field access expression .
+     *
+     * @param lhsExpr Preceding expression of the optional field access
+     * @return <code>optional-field-access-expr</code>.
+     */
+    private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
+        STNode optionalFieldAccessToken = parseOptionalFieldAccessToken();
+        STNode fieldName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
+        return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
+    }
+
+    /**
+     * Parse optional-field-access-token.
+     *
+     * @return parsed node
+     */
+    private STNode parseOptionalFieldAccessToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPTIONAL_FIELD_ACCESS_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.OPTIONAL_FIELD_ACCESS_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+//    /**
+//     * Parse conditional expression .
+//     *
+//     * @param lhsExpr Preceding expression of the question mark token
+//     * @return One of <code>conditional-expr</code>.
+//     */
+//    private STNode parseConditionalExpression(STNode lhsExpr) {
+//        STNode questionMark = parseQuestionMark();
+//        STNode middleExpression = parseExpression();
+//        STNode colon = parseColon();
+//        STNode fieldName = parseExpression();
+//        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpression, colon,
+//        fieldName);
+//    }
 }

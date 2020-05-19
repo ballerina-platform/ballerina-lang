@@ -2810,6 +2810,25 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "OptionalFieldAccessExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "OPTIONAL_FIELD_ACCESS",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "optionalFieldAccessToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldName",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

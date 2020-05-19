@@ -1568,5 +1568,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 flushKeyword,
                 peerWorker);
     }
+
+    public static STNode createOptionalFieldAccessExpressionNode(
+            STNode expression,
+            STNode optionalFieldAccessToken,
+            STNode fieldName) {
+
+        return new STOptionalFieldAccessExpressionNode(
+                expression,
+                optionalFieldAccessToken,
+                fieldName);
+    }
 }
 

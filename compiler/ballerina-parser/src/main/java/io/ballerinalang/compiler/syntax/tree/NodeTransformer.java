@@ -548,6 +548,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

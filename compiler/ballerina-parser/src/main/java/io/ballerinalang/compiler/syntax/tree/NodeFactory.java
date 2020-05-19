@@ -2113,5 +2113,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stFlushActionNode.createUnlinkedFacade();
     }
+
+    public static OptionalFieldAccessExpressionNode createOptionalFieldAccessExpressionNode(
+            ExpressionNode expression,
+            Token optionalFieldAccessToken,
+            Token fieldName) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(optionalFieldAccessToken, "optionalFieldAccessToken must not be null");
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+
+        STNode stOptionalFieldAccessExpressionNode = STNodeFactory.createOptionalFieldAccessExpressionNode(
+                expression.internalNode(),
+                optionalFieldAccessToken.internalNode(),
+                fieldName.internalNode());
+        return stOptionalFieldAccessExpressionNode.createUnlinkedFacade();
+    }
 }
 

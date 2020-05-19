@@ -547,6 +547,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
