@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class NilTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -67,5 +69,44 @@ public class NilTypeDescriptorNode extends TypeDescriptorNode {
         return NodeFactory.createNilTypeDescriptorNode(
                 openParenToken,
                 closeParenToken);
+    }
+
+    public NilTypeDescriptorNodeModifier modify() {
+        return new NilTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class NilTypeDescriptorNodeModifier {
+        private final NilTypeDescriptorNode oldNode;
+        private Token openParenToken;
+        private Token closeParenToken;
+
+        public NilTypeDescriptorNodeModifier(NilTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.openParenToken = oldNode.openParenToken();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public NilTypeDescriptorNodeModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public NilTypeDescriptorNodeModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public NilTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    openParenToken,
+                    closeParenToken);
+        }
     }
 }

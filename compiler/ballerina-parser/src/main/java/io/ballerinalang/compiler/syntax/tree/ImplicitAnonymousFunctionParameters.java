@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ImplicitAnonymousFunctionParameters extends NonTerminalNode {
 
@@ -75,5 +77,53 @@ public class ImplicitAnonymousFunctionParameters extends NonTerminalNode {
                 openParenToken,
                 parameters,
                 closeParenToken);
+    }
+
+    public ImplicitAnonymousFunctionParametersModifier modify() {
+        return new ImplicitAnonymousFunctionParametersModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ImplicitAnonymousFunctionParametersModifier {
+        private final ImplicitAnonymousFunctionParameters oldNode;
+        private Token openParenToken;
+        private SeparatedNodeList<SimpleNameReferenceNode> parameters;
+        private Token closeParenToken;
+
+        public ImplicitAnonymousFunctionParametersModifier(ImplicitAnonymousFunctionParameters oldNode) {
+            this.oldNode = oldNode;
+            this.openParenToken = oldNode.openParenToken();
+            this.parameters = oldNode.parameters();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public ImplicitAnonymousFunctionParametersModifier withOpenParenToken(Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public ImplicitAnonymousFunctionParametersModifier withParameters(SeparatedNodeList<SimpleNameReferenceNode> parameters) {
+            Objects.requireNonNull(parameters, "parameters must not be null");
+            this.parameters = parameters;
+            return this;
+        }
+
+        public ImplicitAnonymousFunctionParametersModifier withCloseParenToken(Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public ImplicitAnonymousFunctionParameters apply() {
+            return oldNode.modify(
+                    openParenToken,
+                    parameters,
+                    closeParenToken);
+        }
     }
 }

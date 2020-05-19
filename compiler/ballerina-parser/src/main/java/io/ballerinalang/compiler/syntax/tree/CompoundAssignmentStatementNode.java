@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class CompoundAssignmentStatementNode extends StatementNode {
 
@@ -91,5 +93,71 @@ public class CompoundAssignmentStatementNode extends StatementNode {
                 equalsToken,
                 rhsExpression,
                 semicolonToken);
+    }
+
+    public CompoundAssignmentStatementNodeModifier modify() {
+        return new CompoundAssignmentStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class CompoundAssignmentStatementNodeModifier {
+        private final CompoundAssignmentStatementNode oldNode;
+        private ExpressionNode lhsExpression;
+        private Token binaryOperator;
+        private Token equalsToken;
+        private ExpressionNode rhsExpression;
+        private Token semicolonToken;
+
+        public CompoundAssignmentStatementNodeModifier(CompoundAssignmentStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.lhsExpression = oldNode.lhsExpression();
+            this.binaryOperator = oldNode.binaryOperator();
+            this.equalsToken = oldNode.equalsToken();
+            this.rhsExpression = oldNode.rhsExpression();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public CompoundAssignmentStatementNodeModifier withLhsExpression(ExpressionNode lhsExpression) {
+            Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+            this.lhsExpression = lhsExpression;
+            return this;
+        }
+
+        public CompoundAssignmentStatementNodeModifier withBinaryOperator(Token binaryOperator) {
+            Objects.requireNonNull(binaryOperator, "binaryOperator must not be null");
+            this.binaryOperator = binaryOperator;
+            return this;
+        }
+
+        public CompoundAssignmentStatementNodeModifier withEqualsToken(Token equalsToken) {
+            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+            this.equalsToken = equalsToken;
+            return this;
+        }
+
+        public CompoundAssignmentStatementNodeModifier withRhsExpression(ExpressionNode rhsExpression) {
+            Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
+            this.rhsExpression = rhsExpression;
+            return this;
+        }
+
+        public CompoundAssignmentStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public CompoundAssignmentStatementNode apply() {
+            return oldNode.modify(
+                    lhsExpression,
+                    binaryOperator,
+                    equalsToken,
+                    rhsExpression,
+                    semicolonToken);
+        }
     }
 }
