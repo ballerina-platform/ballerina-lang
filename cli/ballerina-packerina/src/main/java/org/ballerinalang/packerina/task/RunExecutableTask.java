@@ -40,7 +40,7 @@ import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
 import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-import static org.wso2.ballerinalang.compiler.util.SourceType.SINGLE_BAL_FILE;
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 
 /**
  * Task for running the executable.

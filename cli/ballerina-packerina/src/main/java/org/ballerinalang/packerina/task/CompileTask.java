@@ -28,7 +28,7 @@ import org.ballerinalang.packerina.model.ExecutableJar;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.SourceType;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 
 import java.nio.file.Path;
 import java.util.List;

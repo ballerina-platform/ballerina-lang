@@ -23,7 +23,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
-import org.wso2.ballerinalang.compiler.util.SourceType;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
@@ -47,10 +46,11 @@ public class CopyModuleJarTask implements Task {
     private boolean skipTests;
 
     public CopyModuleJarTask(boolean skipCopyLibsFromDist, boolean skipTests) {
+
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.skipTests = skipTests;
     }
-    
+
     @Override
     public void execute(BuildContext buildContext) {
 
@@ -69,23 +69,15 @@ public class CopyModuleJarTask implements Task {
         Map<PackageID, Path> alreadyImportedMap = new HashMap<>();
         for (BLangPackage pkg : moduleBirMap) {
             ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(pkg.packageID);
-
-            Set<Path> moduleDependencies = pkg.symbol.moduleDependencies;
-
-            // If platform libs are found for this module, add them
-            if (!skipCopyLibsFromDist && moduleDependencies != null && moduleDependencies.size() > 0) {
-                executableJar.moduleLibs.addAll(moduleDependencies);
-            }
-
             copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
-                             executableJar.moduleLibs, alreadyImportedMap);
+                    executableJar.moduleLibs, alreadyImportedMap);
             if (skipTests || !pkg.hasTestablePackage()) {
                 continue;
             }
             // Copy module jars imported by testable package
             for (BLangPackage testPkg : pkg.getTestablePkgs()) {
                 copyImportedJars(testPkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
-                                 executableJar.testLibs, alreadyImportedMap);
+                        executableJar.testLibs, alreadyImportedMap);
             }
         }
     }
@@ -93,6 +85,7 @@ public class CopyModuleJarTask implements Task {
     private void copyImportedJars(List<BPackageSymbol> imports, BuildContext buildContext,
                                   Path sourceRootPath, String balHomePath, HashSet<Path> moduleDependencyList,
                                   Map<PackageID, Path> alreadyImportedMap) {
+
         for (BPackageSymbol importSymbol : imports) {
             PackageID pkgId = importSymbol.pkgID;
             Path importedPath = alreadyImportedMap.get(pkgId);
@@ -100,16 +93,17 @@ public class CopyModuleJarTask implements Task {
                 moduleDependencyList.add(importedPath);
             } else {
                 copyImportedJar(buildContext, importSymbol, sourceRootPath, balHomePath,
-                                moduleDependencyList, alreadyImportedMap);
+                        moduleDependencyList, alreadyImportedMap);
             }
             copyImportedJars(importSymbol.imports, buildContext, sourceRootPath, balHomePath, moduleDependencyList,
-                             alreadyImportedMap);
+                    alreadyImportedMap);
         }
     }
 
     private void copyImportedJar(BuildContext buildContext, BPackageSymbol importz,
                                  Path project, String balHomePath, HashSet<Path> moduleDependencyList,
                                  Map<PackageID, Path> alreadyImportedMap) {
+
         PackageID id = importz.pkgID;
         String moduleJarName = id.orgName.value + "-" + id.name.value + "-" + id.version.value +
                 BLANG_COMPILED_JAR_EXT;
@@ -134,7 +128,7 @@ public class CopyModuleJarTask implements Task {
             // todo following is a temporarty fix the proper fix is to version jars inside distribution.
             if (Files.notExists(importJar)) {
                 importJar = Paths.get(balHomePath, "bre", "lib", id.orgName.value + "." + id.name.value +
-                                                                 BLANG_COMPILED_JAR_EXT);
+                        BLANG_COMPILED_JAR_EXT);
             }
         }
         moduleDependencyList.add(importJar);
