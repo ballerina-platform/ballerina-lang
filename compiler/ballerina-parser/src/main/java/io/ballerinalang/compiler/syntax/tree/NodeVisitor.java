@@ -547,6 +547,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        visitSyntaxNode(singletonTypeDescriptorNode);
+    }
+
     public void visit(FunctionDeclarationNode functionDeclarationNode) {
         visitSyntaxNode(functionDeclarationNode);
     }
@@ -581,6 +585,14 @@ public abstract class NodeVisitor {
 
     public void visit(ReceiveFieldsNode receiveFieldsNode) {
         visitSyntaxNode(receiveFieldsNode);
+    }
+
+    public void visit(DoubleGTTokenNode doubleGTTokenNode) {
+        visitSyntaxNode(doubleGTTokenNode);
+    }
+
+    public void visit(TrippleGTTokenNode trippleGTTokenNode) {
+        visitSyntaxNode(trippleGTTokenNode);
     }
 
     // Tokens

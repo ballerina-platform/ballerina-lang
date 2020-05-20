@@ -294,6 +294,8 @@ public enum ParserRuleContext {
     PARENTHESISED_TYPE_DESC_START("("),
     BITWISE_AND_OPERATOR("&"),
     EXPR_FUNC_BODY_START("=>"),
+    PLUS_TOKEN("+"),
+    MINUS_TOKEN("-"),
     TUPLE_TYPE_DESC_START("["),
     SYNC_SEND_TOKEN("->>"),
     LEFT_ARROW_TOKEN("<-"),
@@ -419,6 +421,7 @@ public enum ParserRuleContext {
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
     ROW_TYPE_PARAM("row-type-param"),
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
+    SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
     ;
 
     private String value;

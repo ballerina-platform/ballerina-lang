@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class STIntersectionTypeDescriptorNode extends STNode {
+public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode leftTypeDesc;
     public final STNode bitwiseAndToken;
     public final STNode rightTypeDesc;

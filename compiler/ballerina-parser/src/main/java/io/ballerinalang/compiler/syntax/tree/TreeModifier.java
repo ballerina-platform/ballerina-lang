@@ -2125,6 +2125,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public SingletonTypeDescriptorNode transform(
+            SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        ExpressionNode simpleContExprNode =
+                modifyNode(singletonTypeDescriptorNode.simpleContExprNode());
+        return singletonTypeDescriptorNode.modify(
+                simpleContExprNode);
+    }
+
+    @Override
     public FunctionDeclarationNode transform(
             FunctionDeclarationNode functionDeclarationNode) {
         MetadataNode metadata =
@@ -2254,6 +2263,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 receiveField,
                 closeBrace);
+    }
+
+    @Override
+    public DoubleGTTokenNode transform(
+            DoubleGTTokenNode doubleGTTokenNode) {
+        Token openGTToken =
+                modifyToken(doubleGTTokenNode.openGTToken());
+        Token endGTToken =
+                modifyToken(doubleGTTokenNode.endGTToken());
+        return doubleGTTokenNode.modify(
+                openGTToken,
+                endGTToken);
+    }
+
+    @Override
+    public TrippleGTTokenNode transform(
+            TrippleGTTokenNode trippleGTTokenNode) {
+        Token openGTToken =
+                modifyToken(trippleGTTokenNode.openGTToken());
+        Token middleGTToken =
+                modifyToken(trippleGTTokenNode.middleGTToken());
+        Token endGTToken =
+                modifyToken(trippleGTTokenNode.endGTToken());
+        return trippleGTTokenNode.modify(
+                openGTToken,
+                middleGTToken,
+                endGTToken);
     }
 
     // Tokens

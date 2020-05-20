@@ -548,6 +548,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        return transformSyntaxNode(singletonTypeDescriptorNode);
+    }
+
     public T transform(FunctionDeclarationNode functionDeclarationNode) {
         return transformSyntaxNode(functionDeclarationNode);
     }
@@ -582,6 +586,14 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ReceiveFieldsNode receiveFieldsNode) {
         return transformSyntaxNode(receiveFieldsNode);
+    }
+
+    public T transform(DoubleGTTokenNode doubleGTTokenNode) {
+        return transformSyntaxNode(doubleGTTokenNode);
+    }
+
+    public T transform(TrippleGTTokenNode trippleGTTokenNode) {
+        return transformSyntaxNode(trippleGTTokenNode);
     }
 
     // Tokens

@@ -1569,6 +1569,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 peerWorker);
     }
 
+    public static STNode createSingletonTypeDescriptorNode(
+            STNode simpleContExprNode) {
+
+        return new STSingletonTypeDescriptorNode(
+                simpleContExprNode);
+    }
+
     public static STNode createFunctionDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
@@ -1664,6 +1671,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBrace,
                 receiveField,
                 closeBrace);
+    }
+
+    public static STNode createDoubleGTTokenNode(
+            STNode openGTToken,
+            STNode endGTToken) {
+
+        return new STDoubleGTTokenNode(
+                openGTToken,
+                endGTToken);
+    }
+
+    public static STNode createTrippleGTTokenNode(
+            STNode openGTToken,
+            STNode middleGTToken,
+            STNode endGTToken) {
+
+        return new STTrippleGTTokenNode(
+                openGTToken,
+                middleGTToken,
+                endGTToken);
     }
 }
 
