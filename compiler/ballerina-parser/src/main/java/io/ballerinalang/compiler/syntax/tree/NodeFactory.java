@@ -1875,15 +1875,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
             Token openBracketToken,
-            Node memberTypeDescriptors,
+            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
             Token closeBracketToken) {
         Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
-        Objects.requireNonNull(memberTypeDescriptors, "memberTypeDescriptors must not be null");
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
         Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
         STNode stTupleTypeDescriptorNode = STNodeFactory.createTupleTypeDescriptorNode(
                 openBracketToken.internalNode(),
-                memberTypeDescriptors.internalNode(),
+                memberTypeDesc.underlyingListNode().internalNode(),
                 closeBracketToken.internalNode());
         return stTupleTypeDescriptorNode.createUnlinkedFacade();
     }

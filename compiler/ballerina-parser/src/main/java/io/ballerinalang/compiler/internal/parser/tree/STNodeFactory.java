@@ -1394,12 +1394,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTupleTypeDescriptorNode(
             STNode openBracketToken,
-            STNode memberTypeDescriptors,
+            STNode memberTypeDesc,
             STNode closeBracketToken) {
 
         return new STTupleTypeDescriptorNode(
                 openBracketToken,
-                memberTypeDescriptors,
+                memberTypeDesc,
                 closeBracketToken);
     }
 
