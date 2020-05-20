@@ -29,21 +29,21 @@ import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
  */
 public class STWaitFieldsListNode extends STNode {
     public final STNode openBrace;
-    public final STNode waitField;
+    public final STNode waitFields;
     public final STNode closeBrace;
 
     STWaitFieldsListNode(
             STNode openBrace,
-            STNode waitField,
+            STNode waitFields,
             STNode closeBrace) {
         super(SyntaxKind.WAIT_FIELDS_LIST);
         this.openBrace = openBrace;
-        this.waitField = waitField;
+        this.waitFields = waitFields;
         this.closeBrace = closeBrace;
 
         addChildren(
                 openBrace,
-                waitField,
+                waitFields,
                 closeBrace);
     }
 

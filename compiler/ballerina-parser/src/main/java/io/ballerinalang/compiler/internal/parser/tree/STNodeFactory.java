@@ -1664,12 +1664,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReceiveFieldsNode(
             STNode openBrace,
-            STNode receiveField,
+            STNode receiveFields,
             STNode closeBrace) {
 
         return new STReceiveFieldsNode(
                 openBrace,
-                receiveField,
+                receiveFields,
                 closeBrace);
     }
 
@@ -1684,12 +1684,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createWaitFieldsListNode(
             STNode openBrace,
-            STNode waitField,
+            STNode waitFields,
             STNode closeBrace) {
 
         return new STWaitFieldsListNode(
                 openBrace,
-                waitField,
+                waitFields,
                 closeBrace);
     }
 

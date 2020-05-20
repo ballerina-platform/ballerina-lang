@@ -36,7 +36,7 @@ public class WaitFieldsListNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> waitField() {
+    public SeparatedNodeList<Node> waitFields() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -58,24 +58,24 @@ public class WaitFieldsListNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openBrace",
-                "waitField",
+                "waitFields",
                 "closeBrace"};
     }
 
     public WaitFieldsListNode modify(
             Token openBrace,
-            SeparatedNodeList<Node> waitField,
+            SeparatedNodeList<Node> waitFields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
-                waitField.underlyingListNode(),
+                waitFields.underlyingListNode(),
                 closeBrace)) {
             return this;
         }
 
         return NodeFactory.createWaitFieldsListNode(
                 openBrace,
-                waitField,
+                waitFields,
                 closeBrace);
     }
 
@@ -91,13 +91,13 @@ public class WaitFieldsListNode extends NonTerminalNode {
     public static class WaitFieldsListNodeModifier {
         private final WaitFieldsListNode oldNode;
         private Token openBrace;
-        private SeparatedNodeList<Node> waitField;
+        private SeparatedNodeList<Node> waitFields;
         private Token closeBrace;
 
         public WaitFieldsListNodeModifier(WaitFieldsListNode oldNode) {
             this.oldNode = oldNode;
             this.openBrace = oldNode.openBrace();
-            this.waitField = oldNode.waitField();
+            this.waitFields = oldNode.waitFields();
             this.closeBrace = oldNode.closeBrace();
         }
 
@@ -108,10 +108,10 @@ public class WaitFieldsListNode extends NonTerminalNode {
             return this;
         }
 
-        public WaitFieldsListNodeModifier withWaitField(
-                SeparatedNodeList<Node> waitField) {
-            Objects.requireNonNull(waitField, "waitField must not be null");
-            this.waitField = waitField;
+        public WaitFieldsListNodeModifier withWaitFields(
+                SeparatedNodeList<Node> waitFields) {
+            Objects.requireNonNull(waitFields, "waitFields must not be null");
+            this.waitFields = waitFields;
             return this;
         }
 
@@ -125,7 +125,7 @@ public class WaitFieldsListNode extends NonTerminalNode {
         public WaitFieldsListNode apply() {
             return oldNode.modify(
                     openBrace,
-                    waitField,
+                    waitFields,
                     closeBrace);
         }
     }

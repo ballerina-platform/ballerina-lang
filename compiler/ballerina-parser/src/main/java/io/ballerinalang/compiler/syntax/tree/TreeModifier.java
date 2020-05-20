@@ -2255,13 +2255,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveFieldsNode receiveFieldsNode) {
         Token openBrace =
                 modifyToken(receiveFieldsNode.openBrace());
-        SeparatedNodeList<NameReferenceNode> receiveField =
-                modifySeparatedNodeList(receiveFieldsNode.receiveField());
+        SeparatedNodeList<NameReferenceNode> receiveFields =
+                modifySeparatedNodeList(receiveFieldsNode.receiveFields());
         Token closeBrace =
                 modifyToken(receiveFieldsNode.closeBrace());
         return receiveFieldsNode.modify(
                 openBrace,
-                receiveField,
+                receiveFields,
                 closeBrace);
     }
 
@@ -2282,13 +2282,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             WaitFieldsListNode waitFieldsListNode) {
         Token openBrace =
                 modifyToken(waitFieldsListNode.openBrace());
-        SeparatedNodeList<Node> waitField =
-                modifySeparatedNodeList(waitFieldsListNode.waitField());
+        SeparatedNodeList<Node> waitFields =
+                modifySeparatedNodeList(waitFieldsListNode.waitFields());
         Token closeBrace =
                 modifyToken(waitFieldsListNode.closeBrace());
         return waitFieldsListNode.modify(
                 openBrace,
-                waitField,
+                waitFields,
                 closeBrace);
     }
 

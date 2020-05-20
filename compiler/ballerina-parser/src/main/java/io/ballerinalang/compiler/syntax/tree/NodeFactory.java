@@ -2237,15 +2237,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReceiveFieldsNode createReceiveFieldsNode(
             Token openBrace,
-            SeparatedNodeList<NameReferenceNode> receiveField,
+            SeparatedNodeList<NameReferenceNode> receiveFields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
-        Objects.requireNonNull(receiveField, "receiveField must not be null");
+        Objects.requireNonNull(receiveFields, "receiveFields must not be null");
         Objects.requireNonNull(closeBrace, "closeBrace must not be null");
 
         STNode stReceiveFieldsNode = STNodeFactory.createReceiveFieldsNode(
                 openBrace.internalNode(),
-                receiveField.underlyingListNode().internalNode(),
+                receiveFields.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stReceiveFieldsNode.createUnlinkedFacade();
     }
@@ -2264,15 +2264,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static WaitFieldsListNode createWaitFieldsListNode(
             Token openBrace,
-            SeparatedNodeList<Node> waitField,
+            SeparatedNodeList<Node> waitFields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
-        Objects.requireNonNull(waitField, "waitField must not be null");
+        Objects.requireNonNull(waitFields, "waitFields must not be null");
         Objects.requireNonNull(closeBrace, "closeBrace must not be null");
 
         STNode stWaitFieldsListNode = STNodeFactory.createWaitFieldsListNode(
                 openBrace.internalNode(),
-                waitField.underlyingListNode().internalNode(),
+                waitFields.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stWaitFieldsListNode.createUnlinkedFacade();
     }
