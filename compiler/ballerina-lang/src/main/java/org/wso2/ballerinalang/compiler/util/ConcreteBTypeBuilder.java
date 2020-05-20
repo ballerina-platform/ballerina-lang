@@ -17,9 +17,8 @@
 
 package org.wso2.ballerinalang.compiler.util;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -65,7 +64,6 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
     private Map<String, BType> paramValueTypes;
     private Set<BType> visitedTypes;
-    private BInvokableTypeSymbol funcTSymbol;
     private boolean isInvocation;
 
     public BType buildType(BType originalType, BLangInvocation invocation) {
@@ -79,9 +77,8 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         return newType;
     }
 
-    public BType buildType(BType originalType, BTypeSymbol invokableTypeSymbol) {
-        this.funcTSymbol = (BInvokableTypeSymbol) invokableTypeSymbol;
-        return buildType(originalType, (BLangInvocation) null);
+    public BType buildType(BType originalType) {
+        return buildType(originalType, null);
     }
 
     @Override
@@ -361,10 +358,8 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
             // happens when the invocation uses the default value of the param.
             type = paramValueTypes.get(paramVarName);
             type = type == null ? originalType.paramValueType : ((BTypedescType) type).constraint;
-        } else if (this.funcTSymbol != null && !this.funcTSymbol.paramDefaultValTypes.isEmpty()) {
-            type = ((BTypedescType) this.funcTSymbol.paramDefaultValTypes.get(paramVarName)).constraint;
         } else {
-            type = originalType.paramValueType;
+            type = ((BTypedescType) originalType.paramSymbol.type).constraint;
         }
         type.flags = originalType.flags;
         return type;
@@ -380,7 +375,8 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
         for (int i = 0; i < nParams; i++) {
             param = symbol.params.get(i);
 
-            if (param.defaultableParam && i >= nArgs) {
+            if (param.defaultableParam &&
+                    (i >= nArgs || invocation.requiredArgs.get(i).getKind() == NodeKind.IGNORE_EXPR)) {
                 paramValueTypes.put(param.name.value, symbol.paramDefaultValTypes.get(param.name.value));
                 continue;
             }
@@ -390,7 +386,6 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
     }
 
     private void reset() {
-        this.funcTSymbol = null;
         this.visitedTypes = null;
         this.paramValueTypes = null;
         this.isInvocation = false;

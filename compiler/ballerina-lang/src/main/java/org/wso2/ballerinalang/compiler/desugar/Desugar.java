@@ -3612,7 +3612,7 @@ public class Desugar extends BLangNodeVisitor {
                 || Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             BType originalInvType = genIExpr.type;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) genIExpr.symbol;
-            genIExpr.type = typeBuilder.buildType(invokableSymbol.retType, (BLangInvocation) null);
+            genIExpr.type = typeBuilder.buildType(invokableSymbol.retType, genIExpr);
             BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
 
             // Prevent adding another type conversion

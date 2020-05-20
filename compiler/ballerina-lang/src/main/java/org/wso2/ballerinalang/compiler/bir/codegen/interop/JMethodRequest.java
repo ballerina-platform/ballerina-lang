@@ -83,7 +83,7 @@ class JMethodRequest {
         jMethodReq.bFuncParamCount = paramTypes.size();
         jMethodReq.bParamTypes = paramTypes.toArray(new BType[0]);
 
-        BType returnType = typeBuilder.buildType(bFuncType.retType, bFuncType.tsymbol);
+        BType returnType = typeBuilder.buildType(bFuncType.retType);
         jMethodReq.bReturnType = returnType;
         if (returnType.tag == TypeTags.UNION) {
             for (BType bType : ((BUnionType) returnType).getMemberTypes()) {
