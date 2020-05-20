@@ -2505,8 +2505,7 @@
                 },
                 {
                     "name": "memberTypeDesc",
-                    "type": "TypeDescriptorNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "type": "Node"
                 },
                 {
                     "name": "closeBracketToken",

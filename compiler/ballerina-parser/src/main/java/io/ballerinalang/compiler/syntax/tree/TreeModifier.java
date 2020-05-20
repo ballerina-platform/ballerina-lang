@@ -1889,8 +1889,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         Token openBracketToken =
                 modifyToken(tupleTypeDescriptorNode.openBracketToken());
-        SeparatedNodeList<TypeDescriptorNode> memberTypeDesc =
-                modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
+        Node memberTypeDesc =
+                modifyNode(tupleTypeDescriptorNode.memberTypeDesc());
         Token closeBracketToken =
                 modifyToken(tupleTypeDescriptorNode.closeBracketToken());
         return tupleTypeDescriptorNode.modify(
