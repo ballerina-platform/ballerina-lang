@@ -70,8 +70,8 @@ public class OpenRecordTypeReferenceTest {
         BAssertUtil.validateError(negative, index++, "incompatible types: 'xml' is not a record", 51, 6);
         BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 67, 18);
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 72, 6);
-        BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 81, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 76, 6);
+        BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 81, 6);
         assertEquals(negative.getErrorCount(), index);
     }
 

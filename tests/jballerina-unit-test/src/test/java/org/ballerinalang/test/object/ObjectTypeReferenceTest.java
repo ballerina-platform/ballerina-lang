@@ -92,28 +92,36 @@ public class ObjectTypeReferenceTest {
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, Foo]'", 49, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[A, B, C, D, A]'", 54, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 54, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[B, C, D, A, B]'", 58, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 58, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 62, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 62, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 67, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[D, A, B, C, D]'", 67, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 71, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[E, C, E]'", 71, 1);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 28, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 42, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 42, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 45, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 93, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 93, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 93, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 96, 16);
-//        BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 100, 16);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 28, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 42, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 42, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 45, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 66, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 66, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 66, 6);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 69, 16);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 73, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testCyclicDependencyReferencesObjectTypeReferenceNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
+                                                                    "-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, Foo]'", 18, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[A, B, C, D, A]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[B, C, D, A, B]'", 27, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 27, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[D, A, B, C, D]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 40, 1);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[E, C, E]'", 40, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
