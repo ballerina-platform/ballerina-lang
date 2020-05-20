@@ -34,6 +34,7 @@ import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -134,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -651,6 +653,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
+    @Override
+    public BLangNode transform(ExternalFunctionBodyNode externalFunctionBodyNode) {
+        BLangExternalFunctionBody externFunctionBodyNode =
+                (BLangExternalFunctionBody) TreeBuilder.createExternFunctionBodyNode();
+        externFunctionBodyNode.annAttachments = applyAll(externalFunctionBodyNode.annotations());
+        return externFunctionBodyNode;
+    }
 
     @Override
     public BLangNode transform(ExplicitAnonymousFunctionExpressionNode anonFuncExprNode) {
@@ -836,6 +845,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangNameReference nameReference = createBLangNameReference(name);
         bLAnnotationAttachment.setAnnotationName(nameReference.name);
         bLAnnotationAttachment.setPackageAlias(nameReference.pkgAlias);
+        bLAnnotationAttachment.pos = getPosition(annotation);
         return bLAnnotationAttachment;
     }
 
@@ -1305,7 +1315,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        BLangValueType typeNode = createBuiltInTypeNode(parameterizedTypeDescNode.parameterizedType());
+        BLangValueType typeNode = (BLangValueType) createBuiltInTypeNode(parameterizedTypeDescNode.parameterizedType());
         refType.typeKind = typeNode.typeKind;
         refType.pos = typeNode.pos;
 
@@ -1747,10 +1757,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return arrayTypeNode;
     }
 
-    private BLangValueType createBuiltInTypeNode(Node type) {
-        // Default type
-        BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-
+    private BLangType createBuiltInTypeNode(Node type) {
         String typeText;
         if (type.kind() == SyntaxKind.NIL_TYPE_DESC) {
             typeText = "()";
@@ -1759,9 +1766,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             typeText = ((Token) type).text(); // TODO: Remove this once map<string> returns Nodes for `map`
         }
-        bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
-        bLValueType.pos = getPosition(type);
-        return bLValueType;
+        TypeKind typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
+
+        if (typeKind == TypeKind.JSON) { //TODO: add full list of types
+            BLangBuiltInRefTypeNode bLValueType =
+                    (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+            bLValueType.typeKind = typeKind;
+            bLValueType.pos = getPosition(type);
+            return bLValueType;
+        } else {
+            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+            bLValueType.typeKind = typeKind;
+            bLValueType.pos = getPosition(type);
+            return bLValueType;
+        }
     }
 
     private VariableNode createBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
