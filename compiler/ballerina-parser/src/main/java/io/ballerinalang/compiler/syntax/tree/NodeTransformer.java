@@ -548,6 +548,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        return transformSyntaxNode(singletonTypeDescriptorNode);
+    }
+
     public T transform(FunctionDeclarationNode functionDeclarationNode) {
         return transformSyntaxNode(functionDeclarationNode);
     }

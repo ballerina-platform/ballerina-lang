@@ -547,6 +547,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        visitSyntaxNode(singletonTypeDescriptorNode);
+    }
+
     public void visit(FunctionDeclarationNode functionDeclarationNode) {
         visitSyntaxNode(functionDeclarationNode);
     }

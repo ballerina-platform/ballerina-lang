@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,27 +27,19 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode leftTypeDesc;
-    public final STNode bitwiseAndToken;
-    public final STNode rightTypeDesc;
+public class STSingletonTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode simpleContExprNode;
 
-    STIntersectionTypeDescriptorNode(
-            STNode leftTypeDesc,
-            STNode bitwiseAndToken,
-            STNode rightTypeDesc) {
-        super(SyntaxKind.INTERSECTION_TYPE_DESC);
-        this.leftTypeDesc = leftTypeDesc;
-        this.bitwiseAndToken = bitwiseAndToken;
-        this.rightTypeDesc = rightTypeDesc;
+    STSingletonTypeDescriptorNode(
+            STNode simpleContExprNode) {
+        super(SyntaxKind.SINGLETON_TYPE_DESC);
+        this.simpleContExprNode = simpleContExprNode;
 
         addChildren(
-                leftTypeDesc,
-                bitwiseAndToken,
-                rightTypeDesc);
+                simpleContExprNode);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new IntersectionTypeDescriptorNode(this, position, parent);
+        return new SingletonTypeDescriptorNode(this, position, parent);
     }
 }

@@ -2727,7 +2727,7 @@
         },
         {
             "name": "IntersectionTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "INTERSECTION_TYPE_DESC",
             "attributes": [
                 {
@@ -2810,6 +2810,17 @@
                 {
                     "name": "peerWorker",
                     "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "SingletonTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "SINGLETON_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "simpleContExprNode",
+                    "type": "ExpressionNode"
                 }
             ]
         },

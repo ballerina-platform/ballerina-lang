@@ -770,6 +770,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DISTINCT_TYPE_DESC;
             case "INTERSECTION_TYPE_DESC":
                 return SyntaxKind.INTERSECTION_TYPE_DESC;
+            case "SINGLETON_TYPE_DESC":
+                return SyntaxKind.SINGLETON_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

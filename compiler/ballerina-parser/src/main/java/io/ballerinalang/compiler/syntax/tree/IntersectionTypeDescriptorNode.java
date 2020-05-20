@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class IntersectionTypeDescriptorNode extends NonTerminalNode {
+public class IntersectionTypeDescriptorNode extends TypeDescriptorNode {
 
     public IntersectionTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

@@ -2077,6 +2077,9 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseTupleTypeDesc();
             default:
+                if (isSingletonTypeDescStart(tokenKind, true)) {
+                    return parseSingletonTypeDesc();
+                }
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
                 }
@@ -3231,6 +3234,11 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT, nextTokenIndex);
 
+                if (solution.action == Action.KEEP) {
+                    //singleton type starting tokens can be correct one's hence keep them.
+                    break;
+                }
+
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
@@ -3329,6 +3337,11 @@ public class BallerinaParser extends AbstractParser {
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots, nextTokenIndex);
 
+                if (solution.action == Action.KEEP) {
+                    //singleton type starting tokens can be correct one's hence keep them.
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
                 // to continue the parsing.
@@ -7384,8 +7397,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return parseSignedIntOrFloat();
             case OPEN_BRACE_TOKEN:
-                // TODO: nil-literal
+                return parseNilLiteral();
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
@@ -7631,10 +7647,11 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
             case OPEN_BRACKET_TOKEN:
-            case READONLY_KEYWORD:
-            case DISTINCT_KEYWORD:
                 return true;
             default:
+                if (isSingletonTypeDescStart(nodeKind, false)) {
+                    return true;
+                }
                 return isSimpleType(nodeKind);
         }
     }
@@ -9489,6 +9506,103 @@ public class BallerinaParser extends AbstractParser {
         STNode bitwiseAndToken = consume();
         STNode rightTypeDesc = parseTypeDescriptor(context);
         return STNodeFactory.createIntersectionTypeDescriptorNode(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
+    }
+
+    /**
+     * Parse singleton type descriptor.
+     * <p>singleton-type-descriptor := simple-const-expr
+     * simple-const-expr :=
+     *   nil-literal
+     *   | boolean-literal
+     *   | [Sign] int-literal
+     *   | [Sign] floating-point-literal
+     *   | string-literal
+     *   | constant-reference-expr</p>
+     */
+    private STNode parseSingletonTypeDesc() {
+        STNode simpleContExpr =  parseConstExpr();
+        return STNodeFactory.createSingletonTypeDescriptorNode(simpleContExpr);
+    }
+
+    private STNode parseSignedIntOrFloat() {
+        STNode operator = parseUnaryOperator();
+        STNode literal;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+                literal = consume();
+                break;
+            default:   //decimal integer literal
+                literal = parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL);
+        }
+        return STNodeFactory.createUnaryExpressionNode(operator, literal);
+    }
+
+    private boolean isSingletonTypeDescStart(SyntaxKind tokenKind, boolean inTypeDescCtx) {
+        STToken nextToken = peek();
+        STToken nextNextToken, nextNextNextToken;
+        if (tokenKind != nextToken.kind) { //this will be true if and only if we come here after recovering
+            nextNextToken = nextToken;
+            nextNextNextToken = peek(2);
+        } else {
+            nextNextToken = peek(2);
+            nextNextNextToken = peek(3);
+        }
+        switch (tokenKind) {
+            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case NULL_KEYWORD:
+                if (inTypeDescCtx || isValidTypeDescRHSOutSideTypeDescCtx(nextNextToken)) {
+                    return true;
+                }
+                return false;
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                if (inTypeDescCtx) {
+                    return true;
+                }
+                if (isIntOrFloat(nextNextToken) && nextNextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    return true;
+                }
+                // fall through
+            default:
+                return false;
+        }
+    }
+
+    static boolean isIntOrFloat(STToken token) {
+        switch (token.kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isValidTypeDescRHSOutSideTypeDescCtx(STToken token) {
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+            case PIPE_TOKEN:
+            case BITWISE_AND_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case ERROR_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

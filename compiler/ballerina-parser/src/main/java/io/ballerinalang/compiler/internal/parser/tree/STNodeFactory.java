@@ -1569,6 +1569,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 peerWorker);
     }
 
+    public static STNode createSingletonTypeDescriptorNode(
+            STNode simpleContExprNode) {
+
+        return new STSingletonTypeDescriptorNode(
+                simpleContExprNode);
+    }
+
     public static STNode createFunctionDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,

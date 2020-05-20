@@ -2112,6 +2112,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFlushActionNode.createUnlinkedFacade();
     }
 
+    public static SingletonTypeDescriptorNode createSingletonTypeDescriptorNode(
+            ExpressionNode simpleContExprNode) {
+        Objects.requireNonNull(simpleContExprNode, "simpleContExprNode must not be null");
+
+        STNode stSingletonTypeDescriptorNode = STNodeFactory.createSingletonTypeDescriptorNode(
+                simpleContExprNode.internalNode());
+        return stSingletonTypeDescriptorNode.createUnlinkedFacade();
+    }
+
     public static FunctionDeclarationNode createFunctionDeclarationNode(
             MetadataNode metadata,
             Token visibilityQualifier,
