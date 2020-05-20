@@ -551,6 +551,38 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionDeclarationNode);
     }
 
+    public void visit(TypedBindingPatternNode typedBindingPatternNode) {
+        visitSyntaxNode(typedBindingPatternNode);
+    }
+
+    public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
+        visitSyntaxNode(captureBindingPatternNode);
+    }
+
+    public void visit(ListBindingPatternNode listBindingPatternNode) {
+        visitSyntaxNode(listBindingPatternNode);
+    }
+
+    public void visit(RestBindingPatternNode restBindingPatternNode) {
+        visitSyntaxNode(restBindingPatternNode);
+    }
+
+    public void visit(AsyncSendActionNode asyncSendActionNode) {
+        visitSyntaxNode(asyncSendActionNode);
+    }
+
+    public void visit(SyncSendActionNode syncSendActionNode) {
+        visitSyntaxNode(syncSendActionNode);
+    }
+
+    public void visit(ReceiveActionNode receiveActionNode) {
+        visitSyntaxNode(receiveActionNode);
+    }
+
+    public void visit(ReceiveFieldsNode receiveFieldsNode) {
+        visitSyntaxNode(receiveFieldsNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

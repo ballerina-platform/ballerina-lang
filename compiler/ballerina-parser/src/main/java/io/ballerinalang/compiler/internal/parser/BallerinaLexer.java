@@ -149,9 +149,14 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
             case LexerTerminals.MINUS:
-                if (peek() == LexerTerminals.GT) {
+                if (reader.peek() == LexerTerminals.GT) {
                     reader.advance();
-                    token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                    if (peek() == LexerTerminals.GT) {
+                        reader.advance();
+                        token = getSyntaxToken(SyntaxKind.SYNC_SEND_TOKEN);
+                    } else {
+                        token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                    }
                 } else {
                     token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 }
@@ -166,9 +171,13 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                if (peek() == LexerTerminals.EQUAL) {
+                int nextChar = peek();
+                if (nextChar == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else if (nextChar == LexerTerminals.MINUS) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
@@ -462,7 +471,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIA, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIAE, getLexeme());
     }
 
     /**

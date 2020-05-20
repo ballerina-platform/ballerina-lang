@@ -185,11 +185,6 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         }
 
         @Override
-        public Integer transform(IdentifierToken identifier) {
-            return 0;
-        }
-
-        @Override
         protected Integer transformSyntaxNode(Node node) {
             if (node instanceof Token) {
                 return node.apply(this);

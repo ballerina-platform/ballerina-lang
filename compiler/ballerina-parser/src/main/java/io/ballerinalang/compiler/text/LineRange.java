@@ -17,9 +17,6 @@
  */
 package io.ballerinalang.compiler.text;
 
-import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
-import io.ballerinalang.compiler.syntax.tree.Token;
-
 import java.util.Objects;
 
 /**

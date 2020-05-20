@@ -271,7 +271,7 @@ public class ParserTestUtils {
         switch (syntaxKind) {
             case WHITESPACE_MINUTIAE:
             case END_OF_LINE_MINUTIAE:
-            case COMMENT_MINUTIA:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return true;
             default:
@@ -294,7 +294,7 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text();
             case WHITESPACE_MINUTIAE:
-            case COMMENT_MINUTIA:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return ((STMinutiae) token).text();
             case END_OF_LINE_MINUTIAE:
@@ -576,6 +576,10 @@ public class ParserTestUtils {
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
             case "RIGHT_DOUBLE_ARROW":
                 return SyntaxKind.RIGHT_DOUBLE_ARROW;
+            case "SYNC_SEND_TOKEN":
+                return SyntaxKind.SYNC_SEND_TOKEN;
+            case "LEFT_ARROW_TOKEN":
+                return SyntaxKind.LEFT_ARROW_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -664,6 +668,12 @@ public class ParserTestUtils {
                 return SyntaxKind.TRAP_ACTION;
             case "FLUSH_ACTION":
                 return SyntaxKind.FLUSH_ACTION;
+            case "ASYNC_SEND_ACTION":
+                return SyntaxKind.ASYNC_SEND_ACTION;
+            case "SYNC_SEND_ACTION":
+                return SyntaxKind.SYNC_SEND_ACTION;
+            case "RECEIVE_SEND_ACTION":
+                return SyntaxKind.RECEIVE_SEND_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -858,6 +868,22 @@ public class ParserTestUtils {
                 return SyntaxKind.INFER_PARAM_LIST;
             case "FUNCTION_DECLARATION":
                 return SyntaxKind.FUNCTION_DECLARATION;
+            case "TYPED_BINDING_PATTERN":
+                return SyntaxKind.TYPED_BINDING_PATTERN;
+            case "BINDING_PATTERN":
+                return SyntaxKind.BINDING_PATTERN;
+            case "CAPTURE_BINDING_PATTERN":
+                return SyntaxKind.CAPTURE_BINDING_PATTERN;
+            case "LIST_BINDING_PATTERN":
+                return SyntaxKind.LIST_BINDING_PATTERN;
+            case "REST_BINDING_PATTERN":
+                return SyntaxKind.REST_BINDING_PATTERN;
+            case "TYPE_PARAMETER":
+                return SyntaxKind.TYPE_PARAMETER;
+            case "KEY_TYPE_CONSTRAINT":
+                return SyntaxKind.KEY_TYPE_CONSTRAINT;
+            case "RECEIVE_FIELDS":
+                return SyntaxKind.RECEIVE_FIELDS;
 
             // XML template
             case "XML_ELEMENT":
@@ -898,10 +924,6 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
-            case "TYPE_PARAMETER":
-                return SyntaxKind.TYPE_PARAMETER;
-            case "KEY_TYPE_CONSTRAINT":
-                return SyntaxKind.KEY_TYPE_CONSTRAINT;
 
             // Trivia
             case "EOF_TOKEN":
@@ -911,7 +933,7 @@ public class ParserTestUtils {
             case "WHITESPACE_TRIVIA":
                 return SyntaxKind.WHITESPACE_MINUTIAE;
             case "COMMENT":
-                return SyntaxKind.COMMENT_MINUTIA;
+                return SyntaxKind.COMMENT_MINUTIAE;
             case "INVALID":
                 return SyntaxKind.INVALID;
 

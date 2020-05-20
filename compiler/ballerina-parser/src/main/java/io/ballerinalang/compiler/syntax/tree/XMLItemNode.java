@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public abstract class XMLItemNode extends BacktickTemplateMemberNode {
+public abstract class XMLItemNode extends TemplateMemberNode {
 
     public XMLItemNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

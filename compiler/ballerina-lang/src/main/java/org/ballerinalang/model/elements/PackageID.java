@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.VERSION_0_0_1;
 import static org.wso2.ballerinalang.compiler.util.Names.VERSION_0_1_0;
 import static org.wso2.ballerinalang.compiler.util.Names.VERSION_0_4_0;
 import static org.wso2.ballerinalang.compiler.util.Names.VERSION_0_8_0;
@@ -81,6 +82,8 @@ public class PackageID {
                                                       Lists.of(Names.LANG, Names.XML), VERSION_0_8_0);
     public static final PackageID BOOLEAN = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.BOOLEAN), VERSION_1_0_0);
+    public static final PackageID QUERY = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.QUERY), VERSION_0_0_1);
 
     public final Name orgName;
     public Name name;

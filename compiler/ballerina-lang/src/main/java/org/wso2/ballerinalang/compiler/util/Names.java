@@ -57,6 +57,7 @@ public class Names {
     public static final Name MAP = new Name("map");
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");
+    public static final Name QUERY = new Name("query");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
@@ -119,6 +120,7 @@ public class Names {
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name VERSION_0_0_1 = new Name("0.0.1");
     public static final Name VERSION_0_1_0 = new Name("0.1.0");
     public static final Name VERSION_0_4_0 = new Name("0.4.0");
     public static final Name VERSION_0_8_0 = new Name("0.8.0");

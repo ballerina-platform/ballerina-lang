@@ -552,6 +552,38 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionDeclarationNode);
     }
 
+    public T transform(TypedBindingPatternNode typedBindingPatternNode) {
+        return transformSyntaxNode(typedBindingPatternNode);
+    }
+
+    public T transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        return transformSyntaxNode(captureBindingPatternNode);
+    }
+
+    public T transform(ListBindingPatternNode listBindingPatternNode) {
+        return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    public T transform(RestBindingPatternNode restBindingPatternNode) {
+        return transformSyntaxNode(restBindingPatternNode);
+    }
+
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
+    }
+
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
@@ -559,7 +591,7 @@ public abstract class NodeTransformer<T> {
     }
 
     public T transform(IdentifierToken identifier) {
-        return null;
+        return transform((Token) identifier);
     }
 
     // Misc

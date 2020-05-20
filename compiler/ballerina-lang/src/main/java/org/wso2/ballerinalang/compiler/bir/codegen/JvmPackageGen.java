@@ -206,6 +206,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.XML);
         dependentModuleArray.add(PackageID.TYPEDESC);
         dependentModuleArray.add(PackageID.BOOLEAN);
+        dependentModuleArray.add(PackageID.QUERY);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
