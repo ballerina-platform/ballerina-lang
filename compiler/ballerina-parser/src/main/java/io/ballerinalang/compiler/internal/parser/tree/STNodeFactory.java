@@ -1665,5 +1665,36 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 receiveField,
                 closeBrace);
     }
+
+    public static STNode createWaitActionNode(
+            STNode waitKeyword,
+            STNode waitFutureExpr) {
+
+        return new STWaitActionNode(
+                waitKeyword,
+                waitFutureExpr);
+    }
+
+    public static STNode createWaitFieldsListNode(
+            STNode openBrace,
+            STNode waitField,
+            STNode closeBrace) {
+
+        return new STWaitFieldsListNode(
+                openBrace,
+                waitField,
+                closeBrace);
+    }
+
+    public static STNode createWaitFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr) {
+
+        return new STWaitFieldNode(
+                fieldName,
+                colon,
+                waitFutureExpr);
+    }
 }
 

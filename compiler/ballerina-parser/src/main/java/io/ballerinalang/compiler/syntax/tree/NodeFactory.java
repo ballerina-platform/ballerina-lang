@@ -2240,5 +2240,47 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBrace.internalNode());
         return stReceiveFieldsNode.createUnlinkedFacade();
     }
+
+    public static WaitActionNode createWaitActionNode(
+            Token waitKeyword,
+            Node waitFutureExpr) {
+        Objects.requireNonNull(waitKeyword, "waitKeyword must not be null");
+        Objects.requireNonNull(waitFutureExpr, "waitFutureExpr must not be null");
+
+        STNode stWaitActionNode = STNodeFactory.createWaitActionNode(
+                waitKeyword.internalNode(),
+                waitFutureExpr.internalNode());
+        return stWaitActionNode.createUnlinkedFacade();
+    }
+
+    public static WaitFieldsListNode createWaitFieldsListNode(
+            Token openBrace,
+            SeparatedNodeList<Node> waitField,
+            Token closeBrace) {
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(waitField, "waitField must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stWaitFieldsListNode = STNodeFactory.createWaitFieldsListNode(
+                openBrace.internalNode(),
+                waitField.underlyingListNode().internalNode(),
+                closeBrace.internalNode());
+        return stWaitFieldsListNode.createUnlinkedFacade();
+    }
+
+    public static WaitFieldNode createWaitFieldNode(
+            NameReferenceNode fieldName,
+            Token colon,
+            ExpressionNode waitFutureExpr) {
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(waitFutureExpr, "waitFutureExpr must not be null");
+
+        STNode stWaitFieldNode = STNodeFactory.createWaitFieldNode(
+                fieldName.internalNode(),
+                colon.internalNode(),
+                waitFutureExpr.internalNode());
+        return stWaitFieldNode.createUnlinkedFacade();
+    }
 }
 

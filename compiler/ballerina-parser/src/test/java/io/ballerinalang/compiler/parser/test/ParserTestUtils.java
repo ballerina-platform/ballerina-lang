@@ -673,7 +673,7 @@ public class ParserTestUtils {
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
             case "RECEIVE_SEND_ACTION":
-                return SyntaxKind.RECEIVE_SEND_ACTION;
+                return SyntaxKind.RECEIVE_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":

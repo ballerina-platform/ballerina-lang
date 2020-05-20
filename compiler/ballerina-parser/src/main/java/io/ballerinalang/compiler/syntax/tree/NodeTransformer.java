@@ -584,6 +584,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(WaitActionNode waitActionNode) {
+        return transformSyntaxNode(waitActionNode);
+    }
+
+    public T transform(WaitFieldsListNode waitFieldsListNode) {
+        return transformSyntaxNode(waitFieldsListNode);
+    }
+
+    public T transform(WaitFieldNode waitFieldNode) {
+        return transformSyntaxNode(waitFieldNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

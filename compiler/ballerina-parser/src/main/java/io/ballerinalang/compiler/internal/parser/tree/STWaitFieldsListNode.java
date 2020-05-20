@@ -19,31 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STReceiveActionNode extends STActionNode {
-    public final STNode leftArrow;
-    public final STNode receiveWorkers;
+public class STWaitFieldsListNode extends STNode {
+    public final STNode openBrace;
+    public final STNode waitField;
+    public final STNode closeBrace;
 
-    STReceiveActionNode(
-            STNode leftArrow,
-            STNode receiveWorkers) {
-        super(SyntaxKind.RECEIVE_ACTION);
-        this.leftArrow = leftArrow;
-        this.receiveWorkers = receiveWorkers;
+    STWaitFieldsListNode(
+            STNode openBrace,
+            STNode waitField,
+            STNode closeBrace) {
+        super(SyntaxKind.WAIT_FIELDS_LIST);
+        this.openBrace = openBrace;
+        this.waitField = waitField;
+        this.closeBrace = closeBrace;
 
         addChildren(
-                leftArrow,
-                receiveWorkers);
+                openBrace,
+                waitField,
+                closeBrace);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReceiveActionNode(this, position, parent);
+        return new WaitFieldsListNode(this, position, parent);
     }
 }

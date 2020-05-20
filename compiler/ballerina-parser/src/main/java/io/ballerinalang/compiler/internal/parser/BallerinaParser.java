@@ -426,6 +426,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseLeftArrowToken();
             case RECEIVE_WORKERS:
                 return parseReceiveWorkers();
+            case WAIT_KEYWORD:
+                return parseWaitKeyword();
+            case WAIT_FUTURE_EXPR_END:
+                return parseWaitFutureExprEnd((int) args[0]);
+            case WAIT_FIELD_NAME:
+                return parseWaitField();
+            case WAIT_FIELD_END:
+                return parseWaitFieldEnd();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -3211,6 +3219,7 @@ public class BallerinaParser extends AbstractParser {
             case START_KEYWORD:
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
+            case WAIT_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -3312,6 +3321,7 @@ public class BallerinaParser extends AbstractParser {
             case TRAP_KEYWORD:
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
+            case WAIT_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             default:
                 if (isTypeStartingToken(tokenKind)) {
@@ -3640,7 +3650,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseExplicitFunctionExpression(null);
             case AT_TOKEN:
                 // Annon-func can have annotations. Check for other expressions
-                // that van start with annots.
+                // that can start with annots.
                 break;
             case NEW_KEYWORD:
                 return parseNewExpression();
@@ -3651,6 +3661,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFlushAction();
             case LEFT_ARROW_TOKEN:
                 return parseReceiveAction();
+            case WAIT_KEYWORD:
+                return parseWaitAction();
             default:
                 break;
         }
@@ -6503,7 +6515,8 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_ACTION:
             case ASYNC_SEND_ACTION:
             case SYNC_SEND_ACTION:
-            case RECEIVE_SEND_ACTION:
+            case RECEIVE_ACTION:
+            case WAIT_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -9531,7 +9544,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseBindingPattern() {
         STToken token = peek();
-
         switch (token.kind) {
             case OPEN_BRACKET_TOKEN:
                 return parseListBindingPattern();
@@ -9553,13 +9565,12 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCaptureBindingPattern() {
         STToken token = peek();
-        switch (token.kind) {
-            case IDENTIFIER_TOKEN:
-                STNode varName = parseVariableName();
-                return STNodeFactory.createCaptureBindingPatternNode(varName);
-            default:
-                Solution sol = recover(token, ParserRuleContext.CAPTURE_BINDING_PATTERN);
-                return sol.recoveredNode;
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            STNode varName = parseVariableName();
+            return STNodeFactory.createCaptureBindingPatternNode(varName);
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CAPTURE_BINDING_PATTERN);
+            return sol.recoveredNode;
         }
     }
 
@@ -9590,15 +9601,17 @@ public class BallerinaParser extends AbstractParser {
             if (listBindingPatternRhs == null) {
                 break;
             }
+
             bindingPatterns.add(listBindingPatternRhs);
             listBindingPatternMember = parselistBindingPatternMember();
             bindingPatterns.add(listBindingPatternMember);
             token = peek();
         }
+
         STNode closeBracket = parseCloseBracket();
 
-        // seperating out the restbindingpattern
-        STNode restBindingPattern = null;
+        // seperating out the rest-binding-pattern
+        STNode restBindingPattern;
         if (listBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
             restBindingPattern = bindingPatterns.remove(bindingPatterns.size() - 1);
         } else {
@@ -9658,7 +9671,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseRestBindingPattern() {
         STToken token = peek();
-
         switch (token.kind) {
             case ELLIPSIS_TOKEN:
                 startContext(ParserRuleContext.REST_BINDING_PATTERN);
@@ -9684,7 +9696,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parselistBindingPatternMember() {
         STToken token = peek();
-
         switch (token.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -9871,6 +9882,7 @@ public class BallerinaParser extends AbstractParser {
             // 'start' and 'flush' are start of actions, but not expressions.
             case START_KEYWORD:
             case FLUSH_KEYWORD:
+            case WAIT_KEYWORD:
             default:
                 return false;
         }
@@ -9918,12 +9930,11 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseSyncSendToken() {
         STToken token = peek();
-        switch (token.kind) {
-            case SYNC_SEND_TOKEN:
-                return consume();
-            default:
-                Solution sol = recover(token, ParserRuleContext.SYNC_SEND_TOKEN);
-                return sol.recoveredNode;
+        if (token.kind == SyntaxKind.SYNC_SEND_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.SYNC_SEND_TOKEN);
+            return sol.recoveredNode;
         }
     }
 
@@ -9998,7 +10009,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining receive fields
         nextToken = peek();
         STNode recieveFieldEnd;
-        while (!isEndOfTypeList(nextToken.kind)) {
+        while (!isEndOfReceiveFields(nextToken.kind)) {
             recieveFieldEnd = parseReceiveFieldEnd(nextToken.kind);
             if (recieveFieldEnd == null) {
                 break;
@@ -10027,7 +10038,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 return parseComma();
-            case CLOSE_PAREN_TOKEN:
+            case CLOSE_BRACE_TOKEN:
                 return null;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.RECEIVE_FIELD_END);
@@ -10095,12 +10106,243 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseLeftArrowToken() {
         STToken token = peek();
-        switch (token.kind) {
-            case LEFT_ARROW_TOKEN:
-                return consume();
-            default:
-                Solution sol = recover(token, ParserRuleContext.LEFT_ARROW_TOKEN);
-                return sol.recoveredNode;
+        if (token.kind == SyntaxKind.LEFT_ARROW_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LEFT_ARROW_TOKEN);
+            return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse wait action.
+     * <p>
+     * <code>wait-action := single-wait-action | multiple-wait-action | alternate-wait-action </code>
+     * 
+     * @return Wait action node
+     */
+    private STNode parseWaitAction() {
+        STNode waitKeyword = parseWaitKeyword();
+        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            return parseMultiWaitAction(waitKeyword);
+        }
+
+        return parseSingleOrAlternateWaitAction(waitKeyword);
+    }
+
+    /**
+     * Parse wait keyword.
+     * 
+     * @return wait keyword
+     */
+    private STNode parseWaitKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.WAIT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.WAIT_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse single or alternate wait actions.
+     * <p>
+     * <code>
+     * alternate-or-single-wait-action := wait wait-future-expr (| wait-future-expr)+
+     * <br/>
+     * wait-future-expr := expression but not mapping-constructor-expr
+     * </code>
+     * 
+     * @param waitKeyword wait keyword
+     * @return Single or alternate wait action node
+     */
+    private STNode parseSingleOrAlternateWaitAction(STNode waitKeyword) {
+        startContext(ParserRuleContext.ALTERNATE_WAIT_EXPRS);
+        List<STNode> waitFutureExprList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list
+        if (isEndOfWaitFutureExprList(nextToken.kind)) {
+            this.errorHandler.reportMissingTokenError("missing wait field");
+            endContext();
+            return STNodeFactory.createNodeList(waitFutureExprList);
+        }
+
+        // Parse first wait, that has no leading comma
+        STNode waitField = parseExpression();
+        waitFutureExprList.add(waitField);
+
+        // Parse remaining wait future expression
+        nextToken = peek();
+        STNode waitFutureExprEnd;
+        while (!isEndOfWaitFutureExprList(nextToken.kind)) {
+            waitFutureExprEnd = parseWaitFutureExprEnd(nextToken.kind, 1);
+            if (waitFutureExprEnd == null) {
+                break;
+            }
+
+            waitFutureExprList.add(waitFutureExprEnd);
+            waitField = parseExpression();
+            waitFutureExprList.add(waitField);
+            nextToken = peek();
+        }
+
+        STNode waitFutureExprs = STNodeFactory.createNodeList(waitFutureExprList);
+        endContext();
+        return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprs);
+    }
+
+    private boolean isEndOfWaitFutureExprList(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseWaitFutureExprEnd(int nextTokenIndex) {
+        return parseWaitFutureExprEnd(peek().kind, 1);
+    }
+
+    private STNode parseWaitFutureExprEnd(SyntaxKind nextTokenKind, int nextTokenIndex) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            default:
+                if (isEndOfWaitFutureExprList(nextTokenKind) ||
+                        !isValidExpressionStart(nextTokenKind, nextTokenIndex)) {
+                    return null;
+                }
+
+                Solution solution = recover(peek(), ParserRuleContext.WAIT_FUTURE_EXPR_END, nextTokenIndex);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                // current token becomes next token
+                return parseWaitFutureExprEnd(solution.tokenKind, 0);
+        }
+    }
+
+    /**
+     * Parse multiple wait action.
+     * <p>
+     * <code>multiple-wait-action := wait { wait-field (, wait-field)* }</code>
+     * 
+     * @param waitKeyword Wait keyword
+     * @return Multiple wait action node
+     */
+    private STNode parseMultiWaitAction(STNode waitKeyword) {
+        startContext(ParserRuleContext.MULTI_WAIT_FIELDS);
+        STNode openBrace = parseOpenBrace();
+        STNode waitFields = parseWaitFields();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+
+        STNode waitFieldsNode = STNodeFactory.createWaitFieldsListNode(openBrace, waitFields, closeBrace);
+        return STNodeFactory.createWaitActionNode(waitKeyword, waitFieldsNode);
+    }
+
+    private STNode parseWaitFields() {
+        List<STNode> waitFields = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list
+        if (isEndOfReceiveFields(nextToken.kind)) {
+            this.errorHandler.reportMissingTokenError("missing wait field");
+            return STNodeFactory.createNodeList(waitFields);
+        }
+
+        // Parse first receive field, that has no leading comma
+        STNode waitField = parseWaitField();
+        waitFields.add(waitField);
+
+        // Parse the remaining receive fields
+        nextToken = peek();
+        STNode waitFieldEnd;
+        while (!isEndOfReceiveFields(nextToken.kind)) {
+            waitFieldEnd = parseWaitFieldEnd(nextToken.kind);
+            if (waitFieldEnd == null) {
+                break;
+            }
+
+            waitFields.add(waitFieldEnd);
+            waitField = parseWaitField();
+            waitFields.add(waitField);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(waitFields);
+    }
+
+    private STNode parseWaitFieldEnd() {
+        return parseWaitFieldEnd(peek().kind);
+    }
+
+    private STNode parseWaitFieldEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.WAIT_FIELD_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseWaitFieldEnd(solution.tokenKind);
+        }
+    }
+
+    private STNode parseWaitField() {
+        return parseWaitField(peek().kind);
+    }
+
+    /**
+     * Parse wait field.
+     * <p>
+     * <code>wait-field := variable-name | field-name : wait-future-expr</code>
+     * 
+     * @param nextTokenKind Kind of the next token
+     * @return Receiver field node
+     */
+    private STNode parseWaitField(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                STNode identifier = parseIdentifier(ParserRuleContext.WAIT_FIELD_NAME);
+                return createQualifiedWaitField(identifier);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.WAIT_FIELD_NAME);
+
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseWaitField(solution.tokenKind);
+        }
+    }
+
+    private STNode createQualifiedWaitField(STNode identifier) {
+        if (peek().kind != SyntaxKind.COLON_TOKEN) {
+            return identifier;
+        }
+
+        STNode colon = parseColon();
+        STNode waitFutureExpr = parseExpression();
+        // TODO: validate - waitFutureExpr cannot be a map expr
+        return STNodeFactory.createWaitFieldNode(identifier, colon, waitFutureExpr);
     }
 }

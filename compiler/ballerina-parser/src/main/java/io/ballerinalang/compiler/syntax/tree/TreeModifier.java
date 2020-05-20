@@ -2256,6 +2256,48 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBrace);
     }
 
+    @Override
+    public WaitActionNode transform(
+            WaitActionNode waitActionNode) {
+        Token waitKeyword =
+                modifyToken(waitActionNode.waitKeyword());
+        Node waitFutureExpr =
+                modifyNode(waitActionNode.waitFutureExpr());
+        return waitActionNode.modify(
+                waitKeyword,
+                waitFutureExpr);
+    }
+
+    @Override
+    public WaitFieldsListNode transform(
+            WaitFieldsListNode waitFieldsListNode) {
+        Token openBrace =
+                modifyToken(waitFieldsListNode.openBrace());
+        SeparatedNodeList<Node> waitField =
+                modifySeparatedNodeList(waitFieldsListNode.waitField());
+        Token closeBrace =
+                modifyToken(waitFieldsListNode.closeBrace());
+        return waitFieldsListNode.modify(
+                openBrace,
+                waitField,
+                closeBrace);
+    }
+
+    @Override
+    public WaitFieldNode transform(
+            WaitFieldNode waitFieldNode) {
+        NameReferenceNode fieldName =
+                modifyNode(waitFieldNode.fieldName());
+        Token colon =
+                modifyToken(waitFieldNode.colon());
+        ExpressionNode waitFutureExpr =
+                modifyNode(waitFieldNode.waitFutureExpr());
+        return waitFieldNode.modify(
+                fieldName,
+                colon,
+                waitFutureExpr);
+    }
+
     // Tokens
 
     @Override
