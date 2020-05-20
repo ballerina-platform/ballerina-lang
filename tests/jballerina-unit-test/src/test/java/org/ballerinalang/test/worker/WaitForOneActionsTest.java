@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -105,7 +104,6 @@ public class WaitForOneActionsTest {
 
     @Test
     public void asyncObjectCreationTest() {
-        BValue[] vals = BRunUtil.invoke(result, "asyncObjectCreationTest", new BValue[0]);
-        Assert.assertEquals(vals[0], new BInteger(6));
+        BRunUtil.invoke(result, "asyncObjectCreationTest", new BValue[0]);
     }
 }
