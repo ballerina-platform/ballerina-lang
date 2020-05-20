@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -152,7 +153,7 @@ public class EmailAccessUtil {
         BArray replyToAddressArrayValue = getAddressBArrayList(message.getReplyTo());
         String subject = getStringNullChecked(message.getSubject());
         String messageBody = extractBodyFromMessage(message);
-        BArray headers = extractHeadersFromMessage(message);
+        MapValue headers = extractHeadersFromMessage(message);
         String messageContentType = message.getContentType();
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
@@ -183,19 +184,15 @@ public class EmailAccessUtil {
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
     }
 
-    private static BArray extractHeadersFromMessage(Message message) throws MessagingException {
-        BType typeOfHeader = createHeaderMap().getType();
-        ArrayValue headersArrayValue = new ArrayValueImpl(new BArrayType(typeOfHeader));
+    private static MapValue<String, String> extractHeadersFromMessage(Message message) throws MessagingException {
+        MapValue<String, String> headerMap = new MapValueImpl<>();
         Enumeration<Header> headers = message.getAllHeaders();
         if (headers.hasMoreElements()) {
             while (headers.hasMoreElements()) {
                 Header header = headers.nextElement();
-                MapValue messageHeader = createHeaderMap();
-                messageHeader.put(EmailConstants.MESSAGE_HEADER_NAME, header.getName());
-                messageHeader.put(EmailConstants.MESSAGE_HEADER_VALUE, header.getValue());
-                headersArrayValue.append(messageHeader);
+                headerMap.put(header.getName(), header.getValue());
             }
-            return headersArrayValue;
+            return headerMap;
         }
         return null;
     }
@@ -354,10 +351,6 @@ public class EmailAccessUtil {
 
     private static ObjectValue createEntityObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
-    }
-
-    private static MapValue createHeaderMap() {
-        return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.HEADER);
     }
 
     private static String extractFromAddressFromMessage(Message message) throws MessagingException {

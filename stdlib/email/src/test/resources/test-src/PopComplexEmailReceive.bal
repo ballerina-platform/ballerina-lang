@@ -66,18 +66,11 @@ function testReceiveComplexEmail(string host, string username, string password) 
                 }
                 returnArray[11] = attachments[0].getHeader("H1");
                 returnArray[12] = attachments[0].getContentType();
-                email:Header[]? headers = emailResponse?.headers;
-                if (headers is email:Header[]) {
-                    foreach var header in headers {
-                        json? tmpHeader = header;
-                        if (!(tmpHeader is error?)) {
-                            json|error name = tmpHeader.name;
-                            json|error value = tmpHeader.value;
-                            if (name is string && name == "header1_name" && value is string) {
-                                returnArray[13] = <string>name;
-                                returnArray[14] = <string>value;
-                            }
-                        }
+                json? headers = emailResponse?.headers;
+                if (!(headers is ())) {
+                    json|error headerValue = headers.header1_name;
+                    if (headerValue is json && !(headerValue is ())) {
+                        returnArray[13] = <string>headerValue;
                     }
                 }
             }

@@ -145,8 +145,7 @@ public class ImapComplexEmailReceiveTest {
         assertEquals(new String(ATTACHMENT4_BINARY), result[10]);
         assertEquals(ATTACHMENT1_HEADER1_VALUE_TEXT, result[11]);
         Assert.assertTrue(result[12].startsWith(MimeConstants.TEXT_PLAIN));
-        assertEquals(HEADER1_NAME, result[13]);
-        assertEquals(HEADER1_VALUE, result[14]);
+        assertEquals(HEADER1_VALUE, result[13]);
     }
 
     private String concatAddresses(String[] addresses) {

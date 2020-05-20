@@ -36,20 +36,11 @@ public type Email record {|
     string subject;
     string|xml|json body;
     string contentType?;
-    Header[] headers?;
+    map<string> headers?;
     string 'from;
     string sender?;
     string[] replyTo?;
     mime:Entity[] attachments?;
-|};
-
-# Email message headers.
-#
-# + name - Header name
-# + value - Header value
-public type Header record {|
-    string name;
-    string value;
 |};
 
 # Default folder to read emails.

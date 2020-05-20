@@ -138,18 +138,11 @@ public class SmtpUtil {
     }
 
     private static void addMessageHeaders(MimeMessage emailMessage, MapValue message) throws MessagingException {
-        ArrayValue headers = message.getArrayValue(EmailConstants.MESSAGE_HEADERS);
+        MapValue headers = message.getMapValue(EmailConstants.MESSAGE_HEADERS);
         if (headers != null) {
-            for (int i = 0; i < headers.size(); i++) {
-                Object headerObj = headers.get(i);
-                if (headerObj instanceof MapValue) {
-                    MapValue header = (MapValue) headerObj;
-                    String headerName = header.getStringValue(EmailConstants.MESSAGE_HEADER_NAME);
-                    String headerValue = header.getStringValue(EmailConstants.MESSAGE_HEADER_VALUE);
-                    if (isNotEmpty(headerName) && isNotEmpty(headerValue)) {
-                        emailMessage.addHeader(headerName, headerValue);
-                    }
-                }
+            String[] headerNames = (String[]) headers.getKeys();
+            for (String headerName : headerNames) {
+                emailMessage.addHeader(headerName, headers.getStringValue(headerName));
             }
         }
     }
