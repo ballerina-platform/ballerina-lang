@@ -134,7 +134,10 @@ public class BallerinaStackFrame extends XStackFrame {
      */
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-
+        // if result of computation won't be used so computation may be interrupted.
+        if (node.isObsolete()) {
+            return;
+        }
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             // Checks for the DAP connection.
             BallerinaDAPClientConnector dapConnector = myProcess.getDapClientConnector();

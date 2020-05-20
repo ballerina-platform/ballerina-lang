@@ -59,10 +59,10 @@ public class BallerinaDAPClientConnector {
     private static final Logger LOG = Logger.getInstance(BallerinaDAPClientConnector.class);
 
     private BallerinaDebugProcess context;
-    private Project project;
-    private String entryFilePath;
-    private String host;
-    private int port;
+    private final Project project;
+    private final String entryFilePath;
+    private final String host;
+    private final int port;
     private DAPClient debugClient;
     private IDebugProtocolServer debugServer;
     private DAPRequestManager requestManager;
@@ -72,7 +72,7 @@ public class BallerinaDAPClientConnector {
     private Capabilities initializeResult;
     private ConnectionState myConnectionState;
 
-    private int debugAdapterPort;
+    private final int debugAdapterPort;
     private static final String CONFIG_SOURCE = "script";
     private static final String CONFIG_DEBUGEE_HOST = "debuggeeHost";
     private static final String CONFIG_DEBUGEE_PORT = "debuggeePort";
@@ -213,7 +213,6 @@ public class BallerinaDAPClientConnector {
         String os = OSUtils.getOperatingSystem();
         if (os != null) {
             String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
-
             // Checks for the user-configured auto detection settings.
             if (Strings.isNullOrEmpty(balSdkPath) &&
                     BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
