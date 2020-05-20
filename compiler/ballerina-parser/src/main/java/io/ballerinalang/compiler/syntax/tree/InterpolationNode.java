@@ -101,19 +101,22 @@ public class InterpolationNode extends XMLItemNode {
             this.interpolationEndToken = oldNode.interpolationEndToken();
         }
 
-        public InterpolationNodeModifier withInterpolationStartToken(Token interpolationStartToken) {
+        public InterpolationNodeModifier withInterpolationStartToken(
+                Token interpolationStartToken) {
             Objects.requireNonNull(interpolationStartToken, "interpolationStartToken must not be null");
             this.interpolationStartToken = interpolationStartToken;
             return this;
         }
 
-        public InterpolationNodeModifier withExpression(ExpressionNode expression) {
+        public InterpolationNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public InterpolationNodeModifier withInterpolationEndToken(Token interpolationEndToken) {
+        public InterpolationNodeModifier withInterpolationEndToken(
+                Token interpolationEndToken) {
             Objects.requireNonNull(interpolationEndToken, "interpolationEndToken must not be null");
             this.interpolationEndToken = interpolationEndToken;
             return this;

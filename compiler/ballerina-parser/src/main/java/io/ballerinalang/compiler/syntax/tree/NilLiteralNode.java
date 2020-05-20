@@ -91,13 +91,15 @@ public class NilLiteralNode extends ExpressionNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public NilLiteralNodeModifier withOpenParenToken(Token openParenToken) {
+        public NilLiteralNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public NilLiteralNodeModifier withCloseParenToken(Token closeParenToken) {
+        public NilLiteralNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

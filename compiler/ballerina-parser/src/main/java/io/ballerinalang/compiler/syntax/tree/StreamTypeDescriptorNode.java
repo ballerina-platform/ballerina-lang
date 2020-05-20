@@ -91,13 +91,15 @@ public class StreamTypeDescriptorNode extends TypeDescriptorNode {
             this.streamTypeParamsNode = oldNode.streamTypeParamsNode();
         }
 
-        public StreamTypeDescriptorNodeModifier withStreamKeywordToken(Token streamKeywordToken) {
+        public StreamTypeDescriptorNodeModifier withStreamKeywordToken(
+                Token streamKeywordToken) {
             Objects.requireNonNull(streamKeywordToken, "streamKeywordToken must not be null");
             this.streamKeywordToken = streamKeywordToken;
             return this;
         }
 
-        public StreamTypeDescriptorNodeModifier withStreamTypeParamsNode(Node streamTypeParamsNode) {
+        public StreamTypeDescriptorNodeModifier withStreamTypeParamsNode(
+                Node streamTypeParamsNode) {
             Objects.requireNonNull(streamTypeParamsNode, "streamTypeParamsNode must not be null");
             this.streamTypeParamsNode = streamTypeParamsNode;
             return this;

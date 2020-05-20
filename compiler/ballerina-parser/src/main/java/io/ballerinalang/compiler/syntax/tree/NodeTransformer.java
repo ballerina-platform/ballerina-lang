@@ -36,7 +36,7 @@ package io.ballerinalang.compiler.syntax.tree;
  *
  * @param <T> the type of class that is returned by visit methods
  * @see NodeVisitor
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeTransformer<T> {
 
@@ -570,6 +570,22 @@ public abstract class NodeTransformer<T> {
 
     public T transform(RestBindingPatternNode restBindingPatternNode) {
         return transformSyntaxNode(restBindingPatternNode);
+    }
+
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
+    }
+
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
     }
 
     // Tokens

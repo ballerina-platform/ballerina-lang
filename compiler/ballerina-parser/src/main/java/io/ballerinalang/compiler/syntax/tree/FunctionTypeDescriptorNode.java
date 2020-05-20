@@ -91,13 +91,15 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
             this.functionSignature = oldNode.functionSignature();
         }
 
-        public FunctionTypeDescriptorNodeModifier withFunctionKeyword(Token functionKeyword) {
+        public FunctionTypeDescriptorNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
             Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
             this.functionKeyword = functionKeyword;
             return this;
         }
 
-        public FunctionTypeDescriptorNodeModifier withFunctionSignature(FunctionSignatureNode functionSignature) {
+        public FunctionTypeDescriptorNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
             Objects.requireNonNull(functionSignature, "functionSignature must not be null");
             this.functionSignature = functionSignature;
             return this;

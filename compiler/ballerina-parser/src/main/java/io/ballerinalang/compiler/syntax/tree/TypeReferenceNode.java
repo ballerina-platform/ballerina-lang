@@ -101,19 +101,22 @@ public class TypeReferenceNode extends TypeDescriptorNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public TypeReferenceNodeModifier withAsteriskToken(Token asteriskToken) {
+        public TypeReferenceNodeModifier withAsteriskToken(
+                Token asteriskToken) {
             Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
             this.asteriskToken = asteriskToken;
             return this;
         }
 
-        public TypeReferenceNodeModifier withTypeName(Node typeName) {
+        public TypeReferenceNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public TypeReferenceNodeModifier withSemicolonToken(Token semicolonToken) {
+        public TypeReferenceNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

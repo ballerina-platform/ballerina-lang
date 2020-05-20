@@ -111,25 +111,29 @@ public class SpecificFieldNode extends MappingFieldNode {
             this.valueExpr = oldNode.valueExpr();
         }
 
-        public SpecificFieldNodeModifier withLeadingComma(Token leadingComma) {
+        public SpecificFieldNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public SpecificFieldNodeModifier withFieldName(Token fieldName) {
+        public SpecificFieldNodeModifier withFieldName(
+                Token fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;
         }
 
-        public SpecificFieldNodeModifier withColon(Token colon) {
+        public SpecificFieldNodeModifier withColon(
+                Token colon) {
             Objects.requireNonNull(colon, "colon must not be null");
             this.colon = colon;
             return this;
         }
 
-        public SpecificFieldNodeModifier withValueExpr(ExpressionNode valueExpr) {
+        public SpecificFieldNodeModifier withValueExpr(
+                ExpressionNode valueExpr) {
             Objects.requireNonNull(valueExpr, "valueExpr must not be null");
             this.valueExpr = valueExpr;
             return this;

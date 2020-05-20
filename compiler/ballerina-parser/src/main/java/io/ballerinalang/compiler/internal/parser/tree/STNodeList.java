@@ -141,8 +141,9 @@ public final class STNodeList extends STNode {
     }
 
     private void rangeCheck(int index) {
-        if (index >= bucketCount || index < 0)
+        if (index >= bucketCount || index < 0) {
             throw new IndexOutOfBoundsException("Index: '" + index + "', Size: '" + bucketCount + "'");
+        }
     }
 
     private STNodeList removeFirstNullValue() {

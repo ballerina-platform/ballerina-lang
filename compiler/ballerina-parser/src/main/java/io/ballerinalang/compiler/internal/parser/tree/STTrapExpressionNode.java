@@ -25,7 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTrapExpressionNode extends STExpressionNode {
     public final STNode trapKeyword;

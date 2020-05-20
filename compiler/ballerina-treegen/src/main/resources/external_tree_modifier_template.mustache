@@ -28,16 +28,18 @@ import java.util.function.Function;
  *
  * This is a generated class.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class {{className}} extends {{superClassName}}<Node> {
     {{#nodes}}
     {{^isAbstract}}
 
     @Override
-    public {{externalClassName}} transform({{externalClassName}} {{camelCaseExternalClassName}}) {
+    public {{externalClassName}} transform(
+            {{externalClassName}} {{camelCaseExternalClassName}}) {
         {{#fields}}
-        {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} = modify{{#isList}}{{listClassName}}{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}});
+        {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} =
+                modify{{#isList}}{{listClassName}}{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}});
         {{/fields}}
         return {{camelCaseExternalClassName}}.modify(
                 {{^syntaxKind}}{{camelCaseExternalClassName}}.kind(), &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});

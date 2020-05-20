@@ -93,13 +93,15 @@ public class CheckExpressionNode extends ExpressionNode {
             this.expression = oldNode.expression();
         }
 
-        public CheckExpressionNodeModifier withCheckKeyword(Token checkKeyword) {
+        public CheckExpressionNodeModifier withCheckKeyword(
+                Token checkKeyword) {
             Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
             this.checkKeyword = checkKeyword;
             return this;
         }
 
-        public CheckExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public CheckExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

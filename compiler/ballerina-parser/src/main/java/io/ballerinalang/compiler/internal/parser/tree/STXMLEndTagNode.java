@@ -25,7 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STXMLEndTagNode extends STXMLElementTagNode {
     public final STNode ltToken;

@@ -26,13 +26,13 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class SingletonTypeDescriptorNode extends NonTerminalNode {
+public class SingletonTypeDescriptorNode extends TypeDescriptorNode {
 
     public SingletonTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node simpleContExprNode() {
+    public ExpressionNode simpleContExprNode() {
         return childInBucket(0);
     }
 
@@ -53,7 +53,7 @@ public class SingletonTypeDescriptorNode extends NonTerminalNode {
     }
 
     public SingletonTypeDescriptorNode modify(
-            Node simpleContExprNode) {
+            ExpressionNode simpleContExprNode) {
         if (checkForReferenceEquality(
                 simpleContExprNode)) {
             return this;
@@ -74,14 +74,15 @@ public class SingletonTypeDescriptorNode extends NonTerminalNode {
      */
     public static class SingletonTypeDescriptorNodeModifier {
         private final SingletonTypeDescriptorNode oldNode;
-        private Node simpleContExprNode;
+        private ExpressionNode simpleContExprNode;
 
         public SingletonTypeDescriptorNodeModifier(SingletonTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.simpleContExprNode = oldNode.simpleContExprNode();
         }
 
-        public SingletonTypeDescriptorNodeModifier withSimpleContExprNode(Node simpleContExprNode) {
+        public SingletonTypeDescriptorNodeModifier withSimpleContExprNode(
+                ExpressionNode simpleContExprNode) {
             Objects.requireNonNull(simpleContExprNode, "simpleContExprNode must not be null");
             this.simpleContExprNode = simpleContExprNode;
             return this;

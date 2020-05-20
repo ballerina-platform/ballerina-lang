@@ -111,25 +111,29 @@ public class XMLStartTagNode extends XMLElementTagNode {
             this.getToken = oldNode.getToken();
         }
 
-        public XMLStartTagNodeModifier withLtToken(Token ltToken) {
+        public XMLStartTagNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public XMLStartTagNodeModifier withName(XMLNameNode name) {
+        public XMLStartTagNodeModifier withName(
+                XMLNameNode name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;
         }
 
-        public XMLStartTagNodeModifier withAttributes(NodeList<XMLAttributeNode> attributes) {
+        public XMLStartTagNodeModifier withAttributes(
+                NodeList<XMLAttributeNode> attributes) {
             Objects.requireNonNull(attributes, "attributes must not be null");
             this.attributes = attributes;
             return this;
         }
 
-        public XMLStartTagNodeModifier withGetToken(Token getToken) {
+        public XMLStartTagNodeModifier withGetToken(
+                Token getToken) {
             Objects.requireNonNull(getToken, "getToken must not be null");
             this.getToken = getToken;
             return this;

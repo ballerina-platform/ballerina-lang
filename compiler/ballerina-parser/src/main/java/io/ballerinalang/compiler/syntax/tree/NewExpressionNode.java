@@ -19,8 +19,6 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Objects;
-
 /**
  * This is a generated syntax tree node.
  *

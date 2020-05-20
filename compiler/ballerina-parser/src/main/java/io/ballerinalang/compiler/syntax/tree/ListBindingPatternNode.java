@@ -112,25 +112,29 @@ public class ListBindingPatternNode extends BindingPatternNode {
             this.closeBracket = oldNode.closeBracket();
         }
 
-        public ListBindingPatternNodeModifier withOpenBracket(Token openBracket) {
+        public ListBindingPatternNodeModifier withOpenBracket(
+                Token openBracket) {
             Objects.requireNonNull(openBracket, "openBracket must not be null");
             this.openBracket = openBracket;
             return this;
         }
 
-        public ListBindingPatternNodeModifier withBindingPatterns(SeparatedNodeList<BindingPatternNode> bindingPatterns) {
+        public ListBindingPatternNodeModifier withBindingPatterns(
+                SeparatedNodeList<BindingPatternNode> bindingPatterns) {
             Objects.requireNonNull(bindingPatterns, "bindingPatterns must not be null");
             this.bindingPatterns = bindingPatterns;
             return this;
         }
 
-        public ListBindingPatternNodeModifier withRestBindingPattern(RestBindingPatternNode restBindingPattern) {
+        public ListBindingPatternNodeModifier withRestBindingPattern(
+                RestBindingPatternNode restBindingPattern) {
             Objects.requireNonNull(restBindingPattern, "restBindingPattern must not be null");
             this.restBindingPattern = restBindingPattern;
             return this;
         }
 
-        public ListBindingPatternNodeModifier withCloseBracket(Token closeBracket) {
+        public ListBindingPatternNodeModifier withCloseBracket(
+                Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
             this.closeBracket = closeBracket;
             return this;

@@ -83,7 +83,8 @@ public class BasicLiteralNode extends ExpressionNode {
             this.literalToken = oldNode.literalToken();
         }
 
-        public BasicLiteralNodeModifier withLiteralToken(Token literalToken) {
+        public BasicLiteralNodeModifier withLiteralToken(
+                Token literalToken) {
             Objects.requireNonNull(literalToken, "literalToken must not be null");
             this.literalToken = literalToken;
             return this;

@@ -81,7 +81,8 @@ public class XMLSimpleNameNode extends XMLNameNode {
             this.name = oldNode.name();
         }
 
-        public XMLSimpleNameNodeModifier withName(Token name) {
+        public XMLSimpleNameNodeModifier withName(
+                Token name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;
