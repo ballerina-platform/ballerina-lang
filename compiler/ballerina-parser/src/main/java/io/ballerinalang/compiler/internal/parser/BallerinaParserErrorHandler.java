@@ -422,7 +422,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] WAIT_FUTURE_EXPR_END =
-            { ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END, ParserRuleContext.COMMA };
+            { ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END, ParserRuleContext.PIPE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -2032,6 +2032,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_CAST:
                 return ParserRuleContext.LT;
             case PIPE:
+                if (getParentContext() == ParserRuleContext.ALTERNATE_WAIT_EXPRS) {
+                    return ParserRuleContext.EXPRESSION;
+                }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case TABLE_CONSTRUCTOR:
                 return ParserRuleContext.OPEN_BRACKET;
@@ -2465,8 +2468,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RECEIVE_FIELD;
             case MULTI_WAIT_FIELDS:
                 return ParserRuleContext.WAIT_FIELD_NAME;
-            case ALTERNATE_WAIT_EXPRS:
-                return ParserRuleContext.EXPRESSION;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }

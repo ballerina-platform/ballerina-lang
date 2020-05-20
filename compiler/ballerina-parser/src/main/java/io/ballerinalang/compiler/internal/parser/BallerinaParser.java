@@ -10166,11 +10166,12 @@ public class BallerinaParser extends AbstractParser {
         if (isEndOfWaitFutureExprList(nextToken.kind)) {
             this.errorHandler.reportMissingTokenError("missing wait field");
             endContext();
-            return STNodeFactory.createNodeList(waitFutureExprList);
+            STNode waitFutureExprs = STNodeFactory.createNodeList(waitFutureExprList);
+            return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprs);
         }
 
         // Parse first wait, that has no leading comma
-        STNode waitField = parseExpression();
+        STNode waitField = parseWaitFutureExpr();
         waitFutureExprList.add(waitField);
 
         // Parse remaining wait future expression
@@ -10183,7 +10184,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             waitFutureExprList.add(waitFutureExprEnd);
-            waitField = parseExpression();
+            waitField = parseWaitFutureExpr();
             waitFutureExprList.add(waitField);
             nextToken = peek();
         }
@@ -10204,14 +10205,22 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode parseWaitFutureExpr() {
+        STNode waitFutureExpr = parseExpression();
+        if (waitFutureExpr.kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
+            this.errorHandler.reportInvalidNode(null, "mapping constructor expression cannot use as å wait expression");
+        }
+        return waitFutureExpr;
+    }
+
     private STNode parseWaitFutureExprEnd(int nextTokenIndex) {
         return parseWaitFutureExprEnd(peek().kind, 1);
     }
 
     private STNode parseWaitFutureExprEnd(SyntaxKind nextTokenKind, int nextTokenIndex) {
         switch (nextTokenKind) {
-            case COMMA_TOKEN:
-                return parseComma();
+            case PIPE_TOKEN:
+                return parsePipeToken();
             default:
                 if (isEndOfWaitFutureExprList(nextTokenKind) ||
                         !isValidExpressionStart(nextTokenKind, nextTokenIndex)) {

@@ -488,6 +488,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FLUSH_KEYWORD;
             case "DEFAULT_KEYWORD":
                 return SyntaxKind.DEFAULT_KEYWORD;
+            case "WAIT_KEYWORD":
+                return SyntaxKind.WAIT_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -674,6 +676,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SYNC_SEND_ACTION;
             case "RECEIVE_SEND_ACTION":
                 return SyntaxKind.RECEIVE_ACTION;
+            case "WAIT_ACTION":
+                return SyntaxKind.WAIT_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -884,6 +888,10 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_TYPE_CONSTRAINT;
             case "RECEIVE_FIELDS":
                 return SyntaxKind.RECEIVE_FIELDS;
+            case "WAIT_FIELDS_LIST":
+                return SyntaxKind.WAIT_FIELDS_LIST;
+            case "WAIT_FIELD":
+                return SyntaxKind.WAIT_FIELD;
 
             // XML template
             case "XML_ELEMENT":
