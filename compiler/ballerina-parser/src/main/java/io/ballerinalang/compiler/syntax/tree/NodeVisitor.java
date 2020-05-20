@@ -35,7 +35,7 @@ package io.ballerinalang.compiler.syntax.tree;
  * This is a generated class.
  *
  * @see NodeTransformer
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeVisitor {
 
@@ -467,12 +467,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public void visit(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        visitSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public void visit(FunctionSignatureNode functionSignatureNode) {
         visitSyntaxNode(functionSignatureNode);
+    }
+
+    public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public void visit(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        visitSyntaxNode(expressionFunctionBodyNode);
     }
 
     public void visit(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -493,10 +497,6 @@ public abstract class NodeVisitor {
 
     public void visit(ParenthesizedArgList parenthesizedArgList) {
         visitSyntaxNode(parenthesizedArgList);
-    }
-
-    public void visit(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        visitSyntaxNode(readOnlyTypeDescriptorNode);
     }
 
     public void visit(QueryConstructTypeNode queryConstructTypeNode) {
@@ -527,12 +527,64 @@ public abstract class NodeVisitor {
         visitSyntaxNode(queryExpressionNode);
     }
 
-    public void visit(DoubleGTTokenNode doubleGTTokenNode) {
-        visitSyntaxNode(doubleGTTokenNode);
+    public void visit(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        visitSyntaxNode(intersectionTypeDescriptorNode);
     }
 
-    public void visit(TrippleGTTokenNode trippleGTTokenNode) {
-        visitSyntaxNode(trippleGTTokenNode);
+    public void visit(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        visitSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        visitSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public void visit(StartActionNode startActionNode) {
+        visitSyntaxNode(startActionNode);
+    }
+
+    public void visit(FlushActionNode flushActionNode) {
+        visitSyntaxNode(flushActionNode);
+    }
+
+    public void visit(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        visitSyntaxNode(singletonTypeDescriptorNode);
+    }
+
+    public void visit(FunctionDeclarationNode functionDeclarationNode) {
+        visitSyntaxNode(functionDeclarationNode);
+    }
+
+    public void visit(TypedBindingPatternNode typedBindingPatternNode) {
+        visitSyntaxNode(typedBindingPatternNode);
+    }
+
+    public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
+        visitSyntaxNode(captureBindingPatternNode);
+    }
+
+    public void visit(ListBindingPatternNode listBindingPatternNode) {
+        visitSyntaxNode(listBindingPatternNode);
+    }
+
+    public void visit(RestBindingPatternNode restBindingPatternNode) {
+        visitSyntaxNode(restBindingPatternNode);
+    }
+
+    public void visit(AsyncSendActionNode asyncSendActionNode) {
+        visitSyntaxNode(asyncSendActionNode);
+    }
+
+    public void visit(SyncSendActionNode syncSendActionNode) {
+        visitSyntaxNode(syncSendActionNode);
+    }
+
+    public void visit(ReceiveActionNode receiveActionNode) {
+        visitSyntaxNode(receiveActionNode);
+    }
+
+    public void visit(ReceiveFieldsNode receiveFieldsNode) {
+        visitSyntaxNode(receiveFieldsNode);
     }
 
     // Tokens
@@ -541,9 +593,6 @@ public abstract class NodeVisitor {
     }
 
     // Misc
-
-    public void visit(Minutiae minutiae) {
-    }
 
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token

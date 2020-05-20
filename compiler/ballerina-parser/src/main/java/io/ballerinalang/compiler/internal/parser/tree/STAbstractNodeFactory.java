@@ -41,6 +41,10 @@ public abstract class STAbstractNodeFactory {
         return new STNodeList(children);
     }
 
+    public static STNode createNodeList(STNode... children) {
+        return new STNodeList(children);
+    }
+
     public static STNode createEmptyNode() {
         return null;
     }
@@ -56,14 +60,13 @@ public abstract class STAbstractNodeFactory {
 
     public static STToken createLiteralValueToken(SyntaxKind kind,
                                                   String text,
-                                                  long value,
                                                   STNode leadingTrivia,
                                                   STNode trailingTrivia) {
-        return new STLiteralValueToken(kind, text, value, leadingTrivia, trailingTrivia);
+        return new STLiteralValueToken(kind, text, leadingTrivia, trailingTrivia);
     }
 
-    public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
-        return new SyntaxTrivia(kind, text);
+    public static STNode createMinutiae(SyntaxKind kind, String text) {
+        return new STMinutiae(kind, text);
     }
 
     /**
@@ -76,8 +79,8 @@ public abstract class STAbstractNodeFactory {
      * @param width the width of the lexeme
      * @return the Minutia node
      */
-    public static STNode createSyntaxTrivia(SyntaxKind kind, String text, int width) {
-        return new SyntaxTrivia(kind, text, width);
+    public static STNode createMinutiae(SyntaxKind kind, String text, int width) {
+        return new STMinutiae(kind, text, width);
     }
 
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {

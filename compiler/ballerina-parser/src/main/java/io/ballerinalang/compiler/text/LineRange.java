@@ -29,11 +29,15 @@ public class LineRange {
     private final LinePosition startLine;
     private final LinePosition endLine;
 
-    public LineRange(String filePath, LinePosition startLine, LinePosition endLine) {
+    private LineRange(String filePath, LinePosition startLine, LinePosition endLine) {
         Objects.requireNonNull(filePath, "filePath cannot be null");
         this.filePath = filePath;
         this.startLine = startLine;
         this.endLine = endLine;
+    }
+
+    public static LineRange from(String filePath, LinePosition startLine, LinePosition endLine) {
+        return new LineRange(filePath, startLine, endLine);
     }
 
     public String filePath() {

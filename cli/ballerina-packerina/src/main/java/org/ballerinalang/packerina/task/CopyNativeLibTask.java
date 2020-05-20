@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,9 +103,11 @@ public class CopyNativeLibTask implements Task {
             if (bLangPackage == null || !buildContext.moduleDependencyPathMap.containsKey(packageID)) {
                 continue;
             }
-            copyImportedLibs(bLangPackage.symbol.imports,
-                             buildContext.moduleDependencyPathMap.get(packageID).moduleLibs,
-                             buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+            // Copy native libs for modules
+            ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(packageID);
+            copyPlatformLibsForModules(packageID, executableJar, sourceRootPath);
+            copyImportedLibs(bLangPackage.symbol.imports, executableJar.moduleLibs, buildContext, sourceRootPath,
+                    balHomePath, alreadyImportedSet);
             if (skipTests || !bLangPackage.hasTestablePackage()) {
                 continue;
             }
@@ -116,6 +119,28 @@ public class CopyNativeLibTask implements Task {
                 copyImportedLibs(testPkg.symbol.imports,
                                  buildContext.moduleDependencyPathMap.get(testPkg.packageID).testLibs,
                                  buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+            }
+        }
+    }
+
+    private void copyPlatformLibsForModules(PackageID packageID, ExecutableJar executableJar, Path project) {
+        List<Library> libraries = manifest.getPlatform().libraries;
+        if (libraries == null) {
+            return;
+        }
+
+        for (Library lib : libraries) {
+            if (lib.getModules() == null || Arrays.asList(lib.getModules()).contains(packageID.name.value)) {
+                String libFilePath = lib.getPath();
+                if (libFilePath == null) {
+                    continue;
+                }
+                Path nativeFile = project.resolve(Paths.get(libFilePath));
+                if (lib.getScope() != null && lib.getScope().equalsIgnoreCase("testOnly")) {
+                    executableJar.testLibs.add(nativeFile);
+                    continue;
+                }
+                executableJar.moduleLibs.add(nativeFile);
             }
         }
     }
@@ -146,33 +171,8 @@ public class CopyNativeLibTask implements Task {
         for (String platform : supportedPlatforms) {
             Path importJar = findImportBaloPath(buildContext, importz, project, platform);
             if (importJar != null && Files.exists(importJar)) {
-                copyLibsFromBalo(importJar, moduleDependencySet);
+                copyLibsFromBalo(buildContext, importJar, project, importz.pkgID, moduleDependencySet);
                 return;
-            }
-        }
-
-        // If platform libs are defined, copy them to target
-        List<Library> libraries = manifest.getPlatform().libraries;
-        if (libraries != null && libraries.size() > 0) {
-            for (Library library : libraries) {
-
-                if (library.getGroupId() == null || library.getModules() == null || library.getPath() == null) {
-                    continue;
-                }
-
-                if (library.getGroupId().equals(importz.pkgID.orgName.value) &&
-                        Arrays.asList(library.getModules()).contains(importz.pkgID.name.value)) {
-                    Path libFilePath = Paths.get(library.getPath());
-                    Path libFile = project.resolve(libFilePath);
-                    Path libFileName = libFilePath.getFileName();
-
-                    if (libFileName == null) {
-                        continue;
-                    }
-                    Path path = Paths.get(libFile.toUri());
-                    moduleDependencySet.add(path);
-                    return;
-                }
             }
         }
 
@@ -198,12 +198,17 @@ public class CopyNativeLibTask implements Task {
         }
     }
 
-    private void copyLibsFromBalo(Path baloFilePath, Set<Path> moduleDependencySet) {
+    private void copyLibsFromBalo(BuildContext buildContext, Path baloFilePath, Path project, PackageID packageID,
+                                  Set<Path> moduleDependencySet) {
 
         String fileName = baloFilePath.getFileName().toString();
         Path baloFileUnzipDirectory = Paths.get(baloFilePath.getParent().toString(),
                                                 fileName.substring(0, fileName.lastIndexOf(".")));
         File destFile = baloFileUnzipDirectory.toFile();
+
+        // copy and validate compile scope balo dependencies
+        copyAndValidateBaloDependencies(buildContext, baloFilePath, packageID, project, moduleDependencySet);
+
         // Read from .balo file if directory not exist.
         if (!destFile.mkdir()) {
             // Read from already unzipped balo directory.
@@ -236,6 +241,43 @@ public class CopyNativeLibTask implements Task {
             }
         } catch (IOException e) {
             throw createLauncherException("unable to copy native jar: " + e.getMessage());
+        }
+    }
+
+    private void copyAndValidateBaloDependencies(BuildContext buildContext, Path importDependencyPath,
+                                                 PackageID packageID, Path project, Set<Path> moduleDependencySet) {
+        Manifest manifestFromBalo = RepoUtils.getManifestFromBalo(importDependencyPath);
+        List<Library> baloDependencies = manifestFromBalo.getPlatform().libraries;
+        List<Library> libraries = manifest.getPlatform().libraries;
+        HashSet<Path> baloCompileScopeDependencies = new HashSet<>();
+        HashSet<Path> platformLibs = new HashSet<>();
+
+        if (baloDependencies == null) {
+            return;
+        }
+
+        for (Library baloTomlLib : baloDependencies) {
+            if (baloTomlLib.getScope() != null && baloTomlLib.getScope().equalsIgnoreCase("provided")) {
+                baloCompileScopeDependencies.add(Paths.get(baloTomlLib.getPath()).getFileName());
+            }
+        }
+
+        if (libraries != null) {
+            for (Library library : libraries) {
+                if (Arrays.asList(library.getModules()).contains(packageID.orgName.value + "/" +
+                        packageID.name.value)) {
+                    Path libFilePath = Paths.get(library.getPath());
+                    platformLibs.add(libFilePath.getFileName());
+                    moduleDependencySet.add(project.resolve(libFilePath));
+                }
+            }
+        }
+
+        for (Path baloTomlLib : baloCompileScopeDependencies) {
+            if (!platformLibs.contains(baloTomlLib)) {
+                buildContext.out().println("warning: " + packageID + " is missing a native library dependency - " +
+                        baloTomlLib);
+            }
         }
     }
 

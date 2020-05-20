@@ -36,7 +36,7 @@ package io.ballerinalang.compiler.syntax.tree;
  *
  * @param <T> the type of class that is returned by visit methods
  * @see NodeVisitor
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeTransformer<T> {
 
@@ -468,12 +468,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -494,10 +498,6 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ParenthesizedArgList parenthesizedArgList) {
         return transformSyntaxNode(parenthesizedArgList);
-    }
-
-    public T transform(ReadOnlyTypeDescriptorNode readOnlyTypeDescriptorNode) {
-        return transformSyntaxNode(readOnlyTypeDescriptorNode);
     }
 
     public T transform(QueryConstructTypeNode queryConstructTypeNode) {
@@ -528,12 +528,64 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(queryExpressionNode);
     }
 
-    public T transform(DoubleGTTokenNode doubleGTTokenNode) {
-        return transformSyntaxNode(doubleGTTokenNode);
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
     }
 
-    public T transform(TrippleGTTokenNode trippleGTTokenNode) {
-        return transformSyntaxNode(trippleGTTokenNode);
+    public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        return transformSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public T transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(StartActionNode startActionNode) {
+        return transformSyntaxNode(startActionNode);
+    }
+
+    public T transform(FlushActionNode flushActionNode) {
+        return transformSyntaxNode(flushActionNode);
+    }
+
+    public T transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        return transformSyntaxNode(singletonTypeDescriptorNode);
+    }
+
+    public T transform(FunctionDeclarationNode functionDeclarationNode) {
+        return transformSyntaxNode(functionDeclarationNode);
+    }
+
+    public T transform(TypedBindingPatternNode typedBindingPatternNode) {
+        return transformSyntaxNode(typedBindingPatternNode);
+    }
+
+    public T transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        return transformSyntaxNode(captureBindingPatternNode);
+    }
+
+    public T transform(ListBindingPatternNode listBindingPatternNode) {
+        return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    public T transform(RestBindingPatternNode restBindingPatternNode) {
+        return transformSyntaxNode(restBindingPatternNode);
+    }
+
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
+    }
+
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
     }
 
     // Tokens
@@ -543,15 +595,10 @@ public abstract class NodeTransformer<T> {
     }
 
     public T transform(IdentifierToken identifier) {
-        return null;
+        return transform((Token) identifier);
     }
 
     // Misc
-
-    // TODO Why Minutiae is in this visitor? Check on this.
-    public T transform(Minutiae minutiae) {
-        return transformSyntaxNode(minutiae);
-    }
 
     /**
      * Transforms the given {@code Node} into an object of type T.

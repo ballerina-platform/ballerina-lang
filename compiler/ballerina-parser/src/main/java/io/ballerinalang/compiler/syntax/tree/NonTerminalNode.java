@@ -68,6 +68,14 @@ public abstract class NonTerminalNode extends Node {
                         .collect(Collectors.toList()));
     }
 
+    public MinutiaeList leadingMinutiae() {
+        throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
+    }
+
+    public MinutiaeList trailingMinutiae() {
+        throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
+    }
+
     protected abstract String[] childNames();
 
     protected int bucketCount() {

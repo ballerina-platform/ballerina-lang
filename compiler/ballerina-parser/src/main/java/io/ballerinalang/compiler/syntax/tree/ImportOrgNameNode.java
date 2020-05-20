@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ImportOrgNameNode extends NonTerminalNode {
 
@@ -67,5 +69,46 @@ public class ImportOrgNameNode extends NonTerminalNode {
         return NodeFactory.createImportOrgNameNode(
                 orgName,
                 slashToken);
+    }
+
+    public ImportOrgNameNodeModifier modify() {
+        return new ImportOrgNameNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ImportOrgNameNodeModifier {
+        private final ImportOrgNameNode oldNode;
+        private Token orgName;
+        private Token slashToken;
+
+        public ImportOrgNameNodeModifier(ImportOrgNameNode oldNode) {
+            this.oldNode = oldNode;
+            this.orgName = oldNode.orgName();
+            this.slashToken = oldNode.slashToken();
+        }
+
+        public ImportOrgNameNodeModifier withOrgName(
+                Token orgName) {
+            Objects.requireNonNull(orgName, "orgName must not be null");
+            this.orgName = orgName;
+            return this;
+        }
+
+        public ImportOrgNameNodeModifier withSlashToken(
+                Token slashToken) {
+            Objects.requireNonNull(slashToken, "slashToken must not be null");
+            this.slashToken = slashToken;
+            return this;
+        }
+
+        public ImportOrgNameNode apply() {
+            return oldNode.modify(
+                    orgName,
+                    slashToken);
+        }
     }
 }

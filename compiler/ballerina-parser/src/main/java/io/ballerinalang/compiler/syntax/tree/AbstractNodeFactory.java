@@ -17,11 +17,11 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-
-import java.util.ArrayList;
+import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
 /**
  * A factory for creating nodes in the syntax tree.
@@ -29,10 +29,69 @@ import java.util.ArrayList;
  * @since 1.3.0
  */
 public abstract class AbstractNodeFactory {
+
     public static IdentifierToken createIdentifierToken(String text) {
-        STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(new ArrayList<>()),
-                STNodeFactory.createNodeList(new ArrayList<>()));
+        STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(),
+                STNodeFactory.createNodeList());
         return token.createUnlinkedFacade();
+    }
+
+    public static IdentifierToken createIdentifierToken(String text,
+                                                        MinutiaeList leadingMinutiae,
+                                                        MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory.createIdentifierToken(text, leadingMinutiaeSTNode,
+                trailingMinutiaeSTNode);
+        return token.createUnlinkedFacade();
+    }
+
+    public static Token createToken(SyntaxKind kind,
+                                    MinutiaeList leadingMinutiae,
+                                    MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!SyntaxUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory.createToken(kind, leadingMinutiaeSTNode,
+                trailingMinutiaeSTNode);
+        return token.createUnlinkedFacade();
+    }
+
+    public static Minutiae createCommentMinutiae(String text) {
+        // TODO Validate the given text for comment characters
+        // TODO Can we invoke the lexer here to get the minutiae
+        STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
+                SyntaxKind.COMMENT_MINUTIAE, text);
+        return Minutiae.createUnlinked(internalNode);
+    }
+
+    public static Minutiae createWhitespaceMinutiae(String text) {
+        // TODO Validate the given text for whitespace characters
+        STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
+                SyntaxKind.WHITESPACE_MINUTIAE, text);
+        return Minutiae.createUnlinked((STMinutiae) internalNode);
+    }
+
+    public static Minutiae createEndOfLineMinutiae(String text) {
+        // TODO Validate the given text for end of line characters
+        STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
+                SyntaxKind.END_OF_LINE_MINUTIAE, text);
+        return Minutiae.createUnlinked(internalNode);
     }
 
     protected static STNode getOptionalSTNode(Node node) {

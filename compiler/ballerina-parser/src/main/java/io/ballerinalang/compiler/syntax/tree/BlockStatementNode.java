@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BlockStatementNode extends StatementNode {
 
@@ -75,5 +77,56 @@ public class BlockStatementNode extends StatementNode {
                 openBraceToken,
                 statements,
                 closeBraceToken);
+    }
+
+    public BlockStatementNodeModifier modify() {
+        return new BlockStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class BlockStatementNodeModifier {
+        private final BlockStatementNode oldNode;
+        private Token openBraceToken;
+        private NodeList<StatementNode> statements;
+        private Token closeBraceToken;
+
+        public BlockStatementNodeModifier(BlockStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBraceToken = oldNode.openBraceToken();
+            this.statements = oldNode.statements();
+            this.closeBraceToken = oldNode.closeBraceToken();
+        }
+
+        public BlockStatementNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
+            Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+            this.openBraceToken = openBraceToken;
+            return this;
+        }
+
+        public BlockStatementNodeModifier withStatements(
+                NodeList<StatementNode> statements) {
+            Objects.requireNonNull(statements, "statements must not be null");
+            this.statements = statements;
+            return this;
+        }
+
+        public BlockStatementNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
+            Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+            this.closeBraceToken = closeBraceToken;
+            return this;
+        }
+
+        public BlockStatementNode apply() {
+            return oldNode.modify(
+                    openBraceToken,
+                    statements,
+                    closeBraceToken);
+        }
     }
 }
