@@ -41,13 +41,18 @@ public class TypeCastExpressionTest extends AbstractExpressionsTest {
         test("<@foo:bar{a:b} @bar{} int> c + d", "type-cast-expr/type_cast_expr_assert_07.json");
     }
 
+    @Test
+    public void testTypeCastOpPrecedence() {
+        test("<int> a + <int> b", "type-cast-expr/type_cast_expr_assert_19.json");
+    }
+
     // Recovery tests
 
     @Test
     public void testTypeCastWithMissingExpr() {
-        test("<int>", "type-cast-expr/type_cast_expr_assert_08.json");
-        test("<@foo{}>", "type-cast-expr/type_cast_expr_assert_09.json");
-        test("<@foo{} int>", "type-cast-expr/type_cast_expr_assert_10.json");
+        test("<int>;", "type-cast-expr/type_cast_expr_assert_08.json");
+        test("<@foo{}>;", "type-cast-expr/type_cast_expr_assert_09.json");
+        test("<@foo{} int>;", "type-cast-expr/type_cast_expr_assert_10.json");
     }
 
     @Test

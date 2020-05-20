@@ -3117,6 +3117,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PIPE_TOKEN:
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
+            case DOUBLE_LT_TOKEN:
+            case DOUBLE_GT_TOKEN:
+            case TRIPPLE_GT_TOKEN:
+            case ELLIPSIS_TOKEN:
+            case DOUBLE_DOT_LT_TOKEN:
                 return true;
 
             // Treat these also as binary operators.
