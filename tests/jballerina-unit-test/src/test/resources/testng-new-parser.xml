@@ -67,7 +67,7 @@
 <!--            <package name="org.ballerinalang.test.types.anydata.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.arrays.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.assign.*"/>-->
-<!--            <package name="org.ballerinalang.test.statements.block.*"/>-->
+            <package name="org.ballerinalang.test.statements.block.*"/>
 <!--            <package name="org.ballerinalang.test.statements.breakstatement.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.comment.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.compoundassignment.*"/>-->

@@ -699,14 +699,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(paramName, "paramName must not be null");
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
                 leadingComma.internalNode(),
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
-                paramName.internalNode());
+                getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();
     }
 

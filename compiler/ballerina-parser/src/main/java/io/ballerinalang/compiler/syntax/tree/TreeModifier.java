@@ -707,7 +707,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
-                modifyToken(requiredParameterNode.paramName());
+                modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
                 leadingComma,
                 annotations,

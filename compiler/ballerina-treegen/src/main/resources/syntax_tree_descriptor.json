@@ -922,7 +922,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional" : true
                 }
             ]
         },
