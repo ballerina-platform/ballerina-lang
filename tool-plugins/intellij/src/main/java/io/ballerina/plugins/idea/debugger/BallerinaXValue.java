@@ -62,7 +62,7 @@ public class BallerinaXValue extends XNamedValue {
     @Nullable
     private final Icon icon;
 
-    BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable, @Nullable Icon icon) {
+    public BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable, @Nullable Icon icon) {
         super(variable.getName());
         this.process = process;
         this.variable = variable;

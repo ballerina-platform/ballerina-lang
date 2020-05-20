@@ -29,6 +29,7 @@ import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValueChildrenList;
+import io.ballerina.plugins.idea.debugger.evaluator.BallerinaDebuggerEvaluator;
 import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -49,17 +50,21 @@ public class BallerinaStackFrame extends XStackFrame {
     private static final Logger LOG = Logger.getInstance(BallerinaStackFrame.class);
     private final BallerinaDebugProcess myProcess;
     private final StackFrame myFrame;
+    private BallerinaDebuggerEvaluator myExprEvaluator;
 
     BallerinaStackFrame(@NotNull BallerinaDebugProcess process, @NotNull StackFrame frame) {
         myProcess = process;
         myFrame = frame;
+        myExprEvaluator = new BallerinaDebuggerEvaluator(myProcess, myFrame);
     }
 
     @Nullable
     @Override
     public XDebuggerEvaluator getEvaluator() {
-        // Todo - Add evaluator support
-        return null;
+        if (myExprEvaluator == null) {
+            myExprEvaluator = new BallerinaDebuggerEvaluator(myProcess, myFrame);
+        }
+        return myExprEvaluator;
     }
 
     /**
