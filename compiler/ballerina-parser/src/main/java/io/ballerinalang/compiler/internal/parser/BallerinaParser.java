@@ -7911,7 +7911,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
 
         // Return an empty list if list is empty
-        if (isEndOfExpressionsList(nextToken.kind)) {
+        if (isEndOfListConstructor(nextToken.kind)) {
             return STNodeFactory.createNodeList(new ArrayList<>());
         }
 
@@ -7922,7 +7922,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining expressions
         nextToken = peek();
         STNode listConstructorMemberEnd;
-        while (!isEndOfExpressionsList(nextToken.kind)) {
+        while (!isEndOfListConstructor(nextToken.kind)) {
             listConstructorMemberEnd = parseListConstructorMemberEnd(nextToken.kind);
             if (listConstructorMemberEnd == null) {
                 break;
@@ -7935,6 +7935,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createNodeList(expressions);
+    }
+
+    private boolean isEndOfListConstructor(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private STNode parseListConstructorMemberEnd() {

@@ -214,6 +214,9 @@ public class BallerinaLexer extends AbstractLexer {
                 startMode(ParserMode.TEMPLATE);
                 token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 break;
+            case LexerTerminals.SINGLE_QUOTE:
+                token = processQuotedIdentifier();
+                break;
 
             // Numbers
             case '0':
@@ -1331,6 +1334,62 @@ public class BallerinaLexer extends AbstractLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    /**
+     * Process quoted Identifier token.
+     * 
+     * <code>
+     * QuotedIdentifierChar := IdentifierFollowingChar | QuotedIdentifierEscape | StringNumericEscape
+     * </code>
+     * 
+     * @return Quoted identifier token
+     */
+    private STToken processQuotedIdentifier() {
+        while (!reader.isEOF()) {
+            int nextChar = reader.peek();
+            if (isIdentifierFollowingChar(nextChar)) {
+                reader.advance();
+                continue;
+            }
+
+            if (nextChar != '\\') {
+                break;
+            }
+
+            // QuotedIdentifierEscape | StringNumericEscape
+
+            nextChar = reader.peek(1);
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.TAB:
+                    break;
+                case 'u':
+                    // StringNumericEscape
+                    if (reader.peek(2) == '{') {
+                        processStringNumericEscape();
+                    } else {
+                        reader.advance(2);
+                    }
+                    continue;
+                default:
+                    // ASCCI letters are not allowed
+                    if ('A' <= nextChar && nextChar <= 'Z') {
+                        break;
+                    }
+                    if ('a' <= nextChar && nextChar <= 'z') {
+                        break;
+                    }
+
+                    reader.advance(2);
+                    continue;
+                    // TODO: UnicodePatternWhiteSpaceChar is also not allowed
+            }
+            break;
+        }
+
+        return getIdentifierToken(getLexeme());
     }
 
     /*
