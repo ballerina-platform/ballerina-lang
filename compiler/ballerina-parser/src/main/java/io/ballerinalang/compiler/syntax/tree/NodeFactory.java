@@ -639,7 +639,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token visibilityQualifier,
             Token constKeyword,
             Node typeDescriptor,
-            Token variableName,
+            SimpleNameReferenceNode variableName,
             Token equalsToken,
             Node initializer,
             Token semicolonToken) {

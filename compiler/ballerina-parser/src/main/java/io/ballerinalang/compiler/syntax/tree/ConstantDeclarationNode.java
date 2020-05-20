@@ -48,7 +48,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(3);
     }
 
-    public Token variableName() {
+    public SimpleNameReferenceNode variableName() {
         return childInBucket(4);
     }
 
@@ -92,7 +92,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
             Token visibilityQualifier,
             Token constKeyword,
             Node typeDescriptor,
-            Token variableName,
+            SimpleNameReferenceNode variableName,
             Token equalsToken,
             Node initializer,
             Token semicolonToken) {
@@ -134,7 +134,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         private Token visibilityQualifier;
         private Token constKeyword;
         private Node typeDescriptor;
-        private Token variableName;
+        private SimpleNameReferenceNode variableName;
         private Token equalsToken;
         private Node initializer;
         private Token semicolonToken;
@@ -180,7 +180,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ConstantDeclarationNodeModifier withVariableName(
-                Token variableName) {
+                SimpleNameReferenceNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
