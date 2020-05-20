@@ -1876,17 +1876,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
             Token openBracketToken,
             SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
-            Node restTypeDesc,
             Token closeBracketToken) {
         Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
         Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
-        Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
         Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
         STNode stTupleTypeDescriptorNode = STNodeFactory.createTupleTypeDescriptorNode(
                 openBracketToken.internalNode(),
                 memberTypeDesc.underlyingListNode().internalNode(),
-                restTypeDesc.internalNode(),
                 closeBracketToken.internalNode());
         return stTupleTypeDescriptorNode.createUnlinkedFacade();
     }
@@ -2248,6 +2245,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 receiveField.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stReceiveFieldsNode.createUnlinkedFacade();
+    }
+
+    public static RestDescriptorNode createRestDescriptorNode(
+            TypeDescriptorNode typeDescriptor,
+            Token ellipsisToken) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+
+        STNode stRestDescriptorNode = STNodeFactory.createRestDescriptorNode(
+                typeDescriptor.internalNode(),
+                ellipsisToken.internalNode());
+        return stRestDescriptorNode.createUnlinkedFacade();
     }
 }
 

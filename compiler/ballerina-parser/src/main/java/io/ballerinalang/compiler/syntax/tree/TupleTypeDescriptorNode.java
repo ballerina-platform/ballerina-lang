@@ -40,12 +40,8 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
-    public Node restTypeDesc() {
-        return childInBucket(2);
-    }
-
     public Token closeBracketToken() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -63,19 +59,16 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
         return new String[]{
                 "openBracketToken",
                 "memberTypeDesc",
-                "restTypeDesc",
                 "closeBracketToken"};
     }
 
     public TupleTypeDescriptorNode modify(
             Token openBracketToken,
             SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
-            Node restTypeDesc,
             Token closeBracketToken) {
         if (checkForReferenceEquality(
                 openBracketToken,
                 memberTypeDesc.underlyingListNode(),
-                restTypeDesc,
                 closeBracketToken)) {
             return this;
         }
@@ -83,7 +76,6 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
         return NodeFactory.createTupleTypeDescriptorNode(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 
@@ -100,14 +92,12 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
         private final TupleTypeDescriptorNode oldNode;
         private Token openBracketToken;
         private SeparatedNodeList<TypeDescriptorNode> memberTypeDesc;
-        private Node restTypeDesc;
         private Token closeBracketToken;
 
         public TupleTypeDescriptorNodeModifier(TupleTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.openBracketToken = oldNode.openBracketToken();
             this.memberTypeDesc = oldNode.memberTypeDesc();
-            this.restTypeDesc = oldNode.restTypeDesc();
             this.closeBracketToken = oldNode.closeBracketToken();
         }
 
@@ -125,13 +115,6 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
             return this;
         }
 
-        public TupleTypeDescriptorNodeModifier withRestTypeDesc(
-                Node restTypeDesc) {
-            Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
-            this.restTypeDesc = restTypeDesc;
-            return this;
-        }
-
         public TupleTypeDescriptorNodeModifier withCloseBracketToken(
                 Token closeBracketToken) {
             Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
@@ -143,7 +126,6 @@ public class TupleTypeDescriptorNode extends TypeDescriptorNode {
             return oldNode.modify(
                     openBracketToken,
                     memberTypeDesc,
-                    restTypeDesc,
                     closeBracketToken);
         }
     }
