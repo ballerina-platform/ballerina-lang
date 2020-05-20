@@ -12,9 +12,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.Assert;
-import org.testng.IObjectFactory;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -32,15 +30,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @PrepareForTest(RepoUtils.class)
-public class ModuleVersionResolverTest extends PowerMockTestCase {
+public class ModuleLoaderImplTest extends PowerMockTestCase {
 
     private ModuleLoaderImpl moduleLoader;
     private Project project;
-
-//    @ObjectFactory
-//    public IObjectFactory getObjectFactory() {
-//        return new org.powermock.modules.testng.PowerMockObjectFactory();
-//    }
 
     @BeforeClass
     void setup() {
@@ -68,7 +61,7 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         moduleLoader = new ModuleLoaderImpl(project, repos);
     }
 
-    @Test
+    @Test(description = "Get module version from ModuleId if module version exists in ModuleId")
     void testGetModuleVersionFromVersionId() throws IOException {
         ModuleId moduleId = new ModuleId();
         // Set version of the moduleId to `1.0.0`
@@ -79,8 +72,8 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         Assert.assertEquals(versionResolvedModuleId.getVersion(), "1.0.0");
     }
 
-    @Test
-    void testGetModuleVersionFromCurrentProject() throws IOException {
+    @Test(description = "Get module version from project modules")
+    void testGetModuleVersionFromProjectModules() throws IOException {
         ModuleId moduleId = new ModuleId();
         // ModuleId exists in project modules
         when(project.isModuleExists(moduleId)).thenReturn(true);
@@ -145,8 +138,51 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         Assert.assertEquals(moduleId.getVersion(), "1.2.0");
     }
 
-    @Test
+    @Test(description = "Get module version from manifest (Ballerina.toml)")
+    void testGetModuleVersionFromManifest() throws IOException {
+        final String moduleVersion = "10.1.0";
+
+        ModuleId enclModuleId = new ModuleId();
+
+        ModuleId moduleId = new ModuleId();
+        moduleId.setOrgName("yoo-org");
+        moduleId.setModuleName("yooModule");
+        moduleId.setVersion(null);
+
+        // enclModuleId exists in project modules
+        when(project.isModuleExists(enclModuleId)).thenReturn(true);
+
+        // Set repos of moduleLoader
+        // Here set `yooModule:10.1.0` in project modules
+        List<Repo> repos = moduleLoader.getRepos();
+        ProjectModules homeBaloCache = (ProjectModules) repos.get(0);
+        when(homeBaloCache.resolveVersions(moduleId, moduleVersion))
+                .thenReturn(new ArrayList<>(Collections.singletonList(moduleVersion)));
+        moduleLoader.setRepos(repos);
+
+        // Create a dependency and add it to dependency list of the manifest
+        Dependency dependency = mock(Dependency.class);
+        when(dependency.getModuleName()).thenReturn("yooModule");
+        when(dependency.getOrgName()).thenReturn("yoo-org");
+        DependencyMetadata dependencyMetadata = mock(DependencyMetadata.class);
+        when(dependencyMetadata.getVersion()).thenReturn(moduleVersion);
+        when(dependency.getMetadata()).thenReturn(dependencyMetadata);
+        Manifest manifest = mock(Manifest.class);
+        when(manifest.getDependencies()).thenReturn(new ArrayList<>(Collections.singletonList(dependency)));
+
+        // Set manifest of the project
+        when(project.getManifest()).thenReturn(manifest);
+
+        // test method
+        moduleId = moduleLoader.resolveVersion(moduleId, enclModuleId);
+        Assert.assertNotNull(moduleId);
+        Assert.assertEquals(moduleVersion, moduleId.getVersion());
+    }
+
+    @Test(description = "Get module version of a transitive dependency from dependent balos")
     void testGetModuleVersionFromDependentBalos() throws IOException {
+        final String moduleVersion = "2.5.0";
+
         ModuleId enclModuleId = new ModuleId();
         enclModuleId.setOrgName("hoo-org");
         enclModuleId.setModuleName("hooModule");
@@ -162,11 +198,11 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         when(project.isModuleExists(enclModuleId)).thenReturn(false);
 
         // Set repos of moduleLoader
-        // Here set `hooModule:2.0.0` in project modules
+        // Here set `hooModule:2.0.0` in balo cache
         List<Repo> repos = moduleLoader.getRepos();
         BaloCache homeBaloCache = (BaloCache) repos.get(4);
-        when(homeBaloCache.resolveVersions(moduleId, "2.5.0"))
-                .thenReturn(new ArrayList<>(Collections.singletonList("2.5.0")));
+        when(homeBaloCache.resolveVersions(moduleId, moduleVersion))
+                .thenReturn(new ArrayList<>(Collections.singletonList(moduleVersion)));
         moduleLoader.setRepos(repos);
 
         Path parentModulePath = Paths.get("src");
@@ -177,7 +213,7 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         when(dependency.getModuleName()).thenReturn("heeModule");
         when(dependency.getOrgName()).thenReturn("hee-org");
         DependencyMetadata dependencyMetadata = mock(DependencyMetadata.class);
-        when(dependencyMetadata.getVersion()).thenReturn("2.5.0");
+        when(dependencyMetadata.getVersion()).thenReturn(moduleVersion);
         when(dependency.getMetadata()).thenReturn(dependencyMetadata);
 
         List<Dependency> dependencies = Collections.singletonList(dependency);
@@ -191,7 +227,7 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         moduleId = moduleLoader.resolveVersion(moduleId, enclModuleId);
 
         Assert.assertNotNull(moduleId);
-        Assert.assertEquals("2.5.0", moduleId.getVersion());
+        Assert.assertEquals(moduleVersion, moduleId.getVersion());
     }
 
     @Test
@@ -254,5 +290,18 @@ public class ModuleVersionResolverTest extends PowerMockTestCase {
         String versionResolvedFromManifest = moduleLoader.resolveVersionFromManifest(moduleId, manifest);
         Assert.assertNotNull(versionResolvedFromManifest);
         Assert.assertEquals(versionResolvedFromManifest, "1.3.0");
+    }
+
+    @Test(description = "Test generate repo hierarchy")
+    void testGenerateRepoHierarchy() {
+        List<Repo> repos = new ArrayList<>();
+        moduleLoader.generateRepoHierarchy(repos);
+        Assert.assertFalse(repos.isEmpty());
+        Assert.assertTrue(repos.get(0) instanceof ProjectModules);
+        Assert.assertTrue(repos.get(1) instanceof BirCache);
+        Assert.assertTrue(repos.get(2) instanceof BirCache);
+        Assert.assertTrue(repos.get(3) instanceof BirCache);
+        Assert.assertTrue(repos.get(4) instanceof BaloCache);
+        Assert.assertTrue(repos.get(5) instanceof Central);
     }
 }

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import static org.ballerinalang.moduleloader.Util.isGreaterVersion;
 
@@ -167,7 +166,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
         repos.add(central);
     }
 
-    public String resolveModuleVersionFromRepos(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
+    private String resolveModuleVersionFromRepos(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
         TreeMap<String, Repo> moduleVersions = new TreeMap<>();
         for (Repo repo : repos) {
             for (String versionStr : repo.resolveVersions(moduleId, filter)) {
@@ -185,9 +184,5 @@ public class ModuleLoaderImpl implements ModuleLoader {
             return moduleVersions.lastEntry().getKey();
         }
         return null;
-    }
-
-    public static String ask(){
-        return "I'm Final class";
     }
 }
