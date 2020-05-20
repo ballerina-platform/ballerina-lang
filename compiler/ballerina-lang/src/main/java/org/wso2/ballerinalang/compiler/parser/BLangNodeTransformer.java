@@ -51,6 +51,8 @@ import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
+import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
@@ -149,6 +151,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -1165,10 +1169,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangTableConstructorExpr) TreeBuilder.createTableConstructorExpressionNode();
         tableConstructorExpr.pos = getPosition(tableConstructorExpressionNode);
 
-        for (Node node: tableConstructorExpressionNode.mappingConstructors()) {
+        for (Node node : tableConstructorExpressionNode.mappingConstructors()) {
             tableConstructorExpr.addRecordLiteral((BLangRecordLiteral) node.apply(this));
         }
-        // TODO : set tableKeySpecifier
+        if (tableConstructorExpressionNode.keySpecifier() != null) {
+            tableConstructorExpr.tableKeySpecifier =
+                    (BLangTableKeySpecifier) tableConstructorExpressionNode.keySpecifier().apply(this);
+        }
         return tableConstructorExpr;
     }
 
@@ -1429,6 +1436,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(KeySpecifierNode keySpecifierNode) {
+        BLangTableKeySpecifier tableKeySpecifierNode =
+                (BLangTableKeySpecifier) TreeBuilder.createTableKeySpecifierNode();
+        tableKeySpecifierNode.pos = getPosition(keySpecifierNode);
+
+        for (Node field : keySpecifierNode.fieldNames()) {
+            tableKeySpecifierNode.addFieldNameIdentifier(createIdentifier(getPosition(field), field.toString()));
+        }
+        return tableKeySpecifierNode;
+    }
+
+    @Override
+    public BLangNode transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        BLangTableKeyTypeConstraint tableKeyTypeConstraint = new BLangTableKeyTypeConstraint();
+        tableKeyTypeConstraint.pos = getPosition(keyTypeConstraintNode);
+        tableKeyTypeConstraint.keyType = createTypeNode(keyTypeConstraintNode.typeParameterNode());
+        return tableKeyTypeConstraint;
+    }
+
+    @Override
     public BLangNode transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TreeUtils.stringToTypeKind(tableTypeDescriptorNode.tableKeywordToken().text());
@@ -1438,8 +1465,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         tableTypeNode.pos = getPosition(tableTypeDescriptorNode);
         tableTypeNode.type = refType;
         tableTypeNode.constraint = createTypeNode(tableTypeDescriptorNode.rowTypeParameterNode());
-        // TODO : set tableKeySpecifier
-        // TODO : set tableKeyTypeConstraint
+        if (tableTypeDescriptorNode.keyConstraintNode() != null) {
+            Node constraintNode = tableTypeDescriptorNode.keyConstraintNode();
+            if (constraintNode.kind() == SyntaxKind.KEY_TYPE_CONSTRAINT) {
+                tableTypeNode.tableKeyTypeConstraint =
+                        (BLangTableKeyTypeConstraint) constraintNode.apply(this);
+            } else if (constraintNode.kind() == SyntaxKind.KEY_SPECIFIER) {
+                tableTypeNode.tableKeySpecifier = (BLangTableKeySpecifier) constraintNode.apply(this);
+            }
+        }
         return tableTypeNode;
     }
 
