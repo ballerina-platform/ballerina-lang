@@ -886,6 +886,8 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_TYPE_CONSTRAINT;
             case "RECEIVE_FIELDS":
                 return SyntaxKind.RECEIVE_FIELDS;
+            case "REST_TYPE":
+                return SyntaxKind.REST_TYPE;
 
             // XML template
             case "XML_ELEMENT":
