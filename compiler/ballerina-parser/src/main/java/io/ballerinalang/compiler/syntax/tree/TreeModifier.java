@@ -2125,6 +2125,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public SingletonTypeDescriptorNode transform(
+            SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        ExpressionNode simpleContExprNode =
+                modifyNode(singletonTypeDescriptorNode.simpleContExprNode());
+        return singletonTypeDescriptorNode.modify(
+                simpleContExprNode);
+    }
+
+    @Override
     public FunctionDeclarationNode transform(
             FunctionDeclarationNode functionDeclarationNode) {
         MetadataNode metadata =

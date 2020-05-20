@@ -141,12 +141,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     // Give object the higher priority over records, since record body is a subset of object body.
     // Array, optional and union type descriptors are not added to the list since they are left recursive.
-    private static final ParserRuleContext[] TYPE_DESCRIPTORS =
-            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
-                    ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.PARAMETERIZED_TYPE, ParserRuleContext.ERROR_KEYWORD,
-                    ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD, ParserRuleContext.FUNC_TYPE_DESC,
-                    ParserRuleContext.PARENTHESISED_TYPE_DESC_START, ParserRuleContext.TUPLE_TYPE_DESC_START };
+    private static final ParserRuleContext[] TYPE_DESCRIPTORS = { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
+            ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
+            ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
+            ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
+            ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
+            ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.TUPLE_TYPE_DESC_START };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_BODY_END, ParserRuleContext.RECORD_FIELD };
@@ -301,7 +301,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
-            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
+            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.PLUS_TOKEN,
+              ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
@@ -1199,6 +1200,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case DEFAULT_KEYWORD:
                 case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                     hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD;
+                    break;
+                case PLUS_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN;
+                    break;
+                case MINUS_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.MINUS_TOKEN;
+                    break;
+                case SIGNED_INT_OR_FLOAT_RHS:
+                    hasMatch = BallerinaParser.isIntOrFloat(nextToken);
                     break;
                 case TYPE_DESC_IN_TUPLE_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_DESC_IN_TUPLE_RHS,
@@ -2211,6 +2221,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.RECEIVE_FIELD_END;
                 }
                 return ParserRuleContext.EXPRESSION_RHS;
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return ParserRuleContext.SIGNED_INT_OR_FLOAT_RHS;
+            case SIGNED_INT_OR_FLOAT_RHS:
+                return getNextRuleForExpr();
             case TUPLE_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
             case TYPE_DESC_IN_TUPLE_RHS:
@@ -2324,7 +2339,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.TYPEDESC_RHS;
         } else if (parentCtx == ParserRuleContext.NIL_LITERAL) {
             endContext();
-            return ParserRuleContext.EXPRESSION_RHS;
+            return getNextRuleForExpr();
         } else if (parentCtx == ParserRuleContext.KEY_SPECIFIER) {
             endContext(); // end key-specifier
             if (isInTypeDescContext()) {
@@ -3002,6 +3017,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext getNextRuleForDecimalIntegerLiteral() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
+            case CONSTANT_EXPRESSION:
+                endContext();
+                return getNextRuleForConstExpr();
             case ARRAY_TYPE_DESCRIPTOR:
             default:
                 return ParserRuleContext.CLOSE_BRACKET;
@@ -3024,6 +3042,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XML_NAMESPACE_PREFIX_DECL;
             default:
+                if (isInTypeDescContext()) {
+                    return ParserRuleContext.TYPEDESC_RHS;
+                }
                 throw new IllegalStateException(parentCtx.toString());
         }
     }
@@ -3524,6 +3545,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return SyntaxKind.DEFAULT_KEYWORD;
+            case DECIMAL_INTEGER_LITERAL:
+            case SIGNED_INT_OR_FLOAT_RHS:
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case SYNC_SEND_TOKEN:
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case WAIT_KEYWORD:
@@ -3554,7 +3578,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BLOCK_STMT:
             case CALL_STMT:
             case CALL_STMT_START:
-            case DECIMAL_INTEGER_LITERAL:
             case ELSE_BLOCK:
             case ELSE_BODY:
             case IF_BLOCK:

@@ -1,5 +1,5 @@
 {
-    "kind": "LOCAL_VAR_DECL",
+    "kind": "MODULE_VAR_DECL",
     "children": [
         {
             "kind": "LIST",
@@ -24,14 +24,7 @@
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "EQUAL_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
+            "value": "a"
         },
         {
             "kind": "SEMICOLON_TOKEN"
