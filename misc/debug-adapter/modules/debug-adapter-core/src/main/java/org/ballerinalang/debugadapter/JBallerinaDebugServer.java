@@ -132,6 +132,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return client;
     }
 
+    public void setExecutionManager(DebugExecutionManager executionManager) {
+        this.executionManager = executionManager;
+    }
+
+    public void setDebuggeeVM(VirtualMachine debuggeeVM) {
+        this.debuggeeVM = debuggeeVM;
+    }
+
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
         Capabilities capabilities = new Capabilities();
@@ -217,7 +225,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     sendOutput("Waiting for debug process to start...", STDOUT);
                     while ((line = launchedStdoutStream.readLine()) != null) {
                         if (line.contains("Listening for transport dt_socket")) {
-                            debuggeeVM = launcher.attachToLaunchedProcess();
+                            launcher.attachToLaunchedProcess(this);
                             context.setDebuggee(debuggeeVM);
                             sendOutput("Compiling...", STDOUT);
                             this.eventBus.startListening();
@@ -460,6 +468,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
         EvaluateResponse response = new EvaluateResponse();
+        // If the execution manager is not active, sends null response.
+        if (executionManager == null || !executionManager.isActive()) {
+            return CompletableFuture.completedFuture(response);
+        }
         try {
             com.sun.jdi.StackFrame frame = stackframesMap.get(args.getFrameId());
             Optional<Value> result = executionManager.evaluate(frame, args.getExpression());
@@ -469,8 +481,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 VariableImpl variable = new VariableFactory().getVariable(value, valueTypeName, args.getExpression());
                 if (variable != null) {
                     Variable dapVariable = variable.getDapVariable();
-                    long variableReference = nextVarReference.getAndIncrement();
-                    dapVariable.setVariablesReference(variableReference);
+                    if (variable.getChildVariables() == null) {
+                        variable.getDapVariable().setVariablesReference(0L);
+                    } else {
+                        long variableReference = nextVarReference.getAndIncrement();
+                        variable.getDapVariable().setVariablesReference(variableReference);
+                        this.childVariables.put(variableReference, variable.getChildVariables());
+                    }
                     response.setResult(dapVariable.getValue());
                     response.setType(dapVariable.getType());
                     response.setIndexedVariables(dapVariable.getIndexedVariables());

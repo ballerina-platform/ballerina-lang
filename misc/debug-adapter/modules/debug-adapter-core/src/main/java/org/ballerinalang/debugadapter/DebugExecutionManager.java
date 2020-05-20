@@ -46,6 +46,14 @@ public class DebugExecutionManager {
     private VirtualMachine attachedVm;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
 
+    public DebugExecutionManager() {
+        attachedVm = null;
+    }
+
+    public boolean isActive() {
+        return attachedVm != null;
+    }
+
     /**
      * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
      */
