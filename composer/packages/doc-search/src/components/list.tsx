@@ -199,10 +199,6 @@ export class List extends React.Component<ListProps, ListState> {
                     <input type="text" id="searchBox" onKeyUp={this.handleChange} placeholder="Search..." />
                     <i className="search icon"></i>
                 </div>
-
-                {/* <input type="text" id="searchBox" className="input" onKeyUp={this.handleChange} placeholder="Search..." defaultValue={this.state.searchText} /> */}
-                {/* <button className="button is-info" onClick={this.handleChange}>Search</button> */}
-
                 {this.state.searchText &&
                     <div className="search-list">
                         <h1>Search results for '{this.state.searchText}'</h1>
@@ -214,8 +210,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredModules.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.id + "/index.html"} className="objects">{item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.id + "/index.html"} className="objects">
+                                                    {item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -231,8 +229,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredObjects.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/objects/" + item.id + ".html"} className="objects">{item.moduleId + ": " + item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.moduleId + "/objects/" + item.id + ".html"}
+                                                     className="objects">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -248,8 +248,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredFunctions.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/functions.html#" + item.id} className="functions">{item.moduleId + ": " + item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.moduleId + "/functions.html#" + item.id}
+                                                    className="functions">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -265,8 +267,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredRecords.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/records/" + item.id + ".html"} className="records">{item.moduleId + ": " + item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.moduleId + "/records/" + item.id + ".html"}
+                                                     className="records">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -282,8 +286,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredConstants.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/constants.html#" + item.id} className="constant">{item.moduleId + ": " + item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.moduleId + "/constants.html#" + item.id}
+                                                    className="constant">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -299,8 +305,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredTypes.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/types.html#" + item.id} className="types">{item.moduleId + ": " + item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.moduleId + "/types.html#" + item.id}
+                                                    className="types">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -316,8 +324,10 @@ export class List extends React.Component<ListProps, ListState> {
                                         {this.state.filteredErrors.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/errors.html#" + item.id} className="errors">{item.moduleId + ": " + item.id}</a></td>
-                                                <td className="search-desc"><span dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                    <a href={rootPath + item.moduleId + "/errors.html#" + item.id}
+                                                    className="errors">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
