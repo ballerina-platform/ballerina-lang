@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.ballerina.plugins.idea.debugger.evaluator;
 
 import com.intellij.icons.AllIcons;
@@ -5,7 +21,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import io.ballerina.plugins.idea.debugger.BallerinaDebugProcess;
-import io.ballerina.plugins.idea.debugger.BallerinaXValue;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.StackFrame;
@@ -42,7 +57,7 @@ public class BallerinaDebuggerEvaluator extends XDebuggerEvaluator {
                 variable.setVariablesReference(response.getVariablesReference());
                 variable.setNamedVariables(response.getNamedVariables());
                 variable.setIndexedVariables(response.getIndexedVariables());
-                callback.evaluated(new BallerinaXValue(process, variable, AllIcons.Nodes.Field));
+                callback.evaluated(new BallerinaEvaluationValue(process, variable, AllIcons.Nodes.Field));
             } else {
                 callback.errorOccurred("No value found for the expression: " + expression);
             }
