@@ -17,17 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.SelectClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,50 +35,59 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
-
-    public List<BLangFromClause> fromClauseList = new ArrayList<>();
-    public BLangSelectClause selectClause;
-    public List<BLangWhereClause> whereClauseList = new ArrayList<>();
-    public List<BLangLetClause> letClausesList = new ArrayList<>();
+    public List<BLangNode> queryClauseList = new ArrayList<>();
+    public List<BLangIdentifier> fieldNameIdentifierList = new ArrayList<>();
+    public boolean isStream = false;
+    public boolean isTable = false;
 
     @Override
-    public List<? extends FromClauseNode> getFromClauseNodes() {
-        return fromClauseList;
+    public BLangSelectClause getSelectClause() {
+        for (BLangNode clause : queryClauseList) {
+            if (clause.getKind() == NodeKind.SELECT) {
+                return (BLangSelectClause) clause;
+            }
+        }
+        return null;
     }
 
     @Override
-    public void addFromClauseNode(FromClauseNode fromClauseNode) {
-        fromClauseList.add((BLangFromClause) fromClauseNode);
+    public List<BLangNode> getQueryClauses() {
+        return queryClauseList;
     }
 
     @Override
-    public SelectClauseNode getSelectClauseNode() {
-        return selectClause;
+    public void addQueryClause(BLangNode queryClause) {
+        this.queryClauseList.add(queryClause);
     }
 
     @Override
-    public void setSelectClauseNode(SelectClauseNode selectClauseNode) {
-        this.selectClause = (BLangSelectClause) selectClauseNode;
+    public boolean isStream() {
+        return isStream;
     }
 
     @Override
-    public List<? extends BLangWhereClause> getWhereClauseNode() {
-        return whereClauseList;
+    public void setIsStream(boolean isStream) {
+        this.isStream = isStream;
     }
 
     @Override
-    public void addWhereClauseNode(WhereClauseNode whereClauseNode) {
-        this.whereClauseList.add((BLangWhereClause) whereClauseNode);
+    public boolean isTable() {
+        return isTable;
     }
 
     @Override
-    public List<? extends LetClauseNode> getLetClauseList() {
-        return letClausesList;
+    public void setIsTable(boolean isTable) {
+        this.isTable = isTable;
     }
 
     @Override
-    public void addLetClause(LetClauseNode letClauseNode) {
-        letClausesList.add((BLangLetClause) letClauseNode);
+    public void addFieldNameIdentifier(IdentifierNode fieldNameIdentifier) {
+        fieldNameIdentifierList.add((BLangIdentifier) fieldNameIdentifier);
+    }
+
+    @Override
+    public List<IdentifierNode> getFieldNameIdentifierList() {
+        return getFieldNameIdentifierList();
     }
 
     @Override
@@ -97,11 +102,6 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
 
     @Override
     public String toString() {
-        return fromClauseList.stream().map(BLangFromClause::toString).collect(Collectors.joining("\n")) + "\n"
-                + letClausesList.stream().map(BLangLetClause::toString).collect(Collectors.joining("\n"))
-                + "\n" +
-                whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n"))
-                + "\n" +
-                selectClause.toString();
+        return queryClauseList.stream().map(BLangNode::toString).collect(Collectors.joining("\n"));
     }
 }

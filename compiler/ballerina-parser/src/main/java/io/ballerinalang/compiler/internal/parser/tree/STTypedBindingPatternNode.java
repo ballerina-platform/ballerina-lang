@@ -17,16 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public abstract class STBacktickTemplateMemberNode extends STNode {
+public class STTypedBindingPatternNode extends STNode {
+    public final STNode typeDescriptor;
+    public final STNode bindingPattern;
 
-    STBacktickTemplateMemberNode(SyntaxKind kind) {
-        super(kind);
+    STTypedBindingPatternNode(
+            STNode typeDescriptor,
+            STNode bindingPattern) {
+        super(SyntaxKind.TYPED_BINDING_PATTERN);
+        this.typeDescriptor = typeDescriptor;
+        this.bindingPattern = bindingPattern;
+
+        addChildren(
+                typeDescriptor,
+                bindingPattern);
+    }
+
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new TypedBindingPatternNode(this, position, parent);
     }
 }

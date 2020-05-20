@@ -25,7 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTableTypeDescriptorNode extends STNode {
     public final STNode tableKeywordToken;

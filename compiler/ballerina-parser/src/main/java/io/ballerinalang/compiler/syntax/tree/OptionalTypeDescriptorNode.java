@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class OptionalTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -67,5 +69,46 @@ public class OptionalTypeDescriptorNode extends TypeDescriptorNode {
         return NodeFactory.createOptionalTypeDescriptorNode(
                 typeDescriptor,
                 questionMarkToken);
+    }
+
+    public OptionalTypeDescriptorNodeModifier modify() {
+        return new OptionalTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class OptionalTypeDescriptorNodeModifier {
+        private final OptionalTypeDescriptorNode oldNode;
+        private Node typeDescriptor;
+        private Token questionMarkToken;
+
+        public OptionalTypeDescriptorNodeModifier(OptionalTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.questionMarkToken = oldNode.questionMarkToken();
+        }
+
+        public OptionalTypeDescriptorNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public OptionalTypeDescriptorNodeModifier withQuestionMarkToken(
+                Token questionMarkToken) {
+            Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+            this.questionMarkToken = questionMarkToken;
+            return this;
+        }
+
+        public OptionalTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    typeDescriptor,
+                    questionMarkToken);
+        }
     }
 }

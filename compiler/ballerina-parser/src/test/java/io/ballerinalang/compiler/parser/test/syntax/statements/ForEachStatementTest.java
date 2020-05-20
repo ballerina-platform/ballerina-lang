@@ -39,11 +39,34 @@ public class ForEachStatementTest extends AbstractStatementTest {
     }
 
     @Test
-    public void testMultileForEachStmt() {
+    public void testMultipleForEachStmt() {
         testFile("forEach-stmt/forEach_stmt_source_03.bal",
         "forEach-stmt/forEach_stmt_assert_03.json");
     }
 
+    @Test
+    public void testListBindingPatternForm1ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_10.bal",
+        "forEach-stmt/forEach_stmt_assert_10.json");
+    }
+
+    @Test
+    public void testListBindingPatternForm2ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_11.bal",
+        "forEach-stmt/forEach_stmt_assert_11.json");
+    }
+
+    @Test
+    public void testListBindingPatternForm3ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_12.bal",
+        "forEach-stmt/forEach_stmt_assert_12.json");
+    }
+
+    @Test
+    public void testListBindingPatternForm4ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_13.bal",
+        "forEach-stmt/forEach_stmt_assert_13.json");
+    }
     // Recovery tests
 
     @Test
@@ -74,5 +97,35 @@ public class ForEachStatementTest extends AbstractStatementTest {
     public void testForEachStmtwithMissingTypeDescriptor() {
         testFile("forEach-stmt/forEach_stmt_source_08.bal",
         "forEach-stmt/forEach_stmt_assert_08.json");
+    }
+
+    @Test
+    public void testForEachStmtwithMissingTypedBindingPattern() {
+        testFile("forEach-stmt/forEach_stmt_source_09.bal",
+        "forEach-stmt/forEach_stmt_assert_09.json");
+    }
+
+    @Test
+    public void testListBindingPatternMissingCommaForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_14.bal",
+        "forEach-stmt/forEach_stmt_assert_14.json");
+    }
+
+    @Test
+    public void testListBindingPatternMissingBindingPatternForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_15.bal",
+        "forEach-stmt/forEach_stmt_assert_15.json");
+    }
+
+    @Test
+    public void testListBindingPatternInvalidComponentsForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_16.bal",
+                "forEach-stmt/forEach_stmt_assert_16.json");
+    }
+
+    @Test
+    public void testListBindingPatternInvalidComponents2ForEachStmt() {
+        testFile("forEach-stmt/forEach_stmt_source_17.bal",
+                "forEach-stmt/forEach_stmt_assert_17.json");
     }
 }

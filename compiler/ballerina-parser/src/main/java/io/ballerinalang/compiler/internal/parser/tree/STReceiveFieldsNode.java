@@ -19,33 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-// TODO find a better replacement for trivia. So C# like... ;-)
-public class SyntaxTrivia extends STNode {
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 2.0.0
+ */
+public class STReceiveFieldsNode extends STNode {
+    public final STNode openBrace;
+    public final STNode receiveField;
+    public final STNode closeBrace;
 
-    public final String text;
+    STReceiveFieldsNode(
+            STNode openBrace,
+            STNode receiveField,
+            STNode closeBrace) {
+        super(SyntaxKind.RECEIVE_FIELDS);
+        this.openBrace = openBrace;
+        this.receiveField = receiveField;
+        this.closeBrace = closeBrace;
 
-    public SyntaxTrivia(SyntaxKind kind, String text) {
-        this(kind, text, text.length());
+        addChildren(
+                openBrace,
+                receiveField,
+                closeBrace);
     }
 
-    public SyntaxTrivia(SyntaxKind kind, String text, int width) {
-        super(kind);
-        this.text = text;
-        this.width = width;
-        this.widthWithLeadingMinutiae = width;
-        this.widthWithTrailingMinutiae = width;
-        this.widthWithMinutiae = width;
-    }
-
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String toString() {
-        return text;
+        return new ReceiveFieldsNode(this, position, parent);
     }
 }

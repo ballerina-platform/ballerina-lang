@@ -15,18 +15,34 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+package org.ballerinalang.model.clauses;
+
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
 /**
- * This is a generated syntax tree node.
+ * The interface with the APIs to implement the from/join clauses.
  *
  * @since 1.3.0
  */
-public abstract class BacktickTemplateMemberNode extends NonTerminalNode {
+public interface InputClauseNode extends Node {
 
-    public BacktickTemplateMemberNode(STNode internalNode, int position, NonTerminalNode parent) {
-        super(internalNode, position, parent);
-    }
+    boolean isOuterJoin();
+
+    void setIsOuterJoin(boolean isOuterJoin);
+
+    ExpressionNode getCollection();
+
+    void setCollection(ExpressionNode collection);
+
+    boolean setDeclaredWithVar();
+
+    boolean isDeclaredWithVar();
+
+    VariableDefinitionNode getVariableDefinitionNode();
+
+    void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
+
 }

@@ -2866,18 +2866,45 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.bindingPattern().Identifier() != null) {
             String identifier = ctx.bindingPattern().Identifier().getText();
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
-            this.pkgBuilder.createFromClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+            this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
-                    isDeclaredWithVar);
+                    isDeclaredWithVar, true, false);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.createFromClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true, false);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-            this.pkgBuilder.createFromClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true, false);
         } else {
-            this.pkgBuilder.createFromClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    isDeclaredWithVar);
+            this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, true, false);
+        }
+    }
+
+    @Override
+    public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+        boolean isOuterJoin = ctx.OUTER() != null;
+
+        if (ctx.bindingPattern().Identifier() != null) {
+            String identifier = ctx.bindingPattern().Identifier().getText();
+            DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
+            this.pkgBuilder.createClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    identifier, identifierPos,
+                    isDeclaredWithVar, false, isOuterJoin);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.createClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false, isOuterJoin);
+        } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.createClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false, isOuterJoin);
+        } else {
+            this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar, false, isOuterJoin);
         }
     }
 
@@ -2904,12 +2931,45 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterOnClause(BallerinaParser.OnClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startOnClause();
+    }
+
+    @Override
+    public void exitOnClause(BallerinaParser.OnClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createOnClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitBinaryEqualsExpression(BallerinaParser.BinaryEqualsExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
     public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) {
         if (isInErrorState) {
             return;
         }
 
         this.pkgBuilder.createSelectClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createOnConflictClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2927,7 +2987,26 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx));
+        boolean isTable = false;
+        boolean isStream = false;
+        if (ctx.queryConstructType() != null) {
+            if (ctx.queryConstructType().TYPE_STREAM() != null) {
+                isStream = true;
+                this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream, null);
+            } else {
+                isTable = true;
+                List<BLangIdentifier> keyFieldNameIdentifierList = new ArrayList<>();
+                for (TerminalNode terminalNode : ctx.queryConstructType().tableKeySpecifier().Identifier()) {
+                    BLangIdentifier identifier = pkgBuilder.createIdentifier(getCurrentPos(terminalNode),
+                            terminalNode.getText());
+                    keyFieldNameIdentifierList.add(identifier);
+                }
+                this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream,
+                        keyFieldNameIdentifierList);
+            }
+        } else {
+            this.pkgBuilder.createQueryExpr(getCurrentPos(ctx), getWS(ctx), isTable, isStream, null);
+        }
     }
 
     @Override

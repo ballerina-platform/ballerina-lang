@@ -15,29 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package io.ballerinalang.compiler.syntax.tree;
 
-package org.ballerinalang.model.clauses;
-
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
- * The interface with the APIs to implement the "from" clause.
+ * This is a generated syntax tree node.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public interface FromClauseNode extends Node {
+public abstract class BindingPatternNode extends NonTerminalNode {
 
-    ExpressionNode getCollection();
-
-    void setCollection(ExpressionNode collection);
-
-    boolean setDeclaredWithVar();
-
-    boolean isDeclaredWithVar();
-
-    VariableDefinitionNode getVariableDefinitionNode();
-
-    void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
+    public BindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
+    }
 }

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SelectClauseNode extends ClauseNode {
 
@@ -67,5 +69,46 @@ public class SelectClauseNode extends ClauseNode {
         return NodeFactory.createSelectClauseNode(
                 selectKeyword,
                 expression);
+    }
+
+    public SelectClauseNodeModifier modify() {
+        return new SelectClauseNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class SelectClauseNodeModifier {
+        private final SelectClauseNode oldNode;
+        private Token selectKeyword;
+        private ExpressionNode expression;
+
+        public SelectClauseNodeModifier(SelectClauseNode oldNode) {
+            this.oldNode = oldNode;
+            this.selectKeyword = oldNode.selectKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public SelectClauseNodeModifier withSelectKeyword(
+                Token selectKeyword) {
+            Objects.requireNonNull(selectKeyword, "selectKeyword must not be null");
+            this.selectKeyword = selectKeyword;
+            return this;
+        }
+
+        public SelectClauseNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public SelectClauseNode apply() {
+            return oldNode.modify(
+                    selectKeyword,
+                    expression);
+        }
     }
 }

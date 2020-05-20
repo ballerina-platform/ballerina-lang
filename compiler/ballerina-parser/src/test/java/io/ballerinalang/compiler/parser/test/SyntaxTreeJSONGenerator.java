@@ -44,8 +44,8 @@ import java.nio.file.Paths;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_TRIVIA;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_TRIVIA;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_MINUTIAE;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
 
 /**
@@ -60,10 +60,10 @@ public class SyntaxTreeJSONGenerator {
      * Change the below two constants as required, depending on the type of test.
      */
     private static final boolean INCLUDE_TRIVIA = false;
-    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
 
     private static final PrintStream STANDARD_OUT = System.out;
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Paths.get("compiler/ballerina-parser/src/test/resources/");
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input
@@ -152,7 +152,7 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static void addTrivia(STToken token, JsonObject jsonNode) {
-        addNodeList(token.leadingTrivia, jsonNode, LEADING_TRIVIA);
-        addNodeList(token.trailingTrivia, jsonNode, TRAILING_TRIVIA);
+        addNodeList(token.leadingMinutiae(), jsonNode, LEADING_MINUTIAE);
+        addNodeList(token.trailingMinutiae(), jsonNode, TRAILING_MINUTIAE);
     }
 }
