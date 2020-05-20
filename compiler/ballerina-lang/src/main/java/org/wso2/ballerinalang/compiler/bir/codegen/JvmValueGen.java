@@ -328,7 +328,7 @@ class JvmValueGen {
             fvb.visitEnd();
             String lockClass = "L" + LOCK_VALUE + ";";
             FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
-                                            lockClass, null, null);
+                    lockClass, null, null);
             fv.visitEnd();
         }
     }
@@ -345,7 +345,7 @@ class JvmValueGen {
         }
     }
 
-private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", OBJECT_TYPE), null, null);
         mv.visitCode();
@@ -358,18 +358,18 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", String.format("(L%s;)V", OBJECT_TYPE),
                 false);
 
-            String lockClass = "L" + LOCK_VALUE + ";";
-            for (BField field : fields.values()) {
-                if (field != null) {
-                    Label fLabel = new Label();
-                    mv.visitLabel(fLabel);
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitTypeInsn(NEW, LOCK_VALUE);
-                    mv.visitInsn(DUP);
-                    mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-                    mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
-                }
+        String lockClass = "L" + LOCK_VALUE + ";";
+        for (BField field : fields.values()) {
+            if (field != null) {
+                Label fLabel = new Label();
+                mv.visitLabel(fLabel);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitTypeInsn(NEW, LOCK_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+                mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
             }
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
@@ -455,15 +455,15 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
         mv.visitCode();
 
-            int fieldNameRegIndex = 1;
-            if (IS_BSTRING) {
-                mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
-                                   String.format("()L%s;", STRING_VALUE), true);
-                fieldNameRegIndex = 2;
-                mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-            }
-            Label defaultCaseLabel = new Label();
+        int fieldNameRegIndex = 1;
+        if (IS_BSTRING) {
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                    String.format("()L%s;", STRING_VALUE), true);
+            fieldNameRegIndex = 2;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        }
+        Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
@@ -635,7 +635,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         mv.visitVarInsn(ALOAD, 2);
         mv.visitTypeInsn(CHECKCAST, String.format("[L%s;", MAPPING_INITIAL_VALUE_ENTRY));
         mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValues",
-                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
+                String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
 
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -726,6 +726,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     }
 
     private void createRecordConstructor(ClassWriter cw, String argumentClass) {
+
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", argumentClass), null, null);
         mv.visitCode();
 
@@ -791,6 +792,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     }
 
     private void createRecordFields(ClassWriter cw, Map<String, BField> fields) {
+
         for (BField field : fields.values()) {
             if (field == null) {
                 continue;
@@ -819,8 +821,8 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                                          String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                                          String.format("(L%s;)TV;", OBJECT), null);
+                String.format("(L%s;)L%s;", OBJECT, OBJECT),
+                String.format("(L%s;)TV;", OBJECT), null);
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
@@ -879,8 +881,8 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue",
-                                          String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;",
-                                          null);
+                String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;",
+                null);
 
         mv.visitCode();
         int fieldNameRegIndex = 1;
@@ -965,9 +967,9 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordEntrySetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "entrySet",
-                                          String.format("()L%s;", SET),
-                                          String.format("()L%s<L%s<TK;TV;>;>;", SET, MAP_ENTRY),
-                                          null);
+                String.format("()L%s;", SET),
+                String.format("()L%s<L%s<TK;TV;>;>;", SET, MAP_ENTRY),
+                null);
         mv.visitCode();
 
         int entrySetVarIndex = 1;
@@ -985,7 +987,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                                  getTypeDesc(booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
@@ -1087,7 +1089,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", String.format("()L%s;", COLLECTION),
-                                          String.format("()L%s<TV;>;", COLLECTION), null);
+                String.format("()L%s<TV;>;", COLLECTION), null);
         mv.visitCode();
 
         int valuesVarIndex = 1;
@@ -1105,7 +1107,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                                  getTypeDesc(booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
@@ -1147,7 +1149,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                                  getTypeDesc(booleanType));
+                        getTypeDesc(booleanType));
                 Label l3 = new Label();
                 mv.visitJumpInsn(IFEQ, l3);
                 mv.visitIincInsn(sizeVarIndex, 1);
@@ -1180,7 +1182,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordClearMethod(ClassWriter cw, Map<String, BField> fields, String className) {
         // throw an UnsupportedOperationException, since remove is not supported by for records.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                                          String.format("(L%s;)TV;", OBJECT), null);
+                String.format("(L%s;)TV;", OBJECT), null);
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
@@ -1288,7 +1290,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                                  getTypeDesc(booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
@@ -1323,13 +1325,13 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "populateInitialValues",
-                                          String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), null, null);
+                String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), null, null);
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "populateInitialValues",
-                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
+                String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);

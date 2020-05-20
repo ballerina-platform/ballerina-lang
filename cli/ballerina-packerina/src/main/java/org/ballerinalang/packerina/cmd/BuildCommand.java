@@ -65,8 +65,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 
 /**
  * This class represents the "ballerina build" command.

@@ -386,7 +386,7 @@ class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;)V", SCHEDULER), false);
             mv.visitInsn(SWAP);
             mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND, MAP_VALUE),
-                               false);
+                    false);
 
             mv.visitInsn(ARETURN);
             i += 1;
@@ -1115,7 +1115,7 @@ class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZL%s;)V", BTYPE, ARRAY_TYPE),
-                           false);
+                false);
     }
 
     /**
@@ -1166,6 +1166,7 @@ class JvmTypeGen {
     }
 
     private static void loadReadonlyFlag(MethodVisitor mv, BType bType) {
+
         if (Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
             mv.visitInsn(ICONST_1);
         } else {
@@ -1365,7 +1366,7 @@ class JvmTypeGen {
         }
 
         mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>",
-                           String.format("(L%s;L%s;IZL%s;)V", LIST, BTYPE, TUPLE_TYPE), false);
+                String.format("(L%s;L%s;IZL%s;)V", LIST, BTYPE, TUPLE_TYPE), false);
     }
 
     /**

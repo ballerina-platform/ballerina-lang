@@ -25,6 +25,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
@@ -56,7 +57,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;

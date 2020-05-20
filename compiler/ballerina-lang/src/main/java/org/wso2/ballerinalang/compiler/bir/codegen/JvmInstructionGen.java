@@ -1229,7 +1229,7 @@ public class JvmInstructionGen {
         addBoxInsn(this.mv, valueOpVarDecl.type);
 
         mv.visitMethodInsn(INVOKESPECIAL, MAPPING_INITIAL_KEY_VALUE_ENTRY, "<init>",
-                           String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
+                String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
     }
 
     private void createSpreadFieldEntry(MethodVisitor mv,
@@ -1242,7 +1242,7 @@ public class JvmInstructionGen {
         this.loadVar(variableDcl);
 
         mv.visitMethodInsn(INVOKESPECIAL, MAPPING_INITIAL_SPREAD_FIELD_ENTRY, "<init>",
-                           String.format("(L%s;)V", OBJECT), false);
+                String.format("(L%s;)V", OBJECT), false);
     }
 
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
@@ -1399,8 +1399,8 @@ public class JvmInstructionGen {
             this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JD)V", true);
         } else if (TypeTags.isStringTypeTag(valueType.tag)) {
             this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method,
-                                    String.format("(JL%s;)V", JvmPackageGen.IS_BSTRING ?
-                                            JvmConstants.B_STRING_VALUE : STRING_VALUE), true);
+                    String.format("(JL%s;)V", JvmPackageGen.IS_BSTRING ?
+                            JvmConstants.B_STRING_VALUE : STRING_VALUE), true);
         } else if (valueType.tag == TypeTags.BOOLEAN) {
             this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JZ)V", true);
         } else if (valueType.tag == TypeTags.BYTE) {
@@ -1641,8 +1641,8 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmPackageGen.IS_BSTRING ?
-                                        JvmConstants.B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
+                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmPackageGen.IS_BSTRING ?
+                        JvmConstants.B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         this.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
 
@@ -1690,8 +1690,8 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                                String.format("(L%s;Z)L%s;", JvmPackageGen.IS_BSTRING ?
-                                        JvmConstants.B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
+                String.format("(L%s;Z)L%s;", JvmPackageGen.IS_BSTRING ?
+                        JvmConstants.B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         this.storeToVar(newXMLComment.lhsOp.variableDcl);
     }
 
@@ -1708,7 +1708,7 @@ public class JvmInstructionGen {
 
         String consVal = JvmPackageGen.IS_BSTRING ? JvmConstants.B_STRING_VALUE : STRING_VALUE;
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                                String.format("(L%s;L%s;Z)L%s;", consVal, consVal, XML_VALUE), false);
+                String.format("(L%s;L%s;Z)L%s;", consVal, consVal, XML_VALUE), false);
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
@@ -1876,6 +1876,7 @@ public class JvmInstructionGen {
     }
 
     private void loadListInitialValues(BIRNonTerminator.NewArray arrayNewIns) {
+
         List<BIROperand> initialValues = arrayNewIns.values;
         mv.visitLdcInsn((long) initialValues.size());
         mv.visitInsn(L2I);
@@ -1896,7 +1897,7 @@ public class JvmInstructionGen {
             addBoxInsn(this.mv, varDecl.type);
 
             mv.visitMethodInsn(INVOKESPECIAL, LIST_INITIAL_EXPRESSION_ENTRY, "<init>",
-                               String.format("(L%s;)V", OBJECT), false);
+                    String.format("(L%s;)V", OBJECT), false);
 
             mv.visitInsn(AASTORE);
         }

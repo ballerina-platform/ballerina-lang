@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.toml.model.Dependency;
@@ -35,7 +36,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 

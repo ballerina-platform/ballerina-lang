@@ -24,6 +24,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.PackageCache;
