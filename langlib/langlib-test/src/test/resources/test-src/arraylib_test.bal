@@ -513,8 +513,8 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.reason());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()?.message);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"]);
 
     fn = function () {
         arr.unshift("foo");
@@ -524,8 +524,8 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.reason());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()?.message);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"]);
 }
 
 function testShiftOperation() {
@@ -543,8 +543,8 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.reason());
-    assertValueEquality("shift() not supported on type 'null'", err.detail()?.message);
+    assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
+    assertValueEquality("shift() not supported on type 'null'", err.detail()["message"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

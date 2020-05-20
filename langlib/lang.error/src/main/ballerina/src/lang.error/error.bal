@@ -16,7 +16,7 @@
 
 # The type to which error detail records must belong.
 public type Detail record {|
-   (anydata|error)...;
+   (anydata|readonly)...;
 |};
 
 # A type parameter that is a subtype of error `Detail` record type.

@@ -17,4 +17,4 @@
 
 # Default error type.
 # The type parameter is for the error detail type. It's constrained to anydata or readonly type.
-public type 'error error<map<anydata|error>>;
+public type 'error error<map<anydata|readonly>>;

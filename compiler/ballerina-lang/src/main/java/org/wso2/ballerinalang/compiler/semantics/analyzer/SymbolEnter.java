@@ -755,12 +755,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (definedType.getKind() == TypeKind.ERROR) {
             BErrorType definedErrorType = (BErrorType) definedType;
             if ((definedErrorType.flags & Flags.DISTINCT) == Flags.DISTINCT) {
+                // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
+                if (definedErrorType.tsymbol != typeDefSymbol) {
+                    BErrorType bErrorType = new BErrorType(typeDefSymbol);
+                    bErrorType.detailType = definedErrorType.detailType;
+                    typeDefSymbol.type = bErrorType;
+                    definedErrorType = bErrorType;
+                }
+                boolean isPublicType = (definedErrorType.flags & Flags.PUBLIC) == Flags.PUBLIC;
                 definedErrorType.typeIdSet = BTypeIdSet.from(
                         env.enclPkg.packageID,
                         typeDefinition.flagSet.contains(Flag.ANONYMOUS)
                                 ? anonymousModelHelper.getNextDistinctErrorId(env.enclPkg.packageID)
                                 : typeDefinition.getName().value,
-                        definedErrorType.typeIdSet);
+                        isPublicType,
+                        ((BErrorType) definedType).typeIdSet);
             }
         }
 
@@ -796,7 +805,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
-        if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }

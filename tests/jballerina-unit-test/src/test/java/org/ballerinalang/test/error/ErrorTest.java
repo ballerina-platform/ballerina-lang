@@ -71,8 +71,12 @@ public class ErrorTest {
     public void testNegativeDistinctError() {
         int i = 0;
         BAssertUtil.validateError(negativeDistinctErrorRes, i++,
-                "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
-        Assert.assertEquals(negativeDistinctErrorRes.getErrorCount(), 18);
+                "missing error detail arg for error detail field 'code'", 8, 13);
+        BAssertUtil.validateError(negativeDistinctErrorRes, i++,
+                "incompatible types: expected 'Foo', found 'error'", 11, 13);
+        BAssertUtil.validateError(negativeDistinctErrorRes, i++,
+                "incompatible types: expected 'Foo', found 'error'", 15, 12);
+        Assert.assertEquals(negativeDistinctErrorRes.getErrorCount(), i);
     }
 
     @Test

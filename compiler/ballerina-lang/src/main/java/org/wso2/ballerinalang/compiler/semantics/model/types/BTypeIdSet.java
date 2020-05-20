@@ -31,6 +31,7 @@ import java.util.Set;
 public class BTypeIdSet {
     public final Set<BTypeId> primary;
     public final Set<BTypeId> secondary;
+    private Set<BTypeId> all = null;
 
     private static final Set<BTypeId> emptySet = Collections.unmodifiableSet(new HashSet<>());
     private static final BTypeIdSet empty = new BTypeIdSet(emptySet);
@@ -45,15 +46,15 @@ public class BTypeIdSet {
         this.secondary = emptySet;
     }
 
-    public static BTypeIdSet from(PackageID packageID, String typeId) {
+    public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId) {
         HashSet<BTypeId> set = new HashSet<>();
-        set.add(new BTypeId(packageID, typeId));
+        set.add(new BTypeId(packageID, typeId, publicId));
         return new BTypeIdSet(set);
     }
 
-    public static BTypeIdSet from(PackageID packageID, String typeId, BTypeIdSet secondary) {
+    public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId, BTypeIdSet secondary) {
         HashSet<BTypeId> set = new HashSet<>();
-        set.add(new BTypeId(packageID, typeId));
+        set.add(new BTypeId(packageID, typeId, publicId));
         return new BTypeIdSet(set, secondary.primary);
     }
 
@@ -62,16 +63,37 @@ public class BTypeIdSet {
     }
 
     public boolean isAssignableFrom(BTypeIdSet sourceTypeIdSet) {
-        return sourceTypeIdSet == this || sourceTypeIdSet.primary.containsAll(primary);
+        if (sourceTypeIdSet == null) {
+            return false;
+        }
+        if (sourceTypeIdSet == this) {
+            return true;
+        }
+
+        if (all == null) {
+            HashSet<BTypeId> tAll = new HashSet<>(primary);
+            tAll.addAll(secondary);
+            all = tAll;
+        }
+
+        if (sourceTypeIdSet.all == null) {
+            HashSet<BTypeId> tAll = new HashSet<>(sourceTypeIdSet.primary);
+            tAll.addAll(sourceTypeIdSet.secondary);
+            sourceTypeIdSet.all = tAll;
+        }
+
+        return sourceTypeIdSet.all.containsAll(all);
     }
 
     public static class BTypeId {
         public final PackageID packageID;
         public final String name;
+        public final boolean publicId;
 
-        public BTypeId(PackageID packageID, String name) {
+        public BTypeId(PackageID packageID, String name, boolean publicId) {
             this.packageID = packageID;
             this.name = name;
+            this.publicId = publicId;
         }
 
         @Override
