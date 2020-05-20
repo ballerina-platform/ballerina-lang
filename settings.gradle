@@ -115,6 +115,7 @@ include(':ballerina-jsonutils')
 include(':testerina:testerina-runtime')
 include(':testerina:report-tools')
 include(':testerina-integration-test')
+include(':openapi-integration-tests')
 include(':jballerina-debugger-integration-test')
 //include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
@@ -257,6 +258,8 @@ project(':testerina:testerina-runtime').projectDir = file('misc/testerina/module
 project(':testerina:report-tools').projectDir = file('misc/testerina/modules/report-tools')
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 project(':jballerina-debugger-integration-test').projectDir = file('tests/jballerina-debugger-integration-test')
+project(':openapi-integration-tests').projectDir = file('tests/openapi-integration-tests')
+
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
