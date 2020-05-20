@@ -2111,7 +2111,7 @@ public class Types {
             }
             BErrorType source = (BErrorType) s;
 
-            if (!(source.typeIdSet.isAssignableFrom(t.typeIdSet) && t.typeIdSet.isAssignableFrom(source.typeIdSet))) {
+            if (!source.typeIdSet.equals(t.typeIdSet)) {
                 return false;
             }
 

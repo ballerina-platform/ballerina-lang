@@ -4009,6 +4009,11 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
         BErrorType errorType = (BErrorType) iExpr.symbol.type;
 
+        // handle var e = errorCtor();
+        if (this.expType == symTable.noType) {
+            this.expType = errorType;
+        }
+
         if (!types.isAssignable(errorType, this.expType)) {
             dlog.error(iExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, this.expType, errorType);
             resultType = symTable.semanticError;

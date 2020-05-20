@@ -60,18 +60,19 @@ type TrxErrorData2 record {|
 |};
 
 public function testCustomErrorDetails() returns error {
-    TrxError err = error("trxErr", data = "test");
+    TrxError err = TrxError("trxErr", data = "test");
     return err;
 }
 
 public function testCustomErrorDetails2() returns string {
-    TrxError err = error("trxErr", data = "test");
+    TrxError err = TrxError("trxErr", data = "test");
     TrxErrorData errorData = err.detail();
     return errorData.data;
 }
 
 public function testErrorWithErrorConstructor() returns string {
-    error<TrxErrorData> err = error("trxErr", data = "test");
+    TrxError e = TrxError("trxErr", data = "test");
+    error<TrxErrorData> err = e;
     TrxErrorData errorData = err.detail();
     return errorData.data;
 }
@@ -157,7 +158,7 @@ function testGenericErrorWithDetailRecord() returns boolean {
     int detailStatusCode = 123;
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.message();
-    map<anydata|error> errDetail = e.detail();
+    map<anydata|readonly> errDetail = e.detail();
     return errReason == reason && <string> errDetail.get("message") == detailMessage &&
             <int> errDetail.get("statusCode") == detailStatusCode;
 }
@@ -181,12 +182,12 @@ function testErrorConstrWithLiteralForUserDefinedReasonType() returns error {
 }
 
 function testErrorConstrWithConstForConstReason() returns error {
-    UserDefErrorTwo e = error(ERROR_REASON_ONE, message = "error detail message");
+    UserDefErrorTwo e = UserDefErrorTwo(ERROR_REASON_ONE, message = "error detail message");
     return e;
 }
 
 function testErrorConstrWithConstLiteralForConstReason() returns error {
-    UserDefErrorTwo e = error("reason one", message = "error detail message");
+    UserDefErrorTwo e = UserDefErrorTwo("reason one", message = "error detail message");
     return e;
 }
 
@@ -204,12 +205,12 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 
 function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
-    map<anydata|error> m1 = e1.detail();
+    map<anydata|readonly> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
 
-function addValueToMap(map<anydata|error> m, string key, anydata|error value) {
+function addValueToMap(map<anydata|readonly> m, string key, anydata|readonly value) {
     m[key] = value;
 }
 
@@ -230,10 +231,10 @@ type UserDefErrorTwoA error<TrxErrorData2>;
 const string reasonB = "ErrorNo-2";
 type UserDefErrorTwoB error<TrxErrorData>;
 public function errorReasonSubType() returns [error, error, error, error] {
-    UserDefErrorTwoB er_rA = error(reasonA);
-    UserDefErrorTwoB er_rB = error(reasonB);
-    UserDefErrorTwoB er_aALit = error("ErrNo-1");
-    UserDefErrorTwoB er_aBLit = error("ErrorNo-2");
+    UserDefErrorTwoB er_rA = UserDefErrorTwoB(reasonA);
+    UserDefErrorTwoB er_rB = UserDefErrorTwoB(reasonB);
+    UserDefErrorTwoB er_aALit = UserDefErrorTwoB("ErrNo-1");
+    UserDefErrorTwoB er_aBLit = UserDefErrorTwoB("ErrorNo-2");
     return [er_rA, er_rB, er_aALit, er_aBLit];
 }
 

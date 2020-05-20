@@ -1359,6 +1359,8 @@ public class BRunUtil {
                 return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
                 return new BServiceType(jvmType.getName(), null, 0);
+            case org.ballerinalang.jvm.types.TypeTags.READONLY_TAG:
+                return BTypes.typeReadonly;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

@@ -85,6 +85,19 @@ public class BTypeIdSet {
         return sourceTypeIdSet.all.containsAll(all);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BTypeIdSet)) {
+            return false;
+        }
+
+        BTypeIdSet that = (BTypeIdSet) obj;
+        return this.primary.equals(that.primary) && this.secondary.equals(that.secondary);
+    }
+
     public static class BTypeId {
         public final PackageID packageID;
         public final String name;
