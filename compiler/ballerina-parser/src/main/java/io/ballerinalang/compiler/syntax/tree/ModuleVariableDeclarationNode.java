@@ -142,43 +142,50 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ModuleVariableDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+        public ModuleVariableDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withFinalKeyword(Token finalKeyword) {
+        public ModuleVariableDeclarationNodeModifier withFinalKeyword(
+                Token finalKeyword) {
             Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
             this.finalKeyword = finalKeyword;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withTypeName(Node typeName) {
+        public ModuleVariableDeclarationNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withVariableName(Token variableName) {
+        public ModuleVariableDeclarationNodeModifier withVariableName(
+                Token variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withEqualsToken(Token equalsToken) {
+        public ModuleVariableDeclarationNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withInitializer(ExpressionNode initializer) {
+        public ModuleVariableDeclarationNodeModifier withInitializer(
+                ExpressionNode initializer) {
             Objects.requireNonNull(initializer, "initializer must not be null");
             this.initializer = initializer;
             return this;
         }
 
-        public ModuleVariableDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ModuleVariableDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

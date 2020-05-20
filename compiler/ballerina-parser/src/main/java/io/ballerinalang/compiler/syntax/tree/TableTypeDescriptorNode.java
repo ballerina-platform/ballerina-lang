@@ -101,19 +101,22 @@ public class TableTypeDescriptorNode extends NonTerminalNode {
             this.keyConstraintNode = oldNode.keyConstraintNode();
         }
 
-        public TableTypeDescriptorNodeModifier withTableKeywordToken(Token tableKeywordToken) {
+        public TableTypeDescriptorNodeModifier withTableKeywordToken(
+                Token tableKeywordToken) {
             Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
             this.tableKeywordToken = tableKeywordToken;
             return this;
         }
 
-        public TableTypeDescriptorNodeModifier withRowTypeParameterNode(Node rowTypeParameterNode) {
+        public TableTypeDescriptorNodeModifier withRowTypeParameterNode(
+                Node rowTypeParameterNode) {
             Objects.requireNonNull(rowTypeParameterNode, "rowTypeParameterNode must not be null");
             this.rowTypeParameterNode = rowTypeParameterNode;
             return this;
         }
 
-        public TableTypeDescriptorNodeModifier withKeyConstraintNode(Node keyConstraintNode) {
+        public TableTypeDescriptorNodeModifier withKeyConstraintNode(
+                Node keyConstraintNode) {
             Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
             this.keyConstraintNode = keyConstraintNode;
             return this;

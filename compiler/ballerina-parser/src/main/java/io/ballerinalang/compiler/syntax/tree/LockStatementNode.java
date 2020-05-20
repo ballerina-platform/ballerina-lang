@@ -91,13 +91,15 @@ public class LockStatementNode extends StatementNode {
             this.blockStatement = oldNode.blockStatement();
         }
 
-        public LockStatementNodeModifier withLockKeyword(Token lockKeyword) {
+        public LockStatementNodeModifier withLockKeyword(
+                Token lockKeyword) {
             Objects.requireNonNull(lockKeyword, "lockKeyword must not be null");
             this.lockKeyword = lockKeyword;
             return this;
         }
 
-        public LockStatementNodeModifier withBlockStatement(StatementNode blockStatement) {
+        public LockStatementNodeModifier withBlockStatement(
+                StatementNode blockStatement) {
             Objects.requireNonNull(blockStatement, "blockStatement must not be null");
             this.blockStatement = blockStatement;
             return this;

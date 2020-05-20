@@ -91,13 +91,15 @@ public class LetClauseNode extends ClauseNode {
             this.letVarDeclarations = oldNode.letVarDeclarations();
         }
 
-        public LetClauseNodeModifier withLetKeyword(Token letKeyword) {
+        public LetClauseNodeModifier withLetKeyword(
+                Token letKeyword) {
             Objects.requireNonNull(letKeyword, "letKeyword must not be null");
             this.letKeyword = letKeyword;
             return this;
         }
 
-        public LetClauseNodeModifier withLetVarDeclarations(SeparatedNodeList<Node> letVarDeclarations) {
+        public LetClauseNodeModifier withLetVarDeclarations(
+                SeparatedNodeList<Node> letVarDeclarations) {
             Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
             this.letVarDeclarations = letVarDeclarations;
             return this;

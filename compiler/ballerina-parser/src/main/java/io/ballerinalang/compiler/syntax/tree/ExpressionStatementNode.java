@@ -93,13 +93,15 @@ public class ExpressionStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ExpressionStatementNodeModifier withExpression(ExpressionNode expression) {
+        public ExpressionStatementNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public ExpressionStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ExpressionStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

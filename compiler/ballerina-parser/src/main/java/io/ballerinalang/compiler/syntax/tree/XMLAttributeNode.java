@@ -101,19 +101,22 @@ public class XMLAttributeNode extends NonTerminalNode {
             this.value = oldNode.value();
         }
 
-        public XMLAttributeNodeModifier withAttributeName(XMLNameNode attributeName) {
+        public XMLAttributeNodeModifier withAttributeName(
+                XMLNameNode attributeName) {
             Objects.requireNonNull(attributeName, "attributeName must not be null");
             this.attributeName = attributeName;
             return this;
         }
 
-        public XMLAttributeNodeModifier withEqualToken(Token equalToken) {
+        public XMLAttributeNodeModifier withEqualToken(
+                Token equalToken) {
             Objects.requireNonNull(equalToken, "equalToken must not be null");
             this.equalToken = equalToken;
             return this;
         }
 
-        public XMLAttributeNodeModifier withValue(XMLAttributeValue value) {
+        public XMLAttributeNodeModifier withValue(
+                XMLAttributeValue value) {
             Objects.requireNonNull(value, "value must not be null");
             this.value = value;
             return this;

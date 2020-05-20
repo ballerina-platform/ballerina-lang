@@ -91,13 +91,15 @@ public class StartActionNode extends ExpressionNode {
             this.expression = oldNode.expression();
         }
 
-        public StartActionNodeModifier withStartKeyword(Token startKeyword) {
+        public StartActionNodeModifier withStartKeyword(
+                Token startKeyword) {
             Objects.requireNonNull(startKeyword, "startKeyword must not be null");
             this.startKeyword = startKeyword;
             return this;
         }
 
-        public StartActionNodeModifier withExpression(ExpressionNode expression) {
+        public StartActionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

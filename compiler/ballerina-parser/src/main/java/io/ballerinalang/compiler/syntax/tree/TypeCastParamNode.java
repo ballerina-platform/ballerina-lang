@@ -91,13 +91,15 @@ public class TypeCastParamNode extends NonTerminalNode {
             this.type = oldNode.type();
         }
 
-        public TypeCastParamNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public TypeCastParamNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public TypeCastParamNodeModifier withType(Node type) {
+        public TypeCastParamNodeModifier withType(
+                Node type) {
             Objects.requireNonNull(type, "type must not be null");
             this.type = type;
             return this;

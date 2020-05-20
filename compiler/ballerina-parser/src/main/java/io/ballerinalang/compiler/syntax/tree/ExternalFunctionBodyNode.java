@@ -111,25 +111,29 @@ public class ExternalFunctionBodyNode extends FunctionBodyNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ExternalFunctionBodyNodeModifier withEqualsToken(Token equalsToken) {
+        public ExternalFunctionBodyNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public ExternalFunctionBodyNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public ExternalFunctionBodyNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public ExternalFunctionBodyNodeModifier withExternalKeyword(Token externalKeyword) {
+        public ExternalFunctionBodyNodeModifier withExternalKeyword(
+                Token externalKeyword) {
             Objects.requireNonNull(externalKeyword, "externalKeyword must not be null");
             this.externalKeyword = externalKeyword;
             return this;
         }
 
-        public ExternalFunctionBodyNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ExternalFunctionBodyNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

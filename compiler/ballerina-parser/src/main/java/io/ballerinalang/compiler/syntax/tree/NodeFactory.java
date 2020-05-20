@@ -27,7 +27,7 @@ import java.util.Objects;
  *
  * This is a generated class.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeFactory extends AbstractNodeFactory {
 
@@ -429,22 +429,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ForEachStatementNode createForEachStatementNode(
             Token forEachKeyword,
-            Node typeDescriptor,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
             StatementNode blockStatement) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
         Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stForEachStatementNode = STNodeFactory.createForEachStatementNode(
                 forEachKeyword.internalNode(),
-                typeDescriptor.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
                 actionOrExpressionNode.internalNode(),
                 blockStatement.internalNode());
@@ -1435,19 +1432,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TableConstructorExpressionNode createTableConstructorExpressionNode(
             Token tableKeyword,
-            KeySpecifierNode KeySpecifier,
+            KeySpecifierNode keySpecifier,
             Token openBracket,
             SeparatedNodeList<Node> mappingConstructors,
             Token closeBracket) {
         Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(mappingConstructors, "mappingConstructors must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
 
         STNode stTableConstructorExpressionNode = STNodeFactory.createTableConstructorExpressionNode(
                 tableKeyword.internalNode(),
-                KeySpecifier.internalNode(),
+                keySpecifier.internalNode(),
                 openBracket.internalNode(),
                 mappingConstructors.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
@@ -1952,13 +1949,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static QueryConstructTypeNode createQueryConstructTypeNode(
             Token tableKeyword,
-            KeySpecifierNode KeySpecifier) {
+            KeySpecifierNode keySpecifier) {
         Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
-        Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
+        Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
 
         STNode stQueryConstructTypeNode = STNodeFactory.createQueryConstructTypeNode(
                 tableKeyword.internalNode(),
-                KeySpecifier.internalNode());
+                keySpecifier.internalNode());
         return stQueryConstructTypeNode.createUnlinkedFacade();
     }
 
@@ -2105,7 +2102,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FlushActionNode createFlushActionNode(
             Token flushKeyword,
-            Token peerWorker) {
+            NameReferenceNode peerWorker) {
         Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
         Objects.requireNonNull(peerWorker, "peerWorker must not be null");
 
@@ -2113,6 +2110,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 flushKeyword.internalNode(),
                 peerWorker.internalNode());
         return stFlushActionNode.createUnlinkedFacade();
+    }
+
+    public static SingletonTypeDescriptorNode createSingletonTypeDescriptorNode(
+            ExpressionNode simpleContExprNode) {
+        Objects.requireNonNull(simpleContExprNode, "simpleContExprNode must not be null");
+
+        STNode stSingletonTypeDescriptorNode = STNodeFactory.createSingletonTypeDescriptorNode(
+                simpleContExprNode.internalNode());
+        return stSingletonTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static FunctionDeclarationNode createFunctionDeclarationNode(
@@ -2136,6 +2142,112 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 functionSignature.internalNode(),
                 semicolon.internalNode());
         return stFunctionDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static TypedBindingPatternNode createTypedBindingPatternNode(
+            TypeDescriptorNode typeDescriptor,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stTypedBindingPatternNode = STNodeFactory.createTypedBindingPatternNode(
+                typeDescriptor.internalNode(),
+                bindingPattern.internalNode());
+        return stTypedBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static CaptureBindingPatternNode createCaptureBindingPatternNode(
+            SimpleNameReferenceNode variableName) {
+
+        STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
+                getOptionalSTNode(variableName));
+        return stCaptureBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static ListBindingPatternNode createListBindingPatternNode(
+            Token openBracket,
+            SeparatedNodeList<BindingPatternNode> bindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(bindingPatterns, "bindingPatterns must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stListBindingPatternNode = STNodeFactory.createListBindingPatternNode(
+                openBracket.internalNode(),
+                bindingPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restBindingPattern),
+                closeBracket.internalNode());
+        return stListBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static RestBindingPatternNode createRestBindingPatternNode(
+            Token ellipsisToken,
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stRestBindingPatternNode = STNodeFactory.createRestBindingPatternNode(
+                ellipsisToken.internalNode(),
+                variableName.internalNode());
+        return stRestBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static AsyncSendActionNode createAsyncSendActionNode(
+            ExpressionNode expression,
+            Token rightArrowToken,
+            NameReferenceNode peerWorker) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+
+        STNode stAsyncSendActionNode = STNodeFactory.createAsyncSendActionNode(
+                expression.internalNode(),
+                rightArrowToken.internalNode(),
+                peerWorker.internalNode());
+        return stAsyncSendActionNode.createUnlinkedFacade();
+    }
+
+    public static SyncSendActionNode createSyncSendActionNode(
+            ExpressionNode expression,
+            Token syncSendToken,
+            NameReferenceNode peerWorker) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
+        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+
+        STNode stSyncSendActionNode = STNodeFactory.createSyncSendActionNode(
+                expression.internalNode(),
+                syncSendToken.internalNode(),
+                peerWorker.internalNode());
+        return stSyncSendActionNode.createUnlinkedFacade();
+    }
+
+    public static ReceiveActionNode createReceiveActionNode(
+            Token leftArrow,
+            Node receiveWorkers) {
+        Objects.requireNonNull(leftArrow, "leftArrow must not be null");
+        Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
+
+        STNode stReceiveActionNode = STNodeFactory.createReceiveActionNode(
+                leftArrow.internalNode(),
+                receiveWorkers.internalNode());
+        return stReceiveActionNode.createUnlinkedFacade();
+    }
+
+    public static ReceiveFieldsNode createReceiveFieldsNode(
+            Token openBrace,
+            SeparatedNodeList<NameReferenceNode> receiveField,
+            Token closeBrace) {
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(receiveField, "receiveField must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stReceiveFieldsNode = STNodeFactory.createReceiveFieldsNode(
+                openBrace.internalNode(),
+                receiveField.underlyingListNode().internalNode(),
+                closeBrace.internalNode());
+        return stReceiveFieldsNode.createUnlinkedFacade();
     }
 }
 

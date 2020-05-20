@@ -111,25 +111,29 @@ public class FunctionCallExpressionNode extends ExpressionNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public FunctionCallExpressionNodeModifier withFunctionName(Node functionName) {
+        public FunctionCallExpressionNodeModifier withFunctionName(
+                Node functionName) {
             Objects.requireNonNull(functionName, "functionName must not be null");
             this.functionName = functionName;
             return this;
         }
 
-        public FunctionCallExpressionNodeModifier withOpenParenToken(Token openParenToken) {
+        public FunctionCallExpressionNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public FunctionCallExpressionNodeModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+        public FunctionCallExpressionNodeModifier withArguments(
+                NodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;
         }
 
-        public FunctionCallExpressionNodeModifier withCloseParenToken(Token closeParenToken) {
+        public FunctionCallExpressionNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

@@ -111,25 +111,29 @@ public class NamedArgumentNode extends FunctionArgumentNode {
             this.expression = oldNode.expression();
         }
 
-        public NamedArgumentNodeModifier withLeadingComma(Token leadingComma) {
+        public NamedArgumentNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public NamedArgumentNodeModifier withArgumentName(SimpleNameReferenceNode argumentName) {
+        public NamedArgumentNodeModifier withArgumentName(
+                SimpleNameReferenceNode argumentName) {
             Objects.requireNonNull(argumentName, "argumentName must not be null");
             this.argumentName = argumentName;
             return this;
         }
 
-        public NamedArgumentNodeModifier withEqualsToken(Token equalsToken) {
+        public NamedArgumentNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public NamedArgumentNodeModifier withExpression(ExpressionNode expression) {
+        public NamedArgumentNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

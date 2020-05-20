@@ -161,55 +161,64 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public AnnotationDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+        public AnnotationDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public AnnotationDeclarationNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withConstKeyword(Token constKeyword) {
+        public AnnotationDeclarationNodeModifier withConstKeyword(
+                Token constKeyword) {
             Objects.requireNonNull(constKeyword, "constKeyword must not be null");
             this.constKeyword = constKeyword;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withAnnotationKeyword(Token annotationKeyword) {
+        public AnnotationDeclarationNodeModifier withAnnotationKeyword(
+                Token annotationKeyword) {
             Objects.requireNonNull(annotationKeyword, "annotationKeyword must not be null");
             this.annotationKeyword = annotationKeyword;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public AnnotationDeclarationNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withAnnotationTag(Token annotationTag) {
+        public AnnotationDeclarationNodeModifier withAnnotationTag(
+                Token annotationTag) {
             Objects.requireNonNull(annotationTag, "annotationTag must not be null");
             this.annotationTag = annotationTag;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withOnKeyword(Token onKeyword) {
+        public AnnotationDeclarationNodeModifier withOnKeyword(
+                Token onKeyword) {
             Objects.requireNonNull(onKeyword, "onKeyword must not be null");
             this.onKeyword = onKeyword;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withAttachPoints(SeparatedNodeList<Node> attachPoints) {
+        public AnnotationDeclarationNodeModifier withAttachPoints(
+                SeparatedNodeList<Node> attachPoints) {
             Objects.requireNonNull(attachPoints, "attachPoints must not be null");
             this.attachPoints = attachPoints;
             return this;
         }
 
-        public AnnotationDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+        public AnnotationDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

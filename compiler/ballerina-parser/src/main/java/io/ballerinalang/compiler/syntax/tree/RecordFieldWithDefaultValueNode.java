@@ -131,37 +131,43 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public RecordFieldWithDefaultValueNodeModifier withMetadata(MetadataNode metadata) {
+        public RecordFieldWithDefaultValueNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public RecordFieldWithDefaultValueNodeModifier withTypeName(Node typeName) {
+        public RecordFieldWithDefaultValueNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RecordFieldWithDefaultValueNodeModifier withFieldName(Token fieldName) {
+        public RecordFieldWithDefaultValueNodeModifier withFieldName(
+                Token fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;
         }
 
-        public RecordFieldWithDefaultValueNodeModifier withEqualsToken(Token equalsToken) {
+        public RecordFieldWithDefaultValueNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public RecordFieldWithDefaultValueNodeModifier withExpression(ExpressionNode expression) {
+        public RecordFieldWithDefaultValueNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public RecordFieldWithDefaultValueNodeModifier withSemicolonToken(Token semicolonToken) {
+        public RecordFieldWithDefaultValueNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

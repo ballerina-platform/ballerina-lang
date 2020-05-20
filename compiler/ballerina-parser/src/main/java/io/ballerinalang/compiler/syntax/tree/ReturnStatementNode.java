@@ -102,19 +102,22 @@ public class ReturnStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ReturnStatementNodeModifier withReturnKeyword(Token returnKeyword) {
+        public ReturnStatementNodeModifier withReturnKeyword(
+                Token returnKeyword) {
             Objects.requireNonNull(returnKeyword, "returnKeyword must not be null");
             this.returnKeyword = returnKeyword;
             return this;
         }
 
-        public ReturnStatementNodeModifier withExpression(ExpressionNode expression) {
+        public ReturnStatementNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public ReturnStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ReturnStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;
