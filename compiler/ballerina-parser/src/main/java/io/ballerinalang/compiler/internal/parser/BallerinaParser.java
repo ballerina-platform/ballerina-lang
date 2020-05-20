@@ -8981,10 +8981,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTupleTypeDesc() {
         STNode openBracket = parseOpenBracket();
         startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-        STNode memberTypeDesc = parseTupleMemberTypeDescList();
+        STNode memberTypeDescriptors = parseTupleMemberTypeDescList();
         STNode closeBracket = parseCloseBracket();
         endContext();
-        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, closeBracket);
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescriptors, closeBracket);
     }
 
     /**
