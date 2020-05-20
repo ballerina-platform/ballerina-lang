@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TrippleGTTokenNode extends NonTerminalNode {
 
@@ -75,5 +77,56 @@ public class TrippleGTTokenNode extends NonTerminalNode {
                 openGTToken,
                 middleGTToken,
                 endGTToken);
+    }
+
+    public TrippleGTTokenNodeModifier modify() {
+        return new TrippleGTTokenNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TrippleGTTokenNodeModifier {
+        private final TrippleGTTokenNode oldNode;
+        private Token openGTToken;
+        private Token middleGTToken;
+        private Token endGTToken;
+
+        public TrippleGTTokenNodeModifier(TrippleGTTokenNode oldNode) {
+            this.oldNode = oldNode;
+            this.openGTToken = oldNode.openGTToken();
+            this.middleGTToken = oldNode.middleGTToken();
+            this.endGTToken = oldNode.endGTToken();
+        }
+
+        public TrippleGTTokenNodeModifier withOpenGTToken(
+                Token openGTToken) {
+            Objects.requireNonNull(openGTToken, "openGTToken must not be null");
+            this.openGTToken = openGTToken;
+            return this;
+        }
+
+        public TrippleGTTokenNodeModifier withMiddleGTToken(
+                Token middleGTToken) {
+            Objects.requireNonNull(middleGTToken, "middleGTToken must not be null");
+            this.middleGTToken = middleGTToken;
+            return this;
+        }
+
+        public TrippleGTTokenNodeModifier withEndGTToken(
+                Token endGTToken) {
+            Objects.requireNonNull(endGTToken, "endGTToken must not be null");
+            this.endGTToken = endGTToken;
+            return this;
+        }
+
+        public TrippleGTTokenNode apply() {
+            return oldNode.modify(
+                    openGTToken,
+                    middleGTToken,
+                    endGTToken);
+        }
     }
 }
