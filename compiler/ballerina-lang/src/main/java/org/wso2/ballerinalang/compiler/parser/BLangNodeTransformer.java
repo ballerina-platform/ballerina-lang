@@ -1463,6 +1463,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             functionTypeNode.returnTypeNode = bLValueType;
         }
 
+        functionTypeNode.flagSet.add(Flag.PUBLIC);
         return functionTypeNode;
     }
 
@@ -1728,9 +1729,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                 boolean isListenerVar,
                                                 Token visibilityQualifier) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        if (name != null) {
-            bLSimpleVar.setName(this.createIdentifier(pos, name));
-        }
+        bLSimpleVar.setName(this.createIdentifier(pos, name));
+
         if (typeName == null || typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
             bLSimpleVar.isDeclaredWithVar = true;
         } else {
