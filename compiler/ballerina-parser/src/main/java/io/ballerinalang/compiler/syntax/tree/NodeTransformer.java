@@ -552,6 +552,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(optionalFieldAccessExpressionNode);
     }
 
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

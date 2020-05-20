@@ -1579,5 +1579,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 optionalFieldAccessToken,
                 fieldName);
     }
+
+    public static STNode createConditionalExpressionNode(
+            STNode lhsExpression,
+            STNode questionMarkToken,
+            STNode middleExpression,
+            STNode colonToken,
+            STNode endExpression) {
+
+        return new STConditionalExpressionNode(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression);
+    }
 }
 

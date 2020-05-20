@@ -386,7 +386,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncBody();
             case CLOSE_BRACKET:
                 return parseCloseBracket();
-            case OPTIONAL_FIELD_ACCESS_TOKEN:
+            case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalFieldAccessToken();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
@@ -2873,20 +2873,20 @@ public class BallerinaParser extends AbstractParser {
      * @return Parse node
      */
     private STNode parseQualifiedIdentifier(STNode identifier) {
-//        STToken nextToken = peek(1);
-//        if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
+        STToken nextToken = peek(1);
+        if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
-//        }
+        }
 
-//        STToken nextNextToken = peek(2);
-//        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-//            STToken colon = consume();
-//            STToken varOrFuncName = consume();
-//            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
-//        } else {
-//            this.errorHandler.removeInvalidToken();
-//            return parseQualifiedIdentifier(identifier);
-//        }
+        STToken nextNextToken = peek(2);
+        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            STToken colon = consume();
+            STToken varOrFuncName = consume();
+            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+        } else {
+            this.errorHandler.removeInvalidToken();
+            return parseQualifiedIdentifier(identifier);
+        }
     }
 
     /**
@@ -3771,14 +3771,11 @@ public class BallerinaParser extends AbstractParser {
             case OPTIONAL_CHAINING_TOKEN:
                 newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr);
                 break;
+            case QUESTION_MARK_TOKEN:
+                newLhsExpr = parseConditionalExpression(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
-                SyntaxKind kind;
-                if (tokenKind == SyntaxKind.COLON_TOKEN){
-                    kind = SyntaxKind.CONDITIONAL_EXPRESSION;
-                } else {
-                    kind = SyntaxKind.BINARY_EXPRESSION;
-                }
 
                 // Parse the expression that follows the binary operator, until a operator
                 // with different precedence is encountered. If an operator with a lower
@@ -3788,7 +3785,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // Actions within binary-expressions are not allowed.
                 STNode rhsExpr = parseExpression(nextOperatorPrecedence, isRhsExpr, false);
-                newLhsExpr = STNodeFactory.createBinaryExpressionNode(kind, lhsExpr, operator,
+                newLhsExpr = STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator,
                         rhsExpr);
                 break;
         }
@@ -9123,8 +9120,22 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.OPTIONAL_FIELD_ACCESS_TOKEN);
+            Solution sol = recover(token, ParserRuleContext.OPTIONAL_CHAINING_TOKEN);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse conditional expression.
+     *
+     * @param lhsExpr Preceding expression of the question mark
+     * @return <code>conditional-expr</code>.
+     */
+    private STNode parseConditionalExpression(STNode lhsExpr) {
+        STNode questionMark = parseQuestionMark();
+        STNode middleExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
+        STNode colon = parseColon();
+        STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }
 }

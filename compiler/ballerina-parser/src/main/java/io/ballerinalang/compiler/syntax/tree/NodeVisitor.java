@@ -551,6 +551,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(optionalFieldAccessExpressionNode);
     }
 
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

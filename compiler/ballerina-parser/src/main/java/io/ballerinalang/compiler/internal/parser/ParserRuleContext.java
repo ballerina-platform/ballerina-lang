@@ -266,7 +266,7 @@ public enum ParserRuleContext {
     PARENTHESISED_TYPE_DESC_START("("),
     BITWISE_AND_OPERATOR("&"),
     EXPR_FUNC_BODY_START("=>"),
-    OPTIONAL_FIELD_ACCESS_TOKEN("?."),
+    OPTIONAL_CHAINING_TOKEN("?."),
 
     // Other terminals
     FUNC_NAME("function-name"),
