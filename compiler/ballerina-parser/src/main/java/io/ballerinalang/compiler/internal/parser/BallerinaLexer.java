@@ -1368,7 +1368,7 @@ public class BallerinaLexer extends AbstractLexer {
                     }
                     continue;
                 default:
-                    // ASCCI letters are not allowed
+                    // ASCII letters are not allowed
                     if ('A' <= nextChar && nextChar <= 'Z') {
                         break;
                     }
