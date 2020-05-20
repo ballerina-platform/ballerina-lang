@@ -3700,7 +3700,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        // TODO: Add a good comment
+        // Look for >> and >>> tokens as they are not sent from lexer due to ambiguity. e.g. <map<int>> a
         if (tokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
             if (peek(3).kind == SyntaxKind.GT_TOKEN) {
                 tokenKind = SyntaxKind.TRIPPLE_GT_TOKEN;
