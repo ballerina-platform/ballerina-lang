@@ -222,13 +222,13 @@ public class StaticMethods {
                                                                                  ErrorValue d, Object e, Object f,
                                                                                  MapValue g)
             throws JavaInteropTestCheckedException {
-        MapValue<String, Object> mapValue = new MapValueImpl<>();
-        mapValue.put("a", a);
-        mapValue.put("b", b);
-        mapValue.put("c", c);
-        mapValue.put("e", e);
-        mapValue.put("f", f);
-        mapValue.put("g", g);
+        MapValue<BString, Object> mapValue = new MapValueImpl<>();
+        mapValue.put(StringUtils.fromString("a"), a);
+        mapValue.put(StringUtils.fromString("b"), b);
+        mapValue.put(StringUtils.fromString("c"), c);
+        mapValue.put(StringUtils.fromString("e"), e);
+        mapValue.put(StringUtils.fromString("f"), f);
+        mapValue.put(StringUtils.fromString("g"), g);
         return mapValue;
     }
 
@@ -257,9 +257,9 @@ public class StaticMethods {
         return p;
     }
 
-    public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(MapValue e, BString newVal)
-            throws JavaInteropTestCheckedException {
-        e.put("name", newVal);
+    public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(
+            MapValue<BString, Object> e, BString newVal) throws JavaInteropTestCheckedException {
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -342,14 +342,14 @@ public class StaticMethods {
     }
 
     public static Object getJson() {
-        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put("name", "John");
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
-    public static MapValueImpl getJsonObject() {
-        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put("name", "Doe");
+    public static MapValueImpl<BString, Object> getJsonObject() {
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 

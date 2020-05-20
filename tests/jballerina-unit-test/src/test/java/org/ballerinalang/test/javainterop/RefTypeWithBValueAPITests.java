@@ -406,14 +406,18 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static Object getJson() {
-        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put("name", "John");
+        MapValueImpl<org.ballerinalang.jvm.values.api.BString, org.ballerinalang.jvm.values.api.BString> map =
+                new MapValueImpl<>(BTypes.typeJSON);
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
-    public static org.ballerinalang.jvm.values.api.BMap getJsonObject() {
-        org.ballerinalang.jvm.values.api.BMap map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put("name", "Doe");
+    public static org.ballerinalang.jvm.values.api.BMap<org.ballerinalang.jvm.values.api.BString,
+            org.ballerinalang.jvm.values.api.BString> getJsonObject() {
+        org.ballerinalang.jvm.values.api.BMap<org.ballerinalang.jvm.values.api.BString,
+                org.ballerinalang.jvm.values.api.BString>
+                map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 

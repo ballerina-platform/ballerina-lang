@@ -38,7 +38,8 @@ public class FromXML {
 
     public static Object fromXML(XMLValue xml, MapValue<?, ?> options) {
         try {
-            String attributePrefix = ((BString) options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX))).getValue();
+            String attributePrefix = ((BString) options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX)))
+                    .getValue();
             boolean preserveNamespaces = ((Boolean) options.get(StringUtils.fromString(OPTIONS_PRESERVE_NS)));
             return XMLFactory.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Exception e) {

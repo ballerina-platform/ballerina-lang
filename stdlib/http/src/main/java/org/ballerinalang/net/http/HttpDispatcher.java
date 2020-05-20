@@ -225,7 +225,7 @@ public class HttpDispatcher {
                 case TypeTags.STRING_TAG:
                     String stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
-                    return stringDataSource;
+                    return StringUtils.fromString(stringDataSource);
                 case TypeTags.JSON_TAG:
                     Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
                     EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);

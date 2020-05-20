@@ -44,17 +44,17 @@ public class WebSubSubscriberConstants {
     public static final String WEBSUB_SERVICE_LISTENER = "Listener";
     public static final String WEBSUB_SERVICE_CALLER = "Caller";
     public static final String WEBSUB_HTTP_ENDPOINT = "serviceEndpoint";
-    public static final String WEBSUB_SERVICE_NAME = "webSubServiceName";
+    public static final BString WEBSUB_SERVICE_NAME = StringUtils.fromString("webSubServiceName");
 
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG = "secureSocket";
 
-    public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+    public static final BString ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = StringUtils.fromString("subscribeOnStartUp");
     public static final String ANN_WEBSUB_ATTR_TARGET = "target";
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
-    public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
+    public static final BString ANN_WEBSUB_ATTR_CALLBACK = StringUtils.fromString("callback");
     public static final String ANN_WEBSUB_ATTR_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
     public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
     public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG = "hubClientConfig";

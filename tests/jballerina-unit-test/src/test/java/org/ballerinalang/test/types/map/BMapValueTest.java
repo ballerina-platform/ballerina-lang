@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -203,10 +204,10 @@ public class BMapValueTest {
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<String, Object> map = new MapValueImpl<>();
-        map.put("key1", 1);
-        map.put("key2", "foo");
-        map.put("key3", XMLFactory.parse("<bar>hello</bar>"));
+        MapValue<org.ballerinalang.jvm.values.api.BString, Object> map = new MapValueImpl<>();
+        map.put(StringUtils.fromString("key1"), 1);
+        map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
+        map.put(StringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));
         Assert.assertEquals(map.stringValue(), "key1=1 key2=foo key3=<bar>hello</bar>");
     }
 

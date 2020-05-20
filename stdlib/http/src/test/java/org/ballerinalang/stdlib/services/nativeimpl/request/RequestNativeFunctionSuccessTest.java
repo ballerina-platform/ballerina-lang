@@ -99,7 +99,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testContentType() {
         ObjectValue inRequest = createRequestObject();
-        Object[] inputArg = { inRequest, "application/x-custom-type+json" };
+        Object[] inputArg = {inRequest, org.ballerinalang.jvm.StringUtils.fromString("application/x-custom-type+json")};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testContentType", inputArg);
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
@@ -192,8 +192,8 @@ public class RequestNativeFunctionSuccessTest {
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader",
-                                              new Object[]{ inRequest, HttpHeaderNames.CONTENT_TYPE.toString() });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader", new Object[]{inRequest,
+                org.ballerinalang.jvm.StringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
     }
@@ -222,8 +222,8 @@ public class RequestNativeFunctionSuccessTest {
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders",
-                                              new Object[]{ inRequest, "test-header" });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders", new Object[]{inRequest,
+                org.ballerinalang.jvm.StringUtils.fromString("test-header")});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(0), APPLICATION_FORM);
         Assert.assertEquals(((BValueArray) returnVals[0]).getString(1), TEXT_PLAIN);
@@ -508,8 +508,10 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
-        MapValueImpl bJson = (MapValueImpl) TestEntityUtils.getMessageDataSource(entity);
-        Assert.assertEquals(bJson.get("name"), "wso2", "Payload is not set properly");
+        MapValueImpl<BString, Object> bJson = (MapValueImpl<BString, Object>) TestEntityUtils.getMessageDataSource(
+                entity);
+        Assert.assertEquals(bJson.get(org.ballerinalang.jvm.StringUtils.fromString("name")).toString(), "wso2",
+                            "Payload is not set properly");
     }
 
     @Test(description = "Test SetJsonPayload function within a service")

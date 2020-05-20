@@ -215,8 +215,8 @@ public class ServicesBuilderUtils {
         int i = 0;
         for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
             String dependencyKey = dependency.toStringUtf8();
-            if (descMap.containsKey(dependencyKey)) {
-                fileDescriptors[i++] = getFileDescriptor(descMap.get(dependencyKey), descMap);
+            if (descMap.containsKey(StringUtils.fromString(dependencyKey))) {
+                fileDescriptors[i++] = getFileDescriptor(descMap.get(StringUtils.fromString(dependencyKey)), descMap);
             } else if (descMap.size() == 0) {
                 Descriptors.FileDescriptor dependentDescriptor = StandardDescriptorBuilder.getFileDescriptor
                         (dependencyKey);

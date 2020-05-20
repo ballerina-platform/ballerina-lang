@@ -56,7 +56,8 @@ public class PushPromiseNativeFunctionTest {
         String headerName = "header1";
         String headerValue = "value1";
         BValue[] returnVal = BRunUtil.invoke(result, "testAddHeader",
-                                             new Object[]{ promise, headerName, headerValue });
+                                             new Object[]{promise, StringUtils.fromString(headerName),
+                                                     StringUtils.fromString(headerValue)});
 
         Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVal[0] instanceof BMap);
@@ -75,7 +76,8 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeader", new Object[]{ promise, headerName });
+        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeader",
+                                             new Object[]{promise, StringUtils.fromString(headerName)});
 
         Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnVal[0].stringValue(), headerValue);
@@ -93,7 +95,8 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue2);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaders", new Object[]{ promise, headerName });
+        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaders",
+                                             new Object[]{promise, StringUtils.fromString(headerName)});
 
         Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BValueArray) returnVal[0]).getString(0), headerValue1);
@@ -110,7 +113,8 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BValue[] returnVal = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{ promise, headerName });
+        BValue[] returnVal = BRunUtil.invoke(result, "testRemoveHeader",
+                                             new Object[]{promise, StringUtils.fromString(headerName)});
         Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
 
         Assert.assertTrue(returnVal[0] instanceof BMap);
@@ -174,7 +178,8 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BValue[] returnVal = BRunUtil.invoke(result, "testHasHeader", new Object[]{ promise, headerName });
+        BValue[] returnVal = BRunUtil.invoke(result, "testHasHeader",
+                                             new Object[]{promise, StringUtils.fromString(headerName)});
 
         Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertTrue(((BBoolean) returnVal[0]).booleanValue(), "hasHeader function failed");

@@ -62,7 +62,7 @@ public final class Constants {
     static final class DatabaseProps {
         static final BString SSL_MODE = StringUtils.fromString("sslMode");
         static final BString SSL_MODE_DISABLED = StringUtils.fromString("DISABLED");
-        static final String SSL_MODE_VERIFY_CA = "VERIFY_CA";
+        static final BString SSL_MODE_VERIFY_CA = StringUtils.fromString("VERIFY_CA");
 
         static final BString KEYSTORE_TYPE_PKCS12 = StringUtils.fromString("PKCS12");
         static final BString CLIENT_KEYSTORE_URL = StringUtils.fromString("clientCertificateKeyStoreUrl");

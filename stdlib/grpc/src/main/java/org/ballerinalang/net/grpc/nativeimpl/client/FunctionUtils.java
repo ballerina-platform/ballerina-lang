@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.Message;
@@ -159,7 +160,7 @@ public class FunctionUtils extends AbstractExecute {
      * @return Error if there is an error while initializing the stub, else returns nil
      */
     public static Object externInitStub(ObjectValue genericEndpoint, ObjectValue clientEndpoint, String stubType,
-                                        String rootDescriptor, MapValue<String, Object> descriptorMap) {
+                                        String rootDescriptor, MapValue<BString, Object> descriptorMap) {
         HttpClientConnector clientConnector = (HttpClientConnector) genericEndpoint.getNativeData(CLIENT_CONNECTOR);
         String urlString = (String) genericEndpoint.getNativeData(ENDPOINT_URL);
 

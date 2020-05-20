@@ -52,7 +52,7 @@ public class FailoverInitEndpoint {
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
         List<String> newTargetUrls = getValidUrls(clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS));
         // Sets the failover config values.
-        failoverClient.set(WebSocketConstants.CLIENT_URL_CONFIG, newTargetUrls.get(0));
+        failoverClient.set(WebSocketConstants.CLIENT_URL_CONFIG, StringUtils.fromString(newTargetUrls.get(0)));
         FailoverContext failoverContext = new FailoverContext();
         populateFailoverContext(clientEndpointConfig, failoverContext, newTargetUrls);
         failoverClient.addNativeData(WebSocketConstants.FAILOVER_CONTEXT, failoverContext);
