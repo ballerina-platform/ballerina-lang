@@ -107,8 +107,8 @@ public class MimeConstants {
     public static final String BOUNDARY = "boundary";
     public static final String FORM_DATA_PARAM = "form-data";
 
-    public static final String DEFAULT_PRIMARY_TYPE = "application";
-    public static final String DEFAULT_SUB_TYPE = "octet-stream";
+    public static final BString DEFAULT_PRIMARY_TYPE = StringUtils.fromString("application");
+    public static final BString DEFAULT_SUB_TYPE = StringUtils.fromString("octet-stream");
     public static final String SUFFIX_ATTACHMENT = "+";
 
     public static final String MESSAGE_DATA_SOURCE = "message_datasource";

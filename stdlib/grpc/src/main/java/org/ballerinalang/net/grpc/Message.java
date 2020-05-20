@@ -481,15 +481,17 @@ public class Message {
                     .asRuntimeException();
         }
 
-        MapValue<String, Object> bMapValue = null;
+        MapValue<BString, Object> bMapValue = null;
         if (bMessage instanceof MapValue) {
-            bMapValue = (MapValue) bMessage;
+            bMapValue = (MapValue<BString, Object>) bMessage;
         }
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
             switch (fieldDescriptor.getType().toProto().getNumber()) {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -504,8 +506,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -522,8 +526,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -538,8 +544,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -554,13 +562,15 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
                                 output.writeInt32(fieldDescriptor.getNumber(),
-                                        getIntValue(valueArray.getInt(i)));
+                                                  getIntValue(valueArray.getInt(i)));
                             }
                         } else {
                             output.writeInt32(fieldDescriptor.getNumber(), getIntValue(bValue));
@@ -571,8 +581,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -587,13 +599,15 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
                                 output.writeFixed32(fieldDescriptor.getNumber(),
-                                        getIntValue(valueArray.getInt(i)));
+                                                    getIntValue(valueArray.getInt(i)));
                             }
                         } else {
                             output.writeFixed32(fieldDescriptor.getNumber(), getIntValue(bValue));
@@ -604,8 +618,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -620,8 +636,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -637,14 +655,16 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue
                                 && !fieldDescriptor.getMessageType().getFullName().equals(GOOGLE_PROTOBUF_ANY_VALUE)) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
                                 Message message = new Message(fieldDescriptor.getMessageType(),
-                                        valueArray.getRefValue(i));
+                                                              valueArray.getRefValue(i));
                                 output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
                                 output.writeUInt32NoTag(message.getSerializedSize());
                                 message.writeTo(output);
@@ -659,16 +679,20 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         output.writeEnum(fieldDescriptor.getNumber(), fieldDescriptor.getEnumType().findValueByName
                                 ((String) bValue).getNumber());
                     }
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             output.writeByteArray(fieldDescriptor.getNumber(), valueArray.getBytes());
@@ -713,17 +737,19 @@ public class Message {
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
             switch (fieldDescriptor.getType().toProto().getNumber()) {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeDoubleSize(fieldDescriptor
-                                        .getNumber(), valueArray.getFloat(i));
+                                size += com.google.protobuf.CodedOutputStream.computeDoubleSize(
+                                        fieldDescriptor.getNumber(), valueArray.getFloat(i));
                             }
                         } else {
                             size += com.google.protobuf.CodedOutputStream.computeDoubleSize(fieldDescriptor.getNumber(),
-                                    (double) bValue);
+                                                                                            (double) bValue);
                         }
                     } else if (bMessage instanceof Double) {
                         size += com.google.protobuf.CodedOutputStream.computeDoubleSize(fieldDescriptor.getNumber(),
@@ -732,17 +758,20 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeFloatSize(fieldDescriptor
-                                        .getNumber(), Float.parseFloat(String.valueOf(valueArray.getFloat(i))));
+                                size += com.google.protobuf.CodedOutputStream.computeFloatSize(
+                                        fieldDescriptor.getNumber(),
+                                        Float.parseFloat(String.valueOf(valueArray.getFloat(i))));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeFloatSize(fieldDescriptor
-                                    .getNumber(), Float.parseFloat(String.valueOf(bValue)));
+                            size += com.google.protobuf.CodedOutputStream.computeFloatSize(
+                                    fieldDescriptor.getNumber(), Float.parseFloat(String.valueOf(bValue)));
                         }
                     } else if (bMessage instanceof Double) {
                         size += com.google.protobuf.CodedOutputStream.computeFloatSize(fieldDescriptor
@@ -751,17 +780,19 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeInt64Size(fieldDescriptor
-                                        .getNumber(), valueArray.getInt(i));
+                                size += com.google.protobuf.CodedOutputStream.computeInt64Size(
+                                        fieldDescriptor.getNumber(), valueArray.getInt(i));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeInt64Size(fieldDescriptor
-                                    .getNumber(), (long) bValue);
+                            size += com.google.protobuf.CodedOutputStream.computeInt64Size(
+                                    fieldDescriptor.getNumber(), (long) bValue);
                         }
                     } else if (bMessage instanceof Long) {
                         size += com.google.protobuf.CodedOutputStream.computeInt64Size(fieldDescriptor
@@ -770,17 +801,19 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeUInt64Size(fieldDescriptor
-                                        .getNumber(), valueArray.getInt(i));
+                                size += com.google.protobuf.CodedOutputStream.computeUInt64Size(
+                                        fieldDescriptor.getNumber(), valueArray.getInt(i));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeUInt64Size(fieldDescriptor
-                                    .getNumber(), (long) bValue);
+                            size += com.google.protobuf.CodedOutputStream.computeUInt64Size(
+                                    fieldDescriptor.getNumber(), (long) bValue);
                         }
                     } else if (bMessage instanceof Long) {
                         size += com.google.protobuf.CodedOutputStream.computeUInt64Size(fieldDescriptor
@@ -789,17 +822,19 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeInt32Size(fieldDescriptor
-                                        .getNumber(), getIntValue(valueArray.getInt(i)));
+                                size += com.google.protobuf.CodedOutputStream.computeInt32Size(
+                                        fieldDescriptor.getNumber(), getIntValue(valueArray.getInt(i)));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeInt32Size(fieldDescriptor
-                                    .getNumber(), getIntValue(bValue));
+                            size += com.google.protobuf.CodedOutputStream.computeInt32Size(
+                                    fieldDescriptor.getNumber(), getIntValue(bValue));
                         }
                     } else if (bMessage instanceof Long) {
                         size += com.google.protobuf.CodedOutputStream.computeInt32Size(fieldDescriptor
@@ -808,17 +843,19 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeFixed64Size(fieldDescriptor
-                                        .getNumber(), valueArray.getInt(i));
+                                size += com.google.protobuf.CodedOutputStream.computeFixed64Size(
+                                        fieldDescriptor.getNumber(), valueArray.getInt(i));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeFixed64Size(fieldDescriptor
-                                    .getNumber(), (long) bValue);
+                            size += com.google.protobuf.CodedOutputStream.computeFixed64Size(
+                                    fieldDescriptor.getNumber(), (long) bValue);
                         }
                     } else if (bMessage instanceof Long) {
                         size += com.google.protobuf.CodedOutputStream.computeFixed64Size(fieldDescriptor
@@ -827,17 +864,19 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeFixed32Size(fieldDescriptor
-                                        .getNumber(), getIntValue(valueArray.getInt(i)));
+                                size += com.google.protobuf.CodedOutputStream.computeFixed32Size(
+                                        fieldDescriptor.getNumber(), getIntValue(valueArray.getInt(i)));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeFixed32Size(fieldDescriptor
-                                    .getNumber(), getIntValue(bValue));
+                            size += com.google.protobuf.CodedOutputStream.computeFixed32Size(
+                                    fieldDescriptor.getNumber(), getIntValue(bValue));
                         }
                     } else if (bMessage instanceof Long) {
                         size += com.google.protobuf.CodedOutputStream.computeFixed32Size(fieldDescriptor
@@ -846,17 +885,19 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                size += com.google.protobuf.CodedOutputStream.computeBoolSize(fieldDescriptor
-                                        .getNumber(), valueArray.getBoolean(i));
+                                size += com.google.protobuf.CodedOutputStream.computeBoolSize(
+                                        fieldDescriptor.getNumber(), valueArray.getBoolean(i));
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeBoolSize(fieldDescriptor
-                                    .getNumber(), (boolean) bValue);
+                            size += com.google.protobuf.CodedOutputStream.computeBoolSize(
+                                    fieldDescriptor.getNumber(), (boolean) bValue);
                         }
                     } else if (bMessage instanceof Boolean) {
                         size += com.google.protobuf.CodedOutputStream.computeBoolSize(fieldDescriptor
@@ -865,8 +906,10 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
@@ -882,37 +925,42 @@ public class Message {
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue
                                 && !fieldDescriptor.getMessageType().getFullName().equals(GOOGLE_PROTOBUF_ANY)) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             for (int i = 0; i < valueArray.size(); i++) {
-                                MapValue<String, Object> value = (MapValue) valueArray.getRefValue(i);
+                                MapValue<BString, Object> value = (MapValue<BString, Object>) valueArray.getRefValue(i);
                                 Message message = new Message(fieldDescriptor.getMessageType(), value);
                                 size += computeMessageSize(fieldDescriptor, message);
                             }
                         } else {
-                            Message message = new Message(fieldDescriptor.getMessageType(),
-                                    bValue);
+                            Message message = new Message(fieldDescriptor.getMessageType(), bValue);
                             size += computeMessageSize(fieldDescriptor, message);
                         }
                     }
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
 
-                        size += com.google.protobuf.CodedOutputStream.computeEnumSize(fieldDescriptor
-                                .getNumber(), fieldDescriptor.getEnumType().findValueByName
-                                ((String) bValue).getNumber());
+                        size += com.google.protobuf.CodedOutputStream.computeEnumSize(
+                                fieldDescriptor.getNumber(),
+                                fieldDescriptor.getEnumType().findValueByName((String) bValue).getNumber());
                     }
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
-                    if (bMapValue != null && bMapValue.containsKey(fieldDescriptor.getName())) {
-                        Object bValue = bMapValue.get(fieldDescriptor.getName());
+                    if (bMapValue != null && bMapValue.containsKey(
+                            org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()))) {
+                        Object bValue = bMapValue.get(
+                                org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()));
                         if (bValue instanceof ArrayValue) {
                             ArrayValue valueArray = (ArrayValue) bValue;
                             size += com.google.protobuf.CodedOutputStream
@@ -925,11 +973,11 @@ public class Message {
                     }
                     break;
                 }
-                default: {
+                default:
                     throw Status.Code.INTERNAL.toStatus().withDescription(
                             "Error while calculating the serialized type. Field type is not supported : "
                                     + fieldDescriptor.getType()).asRuntimeException();
-                }
+
             }
         }
         memoizedSize = size;

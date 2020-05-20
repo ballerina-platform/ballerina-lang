@@ -472,7 +472,7 @@ public class HttpUtil {
      */
     public static ErrorValue getError(String errMsg) {
         MapValue<BString, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
-        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, org.ballerinalang.jvm.StringUtils.fromString(errMsg));
         return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
     }
 
@@ -625,8 +625,10 @@ public class HttpUtil {
     public static void populatePushPromiseStruct(ObjectValue pushPromiseObj,
                                                  Http2PushPromise pushPromise) {
         pushPromiseObj.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
-        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, pushPromise.getPath());
-        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, pushPromise.getMethod());
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, org.ballerinalang.jvm.StringUtils
+                .fromString(pushPromise.getPath()));
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, org.ballerinalang.jvm.StringUtils
+                .fromString(pushPromise.getMethod()));
     }
 
     /**
@@ -700,8 +702,9 @@ public class HttpUtil {
         HttpResourceArguments resourceArgValues = (HttpResourceArguments) inboundRequestMsg.getProperty(
                 HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
-            inboundRequestObj.set(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
-                                  resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO));
+            inboundRequestObj.set(
+                    HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD, org.ballerinalang.jvm.StringUtils.fromString(
+                            resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO)));
         }
     }
 

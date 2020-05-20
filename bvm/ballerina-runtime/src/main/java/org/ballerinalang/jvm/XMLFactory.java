@@ -54,6 +54,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -514,7 +515,7 @@ public class XMLFactory {
                         processAttributeAndNamespaces(null, attributeMap, attributePrefix, xmlItem.getTextValue());
                 rootNode.put(keyValue, attrObject);
             } else {
-                rootNode.put(keyValue, xmlItem.getTextValue());
+                rootNode.put(keyValue, StringUtils.fromString(xmlItem.getTextValue()));
             }
         }
         return rootNode;
@@ -597,7 +598,7 @@ public class XMLFactory {
                                 traverseXMLElement(element, attributePrefix, preserveNamespaces);
                         root.put(nodeKey, node.get(nodeKey));
                     } else {
-                        root.put(nodeKey, elementList.get(0).getTextValue());
+                        root.put(nodeKey, StringUtils.fromString(elementList.get(0).getTextValue()));
                     }
                 } else {
                     // Child elements with similar keys are put into an array

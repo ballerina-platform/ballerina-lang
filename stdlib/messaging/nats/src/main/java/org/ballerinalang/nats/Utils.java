@@ -33,7 +33,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -58,7 +57,7 @@ public class Utils {
     public static ErrorValue createNatsError(String detailedErrorMessage) {
         MapValue<BString, Object> errorDetailRecord = BallerinaValues
                 .createRecordValue(Constants.NATS_PACKAGE_ID, Constants.NATS_ERROR_DETAIL_RECORD);
-        errorDetailRecord.put(new BmpStringValue("message"), detailedErrorMessage);
+        errorDetailRecord.put(StringUtils.fromString("message"), StringUtils.fromString(detailedErrorMessage));
         return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorDetailRecord);
     }
 

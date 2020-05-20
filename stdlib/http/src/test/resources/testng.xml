@@ -43,11 +43,11 @@ under the License.
         <packages>
             <package name="org.ballerinalang.stdlib.entity.*"/>
             <!--<package name="org.ballerinalang.stdlib.services.basics.*"/>-->
-<!--            <package name="org.ballerinalang.stdlib.multipart.*"/>-->
+            <package name="org.ballerinalang.stdlib.multipart.*"/>
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
-<!--            <package name="org.ballerinalang.stdlib.services.dispatching.*"/>-->
-<!--            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>-->
+            <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
+            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/>

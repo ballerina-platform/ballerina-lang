@@ -313,11 +313,10 @@ public class SubscriberNativeOperationHandler {
             MapValue annotation = (MapValue) webSubHttpService.getBalService().getType()
                     .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
 
-            subscriptionDetails.put(StringUtils.fromString(WEBSUB_SERVICE_NAME),
-                                    webSubHttpService.getBalService().getType().getName());
-            subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP),
-                                    annotation.getBooleanValue(
-                                            StringUtils.fromString(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP)));
+            subscriptionDetails.put(WEBSUB_SERVICE_NAME,
+                                    StringUtils.fromString(webSubHttpService.getBalService().getType().getName()));
+            subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP,
+                                    annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP));
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_TARGET)) {
                 subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_TARGET),
@@ -355,7 +354,7 @@ public class SubscriberNativeOperationHandler {
             String callback;
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_CALLBACK)) {
-                callback = annotation.getStringValue(StringUtils.fromString(ANN_WEBSUB_ATTR_CALLBACK)).getValue();
+                callback = annotation.getStringValue(ANN_WEBSUB_ATTR_CALLBACK).getValue();
             } else {
                 //TODO: intro methods to return host+port and change instead of using connector ID
                 callback = webSubHttpService.getBasePath();
@@ -383,7 +382,7 @@ public class SubscriberNativeOperationHandler {
                 }
             }
 
-            subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_CALLBACK), callback);
+            subscriptionDetails.put(ANN_WEBSUB_ATTR_CALLBACK, StringUtils.fromString(callback));
             subscriptionDetailArray.add(index, subscriptionDetails);
         }
         return subscriptionDetailArray;

@@ -63,8 +63,8 @@ public class Utils {
         if (sslConfig == null) {
             options.put(Constants.DatabaseProps.SSL_MODE, Constants.DatabaseProps.SSL_MODE_DISABLED);
         } else {
-            String mode = sslConfig.getStringValue(Constants.SSLConfig.MODE).getValue();
-            if (mode.equalsIgnoreCase(Constants.SSLConfig.VERIFY_CERT_MODE)) {
+            BString mode = sslConfig.getStringValue(Constants.SSLConfig.MODE);
+            if (mode.getValue().equalsIgnoreCase(Constants.SSLConfig.VERIFY_CERT_MODE)) {
                 mode = Constants.DatabaseProps.SSL_MODE_VERIFY_CA;
             }
             options.put(Constants.DatabaseProps.SSL_MODE, mode);

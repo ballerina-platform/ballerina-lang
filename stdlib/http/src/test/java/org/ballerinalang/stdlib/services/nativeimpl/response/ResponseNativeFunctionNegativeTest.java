@@ -59,9 +59,8 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testGetHeader() {
         try {
-            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader",
-                                                  new Object[]{createResponseObject(),
-                                                          HttpHeaderNames.CONTENT_TYPE.toString()});
+            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", new Object[]{createResponseObject(),
+                    org.ballerinalang.jvm.StringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
             Assert.assertNull(returnVals[0]);
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();
@@ -165,7 +164,8 @@ public class ResponseNativeFunctionNegativeTest {
         httpHeaders.add("Expect", "100-continue");
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
         outResponse.set(RESPONSE_ENTITY_FIELD, entity);
-        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{ outResponse, range });
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{outResponse,
+                org.ballerinalang.jvm.StringUtils.fromString(range)});
 
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);

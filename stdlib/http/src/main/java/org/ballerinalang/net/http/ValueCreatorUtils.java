@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
@@ -60,7 +61,8 @@ public class ValueCreatorUtils {
     }
 
     public static ObjectValue createPushPromiseObject() {
-        return createObjectValue(httpValueCreator, PUSH_PROMISE, "/", "GET");
+        return createObjectValue(httpValueCreator, PUSH_PROMISE, StringUtils.fromString("/"),
+                                 StringUtils.fromString("GET"));
     }
 
     public static ObjectValue createRequestCacheControlObject() {
