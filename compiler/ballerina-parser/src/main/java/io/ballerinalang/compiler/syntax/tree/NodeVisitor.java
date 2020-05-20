@@ -591,6 +591,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restDescriptorNode);
     }
 
+    public void visit(DoubleGTTokenNode doubleGTTokenNode) {
+        visitSyntaxNode(doubleGTTokenNode);
+    }
+
+    public void visit(TrippleGTTokenNode trippleGTTokenNode) {
+        visitSyntaxNode(trippleGTTokenNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -157,6 +157,8 @@ public enum SyntaxKind {
     XML_COMMENT_END_TOKEN(578, "-->"),
     SYNC_SEND_TOKEN(579, "->>"),
     LEFT_ARROW_TOKEN(580, "<-"),
+    DOUBLE_DOT_LT_TOKEN(580, "..<"),
+    DOUBLE_LT_TOKEN(581, "<<"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -337,6 +339,8 @@ public enum SyntaxKind {
     LIST_BINDING_PATTERN(3054),
     RECEIVE_FIELDS(3055),
     REST_TYPE(3056),
+    DOUBLE_GT_TOKEN(3056, ">>"),
+    TRIPPLE_GT_TOKEN(3057, ">>>"),
 
     // XML
     XML_ELEMENT(4000),

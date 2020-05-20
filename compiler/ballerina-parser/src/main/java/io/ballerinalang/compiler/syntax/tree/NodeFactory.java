@@ -2258,5 +2258,32 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 ellipsisToken.internalNode());
         return stRestDescriptorNode.createUnlinkedFacade();
     }
+
+    public static DoubleGTTokenNode createDoubleGTTokenNode(
+            Token openGTToken,
+            Token endGTToken) {
+        Objects.requireNonNull(openGTToken, "openGTToken must not be null");
+        Objects.requireNonNull(endGTToken, "endGTToken must not be null");
+
+        STNode stDoubleGTTokenNode = STNodeFactory.createDoubleGTTokenNode(
+                openGTToken.internalNode(),
+                endGTToken.internalNode());
+        return stDoubleGTTokenNode.createUnlinkedFacade();
+    }
+
+    public static TrippleGTTokenNode createTrippleGTTokenNode(
+            Token openGTToken,
+            Token middleGTToken,
+            Token endGTToken) {
+        Objects.requireNonNull(openGTToken, "openGTToken must not be null");
+        Objects.requireNonNull(middleGTToken, "middleGTToken must not be null");
+        Objects.requireNonNull(endGTToken, "endGTToken must not be null");
+
+        STNode stTrippleGTTokenNode = STNodeFactory.createTrippleGTTokenNode(
+                openGTToken.internalNode(),
+                middleGTToken.internalNode(),
+                endGTToken.internalNode());
+        return stTrippleGTTokenNode.createUnlinkedFacade();
+    }
 }
 
