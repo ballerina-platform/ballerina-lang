@@ -2727,7 +2727,7 @@
         },
         {
             "name": "IntersectionTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "INTERSECTION_TYPE_DESC",
             "attributes": [
                 {
@@ -2815,12 +2815,12 @@
         },
         {
             "name": "SingletonTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "SINGLETON_TYPE_DESC",
             "attributes": [
                 {
                     "name": "simpleContExprNode",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 }
             ]
         },
