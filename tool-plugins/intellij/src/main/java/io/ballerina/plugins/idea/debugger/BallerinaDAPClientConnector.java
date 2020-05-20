@@ -245,7 +245,7 @@ public class BallerinaDAPClientConnector {
 
         List<String> processArgs = new ArrayList<>();
         processArgs.add(debugLauncherPath);
-        processArgs.add(String.valueOf(debugAdapterPort));
+        processArgs.add(Integer.toString(debugAdapterPort));
         return new BallerinaSocketStreamConnectionProvider(processArgs, project.getBasePath(), host, debugAdapterPort);
     }
 
