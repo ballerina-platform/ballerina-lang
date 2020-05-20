@@ -75,10 +75,8 @@ public class ModuleLoaderImpl implements ModuleLoader {
         // if it is an immediate import check the Ballerina.toml
         // Set version from the Ballerina.toml of the current project
         if (enclModuleId != null && this.project.getManifest() != null && this.project.isModuleExists(enclModuleId)) {
-            System.out.println("yo");
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(moduleId, this.project.getManifest());
-            System.out.println(versionFromManifest);
             if (versionFromManifest != null) {
                 moduleId.setVersion(resolveModuleVersionFromRepos(this.repos, moduleId, versionFromManifest));
                 if (moduleId.getVersion() != null) {
@@ -110,7 +108,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
         return null;
     }
 
-    private String resolveVersionFromLockFile(ModuleId moduleId, ModuleId enclModuleId) {
+    String resolveVersionFromLockFile(ModuleId moduleId, ModuleId enclModuleId) {
         if (this.project.getLockFile().getImports().containsKey(enclModuleId.toString())) {
             List<LockFileImport> foundBaseImport = this.project.getLockFile().getImports().get(enclModuleId.toString());
 
@@ -124,7 +122,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
         return null;
     }
 
-    private String resolveVersionFromManifest(ModuleId moduleId, Manifest manifest) {
+    public String resolveVersionFromManifest(ModuleId moduleId, Manifest manifest) {
         for (Dependency dependency : manifest.getDependencies()) {
             if (dependency.getModuleName().equals(moduleId.getModuleName())
                     && dependency.getOrgName().equals(moduleId.getOrgName())
@@ -189,8 +187,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
         return null;
     }
 
-    private boolean isExactVersion(String version) {
-        final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
-        return semVerPattern.matcher(version).matches();
+    public static String ask(){
+        return "I'm Final class";
     }
 }

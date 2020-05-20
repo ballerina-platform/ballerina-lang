@@ -6,6 +6,16 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id 'maven-publish'
     id 'net.researchgate.release' version '2.6.0'
+    id 'java'
+    id 'jacoco'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
 }
 
 allprojects {

@@ -39,6 +39,8 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
     testCompile 'org.mockito:mockito-all'
+    testCompile 'org.powermock:powermock-mockito-release-full'
+    testCompile 'org.powermock:powermock-module-testng-common'
 
     testRuntime project(':ballerina-jvm')
     testRuntime project(':ballerina-bir')

@@ -5,7 +5,7 @@
 //import org.ballerinalang.toml.exceptions.TomlException;
 //import org.testng.Assert;
 //import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+//import org.testng.annotations.ModuleVersionResolverTest;
 //
 //import java.io.ByteArrayInputStream;
 //import java.io.IOException;
@@ -30,7 +30,7 @@
 //        tomlModuleLoader = new ModuleLoaderImpl(tomlProject, new ArrayList<>());
 //    }
 //
-//    @Test(description = "Get module version from module ID")
+//    @ModuleVersionResolverTest(description = "Get module version from module ID")
 //    public void testGetModuleVersionFromModuleId() throws IOException {
 //        Project project = new Project();
 //        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project, new ArrayList<>());
@@ -42,7 +42,7 @@
 //        Assert.assertEquals(versionResolvedModuleId.version, "1.0.0");
 //    }
 //
-//    @Test(description = "Get module version from lock file")
+//    @ModuleVersionResolverTest(description = "Get module version from lock file")
 //    public void testGetModuleVersionFromLockFile() throws IOException {
 //        Project project = new Project();
 //        // Can set the model w/o giving the toml
@@ -72,7 +72,7 @@
 //        Assert.assertEquals(versionResolvedModuleId.version, "1.1.0");
 //    }
 //
-//    @Test(description = "Get module version from Ballerina Toml when specific version is given")
+//    @ModuleVersionResolverTest(description = "Get module version from Ballerina Toml when specific version is given")
 //    public void testGetModuleVersionFromSpecificVersionInBallerinaToml() throws IOException {
 //        ModuleId moduleId = new ModuleId();
 //        moduleId.orgName = "foo";
@@ -82,7 +82,7 @@
 //        Assert.assertEquals(versionResolvedModuleId.version, "2.0.0");
 //    }
 //
-//    @Test(description = "Get module version from Ballerina Toml when range of version is given")
+//    @ModuleVersionResolverTest(description = "Get module version from Ballerina Toml when range of version is given")
 //    public void testGetModuleVersionFromRangeOfVersionsInBallerinaToml() throws IOException { // => ask from Hemika
 //        ModuleId moduleId = new ModuleId();
 //        moduleId.orgName = "foo";

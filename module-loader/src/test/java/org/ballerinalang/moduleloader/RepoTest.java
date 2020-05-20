@@ -5,7 +5,7 @@
 //import org.ballerinalang.toml.exceptions.TomlException;
 //import org.testng.Assert;
 //import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+//import org.testng.annotations.ModuleVersionResolverTest;
 //
 //import java.io.IOException;
 //import java.nio.file.Path;
@@ -36,20 +36,20 @@
 //                "version = \"0.1.0\"\n");
 //    }
 //
-//    @Test(description = "Test resolve versions from project modules")
+//    @ModuleVersionResolverTest(description = "ModuleVersionResolverTest resolve versions from project modules")
 //    public void testResolveProjectModuleVersions() {
 //        List<String> modules = projectModules.resolveVersions(moduleId, "");
 //        Assert.assertEquals(1, modules.size());
 //        Assert.assertEquals("0.1.0", modules.get(0));
 //    }
 //
-//    @Test(description = "Test is module exists in project modules")
+//    @ModuleVersionResolverTest(description = "ModuleVersionResolverTest is module exists in project modules")
 //    public void testIsModuleExistsInProjectModules() {
 //        moduleId.version = "0.1.0";
 //        Assert.assertTrue(projectModules.isModuleExists(moduleId));
 //    }
 //
-//    @Test
+//    @ModuleVersionResolverTest
 //    public void testAddProjectModules() throws IOException {
 //        ModuleLoaderImpl moduleLoader = new ModuleLoaderImpl(project, new ArrayList<>());
 //        moduleLoader.addProjectModules(moduleLoader.repos, projectPath);
