@@ -573,8 +573,7 @@
                                                     "kind": "INT_KEYWORD"
                                                 },
                                                 {
-                                                    "kind": "GT_TOKEN",
-                                                    "isMissing": true
+                                                    "kind": "GT_TOKEN"
                                                 }
                                             ]
                                         }

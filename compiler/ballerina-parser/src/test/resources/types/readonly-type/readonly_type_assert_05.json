@@ -318,8 +318,7 @@
                                                     "value": "T"
                                                 },
                                                 {
-                                                    "kind": "GT_TOKEN",
-                                                    "isMissing": true
+                                                    "kind": "GT_TOKEN"
                                                 }
                                             ]
                                         }
