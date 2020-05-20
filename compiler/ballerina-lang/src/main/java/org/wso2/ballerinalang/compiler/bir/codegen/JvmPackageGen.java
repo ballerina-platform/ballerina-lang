@@ -23,6 +23,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
@@ -77,8 +78,10 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -234,10 +237,19 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
         setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+        setModuleInitStatusField(cw,mv,className);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setModuleInitStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "moduleInitFailed", "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, "moduleInitFailed", "Z");
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
@@ -360,9 +372,14 @@ public class JvmPackageGen {
         // implement run() method
         mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
         mv.visitCode();
+        mv.visitFieldInsn(GETSTATIC, initClass, "moduleInitFailed",
+                "Z");
+        Label initFailLabel = new Label();
+        mv.visitJumpInsn(IFNE, initFailLabel);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
 
+        mv.visitLabel(initFailLabel);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

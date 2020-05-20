@@ -121,6 +121,7 @@ import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.objectweb.asm.Opcodes.V1_8;
@@ -606,7 +607,7 @@ public class JvmMethodGen {
         mv.visitInsn(AASTORE);
     }
 
-    private static void handleErrorFromFutureValue(MethodVisitor mv) {
+    private static void handleErrorFromFutureValue(MethodVisitor mv, boolean isModuleInit, String initClass) {
 
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -618,6 +619,10 @@ public class JvmMethodGen {
         // handle any runtime errors
         Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
+        if (isModuleInit) {
+            mv.visitInsn(ICONST_1);
+            mv.visitFieldInsn(PUTSTATIC, initClass, "moduleInitFailed", "Z");
+        }
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
                 String.format("(L%s;)V", THROWABLE), false);
@@ -2271,7 +2276,7 @@ public class JvmMethodGen {
             mv.visitIntInsn(BIPUSH, 100);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-            handleErrorFromFutureValue(mv);
+            handleErrorFromFutureValue(mv, true, initClass);
 
             BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("initdummy"),
                     VarScope.FUNCTION, VarKind.ARG);
@@ -2308,7 +2313,7 @@ public class JvmMethodGen {
             mv.visitIntInsn(BIPUSH, 100);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-            handleErrorFromFutureValue(mv);
+            handleErrorFromFutureValue(mv,false, initClass);
 
             // At this point we are done executing all the functions including asyncs
             if (!isVoidFunction) {
@@ -2373,7 +2378,7 @@ public class JvmMethodGen {
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-        handleErrorFromFutureValue(mv);
+        handleErrorFromFutureValue(mv, false, initClass);
 
         BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("startdummy"), VarScope.FUNCTION,
                 VarKind.ARG);
@@ -2792,7 +2797,6 @@ public class JvmMethodGen {
             scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
                     futureIndex);
         }
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
