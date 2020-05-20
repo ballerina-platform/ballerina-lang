@@ -96,7 +96,6 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
@@ -393,9 +392,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         // TODO: Fully implement after tuple-type-desc is completed.
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-        SeparatedNodeList<TypeDescriptorNode> types = tupleTypeDescriptorNode.memberTypeDesc();
+        SeparatedNodeList<Node> types = tupleTypeDescriptorNode.memberTypeDesc();
         for (int i = 0; i < types.size(); i++) {
-            tupleTypeNode.memberTypeNodes.add(createTypeNode(types.get(i)));
+            Node node = types.get(i);
+            if (node.kind() == SyntaxKind.REST_TYPE) {
+                tupleTypeNode.restParamType = createTypeNode(types.get(i));
+            } else {
+                tupleTypeNode.memberTypeNodes.add(createTypeNode(types.get(i)));
+            }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 
