@@ -73,7 +73,7 @@ public class ObjectTypeReferenceTest {
                                   "cyclic type reference in '[E, C, E]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "no implementation found for the function 'getName' of non-abstract object " +
-                                          "'Manager2'",96, 5);
+                                          "'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
