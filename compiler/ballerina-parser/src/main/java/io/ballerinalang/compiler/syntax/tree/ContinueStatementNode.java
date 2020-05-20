@@ -91,13 +91,15 @@ public class ContinueStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ContinueStatementNodeModifier withContinueToken(Token continueToken) {
+        public ContinueStatementNodeModifier withContinueToken(
+                Token continueToken) {
             Objects.requireNonNull(continueToken, "continueToken must not be null");
             this.continueToken = continueToken;
             return this;
         }
 
-        public ContinueStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ContinueStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

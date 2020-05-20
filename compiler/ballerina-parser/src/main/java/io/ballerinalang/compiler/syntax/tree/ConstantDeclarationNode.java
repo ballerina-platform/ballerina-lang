@@ -151,49 +151,57 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ConstantDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+        public ConstantDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public ConstantDeclarationNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withConstKeyword(Token constKeyword) {
+        public ConstantDeclarationNodeModifier withConstKeyword(
+                Token constKeyword) {
             Objects.requireNonNull(constKeyword, "constKeyword must not be null");
             this.constKeyword = constKeyword;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public ConstantDeclarationNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withVariableName(Token variableName) {
+        public ConstantDeclarationNodeModifier withVariableName(
+                Token variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withEqualsToken(Token equalsToken) {
+        public ConstantDeclarationNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withInitializer(Node initializer) {
+        public ConstantDeclarationNodeModifier withInitializer(
+                Node initializer) {
             Objects.requireNonNull(initializer, "initializer must not be null");
             this.initializer = initializer;
             return this;
         }
 
-        public ConstantDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ConstantDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

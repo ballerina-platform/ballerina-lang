@@ -122,31 +122,36 @@ public class RequiredParameterNode extends ParameterNode {
             this.paramName = oldNode.paramName();
         }
 
-        public RequiredParameterNodeModifier withLeadingComma(Token leadingComma) {
+        public RequiredParameterNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public RequiredParameterNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public RequiredParameterNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public RequiredParameterNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public RequiredParameterNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public RequiredParameterNodeModifier withTypeName(Node typeName) {
+        public RequiredParameterNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RequiredParameterNodeModifier withParamName(Token paramName) {
+        public RequiredParameterNodeModifier withParamName(
+                Token paramName) {
             Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;

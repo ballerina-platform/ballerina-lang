@@ -101,19 +101,22 @@ public class XMLElementNode extends XMLItemNode {
             this.endTag = oldNode.endTag();
         }
 
-        public XMLElementNodeModifier withStartTag(XMLStartTagNode startTag) {
+        public XMLElementNodeModifier withStartTag(
+                XMLStartTagNode startTag) {
             Objects.requireNonNull(startTag, "startTag must not be null");
             this.startTag = startTag;
             return this;
         }
 
-        public XMLElementNodeModifier withContent(NodeList<XMLItemNode> content) {
+        public XMLElementNodeModifier withContent(
+                NodeList<XMLItemNode> content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
         }
 
-        public XMLElementNodeModifier withEndTag(XMLEndTagNode endTag) {
+        public XMLElementNodeModifier withEndTag(
+                XMLEndTagNode endTag) {
             Objects.requireNonNull(endTag, "endTag must not be null");
             this.endTag = endTag;
             return this;

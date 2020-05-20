@@ -29,7 +29,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * This is a generated class.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STNodeFactory extends STAbstractNodeFactory {
 
@@ -1068,14 +1068,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTableConstructorExpressionNode(
             STNode tableKeyword,
-            STNode KeySpecifier,
+            STNode keySpecifier,
             STNode openBracket,
             STNode mappingConstructors,
             STNode closeBracket) {
 
         return new STTableConstructorExpressionNode(
                 tableKeyword,
-                KeySpecifier,
+                keySpecifier,
                 openBracket,
                 mappingConstructors,
                 closeBracket);
@@ -1449,11 +1449,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createQueryConstructTypeNode(
             STNode tableKeyword,
-            STNode KeySpecifier) {
+            STNode keySpecifier) {
 
         return new STQueryConstructTypeNode(
                 tableKeyword,
-                KeySpecifier);
+                keySpecifier);
     }
 
     public static STNode createFromClauseNode(

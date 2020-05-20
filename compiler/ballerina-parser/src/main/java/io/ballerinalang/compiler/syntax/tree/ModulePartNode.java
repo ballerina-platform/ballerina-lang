@@ -101,19 +101,22 @@ public class ModulePartNode extends NonTerminalNode {
             this.eofToken = oldNode.eofToken();
         }
 
-        public ModulePartNodeModifier withImports(NodeList<ImportDeclarationNode> imports) {
+        public ModulePartNodeModifier withImports(
+                NodeList<ImportDeclarationNode> imports) {
             Objects.requireNonNull(imports, "imports must not be null");
             this.imports = imports;
             return this;
         }
 
-        public ModulePartNodeModifier withMembers(NodeList<ModuleMemberDeclarationNode> members) {
+        public ModulePartNodeModifier withMembers(
+                NodeList<ModuleMemberDeclarationNode> members) {
             Objects.requireNonNull(members, "members must not be null");
             this.members = members;
             return this;
         }
 
-        public ModulePartNodeModifier withEofToken(Token eofToken) {
+        public ModulePartNodeModifier withEofToken(
+                Token eofToken) {
             Objects.requireNonNull(eofToken, "eofToken must not be null");
             this.eofToken = eofToken;
             return this;

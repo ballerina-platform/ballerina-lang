@@ -82,7 +82,8 @@ public class CaptureBindingPatternNode extends BindingPatternNode {
             this.variableName = oldNode.variableName().orElse(null);
         }
 
-        public CaptureBindingPatternNodeModifier withVariableName(SimpleNameReferenceNode variableName) {
+        public CaptureBindingPatternNodeModifier withVariableName(
+                SimpleNameReferenceNode variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;

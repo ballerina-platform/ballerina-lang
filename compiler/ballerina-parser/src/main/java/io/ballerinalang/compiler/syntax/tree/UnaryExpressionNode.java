@@ -91,13 +91,15 @@ public class UnaryExpressionNode extends ExpressionNode {
             this.expression = oldNode.expression();
         }
 
-        public UnaryExpressionNodeModifier withUnaryOperator(Token unaryOperator) {
+        public UnaryExpressionNodeModifier withUnaryOperator(
+                Token unaryOperator) {
             Objects.requireNonNull(unaryOperator, "unaryOperator must not be null");
             this.unaryOperator = unaryOperator;
             return this;
         }
 
-        public UnaryExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public UnaryExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

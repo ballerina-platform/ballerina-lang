@@ -91,13 +91,15 @@ public class ExpressionListItemNode extends NonTerminalNode {
             this.expression = oldNode.expression();
         }
 
-        public ExpressionListItemNodeModifier withLeadingComma(Token leadingComma) {
+        public ExpressionListItemNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public ExpressionListItemNodeModifier withExpression(ExpressionNode expression) {
+        public ExpressionListItemNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

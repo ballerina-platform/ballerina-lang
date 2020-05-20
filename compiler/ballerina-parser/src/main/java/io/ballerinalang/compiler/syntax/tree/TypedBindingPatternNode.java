@@ -91,13 +91,15 @@ public class TypedBindingPatternNode extends NonTerminalNode {
             this.bindingPattern = oldNode.bindingPattern();
         }
 
-        public TypedBindingPatternNodeModifier withTypeDescriptor(TypeDescriptorNode typeDescriptor) {
+        public TypedBindingPatternNodeModifier withTypeDescriptor(
+                TypeDescriptorNode typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public TypedBindingPatternNodeModifier withBindingPattern(BindingPatternNode bindingPattern) {
+        public TypedBindingPatternNodeModifier withBindingPattern(
+                BindingPatternNode bindingPattern) {
             Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
             this.bindingPattern = bindingPattern;
             return this;

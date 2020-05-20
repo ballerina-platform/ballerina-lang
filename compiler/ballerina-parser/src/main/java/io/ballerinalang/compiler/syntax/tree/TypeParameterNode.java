@@ -101,19 +101,22 @@ public class TypeParameterNode extends NonTerminalNode {
             this.gtToken = oldNode.gtToken();
         }
 
-        public TypeParameterNodeModifier withLtToken(Token ltToken) {
+        public TypeParameterNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public TypeParameterNodeModifier withTypeNode(Node typeNode) {
+        public TypeParameterNodeModifier withTypeNode(
+                Node typeNode) {
             Objects.requireNonNull(typeNode, "typeNode must not be null");
             this.typeNode = typeNode;
             return this;
         }
 
-        public TypeParameterNodeModifier withGtToken(Token gtToken) {
+        public TypeParameterNodeModifier withGtToken(
+                Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;

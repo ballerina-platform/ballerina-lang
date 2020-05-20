@@ -111,25 +111,29 @@ public class ForkStatementNode extends StatementNode {
             this.closeBraceToken = oldNode.closeBraceToken();
         }
 
-        public ForkStatementNodeModifier withForkKeyword(Token forkKeyword) {
+        public ForkStatementNodeModifier withForkKeyword(
+                Token forkKeyword) {
             Objects.requireNonNull(forkKeyword, "forkKeyword must not be null");
             this.forkKeyword = forkKeyword;
             return this;
         }
 
-        public ForkStatementNodeModifier withOpenBraceToken(Token openBraceToken) {
+        public ForkStatementNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
             Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
             this.openBraceToken = openBraceToken;
             return this;
         }
 
-        public ForkStatementNodeModifier withNamedWorkerDeclarations(NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
+        public ForkStatementNodeModifier withNamedWorkerDeclarations(
+                NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
             Objects.requireNonNull(namedWorkerDeclarations, "namedWorkerDeclarations must not be null");
             this.namedWorkerDeclarations = namedWorkerDeclarations;
             return this;
         }
 
-        public ForkStatementNodeModifier withCloseBraceToken(Token closeBraceToken) {
+        public ForkStatementNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
             Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
             this.closeBraceToken = closeBraceToken;
             return this;

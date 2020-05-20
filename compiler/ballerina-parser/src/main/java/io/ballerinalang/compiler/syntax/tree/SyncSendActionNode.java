@@ -101,19 +101,22 @@ public class SyncSendActionNode extends ActionNode {
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public SyncSendActionNodeModifier withExpression(ExpressionNode expression) {
+        public SyncSendActionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public SyncSendActionNodeModifier withSyncSendToken(Token syncSendToken) {
+        public SyncSendActionNodeModifier withSyncSendToken(
+                Token syncSendToken) {
             Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
             this.syncSendToken = syncSendToken;
             return this;
         }
 
-        public SyncSendActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
+        public SyncSendActionNodeModifier withPeerWorker(
+                NameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;

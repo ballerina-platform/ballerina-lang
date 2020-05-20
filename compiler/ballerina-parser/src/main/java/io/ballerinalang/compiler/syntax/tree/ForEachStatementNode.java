@@ -121,31 +121,36 @@ public class ForEachStatementNode extends StatementNode {
             this.blockStatement = oldNode.blockStatement();
         }
 
-        public ForEachStatementNodeModifier withForEachKeyword(Token forEachKeyword) {
+        public ForEachStatementNodeModifier withForEachKeyword(
+                Token forEachKeyword) {
             Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
             this.forEachKeyword = forEachKeyword;
             return this;
         }
 
-        public ForEachStatementNodeModifier withTypedBindingPattern(TypedBindingPatternNode typedBindingPattern) {
+        public ForEachStatementNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
             Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
             this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
-        public ForEachStatementNodeModifier withInKeyword(Token inKeyword) {
+        public ForEachStatementNodeModifier withInKeyword(
+                Token inKeyword) {
             Objects.requireNonNull(inKeyword, "inKeyword must not be null");
             this.inKeyword = inKeyword;
             return this;
         }
 
-        public ForEachStatementNodeModifier withActionOrExpressionNode(Node actionOrExpressionNode) {
+        public ForEachStatementNodeModifier withActionOrExpressionNode(
+                Node actionOrExpressionNode) {
             Objects.requireNonNull(actionOrExpressionNode, "actionOrExpressionNode must not be null");
             this.actionOrExpressionNode = actionOrExpressionNode;
             return this;
         }
 
-        public ForEachStatementNodeModifier withBlockStatement(StatementNode blockStatement) {
+        public ForEachStatementNodeModifier withBlockStatement(
+                StatementNode blockStatement) {
             Objects.requireNonNull(blockStatement, "blockStatement must not be null");
             this.blockStatement = blockStatement;
             return this;

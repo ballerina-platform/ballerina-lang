@@ -101,19 +101,22 @@ public class AsyncSendActionNode extends ActionNode {
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public AsyncSendActionNodeModifier withExpression(ExpressionNode expression) {
+        public AsyncSendActionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public AsyncSendActionNodeModifier withRightArrowToken(Token rightArrowToken) {
+        public AsyncSendActionNodeModifier withRightArrowToken(
+                Token rightArrowToken) {
             Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
             this.rightArrowToken = rightArrowToken;
             return this;
         }
 
-        public AsyncSendActionNodeModifier withPeerWorker(NameReferenceNode peerWorker) {
+        public AsyncSendActionNodeModifier withPeerWorker(
+                NameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;

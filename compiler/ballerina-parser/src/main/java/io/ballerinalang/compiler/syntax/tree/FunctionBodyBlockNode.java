@@ -112,25 +112,29 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
             this.closeBraceToken = oldNode.closeBraceToken();
         }
 
-        public FunctionBodyBlockNodeModifier withOpenBraceToken(Token openBraceToken) {
+        public FunctionBodyBlockNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
             Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
             this.openBraceToken = openBraceToken;
             return this;
         }
 
-        public FunctionBodyBlockNodeModifier withNamedWorkerDeclarator(NamedWorkerDeclarator namedWorkerDeclarator) {
+        public FunctionBodyBlockNodeModifier withNamedWorkerDeclarator(
+                NamedWorkerDeclarator namedWorkerDeclarator) {
             Objects.requireNonNull(namedWorkerDeclarator, "namedWorkerDeclarator must not be null");
             this.namedWorkerDeclarator = namedWorkerDeclarator;
             return this;
         }
 
-        public FunctionBodyBlockNodeModifier withStatements(NodeList<StatementNode> statements) {
+        public FunctionBodyBlockNodeModifier withStatements(
+                NodeList<StatementNode> statements) {
             Objects.requireNonNull(statements, "statements must not be null");
             this.statements = statements;
             return this;
         }
 
-        public FunctionBodyBlockNodeModifier withCloseBraceToken(Token closeBraceToken) {
+        public FunctionBodyBlockNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
             Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
             this.closeBraceToken = closeBraceToken;
             return this;

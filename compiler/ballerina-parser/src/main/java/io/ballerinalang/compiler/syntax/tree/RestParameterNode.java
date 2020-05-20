@@ -121,31 +121,36 @@ public class RestParameterNode extends ParameterNode {
             this.paramName = oldNode.paramName();
         }
 
-        public RestParameterNodeModifier withLeadingComma(Token leadingComma) {
+        public RestParameterNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public RestParameterNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public RestParameterNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public RestParameterNodeModifier withTypeName(Node typeName) {
+        public RestParameterNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RestParameterNodeModifier withEllipsisToken(Token ellipsisToken) {
+        public RestParameterNodeModifier withEllipsisToken(
+                Token ellipsisToken) {
             Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
             this.ellipsisToken = ellipsisToken;
             return this;
         }
 
-        public RestParameterNodeModifier withParamName(Token paramName) {
+        public RestParameterNodeModifier withParamName(
+                Token paramName) {
             Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;

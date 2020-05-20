@@ -91,13 +91,15 @@ public class ElseBlockNode extends NonTerminalNode {
             this.elseBody = oldNode.elseBody();
         }
 
-        public ElseBlockNodeModifier withElseKeyword(Token elseKeyword) {
+        public ElseBlockNodeModifier withElseKeyword(
+                Token elseKeyword) {
             Objects.requireNonNull(elseKeyword, "elseKeyword must not be null");
             this.elseKeyword = elseKeyword;
             return this;
         }
 
-        public ElseBlockNodeModifier withElseBody(StatementNode elseBody) {
+        public ElseBlockNodeModifier withElseBody(
+                StatementNode elseBody) {
             Objects.requireNonNull(elseBody, "elseBody must not be null");
             this.elseBody = elseBody;
             return this;

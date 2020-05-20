@@ -101,19 +101,22 @@ public class BlockStatementNode extends StatementNode {
             this.closeBraceToken = oldNode.closeBraceToken();
         }
 
-        public BlockStatementNodeModifier withOpenBraceToken(Token openBraceToken) {
+        public BlockStatementNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
             Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
             this.openBraceToken = openBraceToken;
             return this;
         }
 
-        public BlockStatementNodeModifier withStatements(NodeList<StatementNode> statements) {
+        public BlockStatementNodeModifier withStatements(
+                NodeList<StatementNode> statements) {
             Objects.requireNonNull(statements, "statements must not be null");
             this.statements = statements;
             return this;
         }
 
-        public BlockStatementNodeModifier withCloseBraceToken(Token closeBraceToken) {
+        public BlockStatementNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
             Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
             this.closeBraceToken = closeBraceToken;
             return this;

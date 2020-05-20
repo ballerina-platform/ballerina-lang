@@ -1895,7 +1895,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "KeySpecifier",
+                    "name": "keySpecifier",
                     "type": "KeySpecifierNode"
                 },
                 {
@@ -2612,7 +2612,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "KeySpecifier",
+                    "name": "keySpecifier",
                     "type": "KeySpecifierNode"
                 }
             ]

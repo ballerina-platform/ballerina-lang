@@ -91,13 +91,15 @@ public class QueryPipelineNode extends NonTerminalNode {
             this.intermediateClauses = oldNode.intermediateClauses();
         }
 
-        public QueryPipelineNodeModifier withFromClause(FromClauseNode fromClause) {
+        public QueryPipelineNodeModifier withFromClause(
+                FromClauseNode fromClause) {
             Objects.requireNonNull(fromClause, "fromClause must not be null");
             this.fromClause = fromClause;
             return this;
         }
 
-        public QueryPipelineNodeModifier withIntermediateClauses(NodeList<Node> intermediateClauses) {
+        public QueryPipelineNodeModifier withIntermediateClauses(
+                NodeList<Node> intermediateClauses) {
             Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
             this.intermediateClauses = intermediateClauses;
             return this;

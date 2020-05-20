@@ -91,13 +91,15 @@ public class TypeofExpressionNode extends ExpressionNode {
             this.expression = oldNode.expression();
         }
 
-        public TypeofExpressionNodeModifier withTypeofKeyword(Token typeofKeyword) {
+        public TypeofExpressionNodeModifier withTypeofKeyword(
+                Token typeofKeyword) {
             Objects.requireNonNull(typeofKeyword, "typeofKeyword must not be null");
             this.typeofKeyword = typeofKeyword;
             return this;
         }
 
-        public TypeofExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public TypeofExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

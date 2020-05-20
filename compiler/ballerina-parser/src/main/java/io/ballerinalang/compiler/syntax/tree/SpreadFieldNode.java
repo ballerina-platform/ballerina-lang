@@ -101,19 +101,22 @@ public class SpreadFieldNode extends MappingFieldNode {
             this.valueExpr = oldNode.valueExpr();
         }
 
-        public SpreadFieldNodeModifier withLeadingComma(Token leadingComma) {
+        public SpreadFieldNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public SpreadFieldNodeModifier withEllipsis(Token ellipsis) {
+        public SpreadFieldNodeModifier withEllipsis(
+                Token ellipsis) {
             Objects.requireNonNull(ellipsis, "ellipsis must not be null");
             this.ellipsis = ellipsis;
             return this;
         }
 
-        public SpreadFieldNodeModifier withValueExpr(ExpressionNode valueExpr) {
+        public SpreadFieldNodeModifier withValueExpr(
+                ExpressionNode valueExpr) {
             Objects.requireNonNull(valueExpr, "valueExpr must not be null");
             this.valueExpr = valueExpr;
             return this;
