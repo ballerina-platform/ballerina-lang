@@ -734,7 +734,7 @@
         },
         {
             "name": "IndexedExpressionNode",
-            "base": "ExpressionNode",
+            "base": "TypeDescriptorNode",
             "kind": "INDEXED_EXPRESSION",
             "attributes": [
                 {
@@ -835,7 +835,7 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "variableName",
@@ -2349,7 +2349,7 @@
         },
         {
             "name": "TableTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "TABLE_TYPE_DESC",
             "attributes": [
                 {

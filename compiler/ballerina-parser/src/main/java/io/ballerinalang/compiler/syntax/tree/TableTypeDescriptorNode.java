@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class TableTypeDescriptorNode extends NonTerminalNode {
+public class TableTypeDescriptorNode extends TypeDescriptorNode {
 
     public TableTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
