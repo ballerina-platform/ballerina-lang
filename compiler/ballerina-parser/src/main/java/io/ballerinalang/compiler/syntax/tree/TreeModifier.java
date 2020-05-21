@@ -2352,6 +2352,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 annotTagReference);
     }
 
+    @Override
+    public QueryActionNode transform(
+            QueryActionNode queryActionNode) {
+        QueryPipelineNode queryPipeline =
+                modifyNode(queryActionNode.queryPipeline());
+        Token doKeyword =
+                modifyToken(queryActionNode.doKeyword());
+        BlockStatementNode blockStatement =
+                modifyNode(queryActionNode.blockStatement());
+        return queryActionNode.modify(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
+    }
+
     // Tokens
 
     @Override

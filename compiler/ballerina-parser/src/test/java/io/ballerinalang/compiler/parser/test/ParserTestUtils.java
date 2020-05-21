@@ -490,6 +490,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DEFAULT_KEYWORD;
             case "WAIT_KEYWORD":
                 return SyntaxKind.WAIT_KEYWORD;
+            case "DO_KEYWORD":
+                return SyntaxKind.DO_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -690,6 +692,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RECEIVE_ACTION;
             case "WAIT_ACTION":
                 return SyntaxKind.WAIT_ACTION;
+            case "QUERY_ACTION":
+                return SyntaxKind.QUERY_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":

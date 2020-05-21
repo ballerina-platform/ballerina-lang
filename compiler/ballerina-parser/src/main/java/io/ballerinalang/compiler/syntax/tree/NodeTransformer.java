@@ -612,6 +612,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(annotAccessExpressionNode);
     }
 
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

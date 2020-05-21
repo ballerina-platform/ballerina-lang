@@ -2336,5 +2336,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotTagReference.internalNode());
         return stAnnotAccessExpressionNode.createUnlinkedFacade();
     }
+
+    public static QueryActionNode createQueryActionNode(
+            QueryPipelineNode queryPipeline,
+            Token doKeyword,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
+        Objects.requireNonNull(doKeyword, "doKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stQueryActionNode = STNodeFactory.createQueryActionNode(
+                queryPipeline.internalNode(),
+                doKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stQueryActionNode.createUnlinkedFacade();
+    }
 }
 
