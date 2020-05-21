@@ -83,6 +83,7 @@ public enum SyntaxKind {
     FLUSH_KEYWORD(229, "flush"),
     DEFAULT_KEYWORD(230, "default"),
     WAIT_KEYWORD(231, "wait"),
+    DO_KEYWORD(232, "do"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -284,6 +285,7 @@ public enum SyntaxKind {
     SYNC_SEND_ACTION(2507),
     RECEIVE_ACTION(2508),
     WAIT_ACTION(2509),
+    QUERY_ACTION(2510),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

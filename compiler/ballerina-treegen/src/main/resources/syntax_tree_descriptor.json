@@ -1625,7 +1625,7 @@
         },
         {
             "name": "XMLNamespaceDeclarationNode",
-            "base": "Node",
+            "base": "StatementNode",
             "kind": "XML_NAMESPACE_DECLARATION",
             "attributes": [
                 {
@@ -3121,6 +3121,25 @@
                 {
                     "name": "annotTagReference",
                     "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "QueryActionNode",
+            "base": "ActionNode",
+            "kind": "QUERY_ACTION",
+            "attributes": [
+                {
+                    "name": "queryPipeline",
+                    "type": "QueryPipelineNode"
+                },
+                {
+                    "name": "doKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
                 }
             ]
         }

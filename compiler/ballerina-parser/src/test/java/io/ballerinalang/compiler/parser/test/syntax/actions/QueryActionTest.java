@@ -15,31 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.statements;
+package io.ballerinalang.compiler.parser.test.syntax.actions;
 
 import org.testng.annotations.Test;
 
 /**
- * Test parsing while-statements.
+ * Test parsing query action.
+ * 
+ * @since 2.0.0
  */
-public class WhileStatementTest extends AbstractStatementTest {
+public class QueryActionTest extends AbstractActionTest {
 
     // Valid source tests
 
     @Test
-    public void testEmptyWhile() {
-        testFile("while-stmt/while_stmt_source_01.bal", "while-stmt/while_stmt_assert_01.json");
+    public void testBasicQueryActionStmt() {
+        testFile("query-action/query_action_source_01.bal", "query-action/query_action_assert_01.json");
     }
 
     @Test
-    public void testWhileWithBody() {
-        testFile("while-stmt/while_stmt_source_02.bal", "while-stmt/while_stmt_assert_02.json");
+    public void testQueryActionInExprContext() {
+        testFile("query-action/query_action_source_02.bal", "query-action/query_action_assert_02.json");
     }
 
+    @Test
+    public void testComplexQueryAction() {
+        testFile("query-action/query_action_source_04.bal", "query-action/query_action_assert_04.json");
+    }
+    
     // Recovery tests
 
     @Test
-    public void testWhileStmtRecovery() {
-        testFile("while-stmt/while_stmt_source_03.bal", "while-stmt/while_stmt_assert_03.json");
+    public void testQueryActionRecovery() {
+        testFile("query-action/query_action_source_03.bal", "query-action/query_action_assert_03.json");
     }
 }

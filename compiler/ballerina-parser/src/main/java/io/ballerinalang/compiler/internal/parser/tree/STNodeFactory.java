@@ -1743,5 +1743,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 annotChainingToken,
                 annotTagReference);
     }
+
+    public static STNode createQueryActionNode(
+            STNode queryPipeline,
+            STNode doKeyword,
+            STNode blockStatement) {
+
+        return new STQueryActionNode(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
+    }
 }
 

@@ -615,6 +615,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(annotAccessExpressionNode);
     }
 
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

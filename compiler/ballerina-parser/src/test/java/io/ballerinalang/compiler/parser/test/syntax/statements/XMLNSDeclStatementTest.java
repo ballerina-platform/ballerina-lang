@@ -20,26 +20,23 @@ package io.ballerinalang.compiler.parser.test.syntax.statements;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing while-statements.
+ * Test parsing XML namespace declaration statement.
+ * 
+ * @since 2.0.0
  */
-public class WhileStatementTest extends AbstractStatementTest {
+public class XMLNSDeclStatementTest extends AbstractStatementTest {
 
     // Valid source tests
 
     @Test
-    public void testEmptyWhile() {
-        testFile("while-stmt/while_stmt_source_01.bal", "while-stmt/while_stmt_assert_01.json");
-    }
-
-    @Test
-    public void testWhileWithBody() {
-        testFile("while-stmt/while_stmt_source_02.bal", "while-stmt/while_stmt_assert_02.json");
+    public void testXMLNSDecl() {
+        testFile("xmlns-decl-stmt/xmlns_decl_stmt_source_01.bal", "xmlns-decl-stmt/xmlns_decl_stmt_assert_01.json");
     }
 
     // Recovery tests
 
     @Test
-    public void testWhileStmtRecovery() {
-        testFile("while-stmt/while_stmt_source_03.bal", "while-stmt/while_stmt_assert_03.json");
+    public void testXMLNSDeclRecovery() {
+        testFile("xmlns-decl-stmt/xmlns_decl_stmt_source_01.bal", "xmlns-decl-stmt/xmlns_decl_stmt_assert_01.json");
     }
 }

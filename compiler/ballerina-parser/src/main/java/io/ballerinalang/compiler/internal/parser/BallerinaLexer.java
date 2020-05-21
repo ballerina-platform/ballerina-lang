@@ -950,6 +950,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DEFAULT_KEYWORD);
             case LexerTerminals.WAIT:
                 return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
+            case LexerTerminals.DO:
+                return getSyntaxToken(SyntaxKind.DO_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1392,7 +1394,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     reader.advance(2);
                     continue;
-                    // TODO: UnicodePatternWhiteSpaceChar is also not allowed
+                // TODO: UnicodePatternWhiteSpaceChar is also not allowed
             }
             break;
         }
