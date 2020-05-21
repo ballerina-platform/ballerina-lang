@@ -308,6 +308,7 @@ public enum ParserRuleContext {
     TUPLE_TYPE_DESC_START("["),
     SYNC_SEND_TOKEN("->>"),
     LEFT_ARROW_TOKEN("<-"),
+    ANNOT_CHAINING_TOKEN(".@"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -375,6 +376,7 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
+    ANNOT_TAG_REFERENCE("annot-tag-reference"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

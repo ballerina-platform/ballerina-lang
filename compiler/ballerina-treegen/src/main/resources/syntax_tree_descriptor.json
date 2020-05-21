@@ -3093,6 +3093,25 @@
                     "type": "ExpressionNode"
                 }
             ]
+        },
+        {
+            "name": "AnnotAccessExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ANNOT_ACCESS",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "annotChainingToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "annotTagReference",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

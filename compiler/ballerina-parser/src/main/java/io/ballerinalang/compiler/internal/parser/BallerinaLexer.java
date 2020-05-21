@@ -443,16 +443,22 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        if (reader.peek() == LexerTerminals.DOT) {
-            if (reader.peek(1) == LexerTerminals.DOT) {
+        int nexChar = reader.peek();
+        if (nexChar == LexerTerminals.DOT) {
+            int nextNextChar = reader.peek(1);
+            if (nextNextChar == LexerTerminals.DOT) {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
-            } else if (reader.peek(1) == LexerTerminals.LT) {
+            } else if (nextNextChar == LexerTerminals.LT) {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
             }
+        } else if (nexChar == LexerTerminals.AT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
         }
-        if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
+
+        if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
             return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);

@@ -434,6 +434,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseWaitField();
             case WAIT_FIELD_END:
                 return parseWaitFieldEnd();
+            case ANNOT_CHAINING_TOKEN:
+                return parseAnnotChainingToken();
+            case ANNOT_TAG_REFERENCE:
+                return parseAnnotTagReference();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2629,6 +2633,7 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
+            case ANNOT_CHAINING_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
@@ -4018,6 +4023,9 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW:
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr);
                 break;
+            case ANNOT_CHAINING_TOKEN:
+                newLhsExpr = parseAnnotAccessExpression(lhsExpr);
+                break;
             default:
                 if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseSignedRightShiftToken();
@@ -4053,6 +4061,7 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
             case RIGHT_DOUBLE_ARROW:
             case SYNC_SEND_TOKEN:
+            case ANNOT_CHAINING_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -10570,4 +10579,45 @@ public class BallerinaParser extends AbstractParser {
         STNode waitFutureExpr = parseWaitFutureExpr();
         return STNodeFactory.createWaitFieldNode(identifier, colon, waitFutureExpr);
     }
+
+    /**
+     * Parse annot access expression.
+     * <p>
+     * <code>annot-access-expr := expression .@ annot-tag-reference</code>
+     *
+     * @param lhsExpr Preceding expression of the annot access access
+     * @return Parsed node
+     */
+    private STNode parseAnnotAccessExpression(STNode lhsExpr) {
+        STNode annotAccessToken = parseAnnotChainingToken();
+        STNode annotTagReference = parseAnnotTagReference();
+        return STNodeFactory.createAnnotAccessExpressionNode(lhsExpr, annotAccessToken, annotTagReference);
+    }
+
+    /**
+     * Parse annot-chaining-token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAnnotChainingToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ANNOT_CHAINING_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ANNOT_CHAINING_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse annot tag reference.
+     * <p>
+     * <code>annot-tag-reference := qualified-identifier | identifier</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseAnnotTagReference() {
+        return parseQualifiedIdentifier(ParserRuleContext.ANNOT_TAG_REFERENCE);
+    }
+
 }

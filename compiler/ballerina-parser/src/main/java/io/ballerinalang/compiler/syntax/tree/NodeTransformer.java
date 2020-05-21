@@ -608,6 +608,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(waitFieldNode);
     }
 
+    public T transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return transformSyntaxNode(annotAccessExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

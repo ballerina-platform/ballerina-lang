@@ -1260,6 +1260,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case WAIT_FUTURE_EXPR_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, WAIT_FUTURE_EXPR_END,
                             isEntryPoint);
+                case ANNOT_CHAINING_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.ANNOT_CHAINING_TOKEN;
+                    break;
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1342,6 +1345,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case VARIABLE_REF:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
+                case ANNOT_TAG_REFERENCE:
 
                     // Contexts that expect a type
                 case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -1468,49 +1472,51 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         switch (parentCtx) {
             case ARG_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START,
-                        ParserRuleContext.ARG_LIST_END };
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA,
+                        ParserRuleContext.ARG_LIST_START, ParserRuleContext.ARG_LIST_END };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
                 next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case COMPUTED_FIELD_NAME:
                 // Here we give high priority to the comma. Therefore order of the below array matters.
                 next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LISTENERS_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_BRACE,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.OPEN_BRACE, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LIST_CONSTRUCTOR:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.CLOSE_BRACKET,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LET_EXPR_LET_VAR_DECL:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.IN_KEYWORD,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.IN_KEYWORD, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LET_CLAUSE_LET_VAR_DECL:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.QUERY_EXPRESSION_RHS,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.QUERY_EXPRESSION_RHS, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case QUERY_EXPRESSION:
                 next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.QUERY_EXPRESSION_RHS,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.QUERY_EXPRESSION_RHS, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             default:
                 if (isParameter(parentCtx)) {
                     next = new ParserRuleContext[] { ParserRuleContext.CLOSE_PARENTHESIS,
-                            ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET,
+                            ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                            ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
                             ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START };
                     return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
                 }
@@ -1543,8 +1549,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
-                ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START,
-                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
+                ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
+                ParserRuleContext.ARG_LIST_START, ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
@@ -1603,6 +1609,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
+            case ANNOT_TAG_REFERENCE:
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
@@ -1936,6 +1943,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
+            case ANNOT_TAG_REFERENCE:
                 return ParserRuleContext.QUALIFIED_IDENTIFIER;
             case QUALIFIED_IDENTIFIER:
                 nextToken = this.tokenReader.peek(nextLookahead);
@@ -1957,6 +1965,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return ParserRuleContext.ANNOTATION_REF_RHS;
                     case ANNOTATION_DECL:
                         return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
+                    case ANNOT_TAG_REFERENCE:
+                        endContext();
+                        return ParserRuleContext.EXPRESSION_RHS;
                     default:
                         throw new IllegalStateException(parentCtx.toString());
                 }
@@ -2253,6 +2264,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case ALTERNATE_WAIT_EXPRS:
                 return ParserRuleContext.EXPRESSION;
+            case ANNOT_CHAINING_TOKEN:
+                return ParserRuleContext.ANNOT_TAG_REFERENCE;
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -3299,6 +3312,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case TYPE_REFERENCE:
+            case ANNOT_TAG_REFERENCE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case RECORD_BODY_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
@@ -3560,6 +3574,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case WAIT_KEYWORD:
                 return SyntaxKind.WAIT_KEYWORD;
+            case ANNOT_CHAINING_TOKEN:
+                return SyntaxKind.ANNOT_CHAINING_TOKEN;
 
             // TODO:
             case COMP_UNIT:
