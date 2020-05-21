@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ConditionalExpressionNode extends ExpressionNode {
 
@@ -91,5 +93,76 @@ public class ConditionalExpressionNode extends ExpressionNode {
                 middleExpression,
                 colonToken,
                 endExpression);
+    }
+
+    public ConditionalExpressionNodeModifier modify() {
+        return new ConditionalExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ConditionalExpressionNodeModifier {
+        private final ConditionalExpressionNode oldNode;
+        private ExpressionNode lhsExpression;
+        private Token questionMarkToken;
+        private ExpressionNode middleExpression;
+        private Token colonToken;
+        private ExpressionNode endExpression;
+
+        public ConditionalExpressionNodeModifier(ConditionalExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.lhsExpression = oldNode.lhsExpression();
+            this.questionMarkToken = oldNode.questionMarkToken();
+            this.middleExpression = oldNode.middleExpression();
+            this.colonToken = oldNode.colonToken();
+            this.endExpression = oldNode.endExpression();
+        }
+
+        public ConditionalExpressionNodeModifier withLhsExpression(
+                ExpressionNode lhsExpression) {
+            Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+            this.lhsExpression = lhsExpression;
+            return this;
+        }
+
+        public ConditionalExpressionNodeModifier withQuestionMarkToken(
+                Token questionMarkToken) {
+            Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+            this.questionMarkToken = questionMarkToken;
+            return this;
+        }
+
+        public ConditionalExpressionNodeModifier withMiddleExpression(
+                ExpressionNode middleExpression) {
+            Objects.requireNonNull(middleExpression, "middleExpression must not be null");
+            this.middleExpression = middleExpression;
+            return this;
+        }
+
+        public ConditionalExpressionNodeModifier withColonToken(
+                Token colonToken) {
+            Objects.requireNonNull(colonToken, "colonToken must not be null");
+            this.colonToken = colonToken;
+            return this;
+        }
+
+        public ConditionalExpressionNodeModifier withEndExpression(
+                ExpressionNode endExpression) {
+            Objects.requireNonNull(endExpression, "endExpression must not be null");
+            this.endExpression = endExpression;
+            return this;
+        }
+
+        public ConditionalExpressionNode apply() {
+            return oldNode.modify(
+                    lhsExpression,
+                    questionMarkToken,
+                    middleExpression,
+                    colonToken,
+                    endExpression);
+        }
     }
 }

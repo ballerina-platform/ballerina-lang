@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class OptionalFieldAccessExpressionNode extends ExpressionNode {
 
@@ -75,5 +77,56 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
                 expression,
                 optionalChainingToken,
                 fieldName);
+    }
+
+    public OptionalFieldAccessExpressionNodeModifier modify() {
+        return new OptionalFieldAccessExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class OptionalFieldAccessExpressionNodeModifier {
+        private final OptionalFieldAccessExpressionNode oldNode;
+        private ExpressionNode expression;
+        private Token optionalChainingToken;
+        private Token fieldName;
+
+        public OptionalFieldAccessExpressionNodeModifier(OptionalFieldAccessExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.expression = oldNode.expression();
+            this.optionalChainingToken = oldNode.optionalChainingToken();
+            this.fieldName = oldNode.fieldName();
+        }
+
+        public OptionalFieldAccessExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public OptionalFieldAccessExpressionNodeModifier withOptionalChainingToken(
+                Token optionalChainingToken) {
+            Objects.requireNonNull(optionalChainingToken, "optionalChainingToken must not be null");
+            this.optionalChainingToken = optionalChainingToken;
+            return this;
+        }
+
+        public OptionalFieldAccessExpressionNodeModifier withFieldName(
+                Token fieldName) {
+            Objects.requireNonNull(fieldName, "fieldName must not be null");
+            this.fieldName = fieldName;
+            return this;
+        }
+
+        public OptionalFieldAccessExpressionNode apply() {
+            return oldNode.modify(
+                    expression,
+                    optionalChainingToken,
+                    fieldName);
+        }
     }
 }
