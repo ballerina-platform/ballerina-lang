@@ -33,13 +33,12 @@ public class MavenResolverTest {
 
     @Test
     public void testNonTransitiveDependency() {
-
         try {
             Dependency dependency = resolver.resolve("org.json", "json", "20190722", false);
             String jarPath = Utils.getJarPath(targetRepo, dependency);
             Assert.assertEquals(new File(jarPath).exists(), true);
         } catch (MavenResolverException e) {
-            Assert.fail();
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -50,7 +49,7 @@ public class MavenResolverTest {
             String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
             Assert.assertEquals(new File(jarPath).exists(), true);
         } catch (MavenResolverException e) {
-            Assert.fail();
+            Assert.fail(e.getMessage());
         }
     }
 }
