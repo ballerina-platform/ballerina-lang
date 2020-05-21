@@ -587,6 +587,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(RestDescriptorNode restDescriptorNode) {
+        visitSyntaxNode(restDescriptorNode);
+    }
+
     public void visit(DoubleGTTokenNode doubleGTTokenNode) {
         visitSyntaxNode(doubleGTTokenNode);
     }

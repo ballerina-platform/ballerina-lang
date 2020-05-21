@@ -382,7 +382,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] TYPE_DESC_IN_TUPLE_RHS =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.ELLIPSIS };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_MEMBER_END =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
@@ -1727,6 +1727,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR || parentCtx == ParserRuleContext.ARG_LIST) {
                     return ParserRuleContext.EXPRESSION;
+                }
+                if (parentCtx == ParserRuleContext.TYPE_DESC_IN_TUPLE) {
+                    return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:

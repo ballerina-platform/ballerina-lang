@@ -2505,12 +2505,8 @@
                 },
                 {
                     "name": "memberTypeDesc",
-                    "type": "TypeDescriptorNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "restTypeDesc",
-                    "type": "Node"
                 },
                 {
                     "name": "closeBracketToken",
@@ -3002,6 +2998,21 @@
                 },
                 {
                     "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestDescriptorNode",
+            "base": "Node",
+            "kind": "REST_TYPE",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "ellipsisToken",
                     "type": "Token"
                 }
             ]

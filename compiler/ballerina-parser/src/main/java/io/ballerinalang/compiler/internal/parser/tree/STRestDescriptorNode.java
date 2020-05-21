@@ -19,35 +19,31 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode openBracketToken;
-    public final STNode memberTypeDesc;
-    public final STNode closeBracketToken;
+public class STRestDescriptorNode extends STNode {
+    public final STNode typeDescriptor;
+    public final STNode ellipsisToken;
 
-    STTupleTypeDescriptorNode(
-            STNode openBracketToken,
-            STNode memberTypeDesc,
-            STNode closeBracketToken) {
-        super(SyntaxKind.TUPLE_TYPE_DESC);
-        this.openBracketToken = openBracketToken;
-        this.memberTypeDesc = memberTypeDesc;
-        this.closeBracketToken = closeBracketToken;
+    STRestDescriptorNode(
+            STNode typeDescriptor,
+            STNode ellipsisToken) {
+        super(SyntaxKind.REST_TYPE);
+        this.typeDescriptor = typeDescriptor;
+        this.ellipsisToken = ellipsisToken;
 
         addChildren(
-                openBracketToken,
-                memberTypeDesc,
-                closeBracketToken);
+                typeDescriptor,
+                ellipsisToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new TupleTypeDescriptorNode(this, position, parent);
+        return new RestDescriptorNode(this, position, parent);
     }
 }

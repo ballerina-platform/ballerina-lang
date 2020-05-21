@@ -1395,13 +1395,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createTupleTypeDescriptorNode(
             STNode openBracketToken,
             STNode memberTypeDesc,
-            STNode restTypeDesc,
             STNode closeBracketToken) {
 
         return new STTupleTypeDescriptorNode(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 
@@ -1673,6 +1671,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    public static STNode createRestDescriptorNode(
+            STNode typeDescriptor,
+            STNode ellipsisToken) {
+
+        return new STRestDescriptorNode(
+                typeDescriptor,
+                ellipsisToken);
     }
 
     public static STNode createDoubleGTTokenNode(

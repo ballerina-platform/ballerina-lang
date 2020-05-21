@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -26,8 +25,7 @@
                 },
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 },
                 {
                     "kind": "CLOSE_PAREN_TOKEN"
@@ -40,8 +38,7 @@
                         },
                         {
                             "kind": "LIST",
-                            "children": [
-                            ]
+                            "children": []
                         },
                         {
                             "kind": "TUPLE_TYPE_DESC",
@@ -59,7 +56,15 @@
                                             "kind": "COMMA_TOKEN"
                                         },
                                         {
-                                            "kind": "STRING_KEYWORD"
+                                            "kind": "REST_TYPE",
+                                            "children": [
+                                                {
+                                                    "kind": "STRING_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "ELLIPSIS_TOKEN"
+                                                }
+                                            ]
                                         }
                                     ]
                                 },
@@ -86,8 +91,7 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
                                     "kind": "TUPLE_TYPE_DESC",
