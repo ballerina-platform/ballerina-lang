@@ -43,7 +43,7 @@
                                             "isMissing": true
                                         },
                                         {
-                                            "kind": "OPTIONAL_FIELD_ACCESS_TOKEN"
+                                            "kind": "OPTIONAL_CHAINING_TOKEN"
                                         },
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
@@ -71,7 +71,7 @@
                             "isMissing": true
                         },
                         {
-                            "kind": "OPTIONAL_FIELD_ACCESS_TOKEN"
+                            "kind": "OPTIONAL_CHAINING_TOKEN"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",

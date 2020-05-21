@@ -3,14 +3,14 @@
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "expression"
+            "value": "a"
         },
         {
-            "kind": "OPTIONAL_FIELD_ACCESS_TOKEN"
+            "kind": "OPTIONAL_CHAINING_TOKEN"
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "name"
+            "value": "b"
         }
     ]
 }
