@@ -942,6 +942,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.FLUSH_KEYWORD);
             case LexerTerminals.DEFAULT:
                 return getSyntaxToken(SyntaxKind.DEFAULT_KEYWORD);
+            case LexerTerminals.WAIT:
+                return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1374,7 +1376,7 @@ public class BallerinaLexer extends AbstractLexer {
                     }
                     continue;
                 default:
-                    // ASCCI letters are not allowed
+                    // ASCII letters are not allowed
                     if ('A' <= nextChar && nextChar <= 'Z') {
                         break;
                     }

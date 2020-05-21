@@ -20,33 +20,33 @@ package io.ballerinalang.compiler.parser.test.syntax.actions;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing start action.
+ * Test parsing wait action.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class StartActionTest extends AbstractActionTest {
+public class WaitActionTest extends AbstractActionTest {
 
     // Valid source tests
 
     @Test
-    public void testStartAction() {
-        testFile("start-action/start_action_source_01.bal", "start-action/start_action_assert_01.json");
+    public void testSingleWaitAction() {
+        testFile("wait-action/wait_action_source_01.bal", "wait-action/wait_action_assert_01.json");
     }
 
     @Test
-    public void testStartActionWithAnnots() {
-        testFile("start-action/start_action_source_03.bal", "start-action/start_action_assert_03.json");
+    public void testMultipleWaitAction() {
+        testFile("wait-action/wait_action_source_02.bal", "wait-action/wait_action_assert_02.json");
     }
 
     // Recovery tests
 
     @Test
-    public void testStartActionRecovery() {
-        testFile("start-action/start_action_source_02.bal", "start-action/start_action_assert_02.json");
+    public void testRecoveryInSingleWaitAction() {
+        testFile("wait-action/wait_action_source_03.bal", "wait-action/wait_action_assert_03.json");
     }
 
     @Test
-    public void testStartActionWithAnnotsRecovery() {
-        testFile("start-action/start_action_source_04.bal", "start-action/start_action_assert_04.json");
+    public void testRecoveryInMultipleWaitAction() {
+        testFile("wait-action/wait_action_source_04.bal", "wait-action/wait_action_assert_04.json");
     }
 }

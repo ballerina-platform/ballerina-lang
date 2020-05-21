@@ -1552,10 +1552,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createStartActionNode(
+            STNode annotations,
             STNode startKeyword,
             STNode expression) {
 
         return new STStartActionNode(
+                annotations,
                 startKeyword,
                 expression);
     }
@@ -1664,12 +1666,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createReceiveFieldsNode(
             STNode openBrace,
-            STNode receiveField,
+            STNode receiveFields,
             STNode closeBrace) {
 
         return new STReceiveFieldsNode(
                 openBrace,
-                receiveField,
+                receiveFields,
                 closeBrace);
     }
 
@@ -1691,6 +1693,37 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openGTToken,
                 middleGTToken,
                 endGTToken);
+    }
+
+    public static STNode createWaitActionNode(
+            STNode waitKeyword,
+            STNode waitFutureExpr) {
+
+        return new STWaitActionNode(
+                waitKeyword,
+                waitFutureExpr);
+    }
+
+    public static STNode createWaitFieldsListNode(
+            STNode openBrace,
+            STNode waitFields,
+            STNode closeBrace) {
+
+        return new STWaitFieldsListNode(
+                openBrace,
+                waitFields,
+                closeBrace);
+    }
+
+    public static STNode createWaitFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode waitFutureExpr) {
+
+        return new STWaitFieldNode(
+                fieldName,
+                colon,
+                waitFutureExpr);
     }
 }
 

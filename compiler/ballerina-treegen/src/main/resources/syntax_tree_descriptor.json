@@ -2789,6 +2789,11 @@
             "kind": "START_ACTION",
             "attributes": [
                 {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "startKeyword",
                     "type": "Token"
                 },
@@ -2969,7 +2974,7 @@
         {
             "name": "ReceiveActionNode",
             "base": "ActionNode",
-            "kind": "RECEIVE_SEND_ACTION",
+            "kind": "RECEIVE_ACTION",
             "attributes": [
                 {
                     "name": "leftArrow",
@@ -2991,7 +2996,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "receiveField",
+                    "name": "receiveFields",
                     "type": "NameReferenceNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
@@ -3032,6 +3037,60 @@
                 {
                     "name": "endGTToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WaitActionNode",
+            "base": "ActionNode",
+            "kind": "WAIT_ACTION",
+            "attributes": [
+                {
+                    "name": "waitKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFutureExpr",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "WaitFieldsListNode",
+            "base": "Node",
+            "kind": "WAIT_FIELDS_LIST",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFields",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WaitFieldNode",
+            "base": "Node",
+            "kind": "WAIT_FIELD",
+            "attributes": [
+                {
+                    "name": "fieldName",
+                    "type": "NameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFutureExpr",
+                    "type": "ExpressionNode"
                 }
             ]
         }
