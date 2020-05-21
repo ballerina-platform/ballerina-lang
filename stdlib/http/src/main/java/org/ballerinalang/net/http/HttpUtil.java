@@ -659,10 +659,13 @@ public class HttpUtil {
         inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequest.addNativeData(REQUEST, true);
 
-        MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
+        MapValue<BString, Object> mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(
+                MUTUAL_SSL_HANDSHAKE_RECORD);
         mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
-        mutualSslRecord.put(MUTUAL_SSL_CERTIFICATE, inboundRequestMsg.getProperty(HttpConstants.BASE_64_ENCODED_CERT));
+                            org.ballerinalang.jvm.StringUtils.fromString(
+                                    (String) inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT)));
+        mutualSslRecord.put(MUTUAL_SSL_CERTIFICATE, org.ballerinalang.jvm.StringUtils
+                .fromString((String) inboundRequestMsg.getProperty(HttpConstants.BASE_64_ENCODED_CERT)));
         inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
 
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
