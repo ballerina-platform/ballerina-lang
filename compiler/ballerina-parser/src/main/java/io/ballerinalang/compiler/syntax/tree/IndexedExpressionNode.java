@@ -40,8 +40,8 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
         return childInBucket(1);
     }
 
-    public ExpressionNode keyExpression() {
-        return childInBucket(2);
+    public SeparatedNodeList<ExpressionNode> keyExpression() {
+        return new SeparatedNodeList<>(childInBucket(2));
     }
 
     public Token closeBracket() {
@@ -70,12 +70,12 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
     public IndexedExpressionNode modify(
             ExpressionNode containerExpression,
             Token openBracket,
-            ExpressionNode keyExpression,
+            SeparatedNodeList<ExpressionNode> keyExpression,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 containerExpression,
                 openBracket,
-                keyExpression,
+                keyExpression.underlyingListNode(),
                 closeBracket)) {
             return this;
         }
@@ -100,7 +100,7 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
         private final IndexedExpressionNode oldNode;
         private ExpressionNode containerExpression;
         private Token openBracket;
-        private ExpressionNode keyExpression;
+        private SeparatedNodeList<ExpressionNode> keyExpression;
         private Token closeBracket;
 
         public IndexedExpressionNodeModifier(IndexedExpressionNode oldNode) {
@@ -126,7 +126,7 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
         }
 
         public IndexedExpressionNodeModifier withKeyExpression(
-                ExpressionNode keyExpression) {
+                SeparatedNodeList<ExpressionNode> keyExpression) {
             Objects.requireNonNull(keyExpression, "keyExpression must not be null");
             this.keyExpression = keyExpression;
             return this;

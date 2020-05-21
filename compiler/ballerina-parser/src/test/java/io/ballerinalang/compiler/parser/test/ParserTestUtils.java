@@ -97,6 +97,22 @@ public class ParserTestUtils {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
+                // Ignore
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
                 // Ignore
             }
         }
@@ -110,6 +126,8 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
+        // updateAssertFiles(source, assertFilePath, context);
+
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
         STNode syntaxTree = parser.parse(context);

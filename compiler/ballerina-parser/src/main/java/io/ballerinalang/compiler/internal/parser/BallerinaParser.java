@@ -4150,11 +4150,6 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
         }
 
-        // This is temporary
-        if (exprList.size() == 1) {
-            return exprList.get(0);
-        }
-
         return STNodeFactory.createNodeList(exprList);
     }
 

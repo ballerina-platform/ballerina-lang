@@ -579,8 +579,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(indexedExpressionNode.containerExpression());
         Token openBracket =
                 modifyToken(indexedExpressionNode.openBracket());
-        ExpressionNode keyExpression =
-                modifyNode(indexedExpressionNode.keyExpression());
+        SeparatedNodeList<ExpressionNode> keyExpression =
+                modifySeparatedNodeList(indexedExpressionNode.keyExpression());
         Token closeBracket =
                 modifyToken(indexedExpressionNode.closeBracket());
         return indexedExpressionNode.modify(

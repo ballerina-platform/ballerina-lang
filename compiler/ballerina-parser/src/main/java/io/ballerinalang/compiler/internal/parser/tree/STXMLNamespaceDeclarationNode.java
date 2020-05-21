@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
  *
  * @since 2.0.0
  */
-public class STXMLNamespaceDeclarationNode extends STNode {
+public class STXMLNamespaceDeclarationNode extends STStatementNode {
     public final STNode xmlnsKeyword;
     public final STNode namespaceuri;
     public final STNode asKeyword;

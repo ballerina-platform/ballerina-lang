@@ -747,7 +747,8 @@
                 },
                 {
                     "name": "keyExpression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBracket",
