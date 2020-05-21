@@ -55,12 +55,7 @@ public class ModuleExecutionFlowTests {
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                // Here stopping module C throws some kind of exception, hence module stop log for C won't print
-                // If we are to handle those errors gracefully, then that log should come here
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
-
+                "Initializing module b";
         String expectedErrorString = "error: error returned while initializing module B ";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -77,7 +72,6 @@ public class ModuleExecutionFlowTests {
                 "Module c main function invoked\n" +
                 "a:ABC listener __start called, service name - ModA\n" +
                 "a:ABC listener __start called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModC\n" +
                 "a:ABC listener __gracefulStop called, service name - ModB\n" +
                 "a:ABC listener __gracefulStop called, service name - ModA";
 
@@ -92,12 +86,7 @@ public class ModuleExecutionFlowTests {
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                // Here stopping module C throws some kind of exception, hence module stop log for C won't print
-                // If we are to handle those errors gracefully, then that log should come here
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
-
+                "Initializing module b";
         String expectedErrorString = "error: panicked while initializing module B \n" +
                 "\tat unit-tests.b.0_1_0:__init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
@@ -115,7 +104,6 @@ public class ModuleExecutionFlowTests {
                 "Module c main function invoked\n" +
                 "a:ABC listener __start called, service name - ModA\n" +
                 "a:ABC listener __start called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModC\n" +
                 "a:ABC listener __gracefulStop called, service name - ModB\n" +
                 "a:ABC listener __gracefulStop called, service name - ModA";
 
@@ -152,11 +140,7 @@ public class ModuleExecutionFlowTests {
         String expectedString = "Initializing module a\n" +
                 "Initializing module b\n" +
                 "Initializing module c\n" +
-                "Module c main function invoked\n" +
-                "a:ABC listener __gracefulStop called, service name - ModC\n" +
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
-
+                "Module c main function invoked";
         String expectedErrorString = "error: error returned while executing main method ";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -170,11 +154,7 @@ public class ModuleExecutionFlowTests {
         String expectedString = "Initializing module a\n" +
                 "Initializing module b\n" +
                 "Initializing module c\n" +
-                "Module c main function invoked\n" +
-                "a:ABC listener __gracefulStop called, service name - ModC\n" +
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
-
+                "Module c main function invoked";
         String expectedErrorString = "error: panicked while executing main method \n" +
                 "\tat unit-tests.c.0_1_0:main(main.bal:12)";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
