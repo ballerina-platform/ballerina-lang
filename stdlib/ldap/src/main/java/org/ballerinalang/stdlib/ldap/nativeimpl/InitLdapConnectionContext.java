@@ -50,7 +50,7 @@ import javax.net.ssl.SSLContext;
  */
 public class InitLdapConnectionContext {
 
-    public static Object initLdapConnectionContext(MapValue<?, ?> authProviderConfig, String instanceId) {
+    public static Object initLdapConnectionContext(MapValue<BString, Object> authProviderConfig, BString instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(
@@ -97,12 +97,14 @@ public class InitLdapConnectionContext {
         commonLdapConfiguration.setRetryAttempts(authProviderConfig.getIntValue(
                 StringUtils.fromString(LdapConstants.RETRY_ATTEMPTS)).intValue());
 
-        MapValue<?, ?> sslConfig = authProviderConfig.containsKey(LdapConstants.SECURE_AUTH_STORE_CONFIG) ?
-                authProviderConfig.getMapValue(StringUtils.fromString(LdapConstants.SECURE_AUTH_STORE_CONFIG)) : null;
+        MapValue<BString, Object> sslConfig = authProviderConfig.containsKey(
+                StringUtils.fromString(LdapConstants.SECURE_AUTH_STORE_CONFIG)) ?
+                (MapValue<BString, Object>) authProviderConfig.getMapValue(
+                        StringUtils.fromString(LdapConstants.SECURE_AUTH_STORE_CONFIG)) : null;
         try {
             if (sslConfig != null) {
-                setSslConfig(sslConfig, commonLdapConfiguration, instanceId);
-                LdapUtils.setServiceName(instanceId);
+                setSslConfig(sslConfig, commonLdapConfiguration, instanceId.getValue());
+                LdapUtils.setServiceName(instanceId.getValue());
             }
             LdapConnectionContext connectionSource = new LdapConnectionContext(commonLdapConfiguration);
             DirContext dirContext = connectionSource.getContext();
@@ -112,7 +114,7 @@ public class InitLdapConnectionContext {
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONFIGURATION, commonLdapConfiguration);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_SOURCE, connectionSource);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT, dirContext);
-            ldapConnectionRecord.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId);
+            ldapConnectionRecord.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId.getValue());
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException | IllegalArgumentException e) {
@@ -127,10 +129,11 @@ public class InitLdapConnectionContext {
         }
     }
 
-    private static void setSslConfig(MapValue sslConfig, CommonLdapConfiguration commonLdapConfiguration,
-                                     String instanceId) throws IOException, NoSuchAlgorithmException, KeyStoreException,
-            KeyManagementException, CertificateException {
-        MapValue<?, ?> trustStore = sslConfig.getMapValue(
+    private static void setSslConfig(MapValue<BString, Object> sslConfig,
+                                     CommonLdapConfiguration commonLdapConfiguration, String instanceId)
+            throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
+            CertificateException {
+        MapValue<BString, BString> trustStore = (MapValue<BString, BString>) sslConfig.getMapValue(
                 StringUtils.fromString(LdapConstants.AUTH_STORE_CONFIG_TRUST_STORE));
         String trustCerts = sslConfig.containsKey(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES) ?
                 sslConfig.getStringValue(
