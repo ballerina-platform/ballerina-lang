@@ -37,14 +37,24 @@ public class Module {
     public String version;
 
     // constructs
+    @Expose
     public List<Record> records = new ArrayList<>();
+    @Expose
     public List<Object> objects = new ArrayList<>();
+    @Expose
     public List<Client> clients = new ArrayList<>();
+    @Expose
     public List<Listener> listeners = new ArrayList<>();
+    @Expose
     public List<Function> functions = new ArrayList<>();
+    @Expose
     public List<Constant> constants = new ArrayList<>();
+    @Expose
     public List<Annotation> annotations = new ArrayList<>();
+    @Expose
     public List<Error> errors = new ArrayList<>();
+    @Expose
     public List<FiniteType> finiteTypes = new ArrayList<>();
+    @Expose
     public List<UnionType> unionTypes = new ArrayList<>();
 }

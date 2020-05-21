@@ -137,6 +137,42 @@ public class BallerinaDocGenerator {
         }
     }
 
+    public static void writeAPIDocsToJSON(Map<String, ModuleDoc> docsMap, String output){
+        // Sort modules by module path
+        List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
+        moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
+
+        // Module level doc resources
+        Map<String, List<Path>> resources = new HashMap<>();
+
+        // Generate project model
+        Project project = getDocsGenModel(moduleDocList, resources);
+        File jsonFile = new File(output + File.separator + "api-doc-data.json");
+        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            String json = gson.toJson(project);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the module.json. Cause: %s", e.getMessage()));
+            log.error("Failed to create module.json file.", e);
+        }
+    }
+
+    public static void writeAPIDocsForModulesFromJson(Path jsonpath, String output) {
+        if (jsonpath.toFile().exists()) {
+            try (BufferedReader br = Files.newBufferedReader(jsonpath, StandardCharsets.UTF_8)) {
+                Project project = gson.fromJson(br, Project.class);
+                Map<String, List<Path>> resources = new HashMap<>();
+                writeAPIDocs(project, output, resources);
+            } catch (IOException e) {
+                String errorMsg = String.format("API documentation generation failed. Cause: %s",
+                        e.getMessage());
+                out.println(errorMsg);
+                log.error(errorMsg, e);
+                return;
+            }
+        }
+    }
+
     public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output) {
         // Sort modules by module path
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
@@ -148,6 +184,10 @@ public class BallerinaDocGenerator {
         // Generate project model
         Project project = getDocsGenModel(moduleDocList, resources);
 
+        writeAPIDocs(project, output, resources);
+
+    }
+    public static void writeAPIDocs(Project project, String output, Map<String, List<Path>> resources) {
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
         String recordTemplateName = System.getProperty(BallerinaDocConstants.RECORD_TEMPLATE_NAME_KEY, "record");
         String objectTemplateName = System.getProperty(BallerinaDocConstants.OBJECT_TEMPLATE_NAME_KEY, "object");
