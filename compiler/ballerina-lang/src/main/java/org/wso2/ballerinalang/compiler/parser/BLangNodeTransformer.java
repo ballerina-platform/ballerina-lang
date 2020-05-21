@@ -981,6 +981,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
         DiagnosticPos pos = getPosition(unaryExprNode);
+        SyntaxKind expressionKind = unaryExprNode.expression().kind();
+        SyntaxKind operatorKind = unaryExprNode.unaryOperator().kind();
+        if (expressionKind == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
+                expressionKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
+            BLangNumericLiteral numericLiteral = (BLangNumericLiteral) createSimpleLiteral(unaryExprNode.expression());
+            if (operatorKind == SyntaxKind.MINUS_TOKEN) {
+                numericLiteral.value = ((Long) numericLiteral.value) * -1;
+                numericLiteral.originalValue = "-" + numericLiteral.originalValue;
+                return numericLiteral;
+            }
+            return numericLiteral;
+        }
         OperatorKind operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
         BLangExpression expr = createExpression(unaryExprNode.expression());
         return createBLangUnaryExpr(pos, operator, expr);
@@ -1182,7 +1194,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(TrapExpressionNode trapExpressionNode) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
-        trapExpr.expr = (BLangExpression) trapExpressionNode.expression().apply(this);
+        trapExpr.expr = createExpression(trapExpressionNode.expression());
         return trapExpr;
     }
 
