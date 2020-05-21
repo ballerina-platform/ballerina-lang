@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
 
@@ -123,5 +125,116 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
                 onKeyword,
                 attachPoints,
                 semicolonToken);
+    }
+
+    public AnnotationDeclarationNodeModifier modify() {
+        return new AnnotationDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class AnnotationDeclarationNodeModifier {
+        private final AnnotationDeclarationNode oldNode;
+        private MetadataNode metadata;
+        private Token visibilityQualifier;
+        private Token constKeyword;
+        private Token annotationKeyword;
+        private Node typeDescriptor;
+        private Token annotationTag;
+        private Token onKeyword;
+        private SeparatedNodeList<Node> attachPoints;
+        private Token semicolonToken;
+
+        public AnnotationDeclarationNodeModifier(AnnotationDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.visibilityQualifier = oldNode.visibilityQualifier();
+            this.constKeyword = oldNode.constKeyword();
+            this.annotationKeyword = oldNode.annotationKeyword();
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.annotationTag = oldNode.annotationTag();
+            this.onKeyword = oldNode.onKeyword();
+            this.attachPoints = oldNode.attachPoints();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public AnnotationDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
+            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+            this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withConstKeyword(
+                Token constKeyword) {
+            Objects.requireNonNull(constKeyword, "constKeyword must not be null");
+            this.constKeyword = constKeyword;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withAnnotationKeyword(
+                Token annotationKeyword) {
+            Objects.requireNonNull(annotationKeyword, "annotationKeyword must not be null");
+            this.annotationKeyword = annotationKeyword;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withAnnotationTag(
+                Token annotationTag) {
+            Objects.requireNonNull(annotationTag, "annotationTag must not be null");
+            this.annotationTag = annotationTag;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withOnKeyword(
+                Token onKeyword) {
+            Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+            this.onKeyword = onKeyword;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withAttachPoints(
+                SeparatedNodeList<Node> attachPoints) {
+            Objects.requireNonNull(attachPoints, "attachPoints must not be null");
+            this.attachPoints = attachPoints;
+            return this;
+        }
+
+        public AnnotationDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public AnnotationDeclarationNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    visibilityQualifier,
+                    constKeyword,
+                    annotationKeyword,
+                    typeDescriptor,
+                    annotationTag,
+                    onKeyword,
+                    attachPoints,
+                    semicolonToken);
+        }
     }
 }

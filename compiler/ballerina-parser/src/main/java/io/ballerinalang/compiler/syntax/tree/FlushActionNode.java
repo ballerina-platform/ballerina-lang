@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FlushActionNode extends ExpressionNode {
 
@@ -34,7 +36,7 @@ public class FlushActionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Token peerWorker() {
+    public NameReferenceNode peerWorker() {
         return childInBucket(1);
     }
 
@@ -57,7 +59,7 @@ public class FlushActionNode extends ExpressionNode {
 
     public FlushActionNode modify(
             Token flushKeyword,
-            Token peerWorker) {
+            NameReferenceNode peerWorker) {
         if (checkForReferenceEquality(
                 flushKeyword,
                 peerWorker)) {
@@ -67,5 +69,46 @@ public class FlushActionNode extends ExpressionNode {
         return NodeFactory.createFlushActionNode(
                 flushKeyword,
                 peerWorker);
+    }
+
+    public FlushActionNodeModifier modify() {
+        return new FlushActionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FlushActionNodeModifier {
+        private final FlushActionNode oldNode;
+        private Token flushKeyword;
+        private NameReferenceNode peerWorker;
+
+        public FlushActionNodeModifier(FlushActionNode oldNode) {
+            this.oldNode = oldNode;
+            this.flushKeyword = oldNode.flushKeyword();
+            this.peerWorker = oldNode.peerWorker();
+        }
+
+        public FlushActionNodeModifier withFlushKeyword(
+                Token flushKeyword) {
+            Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
+            this.flushKeyword = flushKeyword;
+            return this;
+        }
+
+        public FlushActionNodeModifier withPeerWorker(
+                NameReferenceNode peerWorker) {
+            Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+            this.peerWorker = peerWorker;
+            return this;
+        }
+
+        public FlushActionNode apply() {
+            return oldNode.modify(
+                    flushKeyword,
+                    peerWorker);
+        }
     }
 }

@@ -16,7 +16,21 @@
               "children": [
                 {
                   "kind": "LIST",
-                  "children": []
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "foo"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -50,7 +64,21 @@
               "children": [
                 {
                   "kind": "LIST",
-                  "children": []
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },

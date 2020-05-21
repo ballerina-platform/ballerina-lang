@@ -222,20 +222,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly()(anydata)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "length()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -250,6 +236,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "cloneReadOnly()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "concat(string... strs)(string)",
       "kind": "Function",
       "detail": "Function",
@@ -261,6 +261,24 @@
       },
       "sortText": "120",
       "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "createPipeline(typedesc<(any|error)> resType)(_StreamPipeline)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `typedesc<(any|error)>` resType  \n  \n**Returns** `_StreamPipeline`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createPipeline(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -284,6 +302,20 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "print()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "print();",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "mergeJson(json j2)((json|error))",

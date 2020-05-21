@@ -44,32 +44,32 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "INVALID",
+                            "kind": "ACTION_STATEMENT",
                             "children": [
                                 {
-                                    "kind": "BINARY_EXPRESSION",
+                                    "kind": "FLUSH_ACTION",
                                     "children": [
                                         {
-                                            "kind": "FLUSH_ACTION",
-                                            "children": [
-                                                {
-                                                    "kind": "FLUSH_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "w1"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "PLUS_TOKEN",
-                                            "isMissing": true
+                                            "kind": "FLUSH_KEYWORD"
                                         },
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
-                                            "value": "w2"
+                                            "value": "w1"
                                         }
                                     ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "INVALID",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "w2"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN"

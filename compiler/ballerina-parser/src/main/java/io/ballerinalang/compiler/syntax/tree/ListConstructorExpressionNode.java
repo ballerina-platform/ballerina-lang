@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ListConstructorExpressionNode extends ExpressionNode {
 
@@ -75,5 +77,56 @@ public class ListConstructorExpressionNode extends ExpressionNode {
                 openBracket,
                 expressions,
                 closeBracket);
+    }
+
+    public ListConstructorExpressionNodeModifier modify() {
+        return new ListConstructorExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ListConstructorExpressionNodeModifier {
+        private final ListConstructorExpressionNode oldNode;
+        private Token openBracket;
+        private SeparatedNodeList<Node> expressions;
+        private Token closeBracket;
+
+        public ListConstructorExpressionNodeModifier(ListConstructorExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBracket = oldNode.openBracket();
+            this.expressions = oldNode.expressions();
+            this.closeBracket = oldNode.closeBracket();
+        }
+
+        public ListConstructorExpressionNodeModifier withOpenBracket(
+                Token openBracket) {
+            Objects.requireNonNull(openBracket, "openBracket must not be null");
+            this.openBracket = openBracket;
+            return this;
+        }
+
+        public ListConstructorExpressionNodeModifier withExpressions(
+                SeparatedNodeList<Node> expressions) {
+            Objects.requireNonNull(expressions, "expressions must not be null");
+            this.expressions = expressions;
+            return this;
+        }
+
+        public ListConstructorExpressionNodeModifier withCloseBracket(
+                Token closeBracket) {
+            Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+            this.closeBracket = closeBracket;
+            return this;
+        }
+
+        public ListConstructorExpressionNode apply() {
+            return oldNode.modify(
+                    openBracket,
+                    expressions,
+                    closeBracket);
+        }
     }
 }

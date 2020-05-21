@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class IndexedExpressionNode extends ExpressionNode {
 
@@ -83,5 +85,66 @@ public class IndexedExpressionNode extends ExpressionNode {
                 openBracket,
                 keyExpression,
                 closeBracket);
+    }
+
+    public IndexedExpressionNodeModifier modify() {
+        return new IndexedExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class IndexedExpressionNodeModifier {
+        private final IndexedExpressionNode oldNode;
+        private ExpressionNode containerExpression;
+        private Token openBracket;
+        private ExpressionNode keyExpression;
+        private Token closeBracket;
+
+        public IndexedExpressionNodeModifier(IndexedExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.containerExpression = oldNode.containerExpression();
+            this.openBracket = oldNode.openBracket();
+            this.keyExpression = oldNode.keyExpression();
+            this.closeBracket = oldNode.closeBracket();
+        }
+
+        public IndexedExpressionNodeModifier withContainerExpression(
+                ExpressionNode containerExpression) {
+            Objects.requireNonNull(containerExpression, "containerExpression must not be null");
+            this.containerExpression = containerExpression;
+            return this;
+        }
+
+        public IndexedExpressionNodeModifier withOpenBracket(
+                Token openBracket) {
+            Objects.requireNonNull(openBracket, "openBracket must not be null");
+            this.openBracket = openBracket;
+            return this;
+        }
+
+        public IndexedExpressionNodeModifier withKeyExpression(
+                ExpressionNode keyExpression) {
+            Objects.requireNonNull(keyExpression, "keyExpression must not be null");
+            this.keyExpression = keyExpression;
+            return this;
+        }
+
+        public IndexedExpressionNodeModifier withCloseBracket(
+                Token closeBracket) {
+            Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+            this.closeBracket = closeBracket;
+            return this;
+        }
+
+        public IndexedExpressionNode apply() {
+            return oldNode.modify(
+                    containerExpression,
+                    openBracket,
+                    keyExpression,
+                    closeBracket);
+        }
     }
 }

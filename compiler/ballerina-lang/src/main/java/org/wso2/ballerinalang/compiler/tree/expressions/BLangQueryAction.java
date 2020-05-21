@@ -17,20 +17,15 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.clauses.DoClauseNode;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.QueryActionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@code BLangQueryAction} represents the do action  in Ballerina.
@@ -38,10 +33,7 @@ import java.util.List;
  * @since 1.2.0
  */
 public class BLangQueryAction extends BLangExpression implements QueryActionNode {
-
-    public List<BLangFromClause> fromClauseList = new ArrayList<>();
-    public List<BLangWhereClause> whereClauseList = new ArrayList<>();
-    public List<BLangLetClause> letClauseList = new ArrayList<>();
+    public List<BLangNode> queryClauseList = new ArrayList<>();
     public BLangDoClause doClause;
 
     @Override
@@ -55,42 +47,27 @@ public class BLangQueryAction extends BLangExpression implements QueryActionNode
     }
 
     @Override
-    public List<? extends FromClauseNode> getFromClauseNodes() {
-        return fromClauseList;
+    public List<BLangNode> getQueryClauses() {
+        return queryClauseList;
     }
 
     @Override
-    public void addFromClauseNode(FromClauseNode fromClauseNode) {
-        fromClauseList.add((BLangFromClause) fromClauseNode);
+    public void addQueryClause(BLangNode queryClause) {
+        this.queryClauseList.add(queryClause);
     }
 
     @Override
-    public List<? extends BLangLetClause> getLetClauseNode() {
-        return letClauseList;
+    public BLangDoClause getDoClause() {
+        for (BLangNode clause : queryClauseList) {
+            if (clause.getKind() == NodeKind.DO) {
+                return (BLangDoClause) clause;
+            }
+        }
+        return null;
     }
 
     @Override
-    public void addLetClauseNode(LetClauseNode letClauseNode) {
-        this.letClauseList.add((BLangLetClause) letClauseNode);
-    }
-
-    @Override
-    public List<? extends BLangWhereClause> getWhereClauseNode() {
-        return whereClauseList;
-    }
-
-    @Override
-    public void addWhereClauseNode(WhereClauseNode whereClauseNode) {
-        this.whereClauseList.add((BLangWhereClause) whereClauseNode);
-    }
-
-    @Override
-    public DoClauseNode getDoClauseNode() {
-        return doClause;
-    }
-
-    @Override
-    public void setDoClauseNode(DoClauseNode doClauseNode) {
-        this.doClause = (BLangDoClause) doClauseNode;
+    public String toString() {
+        return queryClauseList.stream().map(BLangNode::toString).collect(Collectors.joining("\n"));
     }
 }

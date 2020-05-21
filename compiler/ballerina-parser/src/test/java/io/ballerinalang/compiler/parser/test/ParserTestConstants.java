@@ -32,8 +32,8 @@ public class ParserTestConstants {
 
     public static final String IS_MISSING_FIELD = "isMissing";
 
-    public static final String LEADING_TRIVIA = "leadingTrivia";
+    public static final String LEADING_MINUTIAE = "leadingMinutiae";
 
-    public static final String TRAILING_TRIVIA = "trailingTrivia";
+    public static final String TRAILING_MINUTIAE = "trailingMinutiae";
 
 }

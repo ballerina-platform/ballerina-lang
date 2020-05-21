@@ -59,8 +59,6 @@ public abstract class AbstractParserErrorHandler {
 
     protected abstract SyntaxKind getExpectedTokenKind(ParserRuleContext context);
 
-    public abstract ParserRuleContext findBestPath(ParserRuleContext context);
-
     /*
      * -------------- Error recovering --------------
      */
@@ -186,7 +184,6 @@ public abstract class AbstractParserErrorHandler {
         ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
         this.ctxStack = getCtxStackSnapshot();
         Result result = seekMatch(currentCtx, lookahead, currentDepth, isEntryPoint);
-        result.ctx = currentCtx;
         this.ctxStack = tempCtxStack;
         return result;
     }
@@ -215,6 +212,13 @@ public abstract class AbstractParserErrorHandler {
 
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
+    }
+    
+    protected ParserRuleContext getGrandParentContext() {
+        ParserRuleContext parent = this.ctxStack.pop();
+        ParserRuleContext grandParent = this.ctxStack.peek();
+        this.ctxStack.push(parent);
+        return grandParent;
     }
 
     /**
@@ -251,7 +255,7 @@ public abstract class AbstractParserErrorHandler {
 
         // This means there are no matches for any of the statements
         if (bestMatchIndex == 0) {
-            return new Result(new ArrayDeque<>(), currentMatches, alternativeRules[0]);
+            return new Result(new ArrayDeque<>(), currentMatches);
         }
 
         // If there is only one 'best' match, then return it. If there are more than one
@@ -455,15 +459,9 @@ public abstract class AbstractParserErrorHandler {
          */
         protected Solution solution;
 
-        /**
-         * Rule that produced this result.
-         */
-        protected ParserRuleContext ctx;
-
-        public Result(ArrayDeque<Solution> fixes, int matches, ParserRuleContext ctx) {
+        public Result(ArrayDeque<Solution> fixes, int matches) {
             this.fixes = fixes;
             this.matches = matches;
-            this.ctx = ctx;
         }
     }
 

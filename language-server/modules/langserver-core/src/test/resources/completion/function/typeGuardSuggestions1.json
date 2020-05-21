@@ -70,17 +70,17 @@
       }
     },
     {
-      "label": "isReadOnly()(boolean)",
+      "label": "print()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "isReadOnly()",
+      "insertText": "print();",
       "insertTextFormat": "Snippet"
     },
     {
@@ -95,6 +95,20 @@
       },
       "sortText": "120",
       "insertText": "abs()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
     {

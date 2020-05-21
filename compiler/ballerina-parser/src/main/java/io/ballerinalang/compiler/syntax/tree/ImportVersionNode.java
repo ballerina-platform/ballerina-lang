@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ImportVersionNode extends NonTerminalNode {
 
@@ -67,5 +69,46 @@ public class ImportVersionNode extends NonTerminalNode {
         return NodeFactory.createImportVersionNode(
                 versionKeyword,
                 versionNumber);
+    }
+
+    public ImportVersionNodeModifier modify() {
+        return new ImportVersionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ImportVersionNodeModifier {
+        private final ImportVersionNode oldNode;
+        private Token versionKeyword;
+        private Node versionNumber;
+
+        public ImportVersionNodeModifier(ImportVersionNode oldNode) {
+            this.oldNode = oldNode;
+            this.versionKeyword = oldNode.versionKeyword();
+            this.versionNumber = oldNode.versionNumber();
+        }
+
+        public ImportVersionNodeModifier withVersionKeyword(
+                Token versionKeyword) {
+            Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
+            this.versionKeyword = versionKeyword;
+            return this;
+        }
+
+        public ImportVersionNodeModifier withVersionNumber(
+                Node versionNumber) {
+            Objects.requireNonNull(versionNumber, "versionNumber must not be null");
+            this.versionNumber = versionNumber;
+            return this;
+        }
+
+        public ImportVersionNode apply() {
+            return oldNode.modify(
+                    versionKeyword,
+                    versionNumber);
+        }
     }
 }
