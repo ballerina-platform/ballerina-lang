@@ -9039,7 +9039,6 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse first typedesc, that has no leading comma
         STNode typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-        typeDescList.add(typeDesc);
 
         // Parse the remaining type descs
         nextToken = peek();
@@ -9050,16 +9049,16 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
             if (tupleMemberRhs.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-                typeDesc = typeDescList.remove(typeDescList.size() - 1);
                 typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
-                typeDescList.add(typeDesc);
                 break;
             }
+            typeDescList.add(typeDesc);
             typeDescList.add(tupleMemberRhs);
             typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-            typeDescList.add(typeDesc);
             nextToken = peek();
         }
+
+        typeDescList.add(typeDesc);
 
         return STNodeFactory.createNodeList(typeDescList);
     }
