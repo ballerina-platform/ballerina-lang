@@ -588,6 +588,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(RestDescriptorNode restDescriptorNode) {
+        return transformSyntaxNode(restDescriptorNode);
+    }
+
     public T transform(DoubleGTTokenNode doubleGTTokenNode) {
         return transformSyntaxNode(doubleGTTokenNode);
     }

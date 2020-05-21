@@ -1889,16 +1889,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         Token openBracketToken =
                 modifyToken(tupleTypeDescriptorNode.openBracketToken());
-        SeparatedNodeList<TypeDescriptorNode> memberTypeDesc =
+        SeparatedNodeList<Node> memberTypeDesc =
                 modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
-        Node restTypeDesc =
-                modifyNode(tupleTypeDescriptorNode.restTypeDesc());
         Token closeBracketToken =
                 modifyToken(tupleTypeDescriptorNode.closeBracketToken());
         return tupleTypeDescriptorNode.modify(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 
@@ -2266,6 +2263,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    @Override
+    public RestDescriptorNode transform(
+            RestDescriptorNode restDescriptorNode) {
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(restDescriptorNode.typeDescriptor());
+        Token ellipsisToken =
+                modifyToken(restDescriptorNode.ellipsisToken());
+        return restDescriptorNode.modify(
+                typeDescriptor,
+                ellipsisToken);
     }
 
     @Override

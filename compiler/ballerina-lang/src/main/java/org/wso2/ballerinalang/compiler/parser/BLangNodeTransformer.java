@@ -84,6 +84,7 @@ import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -104,7 +105,6 @@ import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
@@ -465,11 +465,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
-        // TODO: Fully implement after tuple-type-desc is completed.
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-        SeparatedNodeList<TypeDescriptorNode> types = tupleTypeDescriptorNode.memberTypeDesc();
+        SeparatedNodeList<Node> types = tupleTypeDescriptorNode.memberTypeDesc();
         for (int i = 0; i < types.size(); i++) {
-            tupleTypeNode.memberTypeNodes.add(createTypeNode(types.get(i)));
+            Node node = types.get(i);
+            if (node.kind() == SyntaxKind.REST_TYPE) {
+                RestDescriptorNode restDescriptor = (RestDescriptorNode) node;
+                tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
+            } else {
+                tupleTypeNode.memberTypeNodes.add(createTypeNode(node));
+            }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 

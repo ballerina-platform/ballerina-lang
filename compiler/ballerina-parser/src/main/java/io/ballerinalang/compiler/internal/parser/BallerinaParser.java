@@ -9064,10 +9064,9 @@ public class BallerinaParser extends AbstractParser {
         STNode openBracket = parseOpenBracket();
         startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
         STNode memberTypeDesc = parseTupleMemberTypeDescList();
-        STNode restTypeDesc = parseTupleRestTypeDesc();
         STNode closeBracket = parseCloseBracket();
         endContext();
-        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, restTypeDesc, closeBracket);
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDesc, closeBracket);
     }
 
     /**
@@ -9087,7 +9086,6 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse first typedesc, that has no leading comma
         STNode typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-        typeDescList.add(typeDesc);
 
         // Parse the remaining type descs
         nextToken = peek();
@@ -9097,12 +9095,17 @@ public class BallerinaParser extends AbstractParser {
             if (tupleMemberRhs == null) {
                 break;
             }
-
+            if (tupleMemberRhs.kind == SyntaxKind.ELLIPSIS_TOKEN) {
+                typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
+                break;
+            }
+            typeDescList.add(typeDesc);
             typeDescList.add(tupleMemberRhs);
             typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-            typeDescList.add(typeDesc);
             nextToken = peek();
         }
+
+        typeDescList.add(typeDesc);
 
         return STNodeFactory.createNodeList(typeDescList);
     }
@@ -9117,6 +9120,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseComma();
             case CLOSE_BRACKET_TOKEN:
                 return null;
+            case ELLIPSIS_TOKEN:
+                return parseEllipsis();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
 
@@ -9144,10 +9149,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
-    }
-
-    private STNode parseTupleRestTypeDesc() {
-        return STNodeFactory.createEmptyNode();
     }
 
     /**
