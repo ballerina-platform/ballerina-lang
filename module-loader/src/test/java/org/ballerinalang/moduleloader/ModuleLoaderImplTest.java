@@ -65,11 +65,11 @@ public class ModuleLoaderImplTest extends PowerMockTestCase {
     void testGetModuleVersionFromVersionId() throws IOException {
         ModuleId moduleId = new ModuleId();
         // Set version of the moduleId to `1.0.0`
-        moduleId.setVersion("1.0.0");
+        moduleId.setVersion("1.5.0");
 
         ModuleId versionResolvedModuleId = moduleLoader.resolveVersion(moduleId, new ModuleId());
         Assert.assertNotNull(versionResolvedModuleId);
-        Assert.assertEquals(versionResolvedModuleId.getVersion(), "1.0.0");
+        Assert.assertEquals(versionResolvedModuleId.getVersion(), "1.5.0");
     }
 
     @Test(description = "Get module version from project modules")
@@ -82,13 +82,13 @@ public class ModuleLoaderImplTest extends PowerMockTestCase {
         org.ballerinalang.toml.model.Project tomlProject = mock(org.ballerinalang.toml.model.Project.class);
 
         // Set project version to `1.0.0`
-        when(tomlProject.getVersion()).thenReturn("1.0.0");
+        when(tomlProject.getVersion()).thenReturn("1.7.1");
         when(manifest.getProject()).thenReturn(tomlProject);
         when(project.getManifest()).thenReturn(manifest);
 
         moduleId = moduleLoader.resolveVersion(moduleId, new ModuleId());
         Assert.assertNotNull(moduleId);
-        Assert.assertEquals(moduleId.getVersion(), "1.0.0");
+        Assert.assertEquals(moduleId.getVersion(), "1.7.1");
     }
 
     @Test(description = "Get module version from lock file")
@@ -228,6 +228,31 @@ public class ModuleLoaderImplTest extends PowerMockTestCase {
 
         Assert.assertNotNull(moduleId);
         Assert.assertEquals(moduleVersion, moduleId.getVersion());
+    }
+
+    @Test(description = "Resolve module")
+    void testResolveModule() {
+        String moduleVersion = "11.0.1";
+
+        ModuleId moduleId = new ModuleId();
+        moduleId.setOrgName("hee-org");
+        moduleId.setModuleName("heeModule");
+        moduleId.setVersion(moduleVersion);
+
+        // Set repos of moduleLoader
+        // Here set `hooModule:2.0.0` in balo cache
+        Module module = new Module(moduleId, Paths.get("test/path/src" + moduleId.getModuleName()));
+        List<Repo> repos = moduleLoader.getRepos();
+        ProjectModules projectModules = (ProjectModules) repos.get(0);
+        when(projectModules.isModuleExists(moduleId)).thenReturn(true);
+        when(projectModules.getModule(moduleId)).thenReturn(module);
+        moduleLoader.setRepos(repos);
+
+        // test the method
+        Module resolvedModule = moduleLoader.resolveModule(moduleId);
+        Assert.assertNotNull(resolvedModule);
+        Assert.assertEquals(resolvedModule.getModuleId(), moduleId);
+        Assert.assertEquals(resolvedModule.getSourcePath(), module.getSourcePath());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.ballerinalang.moduleloader;
 
+import org.ballerinalang.moduleloader.model.Module;
 import org.ballerinalang.moduleloader.model.ModuleId;
 
 import java.io.File;
@@ -38,5 +39,12 @@ public abstract class FileSystemCache extends Cache {
         Path modulePath = Paths
                 .get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName(), moduleId.getModuleName(), moduleId.getVersion());
         return modulePath.toFile().exists();
+    }
+
+    @Override
+    public Module getModule(ModuleId moduleId) {
+        Path srcPath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName(),
+                moduleId.getModuleName(), moduleId.getVersion());
+        return new Module(moduleId, srcPath);
     }
 }

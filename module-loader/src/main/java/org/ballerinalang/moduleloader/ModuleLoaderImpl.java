@@ -2,7 +2,6 @@ package org.ballerinalang.moduleloader;
 
 import org.ballerinalang.moduleloader.model.Module;
 import org.ballerinalang.moduleloader.model.ModuleId;
-import org.ballerinalang.moduleloader.model.ModuleResolution;
 import org.ballerinalang.moduleloader.model.Project;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFileImport;
@@ -46,7 +45,7 @@ public class ModuleLoaderImpl implements ModuleLoader {
     @Override
     public ModuleId resolveVersion(ModuleId moduleId, ModuleId enclModuleId) throws IOException {
         // if version already exists in moduleId
-        if (moduleId.getVersion() != null && !"".equals(moduleId.getVersion().trim())) {
+        if (isVersionExists(moduleId)) {
             return moduleId;
         }
 
@@ -103,7 +102,14 @@ public class ModuleLoaderImpl implements ModuleLoader {
     }
 
     @Override
-    public ModuleResolution resolveModule(ModuleId moduleId) {
+    public Module resolveModule(ModuleId moduleId) {
+        for (Repo repo : this.repos) {
+            if (repo.isModuleExists(moduleId)) {
+                if (repo instanceof Cache) {
+                    return ((Cache) repo).getModule(moduleId);
+                }
+            }
+        }
         return null;
     }
 
@@ -184,5 +190,9 @@ public class ModuleLoaderImpl implements ModuleLoader {
             return moduleVersions.lastEntry().getKey();
         }
         return null;
+    }
+
+    private boolean isVersionExists(ModuleId moduleId) {
+        return moduleId.getVersion() != null && !"".equals(moduleId.getVersion().trim());
     }
 }

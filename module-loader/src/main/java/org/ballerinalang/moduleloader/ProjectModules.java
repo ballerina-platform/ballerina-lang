@@ -49,6 +49,7 @@ public class ProjectModules extends Cache {
 
     @Override
     public Module getModule(ModuleId moduleId) {
-        return null;
+        Path srcPath = Paths.get(String.valueOf(this.projectPath), "src", moduleId.getModuleName());
+        return new Module(moduleId, srcPath);
     }
 }
