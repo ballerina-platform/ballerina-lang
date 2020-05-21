@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 /**
  * Represents the types of Symbols.
@@ -29,6 +29,8 @@ public enum BallerinaSymbolKind {
     CLIENT,
     PARAM,
     FUNCTION,
+    METHOD,
+    REMOTE_METHOD,
     FUNCTION_DECLARATION,
     FUNCTION_DEFINITION,
     EXTERNAL_FUNCTION,

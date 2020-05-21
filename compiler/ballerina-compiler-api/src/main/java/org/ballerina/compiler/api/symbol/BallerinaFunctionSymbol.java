@@ -15,39 +15,50 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
-import org.ballerina.compiler.api.semantic.SymbolFactory;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Represent Function Symbol.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class BallerinaFunctionSymbol extends BallerinaVariable {
-    private List<BallerinaParameter> parameters;
-    private BallerinaParameter restParam;
-    private TypeDescriptor returnType;
+public class BallerinaFunctionSymbol extends BallerinaSymbol {
     
-    private BallerinaFunctionSymbol(String name,
+    private final List<BallerinaParameter> parameters;
+    
+    private final BallerinaParameter restParam;
+    
+    private final TypeDescriptor returnType;
+
+    private final List<Qualifier> qualifiers;
+
+    private final TypeDescriptor typeDescriptor;
+    
+    protected BallerinaFunctionSymbol(String name,
                                     PackageID moduleID,
                                     BallerinaSymbolKind symbolKind,
-                                    List<AccessModifier> accessModifiers,
+                                    List<Qualifier> qualifiers,
                                     TypeDescriptor typeDescriptor,
                                     BInvokableSymbol invokableSymbol) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor, invokableSymbol);
+        super(name, moduleID, symbolKind, invokableSymbol);
         this.parameters = invokableSymbol.params.stream()
                 .map(SymbolFactory::createBallerinaParameter)
-                .collect(Collectors.toList());
+                .collect(Collectors.collectingAndThen(toList(), Collections::unmodifiableList));
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.typeDescriptor = typeDescriptor;
         this.restParam = SymbolFactory.createBallerinaParameter(invokableSymbol.restParam);
         this.returnType = TypesFactory.getTypeDescriptor(invokableSymbol.retType);
     }
@@ -57,7 +68,7 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
      * 
      * @return {@link List} of return parameters
      */
-    public List<BallerinaParameter> getParams() {
+    public List<BallerinaParameter> params() {
         return this.parameters;
     }
 
@@ -66,7 +77,7 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
      * 
      * @return {@link Optional} rest parameter
      */
-    public Optional<BallerinaParameter> getRestParam() {
+    public Optional<BallerinaParameter> restParam() {
         return Optional.ofNullable(restParam);
     }
 
@@ -75,30 +86,56 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
      * 
      * @return {@link Optional} return type descriptor
      */
-    public Optional<TypeDescriptor> getReturnType() {
+    public Optional<TypeDescriptor> returnType() {
         return Optional.ofNullable(returnType);
+    }
+
+    /**
+     * Get the list of qualifiers.
+     * 
+     * @return {@link List} of qualifiers
+     */
+    public List<Qualifier> qualifiers() {
+        return qualifiers;
+    }
+
+    public Optional<TypeDescriptor> typeDescriptor() {
+        return Optional.ofNullable(typeDescriptor);
     }
 
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
-    public static class FunctionSymbolBuilder extends BallerinaVariable.VariableSymbolBuilder {
+    static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
+
+        protected List<Qualifier> qualifiers = new ArrayList<>();
+
+        protected TypeDescriptor typeDescriptor;
         
         public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {
-            super(name, moduleID, bSymbol);
+            this(name, moduleID, BallerinaSymbolKind.FUNCTION, bSymbol);
+        }
+        
+        public FunctionSymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind kind,
+                                     BInvokableSymbol bSymbol) {
+            super(name, moduleID, kind, bSymbol);
+        }
+        
+        public FunctionSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public FunctionSymbolBuilder withQualifier(Qualifier qualifier) {
+            this.qualifiers.add(qualifier);
+            return this;
         }
 
         public BallerinaFunctionSymbol build() {
-            BallerinaSymbolKind symbolKind;
-            if ((this.bSymbol.flags & Flags.REMOTE) == Flags.REMOTE) {
-                symbolKind = BallerinaSymbolKind.REMOTE_FUNCTION;
-            } else {
-                symbolKind = BallerinaSymbolKind.FUNCTION;
-            }
             return new BallerinaFunctionSymbol(this.name,
                     this.moduleID,
-                    symbolKind,
-                    this.accessModifiers,
+                    BallerinaSymbolKind.FUNCTION,
+                    this.qualifiers,
                     this.typeDescriptor,
                     (BInvokableSymbol) this.bSymbol);
         }

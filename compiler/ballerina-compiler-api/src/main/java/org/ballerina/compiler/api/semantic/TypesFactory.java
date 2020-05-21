@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.api.semantic;
 
-import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.ballerina.compiler.api.types.ArrayTypeDescriptor;
 import org.ballerina.compiler.api.types.BuiltinTypeDescriptor;
 import org.ballerina.compiler.api.types.ErrorTypeDescriptor;

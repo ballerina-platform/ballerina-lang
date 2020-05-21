@@ -15,14 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
-import org.ballerina.compiler.api.semantic.BallerinaSymbol;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,17 +33,18 @@ import java.util.Optional;
  */
 public class BallerinaVariable extends BallerinaSymbol {
     
-    private List<AccessModifier> accessModifiers;
-    private TypeDescriptor typeDescriptor;
+    private final List<Qualifier> qualifiers;
+    
+    private final TypeDescriptor typeDescriptor;
     
     protected BallerinaVariable(String name,
                                 PackageID moduleID,
                                 BallerinaSymbolKind ballerinaSymbolKind,
-                                List<AccessModifier> accessModifiers,
+                                List<Qualifier> qualifiers,
                                 TypeDescriptor typeDescriptor,
                                 BSymbol bSymbol) {
         super(name, moduleID, ballerinaSymbolKind, bSymbol);
-        this.accessModifiers = accessModifiers;
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
     }
 
@@ -52,8 +53,8 @@ public class BallerinaVariable extends BallerinaSymbol {
      * 
      * @return {@link List} of access modifiers
      */
-    public List<AccessModifier> getAccessModifiers() {
-        return accessModifiers;
+    public List<Qualifier> qualifiers() {
+        return qualifiers;
     }
 
     /**
@@ -61,15 +62,17 @@ public class BallerinaVariable extends BallerinaSymbol {
      * 
      * @return {@link TypeDescriptor} of the variable
      */
-    public Optional<TypeDescriptor> getTypeDescriptor() {
+    public Optional<TypeDescriptor> typeDescriptor() {
         return Optional.ofNullable(typeDescriptor);
     }
 
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
-    public static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
-        protected List<AccessModifier> accessModifiers = new ArrayList<>();
+    static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
+        
+        protected List<Qualifier> qualifiers = new ArrayList<>();
+        
         protected TypeDescriptor typeDescriptor;
         
         public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
@@ -80,7 +83,7 @@ public class BallerinaVariable extends BallerinaSymbol {
             return new BallerinaVariable(this.name,
                     this.moduleID,
                     this.ballerinaSymbolKind,
-                    this.accessModifiers,
+                    this.qualifiers,
                     this.typeDescriptor,
                     this.bSymbol);
         }
@@ -90,8 +93,8 @@ public class BallerinaVariable extends BallerinaSymbol {
             return this;
         }
         
-        public VariableSymbolBuilder withAccessModifier(AccessModifier accessModifier) {
-            this.accessModifiers.add(accessModifier);
+        public VariableSymbolBuilder withAccessModifier(Qualifier qualifier) {
+            this.qualifiers.add(qualifier);
             return this;
         }
     }

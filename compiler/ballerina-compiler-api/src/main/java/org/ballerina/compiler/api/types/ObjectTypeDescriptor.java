@@ -17,11 +17,12 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.BallerinaField;
-import org.ballerina.compiler.api.model.BallerinaFunctionSymbol;
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
-import org.ballerina.compiler.api.semantic.SymbolFactory;
+import org.ballerina.compiler.api.symbol.BallerinaField;
+import org.ballerina.compiler.api.symbol.BallerinaFunctionSymbol;
+import org.ballerina.compiler.api.symbol.BallerinaMethod;
+import org.ballerina.compiler.api.symbol.ModuleID;
+import org.ballerina.compiler.api.symbol.SymbolFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -46,7 +47,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
 
     private List<BallerinaField> objectFields;
 
-    private List<BallerinaFunctionSymbol> methods;
+    private List<BallerinaMethod> methods;
 
     private BallerinaFunctionSymbol initFunction;
 
@@ -99,12 +100,13 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
      *
      * @return {@link List} of object methods
      */
-    public List<BallerinaFunctionSymbol> getMethods() {
+    // TODO: Rename to method declarations
+    public List<BallerinaMethod> methods() {
         if (this.methods == null) {
             this.methods = new ArrayList<>();
             for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol)
                     .attachedFuncs) {
-                this.methods.add(SymbolFactory.createFunctionSymbol(attachedFunc.symbol,
+                this.methods.add(SymbolFactory.createMethodSymbol(attachedFunc.symbol,
                         attachedFunc.funcName.getValue()));
             }
         }
@@ -112,7 +114,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
         return this.methods;
     }
 
-    public Optional<BallerinaFunctionSymbol> getInitializer() {
+    public Optional<BallerinaFunctionSymbol> initMethod() {
         if (this.initFunction == null) {
             BAttachedFunction initFunction =
                     ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
@@ -122,7 +124,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
 
         return Optional.ofNullable(this.initFunction);
     }
-    
+
     @Override
     public String getSignature() {
         StringBuilder signature = new StringBuilder();
@@ -138,9 +140,8 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
 
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
-        this.getObjectFields().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.getSignature()));
-        this.getMethods().forEach(method -> method.getTypeDescriptor()
-                .ifPresent(typeDescriptor -> methodJoiner.add(typeDescriptor.getSignature())));
+        this.getObjectFields().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
+        this.methods().forEach(method -> methodJoiner.add(method.typeDescriptor().getSignature()));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())

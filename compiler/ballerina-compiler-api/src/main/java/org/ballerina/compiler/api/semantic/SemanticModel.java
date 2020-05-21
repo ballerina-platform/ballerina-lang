@@ -19,8 +19,9 @@ package org.ballerina.compiler.api.semantic;
 
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextRange;
-import org.ballerina.compiler.api.model.BCompiledSymbol;
 import org.ballerina.compiler.api.semantic.visitors.SymbolsLookupVisitor;
+import org.ballerina.compiler.api.symbol.BCompiledSymbol;
+import org.ballerina.compiler.api.symbol.SymbolFactory;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -102,7 +103,7 @@ public class SemanticModel extends AbstractSemanticModel {
     public List<BCompiledSymbol> getSymbolByName(LinePosition linePosition, String name) {
         List<BCompiledSymbol> compiledSymbols = this.lookupSymbols(linePosition);
         return compiledSymbols.parallelStream()
-                .filter(symbol -> name.equals(symbol.getName()))
+                .filter(symbol -> name.equals(symbol.name()))
                 .collect(Collectors.toList());
     }
 
@@ -123,7 +124,7 @@ public class SemanticModel extends AbstractSemanticModel {
     public List<BCompiledSymbol> getLangLibSymbols(BallerinaTypeDesc bType) {
         List<BCompiledSymbol> compiledSymbols = new ArrayList<>();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>(this.symbolTable.langValueModuleSymbol.scope.entries);
-        switch (bType.getKind()) {
+        switch (bType.kind()) {
             case ARRAY:
             case TUPLE:
                 entries.putAll(this.symbolTable.langArrayModuleSymbol.scope.entries);

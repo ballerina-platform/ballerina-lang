@@ -15,21 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 /**
  * Represents the access modifier types.
  * 
  * @since 1.3.0
  */
-public enum AccessModifier {
+public enum Qualifier {
     PUBLIC("public"),
     PRIVATE("private"),
     FINAL("final");
     
     private String value;
 
-    AccessModifier(String value) {
+    Qualifier(String value) {
         this.value = value;
     }
 

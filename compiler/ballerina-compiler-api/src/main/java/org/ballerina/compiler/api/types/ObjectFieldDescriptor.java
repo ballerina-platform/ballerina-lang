@@ -17,22 +17,22 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.AccessModifier;
+import org.ballerina.compiler.api.symbol.Qualifier;
 
 import java.util.Optional;
 
 /**
  * Represents an object field descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class ObjectFieldDescriptor {
     // todo: Represent the meta data
-    private AccessModifier visibilityQualifier;
+    private Qualifier visibilityQualifier;
     private TypeDescriptor typeDescriptor;
     private String fieldName;
 
-    public ObjectFieldDescriptor(AccessModifier visibilityQualifier,
+    public ObjectFieldDescriptor(Qualifier visibilityQualifier,
                                  TypeDescriptor typeDescriptor,
                                  String fieldName) {
         this.visibilityQualifier = visibilityQualifier;
@@ -42,16 +42,16 @@ public class ObjectFieldDescriptor {
 
     /**
      * Get the visibility qualifier.
-     * 
+     *
      * @return {@link Optional} visibility qualifier
      */
-    public Optional<AccessModifier> getVisibilityQualifier() {
+    public Optional<Qualifier> getVisibilityQualifier() {
         return Optional.ofNullable(this.visibilityQualifier);
     }
 
     /**
      * Get the type descriptor.
-     * 
+     *
      * @return {@link TypeDescriptor} of the field
      */
     public TypeDescriptor getTypeDescriptor() {
@@ -60,7 +60,7 @@ public class ObjectFieldDescriptor {
 
     /**
      * Get the name of the field.
-     * 
+     *
      * @return {@link String} name of the field
      */
     public String getFieldName() {
@@ -69,7 +69,7 @@ public class ObjectFieldDescriptor {
 
     /**
      * Get the signature of the field.
-     * 
+     *
      * @return {@link String} representation of the field
      */
     public String getSignature() {

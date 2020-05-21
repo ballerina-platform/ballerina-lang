@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
@@ -23,54 +23,83 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Represent Function Symbol.
- * 
- * @since 1.3.0
+ * Represent Annotation Symbol.
+ *
+ * @since 2.0.0
  */
-public class BallerinaAnnotationSymbol extends BallerinaTypeDefinition {
-    
-    private List<AnnotationAttachPoint> attachPoints;
-    
+public class BallerinaAnnotationSymbol extends BallerinaSymbol {
+
+    private final List<Qualifier> qualifiers;
+
+    private final TypeDescriptor typeDescriptor;
+
+    private final List<AnnotationAttachPoint> attachPoints;
+
     private BallerinaAnnotationSymbol(String name,
                                       PackageID moduleID,
-                                      List<AccessModifier> accessModifiers,
+                                      List<Qualifier> qualifiers,
                                       TypeDescriptor typeDescriptor,
                                       List<AnnotationAttachPoint> attachPoints,
                                       BSymbol bSymbol) {
-        super(name, moduleID, accessModifiers, BallerinaSymbolKind.ANNOTATION, typeDescriptor, bSymbol);
-        this.attachPoints = attachPoints;
+        super(name, moduleID, BallerinaSymbolKind.ANNOTATION, bSymbol);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.typeDescriptor = typeDescriptor;
+        this.attachPoints = Collections.unmodifiableList(attachPoints);
+    }
+
+    /**
+     * Get the qualifiers.
+     *
+     * @return {@link List} of qualifiers
+     */
+    public List<Qualifier> qualifiers() {
+        return qualifiers;
+    }
+
+    /**
+     * Get the type descriptor.
+     *
+     * @return {@link TypeDescriptor} type descriptor of the annotation
+     */
+    public TypeDescriptor typeDescriptor() {
+        return typeDescriptor;
     }
 
     /**
      * Get the attached points.
-     * 
-     * @return {@link List} of attached points 
+     *
+     * @return {@link List} of attached points
      */
-    public List<AnnotationAttachPoint> getAttachPoints() {
+    public List<AnnotationAttachPoint> attachPoints() {
         return attachPoints;
     }
 
     /**
      * Represents Ballerina Annotation Symbol Builder.
-     * 
+     *
      * @since 1.3.0
      */
-    public static class AnnotationSymbolBuilder extends TypeDefSymbolBuilder {
-        
+    public static class AnnotationSymbolBuilder extends SymbolBuilder<AnnotationSymbolBuilder> {
+
+        private List<Qualifier> qualifiers = new ArrayList<>();
+
+        private TypeDescriptor typeDescriptor;
+
         private List<AnnotationAttachPoint> attachPoints = new ArrayList<>();
-        
+
         public AnnotationSymbolBuilder(String name, PackageID moduleID, BAnnotationSymbol annotationSymbol) {
-            super(name, moduleID, annotationSymbol);
+            super(name, moduleID, BallerinaSymbolKind.ANNOTATION, annotationSymbol);
             withAnnotationSymbol(annotationSymbol);
         }
 
         public BallerinaAnnotationSymbol build() {
             return new BallerinaAnnotationSymbol(this.name,
                     this.moduleID,
-                    this.accessModifiers,
+                    this.qualifiers,
                     this.typeDescriptor,
                     this.attachPoints,
                     this.bSymbol);
@@ -78,16 +107,22 @@ public class BallerinaAnnotationSymbol extends BallerinaTypeDefinition {
 
         /**
          * Set the attach points from the annotation symbol.
-         * 
+         *
          * @param annotationSymbol annotation symbol to evaluate
          */
         private void withAnnotationSymbol(BAnnotationSymbol annotationSymbol) {
             this.attachPoints.addAll(AnnotationAttachPoint.getAttachPoints(annotationSymbol.maskedPoints));
         }
 
-        @Override
-        public AnnotationSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
-            return (AnnotationSymbolBuilder) super.withTypeDescriptor(typeDescriptor);
+        public AnnotationSymbolBuilder setQualifier(Qualifier qualifier) {
+            this.qualifiers.add(qualifier);
+            return this;
         }
+
+        public AnnotationSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
     }
 }

@@ -17,9 +17,9 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 
 import java.util.Optional;
@@ -34,7 +34,7 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
     private TypeDescriptor memberTypeDesc;
 
     public MapTypeDescriptor(ModuleID moduleID,
-                              BMapType mapType) {
+                             BMapType mapType) {
         super(TypeDescKind.MAP, moduleID, mapType);
     }
 

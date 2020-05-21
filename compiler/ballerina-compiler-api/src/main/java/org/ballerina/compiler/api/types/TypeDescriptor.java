@@ -17,31 +17,31 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.symbol.ModuleID;
 
 /**
  * Represents a Ballerina Type Descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public interface TypeDescriptor {
     /**
      * Get the Type Kind.
-     * 
+     *
      * @return {@link TypeDescKind} represented by the model
      */
-    TypeDescKind getKind();
+    TypeDescKind kind();
 
     /**
      * Get the module ID.
-     * 
+     *
      * @return {@link ModuleID} of the Type
      */
     ModuleID getModuleID();
 
     /**
      * Get the signature of the type descriptor.
-     * 
+     *
      * @return {@link String} signature.
      */
     String getSignature();

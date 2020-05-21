@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Represents a module information in ballerina.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ModuleID {
     
@@ -53,15 +53,6 @@ public class ModuleID {
     
     public String getModuleName() {
         return this.moduleID.getNameComps().stream().map(Name::getValue).collect(Collectors.joining("."));
-    } 
-    
-    public boolean isAnonOrg() {
-        return ANON_ORG.equals(this.getOrgName());
-    }
-
-    public boolean isLangLib() {
-        // todo: implement the logic 
-        return false;
     }
 
     @Override

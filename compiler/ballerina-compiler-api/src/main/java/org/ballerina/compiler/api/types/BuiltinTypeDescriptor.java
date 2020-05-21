@@ -17,8 +17,8 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -31,7 +31,8 @@ public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
     private String typeName;
     
     public BuiltinTypeDescriptor(ModuleID moduleID,
-                                 String name, BType bType) {
+                                 String name,
+                                 BType bType) {
         super(TypeDescKind.BUILTIN, moduleID, bType);
         this.typeName = name;
     }
@@ -43,7 +44,7 @@ public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
     }
 
     @Override
-    public TypeDescKind getKind() {
+    public TypeDescKind kind() {
         return TypeDescKind.getFromName(this.typeName);
     }
 }

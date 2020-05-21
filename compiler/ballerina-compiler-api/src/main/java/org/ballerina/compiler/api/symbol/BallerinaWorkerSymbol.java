@@ -15,9 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
-import org.ballerina.compiler.api.semantic.BallerinaSymbol;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -28,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
  * @since 1.3.0
  */
 public class BallerinaWorkerSymbol extends BallerinaSymbol {
+    
     private TypeDescriptor returnType;
     
     private BallerinaWorkerSymbol(String name,
@@ -44,14 +44,14 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol {
      * 
      * @return {@link TypeDescriptor} return type of the worker.
      */
-    public TypeDescriptor getReturnType() {
+    public TypeDescriptor returnType() {
         return returnType;
     }
 
     /**
      * Represents Ballerina Worker Symbol Builder.
      */
-    public static class WorkerSymbolBuilder extends SymbolBuilder<WorkerSymbolBuilder> {
+    static class WorkerSymbolBuilder extends SymbolBuilder<WorkerSymbolBuilder> {
         
         protected TypeDescriptor returnType;
         

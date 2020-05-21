@@ -15,84 +15,87 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
  * Represents a parameter with a name and type.
- * 
- * @since 1.3.0
+ *
+ * @since 2.0.0
  */
 public class BallerinaParameter {
     // add the metadata field
-    private List<AccessModifier> accessModifiers;
+    private List<Qualifier> qualifiers;
     private String parameterName;
     private TypeDescriptor typeDescriptor;
     private boolean defaultable;
 
-    public BallerinaParameter(String parameterName, TypeDescriptor typeDescriptor,
-                              List<AccessModifier> accessModifiers, boolean defaultable) {
+    public BallerinaParameter(String parameterName,
+                              TypeDescriptor typeDescriptor,
+                              List<Qualifier> qualifiers,
+                              boolean defaultable) {
         // TODO: Add the meta
         this.parameterName = parameterName;
         this.typeDescriptor = typeDescriptor;
-        this.accessModifiers = accessModifiers;
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.defaultable = defaultable;
     }
 
     /**
      * Get the parameter name.
-     * 
+     *
      * @return {@link Optional} name of the field
      */
-    public Optional<String> getName() {
+    public Optional<String> name() {
         return Optional.ofNullable(parameterName);
     }
 
     /**
      * Get the type descriptor of the field.
-     * 
+     *
      * @return {@link TypeDescriptor} of the field
      */
-    public TypeDescriptor getTypeDescriptor() {
+    public TypeDescriptor typeDescriptor() {
         return typeDescriptor;
     }
 
     /**
      * Get the access modifiers.
-     * 
+     *
      * @return {@link List} of access modifiers
      */
-    public List<AccessModifier> getAccessModifiers() {
-        return accessModifiers;
+    public List<Qualifier> qualifiers() {
+        return qualifiers;
     }
 
     /**
      * Get the signature of the field.
-     * 
-     * @return {}
+     *
+     * @return {@link String} signature
      */
-    public String getSignature() {
+    public String signature() {
         StringJoiner joiner = new StringJoiner(" ");
-        this.getAccessModifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
-        joiner.add(this.getTypeDescriptor().getSignature());
-        if (this.getName().isPresent()) {
-            joiner.add(this.getName().get());
+        this.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
+        joiner.add(this.typeDescriptor().getSignature());
+        if (this.name().isPresent()) {
+            joiner.add(this.name().get());
         }
-        
+
         return joiner.toString();
     }
 
     /**
      * Whether the parameter is defaultable or not.
-     * 
+     *
      * @return {@link Boolean} defaultable status
      */
-    public boolean isDefaultable() {
+    public boolean defaultable() {
         return defaultable;
     }
 }

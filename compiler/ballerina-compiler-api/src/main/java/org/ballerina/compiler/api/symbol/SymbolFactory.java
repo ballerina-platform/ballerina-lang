@@ -15,29 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.semantic;
+package org.ballerina.compiler.api.symbol;
 
-import org.ballerina.compiler.api.model.AccessModifier;
-import org.ballerina.compiler.api.model.BCompiledSymbol;
-import org.ballerina.compiler.api.model.BallerinaAnnotationSymbol;
-import org.ballerina.compiler.api.model.BallerinaConstantSymbol;
-import org.ballerina.compiler.api.model.BallerinaFunctionSymbol;
-import org.ballerina.compiler.api.model.BallerinaModule;
-import org.ballerina.compiler.api.model.BallerinaObjectVarSymbol;
-import org.ballerina.compiler.api.model.BallerinaParameter;
-import org.ballerina.compiler.api.model.BallerinaRecordVarSymbol;
-import org.ballerina.compiler.api.model.BallerinaTypeDefinition;
-import org.ballerina.compiler.api.model.BallerinaVariable;
-import org.ballerina.compiler.api.model.BallerinaWorkerSymbol;
+import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import org.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -75,12 +64,6 @@ public class SymbolFactory {
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
             }
-            if (symbol.type != null && symbol.type.tsymbol != null && symbol.type.tsymbol.kind == SymbolKind.OBJECT) {
-                return createObjectVarSymbol(name, (BObjectTypeSymbol) symbol.type.tsymbol);
-            }
-            if (symbol.type != null && symbol.type.tsymbol != null && symbol.type.tsymbol.kind == SymbolKind.RECORD) {
-                return createRecordVarSymbol(name, (BRecordTypeSymbol) symbol.type.tsymbol);
-            }
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
         }
@@ -111,51 +94,35 @@ public class SymbolFactory {
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
         if ((invokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            builder.withAccessModifier(AccessModifier.PUBLIC);
+            builder.withQualifier(Qualifier.PUBLIC);
         }
         if ((invokableSymbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            builder.withAccessModifier(AccessModifier.PRIVATE);
+            builder.withQualifier(Qualifier.PRIVATE);
         }
 
         return builder.build();
     }
 
     /**
-     * Create an Object Symbol.
+     * Create Method Symbol.
      *
-     * @param name             name of the variable
-     * @param objectTypeSymbol ObjectTypeSymbol to convert
-     * @return {@link BallerinaObjectVarSymbol} generated
+     * @param invokableSymbol {@link BInvokableSymbol} to convert
+     * @param name            symbol name
+     * @return {@link BCompiledSymbol} generated
      */
-    public static BallerinaObjectVarSymbol createObjectVarSymbol(String name, BObjectTypeSymbol objectTypeSymbol) {
-        if (objectTypeSymbol == null) {
-            return null;
+    public static BallerinaMethod createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
+        List<Qualifier> qualifiers = new ArrayList<>();
+        if ((invokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            qualifiers.add(Qualifier.PUBLIC);
+        } else if ((invokableSymbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
+            qualifiers.add(Qualifier.PRIVATE);
         }
-        return new BallerinaObjectVarSymbol.ObjectVarSymbolBuilder(name, objectTypeSymbol.pkgID, objectTypeSymbol)
-                .build();
-
-    }
-
-    /**
-     * Create a Record variable Symbol.
-     *
-     * @param name             name of the variable
-     * @param recordTypeSymbol BRecordTypeSymbol to convert
-     * @return {@link BallerinaObjectVarSymbol} generated
-     */
-    public static BallerinaRecordVarSymbol createRecordVarSymbol(String name, BRecordTypeSymbol recordTypeSymbol) {
-        if (recordTypeSymbol == null) {
-            return null;
-        }
-        BallerinaRecordVarSymbol.RecordVarSymbolBuilder symbolBuilder =
-                new BallerinaRecordVarSymbol.RecordVarSymbolBuilder(name, recordTypeSymbol.pkgID, recordTypeSymbol);
-        if ((recordTypeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withAccessModifier(AccessModifier.PUBLIC);
+        TypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(invokableSymbol.type);
+        if (typeDescriptor.kind() == TypeDescKind.FUNCTION) {
+            return new BallerinaMethod(name, (FunctionTypeDescriptor) typeDescriptor, qualifiers);
         }
 
-        return symbolBuilder
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(recordTypeSymbol.type))
-                .build();
+        throw new AssertionError("Invalid type descriptor found");
     }
 
     /**
@@ -193,11 +160,11 @@ public class SymbolFactory {
         }
         String name = symbol.getName().getValue();
         TypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
-        List<AccessModifier> accessModifiers = new ArrayList<>();
+        List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            accessModifiers.add(AccessModifier.PUBLIC);
+            qualifiers.add(Qualifier.PUBLIC);
         }
-        return new BallerinaParameter(name, typeDescriptor, accessModifiers, symbol.defaultableParam);
+        return new BallerinaParameter(name, typeDescriptor, qualifiers, symbol.defaultableParam);
     }
 
     /**
@@ -213,7 +180,7 @@ public class SymbolFactory {
                         typeSymbol.pkgID,
                         typeSymbol);
         if ((typeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withAccessModifier(AccessModifier.PUBLIC);
+            symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
         }
 
         return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))

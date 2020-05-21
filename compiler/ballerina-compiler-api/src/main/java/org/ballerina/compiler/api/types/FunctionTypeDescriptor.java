@@ -17,9 +17,9 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -34,8 +34,11 @@ import java.util.StringJoiner;
  * @since 1.3.0
  */
 public class FunctionTypeDescriptor extends BallerinaTypeDesc {
+
     private List<TypeDescriptor> requiredParams;
+
     private TypeDescriptor restParam;
+
     private TypeDescriptor returnType;
     // TODO: Represent the return type's annotations
 

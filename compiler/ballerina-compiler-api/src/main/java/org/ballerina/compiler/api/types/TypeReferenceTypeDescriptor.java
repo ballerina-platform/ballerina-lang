@@ -17,9 +17,9 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -29,13 +29,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  */
 public class TypeReferenceTypeDescriptor extends BallerinaTypeDesc {
 
+    private static final String ANON_ORG = "$anon";
+
     private String definitionName;
 
     private TypeDescriptor typeDescriptor;
 
     public TypeReferenceTypeDescriptor(ModuleID moduleID,
-                                        BType bType,
-                                        String definitionName) {
+                                       BType bType,
+                                       String definitionName) {
         super(TypeDescKind.TYPE_REFERENCE, moduleID, bType);
         this.definitionName = definitionName;
     }
@@ -53,7 +55,11 @@ public class TypeReferenceTypeDescriptor extends BallerinaTypeDesc {
                 && this.getModuleID().getOrgName().equals("ballerina"))) {
             return this.definitionName;
         }
-        return !this.getModuleID().isAnonOrg() ? this.getModuleID().getModulePrefix() + ":" + this.definitionName 
+        return !this.isAnonOrg(this.getModuleID()) ? this.getModuleID().getModulePrefix() + ":" + this.definitionName
                 : this.definitionName;
+    }
+
+    private boolean isAnonOrg(ModuleID moduleID) {
+        return ANON_ORG.equals(moduleID.getOrgName());
     }
 }

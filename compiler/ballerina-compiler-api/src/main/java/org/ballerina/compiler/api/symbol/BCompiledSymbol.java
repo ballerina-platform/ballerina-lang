@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 import java.util.Optional;
 
@@ -30,26 +30,28 @@ public interface BCompiledSymbol {
      * 
      * @return {@link String} name  of the symbol
      */
-    String getName();
+    String name();
 
     /**
      * Get the moduleID of the symbol.
      * 
      * @return {@link ModuleID} of the symbol
      */
-    ModuleID getModuleID();
+    ModuleID moduleID();
 
     /**
      * Get the Symbol Kind.
      * 
      * @return {@link BallerinaSymbolKind} of the symbol
      */
-    BallerinaSymbolKind getKind();
+    BallerinaSymbolKind kind();
 
     /**
      * Get the Documentation attachment bound to the symbol.
      * 
      * @return {@link Optional} doc attachment
      */
-    Optional<DocAttachment> getDocAttachment();
+    Optional<DocAttachment> docAttachment();
+    
+    // TODO: Add the annotation attachment API
 }

@@ -15,12 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.semantic;
+package org.ballerina.compiler.api.symbol;
 
-import org.ballerina.compiler.api.model.BCompiledSymbol;
-import org.ballerina.compiler.api.model.BallerinaSymbolKind;
-import org.ballerina.compiler.api.model.DocAttachment;
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.util.Flags;
@@ -29,15 +25,20 @@ import java.util.Optional;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
- * 
- * @since 1.3.0
+ *
+ * @since 2.0.0
  */
 public class BallerinaSymbol implements BCompiledSymbol {
-    private String name;
-    private PackageID moduleID;
-    private BallerinaSymbolKind ballerinaSymbolKind;
-    private DocAttachment docAttachment;
-    private boolean isLangLib;
+
+    private final String name;
+
+    private final PackageID moduleID;
+
+    private final BallerinaSymbolKind ballerinaSymbolKind;
+
+    private final DocAttachment docAttachment;
+
+    private final boolean isLangLib;
 
     protected BallerinaSymbol(String name,
                               PackageID moduleID,
@@ -54,7 +55,7 @@ public class BallerinaSymbol implements BCompiledSymbol {
      * {@inheritDoc}
      */
     @Override
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
@@ -62,7 +63,7 @@ public class BallerinaSymbol implements BCompiledSymbol {
      * {@inheritDoc}
      */
     @Override
-    public ModuleID getModuleID() {
+    public ModuleID moduleID() {
         return new ModuleID(this.moduleID);
     }
 
@@ -70,7 +71,7 @@ public class BallerinaSymbol implements BCompiledSymbol {
      * {@inheritDoc}
      */
     @Override
-    public BallerinaSymbolKind getKind() {
+    public BallerinaSymbolKind kind() {
         return this.ballerinaSymbolKind;
     }
 
@@ -78,13 +79,13 @@ public class BallerinaSymbol implements BCompiledSymbol {
      * {@inheritDoc}
      */
     @Override
-    public Optional<DocAttachment> getDocAttachment() {
+    public Optional<DocAttachment> docAttachment() {
         return Optional.ofNullable(this.docAttachment);
     }
 
     /**
      * Whether the symbol is a langlib symbol.
-     * 
+     *
      * @return {@link Boolean} whether langlib or not
      */
     public boolean isLangLib() {
@@ -94,24 +95,29 @@ public class BallerinaSymbol implements BCompiledSymbol {
     private DocAttachment getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new DocAttachment(symbol.markdownDocumentation);
     }
-    
+
     /**
      * Represents Ballerina Symbol Builder.
+     *
      * @param <T> Symbol Type
      */
     protected abstract static class SymbolBuilder<T extends SymbolBuilder<T>> {
-        protected String name;
-        protected PackageID moduleID;
-        protected BallerinaSymbolKind ballerinaSymbolKind;
-        protected BSymbol bSymbol;
         
+        protected String name;
+        
+        protected PackageID moduleID;
+        
+        protected BallerinaSymbolKind ballerinaSymbolKind;
+        
+        protected BSymbol bSymbol;
+
         /**
          * Symbol Builder Constructor.
-         * 
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
+         *
+         * @param name       Symbol Name
+         * @param moduleID   module ID of the symbol
          * @param symbolKind symbol kind
-         * @param bSymbol symbol to evaluate
+         * @param bSymbol    symbol to evaluate
          */
         public SymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind, BSymbol bSymbol) {
             this.name = name;
@@ -122,7 +128,7 @@ public class BallerinaSymbol implements BCompiledSymbol {
 
         /**
          * Build the Ballerina Symbol.
-         * 
+         *
          * @return {@link BallerinaSymbol} built
          */
         public abstract BallerinaSymbol build();

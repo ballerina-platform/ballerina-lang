@@ -15,12 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,27 +30,32 @@ import java.util.List;
  * 
  * @since 1.3.0
  */
-public class BallerinaTypeDefinition extends BallerinaVariable {
+public class BallerinaTypeDefinition extends BallerinaSymbol {
+
+    private final List<Qualifier> qualifiers;
+
+    private final TypeDescriptor typeDescriptor;
     
     protected BallerinaTypeDefinition(String name,
                                       PackageID moduleID,
-                                      List<AccessModifier> accessModifiers,
+                                      List<Qualifier> qualifiers,
                                       TypeDescriptor typeDescriptor,
                                       BSymbol bSymbol) {
-        this(name, moduleID, accessModifiers, BallerinaSymbolKind.TYPE_DEF, typeDescriptor, bSymbol);
+        super(name, moduleID, BallerinaSymbolKind.TYPE_DEF, bSymbol);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.typeDescriptor = typeDescriptor;
     }
     
-    protected BallerinaTypeDefinition(String name,
-                                      PackageID moduleID,
-                                      List<AccessModifier> accessModifiers,
-                                      BallerinaSymbolKind symbolKind,
-                                      TypeDescriptor typeDescriptor,
-                                      BSymbol bSymbol) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor, bSymbol);
+    public String moduleQualifiedName() {
+        return this.moduleID().getModuleName() + ":" + this.name();
     }
-    
-    public String getModuleQualifiedName() {
-        return this.getModuleID().getModuleName() + ":" + this.getName();
+
+    public List<Qualifier> qualifiers() {
+        return qualifiers;
+    }
+
+    public TypeDescriptor typeDescriptor() {
+        return typeDescriptor;
     }
 
     /**
@@ -56,27 +63,31 @@ public class BallerinaTypeDefinition extends BallerinaVariable {
      * 
      * @since 1.3.0
      */
-    public static class TypeDefSymbolBuilder extends BallerinaVariable.VariableSymbolBuilder {
+    public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
+
+        protected List<Qualifier> qualifiers = new ArrayList<>();
+
+        protected TypeDescriptor typeDescriptor;
         
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, symbol);
+            super(name, moduleID, BallerinaSymbolKind.TYPE_DEF, symbol);
         }
 
-        @Override
         public TypeDefSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
-            return (TypeDefSymbolBuilder) super.withTypeDescriptor(typeDescriptor);
+            this.typeDescriptor = typeDescriptor;
+            return this;
         }
 
-        @Override
-        public TypeDefSymbolBuilder withAccessModifier(AccessModifier accessModifier) {
-            return (TypeDefSymbolBuilder) super.withAccessModifier(accessModifier);
+        public TypeDefSymbolBuilder withAccessModifier(Qualifier qualifier) {
+            this.qualifiers.add(qualifier);
+            return this;
         }
 
         @Override
         public BallerinaTypeDefinition build() {
             return new BallerinaTypeDefinition(this.name,
                     this.moduleID,
-                    this.accessModifiers,
+                    this.qualifiers,
                     this.typeDescriptor,
                     this.bSymbol);
         }

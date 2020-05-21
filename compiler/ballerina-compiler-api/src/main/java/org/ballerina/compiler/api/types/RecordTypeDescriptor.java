@@ -17,10 +17,10 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.BallerinaField;
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.symbol.BallerinaField;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
@@ -31,16 +31,16 @@ import java.util.StringJoiner;
 
 /**
  * Represents a record type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class RecordTypeDescriptor extends BallerinaTypeDesc {
-    
+
     private List<BallerinaField> fieldDescriptors;
     private boolean isInclusive;
     // private TypeDescriptor typeReference;
     private TypeDescriptor restTypeDesc;
-    
+
     public RecordTypeDescriptor(ModuleID moduleID, BRecordType recordType) {
         super(TypeDescKind.RECORD, moduleID, recordType);
         this.isInclusive = !recordType.sealed;
@@ -50,7 +50,7 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
 
     /**
      * Get the list of field descriptors.
-     * 
+     *
      * @return {@link List} of ballerina field
      */
     public List<BallerinaField> getFieldDescriptors() {
@@ -60,13 +60,13 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
                 this.fieldDescriptors.add(new BallerinaField(field));
             }
         }
-        
+
         return this.fieldDescriptors;
     }
 
     /**
      * Whether inclusive record ot not.
-     * 
+     *
      * @return {@link Boolean} inclusive or not
      */
     public boolean isInclusive() {
@@ -84,12 +84,12 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
     public String getSignature() {
         StringJoiner joiner = new StringJoiner(";");
         for (BallerinaField fieldDescriptor : this.getFieldDescriptors()) {
-            String ballerinaFieldSignature = fieldDescriptor.getSignature();
+            String ballerinaFieldSignature = fieldDescriptor.signature();
             joiner.add(ballerinaFieldSignature);
         }
         this.getRestTypeDesc().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.getSignature() + "..."));
 //        this.getTypeReference().ifPresent(typeDescriptor -> joiner.add("*" + typeDescriptor.getSignature()));
-        
+
         StringBuilder signature = new StringBuilder("{");
         if (!this.isInclusive) {
             signature.append("|");

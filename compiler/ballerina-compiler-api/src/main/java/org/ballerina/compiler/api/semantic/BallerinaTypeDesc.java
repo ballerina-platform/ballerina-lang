@@ -17,7 +17,7 @@
  */
 package org.ballerina.compiler.api.semantic;
 
-import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -47,7 +47,7 @@ public abstract class BallerinaTypeDesc implements TypeDescriptor {
         return bType;
     }
 
-    public TypeDescKind getKind() {
+    public TypeDescKind kind() {
         return typeDescKind;
     }
 

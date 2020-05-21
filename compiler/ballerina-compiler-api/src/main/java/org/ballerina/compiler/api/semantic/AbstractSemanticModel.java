@@ -19,7 +19,8 @@ package org.ballerina.compiler.api.semantic;
 
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextRange;
-import org.ballerina.compiler.api.model.BCompiledSymbol;
+import org.ballerina.compiler.api.symbol.BCompiledSymbol;
+import org.ballerina.compiler.api.symbol.BallerinaSymbol;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 

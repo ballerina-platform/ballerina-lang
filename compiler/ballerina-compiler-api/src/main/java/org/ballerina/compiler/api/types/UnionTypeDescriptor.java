@@ -17,9 +17,9 @@
  */
 package org.ballerina.compiler.api.types;
 
-import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.BallerinaTypeDesc;
 import org.ballerina.compiler.api.semantic.TypesFactory;
+import org.ballerina.compiler.api.symbol.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
@@ -29,18 +29,18 @@ import java.util.StringJoiner;
 
 /**
  * Represents an union type descriptor.
- * 
+ *
  * @since 1.3.0
  */
 public class UnionTypeDescriptor extends BallerinaTypeDesc {
-    
+
     private List<TypeDescriptor> memberTypes;
-    
+
     public UnionTypeDescriptor(ModuleID moduleID,
-                                BUnionType unionType) {
+                               BUnionType unionType) {
         super(TypeDescKind.UNION, moduleID, unionType);
     }
-    
+
     public List<TypeDescriptor> getMemberTypes() {
         if (this.memberTypes == null) {
             this.memberTypes = new ArrayList<>();
@@ -55,7 +55,6 @@ public class UnionTypeDescriptor extends BallerinaTypeDesc {
     public String getSignature() {
         StringJoiner joiner = new StringJoiner("|");
         this.getMemberTypes().forEach(typeDescriptor -> joiner.add(typeDescriptor.getSignature()));
-        
-        return joiner.toString(); 
+        return joiner.toString();
     }
 }

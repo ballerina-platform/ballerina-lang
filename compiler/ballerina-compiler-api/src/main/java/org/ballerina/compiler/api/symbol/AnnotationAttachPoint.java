@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.symbol;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.AttachPoints;
@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Represents the annotation attach points.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
 public enum AnnotationAttachPoint {
     TYPE,
