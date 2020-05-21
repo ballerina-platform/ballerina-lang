@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
- *
+ * <p>
  * This is a generated class.
  *
  * @since 2.0.0
@@ -2339,8 +2339,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
-        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
+        return nodeListCreator.apply(STNodeFactory.createNodeList(newSTNodes).createUnlinkedFacade());
     }
 
     protected <T extends Token> T modifyToken(T token) {
