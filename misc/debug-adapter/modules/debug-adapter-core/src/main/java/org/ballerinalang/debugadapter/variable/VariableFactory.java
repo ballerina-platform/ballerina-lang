@@ -36,8 +36,6 @@ import org.ballerinalang.debugadapter.variable.types.BUnknown;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Locale;
-
 /**
  * Factory implementation for ballerina variable types.
  */
@@ -62,7 +60,7 @@ public class VariableFactory {
         dapVariable.setName(varName);
         if (value == null) {
             // variables of "nil" type.
-            if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT.getString())) {
+            if (parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
                 return new BNil(dapVariable);
             } else {
                 return null;
@@ -71,25 +69,28 @@ public class VariableFactory {
 
         Type valueType = value.type();
         String valueTypeName = valueType.name();
-        if (valueTypeName.toLowerCase(Locale.ENGLISH).endsWith(JVMValueType.LONG.getString())) {
+        if (valueTypeName.equals(JVMValueType.LONG.getString())
+                || valueTypeName.equals(JVMValueType.J_LONG.getString())) {
             return new BInt(value, dapVariable);
-        } else if (valueTypeName.toLowerCase(Locale.ENGLISH).endsWith(JVMValueType.BOOLEAN.getString())) {
+        } else if (valueTypeName.equals(JVMValueType.BOOLEAN.getString())
+                || valueTypeName.equals(JVMValueType.J_BOOLEAN.getString())) {
             return new BBoolean(value, dapVariable);
-        } else if (valueTypeName.toLowerCase(Locale.ENGLISH).endsWith(JVMValueType.DOUBLE.getString())) {
+        } else if (valueTypeName.equals(JVMValueType.DOUBLE.getString())
+                || valueTypeName.equals(JVMValueType.J_DOUBLE.getString())) {
             return new BFloat(value, dapVariable);
-        } else if (parentTypeName.equalsIgnoreCase(JVMValueType.DECIMAL.getString())) {
+        } else if (parentTypeName.equals(JVMValueType.DECIMAL.getString())) {
             return new BDecimal(value, dapVariable);
-        } else if (parentTypeName.equalsIgnoreCase(JVMValueType.STRING.getString())) {
+        } else if (parentTypeName.equals(JVMValueType.J_STRING.getString())) {
             return new BString(value, dapVariable);
-        } else if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT_TYPE.getString())) {
+        } else if (parentTypeName.equals(JVMValueType.OBJECT_TYPE.getString())) {
             return new BObjectType(value, dapVariable);
-        } else if (parentTypeName.equalsIgnoreCase(JVMValueType.OBJECT_VALUE.getString())) {
+        } else if (parentTypeName.equals(JVMValueType.OBJECT_VALUE.getString())) {
             return new BObjectValue(value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
             return new BArray(value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TUPLE_VALUE.getString())) {
             return new BTuple(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.OBJECT.getString())
+        } else if (parentTypeName.equals(JVMValueType.J_OBJECT.getString())
                 && valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             return new BJson(value, dapVariable);
         } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())
@@ -98,9 +99,9 @@ public class VariableFactory {
         } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())
                 || (parentTypeName.contains("$value$") && valueTypeName.contains("$value$"))) {
             return new BRecord(value, dapVariable);
-        } else if (valueTypeName.equalsIgnoreCase(JVMValueType.ERROR_VALUE.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.ERROR_VALUE.getString())) {
             return new BError(value, dapVariable);
-        } else if (valueTypeName.equalsIgnoreCase(JVMValueType.XML_ITEM.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.XML_ITEM.getString())) {
             return new BXmlItem(value, dapVariable);
         }
 
