@@ -38,7 +38,11 @@ dependencies {
     implementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-transport-file:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.4.2'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'org.testng:testng'
+}
+
+test {
+    useTestNG()
 }
 
 description = 'Ballerina - Maven dependency resolver'
