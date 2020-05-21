@@ -32,7 +32,7 @@ public class XMLSimpleNameNode extends XMLNameNode {
         super(internalNode, position, parent);
     }
 
-    public XMLSimpleNameNode name() {
+    public Token name() {
         return childInBucket(0);
     }
 
@@ -53,7 +53,7 @@ public class XMLSimpleNameNode extends XMLNameNode {
     }
 
     public XMLSimpleNameNode modify(
-            XMLSimpleNameNode name) {
+            Token name) {
         if (checkForReferenceEquality(
                 name)) {
             return this;
@@ -74,14 +74,15 @@ public class XMLSimpleNameNode extends XMLNameNode {
      */
     public static class XMLSimpleNameNodeModifier {
         private final XMLSimpleNameNode oldNode;
-        private XMLSimpleNameNode name;
+        private Token name;
 
         public XMLSimpleNameNodeModifier(XMLSimpleNameNode oldNode) {
             this.oldNode = oldNode;
             this.name = oldNode.name();
         }
 
-        public XMLSimpleNameNodeModifier withName(XMLSimpleNameNode name) {
+        public XMLSimpleNameNodeModifier withName(
+                Token name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;

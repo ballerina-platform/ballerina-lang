@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class IntersectionTypeDescriptorNode extends NonTerminalNode {
+public class IntersectionTypeDescriptorNode extends TypeDescriptorNode {
 
     public IntersectionTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -101,19 +101,22 @@ public class IntersectionTypeDescriptorNode extends NonTerminalNode {
             this.rightTypeDesc = oldNode.rightTypeDesc();
         }
 
-        public IntersectionTypeDescriptorNodeModifier withLeftTypeDesc(Node leftTypeDesc) {
+        public IntersectionTypeDescriptorNodeModifier withLeftTypeDesc(
+                Node leftTypeDesc) {
             Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
             this.leftTypeDesc = leftTypeDesc;
             return this;
         }
 
-        public IntersectionTypeDescriptorNodeModifier withBitwiseAndToken(Token bitwiseAndToken) {
+        public IntersectionTypeDescriptorNodeModifier withBitwiseAndToken(
+                Token bitwiseAndToken) {
             Objects.requireNonNull(bitwiseAndToken, "bitwiseAndToken must not be null");
             this.bitwiseAndToken = bitwiseAndToken;
             return this;
         }
 
-        public IntersectionTypeDescriptorNodeModifier withRightTypeDesc(Node rightTypeDesc) {
+        public IntersectionTypeDescriptorNodeModifier withRightTypeDesc(
+                Node rightTypeDesc) {
             Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
             this.rightTypeDesc = rightTypeDesc;
             return this;

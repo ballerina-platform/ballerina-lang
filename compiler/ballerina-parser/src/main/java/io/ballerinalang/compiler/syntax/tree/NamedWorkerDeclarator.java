@@ -91,13 +91,15 @@ public class NamedWorkerDeclarator extends NonTerminalNode {
             this.namedWorkerDeclarations = oldNode.namedWorkerDeclarations();
         }
 
-        public NamedWorkerDeclaratorModifier withWorkerInitStatements(NodeList<StatementNode> workerInitStatements) {
+        public NamedWorkerDeclaratorModifier withWorkerInitStatements(
+                NodeList<StatementNode> workerInitStatements) {
             Objects.requireNonNull(workerInitStatements, "workerInitStatements must not be null");
             this.workerInitStatements = workerInitStatements;
             return this;
         }
 
-        public NamedWorkerDeclaratorModifier withNamedWorkerDeclarations(NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
+        public NamedWorkerDeclaratorModifier withNamedWorkerDeclarations(
+                NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
             Objects.requireNonNull(namedWorkerDeclarations, "namedWorkerDeclarations must not be null");
             this.namedWorkerDeclarations = namedWorkerDeclarations;
             return this;

@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LineRange;
 import org.testng.Assert;
@@ -48,5 +49,10 @@ abstract class AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualLineRange.filePath(), expectedLineRange.filePath());
         Assert.assertEquals(actualLineRange.startLine(), expectedLineRange.startLine());
         Assert.assertEquals(actualLineRange.endLine(), expectedLineRange.endLine());
+    }
+
+    protected ModulePartNode getModulePartNode(String sourceFileName) {
+        SyntaxTree syntaxTree = parseFile(sourceFileName);
+        return syntaxTree.modulePart();
     }
 }

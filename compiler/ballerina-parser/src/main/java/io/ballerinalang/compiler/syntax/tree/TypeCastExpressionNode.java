@@ -111,25 +111,29 @@ public class TypeCastExpressionNode extends ExpressionNode {
             this.expression = oldNode.expression();
         }
 
-        public TypeCastExpressionNodeModifier withLtToken(Token ltToken) {
+        public TypeCastExpressionNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public TypeCastExpressionNodeModifier withTypeCastParam(TypeCastParamNode typeCastParam) {
+        public TypeCastExpressionNodeModifier withTypeCastParam(
+                TypeCastParamNode typeCastParam) {
             Objects.requireNonNull(typeCastParam, "typeCastParam must not be null");
             this.typeCastParam = typeCastParam;
             return this;
         }
 
-        public TypeCastExpressionNodeModifier withGtToken(Token gtToken) {
+        public TypeCastExpressionNodeModifier withGtToken(
+                Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;
         }
 
-        public TypeCastExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public TypeCastExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

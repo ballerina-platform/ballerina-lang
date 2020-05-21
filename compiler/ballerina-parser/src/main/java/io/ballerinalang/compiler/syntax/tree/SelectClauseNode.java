@@ -91,13 +91,15 @@ public class SelectClauseNode extends ClauseNode {
             this.expression = oldNode.expression();
         }
 
-        public SelectClauseNodeModifier withSelectKeyword(Token selectKeyword) {
+        public SelectClauseNodeModifier withSelectKeyword(
+                Token selectKeyword) {
             Objects.requireNonNull(selectKeyword, "selectKeyword must not be null");
             this.selectKeyword = selectKeyword;
             return this;
         }
 
-        public SelectClauseNodeModifier withExpression(ExpressionNode expression) {
+        public SelectClauseNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

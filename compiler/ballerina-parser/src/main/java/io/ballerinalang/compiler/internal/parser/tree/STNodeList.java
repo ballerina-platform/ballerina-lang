@@ -21,9 +21,17 @@ import io.ballerinalang.compiler.internal.syntax.ExternalTreeNodeList;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
-public class STNodeList extends STNode {
+/**
+ * Represents a list of {@code STNode} instances.
+ *
+ * @since 2.0.0
+ */
+public final class STNodeList extends STNode {
+    private static final STNodeList EMPTY_LIST = new STNodeList();
 
     STNodeList(List<STNode> nodeList) {
         super(SyntaxKind.LIST);
@@ -35,8 +43,115 @@ public class STNodeList extends STNode {
         this.addChildren(nodes);
     }
 
+    // Positional access methods
+    public STNode get(int index) {
+        rangeCheck(index);
+        return childBuckets[index];
+    }
+
+    // Modification Operations
+
+    public STNodeList add(STNode node) {
+        int newLength = bucketCount + 1;
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, newLength);
+        newNodesArray[bucketCount] = node;
+        return new STNodeList(newNodesArray);
+    }
+
+    public STNodeList add(int index, STNode node) {
+        rangeCheck(index);
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount + 1);
+        System.arraycopy(newNodesArray, index, newNodesArray, index + 1, bucketCount - index);
+        newNodesArray[index] = node;
+        return new STNodeList(newNodesArray);
+    }
+
+    public STNodeList addAll(Collection<STNode> c) {
+        int newLength = bucketCount + c.size();
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, newLength);
+        int index = bucketCount;
+        for (STNode stNode : c) {
+            newNodesArray[index++] = stNode;
+        }
+        return new STNodeList(newNodesArray);
+    }
+
+    public STNodeList set(int index, STNode node) {
+        rangeCheck(index);
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount);
+        newNodesArray[index] = node;
+        return new STNodeList(newNodesArray);
+    }
+
+    public STNodeList remove(int index) {
+        rangeCheck(index);
+        boolean lastElement = (index + 1) == bucketCount;
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount - 1);
+        if (lastElement) {
+            return new STNodeList(newNodesArray);
+        }
+
+        System.arraycopy(childBuckets, index + 1, newNodesArray, index, bucketCount - index - 1);
+        return new STNodeList(newNodesArray);
+    }
+
+    public STNodeList remove(STNode node) {
+        if (node == null) {
+            return removeFirstNullValue();
+        }
+
+        for (int bucket = 0; bucket < bucketCount; bucket++) {
+            if (node.equals(childBuckets[bucket])) {
+                return remove(bucket);
+            }
+        }
+        return this;
+    }
+
+    public STNodeList removeAll(Collection<STNode> c) {
+        int index = 0;
+        STNode[] newNodesArray = Arrays.copyOf(childBuckets, bucketCount);
+        for (int bucket = 0; bucket < bucketCount; bucket++) {
+            STNode currentNode = childBuckets[bucket];
+            if (!c.contains(currentNode)) {
+                newNodesArray[index++] = currentNode;
+            }
+        }
+
+        return new STNodeList(Arrays.copyOf(newNodesArray, index));
+    }
+
+    //query methods
+
+    public int size() {
+        return bucketCount;
+    }
+
+    public boolean isEmpty() {
+        return bucketCount == 0;
+    }
+
+    public static STNodeList emptyList() {
+        return EMPTY_LIST;
+    }
+
     @Override
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
         return new ExternalTreeNodeList(this, position, parent);
+    }
+
+    private void rangeCheck(int index) {
+        if (index >= bucketCount || index < 0) {
+            throw new IndexOutOfBoundsException("Index: '" + index + "', Size: '" + bucketCount + "'");
+        }
+    }
+
+    private STNodeList removeFirstNullValue() {
+        for (int bucket = 0; bucket < bucketCount; bucket++) {
+            if (childBuckets[bucket] == null) {
+                return remove(bucket);
+            }
+        }
+        return this;
     }
 }

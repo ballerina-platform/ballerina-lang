@@ -149,9 +149,14 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
             case LexerTerminals.MINUS:
-                if (peek() == LexerTerminals.GT) {
+                if (reader.peek() == LexerTerminals.GT) {
                     reader.advance();
-                    token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                    if (peek() == LexerTerminals.GT) {
+                        reader.advance();
+                        token = getSyntaxToken(SyntaxKind.SYNC_SEND_TOKEN);
+                    } else {
+                        token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                    }
                 } else {
                     token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 }
@@ -166,9 +171,16 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                if (peek() == LexerTerminals.EQUAL) {
+                int nextChar = peek();
+                if (nextChar == LexerTerminals.EQUAL) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else if (nextChar == LexerTerminals.MINUS) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
+                } else if (nextChar == LexerTerminals.LT) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
                 } else {
                     token = getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
@@ -201,6 +213,9 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.BACKTICK:
                 startMode(ParserMode.TEMPLATE);
                 token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                break;
+            case LexerTerminals.SINGLE_QUOTE:
+                token = processQuotedIdentifier();
                 break;
 
             // Numbers
@@ -428,9 +443,14 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        if (reader.peek() == LexerTerminals.DOT && reader.peek(1) == LexerTerminals.DOT) {
-            reader.advance(2);
-            return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
+        if (reader.peek() == LexerTerminals.DOT) {
+            if (reader.peek(1) == LexerTerminals.DOT) {
+                reader.advance(2);
+                return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
+            } else if (reader.peek(1) == LexerTerminals.LT) {
+                reader.advance(2);
+                return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
+            }
         }
         if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
             return processDecimalFloatLiteral();
@@ -462,7 +482,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIA, getLexeme());
+        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIAE, getLexeme());
     }
 
     /**
@@ -922,6 +942,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.FLUSH_KEYWORD);
             case LexerTerminals.DEFAULT:
                 return getSyntaxToken(SyntaxKind.DEFAULT_KEYWORD);
+            case LexerTerminals.WAIT:
+                return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1314,6 +1336,62 @@ public class BallerinaLexer extends AbstractLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    /**
+     * Process quoted Identifier token.
+     * 
+     * <code>
+     * QuotedIdentifierChar := IdentifierFollowingChar | QuotedIdentifierEscape | StringNumericEscape
+     * </code>
+     * 
+     * @return Quoted identifier token
+     */
+    private STToken processQuotedIdentifier() {
+        while (!reader.isEOF()) {
+            int nextChar = reader.peek();
+            if (isIdentifierFollowingChar(nextChar)) {
+                reader.advance();
+                continue;
+            }
+
+            if (nextChar != '\\') {
+                break;
+            }
+
+            // QuotedIdentifierEscape | StringNumericEscape
+
+            nextChar = reader.peek(1);
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.TAB:
+                    break;
+                case 'u':
+                    // StringNumericEscape
+                    if (reader.peek(2) == '{') {
+                        processStringNumericEscape();
+                    } else {
+                        reader.advance(2);
+                    }
+                    continue;
+                default:
+                    // ASCII letters are not allowed
+                    if ('A' <= nextChar && nextChar <= 'Z') {
+                        break;
+                    }
+                    if ('a' <= nextChar && nextChar <= 'z') {
+                        break;
+                    }
+
+                    reader.advance(2);
+                    continue;
+                    // TODO: UnicodePatternWhiteSpaceChar is also not allowed
+            }
+            break;
+        }
+
+        return getIdentifierToken(getLexeme());
     }
 
     /*

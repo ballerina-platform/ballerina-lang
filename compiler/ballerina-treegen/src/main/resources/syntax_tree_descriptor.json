@@ -565,12 +565,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "typeDescriptor",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "inKeyword",
@@ -1899,7 +1895,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "KeySpecifier",
+                    "name": "keySpecifier",
                     "type": "KeySpecifierNode"
                 },
                 {
@@ -2100,7 +2096,7 @@
         },
         {
             "name": "XMLItemNode",
-            "base": "BacktickTemplateMemberNode",
+            "base": "TemplateMemberNode",
             "isAbstract": true
         },
         {
@@ -2187,7 +2183,7 @@
             "attributes": [
                 {
                     "name": "name",
-                    "type": "XMLSimpleNameNode"
+                    "type": "Token"
                 }
             ]
         },
@@ -2616,7 +2612,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "KeySpecifier",
+                    "name": "keySpecifier",
                     "type": "KeySpecifierNode"
                 }
             ]
@@ -2731,7 +2727,7 @@
         },
         {
             "name": "IntersectionTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "INTERSECTION_TYPE_DESC",
             "attributes": [
                 {
@@ -2793,6 +2789,11 @@
             "kind": "START_ACTION",
             "attributes": [
                 {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "startKeyword",
                     "type": "Token"
                 },
@@ -2813,7 +2814,18 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "Token"
+                    "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "SingletonTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "SINGLETON_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "simpleContExprNode",
+                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -2846,6 +2858,239 @@
                 {
                     "name": "semicolon",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TypedBindingPatternNode",
+            "base": "Node",
+            "kind": "TYPED_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "BindingPatternNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "CaptureBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "CAPTURE_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "ListBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "LIST_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPatterns",
+                    "type": "BindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restBindingPattern",
+                    "type": "RestBindingPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestBindingPatternNode",
+            "base": "Node",
+            "kind": "REST_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "AsyncSendActionNode",
+            "base": "ActionNode",
+            "kind": "ASYNC_SEND_ACTION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "rightArrowToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "SyncSendActionNode",
+            "base": "ActionNode",
+            "kind": "SYNC_SEND_ACTION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "syncSendToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "ReceiveActionNode",
+            "base": "ActionNode",
+            "kind": "RECEIVE_ACTION",
+            "attributes": [
+                {
+                    "name": "leftArrow",
+                    "type": "Token"
+                },
+                {
+                    "name": "receiveWorkers",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "ReceiveFieldsNode",
+            "base": "Node",
+            "kind": "RECEIVE_FIELDS",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "receiveFields",
+                    "type": "NameReferenceNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "DoubleGTTokenNode",
+            "base": "Node",
+            "kind": "DOUBLE_GT_TOKEN",
+            "attributes": [
+                {
+                    "name": "openGTToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endGTToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TrippleGTTokenNode",
+            "base": "Node",
+            "kind": "TRIPPLE_GT_TOKEN",
+            "attributes": [
+                {
+                    "name": "openGTToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "middleGTToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endGTToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WaitActionNode",
+            "base": "ActionNode",
+            "kind": "WAIT_ACTION",
+            "attributes": [
+                {
+                    "name": "waitKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFutureExpr",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "WaitFieldsListNode",
+            "base": "Node",
+            "kind": "WAIT_FIELDS_LIST",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFields",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WaitFieldNode",
+            "base": "Node",
+            "kind": "WAIT_FIELD",
+            "attributes": [
+                {
+                    "name": "fieldName",
+                    "type": "NameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFutureExpr",
+                    "type": "ExpressionNode"
                 }
             ]
         }

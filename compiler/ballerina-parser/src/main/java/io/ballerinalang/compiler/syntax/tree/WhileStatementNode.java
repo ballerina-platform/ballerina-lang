@@ -101,19 +101,22 @@ public class WhileStatementNode extends StatementNode {
             this.whileBody = oldNode.whileBody();
         }
 
-        public WhileStatementNodeModifier withWhileKeyword(Token whileKeyword) {
+        public WhileStatementNodeModifier withWhileKeyword(
+                Token whileKeyword) {
             Objects.requireNonNull(whileKeyword, "whileKeyword must not be null");
             this.whileKeyword = whileKeyword;
             return this;
         }
 
-        public WhileStatementNodeModifier withCondition(ExpressionNode condition) {
+        public WhileStatementNodeModifier withCondition(
+                ExpressionNode condition) {
             Objects.requireNonNull(condition, "condition must not be null");
             this.condition = condition;
             return this;
         }
 
-        public WhileStatementNodeModifier withWhileBody(BlockStatementNode whileBody) {
+        public WhileStatementNodeModifier withWhileBody(
+                BlockStatementNode whileBody) {
             Objects.requireNonNull(whileBody, "whileBody must not be null");
             this.whileBody = whileBody;
             return this;

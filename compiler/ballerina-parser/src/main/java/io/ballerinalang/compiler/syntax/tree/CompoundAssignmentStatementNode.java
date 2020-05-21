@@ -121,31 +121,36 @@ public class CompoundAssignmentStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public CompoundAssignmentStatementNodeModifier withLhsExpression(ExpressionNode lhsExpression) {
+        public CompoundAssignmentStatementNodeModifier withLhsExpression(
+                ExpressionNode lhsExpression) {
             Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
             this.lhsExpression = lhsExpression;
             return this;
         }
 
-        public CompoundAssignmentStatementNodeModifier withBinaryOperator(Token binaryOperator) {
+        public CompoundAssignmentStatementNodeModifier withBinaryOperator(
+                Token binaryOperator) {
             Objects.requireNonNull(binaryOperator, "binaryOperator must not be null");
             this.binaryOperator = binaryOperator;
             return this;
         }
 
-        public CompoundAssignmentStatementNodeModifier withEqualsToken(Token equalsToken) {
+        public CompoundAssignmentStatementNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public CompoundAssignmentStatementNodeModifier withRhsExpression(ExpressionNode rhsExpression) {
+        public CompoundAssignmentStatementNodeModifier withRhsExpression(
+                ExpressionNode rhsExpression) {
             Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
             this.rhsExpression = rhsExpression;
             return this;
         }
 
-        public CompoundAssignmentStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public CompoundAssignmentStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

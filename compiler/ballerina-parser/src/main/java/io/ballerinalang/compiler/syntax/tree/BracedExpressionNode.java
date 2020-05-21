@@ -103,19 +103,22 @@ public class BracedExpressionNode extends ExpressionNode {
             this.closeParen = oldNode.closeParen();
         }
 
-        public BracedExpressionNodeModifier withOpenParen(Token openParen) {
+        public BracedExpressionNodeModifier withOpenParen(
+                Token openParen) {
             Objects.requireNonNull(openParen, "openParen must not be null");
             this.openParen = openParen;
             return this;
         }
 
-        public BracedExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public BracedExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public BracedExpressionNodeModifier withCloseParen(Token closeParen) {
+        public BracedExpressionNodeModifier withCloseParen(
+                Token closeParen) {
             Objects.requireNonNull(closeParen, "closeParen must not be null");
             this.closeParen = closeParen;
             return this;

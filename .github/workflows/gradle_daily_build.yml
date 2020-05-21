@@ -31,7 +31,7 @@ jobs:
     - name: Cache Gradle packages
       uses: actions/cache@v1
       with:
-        path: /home/runner/.gradle/caches
+        path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
         restore-keys: ${{ runner.os }}-gradle
 
@@ -39,5 +39,9 @@ jobs:
       run: |
         export DISPLAY=':99.0'
         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        ./gradlew build --scan
+        ./gradlew build --scan --info
+
+        rm -rf ~/.gradle/caches/5.4/
+        find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
 

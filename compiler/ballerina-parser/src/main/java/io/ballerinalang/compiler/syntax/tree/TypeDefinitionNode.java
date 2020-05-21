@@ -132,37 +132,43 @@ public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public TypeDefinitionNodeModifier withMetadata(MetadataNode metadata) {
+        public TypeDefinitionNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public TypeDefinitionNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public TypeDefinitionNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public TypeDefinitionNodeModifier withTypeKeyword(Token typeKeyword) {
+        public TypeDefinitionNodeModifier withTypeKeyword(
+                Token typeKeyword) {
             Objects.requireNonNull(typeKeyword, "typeKeyword must not be null");
             this.typeKeyword = typeKeyword;
             return this;
         }
 
-        public TypeDefinitionNodeModifier withTypeName(Token typeName) {
+        public TypeDefinitionNodeModifier withTypeName(
+                Token typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public TypeDefinitionNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public TypeDefinitionNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public TypeDefinitionNodeModifier withSemicolonToken(Token semicolonToken) {
+        public TypeDefinitionNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

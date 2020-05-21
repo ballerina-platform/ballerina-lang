@@ -152,49 +152,57 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ListenerDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+        public ListenerDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public ListenerDeclarationNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withListenerKeyword(Token listenerKeyword) {
+        public ListenerDeclarationNodeModifier withListenerKeyword(
+                Token listenerKeyword) {
             Objects.requireNonNull(listenerKeyword, "listenerKeyword must not be null");
             this.listenerKeyword = listenerKeyword;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public ListenerDeclarationNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withVariableName(Token variableName) {
+        public ListenerDeclarationNodeModifier withVariableName(
+                Token variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withEqualsToken(Token equalsToken) {
+        public ListenerDeclarationNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withInitializer(Node initializer) {
+        public ListenerDeclarationNodeModifier withInitializer(
+                Node initializer) {
             Objects.requireNonNull(initializer, "initializer must not be null");
             this.initializer = initializer;
             return this;
         }
 
-        public ListenerDeclarationNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ListenerDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

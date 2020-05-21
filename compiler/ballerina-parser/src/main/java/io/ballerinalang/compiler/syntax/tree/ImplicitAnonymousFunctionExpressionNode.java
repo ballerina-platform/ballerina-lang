@@ -101,19 +101,22 @@ public class ImplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
             this.expression = oldNode.expression();
         }
 
-        public ImplicitAnonymousFunctionExpressionNodeModifier withParams(Node params) {
+        public ImplicitAnonymousFunctionExpressionNodeModifier withParams(
+                Node params) {
             Objects.requireNonNull(params, "params must not be null");
             this.params = params;
             return this;
         }
 
-        public ImplicitAnonymousFunctionExpressionNodeModifier withRightDoubleArrow(Token rightDoubleArrow) {
+        public ImplicitAnonymousFunctionExpressionNodeModifier withRightDoubleArrow(
+                Token rightDoubleArrow) {
             Objects.requireNonNull(rightDoubleArrow, "rightDoubleArrow must not be null");
             this.rightDoubleArrow = rightDoubleArrow;
             return this;
         }
 
-        public ImplicitAnonymousFunctionExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public ImplicitAnonymousFunctionExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

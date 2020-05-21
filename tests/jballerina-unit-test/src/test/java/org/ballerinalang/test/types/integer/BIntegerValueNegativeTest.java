@@ -46,7 +46,7 @@ public class BIntegerValueNegativeTest {
         expectedError = "Integer '-9999999999999999999' too small";
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
-        expectedError = "mismatched input 'int'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
+        expectedError = "mismatched input 'int'. expecting {'is', 'equals', ';', '?', '+', '-', '*', '/', '%', '==', " +
                 "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 13, 5);
 
@@ -56,8 +56,8 @@ public class BIntegerValueNegativeTest {
         expectedError = "extraneous input '912'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
 
-        expectedError = "mismatched input '}'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', " +
-                "'>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
+        expectedError = "mismatched input '}'. expecting {'is', 'equals', ';', '?', '+', '-', '*', '/', '%', '==', " +
+                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }

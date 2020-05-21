@@ -111,25 +111,29 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
             this.gtToken = oldNode.gtToken();
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withParameterizedType(Token parameterizedType) {
+        public ParameterizedTypeDescriptorNodeModifier withParameterizedType(
+                Token parameterizedType) {
             Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
             this.parameterizedType = parameterizedType;
             return this;
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withLtToken(Token ltToken) {
+        public ParameterizedTypeDescriptorNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withTypeNode(Node typeNode) {
+        public ParameterizedTypeDescriptorNodeModifier withTypeNode(
+                Node typeNode) {
             Objects.requireNonNull(typeNode, "typeNode must not be null");
             this.typeNode = typeNode;
             return this;
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withGtToken(Token gtToken) {
+        public ParameterizedTypeDescriptorNodeModifier withGtToken(
+                Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;

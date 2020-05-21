@@ -101,19 +101,22 @@ public class ParenthesizedArgList extends NonTerminalNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public ParenthesizedArgListModifier withOpenParenToken(Token openParenToken) {
+        public ParenthesizedArgListModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public ParenthesizedArgListModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+        public ParenthesizedArgListModifier withArguments(
+                NodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;
         }
 
-        public ParenthesizedArgListModifier withCloseParenToken(Token closeParenToken) {
+        public ParenthesizedArgListModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

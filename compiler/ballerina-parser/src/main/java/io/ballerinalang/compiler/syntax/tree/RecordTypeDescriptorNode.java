@@ -111,25 +111,29 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
             this.bodyEndDelimiter = oldNode.bodyEndDelimiter();
         }
 
-        public RecordTypeDescriptorNodeModifier withObjectKeyword(Token objectKeyword) {
+        public RecordTypeDescriptorNodeModifier withObjectKeyword(
+                Token objectKeyword) {
             Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
             this.objectKeyword = objectKeyword;
             return this;
         }
 
-        public RecordTypeDescriptorNodeModifier withBodyStartDelimiter(Token bodyStartDelimiter) {
+        public RecordTypeDescriptorNodeModifier withBodyStartDelimiter(
+                Token bodyStartDelimiter) {
             Objects.requireNonNull(bodyStartDelimiter, "bodyStartDelimiter must not be null");
             this.bodyStartDelimiter = bodyStartDelimiter;
             return this;
         }
 
-        public RecordTypeDescriptorNodeModifier withFields(NodeList<Node> fields) {
+        public RecordTypeDescriptorNodeModifier withFields(
+                NodeList<Node> fields) {
             Objects.requireNonNull(fields, "fields must not be null");
             this.fields = fields;
             return this;
         }
 
-        public RecordTypeDescriptorNodeModifier withBodyEndDelimiter(Token bodyEndDelimiter) {
+        public RecordTypeDescriptorNodeModifier withBodyEndDelimiter(
+                Token bodyEndDelimiter) {
             Objects.requireNonNull(bodyEndDelimiter, "bodyEndDelimiter must not be null");
             this.bodyEndDelimiter = bodyEndDelimiter;
             return this;

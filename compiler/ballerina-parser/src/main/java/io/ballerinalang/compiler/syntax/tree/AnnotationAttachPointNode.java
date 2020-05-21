@@ -101,19 +101,22 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
             this.secondIdent = oldNode.secondIdent();
         }
 
-        public AnnotationAttachPointNodeModifier withSourceKeyword(Token sourceKeyword) {
+        public AnnotationAttachPointNodeModifier withSourceKeyword(
+                Token sourceKeyword) {
             Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
             this.sourceKeyword = sourceKeyword;
             return this;
         }
 
-        public AnnotationAttachPointNodeModifier withFirstIdent(Token firstIdent) {
+        public AnnotationAttachPointNodeModifier withFirstIdent(
+                Token firstIdent) {
             Objects.requireNonNull(firstIdent, "firstIdent must not be null");
             this.firstIdent = firstIdent;
             return this;
         }
 
-        public AnnotationAttachPointNodeModifier withSecondIdent(Token secondIdent) {
+        public AnnotationAttachPointNodeModifier withSecondIdent(
+                Token secondIdent) {
             Objects.requireNonNull(secondIdent, "secondIdent must not be null");
             this.secondIdent = secondIdent;
             return this;
