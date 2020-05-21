@@ -44,11 +44,11 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(2);
     }
 
-    public Node typeDescriptor() {
+    public TypeDescriptorNode typeDescriptor() {
         return childInBucket(3);
     }
 
-    public SimpleNameReferenceNode variableName() {
+    public Token variableName() {
         return childInBucket(4);
     }
 
@@ -91,8 +91,8 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token constKeyword,
-            Node typeDescriptor,
-            SimpleNameReferenceNode variableName,
+            TypeDescriptorNode typeDescriptor,
+            Token variableName,
             Token equalsToken,
             Node initializer,
             Token semicolonToken) {
@@ -133,8 +133,8 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         private MetadataNode metadata;
         private Token visibilityQualifier;
         private Token constKeyword;
-        private Node typeDescriptor;
-        private SimpleNameReferenceNode variableName;
+        private TypeDescriptorNode typeDescriptor;
+        private Token variableName;
         private Token equalsToken;
         private Node initializer;
         private Token semicolonToken;
@@ -173,14 +173,14 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ConstantDeclarationNodeModifier withTypeDescriptor(
-                Node typeDescriptor) {
+                TypeDescriptorNode typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
         public ConstantDeclarationNodeModifier withVariableName(
-                SimpleNameReferenceNode variableName) {
+                Token variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;

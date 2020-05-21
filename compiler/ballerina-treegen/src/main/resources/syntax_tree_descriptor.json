@@ -835,11 +835,11 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "variableName",
-                    "type": "SimpleNameReferenceNode"
+                    "type": "Token"
                 },
                 {
                     "name": "equalsToken",

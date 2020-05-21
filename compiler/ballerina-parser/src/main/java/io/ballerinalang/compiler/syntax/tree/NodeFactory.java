@@ -638,8 +638,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token constKeyword,
-            Node typeDescriptor,
-            SimpleNameReferenceNode variableName,
+            TypeDescriptorNode typeDescriptor,
+            Token variableName,
             Token equalsToken,
             Node initializer,
             Token semicolonToken) {

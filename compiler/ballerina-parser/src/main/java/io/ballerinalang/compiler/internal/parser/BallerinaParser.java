@@ -5961,7 +5961,7 @@ public class BallerinaParser extends AbstractParser {
                 variableName = parseVariableName();
                 break;
             case EQUAL_TOKEN:
-                variableName = typeOrVarName;
+                variableName = ((STSimpleNameReferenceNode) typeOrVarName).name; // variableName is a token
                 type = STNodeFactory.createEmptyNode();
                 break;
             default:
