@@ -54,6 +54,18 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("x[y[z]].call()[3]", "access-expr/member_access_expr_assert_04.json");
     }
 
+    @Test
+    public void testSimpleAnnotAccess() {
+        test("a .@ b", "access-expr/annot_access_expr_assert_01.json");
+        test("a .@ b:c", "access-expr/annot_access_expr_assert_02.json");
+    }
+
+    @Test
+    public void testAnnotAccess() {
+        test("a + b.@c.@d.@e + f", "access-expr/annot_access_expr_assert_03.json");
+        test("a + b .@c:d .@e:f .@g .h + k", "access-expr/annot_access_expr_assert_04.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -84,5 +96,20 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testMissingFuncNameInMethodCall() {
         test("foo.bar.(baz)", "access-expr/member_access_expr_assert_07.json");
+    }
+
+    @Test
+    public void testAnnotAccessWithInvalidAnnotTagReference() {
+        test("a .@", "access-expr/annot_access_expr_assert_05.json");
+        test("a .@:b", "access-expr/annot_access_expr_assert_06.json");
+    }
+
+    @Test
+    public void testAnnotAccessWithMissingExpression() {
+        test(".@ a", "access-expr/annot_access_expr_assert_07.json");
+        test("{foo : .@ a }", "access-expr/annot_access_expr_assert_08.json");
+        test("[foo, .@ a]", "access-expr/annot_access_expr_assert_09.json");
+        test("let int a = .@ a in c", "access-expr/annot_access_expr_assert_10.json");
+        test("from int a in b where .@ select .@", "access-expr/annot_access_expr_assert_11.json");
     }
 }

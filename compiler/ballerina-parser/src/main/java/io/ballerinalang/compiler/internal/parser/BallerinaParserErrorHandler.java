@@ -1550,7 +1550,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
                 ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPEN_BRACKET,
-                ParserRuleContext.ARG_LIST_START, ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
+                ParserRuleContext.ARG_LIST_START, ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN,
+                nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
