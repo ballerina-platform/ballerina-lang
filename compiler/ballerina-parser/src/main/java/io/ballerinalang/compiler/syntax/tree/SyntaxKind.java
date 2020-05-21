@@ -82,6 +82,7 @@ public enum SyntaxKind {
     START_KEYWORD(228, "start"),
     FLUSH_KEYWORD(229, "flush"),
     DEFAULT_KEYWORD(230, "default"),
+    WAIT_KEYWORD(231, "wait"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -279,7 +280,8 @@ public enum SyntaxKind {
     FLUSH_ACTION(2505),
     ASYNC_SEND_ACTION(2506),
     SYNC_SEND_ACTION(2507),
-    RECEIVE_SEND_ACTION(2508),
+    RECEIVE_ACTION(2508),
+    WAIT_ACTION(2509),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
@@ -341,6 +343,8 @@ public enum SyntaxKind {
     REST_TYPE(3056),
     DOUBLE_GT_TOKEN(3056, ">>"),
     TRIPPLE_GT_TOKEN(3057, ">>>"),
+    WAIT_FIELDS_LIST(3058),
+    WAIT_FIELD(3059),
 
     // XML
     XML_ELEMENT(4000),

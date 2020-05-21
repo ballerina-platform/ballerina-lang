@@ -15,35 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.internal.syntax;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
- * This is a generated internal syntax tree node.
+ * Contains a set of utility methods to modify {@code NonTerminal} nodes.
  *
  * @since 2.0.0
  */
-public class STReceiveActionNode extends STActionNode {
-    public final STNode leftArrow;
-    public final STNode receiveWorkers;
+public class TreeModifiers {
 
-    STReceiveActionNode(
-            STNode leftArrow,
-            STNode receiveWorkers) {
-        super(SyntaxKind.RECEIVE_ACTION);
-        this.leftArrow = leftArrow;
-        this.receiveWorkers = receiveWorkers;
-
-        addChildren(
-                leftArrow,
-                receiveWorkers);
-    }
-
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReceiveActionNode(this, position, parent);
+    /**
+     * Replaces the given target node with the replacement node and return new root node.
+     *
+     * @param root        root of the tree in which the target node exists
+     * @param target      the node to be replaced
+     * @param replacement the replacement node
+     * @param <T>         the type of the root node
+     * @return return the root node after replacing the target with the replacement
+     */
+    public static <T extends NonTerminalNode> T replace(T root, Node target, Node replacement) {
+        NodeReplacer nodeReplacer = new NodeReplacer(target, replacement);
+        return nodeReplacer.replace(root);
     }
 }

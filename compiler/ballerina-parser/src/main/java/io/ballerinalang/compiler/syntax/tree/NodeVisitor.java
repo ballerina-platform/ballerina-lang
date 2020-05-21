@@ -599,6 +599,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(trippleGTTokenNode);
     }
 
+    public void visit(WaitActionNode waitActionNode) {
+        visitSyntaxNode(waitActionNode);
+    }
+
+    public void visit(WaitFieldsListNode waitFieldsListNode) {
+        visitSyntaxNode(waitFieldsListNode);
+    }
+
+    public void visit(WaitFieldNode waitFieldNode) {
+        visitSyntaxNode(waitFieldNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

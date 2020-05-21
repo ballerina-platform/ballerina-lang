@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ReceiveFieldsNode extends NonTerminalNode {
+public class WaitFieldsListNode extends NonTerminalNode {
 
-    public ReceiveFieldsNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public WaitFieldsListNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -36,7 +36,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<NameReferenceNode> receiveFields() {
+    public SeparatedNodeList<Node> waitFields() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -58,29 +58,29 @@ public class ReceiveFieldsNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openBrace",
-                "receiveFields",
+                "waitFields",
                 "closeBrace"};
     }
 
-    public ReceiveFieldsNode modify(
+    public WaitFieldsListNode modify(
             Token openBrace,
-            SeparatedNodeList<NameReferenceNode> receiveFields,
+            SeparatedNodeList<Node> waitFields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
-                receiveFields.underlyingListNode(),
+                waitFields.underlyingListNode(),
                 closeBrace)) {
             return this;
         }
 
-        return NodeFactory.createReceiveFieldsNode(
+        return NodeFactory.createWaitFieldsListNode(
                 openBrace,
-                receiveFields,
+                waitFields,
                 closeBrace);
     }
 
-    public ReceiveFieldsNodeModifier modify() {
-        return new ReceiveFieldsNodeModifier(this);
+    public WaitFieldsListNodeModifier modify() {
+        return new WaitFieldsListNodeModifier(this);
     }
 
     /**
@@ -88,44 +88,44 @@ public class ReceiveFieldsNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class ReceiveFieldsNodeModifier {
-        private final ReceiveFieldsNode oldNode;
+    public static class WaitFieldsListNodeModifier {
+        private final WaitFieldsListNode oldNode;
         private Token openBrace;
-        private SeparatedNodeList<NameReferenceNode> receiveFields;
+        private SeparatedNodeList<Node> waitFields;
         private Token closeBrace;
 
-        public ReceiveFieldsNodeModifier(ReceiveFieldsNode oldNode) {
+        public WaitFieldsListNodeModifier(WaitFieldsListNode oldNode) {
             this.oldNode = oldNode;
             this.openBrace = oldNode.openBrace();
-            this.receiveFields = oldNode.receiveFields();
+            this.waitFields = oldNode.waitFields();
             this.closeBrace = oldNode.closeBrace();
         }
 
-        public ReceiveFieldsNodeModifier withOpenBrace(
+        public WaitFieldsListNodeModifier withOpenBrace(
                 Token openBrace) {
             Objects.requireNonNull(openBrace, "openBrace must not be null");
             this.openBrace = openBrace;
             return this;
         }
 
-        public ReceiveFieldsNodeModifier withReceiveFields(
-                SeparatedNodeList<NameReferenceNode> receiveFields) {
-            Objects.requireNonNull(receiveFields, "receiveFields must not be null");
-            this.receiveFields = receiveFields;
+        public WaitFieldsListNodeModifier withWaitFields(
+                SeparatedNodeList<Node> waitFields) {
+            Objects.requireNonNull(waitFields, "waitFields must not be null");
+            this.waitFields = waitFields;
             return this;
         }
 
-        public ReceiveFieldsNodeModifier withCloseBrace(
+        public WaitFieldsListNodeModifier withCloseBrace(
                 Token closeBrace) {
             Objects.requireNonNull(closeBrace, "closeBrace must not be null");
             this.closeBrace = closeBrace;
             return this;
         }
 
-        public ReceiveFieldsNode apply() {
+        public WaitFieldsListNode apply() {
             return oldNode.modify(
                     openBrace,
-                    receiveFields,
+                    waitFields,
                     closeBrace);
         }
     }

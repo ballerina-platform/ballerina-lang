@@ -131,6 +131,17 @@
             <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
             <class name="org.ballerinalang.test.worker.StackOverflowTest"></class>
             <class name="org.ballerinalang.test.worker.WaitForAllWorkersTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.AsyncTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.ConstructorTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.FieldAccessMutateTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
+            <class name="org.ballerinalang.test.javainterop.arrays.JavaArrayBasicTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionsInFunctionParamsTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveTypeFunctionParamTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.UnionsWithPrimitiveTypesTest"></class>
+
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->

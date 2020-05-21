@@ -223,7 +223,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
             ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD,
-            ParserRuleContext.LEFT_ARROW_TOKEN };
+            ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -302,7 +302,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.PLUS_TOKEN,
-              ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
+                    ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
@@ -413,6 +413,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] RECEIVE_FIELD_END =
             { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.COMMA };
 
+    private static final ParserRuleContext[] WAIT_KEYWORD_RHS =
+            { ParserRuleContext.MULTI_WAIT_FIELDS, ParserRuleContext.ALTERNATE_WAIT_EXPRS };
+
+    private static final ParserRuleContext[] WAIT_FIELD_NAME_RHS =
+            { ParserRuleContext.COLON, ParserRuleContext.WAIT_FIELD_END };
+
+    private static final ParserRuleContext[] WAIT_FIELD_END =
+            { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.COMMA };
+
+    private static final ParserRuleContext[] WAIT_FUTURE_EXPR_END =
+            { ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END, ParserRuleContext.PIPE };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -483,6 +495,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REMOTE_CALL_OR_ASYNC_SEND_END:
             case RECEIVE_FIELD_END:
             case RECEIVE_WORKERS:
+            case WAIT_FIELD_NAME:
+            case WAIT_FIELD_NAME_RHS:
+            case WAIT_FIELD_END:
+            case WAIT_FUTURE_EXPR_END:
+            case MAPPING_FIELD_END:
                 return true;
             default:
                 return false;
@@ -575,6 +592,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case IMPLICIT_ANON_FUNC_PARAM:
                 case WORKER_NAME_OR_METHOD_NAME:
                 case RECEIVE_FIELD_NAME:
+                case WAIT_FIELD_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -1227,6 +1245,21 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case RECEIVE_FIELD_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECEIVE_FIELD_END,
                             isEntryPoint);
+                case WAIT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.WAIT_KEYWORD;
+                    break;
+                case WAIT_KEYWORD_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, WAIT_KEYWORD_RHS,
+                            isEntryPoint);
+                case WAIT_FIELD_NAME_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, WAIT_FIELD_NAME_RHS,
+                            isEntryPoint);
+                case WAIT_FIELD_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, WAIT_FIELD_END,
+                            isEntryPoint);
+                case WAIT_FUTURE_EXPR_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, WAIT_FUTURE_EXPR_END,
+                            isEntryPoint);
 
                 case COMP_UNIT:
                 case FUNC_DEF_OR_FUNC_TYPE:
@@ -1439,8 +1472,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.ARG_LIST_END };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case MAPPING_CONSTRUCTOR:
-                next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE,
+            case MULTI_WAIT_FIELDS:
+                next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.BINARY_OPERATOR,
+                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case COMPUTED_FIELD_NAME:
@@ -1502,6 +1536,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.FUNC_DEF) {
             // expression bodied func in module level
             nextContext = ParserRuleContext.SEMICOLON;
+        } else if (parentCtx == ParserRuleContext.ALTERNATE_WAIT_EXPRS) {
+            nextContext = ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -1592,6 +1628,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPED_BINDING_PATTERN:
             case CAPTURE_BINDING_PATTERN:
             case MULTI_RECEIVE_WORKERS:
+            case MULTI_WAIT_FIELDS:
+            case ALTERNATE_WAIT_EXPRS:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -1835,6 +1873,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.EXPRESSION;
                 } else if (parentCtx == ParserRuleContext.MULTI_RECEIVE_WORKERS) {
                     return ParserRuleContext.PEER_WORKER_NAME;
+                } else if (parentCtx == ParserRuleContext.MULTI_WAIT_FIELDS) {
+                    return ParserRuleContext.EXPRESSION;
                 }
 
                 return ParserRuleContext.IDENTIFIER;
@@ -2006,6 +2046,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_CAST:
                 return ParserRuleContext.LT;
             case PIPE:
+                if (getParentContext() == ParserRuleContext.ALTERNATE_WAIT_EXPRS) {
+                    return ParserRuleContext.EXPRESSION;
+                }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case TABLE_CONSTRUCTOR:
                 return ParserRuleContext.OPEN_BRACKET;
@@ -2203,6 +2246,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case RECEIVE_FIELD_NAME:
                 return ParserRuleContext.COLON;
+            case WAIT_KEYWORD:
+                return ParserRuleContext.WAIT_KEYWORD_RHS;
+            case WAIT_FIELD_NAME:
+                return ParserRuleContext.WAIT_FIELD_NAME_RHS;
+            case ALTERNATE_WAIT_EXPR_LIST_END:
+                return getNextRuleForWaitExprListEnd();
+            case MULTI_WAIT_FIELDS:
+                return ParserRuleContext.OPEN_BRACE;
+            case ALTERNATE_WAIT_EXPRS:
+                return ParserRuleContext.EXPRESSION;
 
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case OBJECT_FUNC_OR_FIELD:
@@ -2349,6 +2402,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.NAMED_WORKER_DECL;
             case MULTI_RECEIVE_WORKERS:
                 return ParserRuleContext.RECEIVE_FIELD;
+            case MULTI_WAIT_FIELDS:
+                return ParserRuleContext.WAIT_FIELD_NAME;
             default:
                 return ParserRuleContext.STATEMENT;
         }
@@ -2430,6 +2485,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS;
             case MULTI_RECEIVE_WORKERS:
                 return ParserRuleContext.RECEIVE_FIELD;
+            case MULTI_WAIT_FIELDS:
+                return ParserRuleContext.WAIT_FIELD_NAME;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -2707,6 +2764,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext();
                 return ParserRuleContext.TEMPLATE_MEMBER;
             case MULTI_RECEIVE_WORKERS:
+            case MULTI_WAIT_FIELDS:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             default:
@@ -2751,7 +2809,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.REQUIRED_PARAM;
                 }
-                throw new IllegalStateException("annotation is ending inside a " + parentCtx);
+
+                // everything else, treat as an annotation in an expression
+                return ParserRuleContext.EXPRESSION;
         }
     }
 
@@ -3051,6 +3111,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
+    private ParserRuleContext getNextRuleForWaitExprListEnd() {
+        // TODO: add other endings based on the locations where action is allowed.
+        endContext();
+        return ParserRuleContext.EXPRESSION_RHS;
+    }
+
     /**
      * Check whether the given context is a statement.
      * 
@@ -3290,6 +3356,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WORKER_NAME_OR_METHOD_NAME:
             case PEER_WORKER_NAME:
             case RECEIVE_FIELD_NAME:
+            case WAIT_FIELD_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -3494,6 +3561,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case SYNC_SEND_TOKEN:
                 return SyntaxKind.SYNC_SEND_TOKEN;
+            case WAIT_KEYWORD:
+                return SyntaxKind.WAIT_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
