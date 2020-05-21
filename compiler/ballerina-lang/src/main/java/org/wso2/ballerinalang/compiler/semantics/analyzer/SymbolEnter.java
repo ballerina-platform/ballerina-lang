@@ -1359,12 +1359,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
                                         .orElse(symTable.detailType);
 
-//            if (detailType == symTable.detailType) {
-//                typeDef.symbol.type = symTable.errorType;
-//                continue;
-//            }
-
-            // todo: check why this part is here with pubudu.
             BErrorType errorType = (BErrorType) typeDef.symbol.type;
             errorType.detailType = detailType;
         }

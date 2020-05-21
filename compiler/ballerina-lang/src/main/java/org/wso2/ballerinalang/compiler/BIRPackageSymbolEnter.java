@@ -974,7 +974,6 @@ public class BIRPackageSymbolEnter {
                     pkgCpIndex = inputStream.readInt();
                     pkgId = getPackageId(pkgCpIndex);
                     String errorName = getStringCPEntryValue(inputStream);
-//                    BType reasonType = readTypeFromCp();
                     BType detailsType = readTypeFromCp();
                     errorType.detailType = detailsType;
                     errorSymbol.type = errorType;
