@@ -3244,6 +3244,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
             case FORK_KEYWORD:
             case FOREACH_KEYWORD:
+            case XMLNS_KEYWORD:
 
                 // action-statements
             case CHECK_KEYWORD:
@@ -3362,6 +3363,8 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_KEYWORD:
             case FROM_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
+            case XMLNS_KEYWORD:
+                return parseXMLNamepsaceDeclaration();
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.

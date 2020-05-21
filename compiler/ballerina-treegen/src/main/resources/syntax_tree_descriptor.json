@@ -1625,7 +1625,7 @@
         },
         {
             "name": "XMLNamespaceDeclarationNode",
-            "base": "Node",
+            "base": "StatementNode",
             "kind": "XML_NAMESPACE_DECLARATION",
             "attributes": [
                 {

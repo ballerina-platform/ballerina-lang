@@ -98,7 +98,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
-            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT };
+            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
+            ParserRuleContext.XML_NAMESPACE_DECLARATION };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
@@ -922,6 +923,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case DO_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.DO_KEYWORD;
+                    break;
                 case ANNOT_CHAINING_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.ANNOT_CHAINING_TOKEN;
                     break;
@@ -2386,7 +2388,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.EXPRESSION_STATEMENT) {
             return ParserRuleContext.EXPRESSION_STATEMENT_START;
-        } else if (isExpressionContext(parentCtx) || isExpressionContext(parentCtx) ||
+        } else if (isStatement(parentCtx) || isExpressionContext(parentCtx) ||
                 parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.EXPRESSION;
         } else if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE ||
