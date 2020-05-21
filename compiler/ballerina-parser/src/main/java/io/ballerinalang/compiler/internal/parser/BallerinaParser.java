@@ -9136,9 +9136,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseConditionalExpression(STNode lhsExpr) {
+        startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
         STNode questionMark = parseQuestionMark();
         STNode middleExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
         STNode colon = parseColon();
+        endContext();
         STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }

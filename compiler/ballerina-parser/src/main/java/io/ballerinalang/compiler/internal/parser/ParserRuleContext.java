@@ -333,6 +333,7 @@ public enum ParserRuleContext {
     QUERY_EXPRESSION("query-expr"),
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
     START_ACTION("start-action"),
+    CONDITIONAL_EXPRESSION("conditional-expr"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

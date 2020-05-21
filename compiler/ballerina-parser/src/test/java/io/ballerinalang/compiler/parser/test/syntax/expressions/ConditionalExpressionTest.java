@@ -47,8 +47,36 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
     // Recovery tests
 
     @Test
-    public void testConditionalElvisWithMissingExpression() {
+    public void testElvisConditionalWithMissingExpr() {
         test("a ?:", "conditional-expr/conditional_expr_assert_07.json");
         test("?: b", "conditional-expr/conditional_expr_assert_08.json");
+    }
+
+    @Test
+    public void testConditionalWithMissingEndExpr() {
+        test("a ? b :", "conditional-expr/conditional_expr_assert_09.json");
+    }
+
+    @Test
+    public void testConditionalWithMissingColon() {
+        test("a ? (b)  c", "conditional-expr/conditional_expr_assert_10.json");
+    }
+
+    @Test
+    public void testConditionalWithMissingMiddleExpr() {
+        test("a ?  : c", "conditional-expr/conditional_expr_assert_11.json");
+    }
+
+    @Test
+    public void testConditionalWithMissingQuestionMark() {
+        test("a  b:d : d", "conditional-expr/conditional_expr_assert_12.json");
+        test("a  (b) : c", "conditional-expr/conditional_expr_assert_13.json");
+    }
+
+    @Test
+    public void testConditionalWithMissingInitialExpr() {
+        test("?(b):c", "conditional-expr/conditional_expr_assert_14.json");
+        test("{foo : ?(b):c}", "conditional-expr/conditional_expr_assert_15.json");
+        test("[foo, ?(b):c]", "conditional-expr/conditional_expr_assert_16.json");
     }
 }
