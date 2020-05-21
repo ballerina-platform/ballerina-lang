@@ -41,11 +41,12 @@ public enum OperatorPrecedence {
     ELVIS_CONDITIONAL(13),  //  x ?: y
     CONDITIONAL(14),        //  x ? y : z
 
-    ANON_FUNC(16),      //  (x) => y
+    ANON_FUNC_OR_LET(16),   //  (x) => y
+    QUERY(17),              //  from x, select x, where x
 
     //  Actions cannot reside inside expressions, hence they have the lowest precedence.
-    REMOTE_CALL_ACTION(17), //  (x -> y()), 
-    ACTION(18),             //  (start x), ...
+    REMOTE_CALL_ACTION(18), //  (x -> y()), 
+    ACTION(19),             //  (start x), ...
     
     ;
 

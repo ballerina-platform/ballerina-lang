@@ -32,10 +32,14 @@ public class WhileStatementTest extends AbstractStatementTest {
     }
 
     @Test
-    public void testWHileWithBody() {
+    public void testWhileWithBody() {
         testFile("while-stmt/while_stmt_source_02.bal", "while-stmt/while_stmt_assert_02.json");
     }
 
     // Recovery tests
 
+    @Test
+    public void testWhileStmtRecovery() {
+        testFile("while-stmt/while_stmt_source_03.bal", "while-stmt/while_stmt_assert_03.json");
+    }
 }

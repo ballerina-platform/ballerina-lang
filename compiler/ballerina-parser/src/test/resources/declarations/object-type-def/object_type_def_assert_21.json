@@ -1,78 +1,42 @@
 {
-  "kind": "TYPE_DEFINITION",
-  "children": [
-    {
-      "kind": "METADATA",
-      "children": [
+    "kind": "TYPE_DEFINITION",
+    "children": [
         {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "TYPE_KEYWORD"
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo"
-    },
-    {
-      "kind": "OBJECT_TYPE_DESC",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": [
-            {
-              "kind": "CLIENT_KEYWORD"
-            },
-            {
-              "kind": "ABSTRACT_KEYWORD"
-            }
-          ]
-        },
-        {
-          "kind": "OBJECT_KEYWORD"
-        },
-        {
-          "kind": "OPEN_BRACE_TOKEN"
-        },
-        {
-          "kind": "LIST",
-          "children": [
-            {
-              "kind": "OBJECT_FIELD",
-              "children": [
+            "kind": "METADATA",
+            "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "kind": "STRING_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "name"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
+                    "kind": "LIST",
+                    "children": []
                 }
-              ]
-            }
-          ]
+            ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "Foo"
+        },
+        {
+            "kind": "SINGLETON_TYPE_DESC",
+            "children": [
+                {
+                    "kind": "UNARY_EXPRESSION",
+                    "children": [
+                        {
+                            "kind": "PLUS_TOKEN"
+                        },
+                        {
+                            "kind": "DECIMAL_INTEGER_LITERAL",
+                            "isMissing": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
         }
-      ]
-    },
-    {
-      "kind": "SEMICOLON_TOKEN"
-    }
-  ]
+    ]
 }

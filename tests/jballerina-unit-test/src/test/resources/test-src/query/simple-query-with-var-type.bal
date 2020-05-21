@@ -23,6 +23,18 @@ type NumberGenerator object {
     }
 };
 
+type ResultValue record {|
+    Person value;
+|};
+
+function getRecordValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal) returns Person? {
+   if (returnedVal is ResultValue) {
+      return returnedVal.value;
+   } else {
+      return ();
+   }
+}
+
 function testSimpleSelectQueryWithSimpleVariable() returns Person[] {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
@@ -113,7 +125,7 @@ function testSimpleSelectQueryWithWhereClause() returns Person[] {
     return outputPersonList;
 }
 
-function testQueryExpressionForPrimitiveType() returns int[] {
+function testQueryExpressionForPrimitiveType() returns boolean {
 
     int[] intList = [12, 13, 14, 15, 20, 21, 25];
 
@@ -122,10 +134,10 @@ function testQueryExpressionForPrimitiveType() returns int[] {
             where value > 20
             select value;
 
-    return outputIntList;
+    return outputIntList == [21, 25];
 }
 
-function testQueryExpressionWithSelectExpression() returns string[] {
+function testQueryExpressionWithSelectExpression() returns boolean {
 
     int[] intList = [1, 2, 3];
 
@@ -133,7 +145,7 @@ function testQueryExpressionWithSelectExpression() returns string[] {
             from var value in intList
             select value.toString();
 
-    return stringOutput;
+    return stringOutput == ["1", "2", "3"];
 }
 
 function testFilteringNullElements() returns Person[] {
@@ -154,27 +166,27 @@ function testFilteringNullElements() returns Person[] {
     return outputPersonList;
 }
 
-function testMapWithArity() returns string[] {
+function testMapWithArity() returns boolean {
     map<any> m = {a: "1A", b: "2B", c: "3C", d: "4D"};
     var val = from var v in m
                    where <string> v == "1A"
                    select <string>v;
-    return val;
+    return val == ["1A"];
 }
 
-function testJSONArrayWithArity() returns string[] {
+function testJSONArrayWithArity() returns boolean {
     json[] jdata = [{name: "bob", age: 10}, {name: "tom", age: 16}];
     var val = from var v in jdata
                    select <string> v.name;
-    return val;
+    return val == ["bob", "tom"];
 }
 
-function testArrayWithTuple() returns string[] {
+function testArrayWithTuple() returns boolean {
     [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
     var val = from var [i, v] in arr
                    where i == 3
                    select v;
-    return val;
+    return val == ["C"];
 }
 
 function testQueryExpressionWithVarType() returns Teacher[] {
@@ -231,12 +243,37 @@ function testQueryExpressionWithSpreadOperatorV2() returns Teacher[] {
     return outputPersonList;
 }
 
-public function testQueryWithStream() returns int[]|error {
+public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
     var numberStream = new stream<int, error>(numGen);
 
     var oddNumberList = from var num in numberStream
                         where (num % 2 == 1)
                         select num;
-    return oddNumberList;
+    return oddNumberList == [1, 3, 5];
+}
+
+function testSimpleSelectQueryReturnStream() returns boolean {
+    boolean testPassed = true;
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    var outputPersonStream = stream from var person in personList
+                             select {
+                                 firstName: person.firstName,
+                                 lastName: person.lastName,
+                                 age: person.age
+                             };
+    Person? returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p1);
+
+    returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p2);
+
+    returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p3);
+    return testPassed;
 }

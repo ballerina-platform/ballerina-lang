@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class MappingConstructorExpressionNode extends ExpressionNode {
 
@@ -75,5 +77,56 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
                 openBrace,
                 fields,
                 closeBrace);
+    }
+
+    public MappingConstructorExpressionNodeModifier modify() {
+        return new MappingConstructorExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class MappingConstructorExpressionNodeModifier {
+        private final MappingConstructorExpressionNode oldNode;
+        private Token openBrace;
+        private NodeList<MappingFieldNode> fields;
+        private Token closeBrace;
+
+        public MappingConstructorExpressionNodeModifier(MappingConstructorExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBrace = oldNode.openBrace();
+            this.fields = oldNode.fields();
+            this.closeBrace = oldNode.closeBrace();
+        }
+
+        public MappingConstructorExpressionNodeModifier withOpenBrace(
+                Token openBrace) {
+            Objects.requireNonNull(openBrace, "openBrace must not be null");
+            this.openBrace = openBrace;
+            return this;
+        }
+
+        public MappingConstructorExpressionNodeModifier withFields(
+                NodeList<MappingFieldNode> fields) {
+            Objects.requireNonNull(fields, "fields must not be null");
+            this.fields = fields;
+            return this;
+        }
+
+        public MappingConstructorExpressionNodeModifier withCloseBrace(
+                Token closeBrace) {
+            Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+            this.closeBrace = closeBrace;
+            return this;
+        }
+
+        public MappingConstructorExpressionNode apply() {
+            return oldNode.modify(
+                    openBrace,
+                    fields,
+                    closeBrace);
+        }
     }
 }

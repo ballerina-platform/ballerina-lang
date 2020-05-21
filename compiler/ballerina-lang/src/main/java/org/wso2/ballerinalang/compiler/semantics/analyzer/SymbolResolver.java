@@ -619,6 +619,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             bSymbol = lookupLangLibMethodInModule(symTable.langInternalModuleSymbol, name);
         }
 
+        if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = lookupLangLibMethodInModule(symTable.langQueryModuleSymbol, name);
+        }
+
         return bSymbol;
     }
 
@@ -630,7 +634,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag symbol tag
      * @return closure symbol wrapper along with the resolved count
      */
-    BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
+    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&

@@ -39,7 +39,7 @@ class LineMap {
     LinePosition linePositionFrom(int position) {
         positionRangeCheck(position);
         TextLine textLine = findLineFrom(position);
-        return new LinePosition(textLine.lineNo(), position - textLine.startOffset());
+        return LinePosition.from(textLine.lineNo(), position - textLine.startOffset());
     }
 
     int textPositionFrom(LinePosition linePosition) {

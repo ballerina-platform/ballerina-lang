@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLQualifiedNameNode extends XMLNameNode {
 
@@ -75,5 +77,56 @@ public class XMLQualifiedNameNode extends XMLNameNode {
                 prefix,
                 colon,
                 name);
+    }
+
+    public XMLQualifiedNameNodeModifier modify() {
+        return new XMLQualifiedNameNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLQualifiedNameNodeModifier {
+        private final XMLQualifiedNameNode oldNode;
+        private XMLSimpleNameNode prefix;
+        private Token colon;
+        private XMLSimpleNameNode name;
+
+        public XMLQualifiedNameNodeModifier(XMLQualifiedNameNode oldNode) {
+            this.oldNode = oldNode;
+            this.prefix = oldNode.prefix();
+            this.colon = oldNode.colon();
+            this.name = oldNode.name();
+        }
+
+        public XMLQualifiedNameNodeModifier withPrefix(
+                XMLSimpleNameNode prefix) {
+            Objects.requireNonNull(prefix, "prefix must not be null");
+            this.prefix = prefix;
+            return this;
+        }
+
+        public XMLQualifiedNameNodeModifier withColon(
+                Token colon) {
+            Objects.requireNonNull(colon, "colon must not be null");
+            this.colon = colon;
+            return this;
+        }
+
+        public XMLQualifiedNameNodeModifier withName(
+                XMLSimpleNameNode name) {
+            Objects.requireNonNull(name, "name must not be null");
+            this.name = name;
+            return this;
+        }
+
+        public XMLQualifiedNameNode apply() {
+            return oldNode.modify(
+                    prefix,
+                    colon,
+                    name);
+        }
     }
 }

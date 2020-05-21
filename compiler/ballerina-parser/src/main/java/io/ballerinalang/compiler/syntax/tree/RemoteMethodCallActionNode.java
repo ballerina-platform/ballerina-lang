@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RemoteMethodCallActionNode extends ActionNode {
 
@@ -99,5 +101,86 @@ public class RemoteMethodCallActionNode extends ActionNode {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public RemoteMethodCallActionNodeModifier modify() {
+        return new RemoteMethodCallActionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RemoteMethodCallActionNodeModifier {
+        private final RemoteMethodCallActionNode oldNode;
+        private ExpressionNode expression;
+        private Token rightArrowToken;
+        private Token methodName;
+        private Token openParenToken;
+        private NodeList<FunctionArgumentNode> arguments;
+        private Token closeParenToken;
+
+        public RemoteMethodCallActionNodeModifier(RemoteMethodCallActionNode oldNode) {
+            this.oldNode = oldNode;
+            this.expression = oldNode.expression();
+            this.rightArrowToken = oldNode.rightArrowToken();
+            this.methodName = oldNode.methodName();
+            this.openParenToken = oldNode.openParenToken();
+            this.arguments = oldNode.arguments();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public RemoteMethodCallActionNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public RemoteMethodCallActionNodeModifier withRightArrowToken(
+                Token rightArrowToken) {
+            Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+            this.rightArrowToken = rightArrowToken;
+            return this;
+        }
+
+        public RemoteMethodCallActionNodeModifier withMethodName(
+                Token methodName) {
+            Objects.requireNonNull(methodName, "methodName must not be null");
+            this.methodName = methodName;
+            return this;
+        }
+
+        public RemoteMethodCallActionNodeModifier withOpenParenToken(
+                Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public RemoteMethodCallActionNodeModifier withArguments(
+                NodeList<FunctionArgumentNode> arguments) {
+            Objects.requireNonNull(arguments, "arguments must not be null");
+            this.arguments = arguments;
+            return this;
+        }
+
+        public RemoteMethodCallActionNodeModifier withCloseParenToken(
+                Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public RemoteMethodCallActionNode apply() {
+            return oldNode.modify(
+                    expression,
+                    rightArrowToken,
+                    methodName,
+                    openParenToken,
+                    arguments,
+                    closeParenToken);
+        }
     }
 }

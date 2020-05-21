@@ -25,22 +25,26 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
     public final STNode rightDoubleArrow;
     public final STNode expression;
+    public final STNode semicolon;
 
     STExpressionFunctionBodyNode(
             STNode rightDoubleArrow,
-            STNode expression) {
+            STNode expression,
+            STNode semicolon) {
         super(SyntaxKind.EXPRESSION_FUNCTION_BODY);
         this.rightDoubleArrow = rightDoubleArrow;
         this.expression = expression;
+        this.semicolon = semicolon;
 
         addChildren(
                 rightDoubleArrow,
-                expression);
+                expression,
+                semicolon);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
