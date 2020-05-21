@@ -607,7 +607,7 @@ public class JvmMethodGen {
         mv.visitInsn(AASTORE);
     }
 
-    private static void handleErrorFromFutureValue(MethodVisitor mv, boolean isModuleInit, String initClass) {
+    private static void handleErrorFromFutureValue(MethodVisitor mv) {
 
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -619,10 +619,6 @@ public class JvmMethodGen {
         // handle any runtime errors
         Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
-        if (isModuleInit) {
-            mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, "moduleInitFailed", "Z");
-        }
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
                 String.format("(L%s;)V", THROWABLE), false);
@@ -791,12 +787,15 @@ public class JvmMethodGen {
     }
 
     private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                           int schedulerIndex, int futureIndex) {
+                                           int schedulerIndex, int futureIndex, String moduleClass) {
 
         String lambdaFuncName = "$lambda$" + stopFuncName;
         // Create a schedular. A new schedular is used here, to make the stop function to not to
         // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
 
+        mv.visitFieldInsn(GETSTATIC, moduleClass, "moduleStartAttempted", "Z");
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFEQ, labelIf);
         mv.visitVarInsn(ALOAD, schedulerIndex);
 
         mv.visitIntInsn(BIPUSH, 1);
@@ -830,8 +829,9 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
 
         // handle any runtime errors
-        Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitFieldInsn(GETSTATIC, moduleClass, "moduleStartSuccess", "Z");
+        mv.visitJumpInsn(IFEQ, labelIf);
 
         mv.visitVarInsn(ALOAD, futureIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
@@ -1489,6 +1489,12 @@ public class JvmMethodGen {
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
+        if (func == module.functions.get(1)) {
+            mv.visitInsn(ICONST_1);
+            mv.visitFieldInsn(PUTSTATIC,
+                    getModuleLevelClassName(module.org.value, module.name.value, MODULE_INIT_CLASS_NAME),
+                    "moduleStartAttempted", "Z");
+        }
 
         Label tryStart = null;
         boolean isObserved = false;
@@ -1695,6 +1701,11 @@ public class JvmMethodGen {
             mv.visitLabel(tryBlock4);
             mv.visitVarInsn(ALOAD, throwableVarIndex);
             mv.visitInsn(ATHROW);
+        }
+        if (func == module.functions.get(1)) {
+            mv.visitInsn(ICONST_1);
+            mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
+                    MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
         }
         mv.visitLabel(methodEndLabel);
         termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, false, -1);
@@ -2276,7 +2287,7 @@ public class JvmMethodGen {
             mv.visitIntInsn(BIPUSH, 100);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-            handleErrorFromFutureValue(mv, true, initClass);
+            handleErrorFromFutureValue(mv);
 
             BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("initdummy"),
                     VarScope.FUNCTION, VarKind.ARG);
@@ -2313,7 +2324,7 @@ public class JvmMethodGen {
             mv.visitIntInsn(BIPUSH, 100);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-            handleErrorFromFutureValue(mv,false, initClass);
+            handleErrorFromFutureValue(mv);
 
             // At this point we are done executing all the functions including asyncs
             if (!isVoidFunction) {
@@ -2378,7 +2389,7 @@ public class JvmMethodGen {
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-        handleErrorFromFutureValue(mv, false, initClass);
+        handleErrorFromFutureValue(mv);
 
         BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("startdummy"), VarScope.FUNCTION,
                 VarKind.ARG);
@@ -2783,19 +2794,21 @@ public class JvmMethodGen {
         String stopFuncName = "<stop>";
 
         PackageID currentModId = packageToModuleId(module);
+        String moduleClass =
+                getModuleLevelClassName(currentModId.orgName.value, currentModId.name.value, MODULE_INIT_CLASS_NAME);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
 
         scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                futureIndex);
+                futureIndex, moduleClass);
 
         int i = imprtMods.size() - 1;
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-
+            moduleClass = getModuleLevelClassName(id.orgName.value, id.name.value, MODULE_INIT_CLASS_NAME);
             scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                    futureIndex);
+                    futureIndex, moduleClass);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
