@@ -2821,7 +2821,7 @@
                     "type": "ExpressionNode"
                 },
                 {
-                    "name": "optionalFieldAccessToken",
+                    "name": "optionalChainingToken",
                     "type": "Token"
                 },
                 {

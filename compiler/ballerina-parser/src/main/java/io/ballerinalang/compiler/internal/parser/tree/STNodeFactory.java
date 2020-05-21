@@ -1571,12 +1571,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createOptionalFieldAccessExpressionNode(
             STNode expression,
-            STNode optionalFieldAccessToken,
+            STNode optionalChainingToken,
             STNode fieldName) {
 
         return new STOptionalFieldAccessExpressionNode(
                 expression,
-                optionalFieldAccessToken,
+                optionalChainingToken,
                 fieldName);
     }
 

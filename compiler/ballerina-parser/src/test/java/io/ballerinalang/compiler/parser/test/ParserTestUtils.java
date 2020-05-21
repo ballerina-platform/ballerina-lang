@@ -534,7 +534,7 @@ public class ParserTestUtils {
                 return SyntaxKind.LOGICAL_OR_TOKEN;
             case "NEGATION_TOKEN":
                 return SyntaxKind.NEGATION_TOKEN;
-            case "OPTIONAL_FIELD_ACCESS_TOKEN":
+            case "OPTIONAL_CHAINING_TOKEN":
                 return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
             case "ELVIS_TOKEN":
                 return SyntaxKind.ELVIS_TOKEN;
@@ -656,6 +656,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
             case "OPTIONAL_FIELD_ACCESS":
                 return SyntaxKind.OPTIONAL_FIELD_ACCESS;
+            case "CONDITIONAL_EXPRESSION":
+                return SyntaxKind.CONDITIONAL_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

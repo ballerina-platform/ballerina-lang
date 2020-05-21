@@ -2116,15 +2116,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static OptionalFieldAccessExpressionNode createOptionalFieldAccessExpressionNode(
             ExpressionNode expression,
-            Token optionalFieldAccessToken,
+            Token optionalChainingToken,
             Token fieldName) {
         Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(optionalFieldAccessToken, "optionalFieldAccessToken must not be null");
+        Objects.requireNonNull(optionalChainingToken, "optionalChainingToken must not be null");
         Objects.requireNonNull(fieldName, "fieldName must not be null");
 
         STNode stOptionalFieldAccessExpressionNode = STNodeFactory.createOptionalFieldAccessExpressionNode(
                 expression.internalNode(),
-                optionalFieldAccessToken.internalNode(),
+                optionalChainingToken.internalNode(),
                 fieldName.internalNode());
         return stOptionalFieldAccessExpressionNode.createUnlinkedFacade();
     }

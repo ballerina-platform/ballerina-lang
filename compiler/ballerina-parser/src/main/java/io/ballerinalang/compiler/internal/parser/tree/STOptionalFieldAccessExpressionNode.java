@@ -29,21 +29,21 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STOptionalFieldAccessExpressionNode extends STExpressionNode {
     public final STNode expression;
-    public final STNode optionalFieldAccessToken;
+    public final STNode optionalChainingToken;
     public final STNode fieldName;
 
     STOptionalFieldAccessExpressionNode(
             STNode expression,
-            STNode optionalFieldAccessToken,
+            STNode optionalChainingToken,
             STNode fieldName) {
         super(SyntaxKind.OPTIONAL_FIELD_ACCESS);
         this.expression = expression;
-        this.optionalFieldAccessToken = optionalFieldAccessToken;
+        this.optionalChainingToken = optionalChainingToken;
         this.fieldName = fieldName;
 
         addChildren(
                 expression,
-                optionalFieldAccessToken,
+                optionalChainingToken,
                 fieldName);
     }
 

@@ -1559,11 +1559,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         ExpressionNode expression = modifyNode(optionalFieldAccessExpressionNode.expression());
-        Token optionalFieldAccessToken = modifyToken(optionalFieldAccessExpressionNode.optionalFieldAccessToken());
+        Token optionalChainingToken = modifyToken(optionalFieldAccessExpressionNode.optionalChainingToken());
         Token fieldName = modifyToken(optionalFieldAccessExpressionNode.fieldName());
         return optionalFieldAccessExpressionNode.modify(
                 expression,
-                optionalFieldAccessToken,
+                optionalChainingToken,
                 fieldName);
     }
 

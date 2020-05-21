@@ -34,7 +34,7 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Token optionalFieldAccessToken() {
+    public Token optionalChainingToken() {
         return childInBucket(1);
     }
 
@@ -56,24 +56,24 @@ public class OptionalFieldAccessExpressionNode extends ExpressionNode {
     protected String[] childNames() {
         return new String[]{
                 "expression",
-                "optionalFieldAccessToken",
+                "optionalChainingToken",
                 "fieldName"};
     }
 
     public OptionalFieldAccessExpressionNode modify(
             ExpressionNode expression,
-            Token optionalFieldAccessToken,
+            Token optionalChainingToken,
             Token fieldName) {
         if (checkForReferenceEquality(
                 expression,
-                optionalFieldAccessToken,
+                optionalChainingToken,
                 fieldName)) {
             return this;
         }
 
         return NodeFactory.createOptionalFieldAccessExpressionNode(
                 expression,
-                optionalFieldAccessToken,
+                optionalChainingToken,
                 fieldName);
     }
 }

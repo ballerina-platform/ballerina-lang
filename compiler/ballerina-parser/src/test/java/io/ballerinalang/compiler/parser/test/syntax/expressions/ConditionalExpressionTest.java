@@ -27,15 +27,28 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
     // Valid syntax
 
     @Test
+    public void testSimpleElvisConditionalExpr() {
+        test("a ?: b", "conditional-expr/conditional_expr_assert_01.json");
+    }
+
+    @Test
+    public void testSimpleConditionalExpr() {
+        test("a ? (b) : c", "conditional-expr/conditional_expr_assert_02.json");
+    }
+
+    @Test
     public void testConditionalExpr() {
-        test("a ?: b", "conditional-expr/conditional_assert_01.json");
+        test("a+b ?: c+d ? (e) : f+g ?: h + k", "conditional-expr/conditional_expr_assert_03.json");
+        test("a ? (b) : c ? (d) : e", "conditional-expr/conditional_expr_assert_04.json");
+        test("a ? b:c : d", "conditional-expr/conditional_expr_assert_05.json");
+        test("a ? b:c ?: d:e : f", "conditional-expr/conditional_expr_assert_06.json");
     }
 
     // Recovery tests
 
     @Test
     public void testConditionalElvisWithMissingExpression() {
-        test("a ?: ;", "conditional-expr/conditional_assert_02.json");
-        test("?: b;", "conditional-expr/conditional_assert_03.json");
+        test("a ?:", "conditional-expr/conditional_expr_assert_07.json");
+        test("?: b", "conditional-expr/conditional_expr_assert_08.json");
     }
 }
