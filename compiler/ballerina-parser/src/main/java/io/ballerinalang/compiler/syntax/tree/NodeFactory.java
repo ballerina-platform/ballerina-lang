@@ -2360,5 +2360,22 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 blockStatement.internalNode());
         return stQueryActionNode.createUnlinkedFacade();
     }
+
+    public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
+            TypeDescriptorNode memberTypeDesc,
+            Token openBracket,
+            Node arrayLength,
+            Token closeBracket) {
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
+                memberTypeDesc.internalNode(),
+                openBracket.internalNode(),
+                getOptionalSTNode(arrayLength),
+                closeBracket.internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

@@ -3357,6 +3357,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_SECOND_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case CLOSE_BRACKET:
+            case MEMBER_ACCESS_KEY_EXPR_END:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case DOT:
                 return SyntaxKind.DOT_TOKEN;
@@ -3601,7 +3602,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.WAIT_KEYWORD;
             case ANNOT_CHAINING_TOKEN:
                 return SyntaxKind.ANNOT_CHAINING_TOKEN;
-
+                
             // TODO:
             case COMP_UNIT:
             case TOP_LEVEL_NODE:

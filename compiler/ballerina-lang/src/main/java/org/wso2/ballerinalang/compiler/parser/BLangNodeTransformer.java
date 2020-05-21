@@ -1131,7 +1131,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
         // TODO : Add BLangTableMultiKeyExpr for indexExpr if it is available
-        indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression());
+        indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         indexBasedAccess.expr = createExpression(indexedExpressionNode.containerExpression());
         return indexBasedAccess;
     }
@@ -1873,10 +1873,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         int dimensions = 1;
         List<Integer> sizes = new ArrayList<>();
         while (true) {
-            Node keyExpr = indexedExpressionNode.keyExpression();
-            if (keyExpr == null) {
+            SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keyExprs =
+                    indexedExpressionNode.keyExpression();
+            if (keyExprs.isEmpty()) {
                 sizes.add(UNSEALED_ARRAY_INDICATOR);
             } else {
+                Node keyExpr = keyExprs.get(0);
                 if (keyExpr.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
                     sizes.add(Integer.parseInt(keyExpr.toString()));
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {

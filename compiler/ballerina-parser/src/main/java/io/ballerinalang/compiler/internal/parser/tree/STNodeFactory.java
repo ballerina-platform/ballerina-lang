@@ -1754,5 +1754,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 doKeyword,
                 blockStatement);
     }
+
+    public static STNode createArrayTypeDescriptorNode(
+            STNode memberTypeDesc,
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
+
+        return new STArrayTypeDescriptorNode(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket);
+    }
 }
 
