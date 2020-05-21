@@ -534,6 +534,14 @@ public class ParserTestUtils {
                 return SyntaxKind.LOGICAL_OR_TOKEN;
             case "NEGATION_TOKEN":
                 return SyntaxKind.NEGATION_TOKEN;
+            case "DOUBLE_LT_TOKEN":
+                return SyntaxKind.DOUBLE_LT_TOKEN;
+            case "DOUBLE_GT_TOKEN":
+                return SyntaxKind.DOUBLE_GT_TOKEN;
+            case "TRIPPLE_GT_TOKEN":
+                return SyntaxKind.TRIPPLE_GT_TOKEN;
+            case "DOUBLE_DOT_LT_TOKEN":
+                return SyntaxKind.DOUBLE_DOT_LT_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":

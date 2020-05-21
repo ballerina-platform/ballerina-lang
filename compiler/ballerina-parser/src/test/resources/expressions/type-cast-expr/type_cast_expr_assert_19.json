@@ -25,7 +25,7 @@
             ]
         },
         {
-            "kind": "LT_TOKEN"
+            "kind": "PLUS_TOKEN"
         },
         {
             "kind": "TYPE_CAST_EXPRESSION",
@@ -37,7 +37,7 @@
                     "kind": "TYPE_CAST_PARAM",
                     "children": [
                         {
-                            "kind": "DECIMAL_KEYWORD"
+                            "kind": "INT_KEYWORD"
                         }
                     ]
                 },

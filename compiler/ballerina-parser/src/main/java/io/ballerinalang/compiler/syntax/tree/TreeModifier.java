@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
- *
+ * <p>
  * This is a generated class.
  *
  * @since 2.0.0
@@ -2265,6 +2265,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBrace);
     }
 
+    @Override
+    public DoubleGTTokenNode transform(
+            DoubleGTTokenNode doubleGTTokenNode) {
+        Token openGTToken =
+                modifyToken(doubleGTTokenNode.openGTToken());
+        Token endGTToken =
+                modifyToken(doubleGTTokenNode.endGTToken());
+        return doubleGTTokenNode.modify(
+                openGTToken,
+                endGTToken);
+    }
+
+    @Override
+    public TrippleGTTokenNode transform(
+            TrippleGTTokenNode trippleGTTokenNode) {
+        Token openGTToken =
+                modifyToken(trippleGTTokenNode.openGTToken());
+        Token middleGTToken =
+                modifyToken(trippleGTTokenNode.middleGTToken());
+        Token endGTToken =
+                modifyToken(trippleGTTokenNode.endGTToken());
+        return trippleGTTokenNode.modify(
+                openGTToken,
+                middleGTToken,
+                endGTToken);
+    }
+
     // Tokens
 
     @Override
@@ -2312,8 +2339,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
-        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
+        return nodeListCreator.apply(STNodeFactory.createNodeList(newSTNodes).createUnlinkedFacade());
     }
 
     protected <T extends Token> T modifyToken(T token) {

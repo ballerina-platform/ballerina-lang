@@ -54,6 +54,10 @@ public abstract class AbstractNodeFactory {
         return token.createUnlinkedFacade();
     }
 
+    public static Token createToken(SyntaxKind kind) {
+        return createToken(kind, MinutiaeList.emptyList(), MinutiaeList.emptyList());
+    }
+
     public static Token createToken(SyntaxKind kind,
                                     MinutiaeList leadingMinutiae,
                                     MinutiaeList trailingMinutiae) {
