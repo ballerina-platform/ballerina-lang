@@ -2089,12 +2089,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static StartActionNode createStartActionNode(
+            NodeList<AnnotationNode> annotations,
             Token startKeyword,
             ExpressionNode expression) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(startKeyword, "startKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stStartActionNode = STNodeFactory.createStartActionNode(
+                annotations.underlyingListNode().internalNode(),
                 startKeyword.internalNode(),
                 expression.internalNode());
         return stStartActionNode.createUnlinkedFacade();

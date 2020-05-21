@@ -2103,11 +2103,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public StartActionNode transform(
             StartActionNode startActionNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(startActionNode.annotations());
         Token startKeyword =
                 modifyToken(startActionNode.startKeyword());
         ExpressionNode expression =
                 modifyNode(startActionNode.expression());
         return startActionNode.modify(
+                annotations,
                 startKeyword,
                 expression);
     }

@@ -139,7 +139,7 @@ public class BallerinaParser extends AbstractParser {
             case VARIABLE_NAME:
                 return parseVariableName();
             case TERMINAL_EXPRESSION:
-                return parseTerminalExpression((boolean) args[0], (boolean) args[1]);
+                return parseTerminalExpression((STNode) args[0], (boolean) args[1], (boolean) args[2]);
             case STATEMENT:
                 return parseStatement();
             case STATEMENT_WITHOUT_ANNOTS:
@@ -3540,12 +3540,8 @@ public class BallerinaParser extends AbstractParser {
         return parseExpression(DEFAULT_OP_PRECEDENCE, true, true);
     }
 
-    private STNode parseActionOrExpressionInLhs(SyntaxKind tokenKind) {
-        return parseExpression(tokenKind, DEFAULT_OP_PRECEDENCE, false, true);
-    }
-
-    private STNode parseActionOrExpression(boolean isRhsExpr) {
-        return parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, true);
+    private STNode parseActionOrExpressionInLhs(SyntaxKind tokenKind, STNode annots) {
+        return parseExpression(tokenKind, DEFAULT_OP_PRECEDENCE, annots, false, true);
     }
 
     /**
@@ -3598,19 +3594,43 @@ public class BallerinaParser extends AbstractParser {
         return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions);
     }
 
+    private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, STNode annots,
+                                   boolean isRhsExpr, boolean allowActions) {
+        STNode expr = parseTerminalExpression(kind, annots, isRhsExpr, allowActions);
+        return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions);
+    }
+
     /**
      * Parse terminal expressions. A terminal expression has the highest precedence level
      * out of all expressions, and will be at the leaves of an expression tree.
      *
+     * @param annots Annotations
      * @param isRhsExpr Is a rhs expression
      * @param allowActions Allow actions
      * @return Parsed node
      */
-    private STNode parseTerminalExpression(boolean isRhsExpr, boolean allowActions) {
-        return parseTerminalExpression(peek().kind, isRhsExpr, allowActions);
+    private STNode parseTerminalExpression(STNode annots, boolean isRhsExpr, boolean allowActions) {
+        return parseTerminalExpression(peek().kind, annots, isRhsExpr, allowActions);
     }
 
     private STNode parseTerminalExpression(SyntaxKind kind, boolean isRhsExpr, boolean allowActions) {
+        STNode annots;
+        if (kind == SyntaxKind.AT_TOKEN) {
+            annots = parseAnnotations();
+            kind = peek().kind;
+        } else {
+            annots = STNodeFactory.createEmptyNode();
+        }
+
+        STNode expr = parseTerminalExpression(kind, annots, isRhsExpr, allowActions);
+        if (!isEmpty(annots) && expr.kind != SyntaxKind.START_ACTION) {
+            this.errorHandler.reportInvalidNode(null, "annotations are not supported for expressions");
+        }
+
+        return expr;
+    }
+
+    private STNode parseTerminalExpression(SyntaxKind kind, STNode annots, boolean isRhsExpr, boolean allowActions) {
         // TODO: Whenever a new expression start is added, make sure to
         // add it to all the other places as well.
         switch (kind) {
@@ -3675,8 +3695,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             case FUNCTION_KEYWORD:
-                // TODO: support annotations
-                return parseExplicitFunctionExpression(null);
+                return parseExplicitFunctionExpression(annots);
             case AT_TOKEN:
                 // Annon-func can have annotations. Check for other expressions
                 // that can start with annots.
@@ -3684,8 +3703,7 @@ public class BallerinaParser extends AbstractParser {
             case NEW_KEYWORD:
                 return parseNewExpression();
             case START_KEYWORD:
-                // TODO: support annotations
-                return parseStartAction(null);
+                return parseStartAction(annots);
             case FLUSH_KEYWORD:
                 return parseFlushAction();
             case LEFT_ARROW_TOKEN:
@@ -3696,7 +3714,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
-        Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
+        Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, annots, isRhsExpr, allowActions);
         if (solution.action == Action.REMOVE) {
             return solution.recoveredNode;
         }
@@ -3724,12 +3742,8 @@ public class BallerinaParser extends AbstractParser {
                 this.errorHandler.reportMissingTokenError("missing " + solution.ctx);
                 return solution.recoveredNode;
             default:
-                return parseTerminalExpression(solution.tokenKind, isRhsExpr, allowActions);
+                return parseTerminalExpression(solution.tokenKind, annots, isRhsExpr, allowActions);
         }
-    }
-
-    private STNode parseActionOrExpressionInLhs(SyntaxKind nextTokenKind, STNode lhsExpr) {
-        return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
     }
 
     private boolean isValidExprStart(SyntaxKind tokenKind) {
@@ -4126,7 +4140,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
         STNode expr;
         if (allowActions) {
-            expr = parseActionOrExpression(isRhsExpr);
+            expr = parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, true);
         } else {
             expr = parseExpression(isRhsExpr);
         }
@@ -6437,7 +6451,8 @@ public class BallerinaParser extends AbstractParser {
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind)) {
-                    STNode expression = parseActionOrExpressionInLhs(nextTokenKind, identifier);
+                    STNode expression =
+                            parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, identifier, false, true);
                     return parseStamentStartWithExpr(annots, expression);
                 }
 
@@ -6478,7 +6493,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExpressionStament(SyntaxKind nextTokenKind, STNode annots) {
         startContext(ParserRuleContext.EXPRESSION_STATEMENT);
-        STNode expression = parseActionOrExpressionInLhs(nextTokenKind);
+        STNode expression = parseActionOrExpressionInLhs(nextTokenKind, annots);
         STNode stmt = getExpressionAsStatement(expression);
         endContext();
         return stmt;
@@ -6486,7 +6501,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseStamentStartWithExpr(SyntaxKind nextTokenKind, STNode annots) {
         startContext(ParserRuleContext.EXPRESSION_STATEMENT);
-        STNode expression = parseActionOrExpressionInLhs(nextTokenKind);
+        STNode expression = parseActionOrExpressionInLhs(nextTokenKind, annots);
         STNode stmt = parseStamentStartWithExpr(annots, expression);
         endContext();
         return stmt;
@@ -9470,7 +9485,7 @@ public class BallerinaParser extends AbstractParser {
         STNode startKeyword = parseStartKeyword();
         STNode expr = parseActionOrExpression();
         validateExprInStartAction(expr);
-        return STNodeFactory.createStartActionNode(startKeyword, expr);
+        return STNodeFactory.createStartActionNode(annots, startKeyword, expr);
     }
 
     /**
@@ -10552,8 +10567,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode colon = parseColon();
-        STNode waitFutureExpr = parseExpression();
-        // TODO: validate - waitFutureExpr cannot be a map expr
+        STNode waitFutureExpr = parseWaitFutureExpr();
         return STNodeFactory.createWaitFieldNode(identifier, colon, waitFutureExpr);
     }
 }

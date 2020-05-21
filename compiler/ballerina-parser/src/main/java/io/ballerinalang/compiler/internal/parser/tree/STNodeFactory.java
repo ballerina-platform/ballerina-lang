@@ -1552,10 +1552,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createStartActionNode(
+            STNode annotations,
             STNode startKeyword,
             STNode expression) {
 
         return new STStartActionNode(
+                annotations,
                 startKeyword,
                 expression);
     }

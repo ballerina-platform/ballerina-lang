@@ -2789,6 +2789,11 @@
             "kind": "START_ACTION",
             "attributes": [
                 {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "startKeyword",
                     "type": "Token"
                 },

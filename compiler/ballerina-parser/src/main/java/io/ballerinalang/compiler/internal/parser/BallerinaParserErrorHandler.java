@@ -302,7 +302,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.PLUS_TOKEN,
-              ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
+                    ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
@@ -499,6 +499,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FIELD_NAME_RHS:
             case WAIT_FIELD_END:
             case WAIT_FUTURE_EXPR_END:
+            case MAPPING_FIELD_END:
                 return true;
             default:
                 return false;
@@ -1472,8 +1473,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
-                next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE,
+                next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.BINARY_OPERATOR,
+                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case COMPUTED_FIELD_NAME:
@@ -2805,7 +2806,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.REQUIRED_PARAM;
                 }
-                throw new IllegalStateException("annotation is ending inside a " + parentCtx);
+
+                // everything else, treat as an annotation in an expression
+                return ParserRuleContext.EXPRESSION;
         }
     }
 
