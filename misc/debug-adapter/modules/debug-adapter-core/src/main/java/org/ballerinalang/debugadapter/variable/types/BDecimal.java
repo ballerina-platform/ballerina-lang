@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,24 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.HashMap;
-
 /**
- * Ballerina object variable type.
- * // Todo - verify
+ * Ballerina decimal variable type.
  */
-public class BObjectType extends BCompoundVariable {
+public class BDecimal extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
-    public BObjectType(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.OBJECT.getString());
+    public BDecimal(Value value, Variable dapVariable) {
+        dapVariable.setType(BVariableType.DECIMAL.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
     }
 
     @Override
     public String getValue() {
-        Value typeName = jvmValueRef.getValue(jvmValueRef.referenceType().fieldByName("typeName"));
-        return typeName.toString();
-    }
-    @Override
-    public void computeChildVariables() {
-        this.setChildVariables(new HashMap<>());
+        // Todo - how to extract value?
+        return "unknown";
     }
 }

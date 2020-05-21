@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter;
+package org.ballerinalang.debugadapter.utils;
 
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.util.TomlParserUtils;

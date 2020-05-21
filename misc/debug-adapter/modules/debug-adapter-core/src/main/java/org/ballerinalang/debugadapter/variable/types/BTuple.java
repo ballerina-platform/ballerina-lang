@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * Ballerina array variable type.
+ * Ballerina tuple variable type.
  */
-public class BArray extends BCompoundVariable {
+public class BTuple extends BCompoundVariable {
 
     private final ObjectReferenceImpl jvmValueRef;
 
-    public BArray(Value value, Variable dapVariable) {
+    public BTuple(Value value, Variable dapVariable) {
+
          this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.ARRAY.getString());
+        dapVariable.setType(BVariableType.TUPLE.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
         this.computeChildVariables();
@@ -56,7 +57,7 @@ public class BArray extends BCompoundVariable {
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
 
             String arrayType = arrayValueField.toString();
-            arrayType = arrayType.replaceFirst("org.ballerinalang.jvm.values.ArrayValueImpl.", "")
+            arrayType = arrayType.replaceFirst("org.ballerinalang.jvm.values.TupleValueImpl.", "")
                     .replaceFirst("Values", "").replaceFirst("ref", "any");
 
             Field arraySizeField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
@@ -67,7 +68,7 @@ public class BArray extends BCompoundVariable {
             return String.format("%s[%d]", arrayType, arraySize);
         } catch (RuntimeException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return "unknown";
         }
     }
@@ -76,6 +77,7 @@ public class BArray extends BCompoundVariable {
     public void computeChildVariables() {
         try {
             List<Field> fields = jvmValueRef.referenceType().allFields();
+
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
