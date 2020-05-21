@@ -44,7 +44,8 @@ public class TypeTags {
     public static final int ENDPOINT = ANY + 1;
     public static final int ARRAY = ENDPOINT + 1;
     public static final int UNION = ARRAY + 1;
-    public static final int PACKAGE = UNION + 1;
+    public static final int INTERSECTION = UNION + 1;
+    public static final int PACKAGE = INTERSECTION + 1;
     public static final int NONE = PACKAGE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;
