@@ -387,7 +387,7 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACKET:
                 return parseCloseBracket();
             case OPTIONAL_CHAINING_TOKEN:
-                return parseOptionalFieldAccessToken();
+                return parseOptionalChainingToken();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2441,8 +2441,6 @@ public class BallerinaParser extends AbstractParser {
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
             case ELVIS_TOKEN:
-            case QUESTION_MARK_TOKEN:
-            case COLON_TOKEN:
                 return true;
             default:
                 return false;
@@ -3803,6 +3801,8 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
             case RIGHT_DOUBLE_ARROW:
             case OPTIONAL_CHAINING_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case COLON_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -9099,23 +9099,25 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse optional field access expression .
+     * Parse optional field access expression.
+     * <p>
+     * <code>optional-field-access-expr := expression ?. field-name</code>
      *
      * @param lhsExpr Preceding expression of the optional field access
-     * @return <code>optional-field-access-expr</code>.
+     * @return Parsed node
      */
     private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
-        STNode optionalFieldAccessToken = parseOptionalFieldAccessToken();
+        STNode optionalFieldAccessToken = parseOptionalChainingToken();
         STNode fieldName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
         return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
     }
 
     /**
-     * Parse optional-field-access-token.
+     * Parse optional chaining token.
      *
      * @return parsed node
      */
-    private STNode parseOptionalFieldAccessToken() {
+    private STNode parseOptionalChainingToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN) {
             return consume();
@@ -9127,9 +9129,11 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse conditional expression.
+     * <p>
+     * <code>conditional-expr := expression ? expression : expression</code>
      *
      * @param lhsExpr Preceding expression of the question mark
-     * @return <code>conditional-expr</code>.
+     * @return Parsed node
      */
     private STNode parseConditionalExpression(STNode lhsExpr) {
         STNode questionMark = parseQuestionMark();
