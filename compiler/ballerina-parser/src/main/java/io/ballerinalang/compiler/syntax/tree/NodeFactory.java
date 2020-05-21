@@ -675,7 +675,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(paramName, "paramName must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -684,7 +683,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
-                paramName.internalNode(),
+                getOptionalSTNode(paramName),
                 equalsToken.internalNode(),
                 expression.internalNode());
         return stDefaultableParameterNode.createUnlinkedFacade();
@@ -719,14 +718,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
         Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
-        Objects.requireNonNull(paramName, "paramName must not be null");
 
         STNode stRestParameterNode = STNodeFactory.createRestParameterNode(
                 leadingComma.internalNode(),
                 annotations.underlyingListNode().internalNode(),
                 typeName.internalNode(),
                 ellipsisToken.internalNode(),
-                paramName.internalNode());
+                getOptionalSTNode(paramName));
         return stRestParameterNode.createUnlinkedFacade();
     }
 

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -48,8 +49,8 @@ public class RestParameterNode extends ParameterNode {
         return childInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class RestParameterNode extends ParameterNode {
             this.annotations = oldNode.annotations();
             this.typeName = oldNode.typeName();
             this.ellipsisToken = oldNode.ellipsisToken();
-            this.paramName = oldNode.paramName();
+            this.paramName = oldNode.paramName().orElse(null);
         }
 
         public RestParameterNodeModifier withLeadingComma(
