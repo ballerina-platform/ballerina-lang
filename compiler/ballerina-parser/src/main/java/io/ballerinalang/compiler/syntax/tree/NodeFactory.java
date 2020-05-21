@@ -2321,5 +2321,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 waitFutureExpr.internalNode());
         return stWaitFieldNode.createUnlinkedFacade();
     }
+
+    public static AnnotAccessExpressionNode createAnnotAccessExpressionNode(
+            ExpressionNode expression,
+            Token annotChainingToken,
+            Node annotTagReference) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(annotChainingToken, "annotChainingToken must not be null");
+        Objects.requireNonNull(annotTagReference, "annotTagReference must not be null");
+
+        STNode stAnnotAccessExpressionNode = STNodeFactory.createAnnotAccessExpressionNode(
+                expression.internalNode(),
+                annotChainingToken.internalNode(),
+                annotTagReference.internalNode());
+        return stAnnotAccessExpressionNode.createUnlinkedFacade();
+    }
 }
 

@@ -1725,5 +1725,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 colon,
                 waitFutureExpr);
     }
+
+    public static STNode createAnnotAccessExpressionNode(
+            STNode expression,
+            STNode annotChainingToken,
+            STNode annotTagReference) {
+
+        return new STAnnotAccessExpressionNode(
+                expression,
+                annotChainingToken,
+                annotTagReference);
+    }
 }
 
