@@ -34,7 +34,7 @@ public class STReceiveActionNode extends STActionNode {
     STReceiveActionNode(
             STNode leftArrow,
             STNode receiveWorkers) {
-        super(SyntaxKind.RECEIVE_SEND_ACTION);
+        super(SyntaxKind.RECEIVE_ACTION);
         this.leftArrow = leftArrow;
         this.receiveWorkers = receiveWorkers;
 

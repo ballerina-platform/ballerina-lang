@@ -488,6 +488,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FLUSH_KEYWORD;
             case "DEFAULT_KEYWORD":
                 return SyntaxKind.DEFAULT_KEYWORD;
+            case "WAIT_KEYWORD":
+                return SyntaxKind.WAIT_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -542,6 +544,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TRIPPLE_GT_TOKEN;
             case "DOUBLE_DOT_LT_TOKEN":
                 return SyntaxKind.DOUBLE_DOT_LT_TOKEN;
+            case "ANNOT_CHAINING_TOKEN":
+                return SyntaxKind.ANNOT_CHAINING_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -662,6 +666,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
             case "EXPLICIT_NEW_EXPRESSION":
                 return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
+            case "ANNOT_ACCESS":
+                return SyntaxKind.ANNOT_ACCESS;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -681,7 +687,9 @@ public class ParserTestUtils {
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
             case "RECEIVE_SEND_ACTION":
-                return SyntaxKind.RECEIVE_SEND_ACTION;
+                return SyntaxKind.RECEIVE_ACTION;
+            case "WAIT_ACTION":
+                return SyntaxKind.WAIT_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -894,6 +902,12 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_TYPE_CONSTRAINT;
             case "RECEIVE_FIELDS":
                 return SyntaxKind.RECEIVE_FIELDS;
+            case "REST_TYPE":
+                return SyntaxKind.REST_TYPE;
+            case "WAIT_FIELDS_LIST":
+                return SyntaxKind.WAIT_FIELDS_LIST;
+            case "WAIT_FIELD":
+                return SyntaxKind.WAIT_FIELD;
 
             // XML template
             case "XML_ELEMENT":

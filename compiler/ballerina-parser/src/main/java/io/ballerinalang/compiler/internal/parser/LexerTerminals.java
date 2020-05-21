@@ -83,6 +83,7 @@ public class LexerTerminals {
     public static final String START = "start";
     public static final String FLUSH = "flush";
     public static final String DEFAULT = "default";
+    public static final String WAIT = "wait";
 
     // Types
     public static final String INT = "int";

@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class IndexedExpressionNode extends ExpressionNode {
+public class IndexedExpressionNode extends TypeDescriptorNode {
 
     public IndexedExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
