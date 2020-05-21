@@ -97,7 +97,7 @@ public class KafkaConstants {
     public static final BString ALIAS_PARTITION = StringUtils.fromString("partition");
     public static final BString ALIAS_OFFSET = StringUtils.fromString("offset");
     public static final String ALIAS_DURATION = "duration";
-    public static final String ALIAS_VALUE = "value";
+    public static final BString ALIAS_VALUE = StringUtils.fromString("value");
 
     // Consumer Configuration.
     public static final BString CONSUMER_BOOTSTRAP_SERVERS_CONFIG = StringUtils.fromString("bootstrapServers");
