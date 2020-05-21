@@ -440,6 +440,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnnotTagReference();
             case DO_KEYWORD:
                 return parseDoKeyword();
+            case MEMBER_ACCESS_KEY_EXPR_END:
+                return parseMemberAccessKeyExprEnd();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -4015,7 +4017,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseFuncCall(lhsExpr);
                 break;
             case OPEN_BRACKET_TOKEN:
-                newLhsExpr = parseMemberAccessExpr(lhsExpr);
+                newLhsExpr = parseMemberAccessExpr(lhsExpr, isRhsExpr);
                 break;
             case DOT_TOKEN:
                 newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
@@ -4087,9 +4089,11 @@ public class BallerinaParser extends AbstractParser {
      * Parse member access expression.
      *
      * @param lhsExpr Container expression
+     * @param isRhsExpr Is this is a rhs expression
      * @return Member access expression
      */
-    private STNode parseMemberAccessExpr(STNode lhsExpr) {
+    private STNode parseMemberAccessExpr(STNode lhsExpr, boolean isRhsExpr) {
+        startContext(ParserRuleContext.MEMBER_ACCESS_KEY_EXPR);
         STNode openBracket = parseOpenBracket();
 
         STNode keyExpr;
@@ -4102,12 +4106,80 @@ public class BallerinaParser extends AbstractParser {
                 keyExpr = consume();
                 break;
             default:
-                keyExpr = parseExpression();
+                keyExpr = parseMemberAccessKeyExpr(isRhsExpr);
                 break;
         }
 
         STNode closeBracket = parseCloseBracket();
+        endContext();
         return STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
+    }
+
+    /**
+     * Parse key expression of a member access expression.
+     * <p>
+     * <code>key-expression := single-key-expression | multi-key-expression</code>
+     * 
+     * @param isRhsExpr Is this is a rhs expression
+     * @return Key expression
+     */
+    private STNode parseMemberAccessKeyExpr(boolean isRhsExpr) {
+        STNode keyExpr = parseExpression(isRhsExpr);
+
+        // member-access on LHS can have only single key expr
+        if (!isRhsExpr) {
+            return keyExpr;
+        }
+
+        List<STNode> exprList = new ArrayList<>();
+        exprList.add(keyExpr);
+
+        // Parse the remaining exprs
+        STNode keyExprEnd;
+        STToken nextToken = peek();
+        while (!isEndOfTypeList(nextToken.kind)) {
+            keyExprEnd = parseMemberAccessKeyExprEnd(nextToken.kind);
+            if (keyExprEnd == null) {
+                break;
+            }
+
+            exprList.add(keyExprEnd);
+
+            keyExpr = parseExpression(isRhsExpr);
+            exprList.add(keyExpr);
+            nextToken = peek();
+        }
+
+        // This is temporary
+        if (exprList.size() == 1) {
+            return exprList.get(0);
+        }
+
+        return STNodeFactory.createNodeList(exprList);
+    }
+
+    private STNode parseMemberAccessKeyExprEnd() {
+        return parseMemberAccessKeyExprEnd(peek().kind);
+    }
+
+    private STNode parseMemberAccessKeyExprEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseMemberAccessKeyExprEnd(solution.tokenKind);
+        }
     }
 
     /**

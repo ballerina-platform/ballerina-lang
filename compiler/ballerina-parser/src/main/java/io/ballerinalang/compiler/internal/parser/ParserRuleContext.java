@@ -181,6 +181,8 @@ public enum ParserRuleContext {
     ALTERNATE_WAIT_EXPRS("alternate-wait-exprs"),
     ALTERNATE_WAIT_EXPR_LIST_END("alternate-wait-expr-lit-end"),
     DO_CLAUSE("do-clause"),
+    MEMBER_ACCESS_KEY_EXPR_END("member-access-key-expr-end"),
+    MEMBER_ACCESS_KEY_EXPR("member-access-key-expr"),
 
     // Statements
     STATEMENT("statement"),

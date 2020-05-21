@@ -65,6 +65,11 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("a + b.@c.@d.@e + f", "access-expr/annot_access_expr_assert_03.json");
         test("a + b .@c:d .@e:f .@g .h + k", "access-expr/annot_access_expr_assert_04.json");
     }
+    
+    @Test
+    public void testMultiKeyedMemberAccess() {
+        test("foo[a, 4, bar()]", "access-expr/member_access_expr_assert_08.json");
+    }
 
     // Recovery tests
 
@@ -111,5 +116,10 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("[foo, .@ a]", "access-expr/annot_access_expr_assert_09.json");
         test("let int a = .@ a in c", "access-expr/annot_access_expr_assert_10.json");
         test("from int a in b where .@ select .@", "access-expr/annot_access_expr_assert_11.json");
+    }
+    
+    @Test
+    public void testRecoveryInMultiKeyedMemberAccess() {
+        test("foo[a, 4, ,bar()", "access-expr/member_access_expr_assert_09.json");
     }
 }
