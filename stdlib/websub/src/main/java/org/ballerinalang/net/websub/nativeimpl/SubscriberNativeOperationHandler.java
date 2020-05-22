@@ -125,7 +125,7 @@ public class SubscriberNativeOperationHandler {
 
             if (TOPIC_ID_HEADER.equals(topicIdentifier)) {
                 headerResourceMap = (MapValue<BString, Object>) extensionConfig.get(
-                        StringUtils.fromString(EXTENSION_CONFIG_HEADER_RESOURCE_MAP));
+                        EXTENSION_CONFIG_HEADER_RESOURCE_MAP);
                 if (headerResourceMap == null) {
                     throw new BallerinaConnectorException("Resource map not specified to dispatch by header");
                 }
@@ -137,7 +137,7 @@ public class SubscriberNativeOperationHandler {
                                                                   + "payload");
                 }
                 headerResourceMap = (MapValue<BString, Object>) extensionConfig.get(
-                        StringUtils.fromString(EXTENSION_CONFIG_HEADER_RESOURCE_MAP));
+                        EXTENSION_CONFIG_HEADER_RESOURCE_MAP);
                 payloadKeyResourceMap = (MapValue<BString, MapValue<BString, Object>>) extensionConfig.get(
                         EXTENSION_CONFIG_PAYLOAD_KEY_RESOURCE_MAP);
             } else {
@@ -319,18 +319,16 @@ public class SubscriberNativeOperationHandler {
                                     annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP));
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_TARGET)) {
-                subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_TARGET),
-                                        annotation.get(ANN_WEBSUB_ATTR_TARGET));
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_TARGET, annotation.get(ANN_WEBSUB_ATTR_TARGET));
             }
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_LEASE_SECONDS)) {
-                subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_LEASE_SECONDS),
-                                        annotation.getIntValue(StringUtils.fromString(ANN_WEBSUB_ATTR_LEASE_SECONDS)));
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_LEASE_SECONDS,
+                                        annotation.getIntValue(ANN_WEBSUB_ATTR_LEASE_SECONDS));
             }
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_SECRET)) {
-                subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_SECRET),
-                                        annotation.getStringValue(StringUtils.fromString(ANN_WEBSUB_ATTR_SECRET)));
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET, annotation.getStringValue(ANN_WEBSUB_ATTR_SECRET));
             }
 
             subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_EXPECT_INTENT_VERIFICATION),
@@ -340,15 +338,13 @@ public class SubscriberNativeOperationHandler {
             if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG)) {
                 MapValue<BString, Object> publisherClientConfig = (MapValue<BString, Object>)
                                 annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG);
-                subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG),
-                                        publisherClientConfig);
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG, publisherClientConfig);
             }
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG)) {
                 MapValue<BString, Object> hubClientConfig =
                         (MapValue<BString, Object>) annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG);
-                subscriptionDetails.put(StringUtils.fromString(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG),
-                                        hubClientConfig);
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG, hubClientConfig);
             }
 
             String callback;
