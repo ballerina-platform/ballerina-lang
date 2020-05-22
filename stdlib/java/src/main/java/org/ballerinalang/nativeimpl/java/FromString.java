@@ -34,6 +34,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class FromString {
 
     public static HandleValue fromString(Strand strand, BString strValue) {
-        return new HandleValue(strValue.getValue());
+        return new HandleValue(strValue == null ? null : strValue.getValue());
     }
 }
