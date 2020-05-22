@@ -60,7 +60,7 @@ jobs:
           java-version: 1.8
 
       - name: Initialize sub-modules
-        run: git submodule update --init
+        run: git submodule update --i
 
       - name: Cache Gradle packages
         uses: actions/cache@v1
@@ -70,4 +70,4 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew.bat build -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :jballerina-unit-test:test -x :jballerina-bstring-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        run: ./gradlew.bat build -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :jballerina-unit-test:test -x :jballerina-bstring-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
