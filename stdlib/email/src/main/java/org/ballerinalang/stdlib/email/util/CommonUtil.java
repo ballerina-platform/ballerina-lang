@@ -99,13 +99,11 @@ public class CommonUtil {
      */
     public static void addCustomProperties(MapValue<BString, Object> customProperties, Properties properties) {
         if (customProperties != null) {
-            for (Object propertyName : customProperties.getKeys()) {
-                if (propertyName instanceof String) {
-                    properties.put(propertyName,
-                                   customProperties.getStringValue(StringUtils.fromString((String) propertyName)));
-                    log.debug("Added custom protocol property with Name: " + propertyName + ", Value: "
-                                      + customProperties.getStringValue(StringUtils.fromString((String) propertyName)));
-                }
+            for (BString propertyName : customProperties.getKeys()) {
+                properties.put(propertyName.getValue(),
+                               customProperties.getStringValue(propertyName).getValue());
+                log.debug("Added custom protocol property with Name: " + propertyName + ", Value: "
+                                  + customProperties.getStringValue(propertyName).getValue());
             }
         }
     }
