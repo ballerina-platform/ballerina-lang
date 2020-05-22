@@ -2410,5 +2410,56 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBracket.internalNode());
         return stArrayTypeDescriptorNode.createUnlinkedFacade();
     }
+
+    public static TransactionStatementNode createTransactionStatementNode(
+            Token transactionKeyword,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(transactionKeyword, "transactionKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stTransactionStatementNode = STNodeFactory.createTransactionStatementNode(
+                transactionKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stTransactionStatementNode.createUnlinkedFacade();
+    }
+
+    public static RollbackStatementNode createRollbackStatementNode(
+            Token rollbackKeyword,
+            ExpressionNode expression,
+            Token semicolon) {
+        Objects.requireNonNull(rollbackKeyword, "rollbackKeyword must not be null");
+        Objects.requireNonNull(semicolon, "semicolon must not be null");
+
+        STNode stRollbackStatementNode = STNodeFactory.createRollbackStatementNode(
+                rollbackKeyword.internalNode(),
+                getOptionalSTNode(expression),
+                semicolon.internalNode());
+        return stRollbackStatementNode.createUnlinkedFacade();
+    }
+
+    public static RetryStatementNode createRetryStatementNode(
+            Token retryKeyword,
+            TypeParameterNode typeParameter,
+            ParenthesizedArgList arguments,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(retryKeyword, "retryKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stRetryStatementNode = STNodeFactory.createRetryStatementNode(
+                retryKeyword.internalNode(),
+                getOptionalSTNode(typeParameter),
+                getOptionalSTNode(arguments),
+                blockStatement.internalNode());
+        return stRetryStatementNode.createUnlinkedFacade();
+    }
+
+    public static CommitActionNode createCommitActionNode(
+            Token commitKeyword) {
+        Objects.requireNonNull(commitKeyword, "commitKeyword must not be null");
+
+        STNode stCommitActionNode = STNodeFactory.createCommitActionNode(
+                commitKeyword.internalNode());
+        return stCommitActionNode.createUnlinkedFacade();
+    }
 }
 

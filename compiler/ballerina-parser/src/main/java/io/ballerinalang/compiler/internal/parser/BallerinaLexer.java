@@ -960,6 +960,16 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
             case LexerTerminals.DO:
                 return getSyntaxToken(SyntaxKind.DO_KEYWORD);
+            case LexerTerminals.TRANSACTION:
+                return getSyntaxToken(SyntaxKind.TRANSACTION_KEYWORD);
+            case LexerTerminals.COMMIT:
+                return getSyntaxToken(SyntaxKind.COMMIT_KEYWORD);
+            case LexerTerminals.RETRY:
+                return getSyntaxToken(SyntaxKind.RETRY_KEYWORD);
+            case LexerTerminals.ROLLBACK:
+                return getSyntaxToken(SyntaxKind.ROLLBACK_KEYWORD);
+            case LexerTerminals.TRANSACTIONAL:
+                return getSyntaxToken(SyntaxKind.TRANSACTIONAL_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

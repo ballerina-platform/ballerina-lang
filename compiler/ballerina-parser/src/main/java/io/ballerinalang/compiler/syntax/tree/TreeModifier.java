@@ -2430,6 +2430,60 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBracket);
     }
 
+    @Override
+    public TransactionStatementNode transform(
+            TransactionStatementNode transactionStatementNode) {
+        Token transactionKeyword =
+                modifyToken(transactionStatementNode.transactionKeyword());
+        BlockStatementNode blockStatement =
+                modifyNode(transactionStatementNode.blockStatement());
+        return transactionStatementNode.modify(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    @Override
+    public RollbackStatementNode transform(
+            RollbackStatementNode rollbackStatementNode) {
+        Token rollbackKeyword =
+                modifyToken(rollbackStatementNode.rollbackKeyword());
+        ExpressionNode expression =
+                modifyNode(rollbackStatementNode.expression().orElse(null));
+        Token semicolon =
+                modifyToken(rollbackStatementNode.semicolon());
+        return rollbackStatementNode.modify(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    @Override
+    public RetryStatementNode transform(
+            RetryStatementNode retryStatementNode) {
+        Token retryKeyword =
+                modifyToken(retryStatementNode.retryKeyword());
+        TypeParameterNode typeParameter =
+                modifyNode(retryStatementNode.typeParameter().orElse(null));
+        ParenthesizedArgList arguments =
+                modifyNode(retryStatementNode.arguments().orElse(null));
+        BlockStatementNode blockStatement =
+                modifyNode(retryStatementNode.blockStatement());
+        return retryStatementNode.modify(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                blockStatement);
+    }
+
+    @Override
+    public CommitActionNode transform(
+            CommitActionNode commitActionNode) {
+        Token commitKeyword =
+                modifyToken(commitActionNode.commitKeyword());
+        return commitActionNode.modify(
+                commitKeyword);
+    }
+
     // Tokens
 
     @Override

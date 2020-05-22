@@ -510,6 +510,14 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_KEYWORD;
             case "DO_KEYWORD":
                 return SyntaxKind.DO_KEYWORD;
+            case "TRANSACTION_KEYWORD":
+                return SyntaxKind.TRANSACTION_KEYWORD;
+            case "COMMIT_KEYWORD":
+                return SyntaxKind.COMMIT_KEYWORD;
+            case "RETRY_KEYWORD":
+                return SyntaxKind.RETRY_KEYWORD;
+            case "ROLLBACK_KEYWORD":
+                return SyntaxKind.ROLLBACK_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -720,6 +728,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_ACTION;
             case "QUERY_ACTION":
                 return SyntaxKind.QUERY_ACTION;
+            case "COMMIT_ACTION":
+                return SyntaxKind.COMMIT_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -756,6 +766,12 @@ public class ParserTestUtils {
                 return SyntaxKind.FORK_STATEMENT;
             case "FOREACH_STATEMENT":
                 return SyntaxKind.FOREACH_STATEMENT;
+            case "TRANSACTION_STATEMENT":
+                return SyntaxKind.TRANSACTION_STATEMENT;
+            case "RETRY_STATEMENT":
+                return SyntaxKind.RETRY_STATEMENT;
+            case "ROLLBACK_STATEMENT":
+                return SyntaxKind.ROLLBACK_STATEMENT;
 
             // Types
             case "TYPE_DESC":

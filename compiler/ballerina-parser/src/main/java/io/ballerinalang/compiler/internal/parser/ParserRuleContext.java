@@ -183,6 +183,10 @@ public enum ParserRuleContext {
     DO_CLAUSE("do-clause"),
     MEMBER_ACCESS_KEY_EXPR_END("member-access-key-expr-end"),
     MEMBER_ACCESS_KEY_EXPR("member-access-key-expr"),
+    RETRY_KEYWORD_RHS("retry-keyword-rhs"),
+    RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
+    RETRY_BODY("retry-body"),
+    ROLLBACK_RHS("rollback-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -215,6 +219,9 @@ public enum ParserRuleContext {
     NAMED_WORKER_DECL("named-worker-decl"),
     FORK_STMT("fork-stmt"),
     FOREACH_STMT("foreach-stmt"),
+    TRANSACTION_STMT("transaction-stmt"),
+    RETRY_STMT("retry-stmt"),
+    ROLLBACK_STMT("rollback-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -275,6 +282,10 @@ public enum ParserRuleContext {
     DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
+    TRANSACTION_KEYWORD("transaction"),
+    COMMIT_KEYWORD("commit"),
+    RETRY_KEYWORD("retry"),
+    ROLLBACK_KEYWORD("rollback"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
