@@ -66,6 +66,16 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("a + b .@c:d .@e:f .@g .h + k", "access-expr/annot_access_expr_assert_04.json");
     }
 
+    @Test
+    public void testSimpleOptionalFieldAccess() {
+        test("a ?. b", "access-expr/optional_field_access_expr_assert_01.json");
+    }
+
+    @Test
+    public void testOptionalFieldAccess() {
+        test("a + b ?.c ?.d ?.e + f", "access-expr/optional_field_access_expr_assert_02.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -111,5 +121,19 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("[foo, .@ a]", "access-expr/annot_access_expr_assert_09.json");
         test("let int a = .@ a in c", "access-expr/annot_access_expr_assert_10.json");
         test("from int a in b where .@ select .@", "access-expr/annot_access_expr_assert_11.json");
+    }
+
+    @Test
+    public void testOptionalFieldAccessWithMissingFieldName() {
+        test("a ?.", "access-expr/optional_field_access_expr_assert_03.json");
+    }
+
+    @Test
+    public void testOptionalFieldAccessWithMissingExpression() {
+        test("?. a;", "access-expr/optional_field_access_expr_assert_04.json");
+        test("{foo : ?. a };", "access-expr/optional_field_access_expr_assert_05.json");
+        test("[foo, ?. a];", "access-expr/optional_field_access_expr_assert_06.json");
+        test("let int a = ?. b in c;", "access-expr/optional_field_access_expr_assert_07.json");
+        test("from int a in b where ?. select ?. ;", "access-expr/optional_field_access_expr_assert_08.json");
     }
 }

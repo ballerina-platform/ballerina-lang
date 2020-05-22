@@ -21,14 +21,28 @@
                             "kind": "IN_KEYWORD"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
+                            "kind": "BINARY_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                },
+                                {
+                                    "kind": "PLUS_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "c"
+                                }
+                            ]
                         }
                     ]
                 },
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -41,7 +55,7 @@
                 },
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
+                    "isMissing": true
                 }
             ]
         }

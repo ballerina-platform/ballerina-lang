@@ -83,6 +83,7 @@ public enum SyntaxKind {
     FLUSH_KEYWORD(229, "flush"),
     DEFAULT_KEYWORD(230, "default"),
     WAIT_KEYWORD(231, "wait"),
+    DO_KEYWORD(232, "do"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -161,6 +162,8 @@ public enum SyntaxKind {
     DOUBLE_DOT_LT_TOKEN(580, "..<"),
     DOUBLE_LT_TOKEN(581, "<<"),
     ANNOT_CHAINING_TOKEN(582, ".@"),
+    OPTIONAL_CHAINING_TOKEN(583, "?."),
+    ELVIS_TOKEN(584, "?:"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -238,6 +241,8 @@ public enum SyntaxKind {
     IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION(1326),
     QUERY_EXPRESSION(1327),
     ANNOT_ACCESS(1328),
+    OPTIONAL_FIELD_ACCESS(1329),
+    CONDITIONAL_EXPRESSION(1330),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -284,6 +289,7 @@ public enum SyntaxKind {
     SYNC_SEND_ACTION(2507),
     RECEIVE_ACTION(2508),
     WAIT_ACTION(2509),
+    QUERY_ACTION(2510),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
@@ -342,6 +348,7 @@ public enum SyntaxKind {
     REST_BINDING_PATTERN(3053),
     LIST_BINDING_PATTERN(3054),
     RECEIVE_FIELDS(3055),
+    REST_TYPE(3056),
     DOUBLE_GT_TOKEN(3056, ">>"),
     TRIPPLE_GT_TOKEN(3057, ">>>"),
     WAIT_FIELDS_LIST(3058),

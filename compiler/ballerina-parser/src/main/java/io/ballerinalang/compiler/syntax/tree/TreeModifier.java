@@ -680,7 +680,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeName =
                 modifyNode(defaultableParameterNode.typeName());
         Token paramName =
-                modifyToken(defaultableParameterNode.paramName());
+                modifyToken(defaultableParameterNode.paramName().orElse(null));
         Token equalsToken =
                 modifyToken(defaultableParameterNode.equalsToken());
         Node expression =
@@ -707,7 +707,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
-                modifyToken(requiredParameterNode.paramName());
+                modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
                 leadingComma,
                 annotations,
@@ -728,7 +728,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token ellipsisToken =
                 modifyToken(restParameterNode.ellipsisToken());
         Token paramName =
-                modifyToken(restParameterNode.paramName());
+                modifyToken(restParameterNode.paramName().orElse(null));
         return restParameterNode.modify(
                 leadingComma,
                 annotations,
@@ -1889,16 +1889,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         Token openBracketToken =
                 modifyToken(tupleTypeDescriptorNode.openBracketToken());
-        SeparatedNodeList<TypeDescriptorNode> memberTypeDesc =
+        SeparatedNodeList<Node> memberTypeDesc =
                 modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
-        Node restTypeDesc =
-                modifyNode(tupleTypeDescriptorNode.restTypeDesc());
         Token closeBracketToken =
                 modifyToken(tupleTypeDescriptorNode.closeBracketToken());
         return tupleTypeDescriptorNode.modify(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 
@@ -2269,6 +2266,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public RestDescriptorNode transform(
+            RestDescriptorNode restDescriptorNode) {
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(restDescriptorNode.typeDescriptor());
+        Token ellipsisToken =
+                modifyToken(restDescriptorNode.ellipsisToken());
+        return restDescriptorNode.modify(
+                typeDescriptor,
+                ellipsisToken);
+    }
+
+    @Override
     public DoubleGTTokenNode transform(
             DoubleGTTokenNode doubleGTTokenNode) {
         Token openGTToken =
@@ -2350,6 +2359,57 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expression,
                 annotChainingToken,
                 annotTagReference);
+    }
+
+    @Override
+    public QueryActionNode transform(
+            QueryActionNode queryActionNode) {
+        QueryPipelineNode queryPipeline =
+                modifyNode(queryActionNode.queryPipeline());
+        Token doKeyword =
+                modifyToken(queryActionNode.doKeyword());
+        BlockStatementNode blockStatement =
+                modifyNode(queryActionNode.blockStatement());
+        return queryActionNode.modify(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
+    }
+
+    @Override
+    public OptionalFieldAccessExpressionNode transform(
+            OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        ExpressionNode expression =
+                modifyNode(optionalFieldAccessExpressionNode.expression());
+        Token optionalChainingToken =
+                modifyToken(optionalFieldAccessExpressionNode.optionalChainingToken());
+        Token fieldName =
+                modifyToken(optionalFieldAccessExpressionNode.fieldName());
+        return optionalFieldAccessExpressionNode.modify(
+                expression,
+                optionalChainingToken,
+                fieldName);
+    }
+
+    @Override
+    public ConditionalExpressionNode transform(
+            ConditionalExpressionNode conditionalExpressionNode) {
+        ExpressionNode lhsExpression =
+                modifyNode(conditionalExpressionNode.lhsExpression());
+        Token questionMarkToken =
+                modifyToken(conditionalExpressionNode.questionMarkToken());
+        ExpressionNode middleExpression =
+                modifyNode(conditionalExpressionNode.middleExpression());
+        Token colonToken =
+                modifyToken(conditionalExpressionNode.colonToken());
+        ExpressionNode endExpression =
+                modifyNode(conditionalExpressionNode.endExpression());
+        return conditionalExpressionNode.modify(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression);
     }
 
     // Tokens

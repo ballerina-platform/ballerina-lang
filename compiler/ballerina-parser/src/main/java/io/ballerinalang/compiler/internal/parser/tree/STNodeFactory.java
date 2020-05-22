@@ -1395,13 +1395,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createTupleTypeDescriptorNode(
             STNode openBracketToken,
             STNode memberTypeDesc,
-            STNode restTypeDesc,
             STNode closeBracketToken) {
 
         return new STTupleTypeDescriptorNode(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 
@@ -1675,6 +1673,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
+    public static STNode createRestDescriptorNode(
+            STNode typeDescriptor,
+            STNode ellipsisToken) {
+
+        return new STRestDescriptorNode(
+                typeDescriptor,
+                ellipsisToken);
+    }
+
     public static STNode createDoubleGTTokenNode(
             STNode openGTToken,
             STNode endGTToken) {
@@ -1735,6 +1742,43 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression,
                 annotChainingToken,
                 annotTagReference);
+    }
+
+    public static STNode createQueryActionNode(
+            STNode queryPipeline,
+            STNode doKeyword,
+            STNode blockStatement) {
+
+        return new STQueryActionNode(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
+    }
+
+    public static STNode createOptionalFieldAccessExpressionNode(
+            STNode expression,
+            STNode optionalChainingToken,
+            STNode fieldName) {
+
+        return new STOptionalFieldAccessExpressionNode(
+                expression,
+                optionalChainingToken,
+                fieldName);
+    }
+
+    public static STNode createConditionalExpressionNode(
+            STNode lhsExpression,
+            STNode questionMarkToken,
+            STNode middleExpression,
+            STNode colonToken,
+            STNode endExpression) {
+
+        return new STConditionalExpressionNode(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression);
     }
 }
 

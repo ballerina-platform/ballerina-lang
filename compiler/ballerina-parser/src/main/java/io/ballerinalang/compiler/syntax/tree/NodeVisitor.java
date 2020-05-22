@@ -587,6 +587,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(RestDescriptorNode restDescriptorNode) {
+        visitSyntaxNode(restDescriptorNode);
+    }
+
     public void visit(DoubleGTTokenNode doubleGTTokenNode) {
         visitSyntaxNode(doubleGTTokenNode);
     }
@@ -609,6 +613,18 @@ public abstract class NodeVisitor {
 
     public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
         visitSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
+    }
+
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
     }
 
     // Tokens

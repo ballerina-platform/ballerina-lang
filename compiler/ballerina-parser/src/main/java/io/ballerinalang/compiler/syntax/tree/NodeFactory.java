@@ -675,7 +675,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(paramName, "paramName must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -684,7 +683,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
-                paramName.internalNode(),
+                getOptionalSTNode(paramName),
                 equalsToken.internalNode(),
                 expression.internalNode());
         return stDefaultableParameterNode.createUnlinkedFacade();
@@ -699,14 +698,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(paramName, "paramName must not be null");
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
                 leadingComma.internalNode(),
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(visibilityQualifier),
                 typeName.internalNode(),
-                paramName.internalNode());
+                getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();
     }
 
@@ -720,14 +718,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
         Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
-        Objects.requireNonNull(paramName, "paramName must not be null");
 
         STNode stRestParameterNode = STNodeFactory.createRestParameterNode(
                 leadingComma.internalNode(),
                 annotations.underlyingListNode().internalNode(),
                 typeName.internalNode(),
                 ellipsisToken.internalNode(),
-                paramName.internalNode());
+                getOptionalSTNode(paramName));
         return stRestParameterNode.createUnlinkedFacade();
     }
 
@@ -1875,18 +1872,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TupleTypeDescriptorNode createTupleTypeDescriptorNode(
             Token openBracketToken,
-            SeparatedNodeList<TypeDescriptorNode> memberTypeDesc,
-            Node restTypeDesc,
+            SeparatedNodeList<Node> memberTypeDesc,
             Token closeBracketToken) {
         Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
         Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
-        Objects.requireNonNull(restTypeDesc, "restTypeDesc must not be null");
         Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
         STNode stTupleTypeDescriptorNode = STNodeFactory.createTupleTypeDescriptorNode(
                 openBracketToken.internalNode(),
                 memberTypeDesc.underlyingListNode().internalNode(),
-                restTypeDesc.internalNode(),
                 closeBracketToken.internalNode());
         return stTupleTypeDescriptorNode.createUnlinkedFacade();
     }
@@ -2253,6 +2247,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stReceiveFieldsNode.createUnlinkedFacade();
     }
 
+    public static RestDescriptorNode createRestDescriptorNode(
+            TypeDescriptorNode typeDescriptor,
+            Token ellipsisToken) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+
+        STNode stRestDescriptorNode = STNodeFactory.createRestDescriptorNode(
+                typeDescriptor.internalNode(),
+                ellipsisToken.internalNode());
+        return stRestDescriptorNode.createUnlinkedFacade();
+    }
+
     public static DoubleGTTokenNode createDoubleGTTokenNode(
             Token openGTToken,
             Token endGTToken) {
@@ -2335,6 +2341,57 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotChainingToken.internalNode(),
                 annotTagReference.internalNode());
         return stAnnotAccessExpressionNode.createUnlinkedFacade();
+    }
+
+    public static QueryActionNode createQueryActionNode(
+            QueryPipelineNode queryPipeline,
+            Token doKeyword,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
+        Objects.requireNonNull(doKeyword, "doKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stQueryActionNode = STNodeFactory.createQueryActionNode(
+                queryPipeline.internalNode(),
+                doKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stQueryActionNode.createUnlinkedFacade();
+    }
+
+    public static OptionalFieldAccessExpressionNode createOptionalFieldAccessExpressionNode(
+            ExpressionNode expression,
+            Token optionalChainingToken,
+            Token fieldName) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(optionalChainingToken, "optionalChainingToken must not be null");
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+
+        STNode stOptionalFieldAccessExpressionNode = STNodeFactory.createOptionalFieldAccessExpressionNode(
+                expression.internalNode(),
+                optionalChainingToken.internalNode(),
+                fieldName.internalNode());
+        return stOptionalFieldAccessExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ConditionalExpressionNode createConditionalExpressionNode(
+            ExpressionNode lhsExpression,
+            Token questionMarkToken,
+            ExpressionNode middleExpression,
+            Token colonToken,
+            ExpressionNode endExpression) {
+        Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+        Objects.requireNonNull(middleExpression, "middleExpression must not be null");
+        Objects.requireNonNull(colonToken, "colonToken must not be null");
+        Objects.requireNonNull(endExpression, "endExpression must not be null");
+
+        STNode stConditionalExpressionNode = STNodeFactory.createConditionalExpressionNode(
+                lhsExpression.internalNode(),
+                questionMarkToken.internalNode(),
+                middleExpression.internalNode(),
+                colonToken.internalNode(),
+                endExpression.internalNode());
+        return stConditionalExpressionNode.createUnlinkedFacade();
     }
 }
 

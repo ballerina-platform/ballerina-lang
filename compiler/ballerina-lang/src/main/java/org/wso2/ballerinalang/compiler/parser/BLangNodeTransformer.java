@@ -43,6 +43,7 @@ import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
@@ -84,6 +85,7 @@ import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -104,7 +106,6 @@ import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
 import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
@@ -208,6 +209,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
@@ -465,11 +467,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
-        // TODO: Fully implement after tuple-type-desc is completed.
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-        SeparatedNodeList<TypeDescriptorNode> types = tupleTypeDescriptorNode.memberTypeDesc();
+        SeparatedNodeList<Node> types = tupleTypeDescriptorNode.memberTypeDesc();
         for (int i = 0; i < types.size(); i++) {
-            tupleTypeNode.memberTypeNodes.add(createTypeNode(types.get(i)));
+            Node node = types.get(i);
+            if (node.kind() == SyntaxKind.REST_TYPE) {
+                RestDescriptorNode restDescriptor = (RestDescriptorNode) node;
+                tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
+            } else {
+                tupleTypeNode.memberTypeNodes.add(createTypeNode(node));
+            }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 
@@ -1432,6 +1439,40 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
+        functionTypeNode.pos = getPosition(functionTypeDescriptorNode);
+        functionTypeNode.returnsKeywordExists = true;
+
+        FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature();
+
+        // Set Parameters
+        for (ParameterNode child : funcSignature.parameters()) {
+            SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
+            if (child instanceof RestParameterNode) {
+                functionTypeNode.restParam = (BLangSimpleVariable) param;
+            } else {
+                functionTypeNode.params.add((BLangVariable) param);
+            }
+        }
+
+        // Set Return Type
+        Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
+        if (retNode.isPresent()) {
+            ReturnTypeDescriptorNode returnType = retNode.get();
+            functionTypeNode.returnTypeNode = createTypeNode(returnType.type());
+        } else {
+            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+            bLValueType.pos = getPosition(funcSignature);
+            bLValueType.typeKind = TypeKind.NIL;
+            functionTypeNode.returnTypeNode = bLValueType;
+        }
+
+        functionTypeNode.flagSet.add(Flag.PUBLIC);
+        return functionTypeNode;
+    }
+
+    @Override
     public BLangNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         BLangValueType typeNode = (BLangValueType) createBuiltInTypeNode(parameterizedTypeDescNode.parameterizedType());
@@ -1668,6 +1709,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return stringTemplateLiteral;
     }
 
+    private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type) {
+        if (name.isPresent()) {
+            Token nameToken = name.get();
+            return createSimpleVar(nameToken, type, null, false, false, null);
+        }
+
+        return createSimpleVar(null, null, type, null, false, false, null);
+    }
+
     private BLangSimpleVariable createSimpleVar(Token name, Node type) {
         return createSimpleVar(name, type, null, false, false, null);
     }
@@ -1685,6 +1735,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                 Token visibilityQualifier) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(pos, name));
+
         if (typeName == null || typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
             bLSimpleVar.isDeclaredWithVar = true;
         } else {
