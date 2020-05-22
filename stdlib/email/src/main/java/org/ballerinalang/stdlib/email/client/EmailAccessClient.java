@@ -98,7 +98,7 @@ public class EmailAccessClient {
             clientEndpoint.addNativeData(EmailConstants.PROPS_HOST.getValue(), host.getValue());
             clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username.getValue());
             clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD.getValue(), password.getValue());
-            return nullunresolvedValues;
+            return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
             return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
