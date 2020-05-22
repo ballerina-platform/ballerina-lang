@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.email.util;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.MimeConstants;
