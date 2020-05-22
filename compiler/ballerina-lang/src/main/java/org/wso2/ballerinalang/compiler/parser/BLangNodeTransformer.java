@@ -1100,8 +1100,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 } else {
                     numericLiteral.value = ((Long) numericLiteral.value) * -1;
                 }
-                numericLiteral.originalValue = "-" + numericLiteral.originalValue;
-                return numericLiteral;
+
+                if (expressionKind != SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
+                    numericLiteral.originalValue = "-" + numericLiteral.originalValue;
+                }
+            } else if (operatorKind == SyntaxKind.PLUS_TOKEN) {
+                if (expressionKind != SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
+                    numericLiteral.originalValue = "+" + numericLiteral.originalValue;
+                }
             }
             return numericLiteral;
         }
