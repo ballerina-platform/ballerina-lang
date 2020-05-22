@@ -680,7 +680,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeName =
                 modifyNode(defaultableParameterNode.typeName());
         Token paramName =
-                modifyToken(defaultableParameterNode.paramName());
+                modifyToken(defaultableParameterNode.paramName().orElse(null));
         Token equalsToken =
                 modifyToken(defaultableParameterNode.equalsToken());
         Node expression =
@@ -707,7 +707,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
-                modifyToken(requiredParameterNode.paramName());
+                modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
                 leadingComma,
                 annotations,
@@ -728,7 +728,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token ellipsisToken =
                 modifyToken(restParameterNode.ellipsisToken());
         Token paramName =
-                modifyToken(restParameterNode.paramName());
+                modifyToken(restParameterNode.paramName().orElse(null));
         return restParameterNode.modify(
                 leadingComma,
                 annotations,
