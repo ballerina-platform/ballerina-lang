@@ -390,14 +390,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/sql",
       "kind": "Module",
       "detail": "Module",

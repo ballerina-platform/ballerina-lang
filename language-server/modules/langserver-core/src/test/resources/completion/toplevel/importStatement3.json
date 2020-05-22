@@ -382,14 +382,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "socket",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "sql",
       "kind": "Module",
       "detail": "Module",
