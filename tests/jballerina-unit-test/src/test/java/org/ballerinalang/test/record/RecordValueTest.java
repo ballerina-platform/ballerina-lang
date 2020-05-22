@@ -62,7 +62,7 @@ public class RecordValueTest {
 
         // set rest field
         Assert.assertNull(person.put(StringUtils.fromString("last-name"), StringUtils.fromString("Doe")));
-        Assert.assertEquals(person.get(StringUtils.fromString("last-name")), "Doe");
+        Assert.assertEquals(person.get(StringUtils.fromString("last-name")), StringUtils.fromString("Doe"));
 
         // test contains key, for non-existing rest field
         Assert.assertFalse(person.containsKey(StringUtils.fromString("first-name")));
