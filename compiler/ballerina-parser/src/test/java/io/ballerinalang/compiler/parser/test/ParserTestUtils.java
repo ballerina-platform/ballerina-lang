@@ -518,6 +518,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RETRY_KEYWORD;
             case "ROLLBACK_KEYWORD":
                 return SyntaxKind.ROLLBACK_KEYWORD;
+            case "TRANSACTIONAL_KEYWORD":
+                return SyntaxKind.TRANSACTIONAL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -704,6 +706,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OPTIONAL_FIELD_ACCESS;
             case "CONDITIONAL_EXPRESSION":
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
+            case "TRANSACTIONAL_EXPRESSION":
+                return SyntaxKind.TRANSACTIONAL_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

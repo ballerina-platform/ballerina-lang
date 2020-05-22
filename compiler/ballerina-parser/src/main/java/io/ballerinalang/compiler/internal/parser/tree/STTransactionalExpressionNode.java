@@ -19,39 +19,27 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STRetryStatementNode extends STStatementNode {
-    public final STNode retryKeyword;
-    public final STNode typeParameter;
-    public final STNode arguments;
-    public final STNode retryBody;
+public class STTransactionalExpressionNode extends STExpressionNode {
+    public final STNode transactionalKeyword;
 
-    STRetryStatementNode(
-            STNode retryKeyword,
-            STNode typeParameter,
-            STNode arguments,
-            STNode retryBody) {
-        super(SyntaxKind.ROLLBACK_STATEMENT);
-        this.retryKeyword = retryKeyword;
-        this.typeParameter = typeParameter;
-        this.arguments = arguments;
-        this.retryBody = retryBody;
+    STTransactionalExpressionNode(
+            STNode transactionalKeyword) {
+        super(SyntaxKind.TRANSACTIONAL_EXPRESSION);
+        this.transactionalKeyword = transactionalKeyword;
 
         addChildren(
-                retryKeyword,
-                typeParameter,
-                arguments,
-                retryBody);
+                transactionalKeyword);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RetryStatementNode(this, position, parent);
+        return new TransactionalExpressionNode(this, position, parent);
     }
 }

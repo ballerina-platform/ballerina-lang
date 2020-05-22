@@ -3287,6 +3287,17 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "TransactionalExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TRANSACTIONAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "transactionalKeyword",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

@@ -3768,6 +3768,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseWaitAction();
             case COMMIT_KEYWORD:
                 return parseCommitAction();
+            case TRANSACTIONAL_KEYWORD:
+                return parseTransactionalExpression();
             default:
                 break;
         }
@@ -10920,7 +10922,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>commit-action := "commit"</code>
      * 
-     * @return Transaction statement node
+     * @return Commit action node
      */
     private STNode parseCommitAction() {
         STNode commitKeyword = parseCommitKeyword();
@@ -10951,7 +10953,7 @@ public class BallerinaParser extends AbstractParser {
      * retry-spec :=  [type-parameter] [ "(" arg-list ")" ]
      * </code>
      * 
-     * @return Transaction statement node
+     * @return Retry statement node
      */
     private STNode parseRetryStatement() {
         startContext(ParserRuleContext.RETRY_STMT);
@@ -11096,4 +11098,31 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse transactional expression.
+     * <p>
+     * <code>transactional-expr := "transactional"</code>
+     * 
+     * @return Transactional expression node
+     */
+    private STNode parseTransactionalExpression() {
+        STNode transactionalKeyword = parseTransactionalKeyword();
+        return STNodeFactory.createTransactionalExpressionNode(transactionalKeyword);
+    }
+    
+    /**
+     * Parse transactional keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseTransactionalKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+    
 }

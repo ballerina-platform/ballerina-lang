@@ -286,6 +286,7 @@ public enum ParserRuleContext {
     COMMIT_KEYWORD("commit"),
     RETRY_KEYWORD("retry"),
     ROLLBACK_KEYWORD("rollback"),
+    TRANSACTIONAL_KEYWORD("transactional"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

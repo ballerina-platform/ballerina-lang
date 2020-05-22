@@ -1818,13 +1818,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode retryKeyword,
             STNode typeParameter,
             STNode arguments,
-            STNode blockStatement) {
+            STNode retryBody) {
 
         return new STRetryStatementNode(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                blockStatement);
+                retryBody);
     }
 
     public static STNode createCommitActionNode(
@@ -1832,6 +1832,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STCommitActionNode(
                 commitKeyword);
+    }
+
+    public static STNode createTransactionalExpressionNode(
+            STNode transactionalKeyword) {
+
+        return new STTransactionalExpressionNode(
+                transactionalKeyword);
     }
 }
 

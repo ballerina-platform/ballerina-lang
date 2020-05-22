@@ -45,7 +45,7 @@ public class RetryStatementNode extends StatementNode {
         return optionalChildInBucket(2);
     }
 
-    public BlockStatementNode blockStatement() {
+    public StatementNode retryBody() {
         return childInBucket(3);
     }
 
@@ -65,19 +65,19 @@ public class RetryStatementNode extends StatementNode {
                 "retryKeyword",
                 "typeParameter",
                 "arguments",
-                "blockStatement"};
+                "retryBody"};
     }
 
     public RetryStatementNode modify(
             Token retryKeyword,
             TypeParameterNode typeParameter,
             ParenthesizedArgList arguments,
-            BlockStatementNode blockStatement) {
+            StatementNode retryBody) {
         if (checkForReferenceEquality(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                blockStatement)) {
+                retryBody)) {
             return this;
         }
 
@@ -85,7 +85,7 @@ public class RetryStatementNode extends StatementNode {
                 retryKeyword,
                 typeParameter,
                 arguments,
-                blockStatement);
+                retryBody);
     }
 
     public RetryStatementNodeModifier modify() {
@@ -102,14 +102,14 @@ public class RetryStatementNode extends StatementNode {
         private Token retryKeyword;
         private TypeParameterNode typeParameter;
         private ParenthesizedArgList arguments;
-        private BlockStatementNode blockStatement;
+        private StatementNode retryBody;
 
         public RetryStatementNodeModifier(RetryStatementNode oldNode) {
             this.oldNode = oldNode;
             this.retryKeyword = oldNode.retryKeyword();
             this.typeParameter = oldNode.typeParameter().orElse(null);
             this.arguments = oldNode.arguments().orElse(null);
-            this.blockStatement = oldNode.blockStatement();
+            this.retryBody = oldNode.retryBody();
         }
 
         public RetryStatementNodeModifier withRetryKeyword(
@@ -133,10 +133,10 @@ public class RetryStatementNode extends StatementNode {
             return this;
         }
 
-        public RetryStatementNodeModifier withBlockStatement(
-                BlockStatementNode blockStatement) {
-            Objects.requireNonNull(blockStatement, "blockStatement must not be null");
-            this.blockStatement = blockStatement;
+        public RetryStatementNodeModifier withRetryBody(
+                StatementNode retryBody) {
+            Objects.requireNonNull(retryBody, "retryBody must not be null");
+            this.retryBody = retryBody;
             return this;
         }
 
@@ -145,7 +145,7 @@ public class RetryStatementNode extends StatementNode {
                     retryKeyword,
                     typeParameter,
                     arguments,
-                    blockStatement);
+                    retryBody);
         }
     }
 }

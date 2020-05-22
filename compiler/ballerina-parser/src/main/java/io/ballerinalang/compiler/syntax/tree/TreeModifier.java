@@ -2466,13 +2466,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(retryStatementNode.typeParameter().orElse(null));
         ParenthesizedArgList arguments =
                 modifyNode(retryStatementNode.arguments().orElse(null));
-        BlockStatementNode blockStatement =
-                modifyNode(retryStatementNode.blockStatement());
+        StatementNode retryBody =
+                modifyNode(retryStatementNode.retryBody());
         return retryStatementNode.modify(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                blockStatement);
+                retryBody);
     }
 
     @Override
@@ -2482,6 +2482,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(commitActionNode.commitKeyword());
         return commitActionNode.modify(
                 commitKeyword);
+    }
+
+    @Override
+    public TransactionalExpressionNode transform(
+            TransactionalExpressionNode transactionalExpressionNode) {
+        Token transactionalKeyword =
+                modifyToken(transactionalExpressionNode.transactionalKeyword());
+        return transactionalExpressionNode.modify(
+                transactionalKeyword);
     }
 
     // Tokens

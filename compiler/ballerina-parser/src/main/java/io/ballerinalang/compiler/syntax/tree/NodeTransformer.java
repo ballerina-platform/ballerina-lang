@@ -648,6 +648,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(commitActionNode);
     }
 
+    public T transform(TransactionalExpressionNode transactionalExpressionNode) {
+        return transformSyntaxNode(transactionalExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

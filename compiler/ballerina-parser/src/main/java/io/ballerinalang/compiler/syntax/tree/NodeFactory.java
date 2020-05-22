@@ -2441,15 +2441,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token retryKeyword,
             TypeParameterNode typeParameter,
             ParenthesizedArgList arguments,
-            BlockStatementNode blockStatement) {
+            StatementNode retryBody) {
         Objects.requireNonNull(retryKeyword, "retryKeyword must not be null");
-        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+        Objects.requireNonNull(retryBody, "retryBody must not be null");
 
         STNode stRetryStatementNode = STNodeFactory.createRetryStatementNode(
                 retryKeyword.internalNode(),
                 getOptionalSTNode(typeParameter),
                 getOptionalSTNode(arguments),
-                blockStatement.internalNode());
+                retryBody.internalNode());
         return stRetryStatementNode.createUnlinkedFacade();
     }
 
@@ -2460,6 +2460,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stCommitActionNode = STNodeFactory.createCommitActionNode(
                 commitKeyword.internalNode());
         return stCommitActionNode.createUnlinkedFacade();
+    }
+
+    public static TransactionalExpressionNode createTransactionalExpressionNode(
+            Token transactionalKeyword) {
+        Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
+
+        STNode stTransactionalExpressionNode = STNodeFactory.createTransactionalExpressionNode(
+                transactionalKeyword.internalNode());
+        return stTransactionalExpressionNode.createUnlinkedFacade();
     }
 }
 

@@ -225,7 +225,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
             ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD,
-            ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD };
+            ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
+            ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -957,6 +958,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case ROLLBACK_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.ROLLBACK_KEYWORD;
+                    break;
+                case TRANSACTIONAL_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
                     break;
 
                 // start a context, so that we know where to fall back, and continue
@@ -2062,15 +2066,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FUNCTION_IDENT;
             case ANNOTATION_DECL:
                 return ParserRuleContext.ANNOTATION_KEYWORD;
-            default:
-                return getNextRuleInternal(currentCtx, nextLookahead);
-
-        }
-    }
-
-    private ParserRuleContext getNextRuleInternal(ParserRuleContext currentCtx, int nextLookahead) {
-        ParserRuleContext parentCtx;
-        switch (currentCtx) {
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XMLNS_KEYWORD;
             case XMLNS_KEYWORD:
@@ -2087,6 +2082,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME_RHS;
             case FORK_STMT:
                 return ParserRuleContext.FORK_KEYWORD;
+            default:
+                return getNextRuleInternal(currentCtx, nextLookahead);
+
+        }
+    }
+
+    private ParserRuleContext getNextRuleInternal(ParserRuleContext currentCtx, int nextLookahead) {
+        ParserRuleContext parentCtx;
+        switch (currentCtx) {
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
             case TRAP_KEYWORD:
@@ -2345,6 +2349,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ROLLBACK_RHS;
             case RETRY_KEYWORD:
                 return ParserRuleContext.RETRY_KEYWORD_RHS;
+            case TRANSACTIONAL_KEYWORD:
+                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }

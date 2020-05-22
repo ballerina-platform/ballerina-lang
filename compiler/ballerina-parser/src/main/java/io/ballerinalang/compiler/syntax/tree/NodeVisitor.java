@@ -647,6 +647,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(commitActionNode);
     }
 
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        visitSyntaxNode(transactionalExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
