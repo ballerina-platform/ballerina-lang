@@ -59,7 +59,8 @@ public class GetGroups {
                     LdapConstants.LDAP_CONNECTION_CONTEXT);
             CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(
                     LdapConstants.LDAP_CONFIGURATION);
-            String[] externalRoles = doGetGroupsListOfUser(userName.getValue(), ldapConfiguration, ldapConnectionContext);
+            String[] externalRoles = doGetGroupsListOfUser(userName.getValue(), ldapConfiguration,
+                                                           ldapConnectionContext);
             return new ArrayValueImpl(StringUtils.fromStringArray(externalRoles));
         } catch (NamingException | ErrorValue e) {
             return LdapUtils.createError(e.getMessage());
