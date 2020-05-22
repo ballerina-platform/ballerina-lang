@@ -17,19 +17,40 @@ package org.ballerinalang.langserver.extensions.document;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 
 /**
  * Test visible endpoint detection.
@@ -79,6 +100,11 @@ public class ASTModifyTest {
             .resolve("ast")
             .resolve("modify")
             .resolve("serviceAccuweather1.bal");
+
+    private Path sourceRootPath = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify");
 
     @BeforeClass
     public void startLangServer() throws IOException {
@@ -256,6 +282,58 @@ public class ASTModifyTest {
                 serviceAccuweatherFile1.toString(), this.serviceEndpoint);
         Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
         TestUtil.closeDocument(this.serviceEndpoint, emptyFile);
+    }
+
+    @Test
+    public void testLookupPackageSourceForSinglePkg() {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage bLangPackage = compiler.compile("main.bal");
+        System.out.println(bLangPackage.getCompilationUnits().get(0).getTopLevelNodes());
+        System.out.println(bLangPackage.getImports());
+        System.out.println(bLangPackage.getFunctions());
+    }
+
+    @Test
+    public void testLookupPackageSourceForSinglePkg1() {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
+        Compiler compiler = Compiler.getInstance(context);
+
+        BLangPackage bLangPackage = compiler.compile("main.bal");
+        List<Diagnostic.DiagnosticPosition> deleteRange = new ArrayList<>();
+        deleteRange.add(new DeleteRange(4, 4, 5, 16));
+        deleteRange.add(new DeleteRange(5, 5, 5, 16));
+        UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor("main.bal", deleteRange);
+        bLangPackage.accept(unusedNodeVisitor);
+        System.out.println(unusedNodeVisitor.unusedImports());
+        System.out.println(unusedNodeVisitor.toBeDeletedRanges());
+    }
+
+    private String getPackageName(String sourceRoot, Path filePath) {
+        LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(sourceRoot);
+        String packageName = lsDocument.getOwnerModule();
+        if ("".equals(packageName)) {
+            Path path = filePath.getFileName();
+            if (path != null) {
+                packageName = path.toString();
+            }
+        }
+        return packageName;
+    }
+
+    private CompilerContext getCompilerContext(Path filePath, String sourceRoot, String packageName,
+                                               PackageRepository packageRepository) {
+        LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(filePath, sourceRoot);
+        WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
+        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
+        return LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument, documentManager,
+                false);
     }
 
     @AfterClass
