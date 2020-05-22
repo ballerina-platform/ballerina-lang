@@ -1985,9 +1985,9 @@ public class TypeChecker {
             return false;
         }
 
-        Iterator<Map.Entry<String, Object>> mapIterator = lhsMap.entrySet().iterator();
+        Iterator<Map.Entry<BString, Object>> mapIterator = lhsMap.entrySet().iterator();
         while (mapIterator.hasNext()) {
-            Map.Entry<String, Object> lhsMapEntry = mapIterator.next();
+            Map.Entry<BString, Object> lhsMapEntry = mapIterator.next();
             if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
                 return false;
             }
