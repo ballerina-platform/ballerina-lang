@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/test;
 
 type Person1 abstract object {
     public int age;
@@ -152,4 +153,41 @@ type Person3 abstract object {
 public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
     Manager4 mgr = new Manager4("Jane");
     return [mgr.getName(), mgr.getBonus(0.1)];
+}
+
+// non abstract object inclusion
+type Ant object {
+    int id;
+
+    public function __init() {
+        self.id = 0;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+type FireAnt object {
+    *Ant;
+
+    public function __init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int|() {
+        if (self.id > 0) {
+            return self.id;
+        } else {
+            return ();
+        }
+    }
+};
+
+public function testNonAbstractObjectInclusion() {
+    FireAnt notoriousFireAnt = new FireAnt(7);
+    test:assertEquals(notoriousFireAnt.getId(), 7);
+
+    FireAnt dullAnt = new FireAnt(0);
+    test:assertEquals(dullAnt.getId(), ());
 }
