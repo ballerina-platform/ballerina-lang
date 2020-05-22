@@ -95,14 +95,14 @@ public function variables() {
 
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
-    table<Employee> tableVar = table {
-        {key id, name, salary},
-        [
-            {1, "Mary", 300.5},
-            {2, "John", 200.5},
-            {3, "Jim", 330.5}
-        ]
-    };
+    //table<Employee> tableVar = table {
+    //    {key id, name, salary},
+    //    [
+    //        {1, "Mary", 300.5},
+    //        {2, "John", 200.5},
+    //        {3, "Jim", 330.5}
+    //    ]
+    //};
 
     xml xmlVar = xml `Hello, world!`;
 
