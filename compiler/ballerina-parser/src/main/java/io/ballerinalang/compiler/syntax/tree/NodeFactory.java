@@ -571,7 +571,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static IndexedExpressionNode createIndexedExpressionNode(
             ExpressionNode containerExpression,
             Token openBracket,
-            ExpressionNode keyExpression,
+            SeparatedNodeList<ExpressionNode> keyExpression,
             Token closeBracket) {
         Objects.requireNonNull(containerExpression, "containerExpression must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
@@ -581,7 +581,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stIndexedExpressionNode = STNodeFactory.createIndexedExpressionNode(
                 containerExpression.internalNode(),
                 openBracket.internalNode(),
-                keyExpression.internalNode(),
+                keyExpression.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
         return stIndexedExpressionNode.createUnlinkedFacade();
     }
@@ -2392,6 +2392,23 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 colonToken.internalNode(),
                 endExpression.internalNode());
         return stConditionalExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
+            TypeDescriptorNode memberTypeDesc,
+            Token openBracket,
+            Node arrayLength,
+            Token closeBracket) {
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
+                memberTypeDesc.internalNode(),
+                openBracket.internalNode(),
+                getOptionalSTNode(arrayLength),
+                closeBracket.internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

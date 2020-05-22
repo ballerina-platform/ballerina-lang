@@ -627,6 +627,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(conditionalExpressionNode);
     }
 
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

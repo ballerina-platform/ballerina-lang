@@ -20,19 +20,20 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
  * @since 2.0.0
  */
-public class IndexedExpressionNode extends TypeDescriptorNode {
+public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
 
-    public IndexedExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ArrayTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public ExpressionNode containerExpression() {
+    public TypeDescriptorNode memberTypeDesc() {
         return childInBucket(0);
     }
 
@@ -40,8 +41,8 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
         return childInBucket(1);
     }
 
-    public SeparatedNodeList<ExpressionNode> keyExpression() {
-        return new SeparatedNodeList<>(childInBucket(2));
+    public Optional<Node> arrayLength() {
+        return optionalChildInBucket(2);
     }
 
     public Token closeBracket() {
@@ -61,34 +62,34 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "containerExpression",
+                "memberTypeDesc",
                 "openBracket",
-                "keyExpression",
+                "arrayLength",
                 "closeBracket"};
     }
 
-    public IndexedExpressionNode modify(
-            ExpressionNode containerExpression,
+    public ArrayTypeDescriptorNode modify(
+            TypeDescriptorNode memberTypeDesc,
             Token openBracket,
-            SeparatedNodeList<ExpressionNode> keyExpression,
+            Node arrayLength,
             Token closeBracket) {
         if (checkForReferenceEquality(
-                containerExpression,
+                memberTypeDesc,
                 openBracket,
-                keyExpression.underlyingListNode(),
+                arrayLength,
                 closeBracket)) {
             return this;
         }
 
-        return NodeFactory.createIndexedExpressionNode(
-                containerExpression,
+        return NodeFactory.createArrayTypeDescriptorNode(
+                memberTypeDesc,
                 openBracket,
-                keyExpression,
+                arrayLength,
                 closeBracket);
     }
 
-    public IndexedExpressionNodeModifier modify() {
-        return new IndexedExpressionNodeModifier(this);
+    public ArrayTypeDescriptorNodeModifier modify() {
+        return new ArrayTypeDescriptorNodeModifier(this);
     }
 
     /**
@@ -96,54 +97,54 @@ public class IndexedExpressionNode extends TypeDescriptorNode {
      *
      * @since 2.0.0
      */
-    public static class IndexedExpressionNodeModifier {
-        private final IndexedExpressionNode oldNode;
-        private ExpressionNode containerExpression;
+    public static class ArrayTypeDescriptorNodeModifier {
+        private final ArrayTypeDescriptorNode oldNode;
+        private TypeDescriptorNode memberTypeDesc;
         private Token openBracket;
-        private SeparatedNodeList<ExpressionNode> keyExpression;
+        private Node arrayLength;
         private Token closeBracket;
 
-        public IndexedExpressionNodeModifier(IndexedExpressionNode oldNode) {
+        public ArrayTypeDescriptorNodeModifier(ArrayTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
-            this.containerExpression = oldNode.containerExpression();
+            this.memberTypeDesc = oldNode.memberTypeDesc();
             this.openBracket = oldNode.openBracket();
-            this.keyExpression = oldNode.keyExpression();
+            this.arrayLength = oldNode.arrayLength().orElse(null);
             this.closeBracket = oldNode.closeBracket();
         }
 
-        public IndexedExpressionNodeModifier withContainerExpression(
-                ExpressionNode containerExpression) {
-            Objects.requireNonNull(containerExpression, "containerExpression must not be null");
-            this.containerExpression = containerExpression;
+        public ArrayTypeDescriptorNodeModifier withMemberTypeDesc(
+                TypeDescriptorNode memberTypeDesc) {
+            Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+            this.memberTypeDesc = memberTypeDesc;
             return this;
         }
 
-        public IndexedExpressionNodeModifier withOpenBracket(
+        public ArrayTypeDescriptorNodeModifier withOpenBracket(
                 Token openBracket) {
             Objects.requireNonNull(openBracket, "openBracket must not be null");
             this.openBracket = openBracket;
             return this;
         }
 
-        public IndexedExpressionNodeModifier withKeyExpression(
-                SeparatedNodeList<ExpressionNode> keyExpression) {
-            Objects.requireNonNull(keyExpression, "keyExpression must not be null");
-            this.keyExpression = keyExpression;
+        public ArrayTypeDescriptorNodeModifier withArrayLength(
+                Node arrayLength) {
+            Objects.requireNonNull(arrayLength, "arrayLength must not be null");
+            this.arrayLength = arrayLength;
             return this;
         }
 
-        public IndexedExpressionNodeModifier withCloseBracket(
+        public ArrayTypeDescriptorNodeModifier withCloseBracket(
                 Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
             this.closeBracket = closeBracket;
             return this;
         }
 
-        public IndexedExpressionNode apply() {
+        public ArrayTypeDescriptorNode apply() {
             return oldNode.modify(
-                    containerExpression,
+                    memberTypeDesc,
                     openBracket,
-                    keyExpression,
+                    arrayLength,
                     closeBracket);
         }
     }

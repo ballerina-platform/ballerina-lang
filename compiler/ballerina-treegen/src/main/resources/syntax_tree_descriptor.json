@@ -747,7 +747,8 @@
                 },
                 {
                     "name": "keyExpression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBracket",
@@ -924,7 +925,7 @@
                 {
                     "name": "paramName",
                     "type": "Token",
-                    "isOptional" : true
+                    "isOptional": true
                 }
             ]
         },
@@ -3189,6 +3190,30 @@
                 {
                     "name": "endExpression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ArrayTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "ARRAY_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "memberTypeDesc",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "arrayLength",
+                    "type": "Node",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
                 }
             ]
         }
