@@ -75,7 +75,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public void setAttributes(BMap<String, ?> attributes) {
+    public void setAttributes(BMap<BString, ?> attributes) {
 
     }
 

@@ -151,7 +151,7 @@ public interface BXML extends BRefValue, BCollection {
      * 
      * @param attributes Attributes to be set.
      */
-    void setAttributes(BMap<String, ?> attributes);
+    void setAttributes(BMap<BString, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.

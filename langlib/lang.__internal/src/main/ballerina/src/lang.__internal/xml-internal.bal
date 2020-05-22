@@ -77,6 +77,6 @@ public function commentCtor(string content = "") returns xml = external;
 
 # Functional constructor for xml:Text subtype.
 #
-# + charactors - Text content
+# + characters - Text content
 # + return - Constructed Text value
-public function textCtor(string charactors = "") returns xml = external;
+public function textCtor(string characters = "") returns xml = external;

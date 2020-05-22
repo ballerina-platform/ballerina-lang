@@ -220,7 +220,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     @Deprecated
-    public void setAttributes(BMap<String, ?> attributes) {
+    public void setAttributes(BMap<BString, ?> attributes) {
         synchronized (this) {
             if (this.type.isReadOnly()) {
                 ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
@@ -228,12 +228,12 @@ public final class XMLItem extends XMLValue {
         }
 
         String localName, uri;
-        for (String qname : attributes.getKeys()) {
-            if (qname.startsWith("{") && qname.indexOf('}') > 0) {
-                localName = qname.substring(qname.indexOf('}') + 1, qname.length());
-                uri = qname.substring(1, qname.indexOf('}'));
+        for (BString qname : attributes.getKeys()) {
+            if (qname.getValue().startsWith("{") && qname.getValue().indexOf('}') > 0) {
+                localName = qname.getValue().substring(qname.getValue().indexOf('}') + 1);
+                uri = qname.getValue().substring(1, qname.getValue().indexOf('}'));
             } else {
-                localName = qname;
+                localName = qname.getValue();
                 uri = STRING_NULL_VALUE;
             }
 

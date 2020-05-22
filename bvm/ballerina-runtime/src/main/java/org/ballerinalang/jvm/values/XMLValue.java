@@ -99,7 +99,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * 
      * @param attributes Attributes to be set.
      */
-    public abstract void setAttributes(BMap<String, ?> attributes);
+    public abstract void setAttributes(BMap<BString, ?> attributes);
 
     /**
      * Get the type of the XML.
