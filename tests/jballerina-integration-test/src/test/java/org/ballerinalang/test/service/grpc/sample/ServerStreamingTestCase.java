@@ -49,7 +49,8 @@ public class ServerStreamingTestCase extends GrpcBaseTest {
                 "06_server_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
-        BValue[] responses = BRunUtil.invoke(result, "testServerStreaming", new Object[]{StringUtils.fromString("WSO2")});
+        BValue[] responses = BRunUtil.invoke(result, "testServerStreaming",
+                                             new Object[]{StringUtils.fromString("WSO2")});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BInteger);
         BInteger responseCount = (BInteger) responses[0];
@@ -62,7 +63,8 @@ public class ServerStreamingTestCase extends GrpcBaseTest {
                 "23_server_streaming_with_record_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
-        BValue[] responses = BRunUtil.invoke(result, "testServerStreamingWithRecord", new Object[]{StringUtils.fromString("WSO2")});
+        BValue[] responses = BRunUtil.invoke(result, "testServerStreamingWithRecord",
+                                             new Object[]{StringUtils.fromString("WSO2")});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BInteger);
         BInteger responseCount = (BInteger) responses[0];
