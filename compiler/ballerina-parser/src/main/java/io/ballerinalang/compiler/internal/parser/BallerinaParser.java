@@ -442,8 +442,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseDoKeyword();
             case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalChainingToken();
+            case ENUM_MEMBER_INTERNAL_RHS:
+                return parseEnumMemberInternalRhs((STNode) args[0], (STNode) args[1]);
             case ENUM_MEMBER_RHS:
                 return parseEnumMemberRhs();
+            case ENUM_MEMBER_NAME:
+                return parseEnumMember();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -10764,7 +10768,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseEnumDeclaration(STNode metadata, STNode qualifier) {
         startContext(ParserRuleContext.MODULE_ENUM_DECLARATION);
         STNode enumKeywordToken = parseEnumKeyword();
-        STNode identifier = parseIdentifier(ParserRuleContext.MODULE_ENUM_DECLARATION);
+        STNode identifier = parseIdentifier(ParserRuleContext.MODULE_ENUM_NAME);
         STNode openBraceToken = parseOpenBrace();
         STNode enumMemberList = parseEnumMemberList();
         STNode closeBraceToken = parseCloseBrace();
@@ -10782,17 +10786,18 @@ public class BallerinaParser extends AbstractParser {
      */
 
     private STNode parseEnumMemberList() {
+        startContext(ParserRuleContext.ENUM_MEMBER_LIST);
         List<STNode> enumMemberList = new ArrayList<>();
         STToken nextToken = peek();
 
         // Report an empty enum member list
         if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
-            this.errorHandler.reportMissingTokenError("Enum member list cannot be empty");
+            this.errorHandler.reportMissingTokenError("enum member list cannot be empty");
             return STNodeFactory.createNodeList(new ArrayList<>());
         }
 
         // Parse first enum member, that has no leading comma
-        STNode enumMember = parseEnumMember(nextToken.kind);
+        STNode enumMember = parseEnumMember();
 
         // Parse the remaining enum members
         nextToken = peek();
@@ -10804,12 +10809,13 @@ public class BallerinaParser extends AbstractParser {
             }
             enumMemberList.add(enumMember);
             enumMemberList.add(enumMemberRhs);
-            enumMember = parseEnumMember(nextToken.kind);
+            enumMember = parseEnumMember();
             nextToken = peek();
         }
 
         enumMemberList.add(enumMember);
 
+        endContext();
         return STNodeFactory.createNodeList(enumMemberList);
     }
 
@@ -10819,31 +10825,50 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed enum member node.
      */
-    private STNode parseEnumMember(SyntaxKind tokenKind) {
+    private STNode parseEnumMember() {
+        STToken nextToken = peek();
         STNode metadata;
-        switch (tokenKind) {
+        switch (nextToken.kind) {
             case DOCUMENTATION_LINE:
             case AT_TOKEN:
-                metadata = parseMetaData(tokenKind);
+                metadata = parseMetaData(nextToken.kind);
                 break;
             default:
                 metadata = STNodeFactory.createEmptyNode();
         }
-        return parseEnumMember(metadata);
+
+        STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER_NAME);
+        return parseEnumMemberInternalRhs(metadata, identifierNode);
     }
 
-    private STNode parseEnumMember(STNode metadata) {
-        STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER);
-        STToken nextToken = peek();
+    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode) {
+        return parseEnumMemberInternalRhs(metadata, identifierNode, peek().kind);
+    }
+
+    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode, SyntaxKind nextToken) {
         STNode equalToken, constExprNode;
-        switch (nextToken.kind) {
+        switch (nextToken) {
             case EQUAL_TOKEN:
-                equalToken = consume();
+                equalToken = parseAssignOp();
                 constExprNode = parseExpression();
                 break;
-            default:
+            case COMMA_TOKEN:
+            case CLOSE_BRACE_TOKEN:
                 equalToken = STNodeFactory.createEmptyNode();
                 constExprNode = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS, metadata,
+                        identifierNode);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberInternalRhs(metadata, identifierNode, solution.tokenKind);
         }
 
         return STNodeFactory.createEnumMemberNode(metadata, identifierNode, equalToken, constExprNode);
