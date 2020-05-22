@@ -960,6 +960,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
             case LexerTerminals.DO:
                 return getSyntaxToken(SyntaxKind.DO_KEYWORD);
+            case LexerTerminals.ENUM:
+                return getSyntaxToken(SyntaxKind.ENUM_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

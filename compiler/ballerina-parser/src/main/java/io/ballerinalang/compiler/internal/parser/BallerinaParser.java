@@ -442,6 +442,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseDoKeyword();
             case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalChainingToken();
+            case ENUM_MEMBER_RHS:
+                return parseEnumMemberRhs();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -522,6 +524,7 @@ public class BallerinaParser extends AbstractParser {
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
             case SERVICE_KEYWORD:
+            case ENUM_KEYWORD:
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
                 break;
@@ -594,6 +597,7 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_KEYWORD:
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
+            case ENUM_KEYWORD:
                 // TODO: add type binding pattern
                 break;
             case IDENTIFIER_TOKEN:
@@ -1178,8 +1182,9 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidQualifier(qualifier);
                     return parseServiceDecl(metadata);
                 }
-
                 return parseModuleVarDecl(metadata, qualifier);
+            case ENUM_KEYWORD:
+                return parseEnumDeclaration(metadata, getQualifier(qualifier));
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -10740,5 +10745,146 @@ public class BallerinaParser extends AbstractParser {
         endContext();
         STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    /**
+     * Parse enum declaration.
+     * <p>
+     * module-enum-decl :=
+     *  metadata
+     *  [public] enum identifier { enum-member (, enum-member)* }
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     * @param metadata
+     * @param qualifier
+     *
+     * @return Parsed enum node.
+     */
+
+    private STNode parseEnumDeclaration(STNode metadata, STNode qualifier) {
+        startContext(ParserRuleContext.MODULE_ENUM_DECLARATION);
+        STNode enumKeywordToken = parseEnumKeyword();
+        STNode identifier = parseIdentifier(ParserRuleContext.MODULE_ENUM_DECLARATION);
+        STNode openBraceToken = parseOpenBrace();
+        STNode enumMemberList = parseEnumMemberList();
+        STNode closeBraceToken = parseCloseBrace();
+
+        endContext();
+        return STNodeFactory.createEnumDeclarationNode(metadata, qualifier, enumKeywordToken, identifier,
+                openBraceToken, enumMemberList, closeBraceToken);
+    }
+
+    /**
+     * Parse enum member list.
+     * <p>enum-member := metadata identifier [= const-expr]</p>
+     *
+     * @return enum member list node.
+     */
+
+    private STNode parseEnumMemberList() {
+        List<STNode> enumMemberList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Report an empty enum member list
+        if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            this.errorHandler.reportMissingTokenError("Enum member list cannot be empty");
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first enum member, that has no leading comma
+        STNode enumMember = parseEnumMember(nextToken.kind);
+
+        // Parse the remaining enum members
+        nextToken = peek();
+        STNode enumMemberRhs;
+        while (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
+            enumMemberRhs = parseEnumMemberRhs(nextToken.kind);
+            if (enumMemberRhs == null) {
+                break;
+            }
+            enumMemberList.add(enumMember);
+            enumMemberList.add(enumMemberRhs);
+            enumMember = parseEnumMember(nextToken.kind);
+            nextToken = peek();
+        }
+
+        enumMemberList.add(enumMember);
+
+        return STNodeFactory.createNodeList(enumMemberList);
+    }
+
+    /**
+     * Parse enum member.
+     * <p>enum-member := metadata identifier [= const-expr]</p>
+     *
+     * @return Parsed enum member node.
+     */
+    private STNode parseEnumMember(SyntaxKind tokenKind) {
+        STNode metadata;
+        switch (tokenKind) {
+            case DOCUMENTATION_LINE:
+            case AT_TOKEN:
+                metadata = parseMetaData(tokenKind);
+                break;
+            default:
+                metadata = STNodeFactory.createEmptyNode();
+        }
+        return parseEnumMember(metadata);
+    }
+
+    private STNode parseEnumMember(STNode metadata) {
+        STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER);
+        STToken nextToken = peek();
+        STNode equalToken, constExprNode;
+        switch (nextToken.kind) {
+            case EQUAL_TOKEN:
+                equalToken = consume();
+                constExprNode = parseExpression();
+                break;
+            default:
+                equalToken = STNodeFactory.createEmptyNode();
+                constExprNode = STNodeFactory.createEmptyNode();
+        }
+
+        return STNodeFactory.createEnumMemberNode(metadata, identifierNode, equalToken, constExprNode);
+    }
+
+    private STNode parseEnumMemberRhs() {
+        return parseEnumMemberRhs(peek().kind);
+    }
+
+    private STNode parseEnumMemberRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberRhs(solution.tokenKind);
+        }
+    }
+
+    /**
+     * Parse 'enum' keyword.
+     *
+     * @return enum keyword node
+     */
+    private STNode parseEnumKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ENUM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ENUM_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 }

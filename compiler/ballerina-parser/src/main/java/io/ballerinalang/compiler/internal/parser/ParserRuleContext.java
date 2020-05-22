@@ -181,6 +181,7 @@ public enum ParserRuleContext {
     ALTERNATE_WAIT_EXPRS("alternate-wait-exprs"),
     ALTERNATE_WAIT_EXPR_LIST_END("alternate-wait-expr-lit-end"),
     DO_CLAUSE("do-clause"),
+    MODULE_ENUM_DECLARATION("module-enum-declaration"),
 
     // Statements
     STATEMENT("statement"),
@@ -273,6 +274,7 @@ public enum ParserRuleContext {
     DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
+    ENUM_KEYWORD("enum"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -437,6 +439,8 @@ public enum ParserRuleContext {
     ROW_TYPE_PARAM("row-type-param"),
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
+    ENUM_MEMBER("enum-member"),
+    ENUM_MEMBER_RHS("enum-member-rhs"),
     ;
 
     private String value;

@@ -628,6 +628,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(conditionalExpressionNode);
     }
 
+    public T transform(EnumDeclarationNode enumDeclarationNode) {
+        return transformSyntaxNode(enumDeclarationNode);
+    }
+
+    public T transform(EnumMemberNode enumMemberNode) {
+        return transformSyntaxNode(enumMemberNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

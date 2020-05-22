@@ -2393,5 +2393,50 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 endExpression.internalNode());
         return stConditionalExpressionNode.createUnlinkedFacade();
     }
+
+    public static EnumDeclarationNode createEnumDeclarationNode(
+            MetadataNode metadata,
+            Token qualifier,
+            Token enumKeywordToken,
+            IdentifierToken identifier,
+            Token openBraceToken,
+            SeparatedNodeList<Node> enumMemberList,
+            Token closeBraceToken) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(qualifier, "qualifier must not be null");
+        Objects.requireNonNull(enumKeywordToken, "enumKeywordToken must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(enumMemberList, "enumMemberList must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stEnumDeclarationNode = STNodeFactory.createEnumDeclarationNode(
+                metadata.internalNode(),
+                qualifier.internalNode(),
+                enumKeywordToken.internalNode(),
+                identifier.internalNode(),
+                openBraceToken.internalNode(),
+                enumMemberList.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stEnumDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static EnumMemberNode createEnumMemberNode(
+            MetadataNode metadata,
+            IdentifierToken identifier,
+            Token equalToken,
+            ExpressionNode constExprNode) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(equalToken, "equalToken must not be null");
+        Objects.requireNonNull(constExprNode, "constExprNode must not be null");
+
+        STNode stEnumMemberNode = STNodeFactory.createEnumMemberNode(
+                metadata.internalNode(),
+                identifier.internalNode(),
+                equalToken.internalNode(),
+                constExprNode.internalNode());
+        return stEnumMemberNode.createUnlinkedFacade();
+    }
 }
 
