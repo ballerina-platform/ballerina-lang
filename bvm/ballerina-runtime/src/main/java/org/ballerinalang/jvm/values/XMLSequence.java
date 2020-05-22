@@ -180,7 +180,7 @@ public final class XMLSequence extends XMLValue {
 
     @Override
     @Deprecated
-    public void setAttributes(BMap<String, ?> attributes) {
+    public void setAttributes(BMap<BString, ?> attributes) {
         synchronized (this) {
             if (this.type.isReadOnly()) {
                 ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
