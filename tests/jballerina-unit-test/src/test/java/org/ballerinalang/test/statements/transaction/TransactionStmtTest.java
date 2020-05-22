@@ -30,6 +30,8 @@ import org.testng.annotations.Test;
 /**
  * Test cases for flow validation in TransactionStatement.
  */
+
+@Test(enabled = false)
 public class TransactionStmtTest {
 
     private CompileResult programFile;
