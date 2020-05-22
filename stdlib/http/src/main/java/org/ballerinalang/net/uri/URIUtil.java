@@ -29,11 +29,12 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * Utilities related to URI processing.
@@ -70,8 +71,16 @@ public class URIUtil {
                 continue;
             }
             String queryParamName = queryParam.substring(0, index).trim();
-            String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
-            List<String> values = Arrays.stream(queryParamValue.split(",")).distinct().collect(Collectors.toList());
+            String queryParamValue = queryParam.substring(index + 1).trim();
+            List<String> values = new ArrayList<>();
+            Set<String> uniqueValues = new HashSet<>();
+            for (String val : queryParamValue.split(",")) {
+                String decodedValue = URLDecoder.decode(val, "UTF-8");
+                if (uniqueValues.add(decodedValue)) {
+                    values.add(decodedValue);
+                }
+            }
+
             if (tempParamMap.containsKey(queryParamName)) {
                 tempParamMap.get(queryParamName).addAll(values);
             } else {

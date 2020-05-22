@@ -70,7 +70,6 @@ dependencies {
     distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-socket', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-system', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-task', configuration: 'baloImplementation')
@@ -108,6 +107,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
@@ -126,7 +126,6 @@ dependencies {
     balSource project(path: ':ballerina-observability', configuration: 'balSource')
     balSource project(path: ':ballerina-reflect', configuration: 'balSource')
     balSource project(path: ':ballerina-runtime-api', configuration: 'balSource')
-    balSource project(path: ':ballerina-socket', configuration: 'balSource')
     balSource project(path: ':ballerina-openapi', configuration: 'balSource')
     balSource project(path: ':ballerina-system', configuration: 'balSource')
     balSource project(path: ':ballerina-websub', configuration: 'balSource')
@@ -162,6 +161,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:value', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:bool', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
 
     // ballerinax modules
     balSource project(path: ':ballerina-java', configuration: 'balSource')

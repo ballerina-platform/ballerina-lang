@@ -353,7 +353,7 @@ function removeIfHasKeyOptional() {
     }
 
     if (<string>n !== "Andrew") {
-         panic error("Returned value should equals 'Andrew'.");
+         panic error("Returned value should 'equals 'Andrew'.");
     }
 
     var age = s.removeIfHasKey("age");

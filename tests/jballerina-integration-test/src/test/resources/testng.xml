@@ -289,13 +289,6 @@
             <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
     </test>
-    <test name="ballerina-socket-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
-            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
-        </classes>
-    </test>
 
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
@@ -312,14 +305,14 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-packerina-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="brokenOnJBallerina"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
+    <test name="ballerina-packerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+        <classes>
 <!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>&ndash;&gt;-->
 <!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>&ndash;&gt;-->
 <!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>&ndash;&gt;-->
@@ -329,8 +322,9 @@
 <!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
+        </classes>
+    </test>
 
     <test name="ballerina-task-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

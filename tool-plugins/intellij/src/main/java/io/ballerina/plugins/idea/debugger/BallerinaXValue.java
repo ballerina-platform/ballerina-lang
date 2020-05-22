@@ -62,7 +62,7 @@ public class BallerinaXValue extends XNamedValue {
     @Nullable
     private final Icon icon;
 
-    BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable, @Nullable Icon icon) {
+    public BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable, @Nullable Icon icon) {
         super(variable.getName());
         this.process = process;
         this.variable = variable;
@@ -109,37 +109,32 @@ public class BallerinaXValue extends XNamedValue {
         String value = variable.getValue() != null ? variable.getValue() : "";
         String type = variable.getType() != null ? variable.getType() : "";
 
-        if (type.equalsIgnoreCase(BallerinaXValueType.STRING.getValue())) {
+        if (type.equalsIgnoreCase(BallerinaValueType.STRING.getValue())) {
             return new XValuePresentation() {
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
                     renderer.renderValue(value, BallerinaSyntaxHighlightingColors.STRING);
                 }
             };
-        }
-
-        if (type.equalsIgnoreCase(BallerinaXValueType.INT.getValue())
-                || type.equalsIgnoreCase(BallerinaXValueType.FLOAT.getValue())
-                || type.equalsIgnoreCase(BallerinaXValueType.DECIMAL.getValue())
-                || type.equalsIgnoreCase(BallerinaXValueType.LONG.getValue())) {
+        } else if (type.equalsIgnoreCase(BallerinaValueType.INT.getValue())
+                || type.equalsIgnoreCase(BallerinaValueType.FLOAT.getValue())
+                || type.equalsIgnoreCase(BallerinaValueType.DECIMAL.getValue())) {
             return new XRegularValuePresentation(value, type) {
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
                     renderer.renderValue(value, BallerinaSyntaxHighlightingColors.NUMBER);
                 }
             };
-        }
-
-        if (type.equalsIgnoreCase(BallerinaXValueType.BOOLEAN.getValue())) {
+        } else if (type.equalsIgnoreCase(BallerinaValueType.BOOLEAN.getValue())) {
             return new XValuePresentation() {
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
                     renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
                 }
             };
+        } else {
+            return new XRegularValuePresentation(value, type);
         }
-
-        return new XRegularValuePresentation(value, type);
     }
 
     @Nullable
@@ -175,7 +170,7 @@ public class BallerinaXValue extends XNamedValue {
                 if (editor == null || position == null) {
                     return null;
                 }
-                String name = myName.startsWith("&") ? myName.replaceFirst("\\&", "") : myName;
+                String name = myName.startsWith("&") ? myName.replaceFirst("&", "") : myName;
                 PsiElement resolved = findTargetElement(project, position, editor, name);
                 if (resolved == null) {
                     return null;
@@ -212,25 +207,5 @@ public class BallerinaXValue extends XNamedValue {
     @Override
     public void computeTypeSourcePosition(@NotNull XNavigatable navigatable) {
         // Todo
-    }
-
-    // Todo - Add the rest of the bal types
-    private enum BallerinaXValueType {
-        STRING("String"),
-        BOOLEAN("Boolean"),
-        INT("Int"),
-        FLOAT("Float"),
-        LONG("Long"),
-        DECIMAL("Decimal");
-
-        private String value;
-
-        BallerinaXValueType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 }

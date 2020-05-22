@@ -1,3 +1,3 @@
 function foo() {
-    io:println();
+    io:println("hello");
 }

@@ -308,6 +308,24 @@
       }
     },
     {
+      "label": "createPipeline(typedesc<(any|error)> resType)(_StreamPipeline)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `typedesc<(any|error)>` resType  \n  \n**Returns** `_StreamPipeline`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createPipeline(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "lastIndexOf((any|error) val, int startIndex)((int|()))",
       "kind": "Function",
       "detail": "Function",
@@ -324,6 +342,20 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "print()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "print();",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "setLength(int length)",

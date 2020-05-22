@@ -557,10 +557,10 @@ type OneTwo 1|2.0;
 
 function testFiniteTypeAsBroaderTypes_1() returns boolean {
     FooBarOneTwoTrue f = "foo";
-    boolean equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
+    boolean 'equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
 
     f = "bar";
-    return equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
+    return 'equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
 }
 
 function testFiniteTypeAsBroaderTypes_2() returns boolean {
@@ -604,10 +604,10 @@ function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
 
 function testFiniteTypeAsBroaderTypesAndFiniteType_1() returns boolean {
     FooBarOneTwoTrue f = "foo";
-    boolean equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
+    boolean 'equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
 
     f = "bar";
-    return equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
+    return 'equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
 }
 
 function testFiniteTypeAsBroaderTypesAndFiniteType_2() returns boolean {
