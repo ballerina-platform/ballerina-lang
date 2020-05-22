@@ -566,6 +566,10 @@ public class ParserTestUtils {
                 return SyntaxKind.DOUBLE_DOT_LT_TOKEN;
             case "ANNOT_CHAINING_TOKEN":
                 return SyntaxKind.ANNOT_CHAINING_TOKEN;
+            case "OPTIONAL_CHAINING_TOKEN":
+                return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+            case "ELVIS_TOKEN":
+                return SyntaxKind.ELVIS_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -688,6 +692,10 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
             case "ANNOT_ACCESS":
                 return SyntaxKind.ANNOT_ACCESS;
+            case "OPTIONAL_FIELD_ACCESS":
+                return SyntaxKind.OPTIONAL_FIELD_ACCESS;
+            case "CONDITIONAL_EXPRESSION":
+                return SyntaxKind.CONDITIONAL_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

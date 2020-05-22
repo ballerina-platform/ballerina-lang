@@ -442,6 +442,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseDoKeyword();
             case MEMBER_ACCESS_KEY_EXPR_END:
                 return parseMemberAccessKeyExprEnd();
+            case OPTIONAL_CHAINING_TOKEN:
+                return parseOptionalChainingToken();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -2607,6 +2609,7 @@ public class BallerinaParser extends AbstractParser {
             case TRIPPLE_GT_TOKEN:
             case ELLIPSIS_TOKEN:
             case DOUBLE_DOT_LT_TOKEN:
+            case ELVIS_TOKEN:
                 return true;
             default:
                 return false;
@@ -2638,6 +2641,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
             case ANNOT_CHAINING_TOKEN:
+            case OPTIONAL_CHAINING_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
@@ -2666,6 +2670,11 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN:
             case DOUBLE_DOT_LT_TOKEN:
                 return OperatorPrecedence.RANGE;
+            case ELVIS_TOKEN:
+                return OperatorPrecedence.ELVIS_CONDITIONAL;
+            case QUESTION_MARK_TOKEN:
+            case COLON_TOKEN:
+                return OperatorPrecedence.CONDITIONAL;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -2712,6 +2721,8 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.LOGICAL_AND_TOKEN;
             case LOGICAL_OR:
                 return SyntaxKind.LOGICAL_OR_TOKEN;
+            case ELVIS_CONDITIONAL:
+                return SyntaxKind.ELVIS_TOKEN;
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
@@ -4043,6 +4054,12 @@ public class BallerinaParser extends AbstractParser {
             case ANNOT_CHAINING_TOKEN:
                 newLhsExpr = parseAnnotAccessExpression(lhsExpr);
                 break;
+            case OPTIONAL_CHAINING_TOKEN:
+                newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr);
+                break;
+            case QUESTION_MARK_TOKEN:
+                newLhsExpr = parseConditionalExpression(lhsExpr);
+                break;
             default:
                 if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseSignedRightShiftToken();
@@ -4079,6 +4096,9 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW:
             case SYNC_SEND_TOKEN:
             case ANNOT_CHAINING_TOKEN:
+            case OPTIONAL_CHAINING_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case COLON_TOKEN:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -7048,7 +7068,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse annotation tag.
      * <p>
      * <code>annot-tag := identifier</code>
-     * 
+     *
      * @return
      */
     private STNode parseAnnotationTag() {
@@ -7079,7 +7099,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse the component that follows the first identifier in an annotation decl. The identifier
      * can be either the type-name (a user defined type) or the annot-tag, where the type-name
      * is not present.
-     * 
+     *
      * @param metadata Metadata
      * @param qualifier Qualifier that precedes the annotation decl
      * @param constKeyword Const keyword
@@ -7199,7 +7219,7 @@ public class BallerinaParser extends AbstractParser {
      *     | listener
      *     | worker
      * </code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseAnnotationAttachPoints() {
@@ -7246,7 +7266,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse annotation attach point end.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseAttachPointEnd() {
@@ -7329,7 +7349,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse source keyword.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseSourceKeyword() {
@@ -7351,7 +7371,7 @@ public class BallerinaParser extends AbstractParser {
      * dual-attach-point-ident := [object] type | [object|resource] function | parameter
      *                            | return | service | [object|record] field
      * </code>
-     * 
+     *
      * @param sourceKeyword Source keyword
      * @return Parsed node
      */
@@ -7394,7 +7414,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse dual-attach-point ident.
-     * 
+     *
      * @param sourceKeyword Source keyword
      * @param firstIdent first part of the dual attach-point
      * @return Parsed node
@@ -7427,7 +7447,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse the idents that are supported after object-ident.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseIdentAfterObjectIdent() {
@@ -7445,7 +7465,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse function ident.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseFunctionIdent() {
@@ -7460,7 +7480,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse field ident.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseFieldIdent() {
@@ -7482,7 +7502,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * xml-namespace-prefix := identifier
      * </code>
-     * 
+     *
      * @return
      */
     private STNode parseXMLNamepsaceDeclaration() {
@@ -7496,7 +7516,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse xmlns keyword.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseXMLNSKeyword() {
@@ -7511,7 +7531,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse namespace uri.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseXMLNamespaceUri() {
@@ -7572,7 +7592,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse the portion after the namsepsace-uri of an XML declaration.
-     * 
+     *
      * @param xmlnsKeyword XMLNS keyword
      * @param namespaceUri Namespace URI
      * @return Parsed node
@@ -7630,7 +7650,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse named worker declaration.
      * <p>
      * <code>named-worker-decl := [annots] worker worker-name return-type-descriptor { sequence-stmt }</code>
-     * 
+     *
      * @param annots Annotations attached to the worker decl
      * @return Parsed node
      */
@@ -7677,7 +7697,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse worker name.
      * <p>
      * <code>worker-name := identifier</code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseWorkerName() {
@@ -7696,7 +7716,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>DocumentationString := DocumentationLine +</code>
      * <p>
      * Refer {@link BallerinaLexer#processDocumentationLine}
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseDocumentationString() {
@@ -10476,7 +10496,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse wait action.
      * <p>
      * <code>wait-action := single-wait-action | multiple-wait-action | alternate-wait-action </code>
-     * 
+     *
      * @return Wait action node
      */
     private STNode parseWaitAction() {
@@ -10490,7 +10510,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse wait keyword.
-     * 
+     *
      * @return wait keyword
      */
     private STNode parseWaitKeyword() {
@@ -10511,7 +10531,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * wait-future-expr := expression but not mapping-constructor-expr
      * </code>
-     * 
+     *
      * @param waitKeyword wait keyword
      * @return Single or alternate wait action node
      */
@@ -10603,7 +10623,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse multiple wait action.
      * <p>
      * <code>multiple-wait-action := wait { wait-field (, wait-field)* }</code>
-     * 
+     *
      * @param waitKeyword Wait keyword
      * @return Multiple wait action node
      */
@@ -10682,7 +10702,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse wait field.
      * <p>
      * <code>wait-field := variable-name | field-name : wait-future-expr</code>
-     * 
+     *
      * @param nextTokenKind Kind of the next token
      * @return Receiver field node
      */
@@ -10759,7 +10779,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/>
      * do-clause := do block-stmt
      * </code>
-     * 
+     *
      * @param queryPipeline Query pipeline
      * @param selectClause Select clause if any This is only for validation.
      * @return Query action node
@@ -10778,7 +10798,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse 'do' keyword.
-     * 
+     *
      * @return do keyword node
      */
     private STNode parseDoKeyword() {
@@ -10789,5 +10809,52 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ParserRuleContext.DO_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse optional field access expression.
+     * <p>
+     * <code>optional-field-access-expr := expression ?. field-name</code>
+     *
+     * @param lhsExpr Preceding expression of the optional field access
+     * @return Parsed node
+     */
+    private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
+        STNode optionalFieldAccessToken = parseOptionalChainingToken();
+        STNode fieldName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
+        return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
+    }
+
+    /**
+     * Parse optional chaining token.
+     *
+     * @return parsed node
+     */
+    private STNode parseOptionalChainingToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.OPTIONAL_CHAINING_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse conditional expression.
+     * <p>
+     * <code>conditional-expr := expression ? expression : expression</code>
+     *
+     * @param lhsExpr Preceding expression of the question mark
+     * @return Parsed node
+     */
+    private STNode parseConditionalExpression(STNode lhsExpr) {
+        startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
+        STNode questionMark = parseQuestionMark();
+        STNode middleExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
+        STNode colon = parseColon();
+        endContext();
+        STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }
 }

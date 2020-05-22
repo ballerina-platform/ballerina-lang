@@ -619,6 +619,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(queryActionNode);
     }
 
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
+    }
+
     public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         visitSyntaxNode(arrayTypeDescriptorNode);
     }

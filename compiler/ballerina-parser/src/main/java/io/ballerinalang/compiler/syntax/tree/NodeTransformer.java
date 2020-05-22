@@ -620,6 +620,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(queryActionNode);
     }
 
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
     public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         return transformSyntaxNode(arrayTypeDescriptorNode);
     }

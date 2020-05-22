@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,22 @@
 
 package org.ballerinalang.debugadapter.variable;
 
-import com.sun.jdi.Value;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Map;
-
-
 /**
- * Variable class for internal use of debug adapter.
+ * Base implementation for ballerina primitive variable types.
  */
-public class VariableImpl {
-    private Map<String, Value> childVariables;
-    Variable dapVariable;
+public abstract class BPrimitiveVariable implements BVariable {
 
-    public void setChildVariables(Map<String, Value> childVariables) {
-        this.childVariables = childVariables;
-    }
+    private Variable dapVariable;
 
-    public void setDapVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
-    }
-
+    @Override
     public Variable getDapVariable() {
         return dapVariable;
     }
 
-    public Map<String, Value> getChildVariables() {
-        return childVariables;
+    @Override
+    public void setDapVariable(Variable dapVariable) {
+        this.dapVariable = dapVariable;
     }
-
 }
