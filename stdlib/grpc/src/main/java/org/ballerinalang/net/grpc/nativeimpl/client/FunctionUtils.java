@@ -55,6 +55,7 @@ import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
@@ -332,12 +333,13 @@ public class FunctionUtils extends AbstractExecute {
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 DataContext context = new DataContext(Scheduler.getStrand(), null);
+                Semaphore semaphore = new Semaphore(1, true);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(BRuntime.getCurrentRuntime(),
-                            callbackService), methodDescriptors.get(methodName), context);
+                            callbackService, semaphore), methodDescriptors.get(methodName), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     nonBlockingStub.executeServerStreaming(requestMsg,
-                            new DefaultStreamObserver(BRuntime.getCurrentRuntime(), callbackService),
+                            new DefaultStreamObserver(BRuntime.getCurrentRuntime(), callbackService, semaphore),
                             methodDescriptors.get(methodName), context);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
@@ -403,8 +405,9 @@ public class FunctionUtils extends AbstractExecute {
 
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
+                Semaphore semaphore = new Semaphore(1, true);
                 DefaultStreamObserver responseObserver = new DefaultStreamObserver(BRuntime.getCurrentRuntime(),
-                        callbackService);
+                        callbackService, semaphore);
                 StreamObserver requestSender;
                 DataContext context = new DataContext(Scheduler.getStrand(), null);
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {

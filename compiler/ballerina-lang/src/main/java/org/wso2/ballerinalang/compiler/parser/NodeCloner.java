@@ -56,7 +56,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -168,6 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -1283,10 +1287,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangQueryAction clone = new BLangQueryAction();
         source.cloneRef = clone;
-        clone.fromClauseList = cloneList(source.fromClauseList);
-        clone.letClauseList = cloneList(source.letClauseList);
-        clone.doClause = clone(source.doClause);
-        clone.whereClauseList = cloneList(source.whereClauseList);
+        clone.queryClauseList = cloneList(source.queryClauseList);
     }
 
     @Override
@@ -1294,10 +1295,9 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangQueryExpr clone = new BLangQueryExpr();
         source.cloneRef = clone;
-        clone.fromClauseList = cloneList(source.fromClauseList);
-        clone.letClausesList = cloneList(source.letClausesList);
-        clone.selectClause = clone(source.selectClause);
-        clone.whereClauseList = cloneList(source.whereClauseList);
+        clone.queryClauseList = cloneList(source.queryClauseList);
+        clone.isStream = source.isStream;
+        clone.isTable = source.isTable;
     }
 
     @Override
@@ -1311,6 +1311,20 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.varType = source.varType;
         clone.resultType = source.resultType;
         clone.nillableResultType = source.nillableResultType;
+    }
+
+    @Override
+    public void visit(BLangJoinClause source) {
+
+        BLangJoinClause clone = new BLangJoinClause();
+        source.cloneRef = clone;
+        clone.variableDefinitionNode = (VariableDefinitionNode) clone((BLangNode) source.variableDefinitionNode);
+        clone.collection = clone(source.collection);
+        clone.isDeclaredWithVar = source.isDeclaredWithVar;
+        clone.varType = source.varType;
+        clone.resultType = source.resultType;
+        clone.nillableResultType = source.nillableResultType;
+
     }
 
     @Override
@@ -1331,9 +1345,25 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangOnClause source) {
+
+        BLangOnClause clone = new BLangOnClause();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
+    }
+
+    @Override
     public void visit(BLangSelectClause source) {
 
         BLangSelectClause clone = new BLangSelectClause();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause source) {
+
+        BLangOnConflictClause clone = new BLangOnConflictClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
     }
@@ -1434,6 +1464,15 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangUnionTypeNode clone = new BLangUnionTypeNode();
         source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        cloneBLangType(source, clone);
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode source) {
+
+        BLangIntersectionTypeNode clone = new BLangIntersectionTypeNode();
+        source.cloneRef = clone;
+        clone.constituentTypeNodes = cloneList(source.constituentTypeNodes);
         cloneBLangType(source, clone);
     }
 

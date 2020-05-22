@@ -35,6 +35,7 @@ public class BindgenConstants {
     public static final String BBGEN_CLASS_TEMPLATE_NAME = "bridge_class";
     public static final String ARRAY_UTILS_TEMPLATE_NAME = "array_utils";
     public static final String CONSTANTS_TEMPLATE_NAME = "constants";
+    public static final String ERROR_TEMPLATE_NAME = "exception";
     public static final String JOBJECT_TEMPLATE_NAME = "jobject";
     public static final String COMPONENT_IDENTIFIER = "bindgen";
     public static final String CONSTRUCTOR_INTEROP_TYPE = "@java:Constructor";
@@ -62,8 +63,8 @@ public class BindgenConstants {
     static final String CHAR = "char";
     static final String DOUBLE = "double";
     static final String LONG = "long";
-    static final String JAVA_STRING = "String";
-    static final String JAVA_STRING_ARRAY = "String[]";
+    public static final String JAVA_STRING = "String";
+    public static final String JAVA_STRING_ARRAY = "String[]";
     static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";

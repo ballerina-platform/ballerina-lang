@@ -1,6 +1,0 @@
-// Record type referencing provides a convenient way to copy the fields defined in a record type descriptor
-// to another record type descriptor. It is equivalent to explicitly defining those fields in the new type descriptor.
-// If the record being type-referenced has fields with explicitly-assigned default values, those values would also be
-// copied. A record type descriptor can have multiple type references as well as chained-type references.
-// Type referencing applies to both open and closed records. In open records, the rest field is not considered for
-// type referencing in open records.

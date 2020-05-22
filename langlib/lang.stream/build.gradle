@@ -23,11 +23,15 @@ dependencies {
     baloCreat project(':lib-creator')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-
     implementation 'org.slf4j:slf4j-api'
 }
 
 createBalo {
+    isBuiltin = 'true'
+    jvmTarget = 'true'
+}
+
+createBStringBalo {
     isBuiltin = 'true'
     jvmTarget = 'true'
 }

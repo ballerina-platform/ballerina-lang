@@ -25,6 +25,7 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
+import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
 
 /**
  * A test suit listener for jballerina test cases initialization.
@@ -38,18 +39,28 @@ public class JBallerinaTestInitializer implements ITestListener {
     @Override
     public void onStart(ITestContext context) {
         String property = context.getCurrentXmlTest().getParameter(ENABLE_JBALLERINA_TESTS);
-        if (property != null && Boolean.valueOf(property)) {
+        if (Boolean.parseBoolean(property)) {
             log.info("JBallerina tests initialized...");
             System.setProperty(ENABLE_JBALLERINA_TESTS, "true");
+        }
+        property = context.getCurrentXmlTest().getParameter(ENABLE_NEW_PARSER_FOR_TESTS);
+        if (Boolean.parseBoolean(property)) {
+            log.info("New Parser is enabled for tests...");
+            System.setProperty(ENABLE_NEW_PARSER_FOR_TESTS, "true");
         }
     }
 
     @Override
     public void onFinish(ITestContext context) {
         String property = context.getCurrentXmlTest().getParameter(ENABLE_JBALLERINA_TESTS);
-        if (property != null && Boolean.valueOf(property)) {
+        if (Boolean.parseBoolean(property)) {
             log.info("JBallerina tests disabled...");
             System.clearProperty(ENABLE_JBALLERINA_TESTS);
+        }
+        property = context.getCurrentXmlTest().getParameter(ENABLE_NEW_PARSER_FOR_TESTS);
+        if (Boolean.parseBoolean(property)) {
+            log.info("New Parser is disabled...");
+            System.clearProperty(ENABLE_NEW_PARSER_FOR_TESTS);
         }
     }
 

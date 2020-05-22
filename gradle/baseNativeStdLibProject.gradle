@@ -35,6 +35,7 @@ dependencies {
     implementation project(':ballerina-lang:xml')
     implementation project(':ballerina-lang:bool')
     implementation project(':ballerina-lang:internal')
+    implementation project(':ballerina-lang:query')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
@@ -52,4 +53,5 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
 }

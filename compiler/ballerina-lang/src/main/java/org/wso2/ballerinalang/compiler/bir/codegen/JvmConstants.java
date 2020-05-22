@@ -63,6 +63,16 @@ public class JvmConstants {
 
     public static final String BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
 
+    public static final String BINITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/api/BInitialValueEntry";
+    public static final String MAPPING_INITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/MappingInitialValueEntry";
+    public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
+            "org/ballerinalang/jvm/values/MappingInitialValueEntry$KeyValueEntry";
+    public static final String MAPPING_INITIAL_SPREAD_FIELD_ENTRY =
+            "org/ballerinalang/jvm/values/MappingInitialValueEntry$SpreadFieldEntry";
+    public static final String LIST_INITIAL_VALUE_ENTRY = "org/ballerinalang/jvm/values/ListInitialValueEntry";
+    public static final String LIST_INITIAL_EXPRESSION_ENTRY =
+            "org/ballerinalang/jvm/values/ListInitialValueEntry$ExpressionEntry";
+
     // types related classes
     public static final String BTYPE = "org/ballerinalang/jvm/types/BType";
     public static final String BTYPES = "org/ballerinalang/jvm/types/BTypes";
