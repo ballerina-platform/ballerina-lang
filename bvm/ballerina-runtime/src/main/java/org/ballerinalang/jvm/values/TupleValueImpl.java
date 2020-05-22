@@ -255,7 +255,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     @Deprecated
     public String getString(long index) {
-        return (String) get(index);
+        return get(index).toString();
     }
 
     /**

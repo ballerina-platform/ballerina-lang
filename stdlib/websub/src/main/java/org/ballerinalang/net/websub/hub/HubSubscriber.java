@@ -21,6 +21,7 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -63,7 +64,7 @@ public class HubSubscriber extends Consumer {
         MapValue<BString, Object> content =
                 (MapValue<BString, Object>) ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf())
                         .unwrap()).getValue();
-        Object[] args = {getCallback(), getSubscriptionDetails(), content};
+        Object[] args = {StringUtils.fromString(getCallback()), getSubscriptionDetails(), content};
         try {
             Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
                                      "distributeContent", args);
