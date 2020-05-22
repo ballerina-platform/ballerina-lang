@@ -886,7 +886,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "equalsToken",
@@ -923,7 +924,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -951,7 +953,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -3141,6 +3144,52 @@
                 {
                     "name": "blockStatement",
                     "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "OptionalFieldAccessExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "OPTIONAL_FIELD_ACCESS",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "optionalChainingToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldName",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ConditionalExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "CONDITIONAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "lhsExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "questionMarkToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "middleExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "colonToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endExpression",
+                    "type": "ExpressionNode"
                 }
             ]
         },

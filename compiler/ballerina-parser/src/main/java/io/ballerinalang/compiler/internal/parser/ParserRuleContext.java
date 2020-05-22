@@ -313,6 +313,7 @@ public enum ParserRuleContext {
     SYNC_SEND_TOKEN("->>"),
     LEFT_ARROW_TOKEN("<-"),
     ANNOT_CHAINING_TOKEN(".@"),
+    OPTIONAL_CHAINING_TOKEN("?."),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -382,6 +383,7 @@ public enum ParserRuleContext {
     ANNOT_TAG_REFERENCE("annot-tag-reference"),
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
+    CONDITIONAL_EXPRESSION("conditional-expr"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
