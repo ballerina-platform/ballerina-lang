@@ -1273,29 +1273,6 @@
       ]
     },
     {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/socket;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/sql",
       "kind": "Module",
       "detail": "Module",

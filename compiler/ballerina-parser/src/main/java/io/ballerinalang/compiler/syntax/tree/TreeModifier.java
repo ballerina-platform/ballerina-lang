@@ -2172,8 +2172,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public CaptureBindingPatternNode transform(
             CaptureBindingPatternNode captureBindingPatternNode) {
-        SimpleNameReferenceNode variableName =
-                modifyNode(captureBindingPatternNode.variableName().orElse(null));
+        Token variableName =
+                modifyToken(captureBindingPatternNode.variableName());
         return captureBindingPatternNode.modify(
                 variableName);
     }

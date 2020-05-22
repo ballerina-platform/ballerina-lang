@@ -97,7 +97,6 @@ public class ParserTestUtils {
                     writer.write(jsonString);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 // Ignore
             }
         }
