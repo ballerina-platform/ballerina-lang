@@ -636,9 +636,9 @@ public class Message {
                         } else {
                             output.writeString(fieldDescriptor.getNumber(), ((BString) bValue).getValue());
                         }
-                    } else if (bMessage instanceof BString &&
-                            !fieldDescriptor.getFullName().equals(GOOGLE_PROTOBUF_ANY_TYPE_URL)) {
-                        output.writeString(fieldDescriptor.getNumber(), ((BString)bMessage).getValue());
+                    } else if (bMessage instanceof BString
+                            && !fieldDescriptor.getFullName().equals(GOOGLE_PROTOBUF_ANY_TYPE_URL)) {
+                        output.writeString(fieldDescriptor.getNumber(), ((BString) bMessage).getValue());
                     }
                     break;
                 }
@@ -667,8 +667,8 @@ public class Message {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                     if (bMapValue != null && bMapValue.containsKey(bFieldName)) {
                         Object bValue = bMapValue.get(bFieldName);
-                        output.writeEnum(fieldDescriptor.getNumber(), fieldDescriptor.getEnumType().findValueByName
-                                (((BString)bValue).getValue()).getNumber());
+                        output.writeEnum(fieldDescriptor.getNumber(), fieldDescriptor.getEnumType()
+                                .findValueByName(((BString) bValue).getValue()).getNumber());
                     }
                     break;
                 }
@@ -882,10 +882,12 @@ public class Message {
                                         .getBString(i).getValue());
                             }
                         } else {
-                            size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), ((BString) bValue).getValue());
+                            size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(),
+                                    ((BString) bValue).getValue());
                         }
                     } else if (bMessage instanceof BString) {
-                        size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), ((BString) bMessage).getValue());
+                        size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(),
+                                ((BString) bMessage).getValue());
                     }
                     break;
                 }
