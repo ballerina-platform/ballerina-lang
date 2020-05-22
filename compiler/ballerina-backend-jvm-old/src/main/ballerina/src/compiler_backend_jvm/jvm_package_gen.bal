@@ -681,6 +681,10 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
                                          modName : {value:"lang.boolean"},
                                          modVersion : {value:""}};
 
+    bir:ImportModule langQueryModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.query"},
+                                         modVersion : {value:""}};
+
     module.importModules[module.importModules.length()] = langArrayModule;
     module.importModules[module.importModules.length()] = langDecimalModule;
     module.importModules[module.importModules.length()] = langErrorModule;
@@ -696,6 +700,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     module.importModules[module.importModules.length()] = langXmlModule;
     module.importModules[module.importModules.length()] = langTypedescModule;
     module.importModules[module.importModules.length()] = langBooleanModule;
+    module.importModules[module.importModules.length()] = langQueryModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {

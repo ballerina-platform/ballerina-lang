@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -197,6 +198,10 @@ public class TextDocumentFormatUtil {
         } else if (node instanceof BLangSimpleVarRef) {
             BSymbol varSymbol = ((BLangSimpleVarRef) node).symbol;
             nodeJson.addProperty("isEndpoint", varSymbol != null && isClientObject(varSymbol));
+        }
+
+        if (node instanceof ActionNode) {
+            nodeJson.addProperty("actionInvocation", true);
         }
 
         JsonArray type = getType(node);

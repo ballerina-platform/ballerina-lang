@@ -289,13 +289,6 @@
             <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
     </test>
-    <test name="ballerina-socket-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
-            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
-        </classes>
-    </test>
 
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

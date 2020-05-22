@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class AssignmentStatementNode extends StatementNode {
 
@@ -83,5 +85,66 @@ public class AssignmentStatementNode extends StatementNode {
                 equalsToken,
                 expression,
                 semicolonToken);
+    }
+
+    public AssignmentStatementNodeModifier modify() {
+        return new AssignmentStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class AssignmentStatementNodeModifier {
+        private final AssignmentStatementNode oldNode;
+        private Node varRef;
+        private Token equalsToken;
+        private ExpressionNode expression;
+        private Token semicolonToken;
+
+        public AssignmentStatementNodeModifier(AssignmentStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.varRef = oldNode.varRef();
+            this.equalsToken = oldNode.equalsToken();
+            this.expression = oldNode.expression();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public AssignmentStatementNodeModifier withVarRef(
+                Node varRef) {
+            Objects.requireNonNull(varRef, "varRef must not be null");
+            this.varRef = varRef;
+            return this;
+        }
+
+        public AssignmentStatementNodeModifier withEqualsToken(
+                Token equalsToken) {
+            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+            this.equalsToken = equalsToken;
+            return this;
+        }
+
+        public AssignmentStatementNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public AssignmentStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public AssignmentStatementNode apply() {
+            return oldNode.modify(
+                    varRef,
+                    equalsToken,
+                    expression,
+                    semicolonToken);
+        }
     }
 }

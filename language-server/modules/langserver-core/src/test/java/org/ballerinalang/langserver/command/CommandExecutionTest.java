@@ -355,7 +355,8 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "openApi-create-service-resource-in-contract-data-provider")
+    // TODO: #23371
+    @Test(dataProvider = "openApi-create-service-resource-in-contract-data-provider", enabled = false)
     public void testOpenCreateServiceResourceInContract(String config, Path source, Path contract,
                                                         Path expectedLinux, Path expectedWin)
             throws IOException {
@@ -393,7 +394,8 @@ public class CommandExecutionTest {
                 expectedContractContent.replaceAll("\\P{Print}", ""), "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "openApi-create-service-resource-method-in-contract-data-provider")
+    // TODO: #23371
+    @Test(dataProvider = "openApi-create-service-resource-method-in-contract-data-provider", enabled = false)
     public void testOpenCreateServiceResourceMethodInContract(String config, Path source, Path contract,
                                                               Path expectedLinux, Path expectedWin)
             throws IOException {

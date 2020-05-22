@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class StreamTypeParamsNode extends NonTerminalNode {
 
@@ -91,5 +93,76 @@ public class StreamTypeParamsNode extends NonTerminalNode {
                 commaToken,
                 rightTypeDescNode,
                 gtToken);
+    }
+
+    public StreamTypeParamsNodeModifier modify() {
+        return new StreamTypeParamsNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class StreamTypeParamsNodeModifier {
+        private final StreamTypeParamsNode oldNode;
+        private Token ltToken;
+        private Node leftTypeDescNode;
+        private Token commaToken;
+        private Node rightTypeDescNode;
+        private Token gtToken;
+
+        public StreamTypeParamsNodeModifier(StreamTypeParamsNode oldNode) {
+            this.oldNode = oldNode;
+            this.ltToken = oldNode.ltToken();
+            this.leftTypeDescNode = oldNode.leftTypeDescNode();
+            this.commaToken = oldNode.commaToken();
+            this.rightTypeDescNode = oldNode.rightTypeDescNode();
+            this.gtToken = oldNode.gtToken();
+        }
+
+        public StreamTypeParamsNodeModifier withLtToken(
+                Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public StreamTypeParamsNodeModifier withLeftTypeDescNode(
+                Node leftTypeDescNode) {
+            Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
+            this.leftTypeDescNode = leftTypeDescNode;
+            return this;
+        }
+
+        public StreamTypeParamsNodeModifier withCommaToken(
+                Token commaToken) {
+            Objects.requireNonNull(commaToken, "commaToken must not be null");
+            this.commaToken = commaToken;
+            return this;
+        }
+
+        public StreamTypeParamsNodeModifier withRightTypeDescNode(
+                Node rightTypeDescNode) {
+            Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
+            this.rightTypeDescNode = rightTypeDescNode;
+            return this;
+        }
+
+        public StreamTypeParamsNodeModifier withGtToken(
+                Token gtToken) {
+            Objects.requireNonNull(gtToken, "gtToken must not be null");
+            this.gtToken = gtToken;
+            return this;
+        }
+
+        public StreamTypeParamsNode apply() {
+            return oldNode.modify(
+                    ltToken,
+                    leftTypeDescNode,
+                    commaToken,
+                    rightTypeDescNode,
+                    gtToken);
+        }
     }
 }

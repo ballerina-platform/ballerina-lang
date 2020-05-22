@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ForkStatementNode extends StatementNode {
 
@@ -83,5 +85,66 @@ public class ForkStatementNode extends StatementNode {
                 openBraceToken,
                 namedWorkerDeclarations,
                 closeBraceToken);
+    }
+
+    public ForkStatementNodeModifier modify() {
+        return new ForkStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ForkStatementNodeModifier {
+        private final ForkStatementNode oldNode;
+        private Token forkKeyword;
+        private Token openBraceToken;
+        private NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations;
+        private Token closeBraceToken;
+
+        public ForkStatementNodeModifier(ForkStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.forkKeyword = oldNode.forkKeyword();
+            this.openBraceToken = oldNode.openBraceToken();
+            this.namedWorkerDeclarations = oldNode.namedWorkerDeclarations();
+            this.closeBraceToken = oldNode.closeBraceToken();
+        }
+
+        public ForkStatementNodeModifier withForkKeyword(
+                Token forkKeyword) {
+            Objects.requireNonNull(forkKeyword, "forkKeyword must not be null");
+            this.forkKeyword = forkKeyword;
+            return this;
+        }
+
+        public ForkStatementNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
+            Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+            this.openBraceToken = openBraceToken;
+            return this;
+        }
+
+        public ForkStatementNodeModifier withNamedWorkerDeclarations(
+                NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
+            Objects.requireNonNull(namedWorkerDeclarations, "namedWorkerDeclarations must not be null");
+            this.namedWorkerDeclarations = namedWorkerDeclarations;
+            return this;
+        }
+
+        public ForkStatementNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
+            Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+            this.closeBraceToken = closeBraceToken;
+            return this;
+        }
+
+        public ForkStatementNode apply() {
+            return oldNode.modify(
+                    forkKeyword,
+                    openBraceToken,
+                    namedWorkerDeclarations,
+                    closeBraceToken);
+        }
     }
 }

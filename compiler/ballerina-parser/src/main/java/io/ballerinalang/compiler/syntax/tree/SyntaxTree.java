@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
+import io.ballerinalang.compiler.text.TextDocuments;
 
 /**
  * The {@code SyntaxTree} represents a parsed Ballerina source file.
@@ -28,12 +29,13 @@ import io.ballerinalang.compiler.text.TextDocumentChange;
  * @since 2.0.0
  */
 public class SyntaxTree {
-    private final TextDocument textDocument;
-    private final ModulePartNode modulePart;
+    private final ModulePartNode rootNode;
     private final String filePath;
 
-    SyntaxTree(ModulePartNode modulePart, TextDocument textDocument, String filePath) {
-        this.modulePart = cloneWithMe(modulePart);
+    private TextDocument textDocument;
+
+    SyntaxTree(ModulePartNode rootNode, TextDocument textDocument, String filePath) {
+        this.rootNode = cloneWithMe(rootNode);
         this.textDocument = textDocument;
         this.filePath = filePath;
     }
@@ -55,23 +57,40 @@ public class SyntaxTree {
     }
 
     public TextDocument textDocument() {
+        if (textDocument != null) {
+            return textDocument;
+        }
+
+        // TODO is toString() the best way to serialize the tree to a string.
+        textDocument = TextDocuments.from(rootNode.toString());
         return textDocument;
     }
 
     public ModulePartNode modulePart() {
-        return modulePart;
+        return rootNode;
     }
 
     public String filePath() {
         return this.filePath;
     }
 
-    @Override
-    public String toString() {
-        return modulePart.toString();
+    // Syntax tree modification methods
+
+    public SyntaxTree updateWith(ModulePartNode rootNode) {
+        return new SyntaxTree(rootNode, null, filePath);
     }
 
-    private <T extends Node> T cloneWithMe(T node) {
+    public SyntaxTree replaceNode(Node target, Node replacement) {
+        ModulePartNode newRootNode = rootNode.replace(target, replacement);
+        return this.updateWith(newRootNode);
+    }
+
+    @Override
+    public String toString() {
+        return rootNode.toString();
+    }
+
+    private <T extends NonTerminalNode> T cloneWithMe(T node) {
         T clonedNode = node.internalNode().createUnlinkedFacade();
         clonedNode.setSyntaxTree(this);
         return clonedNode;

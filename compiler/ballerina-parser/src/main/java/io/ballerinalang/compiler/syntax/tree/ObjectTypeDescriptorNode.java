@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ObjectTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -91,5 +93,76 @@ public class ObjectTypeDescriptorNode extends TypeDescriptorNode {
                 openBrace,
                 members,
                 closeBrace);
+    }
+
+    public ObjectTypeDescriptorNodeModifier modify() {
+        return new ObjectTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ObjectTypeDescriptorNodeModifier {
+        private final ObjectTypeDescriptorNode oldNode;
+        private NodeList<Token> objectTypeQualifiers;
+        private Token objectKeyword;
+        private Token openBrace;
+        private NodeList<Node> members;
+        private Token closeBrace;
+
+        public ObjectTypeDescriptorNodeModifier(ObjectTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.objectTypeQualifiers = oldNode.objectTypeQualifiers();
+            this.objectKeyword = oldNode.objectKeyword();
+            this.openBrace = oldNode.openBrace();
+            this.members = oldNode.members();
+            this.closeBrace = oldNode.closeBrace();
+        }
+
+        public ObjectTypeDescriptorNodeModifier withObjectTypeQualifiers(
+                NodeList<Token> objectTypeQualifiers) {
+            Objects.requireNonNull(objectTypeQualifiers, "objectTypeQualifiers must not be null");
+            this.objectTypeQualifiers = objectTypeQualifiers;
+            return this;
+        }
+
+        public ObjectTypeDescriptorNodeModifier withObjectKeyword(
+                Token objectKeyword) {
+            Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
+            this.objectKeyword = objectKeyword;
+            return this;
+        }
+
+        public ObjectTypeDescriptorNodeModifier withOpenBrace(
+                Token openBrace) {
+            Objects.requireNonNull(openBrace, "openBrace must not be null");
+            this.openBrace = openBrace;
+            return this;
+        }
+
+        public ObjectTypeDescriptorNodeModifier withMembers(
+                NodeList<Node> members) {
+            Objects.requireNonNull(members, "members must not be null");
+            this.members = members;
+            return this;
+        }
+
+        public ObjectTypeDescriptorNodeModifier withCloseBrace(
+                Token closeBrace) {
+            Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+            this.closeBrace = closeBrace;
+            return this;
+        }
+
+        public ObjectTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    objectTypeQualifiers,
+                    objectKeyword,
+                    openBrace,
+                    members,
+                    closeBrace);
+        }
     }
 }

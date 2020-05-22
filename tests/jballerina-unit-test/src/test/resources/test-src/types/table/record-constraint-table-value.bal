@@ -185,6 +185,7 @@ function runTableTestcasesWithVarType() {
     testTableWithMultiKeySpecifier1();
     testTableWithMultiKeySpecifier2();
     testInferTableType();
+    testInferTableTypeV2();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -209,6 +210,16 @@ function testInferTableType() {
                                        { id: 133 , name: "Mohan", lname: "Darshan" , address: "Colombo"} ];
 
     assertEquality(cutomerListString, tab.toString());
+}
+
+function testInferTableTypeV2() {
+    var tb = table [
+                {id: 1, name: "Mary", salary: 100.0},
+                {id: 2, name: "Jo", age: 12}
+            ];
+
+    tb.put({id: 3, name: "Pope", salary: 200.0, age: 19});
+    assertEquality(3, tb.length());
 }
 
 function testTableWithMultiKeySpecifier1() {
