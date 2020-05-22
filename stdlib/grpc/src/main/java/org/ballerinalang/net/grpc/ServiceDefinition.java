@@ -96,9 +96,10 @@ public final class ServiceDefinition {
         int i = 0;
         for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
             if (descriptorMap.containsKey(StringUtils.fromString(dependency.toStringUtf8()))) {
+                BString bRootDescriptor = (BString) descriptorMap
+                        .get(StringUtils.fromString(dependency.toString(StandardCharsets.UTF_8)));
                 fileDescriptors[i++] =
-                        getFileDescriptor((String) descriptorMap.get(
-                                StringUtils.fromString(dependency.toString(StandardCharsets.UTF_8))), descriptorMap);
+                        getFileDescriptor(bRootDescriptor.getValue() , descriptorMap);
             }
         }
         if (fileDescriptors.length > 0 && i == 0) {

@@ -18,6 +18,10 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -31,9 +35,6 @@ import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test class for gRPC unary service with blocking and non-blocking client.
@@ -55,7 +56,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     public void testBlockingBallerinaClient() {
         final String serverMsg = "Hello WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"WSO2"});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient",
+                new Object[] { StringUtils.fromString("WSO2") });
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), "Client got response: " + serverMsg);
@@ -65,7 +67,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     public void testBlockingErrorResponse() {
         final String serverMsg = "Error from Connector: {ballerina/grpc}AbortedError - Operation aborted";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"invalid"});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient",
+                new Object[] { StringUtils.fromString("invalid") });
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
@@ -113,7 +116,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     public void testResponseInsideMatch() {
         final String serverMsg = "Acknowledge WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testResponseInsideMatch", new Object[]{"WSO2"});
+        BValue[] responses = BRunUtil.invoke(result, "testResponseInsideMatch",
+                new Object[] { StringUtils.fromString("WSO2") });
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
