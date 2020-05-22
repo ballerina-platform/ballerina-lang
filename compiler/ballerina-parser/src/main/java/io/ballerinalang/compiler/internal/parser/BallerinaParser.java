@@ -10880,7 +10880,6 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed enum node.
      */
-
     private STNode parseEnumDeclaration(STNode metadata, STNode qualifier) {
         startContext(ParserRuleContext.MODULE_ENUM_DECLARATION);
         STNode enumKeywordToken = parseEnumKeyword();
@@ -10900,7 +10899,6 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return enum member list node.
      */
-
     private STNode parseEnumMemberList() {
         startContext(ParserRuleContext.ENUM_MEMBER_LIST);
         List<STNode> enumMemberList = new ArrayList<>();

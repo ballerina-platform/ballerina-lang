@@ -1,1 +1,3 @@
-[int a;
+function foo() {
+    io:println("hello");
+}
