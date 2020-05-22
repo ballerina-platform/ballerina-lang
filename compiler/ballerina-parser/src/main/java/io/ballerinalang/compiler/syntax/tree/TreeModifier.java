@@ -579,8 +579,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(indexedExpressionNode.containerExpression());
         Token openBracket =
                 modifyToken(indexedExpressionNode.openBracket());
-        ExpressionNode keyExpression =
-                modifyNode(indexedExpressionNode.keyExpression());
+        SeparatedNodeList<ExpressionNode> keyExpression =
+                modifySeparatedNodeList(indexedExpressionNode.keyExpression());
         Token closeBracket =
                 modifyToken(indexedExpressionNode.closeBracket());
         return indexedExpressionNode.modify(
@@ -2172,8 +2172,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public CaptureBindingPatternNode transform(
             CaptureBindingPatternNode captureBindingPatternNode) {
-        SimpleNameReferenceNode variableName =
-                modifyNode(captureBindingPatternNode.variableName().orElse(null));
+        Token variableName =
+                modifyToken(captureBindingPatternNode.variableName());
         return captureBindingPatternNode.modify(
                 variableName);
     }
@@ -2455,6 +2455,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 identifier,
                 equalToken,
                 constExprNode);
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(
+            ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        TypeDescriptorNode memberTypeDesc =
+                modifyNode(arrayTypeDescriptorNode.memberTypeDesc());
+        Token openBracket =
+                modifyToken(arrayTypeDescriptorNode.openBracket());
+        Node arrayLength =
+                modifyNode(arrayTypeDescriptorNode.arrayLength().orElse(null));
+        Token closeBracket =
+                modifyToken(arrayTypeDescriptorNode.closeBracket());
+        return arrayTypeDescriptorNode.modify(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket);
     }
 
     // Tokens

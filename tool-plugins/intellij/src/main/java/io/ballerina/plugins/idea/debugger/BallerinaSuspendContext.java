@@ -17,9 +17,7 @@
 package io.ballerina.plugins.idea.debugger;
 
 import com.google.common.base.Strings;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.frame.XExecutionStack;
-import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.jetbrains.annotations.NotNull;
@@ -36,9 +34,9 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
  */
 public class BallerinaSuspendContext extends XSuspendContext {
 
-    private List<BallerinaExecutionStack> myExecutionStacks = new LinkedList<>();
+    private final BallerinaDebugProcess myProcess;
+    private final List<BallerinaExecutionStack> myExecutionStacks = new LinkedList<>();
     private BallerinaExecutionStack myActiveStack;
-    private BallerinaDebugProcess myProcess;
 
     BallerinaSuspendContext(@NotNull BallerinaDebugProcess process) {
         myProcess = process;
@@ -58,7 +56,7 @@ public class BallerinaSuspendContext extends XSuspendContext {
         return myActiveStack;
     }
 
-    private void setMyActiveStack(BallerinaExecutionStack stack) {
+    void setMyActiveStack(BallerinaExecutionStack stack) {
         myActiveStack = stack;
     }
 
@@ -96,46 +94,5 @@ public class BallerinaSuspendContext extends XSuspendContext {
         }
 
         return fileName.endsWith(BAL_FILE_EXT);
-    }
-
-    static class BallerinaExecutionStack extends XExecutionStack {
-
-        private final Long myWorkerID;
-        @NotNull
-        private final BallerinaDebugProcess myProcess;
-        @NotNull
-        private final List<BallerinaStackFrame> myStacks;
-
-        private final BallerinaSuspendContext myContext;
-
-        BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, BallerinaSuspendContext context,
-                                Long myWorkerID, @NotNull List<BallerinaStackFrame> frames) {
-            super(" Worker #" + myWorkerID);
-            this.myWorkerID = myWorkerID;
-            this.myContext = context;
-            this.myProcess = process;
-            this.myStacks = frames;
-        }
-
-        @Nullable
-        @Override
-        public XStackFrame getTopFrame() {
-            return ContainerUtil.getFirstItem(myStacks);
-        }
-
-        @Override
-        public void computeStackFrames(int firstFrameIndex, @NotNull XStackFrameContainer container) {
-            // Note - Need to add an empty list if the index is not 0. Otherwise will not work properly.
-            if (firstFrameIndex == 0) {
-                container.addStackFrames(myStacks, true);
-            } else {
-                container.addStackFrames(new LinkedList<>(), true);
-            }
-            myContext.setMyActiveStack(this);
-        }
-
-        Long getMyWorkerID() {
-            return myWorkerID;
-        }
     }
 }

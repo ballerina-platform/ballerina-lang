@@ -635,6 +635,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(enumMemberNode);
     }
 
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

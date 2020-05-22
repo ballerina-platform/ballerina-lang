@@ -280,29 +280,34 @@
                                                                             "kind": "OPEN_BRACKET_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "METHOD_CALL",
+                                                                            "kind": "LIST",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "nameList"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "DOT_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "length"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "LIST",
+                                                                                    "kind": "METHOD_CALL",
                                                                                     "children": [
+                                                                                        {
+                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                            "value": "nameList"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "DOT_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                            "value": "length"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "OPEN_PAREN_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "LIST",
+                                                                                            "children": [
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                                                        }
                                                                                     ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                                                 }
                                                                             ]
                                                                         },

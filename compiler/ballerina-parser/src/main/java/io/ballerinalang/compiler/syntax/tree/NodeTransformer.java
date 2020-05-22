@@ -636,6 +636,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(enumMemberNode);
     }
 
+    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        return transformSyntaxNode(arrayTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

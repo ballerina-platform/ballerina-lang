@@ -184,6 +184,8 @@ public enum ParserRuleContext {
     MODULE_ENUM_DECLARATION("module-enum-declaration"),
     MODULE_ENUM_NAME("module-enum-name"),
     ENUM_MEMBER_NAME("enum-member-name"),
+    MEMBER_ACCESS_KEY_EXPR_END("member-access-key-expr-end"),
+    MEMBER_ACCESS_KEY_EXPR("member-access-key-expr"),
 
     // Statements
     STATEMENT("statement"),
