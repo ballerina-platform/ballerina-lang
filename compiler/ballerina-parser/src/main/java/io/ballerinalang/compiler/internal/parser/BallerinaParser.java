@@ -9558,22 +9558,6 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createLetClauseNode(letKeyword, letVarDeclarations);
     }
 
-    // private STNode parseQueryPipelineRhs(STNode queryPipeline, STNode selectClause, boolean isRhsExpr) {
-    // return parseQueryPipelineRhs(peek().kind, queryPipeline, queryPipeline, isRhsExpr);
-    // }
-    //
-    // private STNode parseQueryPipelineRhs(SyntaxKind nextTokenKind, STNode queryPipeline, STNode selectClause,
-    // boolean isRhsExpr) {
-    // switch (nextTokenKind) {
-    // case SELECT_KEYWORD:
-    // return parseSelectClause(isRhsExpr);
-    // case DO_KEYWORD:
-    // return parseQueryAction(queryPipeline, selectClause);
-    // default:
-    // return null;
-    // }
-    // }
-
     /**
      * Parse select clause.
      * <p>
@@ -10017,14 +10001,20 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse Typed-binding-pattern.
+     * <p>
+     * <code>
+     * typed-binding-pattern := inferable-type-descriptor binding-pattern
+     * <br/>
+     * inferable-type-descriptor := type-descriptor | var
+     * </code>
      *
-     * <code>typed-binding-pattern := inferable-type-descriptor binding-pattern</code>
-     * <code>inferable-type-descriptor := type-descriptor | var</code>
-     *
-     * @return Fork statement
+     * @return Typed binding pattern node
      */
     private STNode parseTypedBindingPattern() {
         startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
+
+        // Parse the type-desc only up to '['. This is because of the ambiguity where T[a]
+        // could be a typed-binding-pattern or array-type-desc or member-access.
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
 
         STNode bindingPattern = null;
@@ -10040,40 +10030,56 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseArrayTypeDescOrListBindingPattern(STNode typeDesc) {
+        // In T[a], parse [a] as a list-binding pattern. This is done to keep
+        // all possible options open.
+        STListBindingPatternNode arrayTypeDescIndexOrListBindingPattern =
+                (STListBindingPatternNode) parseListBindingPattern();
 
-        STNode arrayDescOrListBindingPattern = parseListBindingPattern();
-
-        // if the we definitely know its a list-binding-pattern or if
-        // it is followed by a token that follows a typed-binding-pattern
-        // we can return
-        if (isListBindingPatternDefinitively(arrayDescOrListBindingPattern) ||
-                isFollowTypedBindingPattern(peek().kind)) {
-            return STNodeFactory.createTypedBindingPatternNode(typeDesc,
-                    validateListBindingPattern(arrayDescOrListBindingPattern));
+        // If:
+        // 1) we definitely know T[a] is a list-binding-pattern i.e: (T[a, b])
+        // 2) T[a] is followed by a binding-pattern. i.e: T[a] b
+        // then we can return.
+        if (isListBindingPatternDefinitively(arrayTypeDescIndexOrListBindingPattern)) {
+            STNode listBindingBattern = validateListBindingPattern(arrayTypeDescIndexOrListBindingPattern);
+            return STNodeFactory.createTypedBindingPatternNode(typeDesc, listBindingBattern);
         }
 
-        // at this point we have something like T [a][.... or T[a] b
-        // in either case [a] is parsed as a array type descritor
-        typeDesc = mergeTypeDescAndListBindingPattern(typeDesc, arrayDescOrListBindingPattern);
+        // At this point we have something like T[a] [....] or T[a] b.
+        // In either case, T[a] should be parsed as a array-type-desc.
+        typeDesc = getArrayTypeDescFromListBindingPattern(typeDesc, arrayTypeDescIndexOrListBindingPattern);
         if (peek().kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
             return parseArrayTypeDescOrListBindingPattern(typeDesc);
         }
+
         return STNodeFactory.createTypedBindingPatternNode(typeDesc, parseBindingPattern());
     }
 
-    private STNode mergeTypeDescAndListBindingPattern(STNode typeDesc, STNode bindingPattern) {
-        STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
+    /**
+     * Get an array-type-desc node, given a list binding pattern.
+     * 
+     * @param typeDesc Type desc that precedes the list binding pattern
+     * @param listBindingPattern List binding pattern
+     * @return Array type descriptor node
+     */
+    private STNode getArrayTypeDescFromListBindingPattern(STNode typeDesc,
+                                                          STListBindingPatternNode listBindingPattern) {
         STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         STNode child = childArray.childInBucket(0);
         if (child.kind == SyntaxKind.CAPTURE_BINDING_PATTERN) {
             child = ((STCaptureBindingPatternNode) child).variableName;
         }
-        return STNodeFactory.createIndexedExpressionNode(typeDesc, listBindingPattern.openBracket, child,
+
+        return STNodeFactory.createArrayTypeDescriptorNode(typeDesc, listBindingPattern.openBracket, child,
                 listBindingPattern.closeBracket);
     }
 
-    private STNode validateListBindingPattern(STNode bindingPattern) {
-        STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
+    /**
+     * Validate the list-binding-pattern, and return a cleaned up list-binding-pattern node.
+     * 
+     * @param listBindingPattern List binding pattern
+     * @return Cleaned up list-binding-pattern node
+     */
+    private STNode validateListBindingPattern(STListBindingPatternNode listBindingPattern) {
         STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         int numberOfChildren = childArray.bucketCount();
 
@@ -10087,12 +10093,12 @@ public class BallerinaParser extends AbstractParser {
                 case ASTERISK_TOKEN:
                     this.errorHandler.reportInvalidNode(null,
                             "invalid Node " + child.kind + " in list-binding-pattern");
-                    cleanedChildren.add(STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+                    child = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                     break;
                 default:
-                    cleanedChildren.add(child);
                     break;
             }
+            cleanedChildren.add(child);
         }
 
         return STNodeFactory.createListBindingPatternNode(listBindingPattern.openBracket,
@@ -10101,6 +10107,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isListBindingPatternDefinitively(STNode bindingPattern) {
+        if (isFollowTypedBindingPattern(peek().kind)) {
+            return true;
+        }
+
         STListBindingPatternNode listBindingPattern = (STListBindingPatternNode) bindingPattern;
         STNodeList childArray = (STNodeList) listBindingPattern.bindingPatterns;
         int numberOfChildren = childArray.bucketCount();

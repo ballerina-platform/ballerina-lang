@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
+import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
@@ -1580,12 +1581,47 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        int dimensions = 1;
+        List<Integer> sizes = new ArrayList<>();
+        while (true) {
+            if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
+                sizes.add(UNSEALED_ARRAY_INDICATOR);
+            } else {
+                Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
+                if (keyExpr.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
+                    sizes.add(Integer.parseInt(keyExpr.toString()));
+                } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {
+                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
+                } else {
+                    // TODO : should handle the const-reference-expr
+                }
+            }
+
+            if (arrayTypeDescriptorNode.memberTypeDesc().kind() != SyntaxKind.ARRAY_TYPE_DESC) {
+                break;
+            }
+
+            arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) arrayTypeDescriptorNode.memberTypeDesc();
+            dimensions++;
+        }
+
+        BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
+        arrayTypeNode.pos = getPosition(arrayTypeDescriptorNode);
+        arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
+        arrayTypeNode.dimensions = dimensions;
+        arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
+        return arrayTypeNode;
+    }
+    
+    @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
         throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
+    
     private void populateFuncSignature(BLangFunction bLFunction, FunctionSignatureNode funcSignature) {
         // Set Parameters
         for (ParameterNode child : funcSignature.parameters()) {
@@ -1862,44 +1898,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // Map name reference as a type
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) type;
             return createTypeNode(nameReferenceNode.name());
-        } else if (type.kind() == SyntaxKind.INDEXED_EXPRESSION) {
-            return createBLangArrayType((IndexedExpressionNode) type);
-        } else {
-            return (BLangType) type.apply(this);
-        }
-    }
-
-    private BLangArrayType createBLangArrayType(IndexedExpressionNode indexedExpressionNode) {
-        int dimensions = 1;
-        List<Integer> sizes = new ArrayList<>();
-        while (true) {
-            SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keyExprs =
-                    indexedExpressionNode.keyExpression();
-            if (keyExprs.isEmpty()) {
-                sizes.add(UNSEALED_ARRAY_INDICATOR);
-            } else {
-                Node keyExpr = keyExprs.get(0);
-                if (keyExpr.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
-                    sizes.add(Integer.parseInt(keyExpr.toString()));
-                } else if (keyExpr.kind() == SyntaxKind.ASTERISK_TOKEN) {
-                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
-                } else {
-                    // TODO : should handle the const-reference-expr
-                }
-            }
-            if (indexedExpressionNode.containerExpression().kind() != SyntaxKind.INDEXED_EXPRESSION) {
-                break;
-            }
-            indexedExpressionNode = (IndexedExpressionNode) indexedExpressionNode.containerExpression();
-            dimensions++;
         }
 
-        BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
-        arrayTypeNode.pos = getPosition(indexedExpressionNode);
-        arrayTypeNode.elemtype = createTypeNode(indexedExpressionNode.containerExpression());
-        arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
-        return arrayTypeNode;
+        return (BLangType) type.apply(this);
     }
 
     private BLangType createBuiltInTypeNode(Node type) {
