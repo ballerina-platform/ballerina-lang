@@ -219,7 +219,6 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
-
         DiagnosticPos pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
@@ -233,7 +232,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
             streamStmtExpr.type = result.type;
-
         }
         return streamStmtExpr;
     }
@@ -308,7 +306,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * Desugar fromClause/joinClause to below and return a reference to created join _StreamPipeline.
      * _StreamPipeline pipeline = createPipeline(collection);
      *
-     * @param blockStmt   parent block to write to.
+     * @param blockStmt  parent block to write to.
      * @param inputClause to init pipeline.
      * @return variableReference to created _StreamPipeline.
      */
@@ -344,7 +342,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt   parent block to write to.
+     * @param blockStmt  parent block to write to.
      * @param inputClause to be desugared.
      * @return variableReference to created from _StreamFunction.
      */
