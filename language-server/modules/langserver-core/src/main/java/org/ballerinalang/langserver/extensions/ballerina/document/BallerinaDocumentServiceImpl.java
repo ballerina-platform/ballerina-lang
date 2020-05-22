@@ -336,18 +336,18 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 String mapping = BallerinaSyntaxTreeModifyUtil.resolveMapping(astModification.getType(),
                         astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
                 if (mapping != null) {
-                    edits.add(new io.ballerinalang.compiler.text.TextEdit(
-                            new io.ballerinalang.compiler.text.TextRange(astModification.getStartOffset(),
+                    edits.add(io.ballerinalang.compiler.text.TextEdit.from(
+                            io.ballerinalang.compiler.text.TextRange.from(astModification.getStartOffset(),
                                     astModification.getEndOffset()), mapping));
                 }
             }
-            TextDocumentChange textDocumentChange = new TextDocumentChange(edits.toArray(
+            TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                     new io.ballerinalang.compiler.text.TextEdit[0]));
             SyntaxTree updatedTree = SyntaxTree.from(oldTree, textDocumentChange);
             documentManager.updateFile(compilationPath, updatedTree.toString());
 
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
-            reply.setSyntaxTree( mapGenerator.transform(updatedTree.modulePart()));
+            reply.setSyntaxTree(mapGenerator.transform(updatedTree.modulePart()));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
