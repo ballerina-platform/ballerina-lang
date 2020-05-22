@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,41 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Field;
 import com.sun.jdi.Value;
+import com.sun.tools.jdi.LongValueImpl;
 import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.stream.Collectors;
+
 /**
- * Ballerina string variable type.
+ * Ballerina integer type.
  */
-public class BString extends BPrimitiveVariable {
+public class BInt extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
+    private final Value jvmValue;
 
-    public BString(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.STRING.getString());
+    public BInt(Value value, Variable dapVariable) {
+        this.jvmValue = value;
+        dapVariable.setType(BVariableType.INT.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
     }
 
     @Override
     public String getValue() {
-        return jvmValueRef.toString();
+        if (jvmValue instanceof LongValueImpl) {
+            return jvmValue.toString();
+        } else if (jvmValue instanceof ObjectReferenceImpl) {
+            ObjectReferenceImpl valueObjectRef = ((ObjectReferenceImpl) jvmValue);
+            Field valueField = valueObjectRef.referenceType().allFields().stream().filter(field ->
+                    field.name().equals("value")).collect(Collectors.toList()).get(0);
+            return valueObjectRef.getValue(valueField).toString();
+        } else {
+            return "unknown";
+        }
     }
 }
