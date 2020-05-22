@@ -2360,5 +2360,41 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 blockStatement.internalNode());
         return stQueryActionNode.createUnlinkedFacade();
     }
+
+    public static OptionalFieldAccessExpressionNode createOptionalFieldAccessExpressionNode(
+            ExpressionNode expression,
+            Token optionalChainingToken,
+            Token fieldName) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(optionalChainingToken, "optionalChainingToken must not be null");
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+
+        STNode stOptionalFieldAccessExpressionNode = STNodeFactory.createOptionalFieldAccessExpressionNode(
+                expression.internalNode(),
+                optionalChainingToken.internalNode(),
+                fieldName.internalNode());
+        return stOptionalFieldAccessExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ConditionalExpressionNode createConditionalExpressionNode(
+            ExpressionNode lhsExpression,
+            Token questionMarkToken,
+            ExpressionNode middleExpression,
+            Token colonToken,
+            ExpressionNode endExpression) {
+        Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+        Objects.requireNonNull(middleExpression, "middleExpression must not be null");
+        Objects.requireNonNull(colonToken, "colonToken must not be null");
+        Objects.requireNonNull(endExpression, "endExpression must not be null");
+
+        STNode stConditionalExpressionNode = STNodeFactory.createConditionalExpressionNode(
+                lhsExpression.internalNode(),
+                questionMarkToken.internalNode(),
+                middleExpression.internalNode(),
+                colonToken.internalNode(),
+                endExpression.internalNode());
+        return stConditionalExpressionNode.createUnlinkedFacade();
+    }
 }
 

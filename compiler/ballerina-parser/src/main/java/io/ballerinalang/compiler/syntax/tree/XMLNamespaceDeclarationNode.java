@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class XMLNamespaceDeclarationNode extends NonTerminalNode {
+public class XMLNamespaceDeclarationNode extends StatementNode {
 
     public XMLNamespaceDeclarationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

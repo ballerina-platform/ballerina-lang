@@ -2376,6 +2376,42 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 blockStatement);
     }
 
+    @Override
+    public OptionalFieldAccessExpressionNode transform(
+            OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        ExpressionNode expression =
+                modifyNode(optionalFieldAccessExpressionNode.expression());
+        Token optionalChainingToken =
+                modifyToken(optionalFieldAccessExpressionNode.optionalChainingToken());
+        Token fieldName =
+                modifyToken(optionalFieldAccessExpressionNode.fieldName());
+        return optionalFieldAccessExpressionNode.modify(
+                expression,
+                optionalChainingToken,
+                fieldName);
+    }
+
+    @Override
+    public ConditionalExpressionNode transform(
+            ConditionalExpressionNode conditionalExpressionNode) {
+        ExpressionNode lhsExpression =
+                modifyNode(conditionalExpressionNode.lhsExpression());
+        Token questionMarkToken =
+                modifyToken(conditionalExpressionNode.questionMarkToken());
+        ExpressionNode middleExpression =
+                modifyNode(conditionalExpressionNode.middleExpression());
+        Token colonToken =
+                modifyToken(conditionalExpressionNode.colonToken());
+        ExpressionNode endExpression =
+                modifyNode(conditionalExpressionNode.endExpression());
+        return conditionalExpressionNode.modify(
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression);
+    }
+
     // Tokens
 
     @Override

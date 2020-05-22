@@ -17,45 +17,45 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STXMLNamespaceDeclarationNode extends STStatementNode {
-    public final STNode xmlnsKeyword;
-    public final STNode namespaceuri;
-    public final STNode asKeyword;
-    public final STNode namespacePrefix;
-    public final STNode semicolonToken;
+public class STConditionalExpressionNode extends STExpressionNode {
+    public final STNode lhsExpression;
+    public final STNode questionMarkToken;
+    public final STNode middleExpression;
+    public final STNode colonToken;
+    public final STNode endExpression;
 
-    STXMLNamespaceDeclarationNode(
-            STNode xmlnsKeyword,
-            STNode namespaceuri,
-            STNode asKeyword,
-            STNode namespacePrefix,
-            STNode semicolonToken) {
-        super(SyntaxKind.XML_NAMESPACE_DECLARATION);
-        this.xmlnsKeyword = xmlnsKeyword;
-        this.namespaceuri = namespaceuri;
-        this.asKeyword = asKeyword;
-        this.namespacePrefix = namespacePrefix;
-        this.semicolonToken = semicolonToken;
+    STConditionalExpressionNode(
+            STNode lhsExpression,
+            STNode questionMarkToken,
+            STNode middleExpression,
+            STNode colonToken,
+            STNode endExpression) {
+        super(SyntaxKind.CONDITIONAL_EXPRESSION);
+        this.lhsExpression = lhsExpression;
+        this.questionMarkToken = questionMarkToken;
+        this.middleExpression = middleExpression;
+        this.colonToken = colonToken;
+        this.endExpression = endExpression;
 
         addChildren(
-                xmlnsKeyword,
-                namespaceuri,
-                asKeyword,
-                namespacePrefix,
-                semicolonToken);
+                lhsExpression,
+                questionMarkToken,
+                middleExpression,
+                colonToken,
+                endExpression);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLNamespaceDeclarationNode(this, position, parent);
+        return new ConditionalExpressionNode(this, position, parent);
     }
 }

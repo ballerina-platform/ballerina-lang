@@ -19,43 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 2.0.0
  */
-public class STXMLNamespaceDeclarationNode extends STStatementNode {
-    public final STNode xmlnsKeyword;
-    public final STNode namespaceuri;
-    public final STNode asKeyword;
-    public final STNode namespacePrefix;
-    public final STNode semicolonToken;
+public class STOptionalFieldAccessExpressionNode extends STExpressionNode {
+    public final STNode expression;
+    public final STNode optionalChainingToken;
+    public final STNode fieldName;
 
-    STXMLNamespaceDeclarationNode(
-            STNode xmlnsKeyword,
-            STNode namespaceuri,
-            STNode asKeyword,
-            STNode namespacePrefix,
-            STNode semicolonToken) {
-        super(SyntaxKind.XML_NAMESPACE_DECLARATION);
-        this.xmlnsKeyword = xmlnsKeyword;
-        this.namespaceuri = namespaceuri;
-        this.asKeyword = asKeyword;
-        this.namespacePrefix = namespacePrefix;
-        this.semicolonToken = semicolonToken;
+    STOptionalFieldAccessExpressionNode(
+            STNode expression,
+            STNode optionalChainingToken,
+            STNode fieldName) {
+        super(SyntaxKind.OPTIONAL_FIELD_ACCESS);
+        this.expression = expression;
+        this.optionalChainingToken = optionalChainingToken;
+        this.fieldName = fieldName;
 
         addChildren(
-                xmlnsKeyword,
-                namespaceuri,
-                asKeyword,
-                namespacePrefix,
-                semicolonToken);
+                expression,
+                optionalChainingToken,
+                fieldName);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLNamespaceDeclarationNode(this, position, parent);
+        return new OptionalFieldAccessExpressionNode(this, position, parent);
     }
 }
