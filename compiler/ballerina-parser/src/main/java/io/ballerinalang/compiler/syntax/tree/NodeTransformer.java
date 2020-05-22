@@ -588,6 +588,46 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(RestDescriptorNode restDescriptorNode) {
+        return transformSyntaxNode(restDescriptorNode);
+    }
+
+    public T transform(DoubleGTTokenNode doubleGTTokenNode) {
+        return transformSyntaxNode(doubleGTTokenNode);
+    }
+
+    public T transform(TrippleGTTokenNode trippleGTTokenNode) {
+        return transformSyntaxNode(trippleGTTokenNode);
+    }
+
+    public T transform(WaitActionNode waitActionNode) {
+        return transformSyntaxNode(waitActionNode);
+    }
+
+    public T transform(WaitFieldsListNode waitFieldsListNode) {
+        return transformSyntaxNode(waitFieldsListNode);
+    }
+
+    public T transform(WaitFieldNode waitFieldNode) {
+        return transformSyntaxNode(waitFieldNode);
+    }
+
+    public T transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return transformSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
+    }
+
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

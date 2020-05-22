@@ -32,12 +32,16 @@ public class StartActionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(0));
+    }
+
     public Token startKeyword() {
-        return childInBucket(0);
+        return childInBucket(1);
     }
 
     public ExpressionNode expression() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     @Override
@@ -53,20 +57,24 @@ public class StartActionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "annotations",
                 "startKeyword",
                 "expression"};
     }
 
     public StartActionNode modify(
+            NodeList<AnnotationNode> annotations,
             Token startKeyword,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
+                annotations.underlyingListNode(),
                 startKeyword,
                 expression)) {
             return this;
         }
 
         return NodeFactory.createStartActionNode(
+                annotations,
                 startKeyword,
                 expression);
     }
@@ -82,13 +90,22 @@ public class StartActionNode extends ExpressionNode {
      */
     public static class StartActionNodeModifier {
         private final StartActionNode oldNode;
+        private NodeList<AnnotationNode> annotations;
         private Token startKeyword;
         private ExpressionNode expression;
 
         public StartActionNodeModifier(StartActionNode oldNode) {
             this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
             this.startKeyword = oldNode.startKeyword();
             this.expression = oldNode.expression();
+        }
+
+        public StartActionNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
         }
 
         public StartActionNodeModifier withStartKeyword(
@@ -107,6 +124,7 @@ public class StartActionNode extends ExpressionNode {
 
         public StartActionNode apply() {
             return oldNode.modify(
+                    annotations,
                     startKeyword,
                     expression);
         }

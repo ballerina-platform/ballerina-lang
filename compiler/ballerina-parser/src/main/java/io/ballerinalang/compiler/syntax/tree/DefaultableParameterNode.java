@@ -49,8 +49,8 @@ public class DefaultableParameterNode extends ParameterNode {
         return childInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     public Token equalsToken() {
@@ -137,7 +137,7 @@ public class DefaultableParameterNode extends ParameterNode {
             this.annotations = oldNode.annotations();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();
-            this.paramName = oldNode.paramName();
+            this.paramName = oldNode.paramName().orElse(null);
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();
         }
