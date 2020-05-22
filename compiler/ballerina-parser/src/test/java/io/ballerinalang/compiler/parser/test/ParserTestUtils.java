@@ -29,12 +29,12 @@ import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferen
 import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
+import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -54,8 +54,8 @@ import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNod
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_TRIVIA;
-import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_TRIVIA;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_MINUTIAE;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
 
 /**
@@ -198,7 +198,7 @@ public class ParserTestUtils {
     private static void assertTerminalNode(JsonObject json, STNode node) {
         // If this is a terminal node, it has to be a STToken (i.e: lexeme)
         if (isTrivia(node.kind)) {
-            Assert.assertTrue(node instanceof SyntaxTrivia);
+            Assert.assertTrue(node instanceof STMinutiae);
         } else {
             Assert.assertTrue(node instanceof STToken);
         }
@@ -212,17 +212,17 @@ public class ParserTestUtils {
         }
 
         if (!ParserTestUtils.isTrivia(node.kind)) {
-            validateTrivia(json, (STToken) node);
+            validateMinutiae(json, (STToken) node);
         }
     }
 
-    private static void validateTrivia(JsonObject json, STToken token) {
-        if (json.has(LEADING_TRIVIA)) {
-            assertNonTerminalNode(json, LEADING_TRIVIA, token.leadingTrivia);
+    private static void validateMinutiae(JsonObject json, STToken token) {
+        if (json.has(LEADING_MINUTIAE)) {
+            assertNonTerminalNode(json, LEADING_MINUTIAE, token.leadingMinutiae());
         }
 
-        if (json.has(TRAILING_TRIVIA)) {
-            assertNonTerminalNode(json, TRAILING_TRIVIA, token.trailingTrivia);
+        if (json.has(TRAILING_MINUTIAE)) {
+            assertNonTerminalNode(json, TRAILING_MINUTIAE, token.trailingMinutiae());
         }
     }
 
@@ -269,9 +269,9 @@ public class ParserTestUtils {
 
     public static boolean isTrivia(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
-            case WHITESPACE_TRIVIA:
-            case END_OF_LINE_TRIVIA:
-            case COMMENT:
+            case WHITESPACE_MINUTIAE:
+            case END_OF_LINE_MINUTIAE:
+            case COMMENT_MINUTIAE:
             case INVALID:
                 return true;
             default:
@@ -284,7 +284,7 @@ public class ParserTestUtils {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifierToken) token).text;
             case STRING_LITERAL:
-                String val = ((STLiteralValueToken) token).text;
+                String val = ((STLiteralValueToken) token).text();
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
                 return val.substring(1, lastCharPosition);
@@ -292,19 +292,19 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                return ((STLiteralValueToken) token).text;
-            case WHITESPACE_TRIVIA:
-            case COMMENT:
+                return ((STLiteralValueToken) token).text();
+            case WHITESPACE_MINUTIAE:
+            case COMMENT_MINUTIAE:
             case INVALID:
-                return ((SyntaxTrivia) token).text;
-            case END_OF_LINE_TRIVIA:
-                return cleanupText(((SyntaxTrivia) token).text);
+                return ((STMinutiae) token).text();
+            case END_OF_LINE_MINUTIAE:
+                return cleanupText(((STMinutiae) token).text());
             case DOCUMENTATION_LINE:
-                return ((STDocumentationLineToken) token).text;
+                return ((STDocumentationLineToken) token).text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-                return cleanupText(((STLiteralValueToken) token).text);
+                return cleanupText(((STLiteralValueToken) token).text());
             default:
                 return token.kind.toString();
         }
@@ -470,6 +470,28 @@ public class ParserTestUtils {
                 return SyntaxKind.LET_KEYWORD;
             case "STREAM_KEYWORD":
                 return SyntaxKind.STREAM_KEYWORD;
+            case "READONLY_KEYWORD":
+                return SyntaxKind.READONLY_KEYWORD;
+            case "DISTINCT_KEYWORD":
+                return SyntaxKind.DISTINCT_KEYWORD;
+            case "FROM_KEYWORD":
+                return SyntaxKind.FROM_KEYWORD;
+            case "WHERE_KEYWORD":
+                return SyntaxKind.WHERE_KEYWORD;
+            case "SELECT_KEYWORD":
+                return SyntaxKind.SELECT_KEYWORD;
+            case "NEW_KEYWORD":
+                return SyntaxKind.NEW_KEYWORD;
+            case "START_KEYWORD":
+                return SyntaxKind.START_KEYWORD;
+            case "FLUSH_KEYWORD":
+                return SyntaxKind.FLUSH_KEYWORD;
+            case "DEFAULT_KEYWORD":
+                return SyntaxKind.DEFAULT_KEYWORD;
+            case "WAIT_KEYWORD":
+                return SyntaxKind.WAIT_KEYWORD;
+            case "DO_KEYWORD":
+                return SyntaxKind.DO_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -493,7 +515,7 @@ public class ParserTestUtils {
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
-                return SyntaxKind.EQUAL_GT_TOKEN;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
             case "LT_EQUAL_TOKEN":
@@ -516,6 +538,20 @@ public class ParserTestUtils {
                 return SyntaxKind.LOGICAL_OR_TOKEN;
             case "NEGATION_TOKEN":
                 return SyntaxKind.NEGATION_TOKEN;
+            case "DOUBLE_LT_TOKEN":
+                return SyntaxKind.DOUBLE_LT_TOKEN;
+            case "DOUBLE_GT_TOKEN":
+                return SyntaxKind.DOUBLE_GT_TOKEN;
+            case "TRIPPLE_GT_TOKEN":
+                return SyntaxKind.TRIPPLE_GT_TOKEN;
+            case "DOUBLE_DOT_LT_TOKEN":
+                return SyntaxKind.DOUBLE_DOT_LT_TOKEN;
+            case "ANNOT_CHAINING_TOKEN":
+                return SyntaxKind.ANNOT_CHAINING_TOKEN;
+            case "OPTIONAL_CHAINING_TOKEN":
+                return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+            case "ELVIS_TOKEN":
+                return SyntaxKind.ELVIS_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -556,6 +592,12 @@ public class ParserTestUtils {
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
                 return SyntaxKind.SINGLE_QUOTE_TOKEN;
+            case "RIGHT_DOUBLE_ARROW":
+                return SyntaxKind.RIGHT_DOUBLE_ARROW;
+            case "SYNC_SEND_TOKEN":
+                return SyntaxKind.SYNC_SEND_TOKEN;
+            case "LEFT_ARROW_TOKEN":
+                return SyntaxKind.LEFT_ARROW_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -620,6 +662,22 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_TEMPLATE_EXPRESSION;
             case "STRING_TEMPLATE_EXPRESSION":
                 return SyntaxKind.STRING_TEMPLATE_EXPRESSION;
+            case "QUERY_EXPRESSION":
+                return SyntaxKind.QUERY_EXPRESSION;
+            case "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
+                return SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
+            case "IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION":
+                return SyntaxKind.IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION;
+            case "IMPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
+            case "EXPLICIT_NEW_EXPRESSION":
+                return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
+            case "ANNOT_ACCESS":
+                return SyntaxKind.ANNOT_ACCESS;
+            case "OPTIONAL_FIELD_ACCESS":
+                return SyntaxKind.OPTIONAL_FIELD_ACCESS;
+            case "CONDITIONAL_EXPRESSION":
+                return SyntaxKind.CONDITIONAL_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -628,6 +686,22 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
+            case "START_ACTION":
+                return SyntaxKind.START_ACTION;
+            case "TRAP_ACTION":
+                return SyntaxKind.TRAP_ACTION;
+            case "FLUSH_ACTION":
+                return SyntaxKind.FLUSH_ACTION;
+            case "ASYNC_SEND_ACTION":
+                return SyntaxKind.ASYNC_SEND_ACTION;
+            case "SYNC_SEND_ACTION":
+                return SyntaxKind.SYNC_SEND_ACTION;
+            case "RECEIVE_SEND_ACTION":
+                return SyntaxKind.RECEIVE_ACTION;
+            case "WAIT_ACTION":
+                return SyntaxKind.WAIT_ACTION;
+            case "QUERY_ACTION":
+                return SyntaxKind.QUERY_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -718,6 +792,14 @@ public class ParserTestUtils {
                 return SyntaxKind.TUPLE_TYPE_DESC;
             case "PARENTHESISED_TYPE_DESC":
                 return SyntaxKind.PARENTHESISED_TYPE_DESC;
+            case "READONLY_TYPE_DESC":
+                return SyntaxKind.READONLY_TYPE_DESC;
+            case "DISTINCT_TYPE_DESC":
+                return SyntaxKind.DISTINCT_TYPE_DESC;
+            case "INTERSECTION_TYPE_DESC":
+                return SyntaxKind.INTERSECTION_TYPE_DESC;
+            case "SINGLETON_TYPE_DESC":
+                return SyntaxKind.SINGLETON_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -796,6 +878,48 @@ public class ParserTestUtils {
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
                 return SyntaxKind.FUNCTION_SIGNATURE;
+            case "QUERY_CONSTRUCT_TYPE":
+                return SyntaxKind.QUERY_CONSTRUCT_TYPE;
+            case "FROM_CLAUSE":
+                return SyntaxKind.FROM_CLAUSE;
+            case "WHERE_CLAUSE":
+                return SyntaxKind.WHERE_CLAUSE;
+            case "LET_CLAUSE":
+                return SyntaxKind.LET_CLAUSE;
+            case "QUERY_PIPELINE":
+                return SyntaxKind.QUERY_PIPELINE;
+            case "SELECT_CLAUSE":
+                return SyntaxKind.SELECT_CLAUSE;
+            case "PARENTHESIZED_ARG_LIST":
+                return SyntaxKind.PARENTHESIZED_ARG_LIST;
+            case "EXPRESSION_FUNCTION_BODY":
+                return SyntaxKind.EXPRESSION_FUNCTION_BODY;
+            case "INFER_PARAM_LIST":
+                return SyntaxKind.INFER_PARAM_LIST;
+            case "FUNCTION_DECLARATION":
+                return SyntaxKind.FUNCTION_DECLARATION;
+            case "TYPED_BINDING_PATTERN":
+                return SyntaxKind.TYPED_BINDING_PATTERN;
+            case "BINDING_PATTERN":
+                return SyntaxKind.BINDING_PATTERN;
+            case "CAPTURE_BINDING_PATTERN":
+                return SyntaxKind.CAPTURE_BINDING_PATTERN;
+            case "LIST_BINDING_PATTERN":
+                return SyntaxKind.LIST_BINDING_PATTERN;
+            case "REST_BINDING_PATTERN":
+                return SyntaxKind.REST_BINDING_PATTERN;
+            case "TYPE_PARAMETER":
+                return SyntaxKind.TYPE_PARAMETER;
+            case "KEY_TYPE_CONSTRAINT":
+                return SyntaxKind.KEY_TYPE_CONSTRAINT;
+            case "RECEIVE_FIELDS":
+                return SyntaxKind.RECEIVE_FIELDS;
+            case "REST_TYPE":
+                return SyntaxKind.REST_TYPE;
+            case "WAIT_FIELDS_LIST":
+                return SyntaxKind.WAIT_FIELDS_LIST;
+            case "WAIT_FIELD":
+                return SyntaxKind.WAIT_FIELD;
 
             // XML template
             case "XML_ELEMENT":
@@ -836,28 +960,16 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
-            case "TYPE_PARAMETER":
-                return SyntaxKind.TYPE_PARAMETER;
-            case "KEY_TYPE_CONSTRAINT":
-                return SyntaxKind.KEY_TYPE_CONSTRAINT;
-            case "IMPLICIT_NEW":
-                return SyntaxKind.IMPLICIT_NEW;
-            case "NEW_KEYWORD":
-                return SyntaxKind.NEW_KEYWORD;
-            case "PARENTHESIZED_ARG_LIST":
-                return SyntaxKind.PARENTHESIZED_ARG_LIST;
-            case "EXPLICIT_NEW":
-                return SyntaxKind.EXPLICIT_NEW;
 
             // Trivia
             case "EOF_TOKEN":
                 return SyntaxKind.EOF_TOKEN;
             case "END_OF_LINE_TRIVIA":
-                return SyntaxKind.END_OF_LINE_TRIVIA;
+                return SyntaxKind.END_OF_LINE_MINUTIAE;
             case "WHITESPACE_TRIVIA":
-                return SyntaxKind.WHITESPACE_TRIVIA;
+                return SyntaxKind.WHITESPACE_MINUTIAE;
             case "COMMENT":
-                return SyntaxKind.COMMENT;
+                return SyntaxKind.COMMENT_MINUTIAE;
             case "INVALID":
                 return SyntaxKind.INVALID;
 

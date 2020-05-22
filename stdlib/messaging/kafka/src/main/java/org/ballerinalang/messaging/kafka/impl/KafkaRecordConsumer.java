@@ -79,7 +79,7 @@ public class KafkaRecordConsumer {
             this.pollingTimeout = Duration.ofMillis((Integer) configParams.get(KafkaConstants.ALIAS_POLLING_TIMEOUT));
         }
         if (configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL.getValue()) != null) {
-            this.pollingInterval = (Integer) configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL);
+            this.pollingInterval = (Integer) configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL.getValue());
         }
         if (configParams.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG) != null) {
             this.decoupleProcessing = (Boolean) configParams.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG);

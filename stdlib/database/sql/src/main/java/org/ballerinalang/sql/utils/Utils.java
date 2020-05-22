@@ -527,7 +527,7 @@ class Utils {
         Iterator<BField> fieldIterator = structFields.values().iterator();
         for (int i = 0; i < fieldCount; ++i) {
             BField field = fieldIterator.next();
-            Object bValue = ((MapValue) value).get(field.getFieldName());
+            Object bValue = ((MapValue) value).get(StringUtils.fromString(field.getFieldName()));
             int typeTag = field.getFieldType().getTag();
             switch (typeTag) {
                 case TypeTags.INT_TAG:

@@ -175,7 +175,7 @@ public class MimeConstants {
     public static final String DOUBLE_QUOTE = "\"";
     public static final String PARSER_ERROR = "failed to parse: ";
     public static final String CONTENT_DISPOSITION_FILE_NAME = "filename";
-    public static final BString CONTENT_DISPOSITION_NAME = StringUtils.fromString("name");
+    public static final String CONTENT_DISPOSITION_NAME = "name";
 
     /**
      * Describes the format of the body part.

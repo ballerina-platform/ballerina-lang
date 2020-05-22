@@ -26,12 +26,14 @@ import java.util.StringJoiner;
  * @since 1.3.0
  */
 public class TextDocumentChange {
-    // TODO abstraction for textEdit[]
-
     private final TextEdit[] textEdits;
 
-    public TextDocumentChange(TextEdit[] textEdits) {
+    private TextDocumentChange(TextEdit[] textEdits) {
         this.textEdits = Arrays.copyOf(textEdits, textEdits.length);
+    }
+
+    public static TextDocumentChange from(TextEdit[] textEdits) {
+        return new TextDocumentChange(textEdits);
     }
 
     public int getTextEditCount() {

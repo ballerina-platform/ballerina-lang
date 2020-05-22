@@ -59,7 +59,7 @@ public class Subscribe {
     private static final BString SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD = StringUtils.fromString(
             "subscriptionTimeoutInSeconds");
     private static final BString MANUAL_ACK_ANNOTATION_FIELD = StringUtils.fromString("manualAck");
-    private static final String START_POSITION_ANNOTATION_FIELD = "startPosition";
+    private static final BString START_POSITION_ANNOTATION_FIELD = StringUtils.fromString("startPosition");
 
     public static void streamingSubscribe(ObjectValue streamingListener, ObjectValue connectionObject,
                                           String clusterId, Object clientIdNillable, Object streamingConfig) {
@@ -90,7 +90,7 @@ public class Subscribe {
     private static Subscription createSubscription(ObjectValue service, StreamingListener messageHandler,
                                                    io.nats.streaming.StreamingConnection streamingConnection,
                                                    NatsMetricsReporter natsMetricsReporter) {
-        MapValue<String, Object> annotation = (MapValue<String, Object>) service.getType()
+        MapValue<BString, Object> annotation = (MapValue<BString, Object>) service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
         assertNull(annotation, "Streaming configuration annotation not present.");
         String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD).getValue();
@@ -113,7 +113,7 @@ public class Subscribe {
         }
     }
 
-    private static SubscriptionOptions buildSubscriptionOptions(MapValue<String, Object> annotation) {
+    private static SubscriptionOptions buildSubscriptionOptions(MapValue<BString, Object> annotation) {
         SubscriptionOptions.Builder builder = new SubscriptionOptions.Builder();
         String durableName = annotation.getStringValue(DURABLE_NAME_ANNOTATION_FIELD).getValue();
         int maxInFlight = annotation.getIntValue(MAX_IN_FLIGHT_ANNOTATION_FIELD).intValue();

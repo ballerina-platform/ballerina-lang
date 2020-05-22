@@ -46,11 +46,11 @@ public class TableUtils {
      * @param parent Node linking to the parent object of 'obj'
      * @return The hash value
      */
-    public static Integer hash(Object obj, Node parent) {
-        int result = 0;
+    public static Long hash(Object obj, Node parent) {
+        long result = 0;
 
         if (obj == null) {
-            return 0;
+            return 0L;
         }
 
         if (obj instanceof RefValue) {
@@ -81,10 +81,10 @@ public class TableUtils {
                 }
                 return result;
             } else {
-                return obj.hashCode();
+                return (long) obj.hashCode();
             }
         } else {
-            return obj.hashCode();
+            return (long) obj.hashCode();
         }
     }
 

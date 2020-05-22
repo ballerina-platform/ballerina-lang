@@ -55,16 +55,21 @@
                                                     "kind": "COMMA_TOKEN"
                                                 },
                                                 {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "age"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "POSITIONAL_ARG",
+                                            "children": [
+                                                {
+                                                    "kind": "COMMA_TOKEN",
+                                                    "isMissing": true
+                                                },
+                                                {
                                                     "kind": "BINARY_EXPRESSION",
                                                     "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "age"
-                                                        },
-                                                        {
-                                                            "kind": "PLUS_TOKEN",
-                                                            "isMissing": true
-                                                        },
                                                         {
                                                             "kind": "FUNCTION_CALL",
                                                             "children": [
@@ -77,31 +82,21 @@
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
+                                                                    "children": []
                                                                 },
                                                                 {
                                                                     "kind": "CLOSE_PAREN_TOKEN"
                                                                 }
                                                             ]
+                                                        },
+                                                        {
+                                                            "kind": "ELLIPSIS_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "subjects"
                                                         }
                                                     ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "REST_ARG",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN",
-                                                    "isMissing": true
-                                                },
-                                                {
-                                                    "kind": "ELLIPSIS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "subjects"
                                                 }
                                             ]
                                         }

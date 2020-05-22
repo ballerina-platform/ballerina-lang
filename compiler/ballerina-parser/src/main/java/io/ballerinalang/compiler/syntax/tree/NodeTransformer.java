@@ -36,7 +36,7 @@ package io.ballerinalang.compiler.syntax.tree;
  *
  * @param <T> the type of class that is returned by visit methods
  * @see NodeVisitor
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeTransformer<T> {
 
@@ -468,12 +468,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(functionTypeDescriptorNode);
     }
 
-    public T transform(AnonymousFunctionExpressionNode anonymousFunctionExpressionNode) {
-        return transformSyntaxNode(anonymousFunctionExpressionNode);
-    }
-
     public T transform(FunctionSignatureNode functionSignatureNode) {
         return transformSyntaxNode(functionSignatureNode);
+    }
+
+    public T transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(explicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        return transformSyntaxNode(expressionFunctionBodyNode);
     }
 
     public T transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
@@ -496,6 +500,134 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parenthesizedArgList);
     }
 
+    public T transform(QueryConstructTypeNode queryConstructTypeNode) {
+        return transformSyntaxNode(queryConstructTypeNode);
+    }
+
+    public T transform(FromClauseNode fromClauseNode) {
+        return transformSyntaxNode(fromClauseNode);
+    }
+
+    public T transform(WhereClauseNode whereClauseNode) {
+        return transformSyntaxNode(whereClauseNode);
+    }
+
+    public T transform(LetClauseNode letClauseNode) {
+        return transformSyntaxNode(letClauseNode);
+    }
+
+    public T transform(QueryPipelineNode queryPipelineNode) {
+        return transformSyntaxNode(queryPipelineNode);
+    }
+
+    public T transform(SelectClauseNode selectClauseNode) {
+        return transformSyntaxNode(selectClauseNode);
+    }
+
+    public T transform(QueryExpressionNode queryExpressionNode) {
+        return transformSyntaxNode(queryExpressionNode);
+    }
+
+    public T transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        return transformSyntaxNode(intersectionTypeDescriptorNode);
+    }
+
+    public T transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        return transformSyntaxNode(implicitAnonymousFunctionParameters);
+    }
+
+    public T transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return transformSyntaxNode(implicitAnonymousFunctionExpressionNode);
+    }
+
+    public T transform(StartActionNode startActionNode) {
+        return transformSyntaxNode(startActionNode);
+    }
+
+    public T transform(FlushActionNode flushActionNode) {
+        return transformSyntaxNode(flushActionNode);
+    }
+
+    public T transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        return transformSyntaxNode(singletonTypeDescriptorNode);
+    }
+
+    public T transform(FunctionDeclarationNode functionDeclarationNode) {
+        return transformSyntaxNode(functionDeclarationNode);
+    }
+
+    public T transform(TypedBindingPatternNode typedBindingPatternNode) {
+        return transformSyntaxNode(typedBindingPatternNode);
+    }
+
+    public T transform(CaptureBindingPatternNode captureBindingPatternNode) {
+        return transformSyntaxNode(captureBindingPatternNode);
+    }
+
+    public T transform(ListBindingPatternNode listBindingPatternNode) {
+        return transformSyntaxNode(listBindingPatternNode);
+    }
+
+    public T transform(RestBindingPatternNode restBindingPatternNode) {
+        return transformSyntaxNode(restBindingPatternNode);
+    }
+
+    public T transform(AsyncSendActionNode asyncSendActionNode) {
+        return transformSyntaxNode(asyncSendActionNode);
+    }
+
+    public T transform(SyncSendActionNode syncSendActionNode) {
+        return transformSyntaxNode(syncSendActionNode);
+    }
+
+    public T transform(ReceiveActionNode receiveActionNode) {
+        return transformSyntaxNode(receiveActionNode);
+    }
+
+    public T transform(ReceiveFieldsNode receiveFieldsNode) {
+        return transformSyntaxNode(receiveFieldsNode);
+    }
+
+    public T transform(RestDescriptorNode restDescriptorNode) {
+        return transformSyntaxNode(restDescriptorNode);
+    }
+
+    public T transform(DoubleGTTokenNode doubleGTTokenNode) {
+        return transformSyntaxNode(doubleGTTokenNode);
+    }
+
+    public T transform(TrippleGTTokenNode trippleGTTokenNode) {
+        return transformSyntaxNode(trippleGTTokenNode);
+    }
+
+    public T transform(WaitActionNode waitActionNode) {
+        return transformSyntaxNode(waitActionNode);
+    }
+
+    public T transform(WaitFieldsListNode waitFieldsListNode) {
+        return transformSyntaxNode(waitFieldsListNode);
+    }
+
+    public T transform(WaitFieldNode waitFieldNode) {
+        return transformSyntaxNode(waitFieldNode);
+    }
+
+    public T transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return transformSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
+    }
+
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
@@ -503,15 +635,10 @@ public abstract class NodeTransformer<T> {
     }
 
     public T transform(IdentifierToken identifier) {
-        return null;
+        return transform((Token) identifier);
     }
 
     // Misc
-
-    // TODO Why Minutiae is in this visitor? Check on this.
-    public T transform(Minutiae minutiae) {
-        return transformSyntaxNode(minutiae);
-    }
 
     /**
      * Transforms the given {@code Node} into an object of type T.

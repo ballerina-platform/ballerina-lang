@@ -54,10 +54,10 @@ public class Utils {
             BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
                     ObserveNativeImplConstants.SNAPSHOT).getType();
 
-    public static Map<String, String> toStringMap(MapValue<?, ?> map) {
+    public static Map<String, String> toStringMap(MapValue<BString, ?> map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
-            for (Entry<?, ?> keyVals : map.entrySet()) {
+            for (Entry<BString, ?> keyVals : map.entrySet()) {
                 Object value = keyVals.getValue();
                 returnMap.put(keyVals.getKey().toString(), value == null ? "()" : value.toString());
             }

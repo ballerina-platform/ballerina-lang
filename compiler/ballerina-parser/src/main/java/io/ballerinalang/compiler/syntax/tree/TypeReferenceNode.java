@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypeReferenceNode extends TypeDescriptorNode {
 
@@ -75,5 +77,56 @@ public class TypeReferenceNode extends TypeDescriptorNode {
                 asteriskToken,
                 typeName,
                 semicolonToken);
+    }
+
+    public TypeReferenceNodeModifier modify() {
+        return new TypeReferenceNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypeReferenceNodeModifier {
+        private final TypeReferenceNode oldNode;
+        private Token asteriskToken;
+        private Node typeName;
+        private Token semicolonToken;
+
+        public TypeReferenceNodeModifier(TypeReferenceNode oldNode) {
+            this.oldNode = oldNode;
+            this.asteriskToken = oldNode.asteriskToken();
+            this.typeName = oldNode.typeName();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public TypeReferenceNodeModifier withAsteriskToken(
+                Token asteriskToken) {
+            Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
+            this.asteriskToken = asteriskToken;
+            return this;
+        }
+
+        public TypeReferenceNodeModifier withTypeName(
+                Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public TypeReferenceNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public TypeReferenceNode apply() {
+            return oldNode.modify(
+                    asteriskToken,
+                    typeName,
+                    semicolonToken);
+        }
     }
 }

@@ -1,0 +1,15 @@
+[project]
+org-name= "wso2"
+version= "0.1.0"
+
+[dependencies]
+"wso2/utils" = { path = "../TestProject1/target/balo/utils-2020r1-java8-0.1.0.balo"}
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "utils"
+    path = "../../utils-lib/utils.jar"
+    groupId = "wso2"
+    modules = ["wso2/utils"]

@@ -25,26 +25,26 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STExplicitNewExpressionNode extends STNewExpressionNode {
-    public final STNode NewKeyword;
-    public final STNode TypeDescriptor;
-    public final STNode ParenthesizedArgList;
+    public final STNode newKeyword;
+    public final STNode typeDescriptor;
+    public final STNode parenthesizedArgList;
 
     STExplicitNewExpressionNode(
-            STNode NewKeyword,
-            STNode TypeDescriptor,
-            STNode ParenthesizedArgList) {
-        super(SyntaxKind.EXPLICIT_NEW);
-        this.NewKeyword = NewKeyword;
-        this.TypeDescriptor = TypeDescriptor;
-        this.ParenthesizedArgList = ParenthesizedArgList;
+            STNode newKeyword,
+            STNode typeDescriptor,
+            STNode parenthesizedArgList) {
+        super(SyntaxKind.EXPLICIT_NEW_EXPRESSION);
+        this.newKeyword = newKeyword;
+        this.typeDescriptor = typeDescriptor;
+        this.parenthesizedArgList = parenthesizedArgList;
 
         addChildren(
-                NewKeyword,
-                TypeDescriptor,
-                ParenthesizedArgList);
+                newKeyword,
+                typeDescriptor,
+                parenthesizedArgList);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLAttributeValue extends NonTerminalNode {
 
@@ -75,5 +77,56 @@ public class XMLAttributeValue extends NonTerminalNode {
                 startQuote,
                 value,
                 endQuote);
+    }
+
+    public XMLAttributeValueModifier modify() {
+        return new XMLAttributeValueModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLAttributeValueModifier {
+        private final XMLAttributeValue oldNode;
+        private Token startQuote;
+        private NodeList<Node> value;
+        private Token endQuote;
+
+        public XMLAttributeValueModifier(XMLAttributeValue oldNode) {
+            this.oldNode = oldNode;
+            this.startQuote = oldNode.startQuote();
+            this.value = oldNode.value();
+            this.endQuote = oldNode.endQuote();
+        }
+
+        public XMLAttributeValueModifier withStartQuote(
+                Token startQuote) {
+            Objects.requireNonNull(startQuote, "startQuote must not be null");
+            this.startQuote = startQuote;
+            return this;
+        }
+
+        public XMLAttributeValueModifier withValue(
+                NodeList<Node> value) {
+            Objects.requireNonNull(value, "value must not be null");
+            this.value = value;
+            return this;
+        }
+
+        public XMLAttributeValueModifier withEndQuote(
+                Token endQuote) {
+            Objects.requireNonNull(endQuote, "endQuote must not be null");
+            this.endQuote = endQuote;
+            return this;
+        }
+
+        public XMLAttributeValue apply() {
+            return oldNode.modify(
+                    startQuote,
+                    value,
+                    endQuote);
+        }
     }
 }

@@ -47,7 +47,7 @@ public final class ObserveNativeImplConstants {
     public static final BString DESCRIPTION_FIELD = StringUtils.fromString("description");
     public static final BString TAGS_FIELD = StringUtils.fromString("metricTags");
     public static final BString STATISTICS_CONFIG_FIELD = StringUtils.fromString("statisticConfigs");
-    public static final String EXPIRY_FIELD = "timeWindow";
-    public static final String BUCKETS_FIELD = "buckets";
-    public static final String PERCENTILES_FIELD = "percentiles";
+    public static final BString EXPIRY_FIELD = StringUtils.fromString("timeWindow");
+    public static final BString BUCKETS_FIELD = StringUtils.fromString("buckets");
+    public static final BString PERCENTILES_FIELD = StringUtils.fromString("percentiles");
 }

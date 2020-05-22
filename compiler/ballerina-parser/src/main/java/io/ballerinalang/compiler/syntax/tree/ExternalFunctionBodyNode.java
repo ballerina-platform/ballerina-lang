@@ -19,12 +19,14 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class ExternalFunctionBodyNode extends StatementNode {
+public class ExternalFunctionBodyNode extends FunctionBodyNode {
 
     public ExternalFunctionBodyNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -83,5 +85,66 @@ public class ExternalFunctionBodyNode extends StatementNode {
                 annotations,
                 externalKeyword,
                 semicolonToken);
+    }
+
+    public ExternalFunctionBodyNodeModifier modify() {
+        return new ExternalFunctionBodyNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ExternalFunctionBodyNodeModifier {
+        private final ExternalFunctionBodyNode oldNode;
+        private Token equalsToken;
+        private NodeList<AnnotationNode> annotations;
+        private Token externalKeyword;
+        private Token semicolonToken;
+
+        public ExternalFunctionBodyNodeModifier(ExternalFunctionBodyNode oldNode) {
+            this.oldNode = oldNode;
+            this.equalsToken = oldNode.equalsToken();
+            this.annotations = oldNode.annotations();
+            this.externalKeyword = oldNode.externalKeyword();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ExternalFunctionBodyNodeModifier withEqualsToken(
+                Token equalsToken) {
+            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+            this.equalsToken = equalsToken;
+            return this;
+        }
+
+        public ExternalFunctionBodyNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public ExternalFunctionBodyNodeModifier withExternalKeyword(
+                Token externalKeyword) {
+            Objects.requireNonNull(externalKeyword, "externalKeyword must not be null");
+            this.externalKeyword = externalKeyword;
+            return this;
+        }
+
+        public ExternalFunctionBodyNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public ExternalFunctionBodyNode apply() {
+            return oldNode.modify(
+                    equalsToken,
+                    annotations,
+                    externalKeyword,
+                    semicolonToken);
+        }
     }
 }

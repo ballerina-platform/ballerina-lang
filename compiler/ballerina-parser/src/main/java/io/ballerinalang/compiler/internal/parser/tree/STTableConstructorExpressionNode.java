@@ -25,31 +25,31 @@ import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTableConstructorExpressionNode extends STExpressionNode {
     public final STNode tableKeyword;
-    public final STNode KeySpecifier;
+    public final STNode keySpecifier;
     public final STNode openBracket;
     public final STNode mappingConstructors;
     public final STNode closeBracket;
 
     STTableConstructorExpressionNode(
             STNode tableKeyword,
-            STNode KeySpecifier,
+            STNode keySpecifier,
             STNode openBracket,
             STNode mappingConstructors,
             STNode closeBracket) {
         super(SyntaxKind.TABLE_CONSTRUCTOR);
         this.tableKeyword = tableKeyword;
-        this.KeySpecifier = KeySpecifier;
+        this.keySpecifier = keySpecifier;
         this.openBracket = openBracket;
         this.mappingConstructors = mappingConstructors;
         this.closeBracket = closeBracket;
 
         addChildren(
                 tableKeyword,
-                KeySpecifier,
+                keySpecifier,
                 openBracket,
                 mappingConstructors,
                 closeBracket);
