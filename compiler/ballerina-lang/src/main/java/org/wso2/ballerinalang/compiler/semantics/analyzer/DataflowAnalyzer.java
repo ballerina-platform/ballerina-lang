@@ -224,6 +224,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
+    private int commitCount = 0;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private Deque<BSymbol> currDependentSymbol;
@@ -544,6 +545,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
         Name compUnitName = names.fromString(transactionNode.pos.getSource().getCompilationUnitName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
+        if (commitCount < 1) {
+            this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
+        }
     }
 
     @Override
@@ -554,6 +558,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCommitExpr commitExpr) {
         //TODO Transactions
+        commitCount++;
     }
 
     @Override

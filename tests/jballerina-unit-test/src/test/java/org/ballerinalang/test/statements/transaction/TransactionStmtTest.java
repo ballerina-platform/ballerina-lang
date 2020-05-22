@@ -39,7 +39,7 @@ public class TransactionStmtTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
+//        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
     }
 
@@ -54,7 +54,11 @@ public class TransactionStmtTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
-        BAssertUtil.validateError(resultNegative, 0, "abort cannot be used outside of a transaction block", 3, 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
+                5, 5);
+        BAssertUtil.validateError(resultNegative, 1, "transaction statement cannot be used " +
+                        "within a transaction handler",
+                19, 5);
     }
 }
