@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.debugger;
+package io.ballerina.plugins.idea.debugger.evaluator;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
@@ -40,6 +40,8 @@ import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
+import io.ballerina.plugins.idea.debugger.BallerinaDebugProcess;
+import io.ballerina.plugins.idea.debugger.BallerinaValueType;
 import io.ballerina.plugins.idea.highlighting.syntax.BallerinaSyntaxHighlightingColors;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
@@ -50,11 +52,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 /**
- * Represents a value in the debug window.
+ * Represents a value in ballerina expression evaluation tool window.
  */
-public class BallerinaXValue extends XNamedValue {
+public class BallerinaEvaluationValue extends XNamedValue {
 
-    private static final Logger LOG = Logger.getInstance(BallerinaXValue.class);
+    private static final Logger LOG = Logger.getInstance(BallerinaEvaluationValue.class);
     @NotNull
     private final BallerinaDebugProcess process;
     @NotNull
@@ -62,7 +64,8 @@ public class BallerinaXValue extends XNamedValue {
     @Nullable
     private final Icon icon;
 
-    public BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable, @Nullable Icon icon) {
+    public BallerinaEvaluationValue(@NotNull BallerinaDebugProcess process, @NotNull Variable variable,
+                                    @Nullable Icon icon) {
         super(variable.getName());
         this.process = process;
         this.variable = variable;
@@ -90,7 +93,7 @@ public class BallerinaXValue extends XNamedValue {
             VariablesResponse variableResp = process.getDapClientConnector().getRequestManager()
                     .variables(variablesArgs);
             for (Variable variable : variableResp.getVariables()) {
-                list.add(variable.getName(), new BallerinaXValue(process, variable, AllIcons.Nodes.Field));
+                list.add(variable.getName(), new BallerinaEvaluationValue(process, variable, AllIcons.Nodes.Field));
             }
             node.addChildren(list, true);
         } catch (Exception e) {
@@ -101,46 +104,6 @@ public class BallerinaXValue extends XNamedValue {
     @Nullable
     @Override
     public XValueModifier getModifier() {
-        return null;
-    }
-
-    @NotNull
-    private XValuePresentation getPresentation() {
-        String value = variable.getValue() != null ? variable.getValue() : "";
-        String type = variable.getType() != null ? variable.getType() : "";
-
-        if (type.equalsIgnoreCase(BallerinaValueType.STRING.getValue())) {
-            return new XValuePresentation() {
-                @Override
-                public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.STRING);
-                }
-            };
-        } else if (type.equalsIgnoreCase(BallerinaValueType.INT.getValue())
-                || type.equalsIgnoreCase(BallerinaValueType.FLOAT.getValue())
-                || type.equalsIgnoreCase(BallerinaValueType.DECIMAL.getValue())) {
-            return new XRegularValuePresentation(value, type) {
-                @Override
-                public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.NUMBER);
-                }
-            };
-        } else if (type.equalsIgnoreCase(BallerinaValueType.BOOLEAN.getValue())) {
-            return new XValuePresentation() {
-                @Override
-                public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
-                }
-            };
-        } else {
-            return new XRegularValuePresentation(value, type);
-        }
-    }
-
-    @Nullable
-    private static PsiElement findTargetElement(@NotNull Project project, @NotNull XSourcePosition position,
-                                                @NotNull Editor editor, @NotNull String name) {
-        // Todo
         return null;
     }
 
@@ -181,11 +144,6 @@ public class BallerinaXValue extends XNamedValue {
         });
     }
 
-    private static void readActionInPooledThread(@NotNull Runnable runnable) {
-        ApplicationManager.getApplication().executeOnPooledThread(() ->
-                ApplicationManager.getApplication().runReadAction(runnable));
-    }
-
     @NotNull
     @Override
     public ThreeState computeInlineDebuggerData(@NotNull XInlineDebuggerDataCallback callback) {
@@ -207,5 +165,54 @@ public class BallerinaXValue extends XNamedValue {
     @Override
     public void computeTypeSourcePosition(@NotNull XNavigatable navigatable) {
         // Todo
+    }
+
+    @NotNull
+    private XValuePresentation getPresentation() {
+        String value = variable.getValue() != null ? variable.getValue() : "";
+        String type = variable.getType() != null ? variable.getType() : "";
+
+        if (type.equalsIgnoreCase(BallerinaValueType.STRING.getValue())) {
+            return new XValuePresentation() {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.STRING);
+                }
+            };
+        }
+
+        if (type.equalsIgnoreCase(BallerinaValueType.INT.getValue())
+                || type.equalsIgnoreCase(BallerinaValueType.FLOAT.getValue())
+                || type.equalsIgnoreCase(BallerinaValueType.DECIMAL.getValue())) {
+            return new XRegularValuePresentation(value, type) {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.NUMBER);
+                }
+            };
+        }
+
+        if (type.equalsIgnoreCase(BallerinaValueType.BOOLEAN.getValue())) {
+            return new XValuePresentation() {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
+                }
+            };
+        }
+
+        return new XRegularValuePresentation(value, type);
+    }
+
+    @Nullable
+    private static PsiElement findTargetElement(@NotNull Project project, @NotNull XSourcePosition position,
+                                                @NotNull Editor editor, @NotNull String name) {
+        // Todo
+        return null;
+    }
+
+    private static void readActionInPooledThread(@NotNull Runnable runnable) {
+        ApplicationManager.getApplication().executeOnPooledThread(() ->
+                ApplicationManager.getApplication().runReadAction(runnable));
     }
 }
