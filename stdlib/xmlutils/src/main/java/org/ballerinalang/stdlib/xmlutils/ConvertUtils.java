@@ -43,10 +43,10 @@ public class ConvertUtils {
      * @param options option details
      * @return XML object that construct from JSON
      */
-    public static Object fromJSON(Object json, MapValue<?, ?> options) {
+    public static Object fromJSON(Object json, MapValue<BString, BString> options) {
         try {
-            String attributePrefix = ((BString) options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX))).getValue();
-            String arrayEntryTag = ((BString) options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
+            String attributePrefix = (options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX))).getValue();
+            String arrayEntryTag = (options.get(StringUtils.fromString(OPTIONS_ARRAY_ENTRY_TAG))).getValue();
             return JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Exception e) {
             return BallerinaErrors.createError("{ballerina/xmlutils}Error", e.getMessage());

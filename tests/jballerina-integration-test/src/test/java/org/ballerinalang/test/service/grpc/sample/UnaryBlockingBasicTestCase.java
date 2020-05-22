@@ -18,9 +18,6 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -35,6 +32,9 @@ import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test class for gRPC unary service with blocking and non-blocking client.
