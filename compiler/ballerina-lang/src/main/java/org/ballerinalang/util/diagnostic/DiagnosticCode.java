@@ -84,6 +84,7 @@ public enum DiagnosticCode {
     POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG("positional.arg.defined.after.named.arg"),
     REST_ARG_DEFINED_AFTER_NAMED_ARG("rest.arg.defined.after.named.arg"),
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
+    MISSING_REQUIRED_ARG_ERROR_MESSAGE("missing.required.parameter.error.message"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("incompatible.types.spread.op"),
@@ -473,6 +474,10 @@ public enum DiagnosticCode {
     INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED("invalid.error.reason.argument.to.indirect.error.constructor"),
     INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON("invalid.indirect.error.constructor.invocation"),
     INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION("invalid.functional.constructor.invocation"),
+    MISSING_ERROR_DETAIL_ARG("missing.error.detail.arg"),
+    INVALID_ERROR_DETAIL_ARG_TYPE("invalid.error.detail.arg.type"),
+    UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC("unknown.error.detail.arg.to.sealed.detail"),
+    INVALID_ERROR_DETAIL_REST_ARG_TYPE("invalid.error.detail.rest.arg"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

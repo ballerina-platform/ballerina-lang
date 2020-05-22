@@ -108,8 +108,8 @@ public class BTypes {
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
     public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
             null), 0, false, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
-    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
-            null, null), typeString, typeErrorDetail);
+    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null, null, null),
+            typeErrorDetail);
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
     public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
     public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));

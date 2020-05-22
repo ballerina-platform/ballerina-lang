@@ -573,11 +573,14 @@ public class BLangPackageBuilder {
         typeNode.grouped = true;
     }
 
-    void addUserDefineType(Set<Whitespace> ws) {
+    void addUserDefineType(Set<Whitespace> ws, boolean isDistinct) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
                 (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
         userDefinedType.addWS(nameReference.ws);
+        if (isDistinct) {
+            userDefinedType.flagSet.add(Flag.DISTINCT);
+        }
         addType(userDefinedType);
     }
 
@@ -597,16 +600,16 @@ public class BLangPackageBuilder {
         this.isInErrorType--;
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsTypeExists, boolean isErrorTypeInfer,
                       boolean isAnonymous, boolean isDistinct) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (detailsTypeExists) {
+
+        if (isErrorTypeInfer) {
+            errorType.inferErrorType = true;
+        } else if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
-        }
-        if (reasonTypeExists) {
-            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
 
         if (isDistinct) {
@@ -619,6 +622,7 @@ public class BLangPackageBuilder {
             addType(errorType);
             return;
         }
+
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         // Generate a name for the anonymous error
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
@@ -2453,7 +2457,7 @@ public class BLangPackageBuilder {
 
         // Create typenode for enum type definition member
         addNameReference(pos, ws, null, identifier);
-        addUserDefineType(ws);
+        addUserDefineType(ws, false);
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,

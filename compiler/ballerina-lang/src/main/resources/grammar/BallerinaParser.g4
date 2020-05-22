@@ -224,7 +224,7 @@ finiteTypeUnit
     ;
 
 typeName
-    :   simpleTypeName                                                                          # simpleTypeNameLabel
+    :   DISTINCT? simpleTypeName                                                                # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
     |   typeName BIT_AND typeName                                                               # intersectionTypeNameLabel
@@ -332,7 +332,7 @@ functionTypeName
     ;
 
 errorTypeName
-    :   DISTINCT? TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
+    :   TYPE_ERROR (LT (typeName | MUL) GT)?
     ;
 
 xmlNamespaceName

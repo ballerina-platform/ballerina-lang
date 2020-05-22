@@ -34,10 +34,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
 
 /**
  * <p>
@@ -53,44 +55,54 @@ public class ErrorValue extends BError implements RefValue {
 
     private static final long serialVersionUID = 1L;
     private final BType type;
-    private final BString reason;
+    private final BString message;
+    private final ErrorValue cause;
     private final Object details;
 
     @Deprecated
-    public ErrorValue(String reason, Object details) {
-        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                            BTypes.typeString, TypeChecker.getType(details)), reason, details);
+    public ErrorValue(String message, Object details) {
+        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
+                message, null, details);
     }
 
     @Deprecated
-    public ErrorValue(BType type, String reason, Object details) {
-        super(reason);
+    public ErrorValue(BType type, String message, ErrorValue cause, Object details) {
+        super(message);
         this.type = type;
-        this.reason = StringUtils.fromString(reason);
+        this.message = StringUtils.fromString(message);
+        this.cause = cause;
         this.details = details;
     }
 
     @Deprecated
-    public ErrorValue(BString reason, Object details) {
-        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
-                            BTypes.typeString, TypeChecker.getType(details)), reason, details);
+    public ErrorValue(BString message, Object details) {
+        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
+                message, null, details);
     }
 
     @Deprecated
-    public ErrorValue(BType type, BString reason, Object details) {
-        super(reason);
+    public ErrorValue(BType type, BString message, ErrorValue cause, Object details) {
+        super(message);
         this.type = type;
-        this.reason = reason;
+        this.message = message;
+        this.cause = cause;
         this.details = details;
     }
 
     @Override
     public String stringValue() {
         if (isEmptyDetail()) {
-            return "error " + reason.getValue();
+            return "error " + message.getValue();
         }
-        return "error " + reason.getValue() + " " + org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(
-                details);
+        return "error " + message.getValue() + " " + getCauseToString() +
+                org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details);
+    }
+
+    private String getCauseToString() {
+        if (cause != null) {
+            return org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(cause) + " ";
+        }
+        return STRING_EMPTY_VALUE;
     }
 
     @Override
@@ -127,18 +139,18 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return reason string
      */
-    @Deprecated
-    public String getReason() {
-        return reason.getValue();
+    // todo: How do we handle this?
+//    public BString getErrorReason() {
+//        return reason;
+//    }
+
+    @Override
+    public String getMessage() {
+        return this.message.getValue();
     }
 
-    /**
-     * Returns error reason.
-     *
-     * @return reason string
-     */
-    public BString getErrorReason() {
-        return reason;
+    public BString getErrorMessageBString() {
+        return this.message;
     }
 
     /**
@@ -151,6 +163,11 @@ public class ErrorValue extends BError implements RefValue {
             return ((RefValue) details).copy(new HashMap<>());
         }
         return details;
+    }
+
+    @Override
+    public BError getCause() {
+        return this.cause;
     }
 
     @Override
@@ -226,16 +243,17 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getErrorMessage() {
-        String errorMsg = "";
-        boolean reasonAdded = false;
-        if (reason != null && reason.length() != 0) {
-            errorMsg = reason.getValue();
-            reasonAdded = true;
+        StringJoiner joiner = new StringJoiner(" ");
+
+        joiner.add(this.message.getValue());
+        if (this.cause != null) {
+            joiner.add("cause: " + this.cause.getMessage());
         }
-        if (details != null) {
-            errorMsg = errorMsg + (reasonAdded ? " " : "") + details.toString();
+        if (!isEmptyDetail()) {
+            joiner.add(this.details.toString());
         }
-        return errorMsg;
+
+        return joiner.toString();
     }
 
     private boolean isEmptyDetail() {

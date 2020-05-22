@@ -2422,8 +2422,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorType) {
-
-        analyzeTypeNode(errorType.reasonType, env);
         analyzeTypeNode(errorType.detailType, env);
     }
 

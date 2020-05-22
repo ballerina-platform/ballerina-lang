@@ -937,12 +937,9 @@ class JvmTypeGen {
         mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
-        // Load reason and details type
-        loadType(mv, errorType.reasonType);
-
         // initialize the error type
         mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>",
-                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, BTYPE), false);
+                String.format("(L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
     private static String typeRefToClassName(PackageID typeRef, String className) {

@@ -25,13 +25,6 @@ package org.ballerinalang.model.types;
 public interface ErrorType extends Type {
 
     /**
-     * Returns error reason type.
-     *
-     * @return error reason type.
-     */
-    Type getReasonType();
-
-    /**
      * Return error detail's type. Default type is a map.
      *
      * @return error detail's type.

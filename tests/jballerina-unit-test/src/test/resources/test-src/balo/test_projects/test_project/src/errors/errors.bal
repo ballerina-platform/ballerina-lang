@@ -8,4 +8,4 @@ public type ApplicationErrorData record {|
     error cause?;
 |};
 
-public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
+public type ApplicationError error<ApplicationErrorData>;

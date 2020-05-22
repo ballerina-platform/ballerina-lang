@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -129,14 +130,15 @@ public class SymbolTable {
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
+    public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
-    public BErrorType errorType;
-    public BRecordType detailType;
+    public BMapType detailType = new BMapType(TypeTags.MAP, anydataOrReadonly, null);
+    public BErrorType errorType = new BErrorType(null, detailType);
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;

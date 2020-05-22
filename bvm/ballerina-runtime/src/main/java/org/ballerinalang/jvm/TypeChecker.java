@@ -1900,9 +1900,8 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
 
-        return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        return  checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1911,9 +1910,7 @@ public class TypeChecker {
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues, allowNumericConversion) &&
-                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+        return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
                                 allowNumericConversion);
     }
 
@@ -2078,8 +2075,9 @@ public class TypeChecker {
         }
         checkedValues.add(compValuePair);
 
-        return isEqual(lhsError.getReason(), rhsError.getReason(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues);
+        return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
+                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
+                isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
     }
 
     /**
