@@ -17,7 +17,7 @@
 import testorg/errors as er;
 
 function getApplicationError() returns error {
-    er:ApplicationError e = error(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     return e;
 }
 
@@ -25,4 +25,18 @@ function getApplicationErrorIndirectCtor() returns error {
     er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     error e1 = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     return e;
+}
+
+function getDistinctError() returns error {
+    er:OrderCreationError2 k = er:OrderCreationError2("OrderCreationError2-msg", message = "Client has been stopped");
+    er:OrderCreationError f = k;
+    return f;
+}
+
+type OurError distinct er:OrderCreationError;
+
+function testDistinctTypeFromAnotherPackageInATypeDef() returns error {
+    OurError e = OurError("Our error message", message = "Client has been stopped");
+    er:OrderCreationError f = e;
+    return f;
 }

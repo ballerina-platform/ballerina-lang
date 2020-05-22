@@ -45,6 +45,7 @@ public class BLangAnonymousModelHelper {
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
     private static final String FORK = "$fork$";
+    private static final String ANON_TYPE_ID = "$anonTypeid$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -102,7 +103,7 @@ public class BLangAnonymousModelHelper {
     public String getNextDistinctErrorId(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(errorTypeIdCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
-        return String.valueOf(nextValue);
+        return ANON_TYPE_ID + String.valueOf(nextValue);
     }
 
     public boolean isAnonymousType(BSymbol symbol) {

@@ -751,10 +751,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
 
+        boolean distinctFlagPresent = false;
+        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            distinctFlagPresent = ((BLangUserDefinedType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
+        } else if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            distinctFlagPresent = ((BLangErrorType) typeDefinition.typeNode).flagSet.contains(Flag.DISTINCT);
+        }
+
         // todo: need to handle union and intersections
         if (definedType.getKind() == TypeKind.ERROR) {
             BErrorType definedErrorType = (BErrorType) definedType;
-            if ((definedErrorType.flags & Flags.DISTINCT) == Flags.DISTINCT) {
+            if (distinctFlagPresent) {
                 // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
                 if (definedErrorType.tsymbol != typeDefSymbol) {
                     BErrorType bErrorType = new BErrorType(typeDefSymbol);
@@ -762,7 +769,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     typeDefSymbol.type = bErrorType;
                     definedErrorType = bErrorType;
                 }
-                boolean isPublicType = (definedErrorType.flags & Flags.PUBLIC) == Flags.PUBLIC;
+                boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
                 definedErrorType.typeIdSet = BTypeIdSet.from(
                         env.enclPkg.packageID,
                         typeDefinition.flagSet.contains(Flag.ANONYMOUS)
@@ -770,6 +777,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 : typeDefinition.getName().value,
                         isPublicType,
                         ((BErrorType) definedType).typeIdSet);
+
+                typeDefinition.typeNode.type = definedType = definedErrorType;
             }
         }
 
@@ -794,7 +803,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        definedType.flags = typeDefSymbol.flags;
+        definedType.flags |= typeDefSymbol.flags;
 
         typeDefinition.symbol = typeDefSymbol;
         boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);

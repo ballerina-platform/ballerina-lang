@@ -98,6 +98,18 @@ public class BTypeIdSet {
         return this.primary.equals(that.primary) && this.secondary.equals(that.secondary);
     }
 
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        for (BTypeId bTypeId : primary) {
+            hashCode = hashCode * 31 + bTypeId.hashCode();
+        }
+        for (BTypeId bTypeId : secondary) {
+            hashCode = hashCode * 31 + bTypeId.hashCode();
+        }
+        return hashCode;
+    }
+
     public static class BTypeId {
         public final PackageID packageID;
         public final String name;

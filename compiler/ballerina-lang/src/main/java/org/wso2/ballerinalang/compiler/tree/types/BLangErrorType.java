@@ -49,12 +49,11 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
     @Override
     public String toString() {
         StringBuilder val = new StringBuilder(this.type.toString());
-        val.append("<");
         if (this.detailType != null) {
-            val.append(",");
+            val.append("<");
             val.append(detailType.toString());
+            val.append(">");
         }
-        val.append(">");
         return val.toString();
     }
 
