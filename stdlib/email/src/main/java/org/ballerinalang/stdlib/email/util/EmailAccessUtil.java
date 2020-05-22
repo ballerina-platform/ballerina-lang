@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -85,7 +86,7 @@ public class EmailAccessUtil {
      * @param host Host address of email server
      * @return Properties Email server access properties
      */
-    public static Properties getPopProperties(MapValue emailAccessConfig, String host) {
+    public static Properties getPopProperties(MapValue<BString, Object> emailAccessConfig, String host) {
         Properties properties = new Properties();
         properties.put(EmailConstants.PROPS_POP_HOST, host);
         properties.put(EmailConstants.PROPS_POP_PORT,
@@ -95,7 +96,8 @@ public class EmailAccessUtil {
         properties.put(EmailConstants.PROPS_POP_SSL_ENABLE,
                 emailAccessConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         properties.put(EmailConstants.MAIL_STORE_PROTOCOL, EmailConstants.POP_PROTOCOL);
-        CommonUtil.addCustomProperties(emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(
+                (MapValue<BString, Object>) emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("POP3 Properties set are as follows.");
@@ -114,7 +116,7 @@ public class EmailAccessUtil {
      * @param host Host address of email server
      * @return Properties Email server access properties
      */
-    public static Properties getImapProperties(MapValue emailAccessConfig, String host) {
+    public static Properties getImapProperties(MapValue<BString, Object> emailAccessConfig, String host) {
         Properties properties = new Properties();
         properties.put(EmailConstants.PROPS_IMAP_HOST, host);
         properties.put(EmailConstants.PROPS_IMAP_PORT,
@@ -124,7 +126,8 @@ public class EmailAccessUtil {
         properties.put(EmailConstants.PROPS_IMAP_SSL_ENABLE,
                 emailAccessConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         properties.put(EmailConstants.MAIL_STORE_PROTOCOL, EmailConstants.IMAP_PROTOCOL);
-        CommonUtil.addCustomProperties(emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(
+                (MapValue<BString, Object>) emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("IMAP4 Properties set are as follows.");
@@ -144,7 +147,7 @@ public class EmailAccessUtil {
      * @throws MessagingException If an error occurs related to messaging
      * @throws IOException If an error occurs related to I/O
      */
-    public static MapValue getMapValue(Message message) throws MessagingException, IOException {
+    public static MapValue<BString, Object> getMapValue(Message message) throws MessagingException, IOException {
         Map<String, Object> valueMap = new HashMap<>();
         BArray toAddressArrayValue = getAddressBArrayList(message.getRecipients(Message.RecipientType.TO));
         BArray ccAddressArrayValue = getAddressBArrayList(message.getRecipients(Message.RecipientType.CC));
@@ -361,7 +364,7 @@ public class EmailAccessUtil {
         BArray addressArrayValue = BValueCreator.createArrayValue(stringArrayType);
         if (addresses != null) {
             for (Address address: addresses) {
-                addressArrayValue.append(address.toString());
+                addressArrayValue.append(StringUtils.fromString(address.toString()));
             }
         }
         return addressArrayValue;

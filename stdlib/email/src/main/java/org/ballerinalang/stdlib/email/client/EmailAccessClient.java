@@ -63,7 +63,7 @@ public class EmailAccessClient {
      * @return If an error occurs in the POP client, returns an error
      */
     public static Object initPopClientEndpoint(ObjectValue clientEndpoint, BString host, BString username,
-                                               BString password, MapValue<Object, Object> config) {
+                                               BString password, MapValue<BString, Object> config) {
         Properties properties = EmailAccessUtil.getPopProperties(config, host.getValue());
         Session session = Session.getInstance(properties, null);
         try {
@@ -89,7 +89,7 @@ public class EmailAccessClient {
      * @return If an error occurs in the IMAP client, returns an error
      */
     public static Object initImapClientEndpoint(ObjectValue clientEndpoint, BString host, BString username,
-                                                BString password, MapValue<Object, Object> config) {
+                                                BString password, MapValue<BString, Object> config) {
         Properties properties = EmailAccessUtil.getImapProperties(config, host.getValue());
         Session session = Session.getInstance(properties, null);
         try {
@@ -120,7 +120,7 @@ public class EmailAccessClient {
                     + " folder: " + folder.getValue());
             store.connect(host, username, password);
             Folder emailFolder = store.getFolder(folder.getValue());
-            MapValue mapValue = null;
+            MapValue<BString, Object> mapValue = null;
             if (emailFolder == null) {
                 log.error("Email store folder, " + folder.getValue() + " is not found.");
             } else {
