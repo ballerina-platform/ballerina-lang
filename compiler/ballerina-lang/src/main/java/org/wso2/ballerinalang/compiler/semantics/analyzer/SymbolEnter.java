@@ -1819,8 +1819,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (structureTypeNode.type.tag == TypeTags.OBJECT) {
-                if (referredType.tag != TypeTags.OBJECT ||
-                        !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+                if (referredType.tag != TypeTags.OBJECT) {
                     dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
                     invalidTypeRefs.add(typeRef);
                     return Stream.empty();
