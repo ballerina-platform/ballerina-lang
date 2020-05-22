@@ -2154,10 +2154,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static CaptureBindingPatternNode createCaptureBindingPatternNode(
-            SimpleNameReferenceNode variableName) {
+            Token variableName) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
 
         STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
-                getOptionalSTNode(variableName));
+                variableName.internalNode());
         return stCaptureBindingPatternNode.createUnlinkedFacade();
     }
 

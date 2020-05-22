@@ -2446,7 +2446,7 @@
         },
         {
             "name": "AnonymousFunctionExpressionNode",
-            "base": "Node",
+            "base": "ExpressionNode",
             "isAbstract": true
         },
         {
@@ -2888,8 +2888,7 @@
             "attributes": [
                 {
                     "name": "variableName",
-                    "type": "SimpleNameReferenceNode",
-                    "isOptional": true
+                    "type": "Token"
                 }
             ]
         },
