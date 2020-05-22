@@ -234,9 +234,9 @@ public class Hub {
                 setPublishUrl(publishUrl);
                 setSubscribeUrl(subscribeUrl);
 
-                ObjectValue hubObject = BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID,
-                                                                          STRUCT_WEBSUB_BALLERINA_HUB,
-                                                                          subscribeUrl, publishUrl, hubListener);
+                ObjectValue hubObject = BallerinaValues.createObjectValue(
+                        WEBSUB_PACKAGE_ID, STRUCT_WEBSUB_BALLERINA_HUB, StringUtils.fromString(subscribeUrl),
+                        StringUtils.fromString(publishUrl), hubListener);
                 setHubObject(hubObject);
                 return hubObject;
             } else {
@@ -250,7 +250,7 @@ public class Hub {
         if (publicUrl.isEmpty()) {
             String hubPort = String.valueOf(hubListener.get(StringUtils.fromString("port")));
             Object secureSocket = ((MapValue<BString, Object>) hubListener.get(
-                    StringUtils.fromString("config"))).get("secureSocket");
+                    StringUtils.fromString("config"))).get(StringUtils.fromString("secureSocket"));
 
             String path = basePath.equals(SLASH) ? publishResourcePath : basePath.concat(publishResourcePath);
             return secureSocket != null ? ("https://localhost:" + hubPort + path)
@@ -264,7 +264,7 @@ public class Hub {
         if (publicUrl.isEmpty()) {
             String hubPort = String.valueOf(hubListener.get(StringUtils.fromString("port")));
             Object secureSocket = ((MapValue<BString, Object>) hubListener.get(
-                    StringUtils.fromString("config"))).get("secureSocket");
+                    StringUtils.fromString("config"))).get(StringUtils.fromString("secureSocket"));
 
             String path = basePath.equals(SLASH) ? subscribeResourcePath : basePath.concat(subscribeResourcePath);
             return secureSocket != null ? ("https://localhost:" + hubPort + path)

@@ -48,16 +48,18 @@ public class WebSubSubscriberConstants {
 
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";
-    public static final String ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG = "secureSocket";
+    public static final BString ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG = StringUtils.fromString("secureSocket");
 
     public static final BString ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = StringUtils.fromString("subscribeOnStartUp");
-    public static final String ANN_WEBSUB_ATTR_TARGET = "target";
-    public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
-    public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
+    public static final BString ANN_WEBSUB_ATTR_TARGET = StringUtils.fromString("target");
+    public static final BString ANN_WEBSUB_ATTR_LEASE_SECONDS = StringUtils.fromString("leaseSeconds");
+    public static final BString ANN_WEBSUB_ATTR_SECRET = StringUtils.fromString("secret");
     public static final BString ANN_WEBSUB_ATTR_CALLBACK = StringUtils.fromString("callback");
     public static final String ANN_WEBSUB_ATTR_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
-    public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
-    public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG = "hubClientConfig";
+    public static final BString ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG = StringUtils.fromString(
+            "publisherClientConfig");
+    public static final BString ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG = StringUtils.fromString(
+            "hubClientConfig");
 
     public static final String TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
     public static final String TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
@@ -84,14 +86,14 @@ public class WebSubSubscriberConstants {
     public static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
     public static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
 
-    static final String PATH_FIELD = "path";
+    static final BString PATH_FIELD = StringUtils.fromString("path");
 
     // SubscriptionDetails struct field names
     public static final String SUBSCRIPTION_DETAILS_TOPIC = "topic";
     public static final String SUBSCRIPTION_DETAILS_CALLBACK = "callback";
     public static final String SUBSCRIPTION_DETAILS_SECRET = "secret";
-    public static final String SUBSCRIPTION_DETAILS_LEASE_SECONDS = "leaseSeconds";
-    public static final String SUBSCRIPTION_DETAILS_CREATED_AT = "createdAt";
+    public static final BString SUBSCRIPTION_DETAILS_LEASE_SECONDS = StringUtils.fromString("leaseSeconds");
+    public static final BString SUBSCRIPTION_DETAILS_CREATED_AT = StringUtils.fromString("createdAt");
     public static final String SUBSCRIPTION_DETAILS = "SubscriberDetails";
 
     // IntentVerificationRequest
@@ -111,9 +113,11 @@ public class WebSubSubscriberConstants {
     public static final String SERVICE_CONFIG_SECURE_SOCKET = "httpServiceSecureSocket";
     public static final String SERVICE_CONFIG_EXTENSION_CONFIG = "extensionConfig";
     public static final String EXTENSION_CONFIG_TOPIC_IDENTIFIER = "topicIdentifier";
-    public static final String EXTENSION_CONFIG_HEADER_RESOURCE_MAP = "headerResourceMap";
-    public static final String EXTENSION_CONFIG_PAYLOAD_KEY_RESOURCE_MAP = "payloadKeyResourceMap";
-    public static final String EXTENSION_CONFIG_HEADER_AND_PAYLOAD_KEY_RESOURCE_MAP = "headerAndPayloadKeyResourceMap";
+    public static final BString EXTENSION_CONFIG_HEADER_RESOURCE_MAP = StringUtils.fromString("headerResourceMap");
+    public static final BString EXTENSION_CONFIG_PAYLOAD_KEY_RESOURCE_MAP = StringUtils.fromString(
+            "payloadKeyResourceMap");
+    public static final BString EXTENSION_CONFIG_HEADER_AND_PAYLOAD_KEY_RESOURCE_MAP = StringUtils.fromString(
+            "headerAndPayloadKeyResourceMap");
 
     public static final String EXTENSION_CONFIG_TOPIC_HEADER = "topicHeader";
 

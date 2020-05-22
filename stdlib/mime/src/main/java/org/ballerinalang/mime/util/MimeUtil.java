@@ -262,9 +262,9 @@ public class MimeUtil {
             }
             contentDisposition.set(DISPOSITION_FIELD, org.ballerinalang.jvm.StringUtils.fromString(dispositionValue));
             MapValue<BString, BString> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
-            for (Object key : paramMap.getKeys()) {
+            for (BString key : paramMap.getKeys()) {
                 BString paramValue = paramMap.get(key);
-                switch (key.toString()) {
+                switch (key.getValue()) {
                     case CONTENT_DISPOSITION_FILE_NAME:
                         contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD, stripQuotes(paramValue));
                         break;
