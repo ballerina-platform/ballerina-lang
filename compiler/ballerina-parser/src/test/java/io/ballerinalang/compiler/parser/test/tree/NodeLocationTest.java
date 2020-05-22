@@ -23,6 +23,8 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocument;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -80,5 +82,38 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         LinePosition expectedEndPos = LinePosition.from(9, 1);
         LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
         assertLineRange(functionDefNode.location().lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testConvertingLinePositionToOffset() {
+        SyntaxTree syntaxTree = parseFile("node_location_test_04.bal");
+        TextDocument textDocument = syntaxTree.textDocument();
+        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
+
+        LinePosition startLinePos = LinePosition.from(5, 0);
+        LinePosition endLinePos = LinePosition.from(9, 1);
+        int expectedStartOffset = textDocument.textPositionFrom(startLinePos);
+        int expectedEndOffset = textDocument.textPositionFrom(endLinePos);
+
+        Assert.assertEquals(functionDefNode.textRange().startOffset(), expectedStartOffset);
+        Assert.assertEquals(functionDefNode.textRange().endOffset(), expectedEndOffset);
+    }
+
+    @Test
+    public void testConvertingOffsetToLinePosition() {
+        SyntaxTree syntaxTree = parseFile("node_location_test_04.bal");
+        TextDocument textDocument = syntaxTree.textDocument();
+        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
+
+        int startOffset = 87;
+        int endOffset = 209;
+        LineRange lineRange = functionDefNode.location().lineRange();
+        LinePosition expectedStartLinePos = lineRange.startLine();
+        LinePosition expectedEndLinePos = lineRange.endLine();
+
+        Assert.assertEquals(textDocument.linePositionFrom(startOffset), expectedStartLinePos);
+        Assert.assertEquals(textDocument.linePositionFrom(endOffset), expectedEndLinePos);
     }
 }
