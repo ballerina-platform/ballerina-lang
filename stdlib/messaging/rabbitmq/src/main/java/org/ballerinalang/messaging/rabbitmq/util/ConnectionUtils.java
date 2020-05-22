@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.util;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
@@ -39,7 +40,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeoutException;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -58,12 +58,13 @@ public class ConnectionUtils {
      * @param connectionConfig Parameters used to initialize the connection.
      * @return RabbitMQ Connection object.
      */
-    public static Connection createConnection(MapValue<String, Object> connectionConfig) {
+    public static Connection createConnection(MapValue<BString, Object> connectionConfig) {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
 
             // Enable TLS for the connection.
-            MapValue secureSocket = connectionConfig.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_SECURE_SOCKET);
+            MapValue<BString, Object> secureSocket = (MapValue<BString, Object>) connectionConfig.getMapValue(
+                    RabbitMQConstants.RABBITMQ_CONNECTION_SECURE_SOCKET);
             if (secureSocket != null) {
                 SSLContext sslContext = getSSLContext(secureSocket);
                 connectionFactory.useSslProtocol(sslContext);

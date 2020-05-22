@@ -769,7 +769,7 @@ public class KafkaUtils {
 
     public static String getBrokerNames(ObjectValue listener) {
         MapValue<BString, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
-        return (String) listenerConfigurations.get(KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+        return listenerConfigurations.get(KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG).toString();
     }
 
     public static String getTopicNamesString(List<String> topicsList) {
