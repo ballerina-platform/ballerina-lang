@@ -86,13 +86,15 @@ public class BallerinaValues {
 
     private static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
                                                  Object... fieldValues) {
-        //This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
+        // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
+
+        // Here the variables are initialized with default values
         Scheduler scheduler = null;
         State prevState = State.RUNNABLE;
         boolean prevBlockedOnExtern = false;
-        ObjectValue returnObjectValue;
+        ObjectValue objectValue;
 
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
@@ -100,7 +102,7 @@ public class BallerinaValues {
             fields[j++] = true;
         }
         try {
-            //Check for non-blocking call
+            // Check for non-blocking call
             if (currentStrand != null) {
                 scheduler = currentStrand.scheduler;
                 prevBlockedOnExtern = currentStrand.blockedOnExtern;
@@ -108,8 +110,7 @@ public class BallerinaValues {
                 currentStrand.blockedOnExtern = false;
                 currentStrand.setState(State.RUNNABLE);
             }
-            //passing scheduler of current strand
-            returnObjectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+            objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
                     null, fields);
         } finally {
             if (currentStrand != null) {
@@ -117,14 +118,14 @@ public class BallerinaValues {
                 currentStrand.setState(prevState);
             }
         }
-        return returnObjectValue;
+        return objectValue;
     }
 
     private static Strand getStrand() {
         try {
             return Scheduler.getStrand();
         } catch (Exception ex) {
-            //ignore : issue #22871 is opened to fix this
+            // Ignore : issue #22871 is opened to fix this
         }
         return null;
     }
