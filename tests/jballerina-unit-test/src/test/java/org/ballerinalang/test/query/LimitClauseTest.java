@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -30,21 +31,38 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
- * This contains methods to test limit in query expression and query action.
+ * This contains methods to test limit clause in query expression and query action.
  *
  * @since 1.3.0
  */
 public class LimitClauseTest {
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/limit-clause.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
     }
 
-    @Test(description = "Test limit clause")
-    public void testLimitClause() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClause");
+    @Test(description = "Test limit clause when limit < number of elements")
+    public void testLimitClauseWithQueryExpr() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryExpr");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 34);
+    }
+
+    @Test(description = "Test limit clause when limit > number of elements")
+    public void testLimitClauseWithQueryExpr2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryExpr2");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
@@ -55,31 +73,85 @@ public class LimitClauseTest {
 
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 35);
     }
 
-    @Test(description = "Test query action with limit clause")
+
+    @Test(description = "Test limit clause when limit = number of elements")
+    public void testLimitClauseWithQueryExpr3() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryExpr3");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 35);
+    }
+
+    @Test(description = "Test query action with limit clause return simple value")
     public void testLimitClauseWithQueryAction() {
         BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryAction");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+        BInteger i = (BInteger) returnValues[0];
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "David");
+        Assert.assertEquals(i.intValue(), 6);
     }
 
-//    @Test(description = "Test limit clause with incompatible types")
-//    public void testNegativeScenarios() {
-//        Assert.assertEquals(result.getErrorCount(), 4);
-//        int index = 0;
-//        validateError(result, index++, "incompatible types: expected 'int', found 'boolean'",
-//                68, 19);
-//        validateError(result, index, "incompatible types: expected 'int', found 'boolean'",
-//                87, 19);
-//    }
+    @Test(description = "Test query action with limit clause return list")
+    public void testLimitClauseWithQueryAction2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryAction2");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BMap<String, BValue> fullName = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(fullName.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(fullName.get("lastName").stringValue(), "George");
+    }
+
+    @Test(description = "Test limit clause when limit > number of elements")
+    public void testLimitClauseWithQueryAction3() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryAction3");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> fullName1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> fullName2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(fullName1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(fullName2.get("lastName").stringValue(), "Fonseka");
+    }
+
+    @Test(description = "Test limit clause when limit = number of elements")
+    public void testLimitClauseWithQueryAction4() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryAction4");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> fullName1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> fullName2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(fullName1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(fullName2.get("lastName").stringValue(), "Fonseka");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, description = "Test limit clause with incompatible types")
+    public void testNegativeScenarios() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        int index = 0;
+
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'boolean'",
+                27, 19);
+        validateError(negativeResult, index, "incompatible types: expected 'int', found 'boolean'",
+                66, 19);
+
+        throw new BLangRuntimeException("Unable to assign limit", "limit cannot be < 0.");
+    }
 }
