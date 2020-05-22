@@ -68,7 +68,7 @@ public class SmtpUtil {
      * @param host Host address of the SMTP server
      * @return Properties Set of properties required to connect to an SMTP server
      */
-    public static Properties getProperties(MapValue smtpConfig, String host) {
+    public static Properties getProperties(MapValue<BString, Object> smtpConfig, String host) {
         Properties properties = new Properties();
         properties.put(EmailConstants.PROPS_SMTP_HOST, host);
         properties.put(EmailConstants.PROPS_SMTP_PORT, Long.toString(
@@ -76,7 +76,8 @@ public class SmtpUtil {
         properties.put(EmailConstants.PROPS_SMTP_AUTH, "true");
         properties.put(EmailConstants.PROPS_SMTP_STARTTLS, "true");
         properties.put(EmailConstants.PROPS_ENABLE_SSL, smtpConfig.getBooleanValue(EmailConstants.PROPS_SSL));
-        CommonUtil.addCustomProperties(smtpConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(
+                (MapValue<BString, Object>) smtpConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("SMTP Properties set are as follows.");
@@ -98,7 +99,7 @@ public class SmtpUtil {
      * @throws MessagingException If an error occurs related to messaging operations
      * @throws IOException If an error occurs related to I/O operations
      */
-    public static MimeMessage generateMessage(Session session, String username, MapValue message)
+    public static MimeMessage generateMessage(Session session, String username, MapValue<BString, Object> message)
             throws MessagingException, IOException {
         Address[] toAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_TO);
         Address[] ccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_CC);
@@ -111,7 +112,7 @@ public class SmtpUtil {
         if (fromAddress == null || fromAddress.isEmpty()) {
             fromAddress = username;
         }
-        String senderAddress = getNullCheckedString(message.getStringValue(EmailConstants.MESSAGE_SENDER).getValue());
+        String senderAddress = getNullCheckedString(message.getStringValue(EmailConstants.MESSAGE_SENDER));
         MimeMessage emailMessage = new MimeMessage(session);
         emailMessage.setRecipients(Message.RecipientType.TO, toAddressArray);
         if (ccAddressArray.length > 0) {
@@ -215,7 +216,8 @@ public class SmtpUtil {
         }
     }
 
-    private static Address[] extractAddressLists(MapValue message, BString addressType) throws AddressException {
+    private static Address[] extractAddressLists(MapValue<BString, Object> message, BString addressType)
+            throws AddressException {
         String[] address =  getNullCheckedStringArray(message, addressType);
         int addressArrayLength = address.length;
         Address[] addressArray = new Address[addressArrayLength];
@@ -225,7 +227,7 @@ public class SmtpUtil {
         return addressArray;
     }
 
-    private static String[] getNullCheckedStringArray(MapValue mapValue, BString parameter) {
+    private static String[] getNullCheckedStringArray(MapValue<BString, Object> mapValue, BString parameter) {
         if (mapValue != null) {
             ArrayValue arrayValue = mapValue.getArrayValue(parameter);
             if (arrayValue != null) {
@@ -238,8 +240,8 @@ public class SmtpUtil {
         }
     }
 
-    private static String getNullCheckedString(String string) {
-        return string == null ? "" : string;
+    private static String getNullCheckedString(BString string) {
+        return string == null ? "" : string.getValue();
     }
 
     private static boolean isNotEmpty(String string) {
