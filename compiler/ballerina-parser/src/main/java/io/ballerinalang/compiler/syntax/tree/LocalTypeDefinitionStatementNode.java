@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class LocalTypeDefinitionStatementNode extends StatementNode {
 
@@ -91,5 +93,76 @@ public class LocalTypeDefinitionStatementNode extends StatementNode {
                 typeName,
                 typeDescriptor,
                 semicolonToken);
+    }
+
+    public LocalTypeDefinitionStatementNodeModifier modify() {
+        return new LocalTypeDefinitionStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class LocalTypeDefinitionStatementNodeModifier {
+        private final LocalTypeDefinitionStatementNode oldNode;
+        private NodeList<AnnotationNode> annotations;
+        private Token typeKeyword;
+        private Node typeName;
+        private Node typeDescriptor;
+        private Token semicolonToken;
+
+        public LocalTypeDefinitionStatementNodeModifier(LocalTypeDefinitionStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
+            this.typeKeyword = oldNode.typeKeyword();
+            this.typeName = oldNode.typeName();
+            this.typeDescriptor = oldNode.typeDescriptor();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public LocalTypeDefinitionStatementNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public LocalTypeDefinitionStatementNodeModifier withTypeKeyword(
+                Token typeKeyword) {
+            Objects.requireNonNull(typeKeyword, "typeKeyword must not be null");
+            this.typeKeyword = typeKeyword;
+            return this;
+        }
+
+        public LocalTypeDefinitionStatementNodeModifier withTypeName(
+                Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public LocalTypeDefinitionStatementNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public LocalTypeDefinitionStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public LocalTypeDefinitionStatementNode apply() {
+            return oldNode.modify(
+                    annotations,
+                    typeKeyword,
+                    typeName,
+                    typeDescriptor,
+                    semicolonToken);
+        }
     }
 }

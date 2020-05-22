@@ -29,10 +29,14 @@ public class TextRange {
     private final int endOffset;
     private final int length;
 
-    public TextRange(int startOffset, int length) {
+    private TextRange(int startOffset, int length) {
         this.startOffset = startOffset;
         this.length = length;
         this.endOffset = startOffset + length;
+    }
+
+    public static TextRange from(int startOffset, int length) {
+        return new TextRange(startOffset, length);
     }
 
     public int startOffset() {
@@ -49,6 +53,19 @@ public class TextRange {
 
     public boolean contains(int position) {
         return startOffset <= position && position < endOffset;
+    }
+
+    /**
+     * Tests whether there exists an intersection of this range and the given range.
+     * <p>
+     * The ranges R1(S1, E1) and R2(S2, E2) intersects if S1 is greater than or equal to E2 and
+     * S2 is less than or equal to E1
+     *
+     * @param textRange The range to test the intersection
+     * @return {@code true} if there exists an intersection; {@code false} otherwise
+     */
+    public boolean intersectionExists(TextRange textRange) {
+        return startOffset <= textRange.endOffset && textRange.startOffset <= endOffset;
     }
 
     public String toString() {

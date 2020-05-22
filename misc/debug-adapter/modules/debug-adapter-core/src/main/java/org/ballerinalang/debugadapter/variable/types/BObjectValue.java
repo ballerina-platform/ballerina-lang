@@ -19,37 +19,63 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * object value type.
+ * Ballerina object variable type.
  */
-public class BObjectValue extends VariableImpl {
+public class BObjectValue extends BCompoundVariable {
+
+    private final ObjectReferenceImpl jvmValueRef;
 
     public BObjectValue(Value value, Variable dapVariable) {
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        dapVariable.setType(BVariableType.OBJECT.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        Map<Field, Value> fieldValueMap = ((ObjectReferenceImpl) value)
-                .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
-        Map<String, Value> values = new HashMap<>();
-        fieldValueMap.forEach((field, value1) -> {
-            // Filter out internal variables
-            if (!field.name().startsWith("$") && !field.name().startsWith("nativeData")) {
-                values.put(field.name(), value1);
-            }
-        });
-
-        this.setChildVariables(values);
-        dapVariable.setType("object");
-        dapVariable.setValue(this.toString());
+        computeChildVariables();
     }
 
     @Override
-    public String toString() {
-        return "object";
+    public String getValue() {
+        try {
+            // Extracts object type name from the reflected type class.
+            String[] split = this.jvmValueRef.referenceType().classObject().reflectedType().name().split("\\.");
+            for (String element : split) {
+                if (element.contains("$value$")) {
+                    return element.replaceFirst("\\$value\\$", "");
+                }
+            }
+            return "unknown";
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception ignored) {
+            return "unknown";
+        }
+    }
+
+    @Override
+    public void computeChildVariables() {
+        try {
+            Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
+            Map<String, Value> values = new HashMap<>();
+            // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
+            String balObjectFiledIdentifier = this.getValue() + ".";
+            fieldValueMap.forEach((field, value) -> {
+                if (field.toString().contains(balObjectFiledIdentifier)) {
+                    values.put(field.name(), value);
+                }
+            });
+            this.setChildVariables(values);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception ignored) {
+            this.setChildVariables(new HashMap<>());
+        }
     }
 }

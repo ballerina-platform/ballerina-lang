@@ -46,7 +46,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -899,18 +902,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        queryExpr.fromClauseList.forEach(this::acceptNode);
-        queryExpr.letClausesList.forEach(this::acceptNode);
-        this.acceptNode(queryExpr.selectClause);
-        queryExpr.whereClauseList.forEach(this::acceptNode);
+        queryExpr.getQueryClauses().forEach(this::acceptNode);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        queryAction.fromClauseList.forEach(this::acceptNode);
-        queryAction.whereClauseList.forEach(this::acceptNode);
-        queryAction.getLetClauseNode().forEach(this::acceptNode);
-        this.acceptNode(queryAction.doClause);
+        queryAction.getQueryClauses().forEach(this::acceptNode);
     }
 
     @Override
@@ -925,6 +922,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangJoinClause joinClause) {
+        this.acceptNode(joinClause.collection);
+        this.acceptNode((BLangNode) joinClause.variableDefinitionNode);
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause) {
         this.acceptNode(selectClause.expression);
     }
@@ -932,6 +935,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWhereClause whereClause) {
         this.acceptNode(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        this.acceptNode(onClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        this.acceptNode(onConflictClause.expression);
     }
 
     @Override

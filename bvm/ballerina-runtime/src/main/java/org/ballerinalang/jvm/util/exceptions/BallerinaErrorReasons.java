@@ -55,6 +55,7 @@ public class BallerinaErrorReasons {
     public static final String BALLERINA_PREFIXED_STAMP_ERROR = BALLERINA_PREFIX.concat("StampError");
     public static final String BALLERINA_PREFIXED_CONVERSION_ERROR = BALLERINA_PREFIX.concat("ConversionError");
     public static final String CONCURRENT_MODIFICATION_ERROR = BALLERINA_PREFIX.concat("ConcurrentModification");
+    public static final String ITERATOR_MUTABILITY_ERROR = BALLERINA_PREFIX.concat("IteratorMutabilityError");
 
     public static final String NUMBER_PARSING_ERROR_IDENTIFIER = "NumberParsingError";
     public static final String BOOLEAN_PARSING_ERROR_IDENTIFIER = "BooleanParsingError";

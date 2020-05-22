@@ -28,6 +28,7 @@ public class Library {
     public String path;
     public String groupId;
     public String[] modules;
+    private String scope;
 
     public String getVersion() {
         return version;
@@ -67,5 +68,9 @@ public class Library {
 
     public void setArtifactId(String artifactId) {
         this.artifactId = artifactId;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }

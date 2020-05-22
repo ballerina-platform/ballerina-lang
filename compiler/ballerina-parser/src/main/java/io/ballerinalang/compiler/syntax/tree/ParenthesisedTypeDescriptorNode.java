@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ParenthesisedTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -75,5 +77,56 @@ public class ParenthesisedTypeDescriptorNode extends TypeDescriptorNode {
                 openParenToken,
                 typedesc,
                 closeParenToken);
+    }
+
+    public ParenthesisedTypeDescriptorNodeModifier modify() {
+        return new ParenthesisedTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ParenthesisedTypeDescriptorNodeModifier {
+        private final ParenthesisedTypeDescriptorNode oldNode;
+        private Token openParenToken;
+        private TypeDescriptorNode typedesc;
+        private Token closeParenToken;
+
+        public ParenthesisedTypeDescriptorNodeModifier(ParenthesisedTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.openParenToken = oldNode.openParenToken();
+            this.typedesc = oldNode.typedesc();
+            this.closeParenToken = oldNode.closeParenToken();
+        }
+
+        public ParenthesisedTypeDescriptorNodeModifier withOpenParenToken(
+                Token openParenToken) {
+            Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+            this.openParenToken = openParenToken;
+            return this;
+        }
+
+        public ParenthesisedTypeDescriptorNodeModifier withTypedesc(
+                TypeDescriptorNode typedesc) {
+            Objects.requireNonNull(typedesc, "typedesc must not be null");
+            this.typedesc = typedesc;
+            return this;
+        }
+
+        public ParenthesisedTypeDescriptorNodeModifier withCloseParenToken(
+                Token closeParenToken) {
+            Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+            this.closeParenToken = closeParenToken;
+            return this;
+        }
+
+        public ParenthesisedTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    openParenToken,
+                    typedesc,
+                    closeParenToken);
+        }
     }
 }

@@ -451,25 +451,25 @@ function checkComplex2DArrayEqualityPositive() returns boolean {
     [int, float][][] a = [];
     [int|string, float]?[][] b = [];
 
-    boolean equals = a == b && !(a != b);
+    boolean 'equals = a == b && !(a != b);
 
     a = [[[1, 3.0]], [[123, 65.4], [234, 23.22]]];
     b[0] = [[1, 3.0]];
     b[1] = [[123, 65.4], [234, 23.22]];
 
-    return equals && a == b && !(a != b);
+    return 'equals && a == b && !(a != b);
 }
 
 function checkComplex2DArrayEqualityNegative() returns boolean {
     [int, float][][] a = [[[123, 65.4], [234, 23.22]]];
     [int|string, float]?[][] b = [[[124, 65.4], [234, 23.22]]];
 
-    boolean equals = a == b || !(a != b);
+    boolean 'equals = a == b || !(a != b);
 
     b = [[[123, 65.4], [234, 23.22]]];
     b[2] = [[123, 65.4], [234, 23.22]];
 
-    return equals || a == b || !(a != b);
+    return 'equals || a == b || !(a != b);
 }
 
 function checkMapEqualityPositive() returns boolean {
@@ -482,7 +482,7 @@ function checkMapEqualityPositive() returns boolean {
     map<float> m5 = {};
     map<float> m6 = {};
 
-    boolean equals = m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
+    boolean 'equals = m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
 
     m1["one"] = 1;
     m2["one"] = 1;
@@ -499,8 +499,8 @@ function checkMapEqualityPositive() returns boolean {
     m5["one"] = 1.0;
     m6["one"] = 1.0;
 
-    equals = equals && m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
-    return equals;
+    'equals = 'equals && m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
+    return 'equals;
 }
 
 function checkMapEqualityNegative() returns boolean {
@@ -523,7 +523,7 @@ function checkComplexMapEqualityPositive() returns boolean {
     map<map<[boolean, string|float]>> m1 = {};
     map<map<[boolean, float]|int>> m2 = {};
 
-    boolean equals = m1 == m2 && !(m1 != m2);
+    boolean 'equals = m1 == m2 && !(m1 != m2);
 
     map<[boolean, string|float]> m3 = { one: [true, 3.8], two: [false, 13.8] };
     m1["one"] = m3;
@@ -533,7 +533,7 @@ function checkComplexMapEqualityPositive() returns boolean {
     m4["two"] = [false, 13.8];
     m2["one"] = m4;
 
-    return equals && m1 == m2 && !(m1 != m2);
+    return 'equals && m1 == m2 && !(m1 != m2);
 }
 
 function checkComplexMapEqualityNegative() returns boolean {
@@ -576,7 +576,7 @@ function checkUnionConstrainedMapsPositive() returns boolean {
     map<string|int> m1 = {};
     map<int> m2 = {};
 
-    boolean equals = m1 == m2 && !(m1 != m2);
+    boolean 'equals = m1 == m2 && !(m1 != m2);
 
     m1["one"] = 1;
     m1["two"] = 2;
@@ -584,12 +584,12 @@ function checkUnionConstrainedMapsPositive() returns boolean {
     m2["one"] = 1;
     m2["two"] = 2;
 
-    equals = equals && m1 == m2 && !(m1 != m2);
+    'equals = 'equals && m1 == m2 && !(m1 != m2);
 
     map<string|int> m3 = {};
     map<int|float|string> m4 = {};
 
-    equals = equals && m3 == m4 && !(m3 != m4);
+    'equals = 'equals && m3 == m4 && !(m3 != m4);
 
     m3["one"] = "one";
     m3["two"] = 2;
@@ -597,7 +597,7 @@ function checkUnionConstrainedMapsPositive() returns boolean {
     m4["two"] = 2;
     m4["one"] = "one";
 
-    equals = equals && m3 == m4 && !(m3 != m4);
+    'equals = 'equals && m3 == m4 && !(m3 != m4);
 
     map<[string|int, float]>|[string,int] m5;
     map<[string, float]> m6 = {};
@@ -610,7 +610,7 @@ function checkUnionConstrainedMapsPositive() returns boolean {
     m6["two"] = ["hello", 21.1];
     m6["one"] = ["hi", 100.0];
 
-    return equals && m5 == m6 && !(m5 != m6);
+    return 'equals && m5 == m6 && !(m5 != m6);
 }
 
 function checkUnionConstrainedMapsNegative() returns boolean {
@@ -620,11 +620,11 @@ function checkUnionConstrainedMapsNegative() returns boolean {
     m1["one"] = true;
     m1["two"] = 2;
 
-    boolean equals = m1 == m2 || !(m1 != m2);
+    boolean 'equals = m1 == m2 || !(m1 != m2);
 
     m2["two"] = 2;
 
-    equals = equals || m1 == m2 || !(m1 != m2);
+    'equals = 'equals || m1 == m2 || !(m1 != m2);
 
     map<[string|int, float]>|[string,int] m3;
     map<[string, float]> m4 = {};
@@ -637,24 +637,24 @@ function checkUnionConstrainedMapsNegative() returns boolean {
     m4["two"] = ["hello", 21.1];
     m4["one"] = ["hi", 100.0];
 
-    return equals || m3 == m4 || !(m3 != m4);
+    return 'equals || m3 == m4 || !(m3 != m4);
 }
 
 function checkUnionArrayPositive() returns boolean {
     (string|int)?[] a1 = [];
     int[] a2 = [];
 
-    boolean equals = a1 == a2 && !(a1 != a2);
+    boolean 'equals = a1 == a2 && !(a1 != a2);
 
     a1 = [1, 2000, 937];
     a2 = [1, 2000, 937];
 
-    equals = equals && a1 == a2 && !(a1 != a2);
+    'equals = 'equals && a1 == a2 && !(a1 != a2);
 
     (string|int)?[] a3 = [];
     (int|float|string)?[] a4 = [];
 
-    equals = equals && a3 == a4 && !(a3 != a4);
+    'equals = 'equals && a3 == a4 && !(a3 != a4);
 
     a3[0] = "one";
     a3[3] = 3;
@@ -662,18 +662,18 @@ function checkUnionArrayPositive() returns boolean {
     a4[3] = 3;
     a4[0] = "one";
 
-    equals = equals && a3 == a4 && !(a3 != a4);
+    'equals = 'equals && a3 == a4 && !(a3 != a4);
 
     ([string, int]|float)?[] a5 = [];
     ([string, int|boolean]|float)?[] a6 = [];
 
-    equals = equals && a5 == a6 && !(a5 != a6);
+    'equals = 'equals && a5 == a6 && !(a5 != a6);
 
     a5 = [["hi", 1], 3.0];
     a6[0] = ["hi", 1];
     a6[1] = 3.0;
 
-    return equals && a5 == a6 && !(a5 != a6);
+    return 'equals && a5 == a6 && !(a5 != a6);
 }
 
 function checkUnionArrayNegative() returns boolean {
@@ -683,40 +683,40 @@ function checkUnionArrayNegative() returns boolean {
     a1[0] = "true";
     a1[2] = 2;
 
-    boolean equals = a1 == a2 || !(a1 != a2);
+    boolean 'equals = a1 == a2 || !(a1 != a2);
 
     a2[2] = 2;
 
-    equals = equals || a1 == a2 || !(a1 != a2);
+    'equals = 'equals || a1 == a2 || !(a1 != a2);
 
     ([string, int]|float)?[] a5 = [["hi", 1], 3.0];
     ([string, int|boolean]|float)?[] a6 = [["hi", true], 3.0];
 
-    return equals || a5 == a6 || !(a5 != a6);
+    return 'equals || a5 == a6 || !(a5 != a6);
 }
 
 function checkTupleWithUnionPositive() returns boolean {
     [int, string|int, boolean] t1 = [1, "ballerina", false];
     [int, string|int, boolean] t2 = [1, "ballerina", false];
 
-    boolean equals = t1 == t2 && !(t1 != t2);
+    boolean 'equals = t1 == t2 && !(t1 != t2);
 
     [int, string|int, boolean] t3 = [1000, "ballerina", true];
     [int, int|string, OpenEmployee|boolean|int] t4 = [1000, "ballerina", true];
 
-    return equals && t3 == t4 && !(t3 != t4);
+    return 'equals && t3 == t4 && !(t3 != t4);
 }
 
 function checkTupleWithUnionNegative() returns boolean {
     [int, string|int, boolean] t1 = [1, "hi", false];
     [int, string|int, boolean] t2 = [1, "ballerina", false];
 
-    boolean equals = t1 == t2 || !(t1 != t2);
+    boolean 'equals = t1 == t2 || !(t1 != t2);
 
     [int, string|int, boolean] t3 = [1000, "ballerina", true];
     [int, int|string, OpenEmployee|boolean|string] t4 = [1000, "ballerina", "true"];
 
-    return equals || t3 == t4 || !(t3 != t4);
+    return 'equals || t3 == t4 || !(t3 != t4);
 }
 
 function checkJsonEqualityPositive(json a, json b) returns boolean {
@@ -731,61 +731,61 @@ function testIntByteEqualityPositive() returns boolean {
     int a = 0;
     byte b = 0;
 
-    boolean equals = a == b && !(a != b);
+    boolean 'equals = a == b && !(a != b);
 
     a = 5;
     b = 5;
 
-    equals = equals && (a == b) && !(a != b);
+    'equals = 'equals && (a == b) && !(a != b);
 
     int[] c = [];
     byte[] d = [];
 
-    equals = equals && (c == d) && !(c != d);
+    'equals = 'equals && (c == d) && !(c != d);
 
     c = [1, 2];
     d = [1, 2];
 
-    equals = equals && (c == d) && !(c != d);
+    'equals = 'equals && (c == d) && !(c != d);
 
     byte[][] e = [[23, 45], [123, 43, 68]];
     (int|float)?[][] f = [[23, 45], [123, 43, 68]];
 
-    equals = equals && (e == f) && !(e != f);
+    'equals = 'equals && (e == f) && !(e != f);
 
     map<[byte, boolean]> g = {};
     map<[int, boolean]> h = {};
 
-    equals = equals && (g == h) && !(g != h);
+    'equals = 'equals && (g == h) && !(g != h);
 
     g["one"] = [100, true];
     h["two"] = [1, false];
     h["one"] = [100, true];
     g["two"] = [1, false];
 
-    return equals && (g == h) && !(g != h);
+    return 'equals && (g == h) && !(g != h);
 }
 
 function testIntByteEqualityNegative() returns boolean {
     int a = 15;
     byte b = 5;
 
-    boolean equals = a == b || !(a != b);
+    boolean 'equals = a == b || !(a != b);
 
     a = 256;
     b = 0;
 
-    equals = equals || a == b || !(a != b);
+    'equals = 'equals || a == b || !(a != b);
 
     int[] c = [2, 1];
     byte[] d = [1, 2];
 
-    equals = equals || (c == d) || !(c != d);
+    'equals = 'equals || (c == d) || !(c != d);
 
     (int|float)?[][] e = [[2.3, 45], [124, 43, 68]];
     byte[][] f = [[23, 45], [123, 43, 68]];
 
-    equals = equals || (e == f) || !(e != f);
+    'equals = 'equals || (e == f) || !(e != f);
 
     map<[int, boolean]> g = {};
     map<[byte, boolean]> h = {};
@@ -795,71 +795,71 @@ function testIntByteEqualityNegative() returns boolean {
     h["one"] = [100, true];
     g["two"] = [1, false];
 
-    return equals && (g == h) && !(g != h);
+    return 'equals && (g == h) && !(g != h);
 }
 
 function testPrimitiveAndJsonEqualityPositive() returns boolean {
     json a = ();
     () b = ();
 
-    boolean equals = a == b && !(a != b);
+    boolean 'equals = a == b && !(a != b);
 
     a = 1;
     int c = 1;
 
-    equals = equals && (a == c) && !(a != c);
+    'equals = 'equals && (a == c) && !(a != c);
 
     a = "Hello World, from Ballerina";
     string d = "Hello World, from Ballerina";
 
-    equals = equals && (a == d) && !(a != d);
+    'equals = 'equals && (a == d) && !(a != d);
 
     a = false;
     boolean|int e = false;
 
-    equals = equals && (a == e) && !(a != e);
+    'equals = 'equals && (a == e) && !(a != e);
 
     json[] f = [1.5, 4.23, 2.1];
     (map<anydata>|float)?[] g = [1.5, 4.23, 2.1];
 
-    equals = equals && (f == g) && !(f != g);
+    'equals = 'equals && (f == g) && !(f != g);
 
     OpenEmployee? h = ();
     a = ();
 
-    return equals && (a == h) && !(a != h);
+    return 'equals && (a == h) && !(a != h);
 }
 
 function testPrimitiveAndJsonEqualityNegative() returns boolean {
     json a = ();
     int? b = 5;
 
-    boolean equals = a == b || !(a != b);
+    boolean 'equals = a == b || !(a != b);
 
     a = 10;
     int c = 1;
 
-    equals = equals || (a == c) || !(a != c);
+    'equals = 'equals || (a == c) || !(a != c);
 
     a = "Hello from Ballerina";
     string d = "Hello World, from Ballerina";
 
-    equals = equals || (a == d) || !(a != d);
+    'equals = 'equals || (a == d) || !(a != d);
 
     a = false;
     boolean|int e = true;
 
-    equals = equals || (a == e) || !(a != e);
+    'equals = 'equals || (a == e) || !(a != e);
 
     json[] f = [1.5, 4.23, 2.1];
     (map<anydata>|int|float)?[] g = [1, 4];
 
-    equals = equals || (f == g) || !(f != g);
+    'equals = 'equals || (f == g) || !(f != g);
 
     OpenEmployee? h = ();
     a = 10;
 
-    return equals || (a == h) || !(a != h);
+    return 'equals || (a == h) || !(a != h);
 }
 
 function testSimpleXmlPositive() returns boolean {
@@ -1011,33 +1011,33 @@ public function testArrayTupleEqualityPositive() returns boolean {
     int[] a = [1, 2, 3];
     [int, json, int] b = [1, 2, 3];
 
-    boolean equals = a == b && !(b != a);
+    boolean 'equals = a == b && !(b != a);
 
     int[3] c = [1, 2, 3];
-    equals = equals && isEqual(b, c);
+    'equals = 'equals && isEqual(b, c);
 
     OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
     (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     [int, OpenEmployeeTwo, boolean, float] g = [1, e, true, 3.2];
 
-    return equals && g == f && !(f != g);
+    return 'equals && g == f && !(f != g);
 }
 
 public function testArrayTupleEqualityNegative() returns boolean {
     (boolean|float)?[] a = [true, 2.0, 1.23];
     [json, json, float] b = [false, 2.0, 1.23];
 
-    boolean equals = a == b && !(b != a);
+    boolean 'equals = a == b && !(b != a);
 
     (string|boolean|float|int)?[3] c = [false, 2, 1.23];
-    equals = equals && c == b && !(b != c);
+    'equals = 'equals && c == b && !(b != c);
 
     OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
     OpenEmployeeTwo e2 = { name: "Ziyad", "id": 1000 };
     (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     [int|OpenEmployee, OpenEmployeeTwo, boolean|string, float] g = [1, e2, true, 3.2];
 
-    return equals || isEqual(g, f);
+    return 'equals || isEqual(g, f);
 }
 
 public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolean {
@@ -1047,7 +1047,7 @@ public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolea
     map<anydata> n = { "0": 0, "3": "three" };
     n["1"] = n;
 
-    boolean equals = isEqual(m, n);
+    boolean 'equals = isEqual(m, n);
 
     map<anydata> o = { "0": 0 };
     o["1"] = m;
@@ -1055,7 +1055,7 @@ public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolea
     map<anydata> p = { "0": 0 };
     p["1"] = n;
 
-    equals = equals && o == p && !(o != p);
+    'equals = 'equals && o == p && !(o != p);
 
     map<anydata> q = { one: 1 };
     map<anydata> r = { one: 1 };
@@ -1064,7 +1064,7 @@ public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolea
     r["r"] = r;
     q["q"] = q;
 
-    return equals && isEqual(q, r);
+    return 'equals && isEqual(q, r);
 }
 
 public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolean {
@@ -1074,7 +1074,7 @@ public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolea
     map<anydata> n = { "0": 0, "3": "three" };
     n["2"] = n;
 
-    boolean equals = m == n || !(n != m);
+    boolean 'equals = m == n || !(n != m);
 
     n["1"] = m;
     map<anydata> o = { "0": 0 };
@@ -1083,7 +1083,7 @@ public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolea
     map<anydata> p = { "0": "zero" };
     p["1"] = n;
 
-    equals = equals || o == p || !(o != p);
+    'equals = 'equals || o == p || !(o != p);
 
     map<anydata> q = { one: 1 };
     map<anydata> r = { one: 1 };
@@ -1093,7 +1093,7 @@ public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolea
     r["r"] = r;
     q["q"] = s;
 
-    return equals || isEqual(q, r);
+    return 'equals || isEqual(q, r);
 }
 
 public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boolean {
@@ -1103,7 +1103,7 @@ public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boole
     map<json> n = { "0": 0, "3": "three" };
     n["1"] = n;
 
-    boolean equals = isEqual(m, n);
+    boolean 'equals = isEqual(m, n);
 
     map<json> o = { "0": 0 };
     o["1"] = m;
@@ -1111,7 +1111,7 @@ public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boole
     map<json> p = { "0": 0 };
     p["1"] = n;
 
-    equals = equals && o == p && !(o != p);
+    'equals = 'equals && o == p && !(o != p);
 
     map<json> q = { one: 1 };
     map<json> r = { one: 1 };
@@ -1120,7 +1120,7 @@ public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boole
     r["r"] = r;
     q["q"] = q;
 
-    return equals && isEqual(q, r);
+    return 'equals && isEqual(q, r);
 }
 
 public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boolean {
@@ -1130,7 +1130,7 @@ public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boole
     map<json> n = { "0": 0, "3": "three" };
     n["2"] = n;
 
-    boolean equals = m == n || !(n != m);
+    boolean 'equals = m == n || !(n != m);
 
     n["1"] = m;
     map<json> o = { "0": 0 };
@@ -1139,7 +1139,7 @@ public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boole
     map<json> p = { "0": "zero" };
     p["1"] = n;
 
-    equals = equals || o == p || !(o != p);
+    'equals = 'equals || o == p || !(o != p);
 
     map<json> q = { one: 1, t: 2 };
     map<json> r = { one: 1, t: 23 };
@@ -1148,7 +1148,7 @@ public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boole
     r["r"] = r;
     q["q"] = q;
 
-    return equals || isEqual(q, r);
+    return 'equals || isEqual(q, r);
 }
 
 public function testSelfAndCyclicReferencingArrayEqualityPositive() returns boolean {
@@ -1158,17 +1158,17 @@ public function testSelfAndCyclicReferencingArrayEqualityPositive() returns bool
     anydata[] n = [1, "hi"];
     n[2] = n;
 
-    boolean equals = isEqual(m, n);
+    boolean 'equals = isEqual(m, n);
 
     anydata[] o = [1, 3, 4.5, m, "hello"];
     anydata[] p = [1, 3, 4.5, n, "hello"];
 
-    equals = equals && o == p && !(o != p);
+    'equals = 'equals && o == p && !(o != p);
 
     o[5] = m;
     p[5] = m;
 
-    return equals && o == p && !(o != p);
+    return 'equals && o == p && !(o != p);
 }
 
 public function testSelfAndCyclicReferencingArrayEqualityNegative() returns boolean {
@@ -1178,17 +1178,17 @@ public function testSelfAndCyclicReferencingArrayEqualityNegative() returns bool
     anydata[] n = [1, "hi", 3, "ball"];
     n[2] = n;
 
-    boolean equals = m == n || !(n != m);
+    boolean 'equals = m == n || !(n != m);
 
     anydata[] o = [1, 3, 4.5, m];
     anydata[] p = [1, 3, 4.5, n];
 
-    equals = equals || o == p || !(p != o);
+    'equals = 'equals || o == p || !(p != o);
 
     o[4] = m;
     p[4] = n;
 
-    return equals || o == p || !(o != p);
+    return 'equals || o == p || !(o != p);
 }
 
 public function testSelfAndCyclicReferencingTupleEqualityPositive() returns boolean {
@@ -1198,17 +1198,17 @@ public function testSelfAndCyclicReferencingTupleEqualityPositive() returns bool
     [int, string, anydata] n = [1, "hi", true];
     n[2] = n;
 
-    boolean equals = isEqual(m, n);
+    boolean 'equals = isEqual(m, n);
 
     [int, int, boolean, [int, string, anydata], anydata] o = [1, 3, true, m, "hello"];
     [int, int, boolean, [int, string, anydata], anydata] p = [1, 3, true, n, "hello"];
 
-    equals = equals && o == p && !(o != p);
+    'equals = 'equals && o == p && !(o != p);
 
     o[4] = m;
     p[4] = m;
 
-    return equals && o == p && !(o != p);
+    return 'equals && o == p && !(o != p);
 }
 
 public function testSelfAndCyclicReferencingTupleEqualityNegative() returns boolean {
@@ -1218,17 +1218,17 @@ public function testSelfAndCyclicReferencingTupleEqualityNegative() returns bool
     [int, string, anydata, string] n = [1, "hi", 3, "ball"];
     n[2] = n;
 
-    boolean equals = m == n || !(n != m);
+    boolean 'equals = m == n || !(n != m);
 
     [int, int, boolean, anydata] o = [1, 3, true, m];
     [int, int, boolean, anydata] p = [1, 3, true, n];
 
-    equals = equals || o == p || !(p != o);
+    'equals = 'equals || o == p || !(p != o);
 
     o[3] = m;
     p[3] = n;
 
-    return equals || o == p || !(o != p);
+    return 'equals || o == p || !(o != p);
 }
 
 function testEmptyMapAndRecordEquality() returns boolean {

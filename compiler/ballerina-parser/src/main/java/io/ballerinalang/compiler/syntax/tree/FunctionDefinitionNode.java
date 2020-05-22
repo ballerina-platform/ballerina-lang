@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
 
@@ -52,7 +53,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(4);
     }
 
-    public Node functionBody() {
+    public FunctionBodyNode functionBody() {
         return childInBucket(5);
     }
 
@@ -83,7 +84,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             Token functionKeyword,
             IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
-            Node functionBody) {
+            FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
@@ -101,5 +102,86 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 functionName,
                 functionSignature,
                 functionBody);
+    }
+
+    public FunctionDefinitionNodeModifier modify() {
+        return new FunctionDefinitionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FunctionDefinitionNodeModifier {
+        private final FunctionDefinitionNode oldNode;
+        private MetadataNode metadata;
+        private Token visibilityQualifier;
+        private Token functionKeyword;
+        private IdentifierToken functionName;
+        private FunctionSignatureNode functionSignature;
+        private FunctionBodyNode functionBody;
+
+        public FunctionDefinitionNodeModifier(FunctionDefinitionNode oldNode) {
+            this.oldNode = oldNode;
+            this.metadata = oldNode.metadata();
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.functionKeyword = oldNode.functionKeyword();
+            this.functionName = oldNode.functionName();
+            this.functionSignature = oldNode.functionSignature();
+            this.functionBody = oldNode.functionBody();
+        }
+
+        public FunctionDefinitionNodeModifier withMetadata(
+                MetadataNode metadata) {
+            Objects.requireNonNull(metadata, "metadata must not be null");
+            this.metadata = metadata;
+            return this;
+        }
+
+        public FunctionDefinitionNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
+            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+            this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public FunctionDefinitionNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
+            Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+            this.functionKeyword = functionKeyword;
+            return this;
+        }
+
+        public FunctionDefinitionNodeModifier withFunctionName(
+                IdentifierToken functionName) {
+            Objects.requireNonNull(functionName, "functionName must not be null");
+            this.functionName = functionName;
+            return this;
+        }
+
+        public FunctionDefinitionNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
+            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+            this.functionSignature = functionSignature;
+            return this;
+        }
+
+        public FunctionDefinitionNodeModifier withFunctionBody(
+                FunctionBodyNode functionBody) {
+            Objects.requireNonNull(functionBody, "functionBody must not be null");
+            this.functionBody = functionBody;
+            return this;
+        }
+
+        public FunctionDefinitionNode apply() {
+            return oldNode.modify(
+                    metadata,
+                    visibilityQualifier,
+                    functionKeyword,
+                    functionName,
+                    functionSignature,
+                    functionBody);
+        }
     }
 }
