@@ -77,7 +77,7 @@ public class GrpcUtil {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcUtil.class);
 
-    public static ConnectionManager getConnectionManager(MapValue<String, Long> poolStruct) {
+    public static ConnectionManager getConnectionManager(MapValue<BString, Long> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (poolStruct) {
@@ -92,7 +92,7 @@ public class GrpcUtil {
         return poolManager;
     }
 
-    public static void populatePoolingConfig(MapValue<String, Long> poolRecord, PoolConfiguration poolConfiguration) {
+    public static void populatePoolingConfig(MapValue<BString, Long> poolRecord, PoolConfiguration poolConfiguration) {
         long maxActiveConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
         poolConfiguration.setMaxActivePerPool(
                 validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
@@ -111,7 +111,7 @@ public class GrpcUtil {
     }
 
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration,
-                                                    MapValue<String, Object> clientEndpointConfig, String scheme) {
+                                                    MapValue<BString, Object> clientEndpointConfig, String scheme) {
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
         if (secureSocket != null) {
@@ -136,7 +136,8 @@ public class GrpcUtil {
      * @param sslConfiguration  ssl configuration instance.
      * @param secureSocket    secure socket configuration.
      */
-    public static void populateSSLConfiguration(SslConfiguration sslConfiguration, MapValue secureSocket) {
+    public static void populateSSLConfiguration(SslConfiguration sslConfiguration,
+            MapValue<BString, Object> secureSocket) {
         MapValue trustStore = secureSocket.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
         MapValue keyStore = secureSocket.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
         MapValue protocols = secureSocket.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
@@ -260,7 +261,7 @@ public class GrpcUtil {
      * @param endpointConfig    listener endpoint configuration.
      * @return                  transport listener configuration instance.
      */
-    public static ListenerConfiguration getListenerConfig(long port, MapValue endpointConfig) {
+    public static ListenerConfiguration getListenerConfig(long port, MapValue<BString, Object> endpointConfig) {
         BString host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
         MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
@@ -314,7 +315,8 @@ public class GrpcUtil {
         return userAgent;
     }
 
-    private static ListenerConfiguration setSslConfig(MapValue sslConfig, ListenerConfiguration listenerConfiguration) {
+    private static ListenerConfiguration setSslConfig(MapValue<BString, Object> sslConfig,
+            ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(PROTOCOL_HTTPS);
         MapValue trustStore = sslConfig.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
         MapValue keyStore = sslConfig.getMapValue(ENDPOINT_CONFIG_KEY_STORE);

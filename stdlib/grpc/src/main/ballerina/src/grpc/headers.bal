@@ -27,7 +27,7 @@ public type Headers object {
 # + headerName - The header name
 # + return - True if header exists or else false
     public function exists(string headerName) returns boolean {
-        return externExists(self, java:fromString(headerName));
+        return externExists(self, headerName);
     }
 
 # Returns the header value with the specified header name. If there are more than one header values for the
@@ -39,11 +39,11 @@ public type Headers object {
 # + headerName - The header name
 # + return - First header value if exists or else `()`
     public function get(string headerName) returns string? {
-        handle? result = externGet(self, java:fromString(headerName));
+        string? result = externGet(self, headerName);
         if (result is ()) {
             return result;
         } else {
-            return java:toString(result);
+            return result;
         }
     }
 
@@ -55,7 +55,7 @@ public type Headers object {
 # + headerName - The header name
 # + return - Header value array
     public function getAll(string headerName) returns string[] {
-        return externGetAll(self, java:fromString(headerName));
+        return externGetAll(self, headerName);
     }
 
 # Sets the value of a transport header.
@@ -66,7 +66,7 @@ public type Headers object {
 # + headerName - The header name
 # + headerValue - The header value
     public function setEntry(string headerName, string headerValue) {
-        return externSetEntry(self, java:fromString(headerName), java:fromString(headerValue));
+        return externSetEntry(self, headerName, headerValue);
     }
 
 # Adds the specified key/value pair as an HTTP header to the request.
@@ -77,7 +77,7 @@ public type Headers object {
 # + headerName - The header name
 # + headerValue - The header value
     public function addEntry(string headerName, string headerValue) {
-        return externAddEntry(self, java:fromString(headerName), java:fromString(headerValue));
+        return externAddEntry(self, headerName, headerValue);
     }
 
 # Removes a transport header from the request.
@@ -87,7 +87,7 @@ public type Headers object {
 #
 # + headerName - The header name
     public function remove(string headerName) {
-        return externRemove(self, java:fromString(headerName));
+        return externRemove(self, headerName);
     }
 
 # Removes all the transport headers from the message.
@@ -100,32 +100,32 @@ public type Headers object {
     }
 };
 
-function externExists(Headers headerValues, handle headerName) returns boolean =
+function externExists(Headers headerValues, string headerName) returns boolean =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
-function externGet(Headers headerValues, handle headerName) returns handle? =
+function externGet(Headers headerValues, string headerName) returns string? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
-function externGetAll(Headers headerValues, handle headerName) returns string[] =
+function externGetAll(Headers headerValues, string headerName) returns string[] =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
-function externSetEntry(Headers headerValues, handle headerName, handle headerValue) =
+function externSetEntry(Headers headerValues, string headerName, string headerValue) =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
-function externAddEntry(Headers headerValues, handle headerName, handle headerValue) =
+function externAddEntry(Headers headerValues, string headerName, string headerValue) =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
 
-function externRemove(Headers headerValues, handle headerName) =
+function externRemove(Headers headerValues, string headerName) =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.headers.FunctionUtils"
 } external;
