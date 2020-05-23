@@ -555,9 +555,16 @@ class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(recordType));
 
+        BIntersectionType immutableType = recordType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>",
-                String.format("(L%s;L%s;IZI)V", STRING_VALUE, PACKAGE_TYPE),
+                String.format("(L%s;L%s;IZIL%s;)V", STRING_VALUE, PACKAGE_TYPE, INTERSECTION_TYPE),
                 false);
     }
 
@@ -1111,16 +1118,8 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        BArrayType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZL%s;)V", BTYPE, ARRAY_TYPE),
-                           false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZ)V", BTYPE), false);
     }
 
     /**
@@ -1159,15 +1158,8 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        BMapType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, MAP_TYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
     }
 
     private static void loadReadonlyFlag(MethodVisitor mv, BType bType) {
@@ -1195,15 +1187,8 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        BXMLType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, XML_TYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
     }
 
     /**
@@ -1236,29 +1221,16 @@ class JvmTypeGen {
                 i += 1;
             }
 
-            loadReadOnlyFlagAndType(mv, bType);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;ZL%s;)V",
-                    BTYPE, STRING_VALUE, TABLE_TYPE), false);
+            loadReadonlyFlag(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;Z)V", BTYPE, STRING_VALUE),
+                               false);
         } else if (bType.keyTypeConstraint != null) {
             loadType(mv, bType.keyTypeConstraint);
-            loadReadOnlyFlagAndType(mv, bType);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;ZL%s;)V",
-                    BTYPE, BTYPE, TABLE_TYPE), false);
+            loadReadonlyFlag(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;Z)V", BTYPE, BTYPE), false);
         } else {
-            loadReadOnlyFlagAndType(mv, bType);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;ZL%s;)V", BTYPE, TABLE_TYPE),
-                               false);
-        }
-    }
-
-    private static void loadReadOnlyFlagAndType(MethodVisitor mv, BTableType bType) {
-        loadReadonlyFlag(mv, bType);
-
-        BType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
+            loadReadonlyFlag(mv, bType);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
         }
     }
 
@@ -1331,15 +1303,8 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        BType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;IZL%s;)V", BTYPE, BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;IZ)V", BTYPE), false);
     }
 
     /**
@@ -1381,15 +1346,8 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        BType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE, "<init>",
-                           String.format("([L%s;L%s;IZL%s;)V", BTYPE, BTYPE, BTYPE), false);
+                           String.format("([L%s;L%s;IZ)V", BTYPE, BTYPE), false);
     }
 
     /**
@@ -1428,15 +1386,7 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        BTupleType immutableType = bType.immutableType;
-        if (immutableType == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            loadType(mv, immutableType);
-        }
-
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>",
-                           String.format("(L%s;L%s;IZL%s;)V", LIST, BTYPE, TUPLE_TYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;IZ)V", LIST, BTYPE), false);
     }
 
     /**

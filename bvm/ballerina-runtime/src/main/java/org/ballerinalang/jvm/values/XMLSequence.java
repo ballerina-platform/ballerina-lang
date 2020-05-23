@@ -534,7 +534,7 @@ public final class XMLSequence extends XMLValue {
 
     @Override
     public void freezeDirect() {
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         for (BXML elem : children) {
             elem.freezeDirect();
         }

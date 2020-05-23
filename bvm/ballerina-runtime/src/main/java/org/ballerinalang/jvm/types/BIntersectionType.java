@@ -38,16 +38,18 @@ public class BIntersectionType extends BType {
 
     private int typeFlags;
     private final boolean readonly;
-    private BType immutableType;
+    private BIntersectionType immutableType;
 
-    public BIntersectionType(BType[] constituentTypes, BType effectiveType, int typeFlags, boolean readonly,
-                             BType immutableType) {
+    public BIntersectionType(BType[] constituentTypes, BType effectiveType, int typeFlags, boolean readonly) {
         super(null, null, Object.class);
         this.constituentTypes = Arrays.asList(constituentTypes);
         this.effectiveType = effectiveType;
         this.typeFlags = typeFlags;
         this.readonly = readonly;
-        this.immutableType = immutableType;
+
+        if (readonly) {
+            this.immutableType = this;
+        }
     }
 
     public List<BType> getConstituentTypes() {
@@ -149,7 +151,11 @@ public class BIntersectionType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
+    public void setImmutableType(BIntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    public BType getEffectiveType() {
+        return this.effectiveType;
     }
 }

@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ArrayType;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -35,7 +34,7 @@ public class BArrayType extends BType implements ArrayType {
     private static final String SEMI_COLON = ";";
 
     public BType eType;
-    public BArrayType immutableType;
+    public BIntersectionType immutableType;
 
     public int size = -1;
 
@@ -116,7 +115,7 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
 }

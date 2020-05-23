@@ -599,7 +599,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public void freezeDirect() {
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
     }

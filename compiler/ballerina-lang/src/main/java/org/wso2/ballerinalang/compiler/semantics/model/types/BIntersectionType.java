@@ -18,10 +18,10 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.IntersectionType;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -38,7 +38,6 @@ import java.util.StringJoiner;
 public class BIntersectionType extends BType implements IntersectionType {
 
     public BType effectiveType;
-    public BType immutableType;
 
     private LinkedHashSet<BType> constituentTypes;
 
@@ -132,7 +131,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
-    public Type getImmutableType() {
-        return this.immutableType;
+    public BIntersectionType getImmutableType() {
+        return Symbols.isFlagOn(this.flags, Flags.READONLY) ? this : null;
     }
 }

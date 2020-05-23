@@ -290,7 +290,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.type = (BTableType) ReadOnlyUtils.setImmutableType(this.type);
+        this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
     }

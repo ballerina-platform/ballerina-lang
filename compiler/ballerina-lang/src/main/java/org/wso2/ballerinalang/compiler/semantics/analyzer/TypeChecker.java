@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
@@ -908,15 +909,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateTableType(BTableType tableType, List<BLangRecordLiteral> recordLiterals) {
 
-        if (!types.isAssignable(tableType.constraint, symTable.mapAllType)) {
-            dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
+        BType constraint = tableType.constraint;
+        if (!types.isAssignable(constraint, symTable.mapAllType)) {
+            dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
             resultType = symTable.semanticError;
             return false;
         }
 
         List<String> fieldNameList = tableType.fieldNameList;
         if (fieldNameList != null) {
-            return validateKeySpecifier(fieldNameList, tableType.constraint, tableType.keyPos) &&
+            return validateKeySpecifier(fieldNameList,
+                                        constraint.tag != TypeTags.INTERSECTION ? constraint :
+                                                ((BIntersectionType) constraint).effectiveType,
+                                        tableType.keyPos) &&
                     validateTableConstructorRecordLiterals(fieldNameList, recordLiterals);
         }
 
@@ -1002,8 +1007,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tableConstructorExpr.tableKeySpecifier != null) {
             List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
 
-            if (tableType.fieldNameList == null && !validateKeySpecifier(fieldNameList, constraintType,
-                    tableConstructorExpr.tableKeySpecifier.pos)) {
+            if (tableType.fieldNameList == null &&
+                    !validateKeySpecifier(fieldNameList,
+                                          constraintType.tag != TypeTags.INTERSECTION ? constraintType :
+                                                  ((BIntersectionType) constraintType).effectiveType,
+                                          tableConstructorExpr.tableKeySpecifier.pos)) {
                 return false;
             }
 
@@ -1161,8 +1169,11 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkListConstructorCompatibility(compatibleTypes.get(0), listConstructor);
         }
 
-        BType possibleType = getListConstructorCompatibleNonUnionType(
-                tag != TypeTags.INTERSECTION ? bType : ((BIntersectionType) bType).effectiveType);
+        if (tag == TypeTags.INTERSECTION) {
+            return checkListConstructorCompatibility(((BIntersectionType) bType).effectiveType, listConstructor);
+        }
+
+        BType possibleType = getListConstructorCompatibleNonUnionType(bType);
 
         switch (possibleType.tag) {
             case TypeTags.ARRAY:
@@ -1212,16 +1223,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 return type;
             case TypeTags.JSON:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayJsonType :
-                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayJsonType, env, symTable,
-                                                             anonymousModelHelper, names);
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayJsonType,
+                                                                         env, symTable, anonymousModelHelper, names);
             case TypeTags.ANYDATA:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAnydataType :
-                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayAnydataType, env, symTable,
-                                                             anonymousModelHelper, names);
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayAnydataType,
+                                                                         env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
-                        ImmutableTypeCloner.setImmutableType(null, types, symTable.arrayType, env, symTable,
-                                                             anonymousModelHelper, names);
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayType, env,
+                                                                         symTable, anonymousModelHelper, names);
         }
         return symTable.semanticError;
     }
@@ -1402,8 +1413,11 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkMappingConstructorCompatibility(compatibleTypes.get(0), mappingConstructor);
         }
 
-        BType possibleType = getMappingConstructorCompatibleNonUnionType(
-                tag != TypeTags.INTERSECTION ? bType : ((BIntersectionType) bType).effectiveType);
+        if (tag == TypeTags.INTERSECTION) {
+            return checkMappingConstructorCompatibility(((BIntersectionType) bType).effectiveType, mappingConstructor);
+        }
+
+        BType possibleType = getMappingConstructorCompatibleNonUnionType(bType);
 
         switch (possibleType.tag) {
             case TypeTags.MAP:
@@ -1430,16 +1444,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 return type;
             case TypeTags.JSON:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapJsonType :
-                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapJsonType, env, symTable,
-                                                             anonymousModelHelper, names);
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapJsonType, env,
+                                                                         symTable, anonymousModelHelper, names);
             case TypeTags.ANYDATA:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAnydataType :
-                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapAnydataType, env, symTable,
-                                                             anonymousModelHelper, names);
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapAnydataType,
+                                                                         env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
-                        ImmutableTypeCloner.setImmutableType(null, types, symTable.mapType, env, symTable,
-                                                             anonymousModelHelper, names);
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapType, env,
+                                                                         symTable, anonymousModelHelper, names);
         }
         return symTable.semanticError;
     }
@@ -6328,7 +6342,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private BType checkXmlSubTypeLiteralCompatibility(DiagnosticPos pos, BType mutableXmlSubType, BType expType) {
+    private BType checkXmlSubTypeLiteralCompatibility(DiagnosticPos pos, BXMLSubType mutableXmlSubType, BType expType) {
         if (expType == symTable.semanticError) {
             return expType;
         }
@@ -6343,9 +6357,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return mutableXmlSubType;
         }
 
-        BXMLSubType immutableXmlSubType =
-                (BXMLSubType) ImmutableTypeCloner.setImmutableType(pos, types, mutableXmlSubType, env, symTable,
-                                                                   anonymousModelHelper, names);
+        BXMLSubType immutableXmlSubType = (BXMLSubType)
+                ((BIntersectionType) ImmutableTypeCloner.getImmutableIntersectionType(
+                        pos, types, mutableXmlSubType, env, symTable, anonymousModelHelper, names)).effectiveType;
+
         if (expType == immutableXmlSubType) {
             return expType;
         }
@@ -6399,8 +6414,10 @@ public class TypeChecker extends BLangNodeVisitor {
             if (Symbols.isFlagOn(childType.flags, Flags.READONLY) || !types.isSelectivelyImmutableType(childType)) {
                 continue;
             }
-            modifiedChild.type = ImmutableTypeCloner.setImmutableType(modifiedChild.pos, types, childType, env,
-                                                                      symTable, anonymousModelHelper, names);
+            modifiedChild.type =
+                    ImmutableTypeCloner.getImmutableIntersectionType(modifiedChild.pos, types,
+                                                                     (SelectivelyImmutableReferenceType) childType,
+                                                                     env, symTable, anonymousModelHelper, names);
 
             if (modifiedChild.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
                 markChildrenAsImmutable((BLangXMLElementLiteral) modifiedChild);

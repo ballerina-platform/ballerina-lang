@@ -32,30 +32,27 @@ public class BTableType extends BType {
     private String[] fieldNames;
 
     private final boolean readonly;
-    private BTableType immutableType;
+    private BIntersectionType immutableType;
 
-    public BTableType(BType constraint, String[] fieldNames, boolean readonly, BTableType immutableType) {
+    public BTableType(BType constraint, String[] fieldNames, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.fieldNames = fieldNames;
         this.keyType = null;
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
-    public BTableType(BType constraint, BType keyType, boolean readonly, BTableType immutableType) {
+    public BTableType(BType constraint, BType keyType, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.keyType = keyType;
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
-    public BTableType(BType constraint, boolean readonly, BTableType immutableType) {
+    public BTableType(BType constraint, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
     public BType getConstrainedType() {
@@ -72,7 +69,7 @@ public class BTableType extends BType {
 
     @Override
     public <V> V getZeroValue() {
-        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint, readonly, immutableType));
+        return (V) new TableValueImpl<BAnydataType, V>(new BTableType(constraint, readonly));
     }
 
     @Override
@@ -142,7 +139,7 @@ public class BTableType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BTableType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

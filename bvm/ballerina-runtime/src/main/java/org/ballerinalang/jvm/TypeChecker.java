@@ -584,6 +584,12 @@ public class TypeChecker {
             return false;
         }
 
+        int sourceTypeTag = sourceType.getTag();
+
+        if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsType(((BIntersectionType) sourceType).getEffectiveType(), targetType, unresolvedTypes);
+        }
+
         int targetTypeTag = targetType.getTag();
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
@@ -600,15 +606,15 @@ public class TypeChecker {
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == targetTypeTag;
+                return sourceTypeTag == targetTypeTag;
             case TypeTags.INT_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
+                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.INT_TAG;
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
@@ -616,13 +622,13 @@ public class TypeChecker {
             case TypeTags.SERVICE_TAG:
                 return checkIsServiceType(sourceType);
             case TypeTags.HANDLE_TAG:
-                return sourceType.getTag() == TypeTags.HANDLE_TAG;
+                return sourceTypeTag == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
                 return isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
-                return targetTypeTag == sourceType.getTag();
+                return targetTypeTag == sourceTypeTag;
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
@@ -1383,6 +1389,11 @@ public class TypeChecker {
      */
     private static boolean checkIsLikeOnValue(Object sourceValue, BType sourceType, BType targetType,
                                               List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        if (sourceType.getTag() == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, ((BIntersectionType) sourceType).getEffectiveType(), targetType,
+                                      unresolvedValues, allowNumericConversion);
+        }
+
         switch (targetType.getTag()) {
             case TypeTags.READONLY_TAG:
                 return true;

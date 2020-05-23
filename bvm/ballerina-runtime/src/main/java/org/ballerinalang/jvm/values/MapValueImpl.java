@@ -451,7 +451,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return;
         }
 
-        this.type = ReadOnlyUtils.setImmutableType(this.type);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
         this.values().forEach(val -> {
             if (val instanceof RefValue) {
