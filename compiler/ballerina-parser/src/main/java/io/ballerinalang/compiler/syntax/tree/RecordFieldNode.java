@@ -122,31 +122,36 @@ public class RecordFieldNode extends NonTerminalNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public RecordFieldNodeModifier withMetadata(MetadataNode metadata) {
+        public RecordFieldNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public RecordFieldNodeModifier withTypeName(Node typeName) {
+        public RecordFieldNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RecordFieldNodeModifier withFieldName(Token fieldName) {
+        public RecordFieldNodeModifier withFieldName(
+                Token fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;
         }
 
-        public RecordFieldNodeModifier withQuestionMarkToken(Token questionMarkToken) {
+        public RecordFieldNodeModifier withQuestionMarkToken(
+                Token questionMarkToken) {
             Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
             this.questionMarkToken = questionMarkToken;
             return this;
         }
 
-        public RecordFieldNodeModifier withSemicolonToken(Token semicolonToken) {
+        public RecordFieldNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

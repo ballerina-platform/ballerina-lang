@@ -36,7 +36,7 @@ public class QueryConstructTypeNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public KeySpecifierNode KeySpecifier() {
+    public KeySpecifierNode keySpecifier() {
         return childInBucket(1);
     }
 
@@ -54,21 +54,21 @@ public class QueryConstructTypeNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "tableKeyword",
-                "KeySpecifier"};
+                "keySpecifier"};
     }
 
     public QueryConstructTypeNode modify(
             Token tableKeyword,
-            KeySpecifierNode KeySpecifier) {
+            KeySpecifierNode keySpecifier) {
         if (checkForReferenceEquality(
                 tableKeyword,
-                KeySpecifier)) {
+                keySpecifier)) {
             return this;
         }
 
         return NodeFactory.createQueryConstructTypeNode(
                 tableKeyword,
-                KeySpecifier);
+                keySpecifier);
     }
 
     public QueryConstructTypeNodeModifier modify() {
@@ -83,30 +83,32 @@ public class QueryConstructTypeNode extends NonTerminalNode {
     public static class QueryConstructTypeNodeModifier {
         private final QueryConstructTypeNode oldNode;
         private Token tableKeyword;
-        private KeySpecifierNode KeySpecifier;
+        private KeySpecifierNode keySpecifier;
 
         public QueryConstructTypeNodeModifier(QueryConstructTypeNode oldNode) {
             this.oldNode = oldNode;
             this.tableKeyword = oldNode.tableKeyword();
-            this.KeySpecifier = oldNode.KeySpecifier();
+            this.keySpecifier = oldNode.keySpecifier();
         }
 
-        public QueryConstructTypeNodeModifier withTableKeyword(Token tableKeyword) {
+        public QueryConstructTypeNodeModifier withTableKeyword(
+                Token tableKeyword) {
             Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
             this.tableKeyword = tableKeyword;
             return this;
         }
 
-        public QueryConstructTypeNodeModifier withKeySpecifier(KeySpecifierNode KeySpecifier) {
-            Objects.requireNonNull(KeySpecifier, "KeySpecifier must not be null");
-            this.KeySpecifier = KeySpecifier;
+        public QueryConstructTypeNodeModifier withKeySpecifier(
+                KeySpecifierNode keySpecifier) {
+            Objects.requireNonNull(keySpecifier, "keySpecifier must not be null");
+            this.keySpecifier = keySpecifier;
             return this;
         }
 
         public QueryConstructTypeNode apply() {
             return oldNode.modify(
                     tableKeyword,
-                    KeySpecifier);
+                    keySpecifier);
         }
     }
 }

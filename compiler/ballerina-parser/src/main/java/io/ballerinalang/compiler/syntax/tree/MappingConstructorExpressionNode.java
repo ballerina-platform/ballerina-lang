@@ -101,19 +101,22 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
             this.closeBrace = oldNode.closeBrace();
         }
 
-        public MappingConstructorExpressionNodeModifier withOpenBrace(Token openBrace) {
+        public MappingConstructorExpressionNodeModifier withOpenBrace(
+                Token openBrace) {
             Objects.requireNonNull(openBrace, "openBrace must not be null");
             this.openBrace = openBrace;
             return this;
         }
 
-        public MappingConstructorExpressionNodeModifier withFields(NodeList<MappingFieldNode> fields) {
+        public MappingConstructorExpressionNodeModifier withFields(
+                NodeList<MappingFieldNode> fields) {
             Objects.requireNonNull(fields, "fields must not be null");
             this.fields = fields;
             return this;
         }
 
-        public MappingConstructorExpressionNodeModifier withCloseBrace(Token closeBrace) {
+        public MappingConstructorExpressionNodeModifier withCloseBrace(
+                Token closeBrace) {
             Objects.requireNonNull(closeBrace, "closeBrace must not be null");
             this.closeBrace = closeBrace;
             return this;

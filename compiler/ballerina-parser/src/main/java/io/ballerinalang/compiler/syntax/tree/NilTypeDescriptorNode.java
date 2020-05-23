@@ -91,13 +91,15 @@ public class NilTypeDescriptorNode extends TypeDescriptorNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public NilTypeDescriptorNodeModifier withOpenParenToken(Token openParenToken) {
+        public NilTypeDescriptorNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public NilTypeDescriptorNodeModifier withCloseParenToken(Token closeParenToken) {
+        public NilTypeDescriptorNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

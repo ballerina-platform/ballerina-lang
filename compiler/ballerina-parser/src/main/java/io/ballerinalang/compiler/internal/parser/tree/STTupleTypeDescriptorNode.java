@@ -25,29 +25,25 @@ import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode openBracketToken;
     public final STNode memberTypeDesc;
-    public final STNode restTypeDesc;
     public final STNode closeBracketToken;
 
     STTupleTypeDescriptorNode(
             STNode openBracketToken,
             STNode memberTypeDesc,
-            STNode restTypeDesc,
             STNode closeBracketToken) {
         super(SyntaxKind.TUPLE_TYPE_DESC);
         this.openBracketToken = openBracketToken;
         this.memberTypeDesc = memberTypeDesc;
-        this.restTypeDesc = restTypeDesc;
         this.closeBracketToken = closeBracketToken;
 
         addChildren(
                 openBracketToken,
                 memberTypeDesc,
-                restTypeDesc,
                 closeBracketToken);
     }
 

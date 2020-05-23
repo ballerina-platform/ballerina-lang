@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -26,8 +25,7 @@
                 },
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 },
                 {
                     "kind": "CLOSE_PAREN_TOKEN"
@@ -103,8 +101,7 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
                                     "kind": "ANY_KEYWORD"
@@ -169,15 +166,15 @@
                             ]
                         },
                         {
-                            "kind": "CALL_STATEMENT",
+                            "kind": "LOCAL_VAR_DECL",
                             "children": [
                                 {
-                                    "kind": "CHECK_EXPRESSION",
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "SINGLETON_TYPE_DESC",
                                     "children": [
-                                        {
-                                            "kind": "CHECK_KEYWORD",
-                                            "isMissing": true
-                                        },
                                         {
                                             "kind": "UNARY_EXPRESSION",
                                             "children": [
@@ -185,12 +182,16 @@
                                                     "kind": "PLUS_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "c"
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                                    "isMissing": true
                                                 }
                                             ]
                                         }
                                     ]
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "c"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN"

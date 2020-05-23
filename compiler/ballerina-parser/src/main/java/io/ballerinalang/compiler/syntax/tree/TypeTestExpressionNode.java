@@ -101,19 +101,22 @@ public class TypeTestExpressionNode extends ExpressionNode {
             this.typeDescriptor = oldNode.typeDescriptor();
         }
 
-        public TypeTestExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public TypeTestExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public TypeTestExpressionNodeModifier withIsKeyword(Token isKeyword) {
+        public TypeTestExpressionNodeModifier withIsKeyword(
+                Token isKeyword) {
             Objects.requireNonNull(isKeyword, "isKeyword must not be null");
             this.isKeyword = isKeyword;
             return this;
         }
 
-        public TypeTestExpressionNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public TypeTestExpressionNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;

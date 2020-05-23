@@ -121,31 +121,36 @@ public class StreamTypeParamsNode extends NonTerminalNode {
             this.gtToken = oldNode.gtToken();
         }
 
-        public StreamTypeParamsNodeModifier withLtToken(Token ltToken) {
+        public StreamTypeParamsNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public StreamTypeParamsNodeModifier withLeftTypeDescNode(Node leftTypeDescNode) {
+        public StreamTypeParamsNodeModifier withLeftTypeDescNode(
+                Node leftTypeDescNode) {
             Objects.requireNonNull(leftTypeDescNode, "leftTypeDescNode must not be null");
             this.leftTypeDescNode = leftTypeDescNode;
             return this;
         }
 
-        public StreamTypeParamsNodeModifier withCommaToken(Token commaToken) {
+        public StreamTypeParamsNodeModifier withCommaToken(
+                Token commaToken) {
             Objects.requireNonNull(commaToken, "commaToken must not be null");
             this.commaToken = commaToken;
             return this;
         }
 
-        public StreamTypeParamsNodeModifier withRightTypeDescNode(Node rightTypeDescNode) {
+        public StreamTypeParamsNodeModifier withRightTypeDescNode(
+                Node rightTypeDescNode) {
             Objects.requireNonNull(rightTypeDescNode, "rightTypeDescNode must not be null");
             this.rightTypeDescNode = rightTypeDescNode;
             return this;
         }
 
-        public StreamTypeParamsNodeModifier withGtToken(Token gtToken) {
+        public StreamTypeParamsNodeModifier withGtToken(
+                Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -48,8 +49,8 @@ public class RestParameterNode extends ParameterNode {
         return childInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     @Override
@@ -118,34 +119,39 @@ public class RestParameterNode extends ParameterNode {
             this.annotations = oldNode.annotations();
             this.typeName = oldNode.typeName();
             this.ellipsisToken = oldNode.ellipsisToken();
-            this.paramName = oldNode.paramName();
+            this.paramName = oldNode.paramName().orElse(null);
         }
 
-        public RestParameterNodeModifier withLeadingComma(Token leadingComma) {
+        public RestParameterNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public RestParameterNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public RestParameterNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public RestParameterNodeModifier withTypeName(Node typeName) {
+        public RestParameterNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RestParameterNodeModifier withEllipsisToken(Token ellipsisToken) {
+        public RestParameterNodeModifier withEllipsisToken(
+                Token ellipsisToken) {
             Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
             this.ellipsisToken = ellipsisToken;
             return this;
         }
 
-        public RestParameterNodeModifier withParamName(Token paramName) {
+        public RestParameterNodeModifier withParamName(
+                Token paramName) {
             Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;

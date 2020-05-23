@@ -35,7 +35,7 @@ package io.ballerinalang.compiler.syntax.tree;
  * This is a generated class.
  *
  * @see NodeTransformer
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeVisitor {
 
@@ -547,6 +547,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(flushActionNode);
     }
 
+    public void visit(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        visitSyntaxNode(singletonTypeDescriptorNode);
+    }
+
     public void visit(FunctionDeclarationNode functionDeclarationNode) {
         visitSyntaxNode(functionDeclarationNode);
     }
@@ -581,6 +585,50 @@ public abstract class NodeVisitor {
 
     public void visit(ReceiveFieldsNode receiveFieldsNode) {
         visitSyntaxNode(receiveFieldsNode);
+    }
+
+    public void visit(RestDescriptorNode restDescriptorNode) {
+        visitSyntaxNode(restDescriptorNode);
+    }
+
+    public void visit(DoubleGTTokenNode doubleGTTokenNode) {
+        visitSyntaxNode(doubleGTTokenNode);
+    }
+
+    public void visit(TrippleGTTokenNode trippleGTTokenNode) {
+        visitSyntaxNode(trippleGTTokenNode);
+    }
+
+    public void visit(WaitActionNode waitActionNode) {
+        visitSyntaxNode(waitActionNode);
+    }
+
+    public void visit(WaitFieldsListNode waitFieldsListNode) {
+        visitSyntaxNode(waitFieldsListNode);
+    }
+
+    public void visit(WaitFieldNode waitFieldNode) {
+        visitSyntaxNode(waitFieldNode);
+    }
+
+    public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        visitSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
+    }
+
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
+    }
+
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
     // Tokens

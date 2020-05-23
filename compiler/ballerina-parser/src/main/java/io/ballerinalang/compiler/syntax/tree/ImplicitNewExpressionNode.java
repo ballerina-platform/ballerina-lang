@@ -92,13 +92,15 @@ public class ImplicitNewExpressionNode extends NewExpressionNode {
             this.parenthesizedArgList = oldNode.parenthesizedArgList().orElse(null);
         }
 
-        public ImplicitNewExpressionNodeModifier withNewKeyword(Token newKeyword) {
+        public ImplicitNewExpressionNodeModifier withNewKeyword(
+                Token newKeyword) {
             Objects.requireNonNull(newKeyword, "newKeyword must not be null");
             this.newKeyword = newKeyword;
             return this;
         }
 
-        public ImplicitNewExpressionNodeModifier withParenthesizedArgList(ParenthesizedArgList parenthesizedArgList) {
+        public ImplicitNewExpressionNodeModifier withParenthesizedArgList(
+                ParenthesizedArgList parenthesizedArgList) {
             Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
             this.parenthesizedArgList = parenthesizedArgList;
             return this;

@@ -132,37 +132,43 @@ public class ImportDeclarationNode extends NonTerminalNode {
             this.semicolon = oldNode.semicolon();
         }
 
-        public ImportDeclarationNodeModifier withImportKeyword(Token importKeyword) {
+        public ImportDeclarationNodeModifier withImportKeyword(
+                Token importKeyword) {
             Objects.requireNonNull(importKeyword, "importKeyword must not be null");
             this.importKeyword = importKeyword;
             return this;
         }
 
-        public ImportDeclarationNodeModifier withOrgName(Node orgName) {
+        public ImportDeclarationNodeModifier withOrgName(
+                Node orgName) {
             Objects.requireNonNull(orgName, "orgName must not be null");
             this.orgName = orgName;
             return this;
         }
 
-        public ImportDeclarationNodeModifier withModuleName(SeparatedNodeList<IdentifierToken> moduleName) {
+        public ImportDeclarationNodeModifier withModuleName(
+                SeparatedNodeList<IdentifierToken> moduleName) {
             Objects.requireNonNull(moduleName, "moduleName must not be null");
             this.moduleName = moduleName;
             return this;
         }
 
-        public ImportDeclarationNodeModifier withVersion(Node version) {
+        public ImportDeclarationNodeModifier withVersion(
+                Node version) {
             Objects.requireNonNull(version, "version must not be null");
             this.version = version;
             return this;
         }
 
-        public ImportDeclarationNodeModifier withPrefix(Node prefix) {
+        public ImportDeclarationNodeModifier withPrefix(
+                Node prefix) {
             Objects.requireNonNull(prefix, "prefix must not be null");
             this.prefix = prefix;
             return this;
         }
 
-        public ImportDeclarationNodeModifier withSemicolon(Token semicolon) {
+        public ImportDeclarationNodeModifier withSemicolon(
+                Token semicolon) {
             Objects.requireNonNull(semicolon, "semicolon must not be null");
             this.semicolon = semicolon;
             return this;

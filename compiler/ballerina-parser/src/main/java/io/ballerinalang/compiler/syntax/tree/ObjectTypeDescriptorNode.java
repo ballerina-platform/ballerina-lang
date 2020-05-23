@@ -121,31 +121,36 @@ public class ObjectTypeDescriptorNode extends TypeDescriptorNode {
             this.closeBrace = oldNode.closeBrace();
         }
 
-        public ObjectTypeDescriptorNodeModifier withObjectTypeQualifiers(NodeList<Token> objectTypeQualifiers) {
+        public ObjectTypeDescriptorNodeModifier withObjectTypeQualifiers(
+                NodeList<Token> objectTypeQualifiers) {
             Objects.requireNonNull(objectTypeQualifiers, "objectTypeQualifiers must not be null");
             this.objectTypeQualifiers = objectTypeQualifiers;
             return this;
         }
 
-        public ObjectTypeDescriptorNodeModifier withObjectKeyword(Token objectKeyword) {
+        public ObjectTypeDescriptorNodeModifier withObjectKeyword(
+                Token objectKeyword) {
             Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
             this.objectKeyword = objectKeyword;
             return this;
         }
 
-        public ObjectTypeDescriptorNodeModifier withOpenBrace(Token openBrace) {
+        public ObjectTypeDescriptorNodeModifier withOpenBrace(
+                Token openBrace) {
             Objects.requireNonNull(openBrace, "openBrace must not be null");
             this.openBrace = openBrace;
             return this;
         }
 
-        public ObjectTypeDescriptorNodeModifier withMembers(NodeList<Node> members) {
+        public ObjectTypeDescriptorNodeModifier withMembers(
+                NodeList<Node> members) {
             Objects.requireNonNull(members, "members must not be null");
             this.members = members;
             return this;
         }
 
-        public ObjectTypeDescriptorNodeModifier withCloseBrace(Token closeBrace) {
+        public ObjectTypeDescriptorNodeModifier withCloseBrace(
+                Token closeBrace) {
             Objects.requireNonNull(closeBrace, "closeBrace must not be null");
             this.closeBrace = closeBrace;
             return this;

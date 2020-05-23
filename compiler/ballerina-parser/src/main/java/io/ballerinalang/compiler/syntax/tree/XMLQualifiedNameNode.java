@@ -101,19 +101,22 @@ public class XMLQualifiedNameNode extends XMLNameNode {
             this.name = oldNode.name();
         }
 
-        public XMLQualifiedNameNodeModifier withPrefix(XMLSimpleNameNode prefix) {
+        public XMLQualifiedNameNodeModifier withPrefix(
+                XMLSimpleNameNode prefix) {
             Objects.requireNonNull(prefix, "prefix must not be null");
             this.prefix = prefix;
             return this;
         }
 
-        public XMLQualifiedNameNodeModifier withColon(Token colon) {
+        public XMLQualifiedNameNodeModifier withColon(
+                Token colon) {
             Objects.requireNonNull(colon, "colon must not be null");
             this.colon = colon;
             return this;
         }
 
-        public XMLQualifiedNameNodeModifier withName(XMLSimpleNameNode name) {
+        public XMLQualifiedNameNodeModifier withName(
+                XMLSimpleNameNode name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;

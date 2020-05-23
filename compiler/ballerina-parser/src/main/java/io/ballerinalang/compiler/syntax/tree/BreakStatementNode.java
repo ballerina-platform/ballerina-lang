@@ -91,13 +91,15 @@ public class BreakStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public BreakStatementNodeModifier withBreakToken(Token breakToken) {
+        public BreakStatementNodeModifier withBreakToken(
+                Token breakToken) {
             Objects.requireNonNull(breakToken, "breakToken must not be null");
             this.breakToken = breakToken;
             return this;
         }
 
-        public BreakStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public BreakStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

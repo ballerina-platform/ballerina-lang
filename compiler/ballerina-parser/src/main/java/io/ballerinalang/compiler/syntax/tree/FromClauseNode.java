@@ -121,31 +121,36 @@ public class FromClauseNode extends ClauseNode {
             this.expression = oldNode.expression();
         }
 
-        public FromClauseNodeModifier withFromKeyword(Token fromKeyword) {
+        public FromClauseNodeModifier withFromKeyword(
+                Token fromKeyword) {
             Objects.requireNonNull(fromKeyword, "fromKeyword must not be null");
             this.fromKeyword = fromKeyword;
             return this;
         }
 
-        public FromClauseNodeModifier withTypeName(Node typeName) {
+        public FromClauseNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public FromClauseNodeModifier withVariableName(Token variableName) {
+        public FromClauseNodeModifier withVariableName(
+                Token variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
         }
 
-        public FromClauseNodeModifier withInKeyword(Token inKeyword) {
+        public FromClauseNodeModifier withInKeyword(
+                Token inKeyword) {
             Objects.requireNonNull(inKeyword, "inKeyword must not be null");
             this.inKeyword = inKeyword;
             return this;
         }
 
-        public FromClauseNodeModifier withExpression(ExpressionNode expression) {
+        public FromClauseNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

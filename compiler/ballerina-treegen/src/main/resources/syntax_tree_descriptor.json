@@ -734,7 +734,7 @@
         },
         {
             "name": "IndexedExpressionNode",
-            "base": "ExpressionNode",
+            "base": "TypeDescriptorNode",
             "kind": "INDEXED_EXPRESSION",
             "attributes": [
                 {
@@ -747,7 +747,8 @@
                 },
                 {
                     "name": "keyExpression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBracket",
@@ -835,7 +836,7 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 },
                 {
                     "name": "variableName",
@@ -885,7 +886,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "equalsToken",
@@ -922,7 +924,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -950,7 +953,8 @@
                 },
                 {
                     "name": "paramName",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -1625,7 +1629,7 @@
         },
         {
             "name": "XMLNamespaceDeclarationNode",
-            "base": "Node",
+            "base": "StatementNode",
             "kind": "XML_NAMESPACE_DECLARATION",
             "attributes": [
                 {
@@ -1895,7 +1899,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "KeySpecifier",
+                    "name": "keySpecifier",
                     "type": "KeySpecifierNode"
                 },
                 {
@@ -2349,7 +2353,7 @@
         },
         {
             "name": "TableTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "TABLE_TYPE_DESC",
             "attributes": [
                 {
@@ -2442,7 +2446,7 @@
         },
         {
             "name": "AnonymousFunctionExpressionNode",
-            "base": "Node",
+            "base": "ExpressionNode",
             "isAbstract": true
         },
         {
@@ -2505,12 +2509,8 @@
                 },
                 {
                     "name": "memberTypeDesc",
-                    "type": "TypeDescriptorNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "restTypeDesc",
-                    "type": "Node"
                 },
                 {
                     "name": "closeBracketToken",
@@ -2612,7 +2612,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "KeySpecifier",
+                    "name": "keySpecifier",
                     "type": "KeySpecifierNode"
                 }
             ]
@@ -2727,7 +2727,7 @@
         },
         {
             "name": "IntersectionTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "INTERSECTION_TYPE_DESC",
             "attributes": [
                 {
@@ -2789,6 +2789,11 @@
             "kind": "START_ACTION",
             "attributes": [
                 {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "startKeyword",
                     "type": "Token"
                 },
@@ -2810,6 +2815,17 @@
                 {
                     "name": "peerWorker",
                     "type": "NameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "SingletonTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "SINGLETON_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "simpleContExprNode",
+                    "type": "ExpressionNode"
                 }
             ]
         },
@@ -2872,8 +2888,7 @@
             "attributes": [
                 {
                     "name": "variableName",
-                    "type": "SimpleNameReferenceNode",
-                    "isOptional": true
+                    "type": "Token"
                 }
             ]
         },
@@ -2958,7 +2973,7 @@
         {
             "name": "ReceiveActionNode",
             "base": "ActionNode",
-            "kind": "RECEIVE_SEND_ACTION",
+            "kind": "RECEIVE_ACTION",
             "attributes": [
                 {
                     "name": "leftArrow",
@@ -2980,12 +2995,223 @@
                     "type": "Token"
                 },
                 {
-                    "name": "receiveField",
+                    "name": "receiveFields",
                     "type": "NameReferenceNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestDescriptorNode",
+            "base": "Node",
+            "kind": "REST_TYPE",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "DoubleGTTokenNode",
+            "base": "Node",
+            "kind": "DOUBLE_GT_TOKEN",
+            "attributes": [
+                {
+                    "name": "openGTToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endGTToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TrippleGTTokenNode",
+            "base": "Node",
+            "kind": "TRIPPLE_GT_TOKEN",
+            "attributes": [
+                {
+                    "name": "openGTToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "middleGTToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endGTToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WaitActionNode",
+            "base": "ActionNode",
+            "kind": "WAIT_ACTION",
+            "attributes": [
+                {
+                    "name": "waitKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFutureExpr",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "WaitFieldsListNode",
+            "base": "Node",
+            "kind": "WAIT_FIELDS_LIST",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFields",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "WaitFieldNode",
+            "base": "Node",
+            "kind": "WAIT_FIELD",
+            "attributes": [
+                {
+                    "name": "fieldName",
+                    "type": "NameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "waitFutureExpr",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "AnnotAccessExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ANNOT_ACCESS",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "annotChainingToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "annotTagReference",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "QueryActionNode",
+            "base": "ActionNode",
+            "kind": "QUERY_ACTION",
+            "attributes": [
+                {
+                    "name": "queryPipeline",
+                    "type": "QueryPipelineNode"
+                },
+                {
+                    "name": "doKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "OptionalFieldAccessExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "OPTIONAL_FIELD_ACCESS",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "optionalChainingToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldName",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ConditionalExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "CONDITIONAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "lhsExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "questionMarkToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "middleExpression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "colonToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endExpression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ArrayTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "ARRAY_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "memberTypeDesc",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "arrayLength",
+                    "type": "Node",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
                     "type": "Token"
                 }
             ]

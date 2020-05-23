@@ -51,7 +51,7 @@
 <!--            <package name="org.ballerinalang.test.types.floattype"/>-->
 <!--            <package name="org.ballerinalang.test.main.function.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.decimaltype.*"/>-->
-<!--            <package name="org.ballerinalang.test.types.any.*"/>-->
+            <package name="org.ballerinalang.test.types.any.*"/>
 <!--            <package name="org.ballerinalang.test.error.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.finaltypes.*"/>-->
 <!--            <package name="org.ballerinalang.test.types.finite.*"/>-->
@@ -67,7 +67,7 @@
 <!--            <package name="org.ballerinalang.test.types.anydata.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.arrays.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.assign.*"/>-->
-<!--            <package name="org.ballerinalang.test.statements.block.*"/>-->
+            <package name="org.ballerinalang.test.statements.block.*"/>
 <!--            <package name="org.ballerinalang.test.statements.breakstatement.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.comment.*"/>-->
 <!--            <package name="org.ballerinalang.test.statements.compoundassignment.*"/>-->
@@ -129,6 +129,19 @@
 
         <classes>
             <class name="org.ballerinalang.test.statements.ifelse.IfElseStmtTest"></class>
+            <class name="org.ballerinalang.test.worker.StackOverflowTest"></class>
+            <class name="org.ballerinalang.test.worker.WaitForAllWorkersTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.AsyncTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.ConstructorTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.FieldAccessMutateTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
+            <class name="org.ballerinalang.test.javainterop.arrays.JavaArrayBasicTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionsInFunctionParamsTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveTypeFunctionParamTest"></class>
+            <class name="org.ballerinalang.test.javainterop.primitivetypes.UnionsWithPrimitiveTypesTest"></class>
+
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->

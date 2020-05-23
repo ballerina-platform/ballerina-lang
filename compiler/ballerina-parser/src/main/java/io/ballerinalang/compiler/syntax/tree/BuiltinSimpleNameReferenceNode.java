@@ -83,7 +83,8 @@ public class BuiltinSimpleNameReferenceNode extends NameReferenceNode {
             this.name = oldNode.name();
         }
 
-        public BuiltinSimpleNameReferenceNodeModifier withName(Token name) {
+        public BuiltinSimpleNameReferenceNodeModifier withName(
+                Token name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;

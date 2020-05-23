@@ -121,31 +121,36 @@ public class LetVariableDeclarationNode extends NonTerminalNode {
             this.expression = oldNode.expression();
         }
 
-        public LetVariableDeclarationNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public LetVariableDeclarationNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public LetVariableDeclarationNodeModifier withTypeName(Node typeName) {
+        public LetVariableDeclarationNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public LetVariableDeclarationNodeModifier withVariableName(Token variableName) {
+        public LetVariableDeclarationNodeModifier withVariableName(
+                Token variableName) {
             Objects.requireNonNull(variableName, "variableName must not be null");
             this.variableName = variableName;
             return this;
         }
 
-        public LetVariableDeclarationNodeModifier withEqualsToken(Token equalsToken) {
+        public LetVariableDeclarationNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public LetVariableDeclarationNodeModifier withExpression(ExpressionNode expression) {
+        public LetVariableDeclarationNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

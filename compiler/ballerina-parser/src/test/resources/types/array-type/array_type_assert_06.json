@@ -12,10 +12,10 @@
             ]
         },
         {
-            "kind": "INDEXED_EXPRESSION",
+            "kind": "ARRAY_TYPE_DESC",
             "children": [
                 {
-                    "kind": "INDEXED_EXPRESSION",
+                    "kind": "ARRAY_TYPE_DESC",
                     "children": [
                         {
                             "kind": "INT_KEYWORD"

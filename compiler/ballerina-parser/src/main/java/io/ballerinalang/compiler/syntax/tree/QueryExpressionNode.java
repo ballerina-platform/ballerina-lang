@@ -101,19 +101,22 @@ public class QueryExpressionNode extends ExpressionNode {
             this.selectClause = oldNode.selectClause();
         }
 
-        public QueryExpressionNodeModifier withQueryConstructType(QueryConstructTypeNode queryConstructType) {
+        public QueryExpressionNodeModifier withQueryConstructType(
+                QueryConstructTypeNode queryConstructType) {
             Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
             this.queryConstructType = queryConstructType;
             return this;
         }
 
-        public QueryExpressionNodeModifier withQueryPipeline(QueryPipelineNode queryPipeline) {
+        public QueryExpressionNodeModifier withQueryPipeline(
+                QueryPipelineNode queryPipeline) {
             Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
             this.queryPipeline = queryPipeline;
             return this;
         }
 
-        public QueryExpressionNodeModifier withSelectClause(SelectClauseNode selectClause) {
+        public QueryExpressionNodeModifier withSelectClause(
+                SelectClauseNode selectClause) {
             Objects.requireNonNull(selectClause, "selectClause must not be null");
             this.selectClause = selectClause;
             return this;

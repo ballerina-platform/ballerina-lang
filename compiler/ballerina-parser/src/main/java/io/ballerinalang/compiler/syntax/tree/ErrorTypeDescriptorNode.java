@@ -92,13 +92,15 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
             this.errorTypeParamsNode = oldNode.errorTypeParamsNode().orElse(null);
         }
 
-        public ErrorTypeDescriptorNodeModifier withErrorKeywordToken(Token errorKeywordToken) {
+        public ErrorTypeDescriptorNodeModifier withErrorKeywordToken(
+                Token errorKeywordToken) {
             Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
             this.errorKeywordToken = errorKeywordToken;
             return this;
         }
 
-        public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(ErrorTypeParamsNode errorTypeParamsNode) {
+        public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(
+                ErrorTypeParamsNode errorTypeParamsNode) {
             Objects.requireNonNull(errorTypeParamsNode, "errorTypeParamsNode must not be null");
             this.errorTypeParamsNode = errorTypeParamsNode;
             return this;

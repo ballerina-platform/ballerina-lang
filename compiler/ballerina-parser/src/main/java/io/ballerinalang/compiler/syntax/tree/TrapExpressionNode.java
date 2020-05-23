@@ -93,13 +93,15 @@ public class TrapExpressionNode extends ExpressionNode {
             this.expression = oldNode.expression();
         }
 
-        public TrapExpressionNodeModifier withTrapKeyword(Token trapKeyword) {
+        public TrapExpressionNodeModifier withTrapKeyword(
+                Token trapKeyword) {
             Objects.requireNonNull(trapKeyword, "trapKeyword must not be null");
             this.trapKeyword = trapKeyword;
             return this;
         }
 
-        public TrapExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public TrapExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

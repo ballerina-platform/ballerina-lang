@@ -101,19 +101,22 @@ public class QualifiedNameReferenceNode extends NameReferenceNode {
             this.identifier = oldNode.identifier();
         }
 
-        public QualifiedNameReferenceNodeModifier withModulePrefix(Token modulePrefix) {
+        public QualifiedNameReferenceNodeModifier withModulePrefix(
+                Token modulePrefix) {
             Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
             this.modulePrefix = modulePrefix;
             return this;
         }
 
-        public QualifiedNameReferenceNodeModifier withColon(Node colon) {
+        public QualifiedNameReferenceNodeModifier withColon(
+                Node colon) {
             Objects.requireNonNull(colon, "colon must not be null");
             this.colon = colon;
             return this;
         }
 
-        public QualifiedNameReferenceNodeModifier withIdentifier(IdentifierToken identifier) {
+        public QualifiedNameReferenceNodeModifier withIdentifier(
+                IdentifierToken identifier) {
             Objects.requireNonNull(identifier, "identifier must not be null");
             this.identifier = identifier;
             return this;

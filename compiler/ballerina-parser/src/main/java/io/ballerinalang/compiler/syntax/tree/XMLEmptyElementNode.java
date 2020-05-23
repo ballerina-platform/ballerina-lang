@@ -121,31 +121,36 @@ public class XMLEmptyElementNode extends XMLItemNode {
             this.getToken = oldNode.getToken();
         }
 
-        public XMLEmptyElementNodeModifier withLtToken(Token ltToken) {
+        public XMLEmptyElementNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public XMLEmptyElementNodeModifier withName(XMLNameNode name) {
+        public XMLEmptyElementNodeModifier withName(
+                XMLNameNode name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;
         }
 
-        public XMLEmptyElementNodeModifier withAttributes(NodeList<XMLAttributeNode> attributes) {
+        public XMLEmptyElementNodeModifier withAttributes(
+                NodeList<XMLAttributeNode> attributes) {
             Objects.requireNonNull(attributes, "attributes must not be null");
             this.attributes = attributes;
             return this;
         }
 
-        public XMLEmptyElementNodeModifier withSlashToken(Token slashToken) {
+        public XMLEmptyElementNodeModifier withSlashToken(
+                Token slashToken) {
             Objects.requireNonNull(slashToken, "slashToken must not be null");
             this.slashToken = slashToken;
             return this;
         }
 
-        public XMLEmptyElementNodeModifier withGetToken(Token getToken) {
+        public XMLEmptyElementNodeModifier withGetToken(
+                Token getToken) {
             Objects.requireNonNull(getToken, "getToken must not be null");
             this.getToken = getToken;
             return this;

@@ -141,43 +141,50 @@ public class ObjectFieldNode extends NonTerminalNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public ObjectFieldNodeModifier withMetadata(MetadataNode metadata) {
+        public ObjectFieldNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public ObjectFieldNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public ObjectFieldNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public ObjectFieldNodeModifier withTypeName(Node typeName) {
+        public ObjectFieldNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public ObjectFieldNodeModifier withFieldName(Token fieldName) {
+        public ObjectFieldNodeModifier withFieldName(
+                Token fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;
         }
 
-        public ObjectFieldNodeModifier withEqualsToken(Token equalsToken) {
+        public ObjectFieldNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public ObjectFieldNodeModifier withExpression(ExpressionNode expression) {
+        public ObjectFieldNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public ObjectFieldNodeModifier withSemicolonToken(Token semicolonToken) {
+        public ObjectFieldNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

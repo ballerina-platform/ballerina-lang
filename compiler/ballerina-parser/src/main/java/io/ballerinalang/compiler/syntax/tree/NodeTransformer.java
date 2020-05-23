@@ -36,7 +36,7 @@ package io.ballerinalang.compiler.syntax.tree;
  *
  * @param <T> the type of class that is returned by visit methods
  * @see NodeVisitor
- * @since 1.3.0
+ * @since 2.0.0
  */
 public abstract class NodeTransformer<T> {
 
@@ -548,6 +548,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(flushActionNode);
     }
 
+    public T transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        return transformSyntaxNode(singletonTypeDescriptorNode);
+    }
+
     public T transform(FunctionDeclarationNode functionDeclarationNode) {
         return transformSyntaxNode(functionDeclarationNode);
     }
@@ -582,6 +586,50 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ReceiveFieldsNode receiveFieldsNode) {
         return transformSyntaxNode(receiveFieldsNode);
+    }
+
+    public T transform(RestDescriptorNode restDescriptorNode) {
+        return transformSyntaxNode(restDescriptorNode);
+    }
+
+    public T transform(DoubleGTTokenNode doubleGTTokenNode) {
+        return transformSyntaxNode(doubleGTTokenNode);
+    }
+
+    public T transform(TrippleGTTokenNode trippleGTTokenNode) {
+        return transformSyntaxNode(trippleGTTokenNode);
+    }
+
+    public T transform(WaitActionNode waitActionNode) {
+        return transformSyntaxNode(waitActionNode);
+    }
+
+    public T transform(WaitFieldsListNode waitFieldsListNode) {
+        return transformSyntaxNode(waitFieldsListNode);
+    }
+
+    public T transform(WaitFieldNode waitFieldNode) {
+        return transformSyntaxNode(waitFieldNode);
+    }
+
+    public T transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return transformSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
+    }
+
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
+    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        return transformSyntaxNode(arrayTypeDescriptorNode);
     }
 
     // Tokens

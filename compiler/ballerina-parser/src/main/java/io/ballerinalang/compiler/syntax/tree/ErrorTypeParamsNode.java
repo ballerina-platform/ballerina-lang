@@ -101,19 +101,22 @@ public class ErrorTypeParamsNode extends NonTerminalNode {
             this.gtToken = oldNode.gtToken();
         }
 
-        public ErrorTypeParamsNodeModifier withLtToken(Token ltToken) {
+        public ErrorTypeParamsNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public ErrorTypeParamsNodeModifier withParameter(Node parameter) {
+        public ErrorTypeParamsNodeModifier withParameter(
+                Node parameter) {
             Objects.requireNonNull(parameter, "parameter must not be null");
             this.parameter = parameter;
             return this;
         }
 
-        public ErrorTypeParamsNodeModifier withGtToken(Token gtToken) {
+        public ErrorTypeParamsNodeModifier withGtToken(
+                Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;

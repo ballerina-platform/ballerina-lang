@@ -111,25 +111,29 @@ public class AssignmentStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public AssignmentStatementNodeModifier withVarRef(Node varRef) {
+        public AssignmentStatementNodeModifier withVarRef(
+                Node varRef) {
             Objects.requireNonNull(varRef, "varRef must not be null");
             this.varRef = varRef;
             return this;
         }
 
-        public AssignmentStatementNodeModifier withEqualsToken(Token equalsToken) {
+        public AssignmentStatementNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public AssignmentStatementNodeModifier withExpression(ExpressionNode expression) {
+        public AssignmentStatementNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public AssignmentStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public AssignmentStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

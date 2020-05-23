@@ -131,37 +131,43 @@ public class RemoteMethodCallActionNode extends ActionNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public RemoteMethodCallActionNodeModifier withExpression(ExpressionNode expression) {
+        public RemoteMethodCallActionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public RemoteMethodCallActionNodeModifier withRightArrowToken(Token rightArrowToken) {
+        public RemoteMethodCallActionNodeModifier withRightArrowToken(
+                Token rightArrowToken) {
             Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
             this.rightArrowToken = rightArrowToken;
             return this;
         }
 
-        public RemoteMethodCallActionNodeModifier withMethodName(Token methodName) {
+        public RemoteMethodCallActionNodeModifier withMethodName(
+                Token methodName) {
             Objects.requireNonNull(methodName, "methodName must not be null");
             this.methodName = methodName;
             return this;
         }
 
-        public RemoteMethodCallActionNodeModifier withOpenParenToken(Token openParenToken) {
+        public RemoteMethodCallActionNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public RemoteMethodCallActionNodeModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+        public RemoteMethodCallActionNodeModifier withArguments(
+                NodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;
         }
 
-        public RemoteMethodCallActionNodeModifier withCloseParenToken(Token closeParenToken) {
+        public RemoteMethodCallActionNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

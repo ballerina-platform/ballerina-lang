@@ -112,25 +112,29 @@ public class IfElseStatementNode extends StatementNode {
             this.elseBody = oldNode.elseBody().orElse(null);
         }
 
-        public IfElseStatementNodeModifier withIfKeyword(Token ifKeyword) {
+        public IfElseStatementNodeModifier withIfKeyword(
+                Token ifKeyword) {
             Objects.requireNonNull(ifKeyword, "ifKeyword must not be null");
             this.ifKeyword = ifKeyword;
             return this;
         }
 
-        public IfElseStatementNodeModifier withCondition(ExpressionNode condition) {
+        public IfElseStatementNodeModifier withCondition(
+                ExpressionNode condition) {
             Objects.requireNonNull(condition, "condition must not be null");
             this.condition = condition;
             return this;
         }
 
-        public IfElseStatementNodeModifier withIfBody(BlockStatementNode ifBody) {
+        public IfElseStatementNodeModifier withIfBody(
+                BlockStatementNode ifBody) {
             Objects.requireNonNull(ifBody, "ifBody must not be null");
             this.ifBody = ifBody;
             return this;
         }
 
-        public IfElseStatementNodeModifier withElseBody(Node elseBody) {
+        public IfElseStatementNodeModifier withElseBody(
+                Node elseBody) {
             Objects.requireNonNull(elseBody, "elseBody must not be null");
             this.elseBody = elseBody;
             return this;

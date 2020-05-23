@@ -101,19 +101,22 @@ public class FieldAccessExpressionNode extends ExpressionNode {
             this.fieldName = oldNode.fieldName();
         }
 
-        public FieldAccessExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public FieldAccessExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public FieldAccessExpressionNodeModifier withDotToken(Token dotToken) {
+        public FieldAccessExpressionNodeModifier withDotToken(
+                Token dotToken) {
             Objects.requireNonNull(dotToken, "dotToken must not be null");
             this.dotToken = dotToken;
             return this;
         }
 
-        public FieldAccessExpressionNodeModifier withFieldName(Token fieldName) {
+        public FieldAccessExpressionNodeModifier withFieldName(
+                Token fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;

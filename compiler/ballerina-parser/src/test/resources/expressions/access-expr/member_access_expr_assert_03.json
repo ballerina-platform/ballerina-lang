@@ -12,6 +12,15 @@
                     "kind": "OPEN_BRACKET_TOKEN"
                 },
                 {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                },
+                {
                     "kind": "CLOSE_BRACKET_TOKEN"
                 }
             ]

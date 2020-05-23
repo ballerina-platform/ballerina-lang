@@ -101,19 +101,22 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public RecordRestDescriptorNodeModifier withTypeName(Node typeName) {
+        public RecordRestDescriptorNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RecordRestDescriptorNodeModifier withEllipsisToken(Token ellipsisToken) {
+        public RecordRestDescriptorNodeModifier withEllipsisToken(
+                Token ellipsisToken) {
             Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
             this.ellipsisToken = ellipsisToken;
             return this;
         }
 
-        public RecordRestDescriptorNodeModifier withSemicolonToken(Token semicolonToken) {
+        public RecordRestDescriptorNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

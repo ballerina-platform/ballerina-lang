@@ -91,13 +91,15 @@ public class ReceiveActionNode extends ActionNode {
             this.receiveWorkers = oldNode.receiveWorkers();
         }
 
-        public ReceiveActionNodeModifier withLeftArrow(Token leftArrow) {
+        public ReceiveActionNodeModifier withLeftArrow(
+                Token leftArrow) {
             Objects.requireNonNull(leftArrow, "leftArrow must not be null");
             this.leftArrow = leftArrow;
             return this;
         }
 
-        public ReceiveActionNodeModifier withReceiveWorkers(Node receiveWorkers) {
+        public ReceiveActionNodeModifier withReceiveWorkers(
+                Node receiveWorkers) {
             Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
             this.receiveWorkers = receiveWorkers;
             return this;

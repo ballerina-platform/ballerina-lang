@@ -25,20 +25,24 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STStartActionNode extends STExpressionNode {
+    public final STNode annotations;
     public final STNode startKeyword;
     public final STNode expression;
 
     STStartActionNode(
+            STNode annotations,
             STNode startKeyword,
             STNode expression) {
         super(SyntaxKind.START_ACTION);
+        this.annotations = annotations;
         this.startKeyword = startKeyword;
         this.expression = expression;
 
         addChildren(
+                annotations,
                 startKeyword,
                 expression);
     }

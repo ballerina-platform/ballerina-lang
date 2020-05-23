@@ -101,19 +101,22 @@ public class PanicStatementNode extends StatementNode {
             this.semicolonToken = oldNode.semicolonToken();
         }
 
-        public PanicStatementNodeModifier withPanicKeyword(Token panicKeyword) {
+        public PanicStatementNodeModifier withPanicKeyword(
+                Token panicKeyword) {
             Objects.requireNonNull(panicKeyword, "panicKeyword must not be null");
             this.panicKeyword = panicKeyword;
             return this;
         }
 
-        public PanicStatementNodeModifier withExpression(ExpressionNode expression) {
+        public PanicStatementNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public PanicStatementNodeModifier withSemicolonToken(Token semicolonToken) {
+        public PanicStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
             Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
             this.semicolonToken = semicolonToken;
             return this;

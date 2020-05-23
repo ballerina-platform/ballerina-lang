@@ -111,25 +111,29 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
             this.functionBody = oldNode.functionBody();
         }
 
-        public ExplicitAnonymousFunctionExpressionNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public ExplicitAnonymousFunctionExpressionNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionKeyword(Token functionKeyword) {
+        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
             Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
             this.functionKeyword = functionKeyword;
             return this;
         }
 
-        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionSignature(FunctionSignatureNode functionSignature) {
+        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
             Objects.requireNonNull(functionSignature, "functionSignature must not be null");
             this.functionSignature = functionSignature;
             return this;
         }
 
-        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionBody(FunctionBodyNode functionBody) {
+        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionBody(
+                FunctionBodyNode functionBody) {
             Objects.requireNonNull(functionBody, "functionBody must not be null");
             this.functionBody = functionBody;
             return this;

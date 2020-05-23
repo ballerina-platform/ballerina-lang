@@ -101,19 +101,22 @@ public class ImplicitAnonymousFunctionParameters extends NonTerminalNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public ImplicitAnonymousFunctionParametersModifier withOpenParenToken(Token openParenToken) {
+        public ImplicitAnonymousFunctionParametersModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public ImplicitAnonymousFunctionParametersModifier withParameters(SeparatedNodeList<SimpleNameReferenceNode> parameters) {
+        public ImplicitAnonymousFunctionParametersModifier withParameters(
+                SeparatedNodeList<SimpleNameReferenceNode> parameters) {
             Objects.requireNonNull(parameters, "parameters must not be null");
             this.parameters = parameters;
             return this;
         }
 
-        public ImplicitAnonymousFunctionParametersModifier withCloseParenToken(Token closeParenToken) {
+        public ImplicitAnonymousFunctionParametersModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

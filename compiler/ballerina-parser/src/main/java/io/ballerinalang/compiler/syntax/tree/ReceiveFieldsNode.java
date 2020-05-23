@@ -36,7 +36,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<NameReferenceNode> receiveField() {
+    public SeparatedNodeList<NameReferenceNode> receiveFields() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -58,24 +58,24 @@ public class ReceiveFieldsNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openBrace",
-                "receiveField",
+                "receiveFields",
                 "closeBrace"};
     }
 
     public ReceiveFieldsNode modify(
             Token openBrace,
-            SeparatedNodeList<NameReferenceNode> receiveField,
+            SeparatedNodeList<NameReferenceNode> receiveFields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
-                receiveField.underlyingListNode(),
+                receiveFields.underlyingListNode(),
                 closeBrace)) {
             return this;
         }
 
         return NodeFactory.createReceiveFieldsNode(
                 openBrace,
-                receiveField,
+                receiveFields,
                 closeBrace);
     }
 
@@ -91,29 +91,32 @@ public class ReceiveFieldsNode extends NonTerminalNode {
     public static class ReceiveFieldsNodeModifier {
         private final ReceiveFieldsNode oldNode;
         private Token openBrace;
-        private SeparatedNodeList<NameReferenceNode> receiveField;
+        private SeparatedNodeList<NameReferenceNode> receiveFields;
         private Token closeBrace;
 
         public ReceiveFieldsNodeModifier(ReceiveFieldsNode oldNode) {
             this.oldNode = oldNode;
             this.openBrace = oldNode.openBrace();
-            this.receiveField = oldNode.receiveField();
+            this.receiveFields = oldNode.receiveFields();
             this.closeBrace = oldNode.closeBrace();
         }
 
-        public ReceiveFieldsNodeModifier withOpenBrace(Token openBrace) {
+        public ReceiveFieldsNodeModifier withOpenBrace(
+                Token openBrace) {
             Objects.requireNonNull(openBrace, "openBrace must not be null");
             this.openBrace = openBrace;
             return this;
         }
 
-        public ReceiveFieldsNodeModifier withReceiveField(SeparatedNodeList<NameReferenceNode> receiveField) {
-            Objects.requireNonNull(receiveField, "receiveField must not be null");
-            this.receiveField = receiveField;
+        public ReceiveFieldsNodeModifier withReceiveFields(
+                SeparatedNodeList<NameReferenceNode> receiveFields) {
+            Objects.requireNonNull(receiveFields, "receiveFields must not be null");
+            this.receiveFields = receiveFields;
             return this;
         }
 
-        public ReceiveFieldsNodeModifier withCloseBrace(Token closeBrace) {
+        public ReceiveFieldsNodeModifier withCloseBrace(
+                Token closeBrace) {
             Objects.requireNonNull(closeBrace, "closeBrace must not be null");
             this.closeBrace = closeBrace;
             return this;
@@ -122,7 +125,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
         public ReceiveFieldsNode apply() {
             return oldNode.modify(
                     openBrace,
-                    receiveField,
+                    receiveFields,
                     closeBrace);
         }
     }

@@ -25,7 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class STReceiveActionNode extends STActionNode {
     public final STNode leftArrow;
@@ -34,7 +34,7 @@ public class STReceiveActionNode extends STActionNode {
     STReceiveActionNode(
             STNode leftArrow,
             STNode receiveWorkers) {
-        super(SyntaxKind.RECEIVE_SEND_ACTION);
+        super(SyntaxKind.RECEIVE_ACTION);
         this.leftArrow = leftArrow;
         this.receiveWorkers = receiveWorkers;
 
