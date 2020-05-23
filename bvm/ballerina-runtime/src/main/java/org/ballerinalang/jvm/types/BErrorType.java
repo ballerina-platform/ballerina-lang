@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 public class BErrorType extends AnnotatableType {
 
     public BType detailType;
+    public BTypeIdSet typeIdSet;
 
     public BErrorType(String typeName, BPackage pkg, BType detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -37,9 +38,8 @@ public class BErrorType extends AnnotatableType {
         super(typeName, pkg, ErrorValue.class);
     }
 
-    public BErrorType(BType reasonType) {
-        super(TypeConstants.ERROR, null, ErrorValue.class);
-        this.detailType = detailType;
+    public void setTypeIdSet(BTypeIdSet typeIdSet) {
+        this.typeIdSet = typeIdSet;
     }
 
     @Override

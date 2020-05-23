@@ -85,6 +85,27 @@ public class ErrorTypeTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "Our error message {message:\"Client has been stopped\"}");
     }
+
+    @Test
+    public void testDistinctTypeFromAnotherPackageInATypeDefWithACast() {
+        BValue[] returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDefWithACast");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "Our error message {message:\"Client has been stopped\"}");
+    }
+
+    @Test
+    public void testPerformInvalidCastWithDistinctErrorType() {
+        BValue[] returns = BRunUtil.invoke(result, "performInvalidCastWithDistinctErrorType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina}TypeCastError {message:\"incompatible types: 'OurProccessingError' cannot be cast to " +
+                        "'errors:OrderProcessingError'\"}");
+    }
     
     @Test
     public void testDistinctErrorTypeNegative() {

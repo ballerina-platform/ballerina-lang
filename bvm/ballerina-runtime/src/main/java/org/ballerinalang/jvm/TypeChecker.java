@@ -1900,6 +1900,9 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
+        if (!((BErrorType) sourceType).typeIdSet.containsAll(targetType.typeIdSet)) {
+            return false;
+        }
 
         return  checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
     }
@@ -1908,6 +1911,9 @@ public class TypeChecker {
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         BType sourceType = getType(sourceValue);
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+        if (!((BErrorType) sourceType).typeIdSet.containsAll(targetType.typeIdSet)) {
             return false;
         }
         return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,

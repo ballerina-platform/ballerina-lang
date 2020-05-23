@@ -40,3 +40,25 @@ function testDistinctTypeFromAnotherPackageInATypeDef() returns error {
     er:OrderCreationError f = e;
     return f;
 }
+
+type OurProccessingError distinct er:OrderCreationError2;
+
+function testDistinctTypeFromAnotherPackageInATypeDefWithACast() returns error {
+    OurProccessingError e = OurProccessingError("Our error message", message = "Client has been stopped");
+    error f = e;
+
+    er:OrderCreationError k = <er:OrderCreationError> f; // casting to distinct super type
+    return k;
+}
+
+function testDistinctTypeFromAnotherPackageInATypeDefWithACastNegative() returns error {
+    OurProccessingError e = OurProccessingError("Our error message", message = "Client has been stopped");
+    error f = e;
+    er:OrderProcessingError k = <er:OrderProcessingError> f; // casting to unrelated, yet same shaped type.
+    return k;
+}
+
+function performInvalidCastWithDistinctErrorType() returns error? {
+    error? e = trap testDistinctTypeFromAnotherPackageInATypeDefWithACastNegative();
+    return e;
+}
