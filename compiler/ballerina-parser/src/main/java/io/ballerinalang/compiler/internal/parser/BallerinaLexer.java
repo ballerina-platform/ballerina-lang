@@ -970,6 +970,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.ROLLBACK_KEYWORD);
             case LexerTerminals.TRANSACTIONAL:
                 return getSyntaxToken(SyntaxKind.TRANSACTIONAL_KEYWORD);
+            case LexerTerminals.ENUM:
+                return getSyntaxToken(SyntaxKind.ENUM_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

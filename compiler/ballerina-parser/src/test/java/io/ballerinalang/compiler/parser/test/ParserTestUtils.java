@@ -353,6 +353,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAMESPACE_DECLARATION;
             case "ANNOTATION_DECLARATION":
                 return SyntaxKind.ANNOTATION_DECLARATION;
+            case "ENUM_DECLARATION":
+                return SyntaxKind.ENUM_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -519,6 +521,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ROLLBACK_KEYWORD;
             case "TRANSACTIONAL_KEYWORD":
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
+            case "ENUM_KEYWORD":
+                return SyntaxKind.ENUM_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -957,6 +961,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_FIELDS_LIST;
             case "WAIT_FIELD":
                 return SyntaxKind.WAIT_FIELD;
+            case "ENUM_MEMBER":
+                return SyntaxKind.ENUM_MEMBER;
 
             // XML template
             case "XML_ELEMENT":
