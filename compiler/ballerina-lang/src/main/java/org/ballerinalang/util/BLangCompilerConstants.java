@@ -44,6 +44,7 @@ public class BLangCompilerConstants {
     public static final String STREAM_VERSION = "0.4.0";
     public static final String STRING_VERSION = "1.1.0";
     public static final String TABLE_VERSION = "0.4.0";
+    public static final String TEST_VERSION = "1.0.0";
     public static final String TYPEDESC_VERSION = "1.0.0";
     public static final String VALUE_VERSION = "1.0.0";
     public static final String XML_VERSION = "0.8.0";
