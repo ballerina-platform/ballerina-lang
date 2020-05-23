@@ -69,7 +69,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.TYPEDESC_VERSION;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.typedesc", version = TYPEDESC_VERSION, functionName = "constructFrom",
+        orgName = "ballerina", packageName = "lang.typedesc", version = TYPEDESC_VERSION,
+        functionName = "constructFrom",
         args = {
                 @Argument(name = "t", type = TypeKind.TYPEDESC),
                 @Argument(name = "v", type = TypeKind.ANYDATA)

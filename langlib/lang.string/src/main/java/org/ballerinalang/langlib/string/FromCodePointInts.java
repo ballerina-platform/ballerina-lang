@@ -34,7 +34,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "fromCodePointInts",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
+        functionName = "fromCodePointInts",
         args = {@Argument(name = "codePoints", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

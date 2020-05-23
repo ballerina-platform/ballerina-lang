@@ -37,7 +37,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
  * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "equalsIgnoreCaseAscii",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
+        functionName = "equalsIgnoreCaseAscii",
         args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
