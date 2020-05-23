@@ -28,13 +28,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0", functionName = "forEach",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "forEach",
         args = {
                 @Argument(name = "x", type = TypeKind.XML),
                 @Argument(name = "func", type = TypeKind.FUNCTION)},

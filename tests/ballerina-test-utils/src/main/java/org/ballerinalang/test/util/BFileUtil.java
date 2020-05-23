@@ -126,10 +126,7 @@ public class BFileUtil {
      */
     public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
         if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            if (!"".equals(version)) {
-                className = version.replace('.', '_') + "." + className;
-            }
-            className = packageName.replace('.', '_') + "." + className;
+            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
         }
 
         if (!Names.ANON_ORG.value.equals(orgName)) {

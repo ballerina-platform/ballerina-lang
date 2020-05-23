@@ -25,13 +25,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:startsWith(string, string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "fromCodePointInt",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "fromCodePointInt",
         args = {@Argument(name = "codePoint", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

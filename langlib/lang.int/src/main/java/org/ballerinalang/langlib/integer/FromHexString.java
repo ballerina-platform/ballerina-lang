@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
 
 /**
  * Native implementation of lang.int:fromHexString(string).
@@ -35,7 +36,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", version = "1.1.0", functionName = "fromHexString",
+        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "fromHexString",
         args = {@Argument(name = "n", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

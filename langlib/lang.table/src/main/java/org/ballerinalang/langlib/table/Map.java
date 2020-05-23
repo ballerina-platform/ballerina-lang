@@ -33,13 +33,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Native implementation of lang.table:map(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = "0.4.0", functionName = "map",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "map",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
         returnType = {@ReturnType(type = TypeKind.TABLE)},
         isPublic = true

@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.jvm.util.BLangConstants.BOOLEAN_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.util.BLangCompilerConstants.BOOLEAN_VERSION;
 
 /**
  * Native implementation of lang.boolean:fromString(string).
@@ -38,7 +39,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.boolean", version = "1.0.0", functionName = "fromString",
+        orgName = "ballerina", packageName = "lang.boolean", version = BOOLEAN_VERSION, functionName = "fromString",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

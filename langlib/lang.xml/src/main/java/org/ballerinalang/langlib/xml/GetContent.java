@@ -27,13 +27,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Returns the content of a text or processing instruction or comment item.
  *
  * @since 0.90
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "getContent",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

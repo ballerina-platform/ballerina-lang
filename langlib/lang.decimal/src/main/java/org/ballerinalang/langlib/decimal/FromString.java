@@ -29,13 +29,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
 
+import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+
 /**
  * Native implementation of lang.decimal:fromString(string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", version = "1.0.0", functionName = "fromString",
+        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "fromString",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

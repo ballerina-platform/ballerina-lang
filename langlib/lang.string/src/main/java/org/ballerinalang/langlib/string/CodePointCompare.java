@@ -26,13 +26,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.PrimitiveIterator;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:codePointCompare(string, string).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "codePointCompare",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "codePointCompare",
         args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

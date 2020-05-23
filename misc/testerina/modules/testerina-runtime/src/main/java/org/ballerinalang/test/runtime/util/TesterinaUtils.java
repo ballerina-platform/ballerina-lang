@@ -116,10 +116,7 @@ public class TesterinaUtils {
     public static String getQualifiedClassName(String orgName, String packageName,
                                                String version, String className) {
         if (!DOT.equals(packageName)) {
-            if (!"".equals(version)) {
-                className = version.replace('.', '_') + "." + className;
-            }
-            className = packageName.replace('.', '_') + "." + className;
+            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
             className = orgName.replace('.', '_') + "." +  className;

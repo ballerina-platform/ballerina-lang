@@ -116,8 +116,8 @@ public class Executor {
                                          String packageName, String version, String className, String methodName,
                                          Object... paramValues) {
         try {
-            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." +
-                                                           version.replace(".", "_") + "." + className);
+            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + version.replace(".", "_") +
+                                                           "." + className);
             int paramCount = paramValues.length * 2 + 1;
             Class<?>[] jvmParamTypes = new Class[paramCount];
             Object[] jvmArgs = new Object[paramCount];
