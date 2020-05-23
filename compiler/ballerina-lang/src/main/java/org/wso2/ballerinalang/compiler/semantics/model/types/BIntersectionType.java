@@ -22,16 +22,13 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * {@code BIntersectionType} represents an intersection type in Ballerina.
@@ -40,30 +37,28 @@ import java.util.stream.Collectors;
  */
 public class BIntersectionType extends BType implements IntersectionType {
 
+    public BType effectiveType;
     public BType immutableType;
 
     private LinkedHashSet<BType> constituentTypes;
-    private boolean nullable = false;
-    private boolean isAnyData = true;
-    private boolean isPureType = true;
 
-    private BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> constituentTypes) {
-        super(TypeTags.UNION, tsymbol);
-        this.constituentTypes = constituentTypes;
+    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType) {
+        super(TypeTags.INTERSECTION, tsymbol);
+        this.constituentTypes = toFlatTypeSet(types);
+        this.effectiveType = effectiveType;
 
-        for (BType constituentType : constituentTypes) {
-            if (!this.nullable && constituentType.tag == TypeTags.NIL) {
-                this.nullable = true;
-            }
-
-            if (this.isAnyData && !constituentType.isAnydata()) {
-                this.isAnyData = false;
-            }
-
-            if (this.isPureType && !constituentType.isPureType()) {
-                this.isPureType = false;
+        for (BType constituentType : this.constituentTypes) {
+            if (constituentType.tag == TypeTags.READONLY) {
+                this.flags |= Flags.READONLY;
+                break;
             }
         }
+    }
+
+    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType, int flags) {
+        super(TypeTags.INTERSECTION, tsymbol, flags);
+        this.constituentTypes = toFlatTypeSet(types);
+        this.effectiveType = effectiveType;
     }
 
     @Override
@@ -83,7 +78,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public boolean isNullable() {
-        return nullable;
+        return this.effectiveType.isNullable();
     }
 
     @Override
@@ -93,7 +88,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public String toString() {
-        StringJoiner joiner = new StringJoiner(getKind().typeName(), "(", ")");
+        StringJoiner joiner = new StringJoiner(" & ", "(", ")");
 
         for (BType constituentType : this.constituentTypes) {
             if (constituentType.tag == TypeTags.NIL) {
@@ -107,37 +102,14 @@ public class BIntersectionType extends BType implements IntersectionType {
         return joiner.toString();
     }
 
-    /**
-     * Creates an intersection type using the types specified in the `types` set. The created intersection will not
-     * have intersection types in its member types set.
-     *
-     * @param tsymbol Type symbol for the intersection.
-     * @param types   The types to be used to define the intersection.
-     * @return The created intersection type.
-     */
-    public static BIntersectionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
-        return new BIntersectionType(tsymbol, toFlatTypeSet(types));
-    }
-
-    /**
-     * Creates an intersection type using the provided types.
-     *
-     * @param tsymbol Type symbol for the intersection.
-     * @param types   The types to be used to define the intersection.
-     * @return The created intersection type.
-     */
-    public static BIntersectionType create(BTypeSymbol tsymbol, BType... types) {
-        return create(tsymbol, Arrays.stream(types).collect(Collectors.toCollection(LinkedHashSet::new)));
-    }
-
     @Override
     public boolean isAnydata() {
-        return this.isAnyData;
+        return this.effectiveType.isAnydata();
     }
 
     @Override
     public boolean isPureType() {
-        return this.isPureType;
+        return this.effectiveType.isPureType();
     }
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
@@ -153,6 +125,10 @@ public class BIntersectionType extends BType implements IntersectionType {
         }
 
         return flatSet;
+    }
+
+    public BType getEffectiveType() {
+        return this.effectiveType;
     }
 
     @Override

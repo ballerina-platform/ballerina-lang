@@ -1157,6 +1157,7 @@ public class JvmTerminatorGen {
         } else if (bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANYDATA ||

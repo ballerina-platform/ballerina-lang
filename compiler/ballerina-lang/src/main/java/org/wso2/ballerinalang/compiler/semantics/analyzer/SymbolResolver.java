@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -902,61 +903,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
 
-        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
-
-        boolean validIntersection = true;
-
-        BType typeOne = resolveTypeNode(constituentTypeNodes.get(0), env);
-        BType typeTwo = resolveTypeNode(constituentTypeNodes.get(1), env);
-
-        boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
-
-        BType intersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
-
-        if (intersectionType == symTable.semanticError) {
-            validIntersection = false;
-        } else {
-            for (int i = 2; i < constituentTypeNodes.size(); i++) {
-                BType type = resolveTypeNode(constituentTypeNodes.get(i), env);
-
-                if (!hasReadOnlyType) {
-                    hasReadOnlyType = type == symTable.readonlyType;
-                }
-
-                intersectionType = getPotentialReadOnlyIntersection(intersectionType, type);
-                if (intersectionType == symTable.semanticError) {
-                    validIntersection = false;
-                    break;
-                }
-            }
-        }
-
-        if (!validIntersection) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        if (!hasReadOnlyType) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
-                       intersectionTypeNode);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        if (types.isInherentlyImmutableType(intersectionType)) {
-            resultType = intersectionType;
-            return;
-        }
-
-        if (!types.isSelectivelyImmutableType(intersectionType)) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE, intersectionType);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        resultType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types, intersectionType, env,
-                                                          symTable, anonymousModelHelper, names);
+        resultType = computeIntersectionType(intersectionTypeNode);
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
@@ -1461,6 +1408,78 @@ public class SymbolResolver extends BLangNodeVisitor {
                     .addDefaultableParam("characters", symTable.stringType)
                     .build();
         xmlModuleSymbol.scope.define(textCtor.name, textCtor);
+    }
+
+    private BType computeIntersectionType(BLangIntersectionTypeNode intersectionTypeNode) {
+        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
+        LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>();
+
+        boolean validIntersection = true;
+
+        BType typeOne = resolveTypeNode(constituentTypeNodes.get(0), env);
+        BType typeTwo = resolveTypeNode(constituentTypeNodes.get(1), env);
+
+        constituentTypes.add(typeOne);
+        constituentTypes.add(typeTwo);
+
+        boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
+
+        BType potentialIntersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
+
+        if (potentialIntersectionType == symTable.semanticError) {
+            validIntersection = false;
+        } else {
+            for (int i = 2; i < constituentTypeNodes.size(); i++) {
+                BType type = resolveTypeNode(constituentTypeNodes.get(i), env);
+                constituentTypes.add(type);
+
+                if (!hasReadOnlyType) {
+                    hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type);
+                if (potentialIntersectionType == symTable.semanticError) {
+                    validIntersection = false;
+                    break;
+                }
+            }
+        }
+
+        if (!validIntersection) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
+            return symTable.semanticError;
+        }
+
+        if (!hasReadOnlyType) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
+                       intersectionTypeNode);
+            return symTable.semanticError;
+        }
+
+        if (types.isInherentlyImmutableType(potentialIntersectionType)) {
+            return potentialIntersectionType;
+        }
+
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType)) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE,
+                       potentialIntersectionType);
+            return symTable.semanticError;
+        }
+
+        BType effectiveType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types,
+                                                                   potentialIntersectionType, env, symTable,
+                                                                   anonymousModelHelper, names);
+
+        BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
+                                                                      Flags.asMask(EnumSet.of(Flag.PUBLIC,
+                                                                                              Flag.READONLY)),
+                                                                      Names.EMPTY, env.enclPkg.symbol.pkgID,
+                                                                      null, env.scope.owner);
+        BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentTypes,
+                                                                   effectiveType, Flags.READONLY);
+        intersectionTypeSymbol.type = intersectionType;
+        intersectionType.immutableType = effectiveType;
+        return intersectionType;
     }
 
     private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {

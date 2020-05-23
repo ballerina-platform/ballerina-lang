@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -296,7 +297,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         expr.accept(this);
 
-        expr.type = resultType;
+        expr.type = resultType.tag != TypeTags.INTERSECTION ? resultType :
+                ((BIntersectionType) resultType).effectiveType;
         expr.typeChecked = isTypeChecked;
         this.env = prevEnv;
         this.expType = preExpType;
@@ -742,10 +744,16 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             resultType = tableType;
-        } else if (expType.tag == TypeTags.TABLE) {
+            return;
+        }
+
+        BType applicableExpType = expType.tag == TypeTags.INTERSECTION ?
+                ((BIntersectionType) expType).effectiveType : expType;
+
+        if (applicableExpType.tag == TypeTags.TABLE) {
             List<BType> memTypes = new ArrayList<>();
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
-                BType recordType = checkExpr(recordLiteral, env, ((BTableType) expType).constraint);
+                BType recordType = checkExpr(recordLiteral, env, ((BTableType) applicableExpType).constraint);
                 if (recordType == symTable.semanticError) {
                     resultType = symTable.semanticError;
                     return;
@@ -753,31 +761,37 @@ public class TypeChecker extends BLangNodeVisitor {
                 memTypes.add(recordType);
             }
 
-            if (((BTableType) expType).constraint.tag == TypeTags.MAP) {
-                validateMapConstraintTable(tableConstructorExpr);
+            if (((BTableType) applicableExpType).constraint.tag == TypeTags.MAP) {
+                validateMapConstraintTable(tableConstructorExpr, applicableExpType);
                 return;
             }
 
-            if (!(validateTableType((BTableType) expType,
+            if (!(validateTableType((BTableType) applicableExpType,
                     tableConstructorExpr.recordLiteralList) &&
-                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) expType))) {
+                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) applicableExpType))) {
                 resultType = symTable.semanticError;
                 return;
             }
 
-            BTableType tableType = new BTableType(TypeTags.TABLE, inferTableMemberType(memTypes), null);
+            BTableType tableType = new BTableType(TypeTags.TABLE, inferTableMemberType(memTypes, applicableExpType),
+                                                  null);
+
+            if (Symbols.isFlagOn(applicableExpType.flags, Flags.READONLY)) {
+                tableType.flags |= Flags.READONLY;
+            }
+
             if (checkKeySpecifier(tableConstructorExpr, tableType)) {
                 return;
             }
 
-            BTableType expectedTableType = (BTableType) expType;
+            BTableType expectedTableType = (BTableType) applicableExpType;
             if (expectedTableType.fieldNameList != null && tableType.fieldNameList == null) {
                 tableType.fieldNameList = expectedTableType.fieldNameList;
             }
             resultType = tableType;
-        } else if (expType.tag == TypeTags.UNION) {
+        } else if (applicableExpType.tag == TypeTags.UNION) {
             List<BType> matchingTypes = new ArrayList<>();
-            BUnionType expectedType = (BUnionType) expType;
+            BUnionType expectedType = (BUnionType) applicableExpType;
             BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
             for (BType memType : expectedType.getMemberTypes()) {
                 if (types.isAssignable(actualType, memType)) {
@@ -809,7 +823,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private BType inferTableMemberType(List<BType> memTypes) {
+    private BType inferTableMemberType(List<BType> memTypes, BType expType) {
 
         if (memTypes.isEmpty()) {
             return ((BTableType) expType).constraint;
@@ -1042,7 +1056,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private void validateMapConstraintTable(BLangTableConstructorExpr tableConstructorExpr) {
+    private void validateMapConstraintTable(BLangTableConstructorExpr tableConstructorExpr, BType expType) {
         if (((BTableType) expType).fieldNameList != null || ((BTableType) expType).keyTypeConstraint != null) {
             dlog.error(((BTableType) expType).keyPos,
                     DiagnosticCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
@@ -1100,7 +1114,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor) {
-        if (bType.tag == TypeTags.UNION) {
+        int tag = bType.tag;
+        if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
 
@@ -1146,7 +1161,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkListConstructorCompatibility(compatibleTypes.get(0), listConstructor);
         }
 
-        BType possibleType = getListConstructorCompatibleNonUnionType(bType);
+        BType possibleType = getListConstructorCompatibleNonUnionType(
+                tag != TypeTags.INTERSECTION ? bType : ((BIntersectionType) bType).effectiveType);
 
         switch (possibleType.tag) {
             case TypeTags.ARRAY:
@@ -1344,7 +1360,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkMappingConstructorCompatibility(BType bType, BLangRecordLiteral mappingConstructor) {
-        if (bType.tag == TypeTags.UNION) {
+        int tag = bType.tag;
+        if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
 
@@ -1385,7 +1402,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkMappingConstructorCompatibility(compatibleTypes.get(0), mappingConstructor);
         }
 
-        BType possibleType = getMappingConstructorCompatibleNonUnionType(bType);
+        BType possibleType = getMappingConstructorCompatibleNonUnionType(
+                tag != TypeTags.INTERSECTION ? bType : ((BIntersectionType) bType).effectiveType);
 
         switch (possibleType.tag) {
             case TypeTags.MAP:

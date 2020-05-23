@@ -261,6 +261,8 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BType constituentType : bIntersectionType.getConstituentTypes()) {
             writeTypeCpIndex(constituentType);
         }
+
+        writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 
     @Override

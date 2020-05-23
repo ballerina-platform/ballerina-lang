@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -113,6 +114,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
@@ -1057,6 +1059,9 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.UNION) {
             loadUnionType(mv, (BUnionType) bType);
             return;
+        } else if (bType.tag == TypeTags.INTERSECTION) {
+            loadIntersectionType(mv, (BIntersectionType) bType);
+            return;
         } else if (bType.tag == TypeTags.RECORD) {
             loadUserDefinedType(mv, bType);
             return;
@@ -1338,6 +1343,56 @@ class JvmTypeGen {
     }
 
     /**
+     * Generate code to load an instance of the given intersection type to the top of the stack.
+     *
+     * @param mv    method visitor
+     * @param bType intersection type to load
+     */
+    private static void loadIntersectionType(MethodVisitor mv, BIntersectionType bType) {
+        // Create the intersection type
+        mv.visitTypeInsn(NEW, INTERSECTION_TYPE);
+        mv.visitInsn(DUP);
+
+        // Create the constituent types array.
+        Set<BType> constituentTypes = bType.getConstituentTypes();
+        mv.visitLdcInsn((long) constituentTypes.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, BTYPE);
+        int i = 0;
+        for (BType memberType : constituentTypes) {
+            BType mType = getType(memberType);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // Load the member type.
+            loadType(mv, mType);
+
+            // Add the member to the array.
+            mv.visitInsn(AASTORE);
+            i += 1;
+        }
+
+        // Load the effective type of the intersection.
+        loadType(mv, bType.effectiveType);
+
+        // Load type flags.
+        mv.visitLdcInsn(typeFlag(bType));
+
+        loadReadonlyFlag(mv, bType);
+
+        BType immutableType = bType.immutableType;
+        if (immutableType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, immutableType);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE, "<init>",
+                           String.format("([L%s;L%s;IZL%s;)V", BTYPE, BTYPE, BTYPE), false);
+    }
+
+    /**
      * Load a Tuple type instance to the top of the stack.
      *
      * @param mv    method visitor
@@ -1503,6 +1558,7 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.READONLY) {

@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BFutureType;
+import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -660,6 +661,8 @@ public class TypeChecker {
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
                 return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
+            case TypeTags.INTERSECTION_TAG:
+                return checkIsIntersectionType(sourceType, (BIntersectionType) targetType, unresolvedTypes);
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -711,6 +714,16 @@ public class TypeChecker {
                 return false;
 
         }
+    }
+
+    private static boolean checkIsIntersectionType(BType sourceType, BIntersectionType targetType,
+                                                   List<TypePair> unresolvedTypes) {
+        for (BType constituentType : targetType.getConstituentTypes()) {
+            if (!checkIsType(sourceType, constituentType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
@@ -1463,6 +1476,13 @@ public class TypeChecker {
                     }
                 }
                 return false;
+            case TypeTags.INTERSECTION_TAG:
+                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
+                    if (!checkIsLikeType(sourceValue, constituentType, unresolvedValues, allowNumericConversion)) {
+                        return false;
+                    }
+                }
+                return true;
             default:
                 return false;
         }

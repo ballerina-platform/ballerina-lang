@@ -21,6 +21,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -467,7 +469,7 @@ public class Types {
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes,
-                                 Set<BType> unresolvedReadonlyTypes) {
+                                 Set<BType> unresolvedReadonlyTypes) { // TODO: 5/22/20 Check if we can remove
 
         if (isSameType(source, target)) {
             return true;
@@ -481,6 +483,10 @@ public class Types {
             return false;
         }
 
+        if (sourceTag == TypeTags.INTERSECTION) {
+            return isAssignable(((BIntersectionType) source).effectiveType, target, unresolvedTypes,
+                                unresolvedReadonlyTypes);
+        }
 
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
@@ -574,6 +580,11 @@ public class Types {
         if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION) &&
                 isAssignableToUnionType(source, target, unresolvedTypes, unresolvedReadonlyTypes)) {
             return true;
+        }
+
+        if (targetTag == TypeTags.INTERSECTION) {
+            return isAssignableToIntersectionType(source, (BIntersectionType) target, unresolvedTypes,
+                                                  unresolvedReadonlyTypes);
         }
 
         if (targetTag == TypeTags.JSON) {
@@ -954,9 +965,13 @@ public class Types {
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        if (isInherentlyImmutableType(type)) {
+        if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
+        }
+
+        if (((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
+            return true;
         }
 
         if (!unresolvedTypes.add(type)) {
@@ -2106,6 +2121,39 @@ public class Types {
         }
 
         @Override
+        public Boolean visit(BIntersectionType tIntersectionType, BType s) {
+            if (s.tag != TypeTags.INTERSECTION || !hasSameReadonlyFlag(s, tIntersectionType)) {
+                return false;
+            }
+
+            BIntersectionType sIntersectionType = (BIntersectionType) s;
+
+            if (sIntersectionType.getConstituentTypes().size() != tIntersectionType.getConstituentTypes().size()) {
+                return false;
+            }
+
+            Set<BType> sourceTypes = new LinkedHashSet<>(sIntersectionType.getConstituentTypes());
+            Set<BType> targetTypes = new LinkedHashSet<>(tIntersectionType.getConstituentTypes());
+
+            for (BType sourceType : sourceTypes) {
+                boolean foundSameType = false;
+
+                for (BType targetType : targetTypes) {
+                    if (isSameType(sourceType, targetType, this.unresolvedTypes, this.unresolvedReadonlyTypes)) {
+                        foundSameType = true;
+                        break;
+                    }
+                }
+
+                if (!foundSameType) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        @Override
         public Boolean visit(BErrorType t, BType s) {
             if (s.tag != TypeTags.ERROR) {
                 return false;
@@ -2228,6 +2276,16 @@ public class Types {
                         || (s.tag == TypeTags.XML
                             && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes,
                                                        unresolvedReadonlyTypes)));
+    }
+
+    private boolean isAssignableToIntersectionType(BType source, BIntersectionType target,
+                                                   Set<TypePair> unresolvedTypes, Set<BType> unresolvedReadonlyTypes) {
+        for (BType constituentType : target.getConstituentTypes()) {
+            if (!isAssignable(source, constituentType, unresolvedTypes, unresolvedReadonlyTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes,

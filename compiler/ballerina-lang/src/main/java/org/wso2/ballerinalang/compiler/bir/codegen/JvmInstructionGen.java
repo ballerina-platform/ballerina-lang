@@ -457,6 +457,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.RECORD ||
                 bType.tag == TypeTags.ERROR ||
@@ -516,6 +517,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.RECORD ||

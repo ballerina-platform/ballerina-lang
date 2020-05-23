@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -616,7 +617,7 @@ public class JvmCastGen {
                 targetType.tag == TypeTags.ANY ||
                 targetType.tag == TypeTags.ANYDATA) {
             return true;
-        } else if (targetType.tag == TypeTags.UNION) {
+        } else if (targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.INTERSECTION) {
             return targetType.isNullable();
         } else if (targetType.tag == TypeTags.FINITE) {
             return targetType.isNullable();
@@ -691,6 +692,9 @@ public class JvmCastGen {
             return;
         } else if (targetType.tag == TypeTags.UNION) {
             generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
+            return;
+        } else if (targetType.tag == TypeTags.INTERSECTION) {
+            generateCheckCastToIntersectionType(mv, sourceType, (BIntersectionType) targetType);
             return;
         } else if (targetType.tag == TypeTags.ANYDATA) {
             generateCheckCastToAnyData(mv, sourceType);
@@ -1038,7 +1042,8 @@ public class JvmCastGen {
 
     private static void generateCheckCastToAnyData(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION) {
+        if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.INTERSECTION) {
             checkCast(mv, symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction
@@ -1050,6 +1055,7 @@ public class JvmCastGen {
 
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
+                sourceType.tag == TypeTags.INTERSECTION ||
                 sourceType.tag == TypeTags.MAP) {
             checkCast(mv, symbolTable.jsonType);
         } else {
@@ -1059,6 +1065,13 @@ public class JvmCastGen {
     }
 
     private static void generateCheckCastToUnionType(MethodVisitor mv, BType sourceType, BUnionType targetType) {
+
+        generateCastToAny(mv, sourceType);
+        checkCast(mv, targetType);
+    }
+
+    private static void generateCheckCastToIntersectionType(MethodVisitor mv, BType sourceType,
+                                                            BIntersectionType targetType) {
 
         generateCastToAny(mv, sourceType);
         checkCast(mv, targetType);

@@ -960,7 +960,8 @@ public class BIRPackageSymbolEnter {
                         constituentTypes.add(readTypeFromCp());
                     }
 
-                    return BIntersectionType.create(intersectionTypeSymbol, constituentTypes);
+                    BType effectiveType = readTypeFromCp();
+                    return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType);
                 case TypeTags.PACKAGE:
                     // TODO fix
                     break;

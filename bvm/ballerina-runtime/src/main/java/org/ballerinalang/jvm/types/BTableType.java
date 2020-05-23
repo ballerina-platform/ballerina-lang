@@ -88,10 +88,11 @@ public class BTableType extends BType {
     @Override
     public String toString() {
         if (constraint == null) {
-            return super.toString();
+            return readonly ? super.toString().concat(" & readonly") : super.toString();
         }
 
         StringBuilder keyStringBuilder = new StringBuilder();
+        String stringRep;
         if (fieldNames != null) {
             for (String fieldName : fieldNames) {
                 if (!keyStringBuilder.toString().equals("")) {
@@ -99,11 +100,13 @@ public class BTableType extends BType {
                 }
                 keyStringBuilder.append(fieldName);
             }
-            return super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
+            stringRep = super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
+        } else {
+            stringRep = super.toString() + "<" + constraint.getName() + ">" +
+                    ((keyType != null) ? (" key<" + keyType + ">") : "");
         }
 
-        return super.toString() + "<" + constraint.getName() + ">" +
-                ((keyType != null) ? (" key<" + keyType + ">") : "");
+        return readonly ? stringRep.concat(" & readonly") : stringRep;
     }
 
     @Override

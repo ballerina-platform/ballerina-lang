@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -244,6 +245,8 @@ public class ImmutableTypeCloner {
                 immutableJsonTSymbol.type = immutableJsonType;
                 origJsonType.immutableType = immutableJsonType;
                 return immutableJsonType;
+            case TypeTags.INTERSECTION:
+                return ((BIntersectionType) type).immutableType;
             default:
                 BUnionType origUnionType = (BUnionType) type;
                 BType immutableType = origUnionType.immutableType;
