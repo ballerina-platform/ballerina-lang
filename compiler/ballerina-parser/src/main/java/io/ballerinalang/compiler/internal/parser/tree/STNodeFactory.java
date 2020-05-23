@@ -1781,6 +1781,38 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endExpression);
     }
 
+    public static STNode createEnumDeclarationNode(
+            STNode metadata,
+            STNode qualifier,
+            STNode enumKeywordToken,
+            STNode identifier,
+            STNode openBraceToken,
+            STNode enumMemberList,
+            STNode closeBraceToken) {
+
+        return new STEnumDeclarationNode(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken);
+    }
+
+    public static STNode createEnumMemberNode(
+            STNode metadata,
+            STNode identifier,
+            STNode equalToken,
+            STNode constExprNode) {
+
+        return new STEnumMemberNode(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode);
+    }
+
     public static STNode createArrayTypeDescriptorNode(
             STNode memberTypeDesc,
             STNode openBracket,

@@ -108,19 +108,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
             ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.LISTENER_DECL,
             ParserRuleContext.CONSTANT_DECL, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.SERVICE_DECL,
-            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
+            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
+            ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = new ParserRuleContext[] {
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
             ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL,
             ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.VAR_DECL_STMT,
-            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
+            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
+            ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
             { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.MODULE_TYPE_DEFINITION,
                     ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL, ParserRuleContext.LISTENER_DECL,
                     ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.VAR_DECL_STMT,
-                    ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
+                    ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.MODULE_ENUM_DECLARATION,
+                    ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -427,8 +430,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] WAIT_FUTURE_EXPR_END =
             { ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END, ParserRuleContext.PIPE };
 
+    private static final ParserRuleContext[] ENUM_MEMBER_START =
+            { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.ENUM_MEMBER_NAME };
+
+    private static final ParserRuleContext[] ENUM_MEMBER_INTERNAL_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.ENUM_MEMBER_RHS };
+
+    private static final ParserRuleContext[] ENUM_MEMBER_RHS =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
+
     private static final ParserRuleContext[] MEMBER_ACCESS_KEY_EXPR_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -505,6 +518,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FIELD_END:
             case WAIT_FUTURE_EXPR_END:
             case MAPPING_FIELD_END:
+            case ENUM_MEMBER_START:
+            case ENUM_MEMBER_INTERNAL_RHS:
+            case ENUM_MEMBER_RHS:
                 return true;
             default:
                 return false;
@@ -933,6 +949,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case OPTIONAL_CHAINING_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN;
                     break;
+                case ENUM_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.ENUM_KEYWORD;
+                    break;
+                case MODULE_ENUM_NAME:
+                case ENUM_MEMBER_NAME:
+                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                    break;
 
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
@@ -1099,6 +1122,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FIELD_END:
             case WAIT_FUTURE_EXPR_END:
             case OPTIONAL_PEER_WORKER:
+            case ENUM_MEMBER_START:
+            case ENUM_MEMBER_INTERNAL_RHS:
+            case ENUM_MEMBER_RHS:
             case MEMBER_ACCESS_KEY_EXPR_END:
                 return true;
             default:
@@ -1450,6 +1476,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_PEER_WORKER:
                 alternativeRules = OPTIONAL_PEER_WORKER;
                 break;
+            case ENUM_MEMBER_START:
+                alternativeRules = ENUM_MEMBER_START;
+                break;
+            case ENUM_MEMBER_INTERNAL_RHS:
+                alternativeRules = ENUM_MEMBER_INTERNAL_RHS;
+                break;
+            case ENUM_MEMBER_RHS:
+                alternativeRules = ENUM_MEMBER_RHS;
+                break;
             case MEMBER_ACCESS_KEY_EXPR_END:
                 alternativeRules = MEMBER_ACCESS_KEY_EXPR_END;
                 break;
@@ -1634,6 +1669,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END;
         } else if (parentCtx == ParserRuleContext.CONDITIONAL_EXPRESSION) {
             nextContext = ParserRuleContext.COLON;
+        } else if (parentCtx == ParserRuleContext.ENUM_MEMBER_LIST) {
+            nextContext = ParserRuleContext.ENUM_MEMBER_RHS;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -1641,8 +1678,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
                 ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                 ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.ARG_LIST_START,
-                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
+                ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.RIGHT_ARROW,
+                ParserRuleContext.SYNC_SEND_TOKEN, nextContext, ParserRuleContext.ARG_LIST_START };
+
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
@@ -2281,6 +2319,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FIELD_OR_FUNC_NAME;
             case CONDITIONAL_EXPRESSION:
                 return ParserRuleContext.QUESTION_MARK;
+            case MODULE_ENUM_DECLARATION:
+                return ParserRuleContext.ENUM_KEYWORD;
+            case ENUM_KEYWORD:
+                return ParserRuleContext.MODULE_ENUM_NAME;
+            case MODULE_ENUM_NAME:
+                return ParserRuleContext.OPEN_BRACE;
+            case ENUM_MEMBER_LIST:
+                return ParserRuleContext.ENUM_MEMBER_START;
+            case ENUM_MEMBER_NAME:
+                return ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2361,6 +2409,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DO_CLAUSE:
             case MEMBER_ACCESS_KEY_EXPR:
             case CONDITIONAL_EXPRESSION:
+            case MODULE_ENUM_DECLARATION:
+            case ENUM_MEMBER_LIST:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2470,6 +2520,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RECEIVE_FIELD;
             case MULTI_WAIT_FIELDS:
                 return ParserRuleContext.WAIT_FIELD_NAME;
+            case MODULE_ENUM_DECLARATION:
+                return ParserRuleContext.ENUM_MEMBER_LIST;
             default:
                 return ParserRuleContext.STATEMENT;
         }
@@ -2553,6 +2605,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RECEIVE_FIELD;
             case MULTI_WAIT_FIELDS:
                 return ParserRuleContext.WAIT_FIELD_NAME;
+            case ENUM_MEMBER_LIST:
+                return ParserRuleContext.ENUM_MEMBER_START;
             case MEMBER_ACCESS_KEY_EXPR:
                 return ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END;
             default:
@@ -2720,6 +2774,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONSTANT_DECL:
             case LET_EXPR_LET_VAR_DECL:
             case LET_CLAUSE_LET_VAR_DECL:
+            case ENUM_MEMBER_LIST:
                 return ParserRuleContext.EXPRESSION;
             default:
                 if (parentCtx == ParserRuleContext.STMT_START_WITH_IDENTIFIER) {
@@ -2836,6 +2891,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DO_CLAUSE:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
+            case ENUM_MEMBER_LIST:
+                endContext(); //end ENUM_MEMBER_LIST context
+                endContext(); // end MODULE_ENUM_DECLARATION ctx
+                return ParserRuleContext.TOP_LEVEL_NODE;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -2874,6 +2933,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXTERNAL_KEYWORD;
             case TYPE_CAST:
                 return ParserRuleContext.TYPE_CAST_PARAM_RHS;
+            case ENUM_MEMBER_LIST:
+                return ParserRuleContext.ENUM_MEMBER_NAME;
             default:
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.REQUIRED_PARAM;
@@ -3635,6 +3696,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.ANNOT_CHAINING_TOKEN;
             case OPTIONAL_CHAINING_TOKEN:
                 return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+            case ENUM_KEYWORD:
+                return SyntaxKind.ENUM_KEYWORD;
+            case MODULE_ENUM_NAME:
+            case ENUM_MEMBER_NAME:
+                return SyntaxKind.IDENTIFIER_TOKEN;
+            case ENUM_MEMBER_INTERNAL_RHS:
+            case ENUM_MEMBER_RHS:
+                return SyntaxKind.CLOSE_BRACE_TOKEN;
 
             // TODO:
             case COMP_UNIT:
