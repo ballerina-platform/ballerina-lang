@@ -120,7 +120,8 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TYPE_READONLY? typeName Identifier
+            (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
