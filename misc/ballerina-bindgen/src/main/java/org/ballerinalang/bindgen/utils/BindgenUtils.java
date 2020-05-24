@@ -611,12 +611,12 @@ public class BindgenUtils {
                 }
             }
             if (!classPaths.isEmpty()) {
-                outStream.println("Following jars were added to the classpath:");
+                outStream.println("\nFollowing jars were added to the classpath:");
                 for (String path : classPaths) {
                     outStream.println("\t" + path);
                 }
             } else {
-                errStream.println("Failed to add the provided jars to classpath.");
+                errStream.println("\nFailed to add the provided jars to classpath.");
             }
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
                     -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
