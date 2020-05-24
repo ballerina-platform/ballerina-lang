@@ -19,9 +19,12 @@ package org.ballerinalang.bindgen.command;
 
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.tool.BLauncherCmd;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIFIER;
@@ -38,6 +41,8 @@ public class BindgenCommand implements BLauncherCmd {
 
     private static final PrintStream outStream = System.out;
     private static final PrintStream outError = System.err;
+    private Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
+    private Path targetOutputPath = sourceRootPath;
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
@@ -61,7 +66,7 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-        outStream.println("\nNote: This is an experimental tool.\n");
+        outStream.println("\nNote: This is an experimental tool.");
         //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -78,7 +83,15 @@ public class BindgenCommand implements BLauncherCmd {
 
         BindingsGenerator bindingsGenerator = new BindingsGenerator();
         if (this.outputPath != null) {
+            targetOutputPath = Paths.get(sourceRootPath.toString(), outputPath);
             bindingsGenerator.setOutputPath(outputPath);
+        }
+
+        if (!ProjectDirs.isProject(targetOutputPath)) {
+            Path findRoot = ProjectDirs.findProjectRoot(targetOutputPath);
+            if (findRoot != null) {
+                outStream.println("\nBallerina project detected at: " + findRoot.toString());
+            }
         }
 
         String splitCommaRegex = "\\s*,\\s*";
