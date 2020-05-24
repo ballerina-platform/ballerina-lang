@@ -21,6 +21,7 @@ import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
@@ -70,8 +71,8 @@ public class StreamingListener implements MessageHandler {
     public void onMessage(Message msg) {
         natsMetricsReporter.reportConsume(msg.getSubject(), msg.getData().length);
         ObjectValue ballerinaNatsMessage = BallerinaValues.createObjectValue(
-                Constants.NATS_PACKAGE_ID, NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
-                BValueCreator.createArrayValue(msg.getData()), msg.getReplyTo());
+                Constants.NATS_PACKAGE_ID, NATS_STREAMING_MESSAGE_OBJ_NAME, StringUtils.fromString(msg.getSubject()),
+                BValueCreator.createArrayValue(msg.getData()), StringUtils.fromString(msg.getReplyTo()));
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MANUAL_ACK.getValue(), manualAck);
         AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
