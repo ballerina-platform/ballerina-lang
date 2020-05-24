@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -152,6 +153,7 @@ public class EmailAccessUtil {
         BArray replyToAddressArrayValue = getAddressBArrayList(message.getReplyTo());
         String subject = getStringNullChecked(message.getSubject());
         String messageBody = extractBodyFromMessage(message);
+        MapValue headers = extractHeadersFromMessage(message);
         String messageContentType = message.getContentType();
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
@@ -171,12 +173,28 @@ public class EmailAccessUtil {
         if (messageContentType != null && !messageContentType.equals("")) {
             valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE, messageContentType);
         }
+        if (headers != null) {
+            valueMap.put(EmailConstants.MESSAGE_HEADERS, headers);
+        }
         valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
         valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
         if (attachments != null && attachments.size() > 0) {
             valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS, attachments);
         }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
+    }
+
+    private static MapValue<String, String> extractHeadersFromMessage(Message message) throws MessagingException {
+        MapValue<String, String> headerMap = new MapValueImpl<>();
+        Enumeration<Header> headers = message.getAllHeaders();
+        if (headers.hasMoreElements()) {
+            while (headers.hasMoreElements()) {
+                Header header = headers.nextElement();
+                headerMap.put(header.getName(), header.getValue());
+            }
+            return headerMap;
+        }
+        return null;
     }
 
     private static XMLSequence parseToXml(String xmlStr) {
