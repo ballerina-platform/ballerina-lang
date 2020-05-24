@@ -89,6 +89,7 @@ public enum SyntaxKind {
     COMMIT_KEYWORD(235, "commit"),
     ROLLBACK_KEYWORD(236, "rollback"),
     RETRY_KEYWORD(237, "retry"),
+    ENUM_KEYWORD(238, "enum"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -195,6 +196,7 @@ public enum SyntaxKind {
     CONST_DECLARATION(2006),
     ANNOTATION_DECLARATION(2007),
     XML_NAMESPACE_DECLARATION(2008),
+    ENUM_DECLARATION(2009),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -363,7 +365,8 @@ public enum SyntaxKind {
     TRIPPLE_GT_TOKEN(3057, ">>>"),
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
-    LIST_BP_OR_TUPLE_TYPE_DESC(3060),
+    ENUM_MEMBER(3060),
+    LIST_BP_OR_TUPLE_TYPE_DESC(3061),
 
     // XML
     XML_ELEMENT(4000),

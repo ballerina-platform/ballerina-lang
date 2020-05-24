@@ -90,6 +90,7 @@ public class LexerTerminals {
     public static final String COMMIT = "commit";
     public static final String RETRY = "retry";
     public static final String ROLLBACK = "rollback";
+    public static final String ENUM = "enum";
 
     // Types
     public static final String INT = "int";
