@@ -83,7 +83,11 @@ public class BindgenCommand implements BLauncherCmd {
 
         BindingsGenerator bindingsGenerator = new BindingsGenerator();
         if (this.outputPath != null) {
-            targetOutputPath = Paths.get(sourceRootPath.toString(), outputPath);
+            if (Paths.get(outputPath).isAbsolute()) {
+                targetOutputPath = Paths.get(outputPath);
+            } else {
+                targetOutputPath = Paths.get(sourceRootPath.toString(), outputPath);
+            }
             bindingsGenerator.setOutputPath(outputPath);
         }
 
@@ -91,6 +95,7 @@ public class BindgenCommand implements BLauncherCmd {
             Path findRoot = ProjectDirs.findProjectRoot(targetOutputPath);
             if (findRoot != null) {
                 outStream.println("\nBallerina project detected at: " + findRoot.toString());
+                bindingsGenerator.setProjectRoot(findRoot);
             }
         }
 
