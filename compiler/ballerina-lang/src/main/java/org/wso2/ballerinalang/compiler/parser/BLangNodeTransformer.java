@@ -672,6 +672,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         boolean hasRestField = false;
+        boolean isAnonymous = recordTypeDescritorIsAnonymous(recordTypeDescriptorNode);
+        boolean isLocal = ifInLocalContext(recordTypeDescriptorNode.parent());
+
         for (Node field : recordTypeDescriptorNode.fields()) {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                 recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
@@ -684,7 +687,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         recordTypeNode.sealed = !hasRestField;
         recordTypeNode.pos = getPosition(recordTypeDescriptorNode);
-        return recordTypeNode;
+        recordTypeNode.isAnonymous = isAnonymous;
+        recordTypeNode.isLocal = isLocal;
+
+        // If anonymous type, create a user defined type and return it.
+        if (!isAnonymous || isLocal) {
+            return recordTypeNode;
+        }
+
+        return createAnonymousRecordType(recordTypeDescriptorNode, recordTypeNode);
     }
 
     @Override
@@ -1528,6 +1539,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.memberTypeNodes.add(createTypeNode(optTypeDescriptor.typeDescriptor()));
         unionTypeNode.memberTypeNodes.add(nilTypeNode);
+        unionTypeNode.nullable = true;
 
         unionTypeNode.pos = getPosition(optTypeDescriptor);
         return unionTypeNode;
@@ -1743,7 +1755,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
         return arrayTypeNode;
     }
-    
+
     @Override
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
@@ -2371,6 +2383,56 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         unionTypeNode.pos = position;
         return unionTypeNode;
+    }
+
+    private boolean recordTypeDescritorIsAnonymous(RecordTypeDescriptorNode recordTypeDescriptorNode) {
+        Node parent = recordTypeDescriptorNode.parent();
+        switch (parent.kind()) {
+            case UNION_TYPE_DESC:
+            case ARRAY_TYPE_DESC:
+            case OPTIONAL_TYPE_DESC:
+            case TYPE_TEST_EXPRESSION:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean ifInLocalContext(Node parent) {
+        while (parent != null) {
+            if (parent instanceof StatementNode) {
+                return true;
+            }
+            parent = parent.parent();
+        }
+        return false;
+    }
+
+    private BLangType createAnonymousRecordType(RecordTypeDescriptorNode recordTypeDescriptorNode,
+            BLangRecordTypeNode recordTypeNode) {
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        DiagnosticPos pos = getPosition(recordTypeDescriptorNode);
+        // Generate a name for the anonymous object
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.diagnosticSource.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(pos, genName, null);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
+
+        typeDef.typeNode = recordTypeNode;
+        typeDef.pos = pos;
+        this.additionalTopLevelNodes.add(typeDef);
+        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
+    }
+
+    private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos,
+            BLangIdentifier pkgAlias,
+            BLangIdentifier name) {
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.pos = pos;
+        userDefinedType.pkgAlias = pkgAlias;
+        userDefinedType.typeName = name;
+        return userDefinedType;
     }
 
     private class SimpleVarBuilder {
