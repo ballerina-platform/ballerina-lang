@@ -2,57 +2,37 @@ import ballerina/java;
 
 // Correct use case.
 public function testJavaCastFunction() returns string|error {
-    ArrayList arrayList = newArrayList1();
-    String strValue = newString1("cast this object");
+    ArrayList1 arrayList = newArrayList1();
+    String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
-    String castedValue = <String>check java:cast(result, typedesc<String>);
+    Object1 result = arrayList.get(0);
+    String1 castedValue = <String1>check java:cast(result, typedesc<String1>);
     return castedValue.toString();
 }
 
 // Incorrect Java class cast.
 public function testIncorrectJavaCast() returns string|error {
-    String strValue = newString1("cast this object");
-    ArrayList castedValue = <ArrayList>check java:cast(strValue, typedesc<ArrayList>);
-    return castedValue.toString();
-}
-
-// Typedesc is not an object.
-public function testJavaCastForInvalidTypedesc1() returns string|error {
-    ArrayList arrayList = newArrayList1();
-    String strValue = newString1("cast this object");
-    _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
-    ArrayList castedValue = <ArrayList>check java:cast(result, typedesc<string>);
-    return castedValue.toString();
-}
-
-// Typedesc is an object without the `jObj` field.
-public function testJavaCastForInvalidTypedesc2() returns string|error {
-    ArrayList arrayList = newArrayList1();
-    String strValue = newString1("cast this object");
-    _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
-    NotAJObject castedValue = <NotAJObject>check java:cast(result, typedesc<NotAJObject>);
+    String1 strValue = newString1("cast this object");
+    ArrayList1 castedValue = <ArrayList1>check java:cast(strValue, typedesc<ArrayList1>);
     return castedValue.toString();
 }
 
 // Typedesc is an object without a handle argument for initialization.
 public function testJavaCastForInvalidTypedesc3() returns string|error {
-    ArrayList arrayList = newArrayList1();
-    String strValue = newString1("cast this object");
+    ArrayList1 arrayList = newArrayList1();
+    String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
+    Object1 result = arrayList.get(0);
     String4 castedValue = <String4>check java:cast(result, typedesc<String4>);
     return castedValue.toString();
 }
 
 // Incorrect class name in typedesc object annotation.
 public function testJavaCastForInvalidClass1() returns string|error {
-    ArrayList arrayList = newArrayList1();
+    ArrayList1 arrayList = newArrayList1();
     String3 strValue = newString3("cast this object");
     _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
+    Object1 result = arrayList.get(0);
     String3 castedValue = <String3>check java:cast(result, typedesc<String3>);
     return castedValue.toString();
 }
@@ -60,30 +40,30 @@ public function testJavaCastForInvalidClass1() returns string|error {
 // Incorrect class name in cast object annotation.
 public function testJavaCastForInvalidClass2() returns string|error {
     ArrayList3 arrayList = newArrayList3();
-    String strValue = newString1("cast this object");
+    String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
     Object3 result = arrayList.get(0);
-    String castedValue = <String>check java:cast(result, typedesc<String>);
+    String1 castedValue = <String1>check java:cast(result, typedesc<String1>);
     return castedValue.toString();
 }
 
 // Empty `jObj` value.
 public function testJavaCastFunctionNulljObj() returns string|error {
-    ArrayList arrayList = newArrayList1();
-    String strValue = newString1("cast this object");
+    ArrayList1 arrayList = newArrayList1();
+    String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
+    Object1 result = arrayList.get(0);
     result.jObj = java:createNull();
-    String castedValue = <String>check java:cast(result, typedesc<String>);
+    String1 castedValue = <String1>check java:cast(result, typedesc<String1>);
     return castedValue.toString();
 }
 
 // Missing `@java:Binding` annotation in typedesc.
 public function testJavaCastMissingAnnotation1() returns string|error {
-    ArrayList arrayList = newArrayList1();
+    ArrayList1 arrayList = newArrayList1();
     String2 strValue = newString2("cast this object");
     _ = arrayList.add(strValue);
-    Object result = arrayList.get(0);
+    Object1 result = arrayList.get(0);
     String2 castedValue = <String2>check java:cast(result, typedesc<String2>);
     return castedValue.toString();
 }
@@ -91,24 +71,10 @@ public function testJavaCastMissingAnnotation1() returns string|error {
 // Missing `@java:Binding`annotation in object.
 public function testJavaCastMissingAnnotation2() returns string|error {
     ArrayList2 arrayList = newArrayList2();
-    String strValue = newString1("cast this object");
+    String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
     Object2 result = arrayList.get(0);
-    String castedValue = <String>check java:cast(result, typedesc<String>);
-    return castedValue.toString();
-}
-
-// Input parameter is not an object.
-public function testJavaCastForInvalidObject1() returns string|error {
-    string strValue = "cast this object";
-    String castedValue = <String>check java:cast(strValue, typedesc<String>);
-    return castedValue.toString();
-}
-
-// Input parameter is not a JObject.
-public function testJavaCastForInvalidObject2() returns string|error {
-    NotAJObject notAJObject = new("NotAJObject");
-    String castedValue = <String>check java:cast(notAJObject, typedesc<String>);
+    String1 castedValue = <String1>check java:cast(result, typedesc<String1>);
     return castedValue.toString();
 }
 
@@ -116,7 +82,7 @@ public function testJavaCastForInvalidObject2() returns string|error {
 @java:Binding {
   class: "java.lang.String"
 }
-public type String object {
+public type String1 object {
 
     *java:JObject;
 
@@ -133,7 +99,7 @@ public type String object {
 @java:Binding {
   class: "java.lang.Object"
 }
-public type Object object {
+public type Object1 object {
 
     *java:JObject;
 
@@ -146,7 +112,7 @@ public type Object object {
 @java:Binding {
   class: "java.util.ArrayList"
 }
-public type ArrayList object {
+public type ArrayList1 object {
 
     *java:JObject;
 
@@ -154,12 +120,12 @@ public type ArrayList object {
         self.jObj = obj;
     }
 
-    public function add(Object arg0) returns boolean {
+    public function add(Object1 arg0) returns boolean {
         return java_util_ArrayList_add(self.jObj, arg0.jObj);
     }
 
-    public function get(int arg0) returns Object {
-        Object obj = new(java_util_ArrayList_get(self.jObj, arg0));
+    public function get(int arg0) returns Object1 {
+        Object1 obj = new(java_util_ArrayList_get(self.jObj, arg0));
         return obj;
     }
 };
@@ -262,16 +228,6 @@ public type ArrayList3 object {
     }
 };
 
-// NotAJObject Case: Without the `jObj` field
-public type NotAJObject object {
-
-    string obj;
-
-    public function __init(string obj) {
-        self.obj = obj;
-    }
-};
-
 // String Case4: Object with incorrect initialization type
 @java:Binding {
   class: "java.lang.String"
@@ -289,9 +245,9 @@ public type String4 object {
     }
 };
 
-public function newArrayList1() returns ArrayList {
+public function newArrayList1() returns ArrayList1 {
     handle obj = java_util_ArrayList_newArrayList();
-    ArrayList _arrayList = new(obj);
+    ArrayList1 _arrayList = new(obj);
     return _arrayList;
 }
 
@@ -307,9 +263,9 @@ public function newArrayList3() returns ArrayList3 {
     return _arrayList;
 }
 
-public function newString1(string arg0) returns String {
+public function newString1(string arg0) returns String1 {
     handle obj = java_lang_String_newString(java:fromString(arg0));
-    String _string = new(obj);
+    String1 _string = new(obj);
     return _string;
 }
 

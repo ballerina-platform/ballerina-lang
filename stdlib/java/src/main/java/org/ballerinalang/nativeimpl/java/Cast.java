@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.model.types.TypeKind;
@@ -62,25 +63,17 @@ public class Cast {
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 
-    public static Object cast(Strand strand, Object value, TypedescValue castType) {
-        BObject valueObj;
+    public static Object cast(Strand strand, ObjectValue value, TypedescValue castType) {
         HandleValue handleObj;
-        String valueObjName = null;
-        try {
-            valueObj = (BObject) value;
-            valueObjName = valueObj.getType().getName();
-            handleObj = (HandleValue) valueObj.get(jObjField);
-        } catch (Exception e) {
-            return createError(StringUtils.fromString(moduleName + " " + e.getMessage() +
-                    (valueObjName != null ? " in " + valueObjName : "")));
-        }
+        BObjectType objType = value.getType();
+        String valueObjName = objType.getName();
+        handleObj = (HandleValue) value.get(jObjField);
         Object jObj = handleObj.getValue();
         if (jObj == null) {
             return createError(StringUtils.fromString(moduleName + " Empty handle reference found for `"
                     + jObjField + "` field in `" + valueObjName + "`"));
         }
         try {
-            BObjectType objType = valueObj.getType();
             Map objAnnotation;
             String objClass;
             try {
