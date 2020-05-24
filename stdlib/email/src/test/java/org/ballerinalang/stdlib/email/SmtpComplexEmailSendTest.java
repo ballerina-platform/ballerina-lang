@@ -102,7 +102,7 @@ public class SmtpComplexEmailSendTest {
         compileResult = BCompileUtil.compileOffline(true, sourceFilePath.toAbsolutePath().toString());
     }
 
-    @Test(description = "Test for sending an email with all the parameters")
+    @Test(description = "Test for sending an email with all the parameters", enabled = false)
     public void testSendComplexEmail() throws MessagingException, IOException {
         BValue[] args = { new BString(HOST_NAME), new BString(USER_NAME), new BString(USER_PASSWORD),
                 new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_CONTENT_TYPE),
