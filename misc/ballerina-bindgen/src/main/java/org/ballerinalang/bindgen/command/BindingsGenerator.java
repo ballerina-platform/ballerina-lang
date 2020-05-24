@@ -20,6 +20,9 @@ package org.ballerinalang.bindgen.command;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
+import org.ballerinalang.toml.model.Library;
+import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -63,6 +66,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 public class BindingsGenerator {
 
     private Path modulePath;
+    private Path projectRoot;
     private Path dependenciesPath;
     private Path utilsDirPath;
     private String outputPath;
@@ -80,6 +84,17 @@ public class BindingsGenerator {
     private static Map<String, String> failedClassGens = new HashMap<>();
 
     void generateJavaBindings() throws BindgenException {
+        if (projectRoot != null) {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            if (manifest != null) {
+                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
+                if (platformLibraries != null) {
+                    for (Library library: platformLibraries) {
+                        classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
+                    }
+                }
+            }
+        }
         ClassLoader classLoader = setClassLoader();
         if (classLoader != null) {
             setDirectoryPaths();
@@ -119,7 +134,7 @@ public class BindingsGenerator {
             if (!this.classPaths.isEmpty()) {
                 classLoader = getClassLoader(this.classPaths, this.getClass().getClassLoader());
             } else {
-                outStream.println("No classpaths were detected.");
+                outStream.println("\nNo classpaths were detected.");
                 classLoader = this.getClass().getClassLoader();
             }
         } catch (BindgenException e) {
@@ -128,9 +143,12 @@ public class BindingsGenerator {
         return classLoader;
     }
 
-    private void setDirectoryPaths() {
+    private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
         if (outputPath != null) {
+            if (!Paths.get(outputPath).toFile().exists()) {
+                throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
+            }
             userPath = outputPath;
         }
         modulePath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
@@ -242,5 +260,9 @@ public class BindingsGenerator {
 
     public static void setExceptionList(JError exception) {
         BindingsGenerator.exceptionList.add(exception);
+    }
+
+    public void setProjectRoot(Path projectRoot) {
+        this.projectRoot = projectRoot;
     }
 }
