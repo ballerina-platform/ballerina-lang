@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.util.JsonParser;
@@ -232,8 +233,10 @@ public class DataBindingTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNull(((MapValue<BString, Object>) bJson).get("Key"), "Key variable not set properly.");
-        Assert.assertNull(((MapValue<BString, Object>) bJson).get("Team"), "Team variable not set properly.");
+        Assert.assertNull(((MapValue<BString, Object>) bJson).get(StringUtils.fromString("Key")),
+                          "Key variable not set properly.");
+        Assert.assertNull(((MapValue<BString, Object>) bJson).get(StringUtils.fromString("Team")),
+                          "Team variable not set properly.");
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,

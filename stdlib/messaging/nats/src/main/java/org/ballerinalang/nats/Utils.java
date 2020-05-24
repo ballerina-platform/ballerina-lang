@@ -110,7 +110,9 @@ public class Utils {
         if (message != null) {
             ArrayValue msgData = new ArrayValueImpl(message.getData());
             msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
-                    Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
+                                                       Constants.NATS_MESSAGE_OBJ_NAME,
+                                                       StringUtils.fromString(message.getSubject()), msgData,
+                                                       StringUtils.fromString(message.getReplyTo()));
         } else {
             ArrayValue msgData = new ArrayValueImpl(new byte[0]);
             msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,

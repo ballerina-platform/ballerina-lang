@@ -92,8 +92,9 @@ public class SystemUtils {
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
                 lastModified.toMillis(), StringUtils.fromString(zonedDateTime.getZone().toString()));
-        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE, inputFile.getName(),
-                inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
+        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
+                                                 StringUtils.fromString(inputFile.getName()), inputFile.length(),
+                                                 lastModifiedInstance, inputFile.isDirectory());
     }
 
     public static ObjectValue getProcessObject(Process process) throws IOException {
