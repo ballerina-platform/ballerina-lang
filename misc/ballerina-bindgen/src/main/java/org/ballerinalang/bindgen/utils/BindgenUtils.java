@@ -598,6 +598,7 @@ public class BindgenUtils {
         List<URL> urls = new ArrayList<>();
         try {
             List<String> classPaths = new ArrayList<>();
+            List<String> failedClassPaths = new ArrayList<>();
             for (String path : jarPaths) {
                 File file = FileSystems.getDefault().getPath(path).toFile();
                 if (file.isDirectory()) {
@@ -607,13 +608,19 @@ public class BindgenUtils {
                             if (isJarFile(filePath)) {
                                 urls.add(filePath.toURI().toURL());
                                 classPaths.add(filePath.getName());
+                            } else {
+                                failedClassPaths.add(filePath.toString());
                             }
                         }
+                    } else {
+                        failedClassPaths.add(path);
                     }
                 } else {
                     if (isJarFile(file)) {
                         urls.add(file.toURI().toURL());
                         classPaths.add(file.getName());
+                    } else {
+                        failedClassPaths.add(file.toString());
                     }
                 }
             }
@@ -623,7 +630,10 @@ public class BindgenUtils {
                     outStream.println("\t" + path);
                 }
             } else {
-                errStream.println("\nFailed to add the provided jars to classpath.");
+                errStream.println("\nFailed to add the following to classpath:");
+                for (String path : failedClassPaths) {
+                    outStream.println("\t" + path);
+                }
             }
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
                     -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
