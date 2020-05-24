@@ -28,9 +28,13 @@ public class LinePosition {
     private final int line;
     private final int offset;
 
-    public LinePosition(int line, int offset) {
+    private LinePosition(int line, int offset) {
         this.line = line;
         this.offset = offset;
+    }
+
+    public static LinePosition from(int line, int offset) {
+        return new LinePosition(line, offset);
     }
 
     public int line() {

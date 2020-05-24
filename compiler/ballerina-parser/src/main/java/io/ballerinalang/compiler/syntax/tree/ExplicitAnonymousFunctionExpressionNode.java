@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionExpressionNode {
 
@@ -83,5 +85,66 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
                 functionKeyword,
                 functionSignature,
                 functionBody);
+    }
+
+    public ExplicitAnonymousFunctionExpressionNodeModifier modify() {
+        return new ExplicitAnonymousFunctionExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ExplicitAnonymousFunctionExpressionNodeModifier {
+        private final ExplicitAnonymousFunctionExpressionNode oldNode;
+        private NodeList<AnnotationNode> annotations;
+        private Token functionKeyword;
+        private FunctionSignatureNode functionSignature;
+        private FunctionBodyNode functionBody;
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier(ExplicitAnonymousFunctionExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.annotations = oldNode.annotations();
+            this.functionKeyword = oldNode.functionKeyword();
+            this.functionSignature = oldNode.functionSignature();
+            this.functionBody = oldNode.functionBody();
+        }
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
+            Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+            this.functionKeyword = functionKeyword;
+            return this;
+        }
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
+            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+            this.functionSignature = functionSignature;
+            return this;
+        }
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier withFunctionBody(
+                FunctionBodyNode functionBody) {
+            Objects.requireNonNull(functionBody, "functionBody must not be null");
+            this.functionBody = functionBody;
+            return this;
+        }
+
+        public ExplicitAnonymousFunctionExpressionNode apply() {
+            return oldNode.modify(
+                    annotations,
+                    functionKeyword,
+                    functionSignature,
+                    functionBody);
+        }
     }
 }

@@ -33,10 +33,20 @@ public class StartActionTest extends AbstractActionTest {
         testFile("start-action/start_action_source_01.bal", "start-action/start_action_assert_01.json");
     }
 
+    @Test
+    public void testStartActionWithAnnots() {
+        testFile("start-action/start_action_source_03.bal", "start-action/start_action_assert_03.json");
+    }
+
     // Recovery tests
 
     @Test
     public void testStartActionRecovery() {
         testFile("start-action/start_action_source_02.bal", "start-action/start_action_assert_02.json");
+    }
+
+    @Test
+    public void testStartActionWithAnnotsRecovery() {
+        testFile("start-action/start_action_source_04.bal", "start-action/start_action_assert_04.json");
     }
 }

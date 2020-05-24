@@ -18,26 +18,26 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
-
 /**
- * string type.
+ * Ballerina string variable type.
  */
-public class BString extends VariableImpl {
+public class BString extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl value;
+    private final ObjectReferenceImpl jvmValueRef;
 
     public BString(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        dapVariable.setType(BVariableType.STRING.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType("string");
-        dapVariable.setValue(this.toString());
     }
 
     @Override
-    public String toString() {
-        return value.toString();
+    public String getValue() {
+        return jvmValueRef.toString();
     }
 }

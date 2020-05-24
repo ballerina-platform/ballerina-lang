@@ -17,6 +17,11 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+/**
+ * Define various kinds of syntax tree nodes, tokens and minutiae.
+ *
+ * @since 2.0.0
+ */
 public enum SyntaxKind {
 
     // Keywords
@@ -57,16 +62,16 @@ public enum SyntaxKind {
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
     PANIC_KEYWORD(210, "panic"),
-    CONTINUE_KEYWORD(211,"continue"),
-    BREAK_KEYWORD(212,"break"),
-    TYPEOF_KEYWORD(213,"typeof"),
+    CONTINUE_KEYWORD(211, "continue"),
+    BREAK_KEYWORD(212, "break"),
+    TYPEOF_KEYWORD(213, "typeof"),
     IS_KEYWORD(214, "is"),
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     FORK_KEYWORD(217, "fork"),
-    TRAP_KEYWORD(218,"trap"),
-    IN_KEYWORD(219,"in"),
-    FOREACH_KEYWORD(220,"foreach"),
+    TRAP_KEYWORD(218, "trap"),
+    IN_KEYWORD(219, "in"),
+    FOREACH_KEYWORD(220, "foreach"),
     TABLE_KEYWORD(221, "table"),
     KEY_KEYWORD(222, "key"),
     LET_KEYWORD(223, "let"),
@@ -77,6 +82,9 @@ public enum SyntaxKind {
     START_KEYWORD(228, "start"),
     FLUSH_KEYWORD(229, "flush"),
     DEFAULT_KEYWORD(230, "default"),
+    WAIT_KEYWORD(231, "wait"),
+    DO_KEYWORD(232, "do"),
+    ENUM_KEYWORD(233, "enum"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -92,13 +100,13 @@ public enum SyntaxKind {
     ANYDATA_KEYWORD(260, "anydata"),
     NEVER_KEYWORD(261, "never"),
     VAR_KEYWORD(262, "var"),
-    MAP_KEYWORD(263,"map"),
+    MAP_KEYWORD(263, "map"),
     FUTURE_KEYWORD(264, "future"),
     TYPEDESC_KEYWORD(265, "typedesc"),
-    ERROR_KEYWORD(266,"error"),
-    STREAM_KEYWORD(267,"stream"),
+    ERROR_KEYWORD(266, "error"),
+    STREAM_KEYWORD(267, "stream"),
     READONLY_KEYWORD(268, "readonly"),
-    DISTINCT_KEYWORD(269,"distinct"),
+    DISTINCT_KEYWORD(269, "distinct"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -150,6 +158,13 @@ public enum SyntaxKind {
     XML_PI_END_TOKEN(576, "?>"),
     XML_COMMENT_START_TOKEN(577, "<!--"),
     XML_COMMENT_END_TOKEN(578, "-->"),
+    SYNC_SEND_TOKEN(579, "->>"),
+    LEFT_ARROW_TOKEN(580, "<-"),
+    DOUBLE_DOT_LT_TOKEN(580, "..<"),
+    DOUBLE_LT_TOKEN(581, "<<"),
+    ANNOT_CHAINING_TOKEN(582, ".@"),
+    OPTIONAL_CHAINING_TOKEN(583, "?."),
+    ELVIS_TOKEN(584, "?:"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -161,9 +176,9 @@ public enum SyntaxKind {
     TEMPLATE_STRING(1007),
 
     // Trivia
-    WHITESPACE_TRIVIA(1500),
-    END_OF_LINE_TRIVIA(1501),
-    COMMENT(1502),
+    WHITESPACE_MINUTIAE(1500),
+    END_OF_LINE_MINUTIAE(1501),
+    COMMENT_MINUTIAE(1502),
     DOCUMENTATION_LINE(1503),
 
     // module-level declarations
@@ -176,6 +191,7 @@ public enum SyntaxKind {
     CONST_DECLARATION(2006),
     ANNOTATION_DECLARATION(2007),
     XML_NAMESPACE_DECLARATION(2008),
+    ENUM_DECLARATION(2009),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -226,6 +242,9 @@ public enum SyntaxKind {
     EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION(1325),
     IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION(1326),
     QUERY_EXPRESSION(1327),
+    ANNOT_ACCESS(1328),
+    OPTIONAL_FIELD_ACCESS(1329),
+    CONDITIONAL_EXPRESSION(1330),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -259,6 +278,7 @@ public enum SyntaxKind {
     READONLY_TYPE_DESC(2028),
     DISTINCT_TYPE_DESC(2029),
     INTERSECTION_TYPE_DESC(2030),
+    SINGLETON_TYPE_DESC(2031),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
@@ -267,6 +287,11 @@ public enum SyntaxKind {
     START_ACTION(2503),
     TRAP_ACTION(2504),
     FLUSH_ACTION(2505),
+    ASYNC_SEND_ACTION(2506),
+    SYNC_SEND_ACTION(2507),
+    RECEIVE_ACTION(2508),
+    WAIT_ACTION(2509),
+    QUERY_ACTION(2510),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
@@ -318,6 +343,19 @@ public enum SyntaxKind {
     LET_CLAUSE(3046),
     QUERY_PIPELINE(3047),
     SELECT_CLAUSE(3048),
+    FUNCTION_DECLARATION(3049),
+    TYPED_BINDING_PATTERN(3050),
+    BINDING_PATTERN(3051),
+    CAPTURE_BINDING_PATTERN(3052),
+    REST_BINDING_PATTERN(3053),
+    LIST_BINDING_PATTERN(3054),
+    RECEIVE_FIELDS(3055),
+    REST_TYPE(3056),
+    DOUBLE_GT_TOKEN(3056, ">>"),
+    TRIPPLE_GT_TOKEN(3057, ">>>"),
+    WAIT_FIELDS_LIST(3058),
+    WAIT_FIELD(3059),
+    ENUM_MEMBER(3060),
 
     // XML
     XML_ELEMENT(4000),

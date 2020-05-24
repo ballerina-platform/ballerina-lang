@@ -17,20 +17,27 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
+import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.function.Predicate;
+
 /**
- * This class contains cases to test the {@code SyntaxTreeModifier} functionality.
+ * This class contains cases to test the {@code TreeModifier} functionality.
  *
  * @since 1.3.0
  */
@@ -75,15 +82,39 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(newFuncName, oldFuncName + "_new");
     }
 
+    @Test
+    public void testBinaryExprModification() {
+        // There are no '-' or '/' tokens in the old tree
+        // There are two '+' tokens and two '*' tokens in the old tree
+        SyntaxTree syntaxTree = parseFile("binary_expression_modify.bal");
+        ModulePartNode oldRoot = syntaxTree.modulePart();
+
+        // // There are no '+' or '*' tokens here in the new tree
+        BinaryExpressionModifier binaryExprModifier = new BinaryExpressionModifier();
+        ModulePartNode newRoot = binaryExprModifier.transform(oldRoot);
+        
+        Predicate<SyntaxKind> plusOrAsteriskTokenPredicate = syntaxKind -> SyntaxKind.PLUS_TOKEN == syntaxKind ||
+                SyntaxKind.ASTERISK_TOKEN == syntaxKind;
+        Predicate<SyntaxKind> minusOrSlashTokenPredicate = syntaxKind -> SyntaxKind.MINUS_TOKEN == syntaxKind ||
+                SyntaxKind.SLASH_TOKEN == syntaxKind;
+
+        TokenCounter plusOrAsteriskCounter = new TokenCounter(plusOrAsteriskTokenPredicate);
+        TokenCounter minusOrSlashCounter = new TokenCounter(minusOrSlashTokenPredicate);
+
+        Assert.assertEquals(plusOrAsteriskCounter.transform(newRoot), new Integer(0));
+        Assert.assertEquals(minusOrSlashCounter.transform(newRoot), new Integer(4));
+    }
+
     /**
-     * An implementation of {@code SyntaxTreeModifier} that modify all variable declaration statements.
+     * An implementation of {@code TreeModifier} that modify all variable declaration statements.
      */
     private static class VariableDeclModifier extends TreeModifier {
 
         @Override
-        public Node transform(VariableDeclarationNode varDeclStmt) {
-            String oldVarName = varDeclStmt.variableName().text();
-            IdentifierToken newVarName = NodeFactory.createIdentifierToken(oldVarName + "new");
+        public VariableDeclarationNode transform(VariableDeclarationNode varDeclStmt) {
+            Token varNameToken = varDeclStmt.variableName();
+            // Create a new identifier that does not inherit minutiae from the old one.
+            IdentifierToken newVarName = NodeFactory.createIdentifierToken(varNameToken.text() + "new");
             return NodeFactory.createVariableDeclarationNode(varDeclStmt.annotations(),
                     varDeclStmt.finalKeyword().orElse(null), varDeclStmt.typeName(), newVarName,
                     varDeclStmt.equalsToken().orElse(null), varDeclStmt.initializer().orElse(null),
@@ -92,13 +123,79 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     }
 
     /**
-     * An implementation of {@code SyntaxTreeModifier} that rename all identifiers in the tree.
+     * An implementation of {@code TreeModifier} that rename all identifiers in the tree.
      */
     private static class IdentifierModifier extends TreeModifier {
 
         @Override
-        public Node transform(IdentifierToken identifier) {
-            return NodeFactory.createIdentifierToken(identifier.text() + "_new");
+        public IdentifierToken transform(IdentifierToken identifier) {
+            return identifier.modify(identifier.text() + "_new");
+        }
+    }
+
+    /**
+     * An implementation of {@code TreeModifier} that perform random changes.
+     * Transform + to -.
+     * Transform * to /.
+     */
+    private static class BinaryExpressionModifier extends TreeModifier {
+
+        @Override
+        public BinaryExpressionNode transform(BinaryExpressionNode binaryExprNode) {
+            Node newLHSExpr = modifyNode(binaryExprNode.lhsExpr());
+            Node newRHSExpr = modifyNode(binaryExprNode.rhsExpr());
+
+            Token newOperator;
+            Token oldOperator = binaryExprNode.operator();
+            switch (oldOperator.kind()) {
+                case PLUS_TOKEN:
+                    newOperator = NodeFactory.createToken(SyntaxKind.MINUS_TOKEN,
+                            oldOperator.leadingMinutiae(), oldOperator.trailingMinutiae());
+                    break;
+                case ASTERISK_TOKEN:
+                    newOperator = NodeFactory.createToken(SyntaxKind.SLASH_TOKEN,
+                            oldOperator.leadingMinutiae(), oldOperator.trailingMinutiae());
+                    break;
+                default:
+                    newOperator = oldOperator;
+            }
+
+            return binaryExprNode.modify()
+                    .withOperator(newOperator)
+                    .withLhsExpr(newLHSExpr)
+                    .withRhsExpr(newRHSExpr)
+                    .apply();
+        }
+    }
+
+    /**
+     * An implementation of {@code NodeTransformer} that counts the number of token that matches a given predicate.
+     */
+    private static class TokenCounter extends NodeTransformer<Integer> {
+        private final Predicate<SyntaxKind> predicate;
+
+        public TokenCounter(Predicate<SyntaxKind> predicate) {
+            this.predicate = predicate;
+        }
+
+        @Override
+        public Integer transform(Token token) {
+            SyntaxKind syntaxKind = token.kind();
+            return predicate.test(syntaxKind) ? 1 : 0;
+        }
+
+        @Override
+        protected Integer transformSyntaxNode(Node node) {
+            if (node instanceof Token) {
+                return node.apply(this);
+            }
+
+            int tokenCount = 0;
+            NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
+            for (Node child : nonTerminalNode.children()) {
+                tokenCount += child.apply(this);
+            }
+            return tokenCount;
         }
     }
 }

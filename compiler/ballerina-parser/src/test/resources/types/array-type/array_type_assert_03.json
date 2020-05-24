@@ -12,7 +12,7 @@
             ]
         },
         {
-            "kind": "INDEXED_EXPRESSION",
+            "kind": "ARRAY_TYPE_DESC",
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",

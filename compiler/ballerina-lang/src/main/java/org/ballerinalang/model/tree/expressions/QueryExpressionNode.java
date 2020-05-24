@@ -16,10 +16,9 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 
@@ -30,19 +29,22 @@ import java.util.List;
  */
 public interface QueryExpressionNode extends ExpressionNode {
 
-    List<? extends FromClauseNode> getFromClauseNodes();
+    SelectClauseNode getSelectClause();
 
-    void addFromClauseNode(FromClauseNode fromClauseNode);
+    List<? extends BLangNode> getQueryClauses();
 
-    SelectClauseNode getSelectClauseNode();
+    void addQueryClause(BLangNode queryClause);
 
-    void setSelectClauseNode(SelectClauseNode selectClauseNode);
+    boolean isStream();
 
-    List<? extends WhereClauseNode> getWhereClauseNode();
+    void setIsStream(boolean isStream);
 
-    void addWhereClauseNode(WhereClauseNode whereClauseNode);
+    boolean isTable();
 
-    List<? extends LetClauseNode> getLetClauseList();
+    void setIsTable(boolean isTable);
 
-    void addLetClause(LetClauseNode letClauseNode);
+    void addFieldNameIdentifier(IdentifierNode fieldNameIdentifier);
+
+    List<IdentifierNode> getFieldNameIdentifierList();
+
 }

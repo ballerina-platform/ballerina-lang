@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FunctionBodyBlockNode extends FunctionBodyNode {
 
@@ -85,5 +86,66 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
                 namedWorkerDeclarator,
                 statements,
                 closeBraceToken);
+    }
+
+    public FunctionBodyBlockNodeModifier modify() {
+        return new FunctionBodyBlockNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FunctionBodyBlockNodeModifier {
+        private final FunctionBodyBlockNode oldNode;
+        private Token openBraceToken;
+        private NamedWorkerDeclarator namedWorkerDeclarator;
+        private NodeList<StatementNode> statements;
+        private Token closeBraceToken;
+
+        public FunctionBodyBlockNodeModifier(FunctionBodyBlockNode oldNode) {
+            this.oldNode = oldNode;
+            this.openBraceToken = oldNode.openBraceToken();
+            this.namedWorkerDeclarator = oldNode.namedWorkerDeclarator().orElse(null);
+            this.statements = oldNode.statements();
+            this.closeBraceToken = oldNode.closeBraceToken();
+        }
+
+        public FunctionBodyBlockNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
+            Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+            this.openBraceToken = openBraceToken;
+            return this;
+        }
+
+        public FunctionBodyBlockNodeModifier withNamedWorkerDeclarator(
+                NamedWorkerDeclarator namedWorkerDeclarator) {
+            Objects.requireNonNull(namedWorkerDeclarator, "namedWorkerDeclarator must not be null");
+            this.namedWorkerDeclarator = namedWorkerDeclarator;
+            return this;
+        }
+
+        public FunctionBodyBlockNodeModifier withStatements(
+                NodeList<StatementNode> statements) {
+            Objects.requireNonNull(statements, "statements must not be null");
+            this.statements = statements;
+            return this;
+        }
+
+        public FunctionBodyBlockNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
+            Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+            this.closeBraceToken = closeBraceToken;
+            return this;
+        }
+
+        public FunctionBodyBlockNode apply() {
+            return oldNode.modify(
+                    openBraceToken,
+                    namedWorkerDeclarator,
+                    statements,
+                    closeBraceToken);
+        }
     }
 }

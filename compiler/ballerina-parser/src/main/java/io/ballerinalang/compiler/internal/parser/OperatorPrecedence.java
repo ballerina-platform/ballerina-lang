@@ -24,7 +24,7 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum OperatorPrecedence {
 
-    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y]
+    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y], x?.k
     UNARY(1),               //  (+x), (-x), (~x), (!x), (<T>x), (typeof x),
     EXPRESSION_ACTION(1),   //  Expression that can also be an action. eg: (check x), (checkpanic x). Same as unary.
     MULTIPLICATIVE(2),      //  (x * y), (x / y), (x % y)
@@ -38,12 +38,15 @@ public enum OperatorPrecedence {
     BITWISE_OR(10),         //  (x | y)
     LOGICAL_AND(11),        //  (x && y)
     LOGICAL_OR(12),         //  (x || y)
+    ELVIS_CONDITIONAL(13),  //  x ?: y
+    CONDITIONAL(14),        //  x ? y : z
 
-    ANON_FUNC(16),      //  (x) => y
+    ANON_FUNC_OR_LET(16),   //  (x) => y
+    QUERY(17),              //  from x, select x, where x
 
     //  Actions cannot reside inside expressions, hence they have the lowest precedence.
-    REMOTE_CALL_ACTION(17), //  (x -> y()), 
-    ACTION(18),             //  (start x), ...
+    REMOTE_CALL_ACTION(18), //  (x -> y()), 
+    ACTION(19),             //  (start x), ...
     
     ;
 

@@ -19,12 +19,14 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class XMLNamespaceDeclarationNode extends NonTerminalNode {
+public class XMLNamespaceDeclarationNode extends StatementNode {
 
     public XMLNamespaceDeclarationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -91,5 +93,76 @@ public class XMLNamespaceDeclarationNode extends NonTerminalNode {
                 asKeyword,
                 namespacePrefix,
                 semicolonToken);
+    }
+
+    public XMLNamespaceDeclarationNodeModifier modify() {
+        return new XMLNamespaceDeclarationNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class XMLNamespaceDeclarationNodeModifier {
+        private final XMLNamespaceDeclarationNode oldNode;
+        private Token xmlnsKeyword;
+        private ExpressionNode namespaceuri;
+        private Token asKeyword;
+        private IdentifierToken namespacePrefix;
+        private Token semicolonToken;
+
+        public XMLNamespaceDeclarationNodeModifier(XMLNamespaceDeclarationNode oldNode) {
+            this.oldNode = oldNode;
+            this.xmlnsKeyword = oldNode.xmlnsKeyword();
+            this.namespaceuri = oldNode.namespaceuri();
+            this.asKeyword = oldNode.asKeyword();
+            this.namespacePrefix = oldNode.namespacePrefix();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public XMLNamespaceDeclarationNodeModifier withXmlnsKeyword(
+                Token xmlnsKeyword) {
+            Objects.requireNonNull(xmlnsKeyword, "xmlnsKeyword must not be null");
+            this.xmlnsKeyword = xmlnsKeyword;
+            return this;
+        }
+
+        public XMLNamespaceDeclarationNodeModifier withNamespaceuri(
+                ExpressionNode namespaceuri) {
+            Objects.requireNonNull(namespaceuri, "namespaceuri must not be null");
+            this.namespaceuri = namespaceuri;
+            return this;
+        }
+
+        public XMLNamespaceDeclarationNodeModifier withAsKeyword(
+                Token asKeyword) {
+            Objects.requireNonNull(asKeyword, "asKeyword must not be null");
+            this.asKeyword = asKeyword;
+            return this;
+        }
+
+        public XMLNamespaceDeclarationNodeModifier withNamespacePrefix(
+                IdentifierToken namespacePrefix) {
+            Objects.requireNonNull(namespacePrefix, "namespacePrefix must not be null");
+            this.namespacePrefix = namespacePrefix;
+            return this;
+        }
+
+        public XMLNamespaceDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public XMLNamespaceDeclarationNode apply() {
+            return oldNode.modify(
+                    xmlnsKeyword,
+                    namespaceuri,
+                    asKeyword,
+                    namespacePrefix,
+                    semicolonToken);
+        }
     }
 }
