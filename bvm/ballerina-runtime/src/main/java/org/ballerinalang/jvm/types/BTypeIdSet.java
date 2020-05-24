@@ -37,6 +37,9 @@ public class BTypeIdSet {
     }
 
     public boolean containsAll(BTypeIdSet other) {
+        if (other == null) {
+            return true;
+        }
         // All items in other set is present in current.
         for (TypeId id : other.ids) {
             boolean found = false;

@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -1900,7 +1901,9 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        if (!((BErrorType) sourceType).typeIdSet.containsAll(targetType.typeIdSet)) {
+
+        BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
+        if (sourceTypeIdSet != null && !sourceTypeIdSet.containsAll(targetType.typeIdSet)) {
             return false;
         }
 
@@ -1913,7 +1916,8 @@ public class TypeChecker {
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-        if (!((BErrorType) sourceType).typeIdSet.containsAll(targetType.typeIdSet)) {
+        BErrorType sourceErrorType = (BErrorType) sourceType;
+        if (sourceErrorType.typeIdSet != null && !sourceErrorType.typeIdSet.containsAll(targetType.typeIdSet)) {
             return false;
         }
         return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
