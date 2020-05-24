@@ -3563,6 +3563,12 @@ public class Desugar extends BLangNodeVisitor {
         invocation.expr = rewriteExpr(invocation.expr);
         result = invRef;
 
+        BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
+        if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
+            BType retType = typeBuilder.buildType(invSym.retType);
+            invocation.type = retType;
+        }
+
         if (invocation.expr == null) {
             fixTypeCastInTypeParamInvocation(invocation, invRef);
             if (invocation.exprSymbol == null) {
@@ -3607,12 +3613,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-        BType retType = ((BInvokableSymbol) iExpr.symbol).retType;
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(retType)
-                || Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
             BType originalInvType = genIExpr.type;
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) genIExpr.symbol;
-            genIExpr.type = typeBuilder.buildType(invokableSymbol.retType, genIExpr);
+            genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
             BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
 
             // Prevent adding another type conversion

@@ -145,7 +145,7 @@ public class InteropMethodGen {
             retType = typeBuilder.buildType(birFunc.type.retType);
         }
 
-        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false);
+        String desc = getMethodDesc(birFunc.type.paramTypes, retType, null, false);
         int access = ACC_PUBLIC + ACC_STATIC;
 
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
