@@ -608,8 +608,6 @@ public class BindgenUtils {
                             if (isJarFile(filePath)) {
                                 urls.add(filePath.toURI().toURL());
                                 classPaths.add(filePath.getName());
-                            } else {
-                                failedClassPaths.add(filePath.toString());
                             }
                         }
                     } else {
@@ -629,7 +627,8 @@ public class BindgenUtils {
                 for (String path : classPaths) {
                     outStream.println("\t" + path);
                 }
-            } else {
+            }
+            if (!failedClassPaths.isEmpty()) {
                 errStream.println("\nFailed to add the following to classpath:");
                 for (String path : failedClassPaths) {
                     outStream.println("\t" + path);
