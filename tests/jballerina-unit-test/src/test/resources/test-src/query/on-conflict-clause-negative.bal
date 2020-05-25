@@ -7,7 +7,7 @@ type Person record {|
 |};
 
 function testOnConflictClauseWithFunction() returns Person[]|error {
-   
+
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};

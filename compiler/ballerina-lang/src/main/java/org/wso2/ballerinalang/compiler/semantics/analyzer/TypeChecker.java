@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -3681,6 +3682,15 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!types.isAssignable(exprType, symTable.errorType)) {
             dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
                     symTable.errorType, exprType);
+        }
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        BType exprType = checkExpr(limitClause.expression, narrowedQueryEnv);
+        if (!types.isAssignable(exprType, symTable.intType)) {
+            dlog.error(limitClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    symTable.intType, exprType);
         }
     }
 

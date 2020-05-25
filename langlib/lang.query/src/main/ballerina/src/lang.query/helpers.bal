@@ -50,6 +50,10 @@ public function createDoFunction(function(_Frame _frame) doFunc) returns _Stream
     return new _DoFunction(doFunc);
 }
 
+public function createLimitFunction(int lmt) returns _StreamFunction {
+    return new _LimitFunction(lmt);
+}
+
 public function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
     pipeline.addStreamFunction(streamFunction);
 }
