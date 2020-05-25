@@ -9,6 +9,34 @@ type FullName record{|
 	string lastName;
 |};
 
+type Employee record {|
+    string firstName;
+    string lastName;
+    string dept;
+|};
+
+type EmpProfile record {|
+    string firstName;
+    string lastName;
+    int age;
+    string dept;
+    string status;
+|};
+
+type EmpProfileValue record {|
+    EmpProfile value;
+|};
+
+function getEmpProfileValue((record {| EmpProfile value; |}|error?)|(record {| EmpProfile value; |}?) returnedVal)
+returns EmpProfileValue? {
+    var result = returnedVal;
+    if (result is EmpProfileValue) {
+        return result;
+    } else {
+        return ();
+    }
+}
+
 function testLimitClauseWithQueryExpr() returns Person[] {
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 33};
@@ -70,6 +98,44 @@ function testLimitClauseWithQueryExpr3() returns Person[] {
             limit 3;
 
     return outputPersonList;
+}
+
+function testLimitClauseReturnStream() returns boolean {
+    boolean testPassed = true;
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 33};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 31};
+
+    Employee e1 = {firstName: "Alex", lastName: "George", dept: "Engineering"};
+    Employee e2 = {firstName: "John", lastName: "David", dept: "HR"};
+    Employee e3 = {firstName: "Alex", lastName: "Fonseka", dept: "Operations"};
+
+    Person[] personList = [p1, p2];
+    Employee[] employeeList = [e1, e2, e3];
+
+    stream<EmpProfile> outputEmpProfileStream =
+            stream from var person in personList.toStream()
+            from var emp in employeeList
+            let string empStatus = "Permanent"
+            where emp.firstName == "Alex"
+            select {
+                firstName: emp.firstName,
+                lastName: emp.lastName,
+                age: person.age,
+                dept: emp.dept,
+                status: empStatus
+            }
+            limit 1;
+
+    record {| EmpProfile value; |}? empProfile = getEmpProfileValue(outputEmpProfileStream.next());
+    testPassed = testPassed && empProfile?.value?.firstName == "Alex" && empProfile?.value?.lastName == "George" &&
+        empProfile?.value?.age == 33 && empProfile?.value?.dept == "Engineering" &&
+        empProfile?.value?.status == "Permanent";
+
+    empProfile = getEmpProfileValue(outputEmpProfileStream.next());
+    testPassed = testPassed && empProfile == ();
+
+    return testPassed;
 }
 
 function testLimitClauseWithQueryAction() returns int {

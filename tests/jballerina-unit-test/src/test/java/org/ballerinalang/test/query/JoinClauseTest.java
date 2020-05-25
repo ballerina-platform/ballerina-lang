@@ -40,8 +40,8 @@ public class JoinClauseTest {
     }
 
     @Test
-    public void testSimpleJoinClause() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClause");
+    public void testSimpleJoinClauseWithRecordVariable() {
+        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
         Assert.assertNotNull(values);
 
         Assert.assertEquals(values.length, 2, "Expected events are not received");
@@ -54,11 +54,54 @@ public class JoinClauseTest {
         Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
     }
 
+    @Test
+    public void testSimpleJoinClauseWithRecordVariable2() {
+        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
+        Assert.assertNotNull(values);
+
+        Assert.assertEquals(values.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
+        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
+
+        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
+        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
+        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
+    }
+
+    @Test
+    public void testSimpleJoinClauseWithRecordVariable3() {
+        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
+        Assert.assertNotNull(values);
+
+        Assert.assertEquals(values.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
+        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
+
+        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
+        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
+        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
+    }
 
     @Test
     public void testJoinClauseWithStream() {
         BValue[] values = BRunUtil.invoke(result, "testJoinClauseWithStream", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test
+    public void testJoinClauseWithLimit() {
+        BValue[] values = BRunUtil.invoke(result, "testJoinClauseWithLimit");
+        Assert.assertNotNull(values);
+
+        Assert.assertEquals(values.length, 1, "Expected events are not received");
+
+        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
+
+        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
+        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
+        Assert.assertEquals(deptPerson1.get("dept").stringValue(), "HR");
     }
 
     @Test
