@@ -3639,6 +3639,7 @@ public class BallerinaParser extends AbstractParser {
         switch (expression.kind) {
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
+            case LIST_BINDING_PATTERN:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -10404,7 +10405,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfReceiveFields(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
                 return true;
             default:
                 return false;
@@ -11312,9 +11313,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Return an empty list
         STToken nextToken = peek();
-        if (isEndOfReceiveFields(nextToken.kind)) {
-            this.errorHandler.reportMissingTokenError("missing member");
-        } else {
+        if (!isEndOfReceiveFields(nextToken.kind)) {
             // Parse the members
             STNode member;
             STNode memberEnd;
@@ -11387,12 +11386,17 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 nextTokenKind = peek().kind;
+                if (isWildcardBP(identifier)) {
+                    return STNodeFactory.createCaptureBindingPatternNode(identifier);
+                }
                 if (isTypeFollowingToken(nextTokenKind)) {
                     return parseComplexTypeDescriptor(identifier, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
-                } else if (nextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
+                }
+                if (nextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
                     // error|T (args) --> functional-binding-pattern
                     return parseListBindingPatternMember();
-                } else if (nextTokenKind == SyntaxKind.ELLIPSIS_TOKEN) {
+                }
+                if (nextTokenKind == SyntaxKind.ELLIPSIS_TOKEN) {
                     STNode ellipsis = parseEllipsis();
                     return STNodeFactory.createRestDescriptorNode(identifier, ellipsis);
                 }
@@ -11536,6 +11540,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         switch (memberNode.kind) {
+            case CAPTURE_BINDING_PATTERN:
             case LIST_BINDING_PATTERN:
             case REST_BINDING_PATTERN:
                 return SyntaxKind.LIST_BINDING_PATTERN;
@@ -11565,8 +11570,20 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createListBindingPatternNode(openBracket, memberBindingPatterns,
                         restBindingPattern, closeBracket);
             default:
+                if (members.isEmpty()) {
+                    this.errorHandler.reportMissingTokenError("missing member");
+                }
                 STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
                 return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
         }
+    }
+
+    private boolean isWildcardBP(STNode node) {
+        if (node.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return false;
+        }
+
+        STToken nameToken = (STToken) ((STSimpleNameReferenceNode) node).name;
+        return "_".equals(nameToken.text());
     }
 }
