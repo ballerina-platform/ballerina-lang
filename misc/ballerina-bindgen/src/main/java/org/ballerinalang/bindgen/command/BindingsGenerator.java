@@ -54,9 +54,9 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
-import static org.ballerinalang.bindgen.utils.MvnResolverUtils.mavenResolver;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.notifyExistingDependencies;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
+import static org.ballerinalang.bindgen.utils.MvnResolverUtils.mavenResolver;
 
 /**
  * Class for generating Ballerina bindings for Java APIs.
@@ -145,8 +145,8 @@ public class BindingsGenerator {
     private ClassLoader setClassLoader() throws BindgenException {
         ClassLoader classLoader;
         try {
-            if (!this.classPaths.isEmpty()) {
-                classLoader = getClassLoader(this.classPaths, this.getClass().getClassLoader());
+            if (!classPaths.isEmpty()) {
+                classLoader = getClassLoader(classPaths, this.getClass().getClassLoader());
             } else {
                 outStream.println("\nNo classpaths were detected.");
                 classLoader = this.getClass().getClassLoader();
@@ -210,12 +210,12 @@ public class BindingsGenerator {
         }
     }
 
-    void setOutputPath(String outputPath) {
-        this.outputPath = outputPath;
+    static void setOutputPath(String output) {
+        outputPath = output;
     }
 
     void setDependentJars(String[] jarPaths) {
-        Collections.addAll(this.classPaths, jarPaths);
+        Collections.addAll(classPaths, jarPaths);
     }
 
     void setClassNames(List<String> classNames) {
