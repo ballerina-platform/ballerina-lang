@@ -1866,10 +1866,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.EXPRESSION;
                 }
 
-                // FIXME close bracket?
                 if (parentCtx == ParserRuleContext.TYPE_DESC_IN_TUPLE ||
                         parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC) {
-                    return ParserRuleContext.CLOSE_PARENTHESIS;
+                    return ParserRuleContext.CLOSE_BRACKET;
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:

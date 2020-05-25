@@ -258,15 +258,25 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "x"
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "x"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COMMA_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "y"
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "y"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COMMA_TOKEN"
