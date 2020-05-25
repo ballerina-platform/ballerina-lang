@@ -29,6 +29,7 @@ import java.util.List;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setOutputPath;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIFIER;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 
 /**
  * This class represents the "ballerina bindgen" command.
@@ -42,8 +43,7 @@ public class BindgenCommand implements BLauncherCmd {
 
     private static final PrintStream outStream = System.out;
     private static final PrintStream outError = System.err;
-    private Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
-    private Path targetOutputPath = sourceRootPath;
+    private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
@@ -92,7 +92,7 @@ public class BindgenCommand implements BLauncherCmd {
             if (Paths.get(outputPath).isAbsolute()) {
                 targetOutputPath = Paths.get(outputPath);
             } else {
-                targetOutputPath = Paths.get(sourceRootPath.toString(), outputPath);
+                targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath);
             }
             setOutputPath(outputPath);
         }

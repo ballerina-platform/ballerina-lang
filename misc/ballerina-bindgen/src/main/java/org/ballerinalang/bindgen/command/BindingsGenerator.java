@@ -88,23 +88,11 @@ public class BindingsGenerator {
     private static Map<String, String> failedClassGens = new HashMap<>();
 
     void generateJavaBindings() throws BindgenException {
-        if (projectRoot != null) {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            if (manifest != null) {
-                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
-                if (platformLibraries != null) {
-                    for (Library library: platformLibraries) {
-                        if (library.path != null) {
-                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
-                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
-                            mavenResolver(library.groupId, library.artifactId, library.version, projectRoot);
-                        }
-                    }
-                }
-            }
-        }
+        // Resolve existing platform.libraries specified in the Ballerina.toml
+        resolvePlatformLibraries();
 
-        // Resolve the maven dependency and update the Ballerina.toml file
+        // Resolve the maven dependency received through the tool and update the Ballerina.toml file
+        // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
             mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot);
         }
@@ -138,6 +126,24 @@ public class BindingsGenerator {
             // Handle failed binding generations.
             if (failedClassGens != null) {
                 handleFailedClassGens();
+            }
+        }
+    }
+
+    private void resolvePlatformLibraries() throws BindgenException {
+        if (projectRoot != null) {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            if (manifest != null) {
+                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
+                if (platformLibraries != null) {
+                    for (Library library : platformLibraries) {
+                        if (library.path != null) {
+                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
+                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
+                            mavenResolver(library.groupId, library.artifactId, library.version, projectRoot);
+                        }
+                    }
+                }
             }
         }
     }
