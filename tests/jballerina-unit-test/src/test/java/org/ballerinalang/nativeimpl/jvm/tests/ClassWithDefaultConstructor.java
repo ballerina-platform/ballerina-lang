@@ -23,7 +23,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
  * @since 1.0.0
  */
 public class ClassWithDefaultConstructor {
-    private int a = 10;
+    private int a;
 
     public ClassWithDefaultConstructor() {
         a = 11;

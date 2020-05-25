@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.filepath;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -37,30 +38,30 @@ public class UtilsTest {
 
         // Get Path error with reason and throwable.
         ErrorValue error1 = Utils.getPathError(Constants.INVALID_PATH_ERROR, exp.getMessage());
-        Assert.assertEquals(error1.getReason(), Constants.INVALID_PATH_ERROR);
+        Assert.assertEquals(error1.getReason(), StringUtils.fromString(Constants.INVALID_PATH_ERROR));
         Assert.assertEquals(error1.getDetails().toString(),
                 "message=Invalid path format: /User/ballerina/path\\test");
 
         // Get Path error without reason.
         ErrorValue error2 = Utils.getPathError(null, exp.getMessage());
-        Assert.assertEquals(error2.getReason(), Constants.GENERIC_ERROR);
+        Assert.assertEquals(error2.getReason(), StringUtils.fromString(Constants.GENERIC_ERROR));
         Assert.assertEquals(error2.getDetails().toString(),
                 "message=Invalid path format: /User/ballerina/path\\test");
 
         // Get Path error without throwable.
         ErrorValue error3 = Utils.getPathError(Constants.INVALID_PATH_ERROR, null);
-        Assert.assertEquals(error3.getReason(), Constants.INVALID_PATH_ERROR);
+        Assert.assertEquals(error3.getReason(), StringUtils.fromString(Constants.INVALID_PATH_ERROR));
         Assert.assertEquals(error3.getDetails().toString(), "message=Unknown Error");
 
         // Get Path error without both reason and throwable.
         ErrorValue error4 = Utils.getPathError(null, null);
-        Assert.assertEquals(error4.getReason(), Constants.GENERIC_ERROR);
+        Assert.assertEquals(error4.getReason(), StringUtils.fromString(Constants.GENERIC_ERROR));
         Assert.assertEquals(error4.getDetails().toString(), "message=Unknown Error");
 
         // Get Path error without throwable message.
         Exception exp2 = new Exception();
         ErrorValue error5 = Utils.getPathError(Constants.INVALID_PATH_ERROR, exp2.getMessage());
-        Assert.assertEquals(error5.getReason(), Constants.INVALID_PATH_ERROR);
+        Assert.assertEquals(error5.getReason(), StringUtils.fromString(Constants.INVALID_PATH_ERROR));
         Assert.assertEquals(error5.getDetails().toString(), "message=Unknown Error");
     }
 }

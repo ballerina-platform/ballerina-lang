@@ -186,7 +186,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             launchedProcess = launcher.start();
         } catch (IOException e) {
-            sendOutput("Unable to launch debug adapter", STDERR);
+            sendOutput("Unable to launch debug adapter: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture.runAsync(() -> {

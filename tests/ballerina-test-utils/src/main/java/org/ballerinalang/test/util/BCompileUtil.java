@@ -92,8 +92,6 @@ public class BCompileUtil {
     //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
 
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
     /**
      * Compile and return the semantic errors.
      *
@@ -655,20 +653,11 @@ public class BCompileUtil {
         try {
             Class<?> initClazz = classLoader.loadClass(initClassName);
             final List<String> actualArgs = new ArrayList<>();
-            if (USE_BSTRING) {
-                actualArgs.add(0, "java");
-                actualArgs.add(1, "-Dballerina.bstring=true");
-                actualArgs.add(2, "-cp");
-                String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
-                actualArgs.add(3, classPath);
-                actualArgs.add(4, initClazz.getCanonicalName());
-            } else {
-                actualArgs.add(0, "java");
-                actualArgs.add(1, "-cp");
-                String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
-                actualArgs.add(2, classPath);
-                actualArgs.add(3, initClazz.getCanonicalName());
-            }
+            actualArgs.add(0, "java");
+            actualArgs.add(1, "-cp");
+            String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
+            actualArgs.add(2, classPath);
+            actualArgs.add(3, initClazz.getCanonicalName());
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();

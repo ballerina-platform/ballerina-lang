@@ -25,6 +25,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 import org.slf4j.Logger;
@@ -122,16 +123,19 @@ public class SendAvroKeys {
         return genericRecord;
     }
 
-    protected static void populateAvroRecord(GenericRecord record, MapValue<String, Object> data) {
-        String[] keys = data.getKeys();
-        for (String key : keys) {
-            Object value = data.get(key);
-            if (value instanceof String || value instanceof Number || value == null) {
+    protected static void populateAvroRecord(GenericRecord record, MapValue<BString, Object> data) {
+        BString[] keys = data.getKeys();
+        for (BString keyBStr : keys) {
+            Object value = data.get(keyBStr);
+            String key = keyBStr.getValue();
+            if (value instanceof BString) {
+                record.put(key, value.toString());
+            } else if (value instanceof Number || value == null) {
                 record.put(key, value);
             } else if (value instanceof MapValue) {
                 Schema childSchema = record.getSchema().getField(key).schema();
                 GenericRecord subRecord = new GenericData.Record(childSchema);
-                populateAvroRecord(subRecord, (MapValue<String, Object>) value);
+                populateAvroRecord(subRecord, (MapValue<BString, Object>) value);
                 record.put(key, subRecord);
             } else if (value instanceof BArray) {
                 Schema childSchema = record.getSchema().getField(key).schema().getElementType();
@@ -152,7 +156,7 @@ public class SendAvroKeys {
     }
 
     protected static GenericRecord createRecord(MapValue value) {
-        String schemaString = value.getStringValue(KafkaConstants.AVRO_SCHEMA_STRING_NAME);
+        String schemaString = value.getStringValue(KafkaConstants.AVRO_SCHEMA_STRING_NAME).getValue();
         Schema avroSchema = new Schema.Parser().parse(schemaString);
         return new GenericData.Record(avroSchema);
     }

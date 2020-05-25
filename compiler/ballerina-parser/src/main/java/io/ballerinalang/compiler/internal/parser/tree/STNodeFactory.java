@@ -1825,5 +1825,52 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arrayLength,
                 closeBracket);
     }
+
+    public static STNode createTransactionStatementNode(
+            STNode transactionKeyword,
+            STNode blockStatement) {
+
+        return new STTransactionStatementNode(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    public static STNode createRollbackStatementNode(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon) {
+
+        return new STRollbackStatementNode(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    public static STNode createRetryStatementNode(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody) {
+
+        return new STRetryStatementNode(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody);
+    }
+
+    public static STNode createCommitActionNode(
+            STNode commitKeyword) {
+
+        return new STCommitActionNode(
+                commitKeyword);
+    }
+
+    public static STNode createTransactionalExpressionNode(
+            STNode transactionalKeyword) {
+
+        return new STTransactionalExpressionNode(
+                transactionalKeyword);
+    }
 }
 

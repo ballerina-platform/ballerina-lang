@@ -20,9 +20,11 @@ package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
@@ -64,9 +66,9 @@ public class FSListener implements LocalFileSystemListener {
     }
 
     private Object[] getJvmSignatureParameters(LocalFileSystemEvent fileEvent) {
-        MapValue<String, Object> eventStruct = BallerinaValues.createRecordValue(FILE_PACKAGE_ID, FILE_SYSTEM_EVENT);
-        eventStruct.put(FILE_EVENT_NAME, fileEvent.getFileName());
-        eventStruct.put(FILE_EVENT_OPERATION, fileEvent.getEvent());
+        MapValue<BString, Object> eventStruct = BallerinaValues.createRecordValue(FILE_PACKAGE_ID, FILE_SYSTEM_EVENT);
+        eventStruct.put(StringUtils.fromString(FILE_EVENT_NAME), StringUtils.fromString(fileEvent.getFileName()));
+        eventStruct.put(StringUtils.fromString(FILE_EVENT_OPERATION), StringUtils.fromString(fileEvent.getEvent()));
         return new Object[] { eventStruct, true };
     }
 

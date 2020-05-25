@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
@@ -55,7 +55,7 @@ public class StaticMethodTest {
 
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test invoking a java static function that accepts and return nothing")
@@ -65,7 +65,7 @@ public class StaticMethodTest {
 
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a Date")
@@ -139,7 +139,7 @@ public class StaticMethodTest {
     }
 
     public static Object returnObjectOrError() {
-        return new ErrorValue("some reason", new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BallerinaErrors.createError("some reason", new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     @Test(description = "Test tuple return with null values")

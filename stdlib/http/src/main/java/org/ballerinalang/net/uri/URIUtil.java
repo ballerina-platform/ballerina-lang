@@ -18,9 +18,11 @@
 
 package org.ballerinalang.net.uri;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -41,7 +43,7 @@ public class URIUtil {
 
     public static final String URI_PATH_DELIMITER = "/";
     public static final char DOT_SEGMENT = '.';
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    private static final BString[] EMPTY_STRING_ARRAY = new BString[0];
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {
@@ -59,7 +61,7 @@ public class URIUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static void populateQueryParamMap(String queryParamString, MapValue<String, Object> queryParamsMap)
+    public static void populateQueryParamMap(String queryParamString, MapValue<BString, Object> queryParamsMap)
             throws UnsupportedEncodingException {
         Map<String, List<String>> tempParamMap = new HashMap<>();
         String[] queryParamVals = queryParamString.split("&");
@@ -86,22 +88,23 @@ public class URIUtil {
             }
         }
 
-        for (Map.Entry entry : tempParamMap.entrySet()) {
-            List<String> entryValue = (List<String>) entry.getValue();
-            queryParamsMap.put(entry.getKey().toString(),
-                               BValueCreator.createArrayValue(entryValue.toArray(EMPTY_STRING_ARRAY)));
+        for (Map.Entry<String, List<String>> entry : tempParamMap.entrySet()) {
+            List<String> entryValue = entry.getValue();
+            queryParamsMap.put(StringUtils.fromString(entry.getKey()), BValueCreator
+                    .createArrayValue(StringUtils.fromStringArray(entryValue.toArray(new String[0]))));
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static MapValue<String, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
-        MapValue<String, Object> matrixParamsBMap = new MapValueImpl<>();
+    public static MapValue<BString, Object> getMatrixParamsMap(String path, HttpCarbonMessage carbonMessage) {
+        MapValue<BString, Object> matrixParamsBMap = new MapValueImpl<>();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(HttpConstants.MATRIX_PARAMS);
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-                matrixParamsBMap.put(matrixParamEntry.getKey(), matrixParamEntry.getValue());
+                matrixParamsBMap.put(StringUtils.fromString(matrixParamEntry.getKey()),
+                                     StringUtils.fromString(matrixParamEntry.getValue()));
             }
         }
         return matrixParamsBMap;

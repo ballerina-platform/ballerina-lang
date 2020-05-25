@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.task.actions;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
@@ -119,7 +120,7 @@ public class TaskActions {
 
     @SuppressWarnings("unchecked")
     public static Object init(ObjectValue taskListener) {
-        MapValue<String, Object> configurations = taskListener.getMapValue(MEMBER_LISTENER_CONFIGURATION);
+        MapValue<BString, Object> configurations = taskListener.getMapValue(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
         try {
