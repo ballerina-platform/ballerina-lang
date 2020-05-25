@@ -111,7 +111,7 @@ public class ChoreoClientHolder {
 
     private static String getInstanceId() {
         final String userHome = System.getProperty("user.home");
-        Path instanceIdConfigFilePath = Paths.get(userHome + File.separator + ".choreo"
+        Path instanceIdConfigFilePath = Paths.get(userHome + File.separator + ".config" + File.separator + "choreo"
                 + File.separator + "instanceId");
 
         String instanceId;
