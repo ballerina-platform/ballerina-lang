@@ -102,6 +102,9 @@ public class BindgenCommand implements BLauncherCmd {
                 outStream.println("\nBallerina project detected at: " + findRoot.toString());
                 bindingsGenerator.setProjectRoot(findRoot);
             }
+        } else {
+            outStream.println("\nBallerina project detected at: " + targetOutputPath.toString());
+            bindingsGenerator.setProjectRoot(targetOutputPath);
         }
 
         String splitCommaRegex = "\\s*,\\s*";
