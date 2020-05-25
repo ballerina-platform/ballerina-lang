@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ConcreteBTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -137,6 +138,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
+    private ConcreteBTypeBuilder typeBuilder;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -157,6 +159,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.typeBuilder = new ConcreteBTypeBuilder();
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
@@ -1116,16 +1119,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
-            if (constraintType.tag != TypeTags.UNION) {
-                if (!TypeTags.isXMLTypeTag(constraintType.tag) && constraintType.tag != TypeTags.NEVER) {
-                    dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
-                            constraintType);
-                }
-                constrainedType = new BXMLType(constraintType, null);
+            if (constraintType.tag == TypeTags.PARAMETERIZED_TYPE) {
+                BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;
+                BType typedescConstraint = ((BTypedescType) typedescType).constraint;
+                validateXMLConstraintType(typedescConstraint, constrainedTypeNode.pos);
             } else {
-                checkUnionTypeForXMLSubTypes((BUnionType) constraintType, constrainedTypeNode.pos);
-                constrainedType = new BXMLType(constraintType, null);
+                validateXMLConstraintType(constraintType, constrainedTypeNode.pos);
             }
+            constrainedType = new BXMLType(constraintType, null);
         } else {
             return;
         }
@@ -1135,6 +1136,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                            typeSymbol.pkgID, constrainedType, typeSymbol.owner);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
+    }
+
+    private void validateXMLConstraintType(BType constraintType, DiagnosticPos pos) {
+        if (constraintType.tag == TypeTags.UNION) {
+            checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
+            return;
+        }
+
+        if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
+        }
     }
 
     private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, DiagnosticPos pos) {
@@ -1185,10 +1197,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                         return;
                     }
 
-                    BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED, tempSymbol.name,
-                                                          tempSymbol.pkgID, null, func.symbol);
+                    BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
+                                                          tempSymbol.name, tempSymbol.pkgID, null, func.symbol);
                     this.resultType = tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
-                                                                            tSymbol);
+                                                                            tSymbol, tempSymbol.name);
                     this.resultType.flags |= Flags.PARAMETERIZED;
                     return;
                 } else {
@@ -1230,7 +1242,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 if (param.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     Name varName = names.fromIdNode(((BLangSimpleVarRef) param.expr).variableName);
                     BSymbol typeRefSym = lookupSymbolInMainSpace(this.env, varName);
-                    return typeRefSym.type;
+                    return typeRefSym != symTable.notFoundSymbol ? typeRefSym.type : symTable.semanticError;
                 }
 
                 dlog.error(param.pos, DiagnosticCode.INVALID_TYPEDESC_PARAM);
