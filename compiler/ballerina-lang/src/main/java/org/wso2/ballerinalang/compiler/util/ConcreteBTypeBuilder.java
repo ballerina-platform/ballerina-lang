@@ -235,7 +235,20 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTableType originalType, BType newType) {
-        return originalType;
+        BType newConstraint = originalType.constraint.accept(this, null);
+        BType newKeyTypeConstraint = originalType.keyTypeConstraint != null ?
+                originalType.keyTypeConstraint.accept(this, null) : null;
+
+        if (newConstraint == originalType.constraint && newKeyTypeConstraint == originalType.keyTypeConstraint) {
+            return originalType;
+        }
+
+        BTableType newTableType = new BTableType(TypeTags.TABLE, newConstraint, null);
+        newTableType.keyTypeConstraint = newKeyTypeConstraint;
+        newTableType.fieldNameList = originalType.fieldNameList;
+        newTableType.constraintPos = originalType.constraintPos;
+        newTableType.keyPos = originalType.keyPos;
+        return newTableType;
     }
 
     @Override
@@ -358,12 +371,15 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
             // happens when the invocation uses the default value of the param.
             type = paramValueTypes.get(paramVarName);
 
+            if (type == null) {
+                return originalType.paramValueType;
+            }
+
             if (type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
             }
 
-            // TODO:
-            type = type == null ? originalType.paramValueType : ((BTypedescType) type).constraint;
+            type = ((BTypedescType) type).constraint;
         } else {
             type = ((BTypedescType) originalType.paramSymbol.type).constraint;
         }
