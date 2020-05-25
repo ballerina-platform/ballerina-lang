@@ -142,7 +142,7 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
 
         BArrayType newArrayType = new BArrayType(newElemType, null, originalType.size, originalType.state);
         newArrayType.flags = originalType.flags;
-        return originalType;
+        return newArrayType;
     }
 
     @Override
@@ -357,11 +357,16 @@ public class ConcreteBTypeBuilder implements BTypeVisitor<BType, BType> {
             // This would return null if the calling function gets analyzed before the callee function. This only
             // happens when the invocation uses the default value of the param.
             type = paramValueTypes.get(paramVarName);
+
+            if (type.tag == TypeTags.SEMANTIC_ERROR) {
+                return type;
+            }
+
+            // TODO:
             type = type == null ? originalType.paramValueType : ((BTypedescType) type).constraint;
         } else {
             type = ((BTypedescType) originalType.paramSymbol.type).constraint;
         }
-        type.flags = originalType.flags;
         return type;
     }
 
