@@ -29,7 +29,7 @@ public type AuthzFilter object {
     #
     # + authzHandler - The `http:AuthzHandler` instance for handling authorization
     # + scopes - An array of scopes or an array consisting of arrays of scopes
-    public function __init(AuthzHandler authzHandler, Scopes? scopes) {
+    public function init(AuthzHandler authzHandler, Scopes? scopes) {
         self.authzHandler = authzHandler;
         self.scopes = scopes;
     }

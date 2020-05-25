@@ -44,13 +44,9 @@ public type MockListener object {
         return self.detach(s);
     }
 
-    public function __init(int port, ListenerConfiguration? config = ()) {
+    public function init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
-        self.init(self.config);
-    }
-
-    public function init(ListenerConfiguration c) {
         var err = self.initEndpoint();
         if (err is error) {
             panic err;

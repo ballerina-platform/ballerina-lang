@@ -32,7 +32,7 @@ public type HttpClient client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the `client`
-    public function __init(string url, public ClientConfiguration? config = ()) {
+    public function init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
         createSimpleHttpClient(self, globalHttpClientConnPool);

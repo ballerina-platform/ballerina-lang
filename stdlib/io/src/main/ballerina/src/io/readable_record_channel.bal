@@ -28,7 +28,7 @@ public type ReadableTextRecordChannel object {
     # + charChannel - CharacterChannel which will point to the input/output resource
     # + fs - Field separator (this could be a regex)
     # + rs - Record separator (this could be a regex)
-    public function __init(ReadableCharacterChannel charChannel, public string fs = "", public string rs = "",
+    public function init(ReadableCharacterChannel charChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
         self.charChannel = charChannel;
         self.rs = rs;

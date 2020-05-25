@@ -84,7 +84,7 @@ public type Listener object {
     #
     # + port - Listener port
     # + config - The `grpc:ListenerConfiguration` of the endpoint
-    public function __init(int port, ListenerConfiguration? config = ()) {
+    public function init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
         error? err = externInitEndpoint(self);

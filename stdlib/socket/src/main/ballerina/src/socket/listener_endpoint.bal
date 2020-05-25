@@ -26,7 +26,7 @@ public type Listener object {
     #
     # + port - The port number of the remote service
     # + config - Configurations related to the `socket:Listener`
-    public function __init(int port, ListenerConfig? config = ()) {
+    public function init(int port, ListenerConfig? config = ()) {
         var result = initServer(self, port, config ?: {});
         if (result is error) {
             panic result;

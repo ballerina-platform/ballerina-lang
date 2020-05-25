@@ -36,7 +36,7 @@ public type Client client object {
     # Initializes the TCP socket client with the given client configuration.
     #
     # + clientConfig - This is used to provide the configurations like host, port, and timeout
-    public function __init(ClientConfig? clientConfig) {
+    public function init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
             self.config = clientConfig;
             var initResult = initClientEndpoint(self, clientConfig);

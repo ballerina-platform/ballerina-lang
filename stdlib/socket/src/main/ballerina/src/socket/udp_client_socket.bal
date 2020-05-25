@@ -33,7 +33,7 @@ public type UdpClient client object {
     #
     # + localAddress - Local binding of the interface and port
     # + config - The configurations for the UDP client
-    public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
+    public function init(Address? localAddress = (), UdpClientConfig? config = ()) {
         UdpClientConfig configuration = config ?: {};
         self.localAddress = localAddress;
         var initResult = initUdpClientEndpoint(self, localAddress, configuration);

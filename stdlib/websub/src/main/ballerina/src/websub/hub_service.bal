@@ -595,7 +595,7 @@ type PendingSubscriptionChangeRequest object {
     public string topic;
     public string callback;
 
-    public function __init(string mode, string topic, string callback) {
+    public function init(string mode, string topic, string callback) {
         self.mode = mode;
         self.topic = topic;
         self.callback = callback;

@@ -40,7 +40,7 @@ public type InboundLdapAuthProvider object {
     #
     # + ldapConnectionConfig - The `ldap:LdapConnectionConfig` instance
     # + instanceId - Instance ID of the endpoint
-    public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
+    public function init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
         self.instanceId = instanceId;
         self.ldapConnectionConfig = ldapConnectionConfig;
         LdapConnection|Error ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
