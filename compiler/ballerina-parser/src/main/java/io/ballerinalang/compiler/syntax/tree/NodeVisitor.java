@@ -627,6 +627,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(conditionalExpressionNode);
     }
 
+    public void visit(EnumDeclarationNode enumDeclarationNode) {
+        visitSyntaxNode(enumDeclarationNode);
+    }
+
+    public void visit(EnumMemberNode enumMemberNode) {
+        visitSyntaxNode(enumMemberNode);
+    }
+
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

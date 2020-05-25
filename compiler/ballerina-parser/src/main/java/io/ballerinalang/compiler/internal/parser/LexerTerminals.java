@@ -85,6 +85,7 @@ public class LexerTerminals {
     public static final String DEFAULT = "default";
     public static final String WAIT = "wait";
     public static final String DO = "do";
+    public static final String ENUM = "enum";
 
     // Types
     public static final String INT = "int";

@@ -135,7 +135,18 @@ public class SmtpUtil {
         } else {
             addBodyAndAttachments(emailMessage, messageBody, bodyContentType, attachments);
         }
+        addMessageHeaders(emailMessage, message);
         return emailMessage;
+    }
+
+    private static void addMessageHeaders(MimeMessage emailMessage, MapValue message) throws MessagingException {
+        MapValue headers = message.getMapValue(EmailConstants.MESSAGE_HEADERS);
+        if (headers != null) {
+            String[] headerNames = (String[]) headers.getKeys();
+            for (String headerName : headerNames) {
+                emailMessage.addHeader(headerName, headers.getStringValue(headerName));
+            }
+        }
     }
 
     private static void addBodyAndAttachments(MimeMessage emailMessage, String messageBody, String bodyContentType,

@@ -102,6 +102,21 @@ public class ParserTestUtils {
         }
     }
 
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
     /**
      * Test parsing a valid source.
      *
@@ -110,6 +125,8 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
+        // updateAssertFiles(source, assertFilePath, context);
+
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
         STNode syntaxTree = parser.parse(context);
@@ -336,6 +353,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAMESPACE_DECLARATION;
             case "ANNOTATION_DECLARATION":
                 return SyntaxKind.ANNOTATION_DECLARATION;
+            case "ENUM_DECLARATION":
+                return SyntaxKind.ENUM_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -492,6 +511,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_KEYWORD;
             case "DO_KEYWORD":
                 return SyntaxKind.DO_KEYWORD;
+            case "ENUM_KEYWORD":
+                return SyntaxKind.ENUM_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -920,6 +941,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_FIELDS_LIST;
             case "WAIT_FIELD":
                 return SyntaxKind.WAIT_FIELD;
+            case "ENUM_MEMBER":
+                return SyntaxKind.ENUM_MEMBER;
 
             // XML template
             case "XML_ELEMENT":

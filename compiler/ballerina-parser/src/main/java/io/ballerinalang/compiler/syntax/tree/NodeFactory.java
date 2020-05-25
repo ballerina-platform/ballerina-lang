@@ -571,7 +571,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static IndexedExpressionNode createIndexedExpressionNode(
             ExpressionNode containerExpression,
             Token openBracket,
-            ExpressionNode keyExpression,
+            SeparatedNodeList<ExpressionNode> keyExpression,
             Token closeBracket) {
         Objects.requireNonNull(containerExpression, "containerExpression must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
@@ -581,7 +581,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stIndexedExpressionNode = STNodeFactory.createIndexedExpressionNode(
                 containerExpression.internalNode(),
                 openBracket.internalNode(),
-                keyExpression.internalNode(),
+                keyExpression.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
         return stIndexedExpressionNode.createUnlinkedFacade();
     }
@@ -2154,10 +2154,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static CaptureBindingPatternNode createCaptureBindingPatternNode(
-            SimpleNameReferenceNode variableName) {
+            Token variableName) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
 
         STNode stCaptureBindingPatternNode = STNodeFactory.createCaptureBindingPatternNode(
-                getOptionalSTNode(variableName));
+                variableName.internalNode());
         return stCaptureBindingPatternNode.createUnlinkedFacade();
     }
 
@@ -2392,6 +2393,68 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 colonToken.internalNode(),
                 endExpression.internalNode());
         return stConditionalExpressionNode.createUnlinkedFacade();
+    }
+
+    public static EnumDeclarationNode createEnumDeclarationNode(
+            MetadataNode metadata,
+            Token qualifier,
+            Token enumKeywordToken,
+            IdentifierToken identifier,
+            Token openBraceToken,
+            SeparatedNodeList<Node> enumMemberList,
+            Token closeBraceToken) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(qualifier, "qualifier must not be null");
+        Objects.requireNonNull(enumKeywordToken, "enumKeywordToken must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(enumMemberList, "enumMemberList must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stEnumDeclarationNode = STNodeFactory.createEnumDeclarationNode(
+                metadata.internalNode(),
+                qualifier.internalNode(),
+                enumKeywordToken.internalNode(),
+                identifier.internalNode(),
+                openBraceToken.internalNode(),
+                enumMemberList.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stEnumDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static EnumMemberNode createEnumMemberNode(
+            MetadataNode metadata,
+            IdentifierToken identifier,
+            Token equalToken,
+            ExpressionNode constExprNode) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(equalToken, "equalToken must not be null");
+        Objects.requireNonNull(constExprNode, "constExprNode must not be null");
+
+        STNode stEnumMemberNode = STNodeFactory.createEnumMemberNode(
+                metadata.internalNode(),
+                identifier.internalNode(),
+                equalToken.internalNode(),
+                constExprNode.internalNode());
+        return stEnumMemberNode.createUnlinkedFacade();
+    }
+
+    public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
+            TypeDescriptorNode memberTypeDesc,
+            Token openBracket,
+            Node arrayLength,
+            Token closeBracket) {
+        Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
+                memberTypeDesc.internalNode(),
+                openBracket.internalNode(),
+                getOptionalSTNode(arrayLength),
+                closeBracket.internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

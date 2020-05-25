@@ -30,11 +30,11 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -86,7 +86,7 @@ public class EmailAccessUtil {
      * @param host Host address of email server
      * @return Properties Email server access properties
      */
-    public static Properties getPopProperties(MapValue<BString, Object> emailAccessConfig, String host) {
+    public static Properties getPopProperties(MapValue emailAccessConfig, String host) {
         Properties properties = new Properties();
         properties.put(EmailConstants.PROPS_POP_HOST, host);
         properties.put(EmailConstants.PROPS_POP_PORT,
@@ -96,8 +96,7 @@ public class EmailAccessUtil {
         properties.put(EmailConstants.PROPS_POP_SSL_ENABLE,
                 emailAccessConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         properties.put(EmailConstants.MAIL_STORE_PROTOCOL, EmailConstants.POP_PROTOCOL);
-        CommonUtil.addCustomProperties(
-                (MapValue<BString, Object>) emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("POP3 Properties set are as follows.");
@@ -116,7 +115,7 @@ public class EmailAccessUtil {
      * @param host Host address of email server
      * @return Properties Email server access properties
      */
-    public static Properties getImapProperties(MapValue<BString, Object> emailAccessConfig, String host) {
+    public static Properties getImapProperties(MapValue emailAccessConfig, String host) {
         Properties properties = new Properties();
         properties.put(EmailConstants.PROPS_IMAP_HOST, host);
         properties.put(EmailConstants.PROPS_IMAP_PORT,
@@ -126,8 +125,7 @@ public class EmailAccessUtil {
         properties.put(EmailConstants.PROPS_IMAP_SSL_ENABLE,
                 emailAccessConfig.getBooleanValue(EmailConstants.PROPS_SSL));
         properties.put(EmailConstants.MAIL_STORE_PROTOCOL, EmailConstants.IMAP_PROTOCOL);
-        CommonUtil.addCustomProperties(
-                (MapValue<BString, Object>) emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
+        CommonUtil.addCustomProperties(emailAccessConfig.getMapValue(EmailConstants.PROPS_PROPERTIES), properties);
         if (log.isDebugEnabled()) {
             Set<String> propertySet = properties.stringPropertyNames();
             log.debug("IMAP4 Properties set are as follows.");
@@ -147,7 +145,7 @@ public class EmailAccessUtil {
      * @throws MessagingException If an error occurs related to messaging
      * @throws IOException If an error occurs related to I/O
      */
-    public static MapValue<BString, Object> getMapValue(Message message) throws MessagingException, IOException {
+    public static MapValue getMapValue(Message message) throws MessagingException, IOException {
         Map<String, Object> valueMap = new HashMap<>();
         BArray toAddressArrayValue = getAddressBArrayList(message.getRecipients(Message.RecipientType.TO));
         BArray ccAddressArrayValue = getAddressBArrayList(message.getRecipients(Message.RecipientType.CC));
@@ -155,31 +153,48 @@ public class EmailAccessUtil {
         BArray replyToAddressArrayValue = getAddressBArrayList(message.getReplyTo());
         String subject = getStringNullChecked(message.getSubject());
         String messageBody = extractBodyFromMessage(message);
+        MapValue headers = extractHeadersFromMessage(message);
         String messageContentType = message.getContentType();
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
         BArray attachments = extractAttachmentsFromMessage(message);
-        valueMap.put(EmailConstants.MESSAGE_TO.getValue(), toAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_CC.getValue(), ccAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_BCC.getValue(), bccAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_REPLY_TO.getValue(), replyToAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_SUBJECT.getValue(), subject);
+        valueMap.put(EmailConstants.MESSAGE_TO, toAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_CC, ccAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_BCC, bccAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_REPLY_TO, replyToAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_SUBJECT, subject);
         if (CommonUtil.isJsonBased(message.getContentType())) {
-            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY.getValue(), getJsonContent(messageBody));
+            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, getJsonContent(messageBody));
         } else if (CommonUtil.isXmlBased(message.getContentType())) {
-            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY.getValue(), parseToXml(messageBody));
+            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, parseToXml(messageBody));
         } else {
-            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY.getValue(), messageBody);
+            valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, messageBody);
         }
         if (messageContentType != null && !messageContentType.equals("")) {
-            valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE.getValue(), messageContentType);
+            valueMap.put(EmailConstants.MESSAGE_BODY_CONTENT_TYPE, messageContentType);
         }
-        valueMap.put(EmailConstants.MESSAGE_FROM.getValue(), fromAddress);
-        valueMap.put(EmailConstants.MESSAGE_SENDER.getValue(), senderAddress);
+        if (headers != null) {
+            valueMap.put(EmailConstants.MESSAGE_HEADERS, headers);
+        }
+        valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
+        valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
         if (attachments != null && attachments.size() > 0) {
-            valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS.getValue(), attachments);
+            valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS, attachments);
         }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
+    }
+
+    private static MapValue<String, String> extractHeadersFromMessage(Message message) throws MessagingException {
+        MapValue<String, String> headerMap = new MapValueImpl<>();
+        Enumeration<Header> headers = message.getAllHeaders();
+        if (headers.hasMoreElements()) {
+            while (headers.hasMoreElements()) {
+                Header header = headers.nextElement();
+                headerMap.put(header.getName(), header.getValue());
+            }
+            return headerMap;
+        }
+        return null;
     }
 
     private static XMLSequence parseToXml(String xmlStr) {
@@ -364,7 +379,7 @@ public class EmailAccessUtil {
         BArray addressArrayValue = BValueCreator.createArrayValue(stringArrayType);
         if (addresses != null) {
             for (Address address: addresses) {
-                addressArrayValue.append(StringUtils.fromString(address.toString()));
+                addressArrayValue.append(address.toString());
             }
         }
         return addressArrayValue;

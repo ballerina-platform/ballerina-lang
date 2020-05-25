@@ -81,7 +81,7 @@ public class SyntaxTreeJSONGenerator {
         return generateJSON(content, context);
     }
 
-    private static String generateJSON(String source, ParserRuleContext context) {
+    public static String generateJSON(String source, ParserRuleContext context) {
         STNode tree = getParserTree(source, context);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(getJSON(tree));
