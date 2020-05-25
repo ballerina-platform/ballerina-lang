@@ -75,7 +75,7 @@ public class AssignStmtTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
 
         boolean actualBoolean = ((BBoolean) returns[0]).booleanValue();
-        Assert.assertEquals(actualBoolean, true);
+        Assert.assertTrue(actualBoolean);
 
         // String assignment test
         args = new BValue[] { new BString("Test Value") };

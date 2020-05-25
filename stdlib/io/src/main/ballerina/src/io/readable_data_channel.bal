@@ -26,7 +26,7 @@ public type ReadableDataChannel object {
     public function __init(ReadableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
         // Remove temp once this got fixed #19842
         string temp = bOrder;
-        initReadableDataChannel(self, byteChannel, java:fromString(temp));
+        initReadableDataChannel(self, byteChannel, temp);
     }
 
 # Reads a 16 bit integer.
@@ -98,12 +98,7 @@ public type ReadableDataChannel object {
 # + encoding - Specifies the char-set encoding of the string
 # + return - The value of the string or else `io:Error` if any error occurred
     public function readString(int nBytes, string encoding) returns string|Error {
-        handle|Error result = readStringExtern(self, nBytes, java:fromString(encoding));
-        if (result is handle) {
-            return <string>java:toString(result);
-        } else {
-            return result;
-        }
+        return readStringExtern(self, nBytes, encoding);
     }
 
 # Reads a variable length integer.
@@ -126,7 +121,8 @@ public type ReadableDataChannel object {
     }
 };
 
-function initReadableDataChannel(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel, handle bOrder) = @java:Method {
+function initReadableDataChannel(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel,
+                                 string bOrder) = @java:Method {
     name: "initReadableDataChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
@@ -161,8 +157,8 @@ function readBoolExtern(ReadableDataChannel dataChannel) returns boolean|Error =
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
-function readStringExtern(ReadableDataChannel dataChannel, int nBytes, handle encoding)
-            returns handle|Error = @java:Method {
+function readStringExtern(ReadableDataChannel dataChannel, int nBytes, string encoding)
+                          returns string|Error = @java:Method {
     name: "readString",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

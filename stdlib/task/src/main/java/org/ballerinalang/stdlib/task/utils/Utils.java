@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -65,16 +66,16 @@ public class Utils {
     }
 
     public static ErrorValue createTaskError(String reason, String message) {
-        MapValue<String, Object> detail = createTaskDetailRecord(message);
+        MapValue<BString, Object> detail = createTaskDetailRecord(message);
         return BallerinaErrors.createError(reason, detail);
     }
 
-    private static MapValue<String, Object> createTaskDetailRecord(String message) {
+    private static MapValue<BString, Object> createTaskDetailRecord(String message) {
         return createTaskDetailRecord(message, null);
     }
 
-    private static MapValue<String, Object> createTaskDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
+    private static MapValue<BString, Object> createTaskDetailRecord(String message, ErrorValue cause) {
+        MapValue<BString, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
 
@@ -82,7 +83,7 @@ public class Utils {
     public static String getCronExpressionFromAppointmentRecord(Object record) throws SchedulingException {
         String cronExpression;
         if (RECORD_APPOINTMENT_DATA.equals(TypeChecker.getType(record).getName())) {
-            cronExpression = buildCronExpression((MapValue<String, Object>) record);
+            cronExpression = buildCronExpression((MapValue<BString, Object>) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.toString() + "\" is invalid.");
             }
@@ -96,7 +97,7 @@ public class Utils {
     }
 
     // Following code is reported as duplicates since all the lines doing same function call.
-    private static String buildCronExpression(MapValue<String, Object> record) {
+    private static String buildCronExpression(MapValue<BString, Object> record) {
         String cronExpression = getStringFieldValue(record, FIELD_SECONDS) + " " +
                 getStringFieldValue(record, FIELD_MINUTES) + " " +
                 getStringFieldValue(record, FIELD_HOURS) + " " +
@@ -107,7 +108,7 @@ public class Utils {
         return cronExpression.trim();
     }
 
-    private static String getStringFieldValue(MapValue<String, Object> record, String fieldName) {
+    private static String getStringFieldValue(MapValue<BString, Object> record, BString fieldName) {
         if (FIELD_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(record.get(FIELD_DAYS_OF_MONTH))) {
             return "?";
         } else if (Objects.nonNull(record.get(fieldName))) {
@@ -146,21 +147,21 @@ public class Utils {
         }
     }
 
-    public static Timer processTimer(MapValue<String, Object> configurations) throws SchedulingException {
+    public static Timer processTimer(MapValue<BString, Object> configurations) throws SchedulingException {
         Timer task;
-        long interval = ((Long) configurations.get(FIELD_INTERVAL)).intValue();
-        long delay = ((Long) configurations.get(FIELD_DELAY)).intValue();
+        long interval = configurations.getIntValue(FIELD_INTERVAL).intValue();
+        long delay = configurations.getIntValue(FIELD_DELAY).intValue();
 
         if (configurations.get(FIELD_NO_OF_RUNS) == null) {
             task = new Timer(delay, interval);
         } else {
-            long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            long noOfRuns = configurations.getIntValue(FIELD_NO_OF_RUNS);
             task = new Timer(delay, interval, noOfRuns);
         }
         return task;
     }
 
-    public static Appointment processAppointment(MapValue<String, Object> configurations) throws SchedulingException {
+    public static Appointment processAppointment(MapValue<BString, Object> configurations) throws SchedulingException {
         Appointment appointment;
         Object appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
         String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
@@ -168,7 +169,7 @@ public class Utils {
         if (configurations.get(FIELD_NO_OF_RUNS) == null) {
             appointment = new Appointment(cronExpression);
         } else {
-            long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            long noOfRuns = configurations.getIntValue(FIELD_NO_OF_RUNS);
             appointment = new Appointment(cronExpression, noOfRuns);
         }
         return appointment;

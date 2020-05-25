@@ -59,8 +59,4 @@ public class Map {
                                                        () -> newMap);
         return newMap;
     }
-
-    public static MapValue map_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        return map(strand, m, func);
-    }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,12 +43,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static MapValue<String, String> getAttributes(Strand strand, XMLValue xmlVal) {
+    public static MapValue<BString, BString> getAttributes(Strand strand, XMLValue xmlVal) {
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");
         }
 
-        return (MapValue<String, String>) xmlVal.getAttributesMap();
+        return (MapValue<BString, BString>) xmlVal.getAttributesMap();
     }
 }

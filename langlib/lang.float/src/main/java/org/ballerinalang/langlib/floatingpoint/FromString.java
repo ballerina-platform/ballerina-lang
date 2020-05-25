@@ -46,9 +46,9 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 )
 public class FromString {
 
-    public static Object fromString(Strand strand, String s) {
+    public static Object fromString(Strand strand, BString s) {
         try {
-            return Double.parseDouble(s);
+            return Double.parseDouble(s.getValue());
         } catch (NumberFormatException e) {
             return BallerinaErrors.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
                                                BLangExceptionHelper.getErrorMessage(
@@ -56,9 +56,4 @@ public class FromString {
                                                        BTypes.typeString, s, BTypes.typeFloat));
         }
     }
-
-    public static Object fromString_bstring(Strand strand, BString s) {
-        return fromString(strand, s.getValue());
-    }
-
 }

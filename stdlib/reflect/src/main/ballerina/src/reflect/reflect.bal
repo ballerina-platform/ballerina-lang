@@ -25,8 +25,7 @@ const COLON = ":";
 # + moduleName - Name of the module
 # + return - Returns the service annotation data
 public function getServiceAnnotations(service serviceType, string annotName, string? moduleName = ()) returns any {
-    var result = externGetServiceAnnotations(serviceType,
-                                            java:fromString(getAnnotQualifiedIdentifier(annotName, moduleName)));
+    var result = externGetServiceAnnotations(serviceType, getAnnotQualifiedIdentifier(annotName, moduleName));
     if (result is handle) {
         return java:toString(result);
     } else {
@@ -43,8 +42,8 @@ public function getServiceAnnotations(service serviceType, string annotName, str
 # + return - Returns the resource annotation data
 public function getResourceAnnotations(service serviceType, string resourceName, string annotName,
                                         string? moduleName = ()) returns any {
-    var result = externGetResourceAnnotations(serviceType, java:fromString(resourceName),
-                                          java:fromString(getAnnotQualifiedIdentifier(annotName, moduleName)));
+    var result = externGetResourceAnnotations(serviceType, resourceName, getAnnotQualifiedIdentifier(annotName,
+                                                                            moduleName));
     if (result is handle) {
       return java:toString(result);
     } else {
@@ -52,12 +51,12 @@ public function getResourceAnnotations(service serviceType, string resourceName,
     }
 }
 
-function externGetServiceAnnotations(service serviceType, handle annot) returns any =
+function externGetServiceAnnotations(service serviceType, string annot) returns any =
 @java:Method {
     class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
 } external;
 
-function externGetResourceAnnotations(service serviceType, handle resourceName, handle annot) returns any =
+function externGetResourceAnnotations(service serviceType, string resourceName, string annot) returns any =
 @java:Method {
     class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
 } external;
