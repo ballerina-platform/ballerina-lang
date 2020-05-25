@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.observability.anaylze;
 
-import com.google.gson.JsonObject;
+import org.ballerinalang.observability.anaylze.model.PkgASTHolder;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,18 +30,14 @@ public class JsonASTHolder {
 
     private static final JsonASTHolder dataHolder = new JsonASTHolder();
 
-    private Map<String, JsonObject> astMap = new ConcurrentHashMap<>();
+    private Map<String, PkgASTHolder> astMap = new ConcurrentHashMap<>();
 
-    public void addAST(String moduleId, JsonObject ast) {
+    public void addAST(String moduleId, PkgASTHolder ast) {
         this.astMap.put(moduleId, ast);
     }
 
-    public void clearASTMap() {
-        this.astMap.clear();
-    }
-
-    public Map<String, JsonObject> getASTMap() {
-        return astMap;
+    public Map<String, PkgASTHolder> getASTMap() {
+        return Collections.unmodifiableMap(astMap);
     }
 
     public static JsonASTHolder getInstance() {
