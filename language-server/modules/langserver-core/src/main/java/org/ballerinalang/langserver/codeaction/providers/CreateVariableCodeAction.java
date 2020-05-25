@@ -153,7 +153,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             if (refAtCursor.getbLangNode() instanceof BLangInvocation) {
                 hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
                 hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
-                        symbolAtCursor.name.value.endsWith("__init");
+                        symbolAtCursor.name.value.endsWith("init");
                 isAsync = ((BLangInvocation) refAtCursor.getbLangNode()).isAsync();
             }
             boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;

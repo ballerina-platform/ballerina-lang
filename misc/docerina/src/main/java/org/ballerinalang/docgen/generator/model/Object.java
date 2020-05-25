@@ -41,13 +41,13 @@ public class Object extends Construct {
 
     public Optional<Function> getInitMethod(List<Function> methods) {
         return methods.stream()
-                .filter(function -> function.name.equals("__init"))
+                .filter(function -> function.name.equals("init"))
                 .findFirst();
     }
 
     public List<Function> getOtherMethods(List<Function> methods) {
         return methods.stream()
-                .filter(function -> !function.name.equals("__init"))
+                .filter(function -> !function.name.equals("init"))
                 .collect(Collectors.toList());
     }
 

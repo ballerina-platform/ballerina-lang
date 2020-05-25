@@ -45,7 +45,7 @@ public function filter(stream<Type,ErrorType> stm, function(Type val) returns bo
         public stream<Type, ErrorType> strm;
         public any func;
 
-        public function __init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
+        public function init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
             self.strm = strm;
             self.func = func;
         }
@@ -104,7 +104,7 @@ public function 'map(stream<Type,ErrorType> stm, function(Type val) returns Type
        public stream<Type, ErrorType> strm;
        public any func;
 
-       public function __init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
+       public function init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
            self.strm = strm;
            self.func = func;
        }

@@ -18,7 +18,7 @@ type TableIterator object {
 
     private table<Type> t;
 
-    public function __init(table<Type> t) {
+    public function init(table<Type> t) {
        self.t = t;
     }
 

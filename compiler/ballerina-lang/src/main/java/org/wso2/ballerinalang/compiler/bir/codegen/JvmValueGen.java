@@ -615,7 +615,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         String valueClassName;
         List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
-        // Attached functions are empty for type-labeling. In such cases, call the __init() of
+        // Attached functions are empty for type-labeling. In such cases, call the init() of
         // the original type value;
         if (attachedFuncs.size() != 0) {
             initFuncName = attachedFuncs.get(0).name.value;
@@ -770,7 +770,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         String valueClassName;
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
-        // Attached functions are empty for type-labeling. In such cases, call the __init() of
+        // Attached functions are empty for type-labeling. In such cases, call the init() of
         // the original type value;
         if (attachedFuncs.size() != 0) {
             initFuncName = attachedFuncs.get(0).name.value; /*?.name ?.value;*/

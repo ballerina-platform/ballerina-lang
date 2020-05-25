@@ -458,7 +458,7 @@ public class FilterUtils {
                     boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
                     boolean isPublic = (entrySymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
 
-                    return !((entrySymbol.getName().getValue().contains(".__init") && !"self".equals(symbolName))
+                    return !((entrySymbol.getName().getValue().contains(".init") && !"self".equals(symbolName))
                             || (isPrivate && !"self".equals(symbolName))
                             || (!isPrivate && !isPublic && !symbolInCurrentModule));
                 })

@@ -5,7 +5,7 @@ type Object1 object {
     public SimpleTypeDesc field1 = getObjectFieldDefaultValue();
     private int field2;
 
-    public function __init(int arg) {
+    public function init(int arg) {
         self.field2 = arg;
     }
 
@@ -34,7 +34,7 @@ type AbstractObject abstract object {
 type Object2 object {
     *AbstractObject;
     
-    public function __init(int arg) {
+    public function init(int arg) {
         self.field1 = arg;
     }
 

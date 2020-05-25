@@ -13,7 +13,7 @@ type RecordName1 record {
         string street;
         string state;
 
-        function __init(int id, string country = "USA", string street = "",
+        function init(int id, string country = "USA", string street = "",
             string state = "") {
             self.country = country;
             self.street = street;

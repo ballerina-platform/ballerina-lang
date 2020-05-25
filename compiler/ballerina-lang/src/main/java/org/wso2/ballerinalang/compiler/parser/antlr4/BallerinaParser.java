@@ -234,7 +234,7 @@ public class BallerinaParser extends Parser {
 		"'byte'", "'float'", "'decimal'", "'boolean'", "'string'", "'error'", 
 		"'map'", "'json'", "'xml'", "'table'", "'stream'", "'any'", "'typedesc'", 
 		"'type'", "'future'", "'anydata'", "'handle'", "'readonly'", "'var'", 
-		"'new'", "'__init'", "'if'", "'match'", "'else'", "'foreach'", "'while'", 
+		"'new'", "'init'", "'if'", "'match'", "'else'", "'foreach'", "'while'", 
 		"'continue'", "'break'", "'fork'", "'join'", "'some'", "'all'", "'try'", 
 		"'catch'", "'finally'", "'throw'", "'panic'", "'trap'", "'return'", "'transaction'", 
 		"'abort'", "'retry'", "'onretry'", "'retries'", "'committed'", "'aborted'", 
