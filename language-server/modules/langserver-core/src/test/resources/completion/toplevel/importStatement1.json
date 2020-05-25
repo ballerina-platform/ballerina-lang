@@ -374,19 +374,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.query",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/lang.'query;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/lang.'int;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/socket",
       "insertTextFormat": "Snippet"
     },
     {

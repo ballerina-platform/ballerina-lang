@@ -22,9 +22,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public abstract class AnonymousFunctionExpressionNode extends NonTerminalNode {
+public abstract class AnonymousFunctionExpressionNode extends ExpressionNode {
 
     public AnonymousFunctionExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

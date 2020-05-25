@@ -26,7 +26,7 @@ public class TextLine {
     private final int lineNo;
     private final String text;
     /**
-     * The span of the line within the {@code TextDocument}
+     * The span of the line within the {@code TextDocument}.
      */
     private final int startOffset;
     private final int endOffset;

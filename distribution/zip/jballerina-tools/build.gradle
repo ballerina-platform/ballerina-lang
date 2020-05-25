@@ -168,7 +168,6 @@ dependencies {
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-reflect', configuration: 'balDoc')
     balDoc project(path: ':ballerina-runtime-api', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-socket', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-system', configuration: 'balDoc')
     balDoc project(path: ':ballerina-websub', configuration: 'balDoc')
@@ -204,6 +203,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
 
     // ballerinax modules
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')

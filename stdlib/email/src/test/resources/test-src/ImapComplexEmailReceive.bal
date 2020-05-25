@@ -64,6 +64,15 @@ function testReceiveComplexEmail(string host, string username, string password) 
                 } else {
                     return [];
                 }
+                returnArray[11] = attachments[0].getHeader("H1");
+                returnArray[12] = attachments[0].getContentType();
+                json? headers = emailResponse?.headers;
+                if (!(headers is ())) {
+                    json|error headerValue = headers.header1_name;
+                    if (headerValue is json && !(headerValue is ())) {
+                        returnArray[13] = <string>headerValue;
+                    }
+                }
             }
             return returnArray;
         } else if (emailResponse is ()) {
@@ -76,9 +85,9 @@ function testReceiveComplexEmail(string host, string username, string password) 
     }
 }
 
-function getNonNilString(string? sender) returns string {
-    if sender is string {
-        return sender;
+function getNonNilString(string? nilableString) returns string {
+    if nilableString is string {
+        return nilableString;
     } else {
         return "";
     }

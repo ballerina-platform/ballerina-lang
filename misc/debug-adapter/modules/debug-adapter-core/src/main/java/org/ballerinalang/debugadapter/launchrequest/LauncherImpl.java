@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,21 +57,24 @@ public abstract class LauncherImpl {
     }
 
     ArrayList<String> getLauncherCommand(String balFile) {
-        String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
+        List<String> ballerinaExec = new ArrayList<>();
         if (OSUtils.isWindows()) {
-            ballerinaExec = ballerinaExec + ".bat";
+            ballerinaExec.add("cmd.exe");
+            ballerinaExec.add("/c");
+            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina.bat");
+        } else {
+            ballerinaExec.add("bash");
+            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina");
         }
 
         String ballerinaCmd = args.get("ballerina.command") == null ? "" : args.get("ballerina.command").toString();
-
         // override ballerina exec if ballerina.command is provided.
-        if (ballerinaCmd.length() > 0) {
-            ballerinaExec = ballerinaCmd;
+        if (!ballerinaCmd.isEmpty()) {
+            ballerinaExec = Collections.singletonList(ballerinaCmd);
         }
 
         // TODO: validate file path
-        ArrayList<String> command = new ArrayList<String>();
-        command.add(ballerinaExec);
+        ArrayList<String> command = new ArrayList<>(ballerinaExec);
         boolean debugTests = args.get("debugTests") != null && (boolean) args.get("debugTests");
         if (debugTests) {
             command.add("test");

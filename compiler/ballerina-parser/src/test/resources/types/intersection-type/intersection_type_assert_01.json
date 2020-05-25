@@ -85,7 +85,7 @@
                                     "kind": "INTERSECTION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "INDEXED_EXPRESSION",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "INT_KEYWORD"
@@ -102,7 +102,7 @@
                                             "kind": "BITWISE_AND_TOKEN"
                                         },
                                         {
-                                            "kind": "INDEXED_EXPRESSION",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "STRING_KEYWORD"
@@ -157,7 +157,7 @@
                                             "kind": "BITWISE_AND_TOKEN"
                                         },
                                         {
-                                            "kind": "INDEXED_EXPRESSION",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",
