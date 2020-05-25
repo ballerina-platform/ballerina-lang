@@ -139,12 +139,14 @@ public class SmtpUtil {
         return emailMessage;
     }
 
-    private static void addMessageHeaders(MimeMessage emailMessage, MapValue message) throws MessagingException {
-        MapValue headers = message.getMapValue(EmailConstants.MESSAGE_HEADERS);
+    private static void addMessageHeaders(MimeMessage emailMessage, MapValue<BString, Object> message)
+            throws MessagingException {
+        MapValue<BString, BString> headers =
+                (MapValue<BString, BString>) message.getMapValue(EmailConstants.MESSAGE_HEADERS);
         if (headers != null) {
-            String[] headerNames = (String[]) headers.getKeys();
-            for (String headerName : headerNames) {
-                emailMessage.addHeader(headerName, headers.getStringValue(headerName));
+            BString[] headerNames = headers.getKeys();
+            for (BString headerName : headerNames) {
+                emailMessage.addHeader(headerName.getValue(), headers.getStringValue(headerName).getValue());
             }
         }
     }
