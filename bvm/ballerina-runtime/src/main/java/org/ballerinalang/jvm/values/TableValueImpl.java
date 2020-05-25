@@ -160,10 +160,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                if (ArrayValueImpl.USE_BSTRING) {
-                    throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
-                            StringUtils.fromString(e.getDetail()));
-                }
                 throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
             }
         }
@@ -492,7 +488,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             public K wrapKey(MapValue data) {
-                return (K) data.get(fieldNames[0]);
+                return (K) data.get(StringUtils.fromString(fieldNames[0]));
             }
         }
 
@@ -516,7 +512,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 TupleValueImpl arr = (TupleValueImpl) BValueCreator
                         .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
-                    arr.add(i, data.get(fieldNames[i]));
+                    arr.add(i, data.get(StringUtils.fromString(fieldNames[i])));
                 }
                 return (K) arr;
             }

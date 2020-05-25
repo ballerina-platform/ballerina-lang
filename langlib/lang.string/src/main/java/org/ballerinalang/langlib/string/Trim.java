@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,15 +41,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Trim {
 
-    public static String trim(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.trim();
-    }
-
-    public static BString trim_bstring(Strand strand, BString str) {
+    public static BString trim(Strand strand, BString str) {
         if (str == null) {
             throw BallerinaErrors.createNullReferenceError();
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(trim(strand, str.getValue()));
+        return StringUtils.fromString(str.getValue().trim());
     }
 }

@@ -639,6 +639,26 @@ public abstract class NodeVisitor {
         visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public void visit(TransactionStatementNode transactionStatementNode) {
+        visitSyntaxNode(transactionStatementNode);
+    }
+
+    public void visit(RollbackStatementNode rollbackStatementNode) {
+        visitSyntaxNode(rollbackStatementNode);
+    }
+
+    public void visit(RetryStatementNode retryStatementNode) {
+        visitSyntaxNode(retryStatementNode);
+    }
+
+    public void visit(CommitActionNode commitActionNode) {
+        visitSyntaxNode(commitActionNode);
+    }
+
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        visitSyntaxNode(transactionalExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

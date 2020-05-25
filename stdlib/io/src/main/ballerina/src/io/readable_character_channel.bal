@@ -29,7 +29,7 @@ public type ReadableCharacterChannel object {
     public function __init(ReadableByteChannel byteChannel, string charset) {
         self.byteChannel = byteChannel;
         self.charset = charset;
-        initReadableCharacterChannel(self, byteChannel, java:fromString(charset));
+        initReadableCharacterChannel(self, byteChannel, charset);
     }
 
 # Reads a given number of characters. This will attempt to read up to the `numberOfChars` characters of the channel.
@@ -41,12 +41,7 @@ public type ReadableCharacterChannel object {
 # + numberOfChars - Number of characters, which should be read
 # + return - Content, which is read, an `EofError` once the channel reaches the end or else an `io:Error`
     public function read(@untainted int numberOfChars) returns @tainted string|Error {
-        handle|Error result = readExtern(self, numberOfChars);
-        if (result is handle) {
-            return <string>java:toString(result);
-        } else {
-            return result;
-        }
+        return readExtern(self, numberOfChars);
     }
 
 # Reads a JSON from the given channel.
@@ -81,13 +76,13 @@ public type ReadableCharacterChannel object {
 };
 
 function initReadableCharacterChannel(ReadableCharacterChannel characterChannel, ReadableByteChannel byteChannel,
-            handle charset) = @java:Method {
+                                      string charset) = @java:Method {
     name: "initCharacterChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;
 
 function readExtern(ReadableCharacterChannel characterChannel, @untainted int numberOfChars) returns
-            @tainted handle|Error = @java:Method {
+                    @tainted string|Error = @java:Method {
     name: "read",
     class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;

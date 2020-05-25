@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -34,10 +35,10 @@ import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
  */
 public class DataContext {
-    private Strand strand = null;
-    private HttpClientConnector clientConnector = null;
-    private ObjectValue requestObj = null;
-    private NonBlockingCallback callback = null;
+    private Strand strand;
+    private HttpClientConnector clientConnector;
+    private ObjectValue requestObj;
+    private NonBlockingCallback callback;
     private HttpCarbonMessage correlatedMessage;
 
     public DataContext(Strand strand, HttpClientConnector clientConnector, NonBlockingCallback callback,
@@ -64,19 +65,15 @@ public class DataContext {
         } else if (httpConnectorError != null) {
             getCallback().setReturnValues(httpConnectorError);
         } else {
-            MapValue<String, Object> err = BallerinaValues.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
-                                                                             STRUCT_GENERIC_ERROR);
+            MapValue<BString, Object> err = BallerinaValues.createRecordValue(BALLERINA_BUILTIN_PKG_ID,
+                                                                              STRUCT_GENERIC_ERROR);
             getCallback().setReturnValues(err);
         }
         getCallback().notifySuccess();
     }
 
     public void notifyOutboundResponseStatus(ErrorValue httpConnectorError) {
-        if (httpConnectorError == null) {
-            getCallback().setReturnValues(null);
-        } else {
-            getCallback().setReturnValues(httpConnectorError);
-        }
+        getCallback().setReturnValues(httpConnectorError);
         getCallback().notifySuccess();
     }
 

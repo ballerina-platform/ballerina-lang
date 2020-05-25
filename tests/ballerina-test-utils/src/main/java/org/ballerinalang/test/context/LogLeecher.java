@@ -51,6 +51,12 @@ public class LogLeecher {
     }
 
     /**
+     * @return whether the expected text is found.
+     */
+    public boolean isTextFound() {
+        return textFound;
+    }
+    /**
      * Feed a log line to check if it matches the expected text.
      *
      * @param logLine The log line which was read

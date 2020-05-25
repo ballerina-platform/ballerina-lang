@@ -640,6 +640,26 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public T transform(TransactionStatementNode transactionStatementNode) {
+        return transformSyntaxNode(transactionStatementNode);
+    }
+
+    public T transform(RollbackStatementNode rollbackStatementNode) {
+        return transformSyntaxNode(rollbackStatementNode);
+    }
+
+    public T transform(RetryStatementNode retryStatementNode) {
+        return transformSyntaxNode(retryStatementNode);
+    }
+
+    public T transform(CommitActionNode commitActionNode) {
+        return transformSyntaxNode(commitActionNode);
+    }
+
+    public T transform(TransactionalExpressionNode transactionalExpressionNode) {
+        return transformSyntaxNode(transactionalExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
