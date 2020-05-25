@@ -54,6 +54,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
+import static org.ballerinalang.bindgen.utils.MvnResolverUtils.mavenResolver;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.notifyExistingDependencies;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 
@@ -69,9 +70,12 @@ public class BindingsGenerator {
     private Path dependenciesPath;
     private Path utilsDirPath;
     private String outputPath;
-    private Set<String> classPaths = new HashSet<>();
+    private String mvnGroupId;
+    private String mvnArtifactId;
+    private String mvnVersion;
     private Set<String> classNames = new HashSet<>();
     private static boolean directJavaClass = true;
+    private static Set<String> classPaths = new HashSet<>();
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
@@ -94,6 +98,10 @@ public class BindingsGenerator {
                 }
             }
         }
+
+        // Resolve the maven dependency and update the Ballerina
+        mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot);
+
         ClassLoader classLoader = setClassLoader();
         if (classLoader != null) {
             setDirectoryPaths();
@@ -259,7 +267,23 @@ public class BindingsGenerator {
         BindingsGenerator.exceptionList.add(exception);
     }
 
-    public void setProjectRoot(Path projectRoot) {
+    void setProjectRoot(Path projectRoot) {
         this.projectRoot = projectRoot;
+    }
+
+    void setMvnGroupId(String mvnGroupId) {
+        this.mvnGroupId = mvnGroupId;
+    }
+
+    void setMvnArtifactId(String mvnArtifactId) {
+        this.mvnArtifactId = mvnArtifactId;
+    }
+
+    void setMvnVersion(String mvnVersion) {
+        this.mvnVersion = mvnVersion;
+    }
+
+    public static void setClassPaths(String classPath) {
+        BindingsGenerator.classPaths.add(classPath);
     }
 }
