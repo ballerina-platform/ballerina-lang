@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -1364,6 +1365,14 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangOnConflictClause source) {
 
         BLangOnConflictClause clone = new BLangOnConflictClause();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
+    }
+
+    @Override
+    public void visit(BLangLimitClause source) {
+
+        BLangLimitClause clone = new BLangLimitClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
     }

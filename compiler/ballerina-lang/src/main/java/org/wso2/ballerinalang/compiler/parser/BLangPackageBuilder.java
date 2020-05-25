@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -2100,6 +2101,14 @@ public class BLangPackageBuilder {
         onConflictClause.pos = pos;
         onConflictClause.expression = (BLangExpression) this.exprNodeStack.pop();
         queryClauseStack.push(onConflictClause);
+    }
+
+    void createLimitClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLimitClause limitClause = (BLangLimitClause) TreeBuilder.createLimitClauseNode();
+        limitClause.addWS(ws);
+        limitClause.pos = pos;
+        limitClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        queryClauseStack.push(limitClause);
     }
 
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {

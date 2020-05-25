@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -181,6 +182,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
+    private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
@@ -290,6 +292,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                 case DO:
                     BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause);
                     addStreamFunction(block, initPipeline, doFunc);
+                    break;
+                case LIMIT:
+                    BLangVariableReference limitFunc = addLimitFunction(block, (BLangLimitClause) clause);
+                    addStreamFunction(block, initPipeline, limitFunc);
                     break;
             }
         }
@@ -515,6 +521,19 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
+     * Desugar limit clause and return a reference to created limit _StreamFunction.
+     *
+     * @param blockStmt parent block to write to.
+     * @param limitClause  to be desugared.
+     * @return variableReference to created do _StreamFunction.
+     */
+    BLangVariableReference addLimitFunction(BLangBlockStmt blockStmt, BLangLimitClause limitClause) {
+        DiagnosticPos pos = limitClause.pos;
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION,
+                Lists.of(limitClause.expression), pos);
+    }
+
+    /**
      * Desugar to following invocation.
      * stream:addStreamFunction(pipeline, streamFunction);
      *
@@ -663,7 +682,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstRef constRef) {
-       //do nothing
+        //do nothing
     }
 
     public void visit(BLangNumericLiteral literalExpr) {
@@ -911,8 +930,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangStatementExpression bLangStatementExpression) {
-         bLangStatementExpression.expr.accept(this);
-         bLangStatementExpression.stmt.accept(this);
+        bLangStatementExpression.expr.accept(this);
+        bLangStatementExpression.stmt.accept(this);
     }
 
     public void visit(BLangTupleVariable bLangTupleVariable) {
@@ -1086,6 +1105,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangDoClause doClause) {
+    }
+
+    public void visit(BLangLimitClause limitClause) {
     }
 
     public void visit(BLangWhile whileNode) {
