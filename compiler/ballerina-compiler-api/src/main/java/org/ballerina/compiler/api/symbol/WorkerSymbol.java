@@ -17,31 +17,19 @@
  */
 package org.ballerina.compiler.api.symbol;
 
+import org.ballerina.compiler.api.type.BallerinaTypeDescriptor;
+
 /**
- * Represents the types of Symbols.
- * 
+ * Represents a ballerina worker.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface WorkerSymbol extends BCompiledSymbol {
+
+    /**
+     * Get the return type.
+     *
+     * @return {@link BallerinaTypeDescriptor} return type of the worker.
+     */
+    BallerinaTypeDescriptor returnType();
 }

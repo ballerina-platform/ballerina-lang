@@ -17,12 +17,15 @@
  */
 package org.ballerina.compiler.api.symbol;
 
+import org.ballerina.compiler.api.element.DocAttachment;
+import org.ballerina.compiler.api.element.ModuleID;
+
 import java.util.Optional;
 
 /**
  * Represents a compiled language symbol.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public interface BCompiledSymbol {
     /**

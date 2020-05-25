@@ -15,33 +15,34 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.symbol;
+package org.ballerina.compiler.api.type;
+
+import org.ballerina.compiler.api.element.ModuleID;
 
 /**
- * Represents the types of Symbols.
- * 
+ * Represents a Ballerina Type Descriptor.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface BallerinaTypeDescriptor {
+    /**
+     * Get the Type Kind.
+     *
+     * @return {@link TypeDescKind} represented by the model
+     */
+    TypeDescKind kind();
+
+    /**
+     * Get the module ID.
+     *
+     * @return {@link ModuleID} of the Type
+     */
+    ModuleID moduleID();
+
+    /**
+     * Get the signature of the type descriptor.
+     *
+     * @return {@link String} signature.
+     */
+    String signature();
 }

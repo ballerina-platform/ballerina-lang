@@ -15,33 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.symbol;
+package org.ballerina.compiler.api.type;
+
+import java.util.Optional;
 
 /**
- * Represents the types of Symbols.
- * 
+ * Represents a typeDesc type descriptor.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface BallerinaTypeDescTypeDescriptor extends BallerinaTypeDescriptor {
+
+    /**
+     * Get the type parameter.
+     *
+     * @return {@link Optional} parameter type
+     */
+    Optional<BallerinaTypeDescriptor> getTypeParameter();
 }

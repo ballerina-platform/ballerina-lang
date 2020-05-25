@@ -17,31 +17,26 @@
  */
 package org.ballerina.compiler.api.symbol;
 
+import java.util.List;
+
 /**
- * Represents the types of Symbols.
- * 
+ * Represent Service Symbol.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface ServiceSymbol extends BCompiledSymbol {
+
+    /**
+     * Get the Service's resources.
+     *
+     * @return {@link List} of resource functions
+     */
+    List<FunctionSymbol> resources();
+
+    /**
+     * Get the Service's functions.
+     *
+     * @return {@link List} of resource functions
+     */
+    List<FunctionSymbol> functions();
 }

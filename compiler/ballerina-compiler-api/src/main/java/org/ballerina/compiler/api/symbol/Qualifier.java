@@ -20,7 +20,7 @@ package org.ballerina.compiler.api.symbol;
 /**
  * Represents the access modifier types.
  * 
- * @since 1.3.0
+ * @since 2.0.0
  */
 public enum Qualifier {
     PUBLIC("public"),

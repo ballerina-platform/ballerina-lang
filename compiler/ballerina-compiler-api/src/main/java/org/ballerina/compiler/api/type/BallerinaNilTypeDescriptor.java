@@ -15,33 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.symbol;
+package org.ballerina.compiler.api.type;
 
 /**
- * Represents the types of Symbols.
- * 
- * @since 2.0.0
+ * Represents the nil type descriptor.
+ *
+ * @since 1.3.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface BallerinaNilTypeDescriptor extends BallerinaTypeDescriptor {
 }

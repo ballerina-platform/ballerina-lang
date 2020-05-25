@@ -17,8 +17,9 @@
  */
 package org.ballerina.compiler.api.symbol;
 
-import org.ballerina.compiler.api.semantic.TypesFactory;
-import org.ballerina.compiler.api.types.TypeDescriptor;
+import org.ballerina.compiler.api.element.DocAttachment;
+import org.ballerina.compiler.api.type.BallerinaTypeDescriptor;
+import org.ballerina.compiler.impl.semantic.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -35,7 +36,7 @@ public class BallerinaField {
 
     private final BField bField;
 
-    private final TypeDescriptor typeDescriptor;
+    private final BallerinaTypeDescriptor typeDescriptor;
 
     public BallerinaField(BField bField) {
         this.bField = bField;
@@ -73,9 +74,9 @@ public class BallerinaField {
     /**
      * Get the type descriptor of the field.
      *
-     * @return {@link TypeDescriptor} of the field
+     * @return {@link BallerinaTypeDescriptor} of the field
      */
-    public TypeDescriptor typeDescriptor() {
+    public BallerinaTypeDescriptor typeDescriptor() {
         return TypesFactory.getTypeDescriptor(this.bField.getType());
     }
 
@@ -109,7 +110,7 @@ public class BallerinaField {
      * @return {@link String} signature
      */
     public String signature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor.getSignature() + " " + this.name());
+        StringBuilder signature = new StringBuilder(this.typeDescriptor.signature() + " " + this.name());
         if (this.optional()) {
             signature.append("?");
         }

@@ -18,30 +18,9 @@
 package org.ballerina.compiler.api.symbol;
 
 /**
- * Represents the types of Symbols.
- * 
+ * Represents an XML Namespace Symbol.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface XMLNamespaceSymbol extends BCompiledSymbol {
 }

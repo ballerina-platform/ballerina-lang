@@ -17,31 +17,36 @@
  */
 package org.ballerina.compiler.api.symbol;
 
+import org.ballerina.compiler.api.element.AnnotationAttachPoint;
+import org.ballerina.compiler.api.type.BallerinaTypeDescriptor;
+
+import java.util.List;
+import java.util.Optional;
+
 /**
- * Represents the types of Symbols.
- * 
+ * Represent Annotation Symbol.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface AnnotationSymbol extends BCompiledSymbol {
+    /**
+     * Get the qualifiers.
+     *
+     * @return {@link List} of qualifiers
+     */
+    List<Qualifier> qualifiers();
+
+    /**
+     * Get the type descriptor.
+     *
+     * @return {@link BallerinaTypeDescriptor} type descriptor of the annotation
+     */
+    Optional<BallerinaTypeDescriptor> typeDescriptor();
+
+    /**
+     * Get the attached points.
+     *
+     * @return {@link List} of attached points
+     */
+    List<AnnotationAttachPoint> attachPoints();
 }

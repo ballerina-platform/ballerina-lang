@@ -18,30 +18,16 @@
 package org.ballerina.compiler.api.symbol;
 
 /**
- * Represents the types of Symbols.
- * 
+ * Represent Constant Symbol.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface ConstantSymbol extends VariableSymbol {
+    
+    /**
+     * Get the constant value.
+     *
+     * @return {@link Object} value of the constant
+     */
+    Object constValue();
 }

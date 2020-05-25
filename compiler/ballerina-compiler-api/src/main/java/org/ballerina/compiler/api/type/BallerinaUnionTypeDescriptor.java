@@ -15,33 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.symbol;
+package org.ballerina.compiler.api.type;
+
+import java.util.List;
 
 /**
- * Represents the types of Symbols.
- * 
+ * Represents an union type descriptor.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface BallerinaUnionTypeDescriptor extends BallerinaTypeDescriptor {
+
+    /**
+     * Get the member types.
+     *
+     * @return {@link List} of member types
+     */
+    List<BallerinaTypeDescriptor> getMemberTypes();
 }

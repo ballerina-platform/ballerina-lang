@@ -15,33 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.symbol;
+package org.ballerina.compiler.impl.types;
+
+import org.ballerina.compiler.api.element.ModuleID;
+import org.ballerina.compiler.api.type.TypeDescKind;
+import org.ballerina.compiler.impl.semantic.BallerinaTypeDesc;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 /**
- * Represents the types of Symbols.
- * 
- * @since 2.0.0
+ * Represents the nil type descriptor.
+ *
+ * @since 1.3.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public class NilTypeDescriptor extends BallerinaTypeDesc {
+
+    public NilTypeDescriptor(ModuleID moduleID, BNilType nilType) {
+        super(TypeDescKind.NIL, moduleID, nilType);
+    }
+
+    @Override
+    public String signature() {
+        return "()";
+    }
 }

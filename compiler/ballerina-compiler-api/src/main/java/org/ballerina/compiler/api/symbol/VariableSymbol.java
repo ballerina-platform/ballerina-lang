@@ -17,31 +17,30 @@
  */
 package org.ballerina.compiler.api.symbol;
 
+import org.ballerina.compiler.api.type.BallerinaTypeDescriptor;
+
+import java.util.List;
+import java.util.Optional;
+
 /**
- * Represents the types of Symbols.
- * 
+ * Represents a ballerina variable.
+ *
  * @since 2.0.0
  */
-public enum BallerinaSymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION,
-    METHOD,
-    REMOTE_METHOD,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    CONST,
-    TYPE_DEF,
-    VARIABLE,
-    SERVICE,
-    WORKER,
-    OBJECT,
-    RECORD,
-    ANNOTATION,
-    FIELD
+public interface VariableSymbol extends BCompiledSymbol {
+
+    /**
+     * Get the list of access modifiers attached to this Variable symbol.
+     *
+     * @return {@link List} of access modifiers
+     */
+    List<Qualifier> qualifiers();
+
+    /**
+     * Get the Type of the variable.
+     *
+     * @return {@link BallerinaTypeDescriptor} of the variable
+     */
+    Optional<BallerinaTypeDescriptor> typeDescriptor();
+
 }
