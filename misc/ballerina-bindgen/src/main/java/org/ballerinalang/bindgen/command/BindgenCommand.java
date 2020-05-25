@@ -52,6 +52,10 @@ public class BindgenCommand implements BLauncherCmd {
                     "generating the Ballerina bindings.")
     private String classPath;
 
+    @CommandLine.Option(names = {"-mvn", "--maven"},
+            description = "A maven dependency with colon delimited groupId, artifactId and version.")
+    private String mavenDependency;
+
     @CommandLine.Option(names = {"-o", "--output"},
             description = "Location of the generated Ballerina bridge code."
     )
@@ -61,6 +65,7 @@ public class BindgenCommand implements BLauncherCmd {
     private List<String> classNames;
 
     private static final String BINDGEN_CMD = "ballerina bindgen [(-cp|--classpath) <classpath>...]\n" +
+            "                  [(-mvn|--maven) <groupId>:<artifactId>:<version>]\n" +
             "                  [(-o|--output) <output>]\n" +
             "                  (<class-name>...)";
 
@@ -75,7 +80,7 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (classNames == null) {
-            outError.println("One or more class names should be specified to generate the Ballerina bindings.\n");
+            outError.println("\nOne or more class names should be specified to generate the Ballerina bindings.\n");
             outStream.println(BINDGEN_CMD);
             outStream.println("\nUse 'ballerina bindgen --help' for more information on the command.");
             return;
@@ -103,6 +108,20 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.classPath != null) {
             String[] dependencyList = this.classPath.split(splitCommaRegex);
             bindingsGenerator.setDependentJars(dependencyList);
+        }
+
+        String splitColonRegex = "\\s*:\\s*";
+        if (this.mavenDependency != null) {
+            String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
+            if (mvnDependency.length != 3) {
+                outError.println("\nError in the maven dependency provided.\n");
+                outStream.println(BINDGEN_CMD);
+                outStream.println("\nUse 'ballerina bindgen --help' for more information on the command.");
+                return;
+            }
+            bindingsGenerator.setMvnGroupId(mvnDependency[0]);
+            bindingsGenerator.setMvnArtifactId(mvnDependency[1]);
+            bindingsGenerator.setMvnVersion(mvnDependency[2]);
         }
 
         bindingsGenerator.setClassNames(this.classNames);
