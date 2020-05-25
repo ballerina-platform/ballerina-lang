@@ -18,7 +18,7 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
 
 import java.util.Collection;
@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
+import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 
 /**
  * Represents a node with children in the syntax tree.
@@ -146,14 +146,18 @@ public abstract class NonTerminalNode extends Node {
 
     protected boolean checkForReferenceEquality(Node... children) {
         for (int bucket = 0; bucket < children.length; bucket++) {
-            // Here we are using the childBuckets arrays instead of the childInBucket() method.
-            // If the particular child is not loaded, then childBuckets[bucket] will be null.
-            // That means the given child is not equal to what is stored in the childBuckets array.
-            if (children[bucket] != childBuckets[bucket]) {
+            if (!checkForReferenceEquality(bucket, children[bucket])) {
                 return false;
             }
         }
         return true;
+    }
+
+    protected boolean checkForReferenceEquality(int index, Node child) {
+        // Here we are using the childBuckets arrays instead of the childInBucket() method.
+        // If the particular child is not loaded, then childBuckets[bucket] will be null.
+        // That means the given child is not equal to what is stored in the childBuckets array.
+        return childBuckets[index] == child;
     }
 
     private Node findChildNode(int position) {
