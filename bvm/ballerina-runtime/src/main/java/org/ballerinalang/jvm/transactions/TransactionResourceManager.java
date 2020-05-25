@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.transactions;
 
-import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;

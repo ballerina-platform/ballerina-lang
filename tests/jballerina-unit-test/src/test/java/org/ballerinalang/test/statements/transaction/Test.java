@@ -16,14 +16,11 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Test cases for committed aborted clauses in TransactionStatement.
