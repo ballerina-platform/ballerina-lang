@@ -456,6 +456,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] RETRY_BODY =
             { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TRANSACTION_STMT };
 
+    private static final ParserRuleContext[] LIST_BP_OR_TUPLE_TYPE_MEMBER =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS };
+
+    private static final ParserRuleContext[] LIST_BP_OR_TUPLE_TYPE_DESC_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME };
+
+    private static final ParserRuleContext[] LIST_BP_OR_TUPLE_TYPE_MEMBER_END =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -534,6 +543,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_START:
             case ENUM_MEMBER_INTERNAL_RHS:
             case ENUM_MEMBER_RHS:
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER_END:
                 return true;
             default:
                 return false;
@@ -1158,6 +1170,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_KEYWORD_RHS:
             case RETRY_TYPE_PARAM_RHS:
             case RETRY_BODY:
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER_END:
                 return true;
             default:
                 return false;
@@ -1532,6 +1547,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_BODY:
                 alternativeRules = RETRY_BODY;
                 break;
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+                alternativeRules = LIST_BP_OR_TUPLE_TYPE_MEMBER;
+                break;
+            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+                alternativeRules = LIST_BP_OR_TUPLE_TYPE_DESC_RHS;
+                break;
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER_END:
+                alternativeRules = LIST_BP_OR_TUPLE_TYPE_MEMBER_END;
+                break;
             default:
                 throw new IllegalStateException();
         }
@@ -1841,8 +1865,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR || parentCtx == ParserRuleContext.ARG_LIST) {
                     return ParserRuleContext.EXPRESSION;
                 }
-                if (parentCtx == ParserRuleContext.TYPE_DESC_IN_TUPLE) {
-                    return ParserRuleContext.CLOSE_PARENTHESIS;
+
+                if (parentCtx == ParserRuleContext.TYPE_DESC_IN_TUPLE ||
+                        parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                    return ParserRuleContext.CLOSE_BRACKET;
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
@@ -2681,6 +2707,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ENUM_MEMBER_START;
             case MEMBER_ACCESS_KEY_EXPR:
                 return ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END;
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+                return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -2798,6 +2826,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.ARG_LIST_START;
             case TYPE_DESC_IN_TUPLE:
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
@@ -2821,6 +2850,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
                 return true;
             default:
                 return false;
@@ -3045,7 +3075,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return getNextRuleForTypedBindingPattern();
         } else if (parentCtx == ParserRuleContext.CAPTURE_BINDING_PATTERN) {
             return getNextRuleForTypedBindingPattern();
-        } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN) {
+        } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN ||
+                parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER) {
             return getNextRuleForTypedBindingPattern();
         } else if (parentCtx == ParserRuleContext.REST_BINDING_PATTERN) {
             return getNextRuleForTypedBindingPattern();
@@ -3227,6 +3258,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MEMBER_ACCESS_KEY_EXPR:
                 endContext();
                 return getNextRuleForExpr();
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+                endContext();
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                    return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER_END;
+                }
+
+                return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC_RHS;
             default:
                 return getNextRuleForExpr();
         }
@@ -3322,10 +3361,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FOREACH_STMT:
                 return ParserRuleContext.IN_KEYWORD;
             case LIST_BINDING_PATTERN:
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
                 return ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE;
             case REST_BINDING_PATTERN:
                 endContext();
                 return ParserRuleContext.CLOSE_BRACKET;
+            case ASSIGNMENT_OR_VAR_DECL_STMT:
+            case VAR_DECL_STMT:
+                return ParserRuleContext.ASSIGN_OP;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }

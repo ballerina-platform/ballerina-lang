@@ -729,7 +729,7 @@ public class ParserTestUtils {
                 return SyntaxKind.ASYNC_SEND_ACTION;
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
-            case "RECEIVE_SEND_ACTION":
+            case "RECEIVE_ACTION":
                 return SyntaxKind.RECEIVE_ACTION;
             case "WAIT_ACTION":
                 return SyntaxKind.WAIT_ACTION;
