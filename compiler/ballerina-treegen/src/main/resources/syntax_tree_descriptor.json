@@ -747,7 +747,8 @@
                 },
                 {
                     "name": "keyExpression",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBracket",
@@ -924,7 +925,7 @@
                 {
                     "name": "paramName",
                     "type": "Token",
-                    "isOptional" : true
+                    "isOptional": true
                 }
             ]
         },
@@ -2445,7 +2446,7 @@
         },
         {
             "name": "AnonymousFunctionExpressionNode",
-            "base": "Node",
+            "base": "ExpressionNode",
             "isAbstract": true
         },
         {
@@ -2887,8 +2888,7 @@
             "attributes": [
                 {
                     "name": "variableName",
-                    "type": "SimpleNameReferenceNode",
-                    "isOptional": true
+                    "type": "Token"
                 }
             ]
         },
@@ -3189,6 +3189,89 @@
                 {
                     "name": "endExpression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "EnumDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "ENUM_DECLARATION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "qualifier",
+                    "type": "Token"
+                },
+                {
+                    "name": "enumKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "enumMemberList",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "EnumMemberNode",
+            "base": "Node",
+            "kind": "ENUM_MEMBER",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "constExprNode",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ArrayTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "ARRAY_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "memberTypeDesc",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "arrayLength",
+                    "type": "Node",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
                 }
             ]
         }

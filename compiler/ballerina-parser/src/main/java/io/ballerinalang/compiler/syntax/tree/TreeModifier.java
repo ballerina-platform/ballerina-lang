@@ -579,8 +579,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(indexedExpressionNode.containerExpression());
         Token openBracket =
                 modifyToken(indexedExpressionNode.openBracket());
-        ExpressionNode keyExpression =
-                modifyNode(indexedExpressionNode.keyExpression());
+        SeparatedNodeList<ExpressionNode> keyExpression =
+                modifySeparatedNodeList(indexedExpressionNode.keyExpression());
         Token closeBracket =
                 modifyToken(indexedExpressionNode.closeBracket());
         return indexedExpressionNode.modify(
@@ -2172,8 +2172,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public CaptureBindingPatternNode transform(
             CaptureBindingPatternNode captureBindingPatternNode) {
-        SimpleNameReferenceNode variableName =
-                modifyNode(captureBindingPatternNode.variableName().orElse(null));
+        Token variableName =
+                modifyToken(captureBindingPatternNode.variableName());
         return captureBindingPatternNode.modify(
                 variableName);
     }
@@ -2410,6 +2410,69 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 middleExpression,
                 colonToken,
                 endExpression);
+    }
+
+    @Override
+    public EnumDeclarationNode transform(
+            EnumDeclarationNode enumDeclarationNode) {
+        MetadataNode metadata =
+                modifyNode(enumDeclarationNode.metadata());
+        Token qualifier =
+                modifyToken(enumDeclarationNode.qualifier());
+        Token enumKeywordToken =
+                modifyToken(enumDeclarationNode.enumKeywordToken());
+        IdentifierToken identifier =
+                modifyNode(enumDeclarationNode.identifier());
+        Token openBraceToken =
+                modifyToken(enumDeclarationNode.openBraceToken());
+        SeparatedNodeList<Node> enumMemberList =
+                modifySeparatedNodeList(enumDeclarationNode.enumMemberList());
+        Token closeBraceToken =
+                modifyToken(enumDeclarationNode.closeBraceToken());
+        return enumDeclarationNode.modify(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken);
+    }
+
+    @Override
+    public EnumMemberNode transform(
+            EnumMemberNode enumMemberNode) {
+        MetadataNode metadata =
+                modifyNode(enumMemberNode.metadata());
+        IdentifierToken identifier =
+                modifyNode(enumMemberNode.identifier());
+        Token equalToken =
+                modifyToken(enumMemberNode.equalToken());
+        ExpressionNode constExprNode =
+                modifyNode(enumMemberNode.constExprNode());
+        return enumMemberNode.modify(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode);
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(
+            ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        TypeDescriptorNode memberTypeDesc =
+                modifyNode(arrayTypeDescriptorNode.memberTypeDesc());
+        Token openBracket =
+                modifyToken(arrayTypeDescriptorNode.openBracket());
+        Node arrayLength =
+                modifyNode(arrayTypeDescriptorNode.arrayLength().orElse(null));
+        Token closeBracket =
+                modifyToken(arrayTypeDescriptorNode.closeBracket());
+        return arrayTypeDescriptorNode.modify(
+                memberTypeDesc,
+                openBracket,
+                arrayLength,
+                closeBracket);
     }
 
     // Tokens

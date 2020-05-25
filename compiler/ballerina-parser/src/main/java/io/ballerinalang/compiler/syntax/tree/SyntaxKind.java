@@ -84,6 +84,7 @@ public enum SyntaxKind {
     DEFAULT_KEYWORD(230, "default"),
     WAIT_KEYWORD(231, "wait"),
     DO_KEYWORD(232, "do"),
+    ENUM_KEYWORD(233, "enum"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -190,6 +191,7 @@ public enum SyntaxKind {
     CONST_DECLARATION(2006),
     ANNOTATION_DECLARATION(2007),
     XML_NAMESPACE_DECLARATION(2008),
+    ENUM_DECLARATION(2009),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -353,6 +355,7 @@ public enum SyntaxKind {
     TRIPPLE_GT_TOKEN(3057, ">>>"),
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
+    ENUM_MEMBER(3060),
 
     // XML
     XML_ELEMENT(4000),

@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test parsing access expressions.
+ * 
+ * @since 2.0.0
  */
 public class AccessExpressionsTest extends AbstractExpressionsTest {
 
@@ -67,6 +69,11 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testMultiKeyedMemberAccess() {
+        test("foo[a, 4, bar()]", "access-expr/member_access_expr_assert_08.json");
+    }
+
+    @Test
     public void testSimpleOptionalFieldAccess() {
         test("a ?. b", "access-expr/optional_field_access_expr_assert_01.json");
     }
@@ -102,7 +109,7 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     public void testMissingFieldNameInMemberAccess() {
         test("foo.bar.[baz]", "access-expr/member_access_expr_assert_06.json");
     }
-    
+
     @Test
     public void testMissingFuncNameInMethodCall() {
         test("foo.bar.(baz)", "access-expr/member_access_expr_assert_07.json");
@@ -121,6 +128,11 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("[foo, .@ a]", "access-expr/annot_access_expr_assert_09.json");
         test("let int a = .@ a in c", "access-expr/annot_access_expr_assert_10.json");
         test("from int a in b where .@ select .@", "access-expr/annot_access_expr_assert_11.json");
+    }
+
+    @Test
+    public void testRecoveryInMultiKeyedMemberAccess() {
+        test("foo[a, 4, ,bar()", "access-expr/member_access_expr_assert_09.json");
     }
 
     @Test
