@@ -2194,7 +2194,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AsyncSendActionNode createAsyncSendActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
-            NameReferenceNode peerWorker) {
+            SimpleNameReferenceNode peerWorker) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
         Objects.requireNonNull(peerWorker, "peerWorker must not be null");
@@ -2209,7 +2209,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static SyncSendActionNode createSyncSendActionNode(
             ExpressionNode expression,
             Token syncSendToken,
-            NameReferenceNode peerWorker) {
+            SimpleNameReferenceNode peerWorker) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
         Objects.requireNonNull(peerWorker, "peerWorker must not be null");
@@ -2223,7 +2223,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReceiveActionNode createReceiveActionNode(
             Token leftArrow,
-            Node receiveWorkers) {
+            SimpleNameReferenceNode receiveWorkers) {
         Objects.requireNonNull(leftArrow, "leftArrow must not be null");
         Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
 

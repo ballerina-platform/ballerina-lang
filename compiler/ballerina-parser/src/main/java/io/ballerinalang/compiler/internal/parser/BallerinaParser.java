@@ -3544,9 +3544,6 @@ public class BallerinaParser extends AbstractParser {
                 semicolon = parseSemicolon();
                 break;
             case SEMICOLON_TOKEN:
-                if (isModuleVar) {
-                    this.errorHandler.reportMissingTokenError("assignment required");
-                }
                 assign = STNodeFactory.createEmptyNode();
                 expr = STNodeFactory.createEmptyNode();
                 semicolon = parseSemicolon();
@@ -6877,7 +6874,7 @@ public class BallerinaParser extends AbstractParser {
                 name = parseDefaultKeyword();
                 return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
-                name = parseFunctionName();
+                name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                 break;
             default:
                 STToken token = peek();
@@ -6929,7 +6926,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseDefaultKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
-            return consume();
+            return STNodeFactory.createSimpleNameReferenceNode(consume());
         } else {
             Solution sol = recover(token, ParserRuleContext.DEFAULT_KEYWORD);
             return sol.recoveredNode;
