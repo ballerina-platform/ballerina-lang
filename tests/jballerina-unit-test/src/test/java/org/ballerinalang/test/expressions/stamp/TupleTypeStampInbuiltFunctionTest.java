@@ -156,7 +156,7 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(arrayValue2.getType().getClass(), BRecordType.class);
         Assert.assertEquals(arrayValue2.getType().getName(), "Employee");
 
-        Assert.assertEquals(((BMap) arrayValue2).size(), 4);
+        Assert.assertEquals(arrayValue2.size(), 4);
 
         Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("name")).stringValue(), "Raja");
         Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("name")).getType().getClass(),

@@ -124,3 +124,18 @@ function add_panic(int i, int j) returns int {
     }
     return k;
 }
+
+type Student object {
+    public string name;
+    public function __init() {
+        future<int> accumulator = start add(2, 4);
+        self.name = "ABC";
+    }
+};
+
+function asyncObjectCreationTest() {
+    Student s = new();
+    Student[] arr = [];
+    arr[0] = s;
+    arr[2] = s;
+}

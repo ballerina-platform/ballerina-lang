@@ -42,7 +42,7 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'PrivatePerson'", 20, 5);
-        BAssertUtil.validateError(result, i++,
+        BAssertUtil.validateError(result, i,
                                   "a type compatible with mapping constructor expressions not found in type 'other'",
                                   20, 27);
     }
@@ -58,6 +58,6 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 20, 1);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 1);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 72);
-        BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
+        BAssertUtil.validateError(compileResult, i, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
     }
 }
