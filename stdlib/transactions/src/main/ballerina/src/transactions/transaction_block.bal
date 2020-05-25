@@ -17,6 +17,22 @@
 import ballerina/log;
 import ballerina/java;
 
+
+public type Info record {|
+   // unique identifier
+   byte[] xid;
+   // non-zero means this transaction was a retry of
+   // a previous one
+   int retryNumber;
+   // probably useful for timeouts and logs
+   int startTime;
+   // maybe useful
+   Info? prevAttempt;
+|};
+
+public type CommitHandler function(Info? info);
+public type RollbackHandler function(Info? info, error? cause, boolean willRetry);
+
 # Handles the transaction initiator block.
 # Transaction initiator block will be desugared to following method.
 #
@@ -474,4 +490,14 @@ function externCleanupTransactionContext(handle transactionBlockId) = @java:Meth
 function getAndClearFailure() returns boolean = @java:Method {
     class: "io.ballerina.transactions.Utils",
     name: "getAndClearFailure"
+} external;
+
+public function onCommit(CommitHandler handler) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "onCommit"
+} external;
+
+public function onRollback(RollbackHandler handler) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "onRollback"
 } external;

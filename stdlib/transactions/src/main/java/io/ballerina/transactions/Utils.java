@@ -52,13 +52,13 @@ public class Utils {
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.transactionLocalContext;
         org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
-                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
+                .notifyAbort(strand, transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 
     public static void rollbackTransaction(String transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
-        transactionLocalContext.rollbackTransaction(transactionBlockId);
+        transactionLocalContext.rollbackTransaction(strand, transactionBlockId);
     }
 
     public static void cleanupTransactionContext(String transactionBlockId) {
@@ -170,7 +170,8 @@ public class Utils {
     }
 
     public static boolean abortResourceManagers(String transactionId, String transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+        Strand strand = Scheduler.getStrand();
+        return TransactionResourceManager.getInstance().notifyAbort(strand, transactionId, transactionBlockId);
     }
 
     public static boolean commitResourceManagers(String transactionId, String transactionBlockId) {
@@ -185,6 +186,22 @@ public class Utils {
 
     public static long getAvailablePort() {
         return findFreePort();
+    }
+
+    public static void onCommit(FPValue fpValue) {
+        Strand strand = Scheduler.getStrand();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        transactionResourceManager.registerCommittedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
+                fpValue);
+    }
+
+    public static void onRollback(FPValue fpValue) {
+        Strand strand = Scheduler.getStrand();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        transactionResourceManager.registerAbortedFunction(transactionLocalContext.getCurrentTransactionBlockId(),
+                fpValue);
     }
 
     private static int findFreePort() {

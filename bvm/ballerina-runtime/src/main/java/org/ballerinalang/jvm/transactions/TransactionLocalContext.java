@@ -130,9 +130,9 @@ public class TransactionLocalContext {
     }
 
 
-    public void rollbackTransaction(String transactionBlockId) {
+    public void rollbackTransaction(Strand strand, String transactionBlockId) {
         transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+        transactionResourceManager.rollbackTransaction(strand, globalTransactionId, transactionBlockId);
     }
 
     public void notifyLocalParticipantFailure() {
