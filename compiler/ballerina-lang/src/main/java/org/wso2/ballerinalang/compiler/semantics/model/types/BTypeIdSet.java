@@ -53,9 +53,13 @@ public class BTypeIdSet {
     }
 
     public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId, BTypeIdSet secondary) {
-        HashSet<BTypeId> set = new HashSet<>();
-        set.add(new BTypeId(packageID, typeId, publicId));
-        return new BTypeIdSet(set, secondary.primary);
+        HashSet<BTypeId> primarySet = new HashSet<>();
+        primarySet.add(new BTypeId(packageID, typeId, publicId));
+
+        HashSet<BTypeId> secondarySet = new HashSet<>(secondary.primary);
+        secondarySet.addAll(secondary.secondary);
+
+        return new BTypeIdSet(primarySet, secondarySet);
     }
 
     public static BTypeIdSet emptySet() {
@@ -96,6 +100,25 @@ public class BTypeIdSet {
 
         BTypeIdSet that = (BTypeIdSet) obj;
         return this.primary.equals(that.primary) && this.secondary.equals(that.secondary);
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        for (BTypeId bTypeId : primary) {
+            hashCode = hashCode * 31 + bTypeId.hashCode();
+        }
+        for (BTypeId bTypeId : secondary) {
+            hashCode = hashCode * 31 + bTypeId.hashCode();
+        }
+        return hashCode;
+    }
+
+    public boolean isEmpty() {
+        if (primary == emptySet && secondary == emptySet) {
+            return true;
+        }
+        return primary.isEmpty() && secondary.isEmpty();
     }
 
     public static class BTypeId {

@@ -9,3 +9,7 @@ public type ApplicationErrorData record {|
 |};
 
 public type ApplicationError error<ApplicationErrorData>;
+
+public type OrderCreationError distinct ApplicationError;
+public type OrderProcessingError distinct ApplicationError;
+public type OrderCreationError2 distinct OrderCreationError;

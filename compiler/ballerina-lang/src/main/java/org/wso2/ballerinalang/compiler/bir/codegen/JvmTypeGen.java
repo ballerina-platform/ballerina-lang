@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -131,6 +132,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
@@ -141,6 +143,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -300,6 +303,13 @@ class JvmTypeGen {
                 loadType(mv, ((BErrorType) bType).detailType);
                 mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_DETAIL_TYPE_METHOD, String.format("(L%s;)V", BTYPE),
                         false);
+                BTypeIdSet typeIdSet = ((BErrorType) bType).typeIdSet;
+                if (!typeIdSet.isEmpty()) {
+                    mv.visitInsn(DUP);
+                    loadTypeIdSet(mv, typeIdSet);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_TYPEID_SET_METHOD,
+                            String.format("(L%s;)V", TYPE_ID_SET), false);
+                }
             }
 
             mv.visitInsn(RETURN);
@@ -308,6 +318,39 @@ class JvmTypeGen {
         }
 
         return funcNames;
+    }
+
+    private static void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
+        // Create TypeIdSet
+        mv.visitTypeInsn(NEW, TYPE_ID_SET);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, "<init>", String.format("()V"), false);
+
+        for (BTypeIdSet.BTypeId typeId : typeIdSet.primary) {
+            addTypeId(mv, typeId, true);
+        }
+
+        for (BTypeIdSet.BTypeId typeId : typeIdSet.secondary) {
+            addTypeId(mv, typeId, false);
+        }
+    }
+
+    private static void addTypeId(MethodVisitor mv, BTypeIdSet.BTypeId typeId, boolean isPrimaryTypeId) {
+        mv.visitInsn(DUP);
+        // Load package
+        mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(typeId.packageID.orgName.value);
+        mv.visitLdcInsn(typeId.packageID.name.value);
+        mv.visitLdcInsn(typeId.packageID.version.value);
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+
+        mv.visitLdcInsn(typeId.name);
+        mv.visitInsn(isPrimaryTypeId ? ICONST_1 : ICONST_0);
+        // Add to BTypeIdSet
+        mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_ID_SET, "add",
+                String.format("(L%s;L%s;Z)V", PACKAGE_TYPE, STRING_VALUE), false);
     }
 
     // -------------------------------------------------------

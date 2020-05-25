@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -986,6 +987,7 @@ public class BIRPackageSymbolEnter {
                         // This is a workaround to avoid, getting no type for error detail field.
                         return symTable.errorType;
                     }
+                    errorType.typeIdSet = readTypeIdSet(inputStream);
                     return errorType;
                 case TypeTags.ITERATOR:
                     // TODO fix
@@ -1114,6 +1116,30 @@ public class BIRPackageSymbolEnter {
                     return symTable.readonlyType;
             }
             return null;
+        }
+
+        private BTypeIdSet readTypeIdSet(DataInputStream inputStream) throws IOException {
+            Set<BTypeIdSet.BTypeId> primary = new HashSet<>();
+            int primaryTypeIdCount = inputStream.readInt();
+            for (int i = 0; i < primaryTypeIdCount; i++) {
+                primary.add(readTypeId(inputStream));
+            }
+
+            Set<BTypeIdSet.BTypeId> secondary = new HashSet<>();
+            int secondaryTypeIdCount = inputStream.readInt();
+            for (int i = 0; i < secondaryTypeIdCount; i++) {
+                secondary.add(readTypeId(inputStream));
+            }
+
+            return new BTypeIdSet(primary, secondary);
+        }
+
+        private BTypeIdSet.BTypeId readTypeId(DataInputStream inputStream) throws IOException {
+            int pkgCPIndex = inputStream.readInt();
+            PackageID packageId = getPackageId(pkgCPIndex);
+            String name = getStringCPEntryValue(inputStream);
+            boolean isPublicTypeId = inputStream.readBoolean();
+            return new BTypeIdSet.BTypeId(packageId, name, isPublicTypeId);
         }
 
         private void ignoreAttachedFunc() throws IOException {
