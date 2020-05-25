@@ -172,8 +172,7 @@ function poll(Listener listenerEndpoint) returns error? = @java:Method{
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;
 
-function init(Listener listenerEndpoint, ListenerConfig config)
-    returns error? = @java:Method{
+function init(Listener listenerEndpoint, ListenerConfig config) returns error? = @java:Method{
     name: "init",
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;

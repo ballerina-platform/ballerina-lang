@@ -47,8 +47,4 @@ public class Max {
         }
         return max;
     }
-
-    public static long max_bstring(Strand strand, long n, ArrayValue ns) {
-        return max(strand, n, ns);
-    }
 }

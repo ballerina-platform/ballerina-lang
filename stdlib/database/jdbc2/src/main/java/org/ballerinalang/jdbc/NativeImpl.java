@@ -19,6 +19,7 @@ package org.ballerinalang.jdbc;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
 import org.ballerinalang.sql.utils.ErrorGenerator;
@@ -33,27 +34,30 @@ import java.util.Properties;
  */
 public class NativeImpl {
 
-    public static Object createClient(ObjectValue client, MapValue<String, Object> clientConfig,
-                                      MapValue<String, Object> globalPool) {
-        String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL);
+    public static Object createClient(ObjectValue client, MapValue<BString, Object> clientConfig,
+                                      MapValue<BString, Object> globalPool) {
+        String url = clientConfig.getStringValue(Constants.ClientConfiguration.URL).getValue();
         if (!isJdbcUrlValid(url)) {
             return ErrorGenerator.getSQLApplicationError("Invalid JDBC URL: " + url);
         }
-        String user = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
-        String password = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
+        BString userVal = clientConfig.getStringValue(Constants.ClientConfiguration.USER);
+        String user = userVal == null ? null : userVal.getValue();
+        BString passwordVal = clientConfig.getStringValue(Constants.ClientConfiguration.PASSWORD);
+        String password = passwordVal == null ? null : passwordVal.getValue();
         MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
         MapValue properties = null;
         String datasourceName = null;
         Properties poolProperties = null;
         if (options != null) {
             properties = options.getMapValue(Constants.ClientConfiguration.PROPERTIES);
-            datasourceName = options.getStringValue(Constants.ClientConfiguration.DATASOURCE_NAME);
+            BString dataSourceNamVal = options.getStringValue(Constants.ClientConfiguration.DATASOURCE_NAME);
+            datasourceName = dataSourceNamVal == null ? null : dataSourceNamVal.getValue();
             if (properties != null) {
                 for (Object propKey : properties.getKeys()) {
                     if (propKey.toString().toLowerCase(Locale.ENGLISH).matches(Constants.CONNECT_TIMEOUT)) {
                         poolProperties = new Properties();
                         poolProperties.setProperty(Constants.POOL_CONNECTION_TIMEOUT,
-                                properties.getStringValue(propKey.toString()));
+                                                   properties.getStringValue((BString) propKey).getValue());
                     }
                 }
             }

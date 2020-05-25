@@ -61,6 +61,7 @@ import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
@@ -532,6 +533,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (bLangNode.getKind() == NodeKind.FUNCTION) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
+                bLangFunction.flagSet.add(Flag.ATTACHED);
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     bLangFunction.objInitFunction = true;
                     // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
@@ -541,6 +543,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
+            } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                objectTypeNode.addTypeReference((BLangType) bLangNode);
             }
         }
 
@@ -1362,6 +1366,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangContinue bLContinue = (BLangContinue) TreeBuilder.createContinueNode();
         bLContinue.pos = getPosition(continueStmtNode);
         return bLContinue;
+    }
+
+    @Override
+    public BLangNode transform(ListenerDeclarationNode listenerDeclarationNode) {
+        return new SimpleVarBuilder()
+                .with(listenerDeclarationNode.variableName().text())
+                .setTypeByNode(listenerDeclarationNode.typeDescriptor())
+                .setExpressionByNode(listenerDeclarationNode.initializer())
+                .isListenerVar()
+                .build();
     }
 
     @Override
@@ -2314,11 +2328,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         public SimpleVarBuilder setTypeByNode(Node typeName) {
+            this.isDeclaredWithVar = typeName == null || typeName.kind() == SyntaxKind.VAR_TYPE_DESC;
             if (typeName == null) {
-                this.isDeclaredWithVar = true;
                 return this;
-            } else if (typeName.kind() == SyntaxKind.VAR_TYPE_DESC) {
-                this.isDeclaredWithVar = true;
             }
             this.type = createTypeNode(typeName);
             return this;

@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,15 +42,10 @@ import java.util.Locale;
 )
 public class ToUpperAscii {
 
-    public static String toUpperAscii(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.toUpperCase(Locale.getDefault());
-    }
-
-    public static BString toUpperAscii_bstring(Strand strand, BString str) {
+    public static BString toUpperAscii(Strand strand, BString str) {
         if (str == null) {
             throw BallerinaErrors.createNullReferenceError();
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(toUpperAscii(strand, str.getValue()));
+        return org.ballerinalang.jvm.StringUtils.fromString(str.getValue().toUpperCase(Locale.getDefault()));
     }
 }

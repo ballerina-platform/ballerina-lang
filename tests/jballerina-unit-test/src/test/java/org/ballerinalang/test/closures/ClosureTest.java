@@ -20,7 +20,6 @@ package org.ballerinalang.test.closures;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -252,7 +251,7 @@ public class ClosureTest {
     @Test(description = "Test closure capture of variable not initialized at declaration")
     public void testClosureCaptureLaterInitializedVar() {
         BValue[] returns = BRunUtil.invoke(compileResult, "laterInitCapture");
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "aa");
+        Assert.assertEquals(returns[0].stringValue(), "aa");
     }
 
     @Test(description = "Test closure capture of rest params")

@@ -32,20 +32,15 @@ public class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implemen
     String jClassName;
     List<BType> jMethodPramTypes;
     String jMethodVMSig;
-    String jMethodVMSigBString = null;
 
     public OldStyleExternalFunctionWrapper(String orgName, String moduleName, String version, BIRNode.BIRFunction func,
                                            String fullQualifiedClassName, String jvmMethodDescription,
-                                           String jvmMethodDescriptionBString, String jClassName, List<BType>
-                                                   jMethodPramTypes, String jMethodVMSig,
-                                           String jMethodVMSigBString) {
+                                           String jClassName, List<BType> jMethodPramTypes, String jMethodVMSig) {
 
-        super(orgName, moduleName, version, func, fullQualifiedClassName, jvmMethodDescription,
-                jvmMethodDescriptionBString);
+        super(orgName, moduleName, version, func, fullQualifiedClassName, jvmMethodDescription);
 
         this.jClassName = jClassName;
         this.jMethodPramTypes = jMethodPramTypes;
         this.jMethodVMSig = jMethodVMSig;
-        this.jMethodVMSigBString = jMethodVMSigBString;
     }
 }
