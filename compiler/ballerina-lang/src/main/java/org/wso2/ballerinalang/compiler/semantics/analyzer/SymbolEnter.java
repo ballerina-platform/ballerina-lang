@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -753,12 +754,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
 
-        // todo: need to handle union and intersections
+        // todo: need to handle intersections
         if (distinctFlagPresent) {
             if (definedType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.type = distinctType;
                 definedType = distinctType;
+            } else if (definedType.getKind() == TypeKind.UNION) {
+                validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
             }
         }
 
@@ -797,6 +800,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        }
+    }
+
+    private void validateUnionForDistinctType(BUnionType definedType, DiagnosticPos pos) {
+        Set<BType> memberTypes = definedType.getMemberTypes();
+        TypeKind firstTypeKind = null;
+        for (BType type : memberTypes) {
+            TypeKind typeKind = type.getKind();
+            if (firstTypeKind == null && (typeKind == TypeKind.ERROR || typeKind == TypeKind.OBJECT)) {
+                firstTypeKind = typeKind;
+
+            }
+            if (typeKind != firstTypeKind) {
+                dlog.error(pos, DiagnosticCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+            }
         }
     }
 
