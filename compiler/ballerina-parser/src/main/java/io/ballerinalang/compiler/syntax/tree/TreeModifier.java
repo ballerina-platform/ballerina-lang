@@ -2215,7 +2215,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(asyncSendActionNode.expression());
         Token rightArrowToken =
                 modifyToken(asyncSendActionNode.rightArrowToken());
-        NameReferenceNode peerWorker =
+        SimpleNameReferenceNode peerWorker =
                 modifyNode(asyncSendActionNode.peerWorker());
         return asyncSendActionNode.modify(
                 expression,
@@ -2230,7 +2230,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(syncSendActionNode.expression());
         Token syncSendToken =
                 modifyToken(syncSendActionNode.syncSendToken());
-        NameReferenceNode peerWorker =
+        SimpleNameReferenceNode peerWorker =
                 modifyNode(syncSendActionNode.peerWorker());
         return syncSendActionNode.modify(
                 expression,
@@ -2243,7 +2243,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveActionNode receiveActionNode) {
         Token leftArrow =
                 modifyToken(receiveActionNode.leftArrow());
-        Node receiveWorkers =
+        SimpleNameReferenceNode receiveWorkers =
                 modifyNode(receiveActionNode.receiveWorkers());
         return receiveActionNode.modify(
                 leftArrow,
