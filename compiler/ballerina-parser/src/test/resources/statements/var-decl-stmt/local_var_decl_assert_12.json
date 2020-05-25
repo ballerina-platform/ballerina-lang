@@ -9,12 +9,22 @@
       "kind": "FINAL_KEYWORD"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Person"
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "p"
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Person"
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "p"
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

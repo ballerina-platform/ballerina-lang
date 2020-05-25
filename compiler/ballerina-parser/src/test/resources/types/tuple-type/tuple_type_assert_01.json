@@ -94,33 +94,43 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "COMMA_TOKEN"
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "STRING_KEYWORD"
+                            }
+                          ]
                         },
                         {
-                          "kind": "STRING_KEYWORD"
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN"
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
                 },
                 {
                   "kind": "EQUAL_TOKEN"

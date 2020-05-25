@@ -3566,12 +3566,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseVarDeclRhs(solution.tokenKind, metadata, finalKeyword, type, varName, isModuleVar);
         }
 
-        if (isModuleVar) {
-            return STNodeFactory.createModuleVariableDeclarationNode(metadata, finalKeyword, type, varName, assign,
-                    expr, semicolon);
-        }
+        STNode captureBindingPattern = STNodeFactory.createCaptureBindingPatternNode(varName);
+        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(type, captureBindingPattern);
 
-        return STNodeFactory.createVariableDeclarationNode(metadata, finalKeyword, type, varName, assign, expr,
+        if (isModuleVar) {
+            return STNodeFactory.createModuleVariableDeclarationNode(metadata, finalKeyword, typedBindingPattern,
+                    assign, expr, semicolon);
+        }
+        return STNodeFactory.createVariableDeclarationNode(metadata, finalKeyword, typedBindingPattern, assign, expr,
                 semicolon);
     }
 

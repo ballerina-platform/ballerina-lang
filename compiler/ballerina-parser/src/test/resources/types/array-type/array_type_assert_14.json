@@ -11,38 +11,48 @@
       ]
     },
     {
-      "kind": "OPTIONAL_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "ARRAY_TYPE_DESC",
+          "kind": "OPTIONAL_TYPE_DESC",
           "children": [
             {
-              "kind": "OPTIONAL_TYPE_DESC",
+              "kind": "ARRAY_TYPE_DESC",
               "children": [
                 {
-                  "kind": "INT_KEYWORD"
+                  "kind": "OPTIONAL_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "QUESTION_MARK_TOKEN"
+                    }
+                  ]
                 },
                 {
-                  "kind": "QUESTION_MARK_TOKEN"
+                  "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                  "kind": "CLOSE_BRACKET_TOKEN"
                 }
               ]
             },
             {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "QUESTION_MARK_TOKEN"
             }
           ]
         },
         {
-          "kind": "QUESTION_MARK_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

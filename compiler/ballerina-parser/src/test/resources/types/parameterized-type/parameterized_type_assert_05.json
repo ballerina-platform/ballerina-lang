@@ -11,22 +11,33 @@
       ]
     },
     {
-      "kind": "PARAMETERIZED_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "TYPEDESC_KEYWORD"
-        },
-        {
-          "kind": "LT_TOKEN"
-        },
-        {
-          "kind": "ARRAY_TYPE_DESC",
+          "kind": "PARAMETERIZED_TYPE_DESC",
           "children": [
+            {
+              "kind": "TYPEDESC_KEYWORD"
+            },
+            {
+              "kind": "LT_TOKEN"
+            },
             {
               "kind": "ARRAY_TYPE_DESC",
               "children": [
                 {
-                  "kind": "INT_KEYWORD"
+                  "kind": "ARRAY_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
                 },
                 {
                   "kind": "OPEN_BRACKET_TOKEN"
@@ -37,21 +48,20 @@
               ]
             },
             {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "GT_TOKEN"
             }
           ]
         },
         {
-          "kind": "GT_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

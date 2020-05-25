@@ -6,25 +6,35 @@
       "children": []
     },
     {
-      "kind": "SINGLETON_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "UNARY_EXPRESSION",
+          "kind": "SINGLETON_TYPE_DESC",
           "children": [
             {
-              "kind": "PLUS_TOKEN"
-            },
+              "kind": "UNARY_EXPRESSION",
+              "children": [
+                {
+                  "kind": "PLUS_TOKEN"
+                },
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "isMissing": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
             {
-              "kind": "DECIMAL_INTEGER_LITERAL",
-              "isMissing": true
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
             }
           ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

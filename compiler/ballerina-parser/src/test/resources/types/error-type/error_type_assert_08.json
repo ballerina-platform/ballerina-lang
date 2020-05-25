@@ -11,32 +11,42 @@
       ]
     },
     {
-      "kind": "ERROR_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "ERROR_KEYWORD"
-        },
-        {
-          "kind": "ERROR_TYPE_PARAMS",
+          "kind": "ERROR_TYPE_DESC",
           "children": [
             {
-              "kind": "LT_TOKEN"
+              "kind": "ERROR_KEYWORD"
             },
+            {
+              "kind": "ERROR_TYPE_PARAMS",
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "NO_MATCHING_OBJECT"
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "NO_MATCHING_OBJECT"
-            },
-            {
-              "kind": "GT_TOKEN",
-              "isMissing": true
+              "value": "a"
             }
           ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

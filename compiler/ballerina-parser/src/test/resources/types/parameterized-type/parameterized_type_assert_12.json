@@ -11,31 +11,41 @@
       ]
     },
     {
-      "kind": "TABLE_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "TABLE_KEYWORD",
-          "isMissing": true
-        },
-        {
-          "kind": "TYPE_PARAMETER",
+          "kind": "TABLE_TYPE_DESC",
           "children": [
             {
-              "kind": "LT_TOKEN"
+              "kind": "TABLE_KEYWORD",
+              "isMissing": true
             },
             {
-              "kind": "INT_KEYWORD"
-            },
+              "kind": "TYPE_PARAMETER",
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "GT_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
             {
-              "kind": "GT_TOKEN"
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
             }
           ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

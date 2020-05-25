@@ -95,129 +95,38 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TUPLE_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "INT_KEYWORD"
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "COMMA_TOKEN",
-                          "isMissing": true
-                        },
-                        {
-                          "kind": "REST_TYPE",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
+                              "kind": "INT_KEYWORD"
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TUPLE_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "INT_KEYWORD"
                         },
                         {
-                          "kind": "COMMA_TOKEN",
+                          "kind": "CLOSE_BRACKET_TOKEN",
                           "isMissing": true
-                        },
-                        {
-                          "kind": "REST_TYPE",
-                          "children": [
-                            {
-                              "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
-                            }
-                          ]
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -232,146 +141,52 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "FLOAT_KEYWORD"
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "COMMA_TOKEN"
-                        },
-                        {
-                          "kind": "REST_TYPE",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "INT_KEYWORD"
                             },
                             {
-                              "kind": "ELLIPSIS_TOKEN"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TUPLE_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "INT_KEYWORD"
-                        },
-                        {
-                          "kind": "COMMA_TOKEN"
-                        },
-                        {
-                          "kind": "TABLE_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "TABLE_KEYWORD"
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true
                             },
                             {
-                              "kind": "TYPE_PARAMETER",
+                              "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "LT_TOKEN"
+                                  "kind": "STRING_KEYWORD"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "mytype"
-                                },
-                                {
-                                  "kind": "GT_TOKEN",
-                                  "isMissing": true
+                                  "kind": "ELLIPSIS_TOKEN"
                                 }
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "e"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TUPLE_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "CAPTURE_BINDING_PATTERN",
                       "children": [
-                        {
-                          "kind": "INT_KEYWORD"
-                        },
-                        {
-                          "kind": "COMMA_TOKEN"
-                        },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "mytype"
+                          "value": "b"
                         }
                       ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN"
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "f"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -386,40 +201,53 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "COMMA_TOKEN"
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "REST_TYPE",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
-                          "kind": "TYPE_DESC",
+                          "kind": "CLOSE_BRACKET_TOKEN",
                           "isMissing": true
-                        },
-                        {
-                          "kind": "COMMA_TOKEN"
-                        },
-                        {
-                          "kind": "FLOAT_KEYWORD"
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN"
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "g"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -434,35 +262,332 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "REST_TYPE",
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "REST_TYPE",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "d"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TUPLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "TABLE_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "TABLE_KEYWORD"
+                                },
+                                {
+                                  "kind": "TYPE_PARAMETER",
+                                  "children": [
+                                    {
+                                      "kind": "LT_TOKEN"
+                                    },
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "mytype"
+                                    },
+                                    {
+                                      "kind": "GT_TOKEN",
+                                      "isMissing": true
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TUPLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "mytype"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TUPLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "g"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TUPLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "REST_TYPE",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "h"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "TUPLE_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "STRING_KEYWORD"
-                            },
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN"
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "i"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "h"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -477,63 +602,38 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "STRING_KEYWORD"
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "i"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TUPLE_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "CAPTURE_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "STRING_KEYWORD"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
                         }
                       ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -549,11 +649,21 @@
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN",
@@ -576,27 +686,37 @@
                   "children": []
                 },
                 {
-                  "kind": "TUPLE_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
+                      "kind": "TUPLE_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_BRACKET_TOKEN"
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "k"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "k"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"

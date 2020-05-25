@@ -52,11 +52,21 @@
                   "children": []
                 },
                 {
-                  "kind": "VAR_KEYWORD"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "er"
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "VAR_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "er"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "EQUAL_TOKEN"

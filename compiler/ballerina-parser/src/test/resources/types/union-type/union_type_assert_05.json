@@ -11,24 +11,34 @@
       ]
     },
     {
-      "kind": "UNION_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "T"
+          "kind": "UNION_TYPE_DESC",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "T"
+            },
+            {
+              "kind": "PIPE_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "A"
+            }
+          ]
         },
         {
-          "kind": "PIPE_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "A"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

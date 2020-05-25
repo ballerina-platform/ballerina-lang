@@ -6,12 +6,22 @@
       "children": []
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo"
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "EQUAL_TOKEN"

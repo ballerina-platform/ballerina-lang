@@ -68,18 +68,28 @@
                                 "value": {
                                     "annotations": [
                                     ],
-                                    "typeName": {
-                                        "kind": "INT_TYPE_DESC",
+                                    "typedBindingPattern" :{
+                                        "kind": "TYPED_BINDING_PATTERN",
                                         "value": {
-                                            "name": {
-                                                "kind": "INT_KEYWORD",
-                                                "value": "int"
+                                            "typeDescriptor": {
+                                                "kind": "INT_TYPE_DESC",
+                                                "value": {
+                                                    "name": {
+                                                        "kind": "INT_KEYWORD",
+                                                        "value": "int"
+                                                     }
+                                                 }
+                                             },
+                                             "bindingPattern": {
+                                                "kind": "CAPTURE_BINDING_PATTERN",
+                                                "value": {
+                                                    "variableName": {
+                                                        "kind": "IDENTIFIER_TOKEN",
+                                                        "value": "a"
+                                                    }
+                                                }
                                             }
                                         }
-                                    },
-                                    "variableName": {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "a"
                                     },
                                     "equalsToken": {
                                         "kind": "EQUAL_TOKEN",

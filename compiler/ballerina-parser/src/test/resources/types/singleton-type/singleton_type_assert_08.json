@@ -52,75 +52,62 @@
                   "children": []
                 },
                 {
-                  "kind": "SINGLETON_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "STRING_LITERAL",
-                      "value": "dulmina"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "SINGLETON_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "5"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "SINGLETON_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "UNARY_EXPRESSION",
+                      "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "PLUS_TOKEN"
-                        },
+                          "kind": "STRING_LITERAL",
+                          "value": "dulmina"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "5"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -135,17 +122,35 @@
                   "children": []
                 },
                 {
-                  "kind": "SINGLETON_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "HEX_INTEGER_LITERAL",
-                      "value": "0x2c"
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "UNARY_EXPRESSION",
+                          "children": [
+                            {
+                              "kind": "PLUS_TOKEN"
+                            },
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"
@@ -160,16 +165,61 @@
                   "children": []
                 },
                 {
-                  "kind": "SINGLETON_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "NULL_KEYWORD"
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "HEX_INTEGER_LITERAL",
+                          "value": "0x2c"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "d"
+                        }
+                      ]
                     }
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "NULL_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -185,82 +235,112 @@
                   "children": []
                 },
                 {
-                  "kind": "SINGLETON_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "43"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "e"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "SINGLETON_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "TRUE_KEYWORD"
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "f"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LOCAL_VAR_DECL",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "ARRAY_TYPE_DESC",
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
                       "kind": "SINGLETON_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
-                          "value": "mystring"
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "43"
                         }
                       ]
                     },
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
-                    },
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "4"
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e"
+                        }
+                      ]
                     }
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "g"
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "ARRAY_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "SINGLETON_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL",
+                              "value": "mystring"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "4"
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "g"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN"

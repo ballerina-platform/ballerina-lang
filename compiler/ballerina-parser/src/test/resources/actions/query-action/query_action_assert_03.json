@@ -99,11 +99,21 @@
                                   "children": []
                                 },
                                 {
-                                  "kind": "INT_KEYWORD"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "x"
+                                  "kind": "TYPED_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "x"
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN"
@@ -280,11 +290,21 @@
                                   "children": []
                                 },
                                 {
-                                  "kind": "INT_KEYWORD"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "x"
+                                  "kind": "TYPED_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "x"
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN"
@@ -299,11 +319,21 @@
                                   "children": []
                                 },
                                 {
-                                  "kind": "INT_KEYWORD"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "y"
+                                  "kind": "TYPED_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    },
+                                    {
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "y"
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "EQUAL_TOKEN"

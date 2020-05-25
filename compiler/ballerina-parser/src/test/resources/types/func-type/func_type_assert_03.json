@@ -118,11 +118,21 @@
                           "children": []
                         },
                         {
-                          "kind": "BOOLEAN_KEYWORD"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "BOOLEAN_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "EQUAL_TOKEN"
@@ -446,31 +456,41 @@
                           ]
                         },
                         {
-                          "kind": "FUNCTION_TYPE_DESC",
+                          "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "FUNCTION_KEYWORD"
-                            },
-                            {
-                              "kind": "FUNCTION_SIGNATURE",
+                              "kind": "FUNCTION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN"
+                                  "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
+                                  "kind": "FUNCTION_SIGNATURE",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "CLOSE_PAREN_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
                                 {
-                                  "kind": "CLOSE_PAREN_TOKEN"
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "f1"
                                 }
                               ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "f1"
                         },
                         {
                           "kind": "EQUAL_TOKEN"

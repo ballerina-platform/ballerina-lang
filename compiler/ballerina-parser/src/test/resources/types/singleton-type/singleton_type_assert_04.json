@@ -11,16 +11,26 @@
       ]
     },
     {
-      "kind": "SINGLETON_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "TRUE_KEYWORD"
+          "kind": "SINGLETON_TYPE_DESC",
+          "children": [
+            {
+              "kind": "TRUE_KEYWORD"
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"

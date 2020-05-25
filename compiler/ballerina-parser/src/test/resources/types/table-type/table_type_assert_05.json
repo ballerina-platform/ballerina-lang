@@ -11,49 +11,59 @@
       ]
     },
     {
-      "kind": "TABLE_TYPE_DESC",
+      "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "TABLE_KEYWORD"
-        },
-        {
-          "kind": "TYPE_PARAMETER",
+          "kind": "TABLE_TYPE_DESC",
           "children": [
             {
-              "kind": "LT_TOKEN"
+              "kind": "TABLE_KEYWORD"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "Myrecord"
+              "kind": "TYPE_PARAMETER",
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "Myrecord"
+                },
+                {
+                  "kind": "GT_TOKEN"
+                }
+              ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "KEY_SPECIFIER",
+              "children": [
+                {
+                  "kind": "KEY_KEYWORD"
+                },
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "KEY_SPECIFIER",
+          "kind": "CAPTURE_BINDING_PATTERN",
           "children": [
             {
-              "kind": "KEY_KEYWORD"
-            },
-            {
-              "kind": "OPEN_PAREN_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "CLOSE_PAREN_TOKEN"
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
             }
           ]
         }
       ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
     },
     {
       "kind": "SEMICOLON_TOKEN"
