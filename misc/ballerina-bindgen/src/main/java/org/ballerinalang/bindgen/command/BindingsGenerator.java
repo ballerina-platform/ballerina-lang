@@ -69,11 +69,12 @@ public class BindingsGenerator {
     private Path projectRoot;
     private Path dependenciesPath;
     private Path utilsDirPath;
-    private String outputPath;
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
     private Set<String> classNames = new HashSet<>();
+
+    private static String outputPath;
     private static boolean directJavaClass = true;
     private static Set<String> classPaths = new HashSet<>();
     private static final PrintStream errStream = System.err;
@@ -285,5 +286,9 @@ public class BindingsGenerator {
 
     public static void setClassPaths(String classPath) {
         BindingsGenerator.classPaths.add(classPath);
+    }
+
+    public static String getOutputPath() {
+        return outputPath;
     }
 }
