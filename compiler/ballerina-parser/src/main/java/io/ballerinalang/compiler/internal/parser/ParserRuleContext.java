@@ -190,6 +190,10 @@ public enum ParserRuleContext {
     RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
     RETRY_BODY("retry-body"),
     ROLLBACK_RHS("rollback-rhs"),
+    LIST_BP_OR_TUPLE_TYPE_DESC("list-bp-or-tuple-type-desc"),
+    LIST_BP_OR_TUPLE_TYPE_MEMBER("list-bp-or-tuple-type-member"),
+    LIST_BP_OR_TUPLE_TYPE_MEMBER_END("list-bp-or-tuple-type-member-end"),
+    LIST_BP_OR_TUPLE_TYPE_DESC_RHS("list-bp-or-tuple-type-desc-rhs"),
 
     // Statements
     STATEMENT("statement"),

@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.tree.STAmbiguousListNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCaptureBindingPatternNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
@@ -464,6 +465,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseEnumMemberRhs();
             case ENUM_MEMBER_NAME:
                 return parseEnumMember();
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER_END:
+                return parseListBindingPatternMemberOrTupleMemberEnd();
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+                return parseListBindingPatternOrTupleTypeAmbiguousMember();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -3415,7 +3420,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 // any statement starts with `[` can be either a var-decl with tuple type
                 // or a destructuring assignment with list-binding-pattern.
-                return parseDestructureAssignmentOrVarDecl();
+                return parseDestructureAssignmentOrVarDecl(getAnnotations(annots));
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
@@ -7872,7 +7877,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return true;
             default:
-                if (isSingletonTypeDescStart(nodeKind, false)) {
+                if (isSingletonTypeDescStart(nodeKind, true)) {
                     return true;
                 }
                 return isSimpleType(nodeKind);
@@ -9241,6 +9246,11 @@ public class BallerinaParser extends AbstractParser {
         // Parse first typedesc, that has no leading comma
         STNode typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
 
+        return parseTupleTypeMembers(typeDesc, typeDescList);
+    }
+
+    private STNode parseTupleTypeMembers(STNode typeDesc, List<STNode> typeDescList) {
+        STToken nextToken;
         // Parse the remaining type descs
         nextToken = peek();
         STNode tupleMemberRhs;
@@ -9793,15 +9803,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isSingletonTypeDescStart(SyntaxKind tokenKind, boolean inTypeDescCtx) {
-        STToken nextToken = peek();
-        STToken nextNextToken, nextNextNextToken;
-        if (tokenKind != nextToken.kind) { // this will be true if and only if we come here after recovering
-            nextNextToken = nextToken;
-            nextNextNextToken = peek(2);
-        } else {
-            nextNextToken = peek(2);
-            nextNextNextToken = peek(3);
-        }
+        STToken nextNextToken = getNextNextToken(tokenKind);
         switch (tokenKind) {
             case STRING_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
@@ -9817,13 +9819,7 @@ public class BallerinaParser extends AbstractParser {
                 return false;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
-                if (inTypeDescCtx) {
-                    return true;
-                }
-                if (isIntOrFloat(nextNextToken) && nextNextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    return true;
-                }
-                // fall through
+                return isIntOrFloat(nextNextToken);
             default:
                 return false;
         }
@@ -9939,40 +9935,42 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseListBindingPattern() {
         startContext(ParserRuleContext.LIST_BINDING_PATTERN);
-        ArrayList<STNode> bindingPatterns = new ArrayList<>();
+        List<STNode> bindingPatternsList = new ArrayList<>();
         STNode openBracket = parseOpenBracket();
+        STNode listBindingPatternMember = parseListBindingPatternMember();
+        bindingPatternsList.add(listBindingPatternMember);
+        STNode listBindingPattern = parseListBindingPattern(openBracket, listBindingPatternMember, bindingPatternsList);
+        endContext();
+        return listBindingPattern;
+    }
 
-        STNode listBindingPatternMember = parselistBindingPatternMember();
-        bindingPatterns.add(listBindingPatternMember);
-
-        // parsing the main chunck of list-binding-pattern
+    private STNode parseListBindingPattern(STNode openBracket, STNode firstMember, List<STNode> bindingPatterns) {
+        STNode member = firstMember;
+        // parsing the main chunk of list-binding-pattern
         STToken token = peek(); // get next valid token
         STNode listBindingPatternRhs = null;
-        while (!isEndOfListBindingPattern(token.kind) &&
-                listBindingPatternMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
+        while (!isEndOfListBindingPattern(token.kind) && member.kind != SyntaxKind.REST_BINDING_PATTERN) {
             listBindingPatternRhs = parseListBindingpatternRhs(token.kind);
             if (listBindingPatternRhs == null) {
                 break;
             }
 
             bindingPatterns.add(listBindingPatternRhs);
-            listBindingPatternMember = parselistBindingPatternMember();
-            bindingPatterns.add(listBindingPatternMember);
+            member = parseListBindingPatternMember();
+            bindingPatterns.add(member);
             token = peek();
         }
 
-        STNode closeBracket = parseCloseBracket();
-
-        // seperating out the rest-binding-pattern
+        // separating out the rest-binding-pattern
         STNode restBindingPattern;
-        if (listBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+        if (member.kind == SyntaxKind.REST_BINDING_PATTERN) {
             restBindingPattern = bindingPatterns.remove(bindingPatterns.size() - 1);
         } else {
             restBindingPattern = STNodeFactory.createEmptyNode();
         }
 
+        STNode closeBracket = parseCloseBracket();
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
-        endContext();
         return STNodeFactory.createListBindingPatternNode(openBracket, bindingPatternsNode, restBindingPattern,
                 closeBracket);
     }
@@ -10047,7 +10045,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return rest-binding-pattern node
      */
-    private STNode parselistBindingPatternMember() {
+    private STNode parseListBindingPatternMember() {
         STToken token = peek();
         switch (token.kind) {
             case DECIMAL_INTEGER_LITERAL:
@@ -11287,65 +11285,105 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseDestructureAssignmentOrVarDecl() {
-        STNode listBindingPatternOrTupleType = parseListBindingPatternOrTupleType();
-        return null;
+    private STNode parseDestructureAssignmentOrVarDecl(STNode annots) {
+        startContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT);
+        STNode stmt;
+        STNode listBindingPatternOrTupleType = parseListBindingPatternOrTupleType(true);
+        if (listBindingPatternOrTupleType.kind == SyntaxKind.LIST_BINDING_PATTERN) {
+            switchContext(ParserRuleContext.ASSIGNMENT_STMT);
+            stmt = parseAssignmentStmtRhs(listBindingPatternOrTupleType);
+        } else {
+            switchContext(ParserRuleContext.VAR_DECL_STMT);
+            STNode varName = parseVariableName();
+            stmt = parseVarDeclRhs(annots, STNodeFactory.createEmptyNode(), listBindingPatternOrTupleType, varName,
+                    false);
+        }
+
+        endContext();
+        return stmt;
     }
 
-    private STNode parseListBindingPatternOrTupleType() {
+    private STNode parseListBindingPatternOrTupleType(boolean isRoot) {
+        startContext(ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC);
         STNode openBracket = parseOpenBracket();
         List<STNode> memberList = new ArrayList<>();
-        SyntaxKind nodeType = null;
+        // we start parsing members, keeping their type as ambiguous.
+        SyntaxKind expectedMemberType = SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC;
 
         // Return an empty list
         STToken nextToken = peek();
-        STNode members;
         if (isEndOfReceiveFields(nextToken.kind)) {
             this.errorHandler.reportMissingTokenError("missing member");
-            members = STNodeFactory.createNodeList(memberList);
         } else {
-            // Parse first members.
-            STNode member = parseBindingPatternOrTypeDesc();
-            nodeType = getParsingNodeType(member);
-            memberList.add(member);
-
-            // Parse the remaining members
+            // Parse the members
+            STNode member;
             STNode memberEnd;
+            nextToken = peek();
             while (!isEndOfReceiveFields(nextToken.kind)) {
-                memberEnd = parseListBindingPatternMemberOrTupleMemberEnd(nextToken.kind);
+                // Parse member
+                member = parseListBindingPatternOrTupleTypeMember(expectedMemberType);
+                expectedMemberType = getParsingNodeType(member);
+
+                switch (expectedMemberType) {
+                    case TUPLE_TYPE_DESC:
+                        // If the member type was figured out as a tuple-type-desc member, then parse the
+                        // remaining members as tuple type members and be done with it.
+                        return parseAsTupleTypeDesc(openBracket, memberList, member);
+                    case LIST_BINDING_PATTERN:
+                        // If the member type was figured out as a binding pattern, then parse the
+                        // remaining members as binding patterns and be done with it.
+                        return parseAsListBindingPattern(openBracket, memberList, member);
+                    case LIST_BP_OR_TUPLE_TYPE_DESC:
+                    default:
+                        memberList.add(member);
+                        break;
+                }
+
+                // Parse separator
+                memberEnd = parseListBindingPatternMemberOrTupleMemberEnd();
                 if (memberEnd == null) {
                     break;
                 }
-
                 memberList.add(memberEnd);
-                member = parseBindingPatternOrTypeDesc();
-                memberList.add(member);
                 nextToken = peek();
             }
-
-            members = STNodeFactory.createNodeList(memberList);
         }
 
-        STNode closeBracket = parseOpenBracket();
-        return null;
+        // We reach here if it is still ambiguous, even after parsing the full list.
+        STNode closeBracket = parseCloseBracket();
+        STNode listBindingPatternOrTupleTypeDesc =
+                parseListBindingPatternOrTupleType(openBracket, memberList, closeBracket, isRoot);
+        endContext();
+        return listBindingPatternOrTupleTypeDesc;
     }
 
-    private STNode parseBindingPatternOrTypeDesc() {
-        return parseBindingPatternOrTypeDesc(peek().kind);
+    private STNode parseListBindingPatternOrTupleTypeMember(SyntaxKind expectedNodeType) {
+        switch (expectedNodeType) {
+            case TUPLE_TYPE_DESC:
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            case LIST_BINDING_PATTERN:
+                return parseBindingPattern();
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            default:
+                return parseListBindingPatternOrTupleTypeAmbiguousMember();
+        }
+    }
+
+    private STNode parseListBindingPatternOrTupleTypeAmbiguousMember() {
+        return parseListBindingPatternOrTupleTypeAmbiguousMember(peek().kind);
     }
 
     /**
-     * Parse a member of a list-binding-pattern or tuple-type-desc.
-     * i.e: parse binding-pattern or type-desc.
+     * Parse a member of a list-binding-pattern or tuple-type-desc, when the parent is ambiguous.
      * 
      * @param nextTokenKind Kind of the next token.
      * @return Parsed node
      */
-    private STNode parseBindingPatternOrTypeDesc(SyntaxKind nextTokenKind) {
+    private STNode parseListBindingPatternOrTupleTypeAmbiguousMember(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case OPEN_BRACKET_TOKEN:
                 // we don't know which one
-                return parseListBindingPatternOrTupleType();
+                return parseListBindingPatternOrTupleType(false);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 nextTokenKind = peek().kind;
@@ -11353,43 +11391,120 @@ public class BallerinaParser extends AbstractParser {
                     return parseComplexTypeDescriptor(identifier, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
                 } else if (nextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
                     // error|T (args) --> functional-binding-pattern
-                    return parseBindingPattern();
+                    return parseListBindingPatternMember();
+                } else if (nextTokenKind == SyntaxKind.ELLIPSIS_TOKEN) {
+                    STNode ellipsis = parseEllipsis();
+                    return STNodeFactory.createRestDescriptorNode(identifier, ellipsis);
                 }
 
                 // we don't know which one
                 return identifier;
             case OPEN_BRACE_TOKEN:
                 // mapping-binding-pattern
-                return parseBindingPattern();
+                return parseListBindingPatternMember();
             case ERROR_KEYWORD:
                 if (getNextNextToken(nextTokenKind).kind == SyntaxKind.OPEN_PAREN_TOKEN) {
                     // functional-binding-pattern
-                    return parseBindingPattern();
+                    return parseListBindingPatternMember();
                 }
 
                 // error-type-desc
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
             case ELLIPSIS_TOKEN:
-                // TODO:
+                return parseListBindingPatternMember();
             default:
                 if (isTypeStartingToken(nextTokenKind)) {
                     return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 }
 
-                // ideally we shouldn't reach here
-                return parseBindingPattern();
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseListBindingPatternOrTupleTypeAmbiguousMember(solution.tokenKind);
         }
+    }
+
+    private STNode parseAsTupleTypeDesc(STNode openBracket, List<STNode> memberList, STNode member) {
+        memberList = getTypeDescList(memberList);
+        switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+        startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        STNode tupleTypeMembers = parseTupleTypeMembers(member, memberList);
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        endContext();
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, tupleTypeMembers, closeBracket);
+    }
+
+    private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList, STNode member) {
+        memberList = getBindingPattern(memberList);
+        switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
+        memberList.add(member);
+        STNode listBindingPattern = parseListBindingPattern(openBracket, member, memberList);
+        endContext();
+        return listBindingPattern;
+    }
+
+    private List<STNode> getTypeDescList(List<STNode> ambibuousList) {
+        List<STNode> typeDescList = new ArrayList<STNode>();
+        for (STNode item : ambibuousList) {
+            // Here we assume that items in ambiguous list can only be
+            // either simple name references, or list of simple name
+            // references (i.e: another ambiguous list).
+            if (item.kind != SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                typeDescList.add(item);
+                continue;
+            }
+
+            STAmbiguousListNode innerList = (STAmbiguousListNode) item;
+            STNode memberTypeDescList = STNodeFactory.createNodeList(innerList.members);
+            STNode typeDesc = STNodeFactory.createTupleTypeDescriptorNode(innerList.openBracket, memberTypeDescList,
+                    innerList.closeBracket);
+            typeDescList.add(typeDesc);
+        }
+
+        return typeDescList;
+    }
+
+    private List<STNode> getBindingPattern(List<STNode> ambibuousList) {
+        List<STNode> typeDescList = new ArrayList<STNode>();
+        for (STNode item : ambibuousList) {
+            // Here we assume that items in ambiguous list can only be
+            // either simple name references, or list of simple name
+            // references (i.e: another ambiguous list).
+            if (item.kind != SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                typeDescList.add(item);
+                continue;
+            }
+
+            STAmbiguousListNode innerList = (STAmbiguousListNode) item;
+            STNode memberBindingPatterns = STNodeFactory.createNodeList(innerList.members);
+            STNode restBindingPattern = STNodeFactory.createEmptyNode();
+            STNode typeDesc = STNodeFactory.createListBindingPatternNode(innerList.openBracket, memberBindingPatterns,
+                    restBindingPattern, innerList.closeBracket);
+            typeDescList.add(typeDesc);
+        }
+
+        return typeDescList;
+    }
+
+    private STNode parseListBindingPatternMemberOrTupleMemberEnd() {
+        return parseListBindingPatternMemberOrTupleMemberEnd(peek().kind);
     }
 
     private STNode parseListBindingPatternMemberOrTupleMemberEnd(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 return parseComma();
-            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
                 return null;
             default:
-                // FIXME
-                Solution solution = recover(peek(), ParserRuleContext.WAIT_FIELD_END);
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER_END);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -11414,21 +11529,44 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private SyntaxKind getParsingNodeType(STNode node) {
-        if (node.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
-                node.kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0) {
+    private SyntaxKind getParsingNodeType(STNode memberNode) {
+        if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+                memberNode.kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0) {
             return SyntaxKind.TUPLE_TYPE_DESC;
         }
 
-        switch (node.kind) {
+        switch (memberNode.kind) {
             case LIST_BINDING_PATTERN:
             case REST_BINDING_PATTERN:
                 return SyntaxKind.LIST_BINDING_PATTERN;
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
+            case REST_TYPE:
+                return SyntaxKind.TUPLE_TYPE_DESC;
+            case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
+            case LIST_BP_OR_TUPLE_TYPE_DESC: // member is again ambiguous
             default:
                 return SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC;
+        }
+    }
+
+    private STNode parseListBindingPatternOrTupleType(STNode openBracket, List<STNode> members, STNode closeBracket,
+                                                      boolean isRoot) {
+        if (!isRoot) {
+            // This means, currently parsing ambiguous list, is a child of another ambiguous
+            // list. So parse it as an ambiguous list for now. Once the ambiguity is broken,
+            // it will revisit this node and convert to the correct node, if required.
+            return new STAmbiguousListNode(SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC, openBracket, members, closeBracket);
+        }
+
+        switch (peek().kind) {
+            case EQUAL_TOKEN:
+                STNode memberBindingPatterns = STNodeFactory.createNodeList(getBindingPattern(members));
+                STNode restBindingPattern = STNodeFactory.createEmptyNode();
+                return STNodeFactory.createListBindingPatternNode(openBracket, memberBindingPatterns,
+                        restBindingPattern, closeBracket);
+            default:
+                STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
+                return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
         }
     }
 }
