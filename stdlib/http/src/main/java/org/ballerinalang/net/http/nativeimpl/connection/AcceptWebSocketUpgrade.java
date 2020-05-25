@@ -20,6 +20,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
@@ -41,7 +42,7 @@ public class AcceptWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(AcceptWebSocketUpgrade.class);
 
     public static Object acceptWebSocketUpgrade(ObjectValue httpCaller,
-                                                MapValue<String, String> headers) {
+                                                MapValue<BString, BString> headers) {
         NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
         try {
             WebSocketHandshaker webSocketHandshaker =
@@ -71,11 +72,11 @@ public class AcceptWebSocketUpgrade {
         return null;
     }
 
-    private static DefaultHttpHeaders populateAndGetHttpHeaders(MapValue<String, String> headers) {
+    private static DefaultHttpHeaders populateAndGetHttpHeaders(MapValue<BString, BString> headers) {
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-        Object[] keys = headers.getKeys();
-        for (Object key : keys) {
-            httpHeaders.add(key.toString(), headers.get(key.toString()));
+        BString[] keys = headers.getKeys();
+        for (BString key : keys) {
+            httpHeaders.add(key.toString(), headers.get(key).getValue());
         }
         return httpHeaders;
     }

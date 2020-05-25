@@ -38,7 +38,7 @@ import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -115,16 +115,6 @@ import javax.xml.namespace.QName;
       * @return float array
       */
      public static BArray createArrayValue(double[] values) {
-         return new ArrayValueImpl(values);
-     }
-
-     /**
-      * Creates a new string array.
-      *
-      * @param values initial array values
-      * @return string array
-      */
-     public static BArray createArrayValue(String[] values) {
          return new ArrayValueImpl(values);
      }
 
@@ -252,7 +242,7 @@ import javax.xml.namespace.QName;
       * @return type descriptor
       */
      public static BTypedesc createTypedescValue(BType describingType) {
-         return new TypedescValue(describingType);
+         return new TypedescValueImpl(describingType);
      }
 
      /**
@@ -333,12 +323,12 @@ import javax.xml.namespace.QName;
      /**
       * Create a record value using the given package id and record type name.
       *
-      * @param packageId the package id that the record type resides.
+      * @param packageId      the package id that the record type resides.
       * @param recordTypeName name of the record type.
       * @return value of the record.
       */
-     public static BMap<String, Object> createRecordValue(BPackage packageId, String recordTypeName) {
-         return (BMap<String, Object>) BallerinaValues.createRecordValue(packageId, recordTypeName);
+     public static BMap<BString, Object> createRecordValue(BPackage packageId, String recordTypeName) {
+         return BallerinaValues.createRecordValue(packageId, recordTypeName);
      }
 
      /**
@@ -350,9 +340,9 @@ import javax.xml.namespace.QName;
       * @param valueMap values to be used for fields when creating the record.
       * @return value of the populated record.
       */
-     public static BMap<String, Object> createRecordValue(BPackage packageId, String recordTypeName,
-                                                              Map<String, Object> valueMap) {
-         return (BMap<String, Object>) BallerinaValues.createRecordValue(packageId, recordTypeName, valueMap);
+     public static BMap<BString, Object> createRecordValue(BPackage packageId, String recordTypeName,
+                                                           Map<String, Object> valueMap) {
+         return BallerinaValues.createRecordValue(packageId, recordTypeName, valueMap);
      }
 
      /**
@@ -364,7 +354,7 @@ import javax.xml.namespace.QName;
       * @return value of the object.
       */
      public static BObject createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
-         return (BObject) BallerinaValues.createObjectValue(packageId, objectTypeName, fieldValues);
+         return BallerinaValues.createObjectValue(packageId, objectTypeName, fieldValues);
      }
 
      /**
@@ -374,8 +364,8 @@ import javax.xml.namespace.QName;
       * @param values field values of the record.
       * @return value of the record.
       */
-     public static BMap<String, Object> createRecord(BMap<String, Object> record, Object... values) {
-         return (BMap) BallerinaValues.createRecord((MapValue<String, Object>) record, values);
+     public static BMap<BString, Object> createRecord(BMap<BString, Object> record, Object... values) {
+         return BallerinaValues.createRecord((MapValue<BString, Object>) record, values);
      }
 
  }

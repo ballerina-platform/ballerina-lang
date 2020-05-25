@@ -40,8 +40,10 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
 )
 public class Pop {
 
+    private static final String FUNCTION_SIGNATURE = "pop()";
+
     public static Object pop(Strand strand, ArrayValue arr) {
-        checkIsArrayOnlyOperation(arr.getType(), "pop()");
+        checkIsArrayOnlyOperation(arr.getType(), FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }
 }

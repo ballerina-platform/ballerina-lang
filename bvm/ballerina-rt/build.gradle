@@ -42,11 +42,13 @@ dependencies {
     dist project(path: ':ballerina-lang:map', configuration: 'birJar')
     dist project(path: ':ballerina-lang:object', configuration: 'birJar')
     dist project(path: ':ballerina-lang:stream', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:table', configuration: 'birJar')
     dist project(path: ':ballerina-lang:string', configuration: 'birJar')
     dist project(path: ':ballerina-lang:typedesc', configuration: 'birJar')
     dist project(path: ':ballerina-lang:value', configuration: 'birJar')
     dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
     dist project(path: ':ballerina-lang:bool', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:query', configuration: 'birJar')
     dist project(path: ':ballerina-observability', configuration: 'birJar')
     dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'birJar')
 
@@ -62,11 +64,13 @@ dependencies {
     dist project(':ballerina-lang:map')
     dist project(':ballerina-lang:object')
     dist project(':ballerina-lang:stream')
+    dist project(':ballerina-lang:table')
     dist project(':ballerina-lang:string')
     dist project(':ballerina-lang:typedesc')
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
+    dist project(':ballerina-lang:query')
     dist project(':ballerina-observability')
     
     // Third party jars
@@ -112,7 +116,6 @@ dependencies {
     dist project(':ballerina-core')
     dist project(':ballerina-config')
     dist project(':ballerina-logging')
-    dist project(':toml-parser')
 
 }
 

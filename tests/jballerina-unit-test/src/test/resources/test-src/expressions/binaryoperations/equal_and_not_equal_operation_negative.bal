@@ -81,43 +81,43 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
     json a = { name: "Em" };
     map<boolean> b = {};
-    boolean equals = a == b && !(b != a);
+    boolean 'equals = a == b && !(b != a);
 
     ClosedDept c = { code: "FN101" };
-    return equals && b == c && !(c != b) && c == a && !(a != c);
+    return 'equals && b == c && !(c != b) && c == a && !(a != c);
 }
 
 function testArrayTupleEqualityOfIncompatibleTypes() returns boolean {
     int[] a = [1, 2];
     [float, float] b = [1.0, 2.0];
 
-    boolean equals = a == b && !(a != b);
+    boolean 'equals = a == b && !(a != b);
 
     [int, float] c = [1, 2.0];
-    return equals && a == c && !(c != a);
+    return 'equals && a == c && !(c != a);
 
     // Uncomment once closed list comparison is fixed
     //Employee e = { name: "Em", id: 1234 };
     //(Employee|int)[3] d = [e, 2, 3];
     //(Employee, int) f = (e, 2);
     //
-    //return equals && f == d && !(d != f);
+    //return 'equals && f == d && !(d != f);
 }
 
 function testEqualityWithNonAnydataType() returns boolean {
     map<int> s = {};
     [int, map<int>] a = [1, {}];
     [int, float] b = [3, 23.9];
-    boolean equals = a == b && !(b != a);
+    boolean 'equals = a == b && !(b != a);
 
     any c = 5;
     int d = 5;
-    equals = c == d && !(d != c);
+    'equals = c == d && !(d != c);
 
     map<int|string> e = { one: 1, two: "two" };
     map<any> f = { one: 1, two: "two" };
-    equals = e == f && !(f != e);
-    return equals;
+    'equals = e == f && !(f != e);
+    return 'equals;
 }
 
 //function testEqualityWithTable() {

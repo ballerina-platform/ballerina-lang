@@ -41,5 +41,4 @@ public class GetIteratorObj {
     public static Object getIteratorObj(Strand strand, StreamValue strm) {
         return strm.getIteratorObj();
     }
-
 }

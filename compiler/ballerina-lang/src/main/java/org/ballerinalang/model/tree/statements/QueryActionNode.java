@@ -18,11 +18,9 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.clauses.DoClauseNode;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 
@@ -31,21 +29,12 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public interface QueryActionNode extends ExpressionNode {
+public interface QueryActionNode extends ExpressionNode, ActionNode {
 
-    List<? extends FromClauseNode> getFromClauseNodes();
+    List<? extends BLangNode> getQueryClauses();
 
-    void addFromClauseNode(FromClauseNode fromClauseNode);
+    void addQueryClause(BLangNode queryClause);
 
-    List<? extends BLangLetClause> getLetClauseNode();
+    DoClauseNode getDoClause();
 
-    void addLetClauseNode(LetClauseNode letClauseNode);
-
-    List<? extends WhereClauseNode> getWhereClauseNode();
-
-    void addWhereClauseNode(WhereClauseNode whereClauseNode);
-
-    DoClauseNode getDoClauseNode();
-
-    void setDoClauseNode(DoClauseNode doClauseNode);
 }

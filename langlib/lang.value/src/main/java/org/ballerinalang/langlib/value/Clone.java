@@ -35,11 +35,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "lang.value",
         functionName = "clone",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+        returnType = {@ReturnType(type = TypeKind.ANYDATA)}
 )
 public class Clone {
 
     public static Object clone(Strand strand, Object value) {
         return CloneUtils.cloneValue(value);
     }
+
 }

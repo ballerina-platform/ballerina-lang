@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -129,10 +130,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
-
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 21);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 25);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test Query expression with select expression ")
@@ -141,11 +139,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
-
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "2");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "3");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test filtering null values from query expression")
@@ -169,16 +163,15 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testMapWithArity");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1A");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test selecting values in a JSON array from query expression")
     public void testJSONArrayWithArity() {
         BValue[] returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals((returnValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "bob");
-        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "tom");
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test filtering values in a tuple from query expression")
@@ -186,7 +179,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testArrayWithTuple");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
-        Assert.assertEquals(returnValues[0].stringValue(), "[\"C\"]");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test from clause with a stream")
@@ -255,11 +248,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryWithStream");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
-
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 1);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 3);
-        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(2), 5);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Query a stream with error")
@@ -269,5 +258,107 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
     }
-}
 
+    @Test(description = "Test anonymous record type, record type referencing, optional field, " +
+            "changed order of the fields")
+    public void testOthersAssociatedWithRecordTypes() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testOthersAssociatedWithRecordTypes");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap teacher1 = (BMap) returnValues[0];
+        BMap teacher2 = (BMap) returnValues[1];
+
+        Assert.assertTrue(teacher1.get("classStudents") instanceof BValueArray);
+        Assert.assertTrue(teacher1.get("experience") instanceof BMap);
+        Assert.assertEquals(teacher1.get("classStudents").stringValue(),
+                "[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                        "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}]");
+        Assert.assertEquals(teacher1.get("experience").stringValue(), "{duration:10, qualitifications:\"B.Sc.\"}");
+        Assert.assertEquals(teacher1.stringValue(),
+                "{classStudents:[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                        "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}], " +
+                        "experience:{duration:10, qualitifications:\"B.Sc.\"}, " +
+                        "firstName:\"Alex\", lastName:\"George\", deptAccess:\"XYZ\", " +
+                        "address:{city:\"NY\", country:\"America\"}}");
+
+        Assert.assertTrue(teacher2.get("classStudents") instanceof BValueArray);
+        Assert.assertTrue(teacher2.get("experience") instanceof BMap);
+        Assert.assertEquals(teacher2.get("classStudents").stringValue(),
+                "[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                        "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}]");
+        Assert.assertEquals(teacher2.get("experience").stringValue(),
+                "{duration:10, qualitifications:\"B.Sc.\"}");
+        Assert.assertEquals(teacher2.stringValue(),
+                "{classStudents:[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                        "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}], " +
+                        "experience:{duration:10, qualitifications:\"B.Sc.\"}, " +
+                        "firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"XYZ\", " +
+                        "address:{city:\"NY\", country:\"America\"}}");
+    }
+
+    @Test(description = "Test query expressions with tuple typed binding in let")
+    public void testQueryExprTupleTypedBinding2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprTupleTypedBinding2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test query expression with type conversion in select clause")
+    public void testQueryExprWithTypeConversion() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithTypeConversion");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap person1 = (BMap) returnValues[0];
+        BMap person2 = (BMap) returnValues[1];
+
+        Assert.assertEquals(person1.stringValue(), "{firstName:\"Alex\", lastName:\"George\", " +
+                "deptAccess:\"XYZ\", " +
+                "address:{city:\"New York\", country:\"America\"}}");
+        Assert.assertEquals(person2.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", " +
+                "deptAccess:\"XYZ\", " +
+                "address:{city:\"New York\", country:\"America\"}}");
+    }
+
+    @Test(description = "Test streams with map and filter")
+    public void testQueryExprWithStreamMapAndFilter() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithStreamMapAndFilter");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BMap subscription = (BMap) returnValues[0];
+
+        Assert.assertEquals(subscription.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6, " +
+                "degree:\"Bachelor of Medicine\"}");
+    }
+
+    @Test(description = "Test Query expression returning a stream ")
+    public void testSimpleSelectQueryReturnStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryReturnStream");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test Query expression With Record Variable within let clause ")
+    public void testQueryWithRecordVarInLetClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryWithRecordVarInLetClause");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap person1 = (BMap) returnValues[0];
+        BMap person2 = (BMap) returnValues[1];
+
+        Assert.assertEquals(person1.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", " +
+                "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
+        Assert.assertEquals(person2.stringValue(), "{firstName:\"John\", lastName:\"David\", " +
+                "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
+    }
+}

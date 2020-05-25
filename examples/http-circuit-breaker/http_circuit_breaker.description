@@ -1,1 +1,0 @@
-// The Circuit Breaker is used to gracefully handle network related errors, which occur when using the HTTP Client.

@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.java;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR;
@@ -48,10 +49,11 @@ public class JavaUtils {
      * Returns the Java Class object associated with the class or interface with the given string name.
      *
      * @param strand current strand
-     * @param name   class name
+     * @param namebStr   class name
      * @return a Java Class object instance
      */
-    public static Object getClass(Strand strand, String name) {
+    public static Object getClass(Strand strand, BString namebStr) {
+        String name = namebStr.getValue();
         Class<?> clazz = getPrimitiveTypeClass(name);
         if (clazz != null) {
             return new HandleValue(clazz);

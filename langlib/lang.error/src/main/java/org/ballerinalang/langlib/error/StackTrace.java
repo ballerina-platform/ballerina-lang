@@ -34,7 +34,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -67,7 +66,7 @@ public class StackTrace {
 
         CallStack callStack = new CallStack(callStackObjType);
         callStack.callStack = getCallStackArray(value.getStackTrace());
-        callStack.freeze();
+        callStack.callStack.freezeDirect();
         return callStack;
     }
 
@@ -80,7 +79,7 @@ public class StackTrace {
         return new ArrayValueImpl(array, new BArrayType(recordType));
     }
 
-    static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+    static MapValue<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
         values[1] = stackTraceElement.getClassName();
@@ -111,36 +110,16 @@ public class StackTrace {
         }
 
         @Override
-        public Object get(String fieldName) {
-            if (fieldName.equals("callStack")) {
+        public Object get(BString fieldName) {
+            if (fieldName.getValue().equals("callStack")) {
                 return callStack;
             }
             throw new BLangRuntimeException("No such field or method: callStack");
         }
 
         @Override
-        public Object get(StringValue fieldName) {
-            return get(fieldName.getValue());
-        }
-
-        @Override
-        public Object get(BString fieldName) {
-            return get(fieldName.getValue());
-        }
-
-        @Override
-        public void set(String fieldName, Object value) {
-            throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
         public void set(BString fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
-        public boolean isFrozen() {
-            return true;
         }
     }
 }

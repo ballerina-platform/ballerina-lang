@@ -27,8 +27,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
@@ -37,6 +35,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -52,7 +51,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
+ *
  * @since 0.995.0
  */
 public class TupleValueImpl extends AbstractArrayValue {
@@ -61,8 +60,31 @@ public class TupleValueImpl extends AbstractArrayValue {
     Object[] refValues;
     private int minSize = 0;
     private boolean hasRestElement; // cached value for ease of access
-
     // ------------------------ Constructors -------------------------------------------------------------------
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TupleValueImpl that = (TupleValueImpl) o;
+        return minSize == that.minSize &&
+                hasRestElement == that.hasRestElement &&
+                tupleType.equals(that.tupleType) &&
+                Arrays.equals(refValues, that.refValues);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(tupleType, minSize, hasRestElement);
+        result = 31 * result + Arrays.hashCode(refValues);
+        return result;
+    }
 
     @Deprecated
     public TupleValueImpl(Object[] values, BTupleType type) {
@@ -105,13 +127,12 @@ public class TupleValueImpl extends AbstractArrayValue {
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
             }
-
             this.refValues[i] = memType.getZeroValue();
         }
     }
 
     @Deprecated
-    public TupleValueImpl(BTupleType type, long size) {
+    public TupleValueImpl(BTupleType type, long size, ListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
         List<BType> memTypes = this.tupleType.getTupleTypes();
@@ -126,6 +147,10 @@ public class TupleValueImpl extends AbstractArrayValue {
             this.refValues = new Object[this.size];
         } else {
             this.refValues = new Object[DEFAULT_ARRAY_SIZE];
+        }
+
+        for (int index = 0; index < initialValues.length; index++) {
+            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
         }
 
         if (size >= memCount) {
@@ -171,7 +196,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public Object fillAndGetRefValue(long index) {
         // Need do a filling-read if index >= size
         if (index >= this.size && this.hasRestElement) {
-            handleFrozenArrayValue();
+            handleImmutableArrayValue();
             fillRead(index, refValues.length);
             return this.refValues[(int) index];
         }
@@ -230,7 +255,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     @Deprecated
     public String getString(long index) {
-        return (String) get(index);
+        return get(index).toString();
     }
 
     /**
@@ -254,7 +279,11 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, Object value) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
+        addRefValue(index, value);
+    }
+
+    private void addRefValue(long index, Object value) {
         prepareForAdd(index, value, refValues.length);
         refValues[(int) index] = value;
     }
@@ -340,7 +369,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -467,42 +496,18 @@ public class TupleValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(Status freezeStatus) {
-        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            return;
-        }
-        this.freezeStatus = freezeStatus;
-        for (int i = 0; i < this.size; i++) {
-            Object value = this.get(i);
-            if (value instanceof RefValue) {
-                ((RefValue) value).attemptFreeze(freezeStatus);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void freezeDirect() {
-        if (isFrozen()) {
+        if (tupleType.isReadOnly()) {
             return;
         }
-        this.freezeStatus.setFrozen();
+
+        this.tupleType = (BTupleType) ReadOnlyUtils.setImmutableType(this.tupleType);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof RefValue) {
                 ((RefValue) value).freezeDirect();
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
     }
 
     /**
@@ -632,7 +637,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     protected void unshift(long index, ArrayValue vals) {
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         unshiftArray(index, vals.size(), getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }

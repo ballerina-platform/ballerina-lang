@@ -98,22 +98,17 @@ dependencies {
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
 
+    dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-cli-module')
-    dist project(':ballerina-jvm')
-    birJar project(path: ':ballerina-jvm', configuration: 'birJar')
     dist project(':ballerina-encoding')
-    dist project(':ballerina-bir')
-    birJar project(path: ':ballerina-bir', configuration: 'birJar')
     dist project(':ballerina-rt')
     dist project(':module-loader')
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
     dist project(':ballerina-bindgen')
-    dist project(':ballerina-backend-jvm')
-    birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
@@ -150,9 +145,6 @@ dependencies {
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
-    balSource project(path: ':ballerina-bir', configuration: 'balSource')
-    balSource project(path: ':ballerina-jvm', configuration: 'balSource')
-
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     // ballerinax module cache
@@ -177,7 +169,6 @@ dependencies {
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-reflect', configuration: 'balDoc')
     balDoc project(path: ':ballerina-runtime-api', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-socket', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-system', configuration: 'balDoc')
     balDoc project(path: ':ballerina-websub', configuration: 'balDoc')
@@ -207,11 +198,13 @@ dependencies {
     balDoc project(path: ':ballerina-lang:map', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:object', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:stream', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:table', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:string', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:typedesc', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
 
     // ballerinax modules
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')
@@ -373,14 +366,6 @@ def copyComposerFontsSpec = {
     }
 }
 
-def examplesSpec = {
-    path -> copySpec {
-        from fileTree(project.rootDir.path + '/examples');
-        into(path + '/examples')
-        exclude('**/**/tests')
-    }
-}
-
 def apiDocsSpec = {
     path -> copySpec {
         from generateDocs.outputs.files
@@ -461,7 +446,6 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
-    with examplesSpec(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyResourceSpec(basePath)
@@ -486,7 +470,6 @@ task updateBalHome(type: Copy) {
     with copydebugAdapterDistributionSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
-    with examplesSpec(installDir)
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
@@ -513,7 +496,6 @@ task createDistribution(type: Copy) {
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
-    with examplesSpec("")
     with copyStaticSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")

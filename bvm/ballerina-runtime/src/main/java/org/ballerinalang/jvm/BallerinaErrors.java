@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.LinkedList;
@@ -51,10 +50,10 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  */
 public class BallerinaErrors {
 
-    public static final String ERROR_MESSAGE_FIELD = "message";
+    public static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
-    public static final String ERROR_CAUSE_FIELD = "cause";
+    public static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
     public static final String ERROR_STACK_TRACE = "stackTrace";
     public static final String ERROR_PRINT_PREFIX = "error: ";
     public static final String GENERATE_PKG_INIT = "___init_";
@@ -64,7 +63,7 @@ public class BallerinaErrors {
 
     @Deprecated
     public static ErrorValue createError(String reason) {
-        return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return createError(StringUtils.fromString(reason));
     }
 
     public static ErrorValue createError(BString reason) {
@@ -73,45 +72,37 @@ public class BallerinaErrors {
 
     @Deprecated
     public static ErrorValue createError(String reason, String detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+            return createError(StringUtils.fromString(reason), StringUtils.fromString(detail));
+    }
+
+    public static ErrorValue createError(BString reason, BString detail) {
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
         return new ErrorValue(reason, detailMap);
     }
 
-    public static ErrorValue createError(BString reason, String detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-        if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
-        }
-        return new ErrorValue((StringValue) reason, detailMap);
-    }
-
     @Deprecated
     public static ErrorValue createError(BType type, String reason, String detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        return createError(type, StringUtils.fromString(reason), StringUtils.fromString(detail));
+    }
+
+    public static ErrorValue createError(BType type, BString reason, BString detail) {
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
         return new ErrorValue(type, reason, detailMap);
     }
 
-    public static ErrorValue createError(BType type, BString reason, String detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-        if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
-        }
-        return new ErrorValue(type, (StringValue) reason, detailMap);
-    }
-
     @Deprecated
     public static ErrorValue createError(String reason, MapValue detailMap) {
-        return new ErrorValue(reason, detailMap);
+        return createError(StringUtils.fromString(reason), detailMap);
     }
 
     public static ErrorValue createError(BString reason, MapValue detailMap) {
-        return new ErrorValue((StringValue) reason, detailMap);
+        return new ErrorValue(reason, detailMap);
     }
 
     public static ErrorValue createError(Throwable error) {
@@ -162,8 +153,8 @@ public class BallerinaErrors {
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }
 
-    static String getErrorMessageFromDetail(MapValueImpl<String, Object> detailMap) {
-        return (String) detailMap.get(ERROR_MESSAGE_FIELD);
+    static BString getErrorMessageFromDetail(MapValueImpl<BString, Object> detailMap) {
+        return (BString) detailMap.get(ERROR_MESSAGE_FIELD);
     }
 
     public static ErrorValue createCancelledFutureError() {
@@ -180,9 +171,9 @@ public class BallerinaErrors {
      * @return ballerina error
      */
     public static ErrorValue createInteropError(Throwable e) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (e.getMessage() != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, e.getMessage());
+            detailMap.put(ERROR_MESSAGE_FIELD, StringUtils.fromString(e.getMessage()));
         }
         if (e.getCause() != null) {
             detailMap.put(ERROR_CAUSE_FIELD, createError(e.getCause().getClass().getName(), e.getCause().getMessage()));
@@ -261,7 +252,7 @@ public class BallerinaErrors {
                 new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
     }
 
-    private static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+    private static MapValue<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
         values[1] = stackTraceElement.getClassName();

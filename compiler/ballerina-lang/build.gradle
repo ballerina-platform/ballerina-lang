@@ -18,7 +18,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation project(':toml-parser')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli-module')
     implementation 'com.moandjiezana.toml:toml4j'

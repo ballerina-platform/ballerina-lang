@@ -1,12 +1,6 @@
 configurations {
-    bStringBirJar
     birJar
     bir
-    birJarCompile { transitive false }
-}
-
-dependencies {
-    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
 }
 
 
@@ -50,7 +44,6 @@ task createBirCache {
 test {
     dependsOn createBirCache
     dependsOn configurations.birJar
-    dependsOn configurations.birJarCompile
 
     classpath += configurations.birJar
     doFirst {

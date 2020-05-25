@@ -6,12 +6,102 @@
   "source": "resource/source/completionAvoidRemoteFunctions.bal",
   "items": [
     {
+      "label": "getStreamFromPipeline()(stream<(any|error),error?><(any|error)>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "getStreamFromPipeline()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getRemoteHostName()((string|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nGets the hostname from the remote address. This method may trigger a DNS reverse lookup if the address was created\nwith a literal IP address.\n```ballerina\n# string? remoteHost = caller.getRemoteHostName();\n# ```\n  \n  \n  \n**Returns** `(string|())`   \n- The hostname of the address or else `()` if it is unresolved  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "getRemoteHostName()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "protocol",
       "kind": "Variable",
       "detail": "string",
       "sortText": "130",
       "insertText": "protocol",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createJoinFunction()(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createJoinFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remoteAddress",
+      "kind": "Variable",
+      "detail": "http:Remote",
+      "sortText": "130",
+      "insertText": "remoteAddress",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "_Frame",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "180",
+      "insertText": "_Frame",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "print()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "print();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "addStreamFunction(_StreamFunction streamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query_  \n  \n  \n**Params**  \n- `_StreamFunction` streamFunction"
+        }
+      },
+      "sortText": "120",
+      "insertText": "addStreamFunction(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "localAddress",
@@ -33,14 +123,6 @@
       },
       "sortText": "120",
       "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remoteAddress",
-      "kind": "Variable",
-      "detail": "http:Remote",
-      "sortText": "130",
-      "insertText": "remoteAddress",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -16,10 +16,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.AnnotationUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-
-import static org.ballerinalang.jvm.AnnotationUtils.processServiceAnnotations;
 
 /**
  * {@code BServiceType} represents a service in Ballerina.
@@ -32,18 +31,24 @@ public class BServiceType extends BObjectType {
         super(typeName, pkg, flags);
     }
 
-    public void setAttachedFuncsAndProcessAnnots(MapValue globalAnnotationMap, Strand strand, BServiceType originalType,
-                                                 AttachedFunction[] attachedFunctions) {
+    public void setAttachedFuncsAndProcessAnnots(MapValue globalAnnotationMap, Strand strand,
+                                                         BServiceType originalType,
+                                                         AttachedFunction[] attachedFunctions) {
         this.setAttachedFunctions(attachedFunctions);
         this.setFields(originalType.getFields());
         this.initializer = originalType.initializer;
         this.generatedInitializer = originalType.generatedInitializer;
 
-        processServiceAnnotations(globalAnnotationMap, this, strand);
+        AnnotationUtils.processServiceAnnotations(globalAnnotationMap, this, strand);
     }
 
     @Override
     public int getTag() {
         return TypeTags.SERVICE_TAG;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 }

@@ -35,14 +35,12 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-jvm')
-    implementation project(':ballerina-bir')
-    implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-java')
     implementation project(':ballerina-java-arrays')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-jsonutils')
     implementation project(':ballerina-xmlutils')
+    implementation project(':docerina')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -87,9 +85,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 

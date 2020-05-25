@@ -22,7 +22,7 @@ function testParsingPrivateKeyFromP12(string path, string keyStorePassword, stri
         path: path,
         password: keyStorePassword
     };
-    return check crypto:decodePrivateKey(keyStore,  keyAlias, keyPassword);
+    return crypto:decodePrivateKey(keyStore, keyAlias, keyPassword);
 }
 
 function testParsingPublicKeyFromP12(string path, string keyStorePassword, string keyAlias)
@@ -31,5 +31,9 @@ function testParsingPublicKeyFromP12(string path, string keyStorePassword, strin
         path: path,
         password: keyStorePassword
     };
-    return check crypto:decodePublicKey(keyStore, keyAlias);
+    return crypto:decodePublicKey(keyStore, keyAlias);
+}
+
+function testParsingPublicKeyFromJwk(string modulus, string exponent) returns crypto:PublicKey|crypto:Error {
+    return crypto:buildRsaPublicKey(modulus, exponent);
 }

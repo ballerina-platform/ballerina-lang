@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -37,6 +39,9 @@ public class ToString {
         if (referredValue == null) {
             return null;
         }
-        return referredValue.toString();
+        if (value instanceof BString) {
+            return value;
+        }
+        return StringUtils.fromString(referredValue.toString());
     }
 }

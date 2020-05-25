@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         List<String> operations = new ArrayList<>();
         this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
+        Boolean failOnErrors = true;
+        Diagnostic.Kind kind;
 
         for (AnnotationAttachmentNode ann : annotations) {
             if (Constants.PACKAGE.equals(ann.getPackageAlias().getValue())
@@ -103,14 +106,18 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                         if (key.equals(Constants.CONTRACT)) {
                             if (valueExpr instanceof BLangLiteral) {
                                 BLangLiteral value = (BLangLiteral) valueExpr;
-                                String separator = File.separator;
                                 SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager.getInstance(
                                         compilerContext);
-                                String sourceDir = sourceDirectoryManager.getSourceDirectory().getPath().toString();
-                                String filePath = serviceNode.getPosition().getSource().getPackageName() + separator +
-                                        serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
-                                                "\\w*.bal", "");
-                                String projectDir = sourceDir + separator + "src" + separator + filePath;
+                                Path sourceDir = sourceDirectoryManager.getSourceDirectory().getPath();
+                                Path pkg = Paths.get(serviceNode.getPosition().getSource().getPackageName());
+                                Path filePath = Paths.get((pkg.toString().equals(".") ? "" : pkg.toString()),
+                                      serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
+                                              "\\w*\\.bal", "").replaceAll("^/+", ""));
+
+                                String projectDir = filePath.toString().
+                                        contains(sourceDir.toString().replaceAll("^/+", "")) ?
+                                        sourceDir.toString() :
+                                        Paths.get(sourceDir.toString(), "src", filePath.toString()).toString();
                                 if (value.getValue() instanceof String) {
                                     String userUri = (String) value.getValue();
 
@@ -129,7 +136,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     }
                                 } else {
                                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                            "Contract path should be applied as a string value");
+                                                       "Contract path should be applied as a string value");
                                 }
                             }
                         } else if (key.equals(Constants.TAGS)) {
@@ -143,7 +150,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                             tags.add((String) expression.getValue());
                                         } else {
                                             dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Tags should be applied as string values");
+                                                               "Tags should be applied as string values");
                                         }
                                     }
                                 }
@@ -159,9 +166,19 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                             operations.add((String) expression.getValue());
                                         } else {
                                             dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                    "Operations should be applied as string values");
+                                                               "Operations should be applied as string values");
                                         }
                                     }
+                                }
+                            }
+                        }  else if (key.equals(Constants.FAILONERRORS)) {
+                            if (valueExpr instanceof BLangLiteral) {
+                                BLangLiteral value = (BLangLiteral) valueExpr;
+                                if (value.getValue() instanceof Boolean) {
+                                    failOnErrors = (Boolean) value.getValue();
+                                } else {
+                                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                            "FailOnErrors should be applied as boolean values");
                                 }
                             }
                         }
@@ -169,18 +186,27 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 }
             }
 
+            if (failOnErrors) {
+                kind = Diagnostic.Kind.ERROR;
+            } else {
+                kind = Diagnostic.Kind.WARNING;
+            }
+
             if (contractURI != null) {
                 try {
                     OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
                     ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
                     ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
-                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations,
-                            this.resourceSummaryList, this.openAPISummaryList, this.openAPIComponentSummary, dLog);
-                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, this.resourceSummaryList,
-                            this.openAPISummaryList, this.openAPIComponentSummary, dLog);
+                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind,
+                                                                  this.resourceSummaryList, this.openAPISummaryList,
+                                                                  this.openAPIComponentSummary, dLog);
+                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind,
+                                                                  this.resourceSummaryList,
+                                                                  this.openAPISummaryList, this.openAPIComponentSummary,
+                                                                  dLog);
                 } catch (OpenApiValidatorException e) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                            e.getMessage());
+                                       e.getMessage());
                 }
             }
         }

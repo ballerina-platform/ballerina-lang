@@ -1,8 +1,0 @@
-// A Task Scheduler can be used to schedule an Appointment. An appointment should
-// have an `appointmentData` field. It can be either a `string` representing a
-// CRON expression or an `AppointmentData` record. There is an optional
-// `noOfRecurrences` field that can be used to provide the maximum number of times
-// the appointment should run before shutting down.
-// A service can be attached to the Scheduler using the `attach()` function.
-// Then the Scheduler can be started using `start()` method. When the scheduler
-// needs to be cancelled, `stop()` method can be called.

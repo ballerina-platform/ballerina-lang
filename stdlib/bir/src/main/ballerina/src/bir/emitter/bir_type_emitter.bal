@@ -300,6 +300,25 @@ function emitBTableType(BTableType bType, int tabs) returns string {
     str += "<";
     str += emitTypeRef(bType.tConstraint);
     str += ">";
+
+    string tableKeyConstraint = " key";
+    if(bType.isTableKeySpecifier) {
+        string fieldNames = "";
+        foreach var fieldName in fieldNames {
+            if(fieldNames != "") {
+                fieldNames = fieldNames + ", ";
+            }
+            fieldNames = fieldNames + fieldName;
+        }
+        tableKeyConstraint = tableKeyConstraint + "(" + fieldNames + ")";
+    } else {
+        BType? keyTypeConstraint = bType.tKeyTypeConstraint;
+        if (keyTypeConstraint is BType) {
+            tableKeyConstraint = tableKeyConstraint + "<" + emitTypeRef(keyTypeConstraint) + ">";
+        }
+    }
+
+    str += tableKeyConstraint;
     return str;
 }
 

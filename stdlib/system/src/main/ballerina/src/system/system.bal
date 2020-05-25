@@ -17,9 +17,12 @@
 import ballerina/java;
 
 # Returns the environment variable value associated with the provided name.
+# ```ballerina
+# string port = system:getEnv("HTTP_PORT");
+# ```
 #
 # + name - Name of the environment variable
-# + return - Environment variable value if it exists, else an empty string
+# + return - Environment variable value if it exists or else an empty string
 public function getEnv(@untainted string name) returns string {
     var value = java:toString(nativeGetEnv(java:fromString(name)));
     if (value is string) {
@@ -35,34 +38,40 @@ function nativeGetEnv(handle key) returns handle = @java:Method {
 } external;
 
 # Returns the current user's name.
+# ```ballerina
+# string username = system:getUsername();
+# ```
 #
-# + return - Current user's name if it can be determined, else an empty string
-public function getUsername() returns string {
-    return covertToString(nativeGetUsername());
-}
-
-function nativeGetUsername() returns handle = @java:Method {
+# + return - Current user's name if it can be determined or else an empty string
+public function getUsername() returns string = @java:Method {
     name: "getUsername",
     class: "org.ballerinalang.stdlib.system.nativeimpl.GetUsername"
 } external;
 
 # Returns the current user's home directory path.
+# ```ballerina
+# string userHome = system:getUserHome();
+# ```
 #
-# + return - Current user's home directory if it can be determined, else an empty string
-public function getUserHome() returns string {
-    return covertToString(nativeGetUserHome());
-}
-
-function nativeGetUserHome() returns handle = @java:Method {
+# + return - Current user's home directory if it can be determined or else an empty string
+public function getUserHome() returns string = @java:Method {
     name: "getUserHome",
     class: "org.ballerinalang.stdlib.system.nativeimpl.GetUserHome"
 } external;
 
 # Returns a random UUID string.
+# ```ballerina
+# string providerId = system:uuid();
+# ```
 #
 # + return - The random string
 public function uuid() returns string {
-    return covertToString(nativeUuid());
+    var result = java:toString(nativeUuid());
+    if (result is string) {
+        return result;
+    } else {
+        panic error("Error occured when converting the UUID to string.");
+    }
 }
 
 function nativeUuid() returns handle = @java:Method {
@@ -71,27 +80,17 @@ function nativeUuid() returns handle = @java:Method {
 } external;
 
 # Executes an operating system command as a subprocess of the current process.
+# ```ballerina
+# system:Process|system:Error proc = system:exec("ls", {}, "/", "-la")
+# ```
 #
 # + command - The name of the command to be executed
 # + env - Environment variables to be set to the process
 # + dir - The current working directory to be set to the process
 # + args - Command arguments to be passed in
-# + return - Returns a `Process` object in success, or an `Error` if a failure occurs
+# + return - A `system:Process` object if successful or else a `system:Error` if a failure occurs
 public function exec(@untainted string command, @untainted map<string> env = {},
-                     @untainted string? dir = (), @untainted string... args) returns Process|Error {
-    return nativeExec(java:fromString(command), env, dir, args);
-}
-
-function nativeExec(handle command, map<string> env, string? dir, string[] args) returns Process|Error = @java:Method {
+                     @untainted string? dir = (), @untainted string... args) returns Process|Error = @java:Method {
     name: "exec",
     class: "org.ballerinalang.stdlib.system.nativeimpl.Exec"
 } external;
-
-function covertToString(handle value) returns string {
-    var result = java:toString(value);
-    if (result is string) {
-        return result;
-    } else {
-        panic error("Error occured when converting the value to string.");
-    }
-}

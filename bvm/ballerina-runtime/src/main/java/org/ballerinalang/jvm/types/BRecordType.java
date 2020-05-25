@@ -18,9 +18,11 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
@@ -34,6 +36,8 @@ public class BRecordType extends BStructureType {
     public boolean sealed;
     public BType restFieldType;
     public int typeFlags;
+    private final boolean readonly;
+    private BRecordType immutableType;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -48,6 +52,7 @@ public class BRecordType extends BStructureType {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;
+        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
 
     /**
@@ -67,6 +72,7 @@ public class BRecordType extends BStructureType {
         this.restFieldType = restFieldType;
         this.sealed = sealed;
         this.typeFlags = typeFlags;
+        this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
 
     @Override
@@ -77,12 +83,12 @@ public class BRecordType extends BStructureType {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Object> V getEmptyValue() {
-        MapValue<String, Object> implicitInitValue = new MapValueImpl<>(this);
+        MapValue<BString, Object> implicitInitValue = new MapValueImpl<>(this);
         this.fields.entrySet().stream()
                 .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
                 .forEach(entry -> {
                     Object value = entry.getValue().getFieldType().getEmptyValue();
-                    implicitInitValue.put(entry.getKey(), value);
+                    implicitInitValue.put(StringUtils.fromString(entry.getKey()), value);
                 });
         return (V) implicitInitValue;
     }
@@ -105,5 +111,20 @@ public class BRecordType extends BStructureType {
     @Override
     public boolean isPureType() {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BRecordType) immutableType;
     }
 }

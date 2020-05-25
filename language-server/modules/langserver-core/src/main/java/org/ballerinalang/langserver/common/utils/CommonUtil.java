@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -468,6 +469,7 @@ public class CommonUtil {
                 typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
             case STREAM:
+            case TABLE:
             default:
                 typeString = "()";
                 break;
@@ -683,7 +685,7 @@ public class CommonUtil {
         if (recordType.tsymbol.kind == SymbolKind.RECORD && recordType.tsymbol.name.value.contains("$anonType")) {
             StringBuilder recordTypeName = new StringBuilder("record {");
             recordTypeName.append(CommonUtil.LINE_SEPARATOR);
-            String fieldsList = recordType.fields.stream()
+            String fieldsList = recordType.fields.values().stream()
                     .map(field -> getBTypeName(field.type, ctx, doSimplify) + " " + field.name.getValue() + ";")
                     .collect(Collectors.joining(CommonUtil.LINE_SEPARATOR));
             recordTypeName.append(fieldsList).append(CommonUtil.LINE_SEPARATOR).append("}");
@@ -740,6 +742,9 @@ public class CommonUtil {
         }
         if (bType instanceof BStreamType) {
             return ((BStreamType) bType).constraint;
+        }
+        if (bType instanceof BTableType) {
+            return ((BTableType) bType).constraint;
         }
 
         return ((BTypedescType) bType).constraint;
@@ -998,7 +1003,7 @@ public class CommonUtil {
     }
 
     private static List<BField> getRecordRequiredFields(BRecordType recordType) {
-        return recordType.fields.stream()
+        return recordType.fields.values().stream()
                 .filter(field -> (field.symbol.flags & Flags.REQUIRED) == Flags.REQUIRED)
                 .collect(Collectors.toList());
     }

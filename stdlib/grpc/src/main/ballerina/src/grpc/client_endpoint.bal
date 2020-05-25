@@ -25,70 +25,80 @@ public type Client client object {
     private ClientConfiguration config = {};
     private string url;
 
-    # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
-    # record is used for endpoint initialization.
+    # Gets invoked to initialize the endpoint. During initialization, the configurations provided through the `config`
+    # record are used for the endpoint initialization.
     #
-    # + url - The server url.
-    # + config - - The ClientConfiguration of the endpoint.
+    # + url - The server URL
+    # + config - - The `grpc:ClientConfiguration` of the endpoint
     public function __init(string url, ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        error? err = externInit(self, java:fromString(self.url), self.config, globalGrpcClientConnPool);
+        error? err = externInit(self, self.url, self.config, globalGrpcClientConnPool);
         if (err is error) {
             panic err;
         }
     }
 
-    # Calls when initializing client endpoint with service descriptor data extracted from proto file.
-    #
-    # + clientEndpoint -  Client endpoint
-    # + stubType - Service Stub type. possible values: blocking, nonblocking.
-    # + descriptorKey - Proto descriptor key. Key of proto descriptor.
-    # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
-    # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
+# Calls when initializing the client endpoint with the service descriptor data extracted from the proto file.
+# ```ballerina
+# grpc:Error? result = grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+# ```
+#
+# + clientEndpoint -  Client endpoint
+# + stubType - Service Stub type. Possible values: blocking, nonblocking
+# + descriptorKey - Key of the proto descriptor
+# + descriptorMap - Proto descriptor map with all the dependent descriptors
+# + return - A `grpc:Error` if an error occurs while initializing the stub or else `()`
     public function initStub(AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap) returns Error? {
-        return externInitStub(self, clientEndpoint, java:fromString(stubType), java:fromString(descriptorKey), descriptorMap);
+        return externInitStub(self, clientEndpoint, stubType, descriptorKey, descriptorMap);
     }
 
-    # Calls when executing blocking call with gRPC service.
-    #
-    # + methodID - Remote service method id.
-    # + payload - Request message. Message type varies with remote service method parameter.
-    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
-    # + return - Returns response message and headers if executes successfully, error otherwise.
+# Calls when executing a blocking call with a gRPC service.
+# ```ballerina
+# [anydata, grpc:Headers]|grpc:Error result = grpcClient->blockingExecute("HelloWorld/hello", req, headers);
+# ```
+#
+# + methodID - Remote service method ID
+# + payload - Request message. The message type varies with the remote service method parameter
+# + headers - Optional headers parameter. The header value are passed only if needed. The default value is `()`
+# + return - The response message and headers if executed successfully or else a `grpc:Error`
     public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ()) returns ([anydata, Headers]|Error) {
         var retryConfig = self.config.retryConfiguration;
-        handle methodIdHandle = java:fromString(methodID);
         if (retryConfig is RetryConfiguration) {
-            return retryBlockingExecute(self, methodIdHandle, payload, headers, retryConfig);
+            return retryBlockingExecute(self, methodID, payload, headers, retryConfig);
         }
-        return externBlockingExecute(self, methodIdHandle, payload, headers);
+        return externBlockingExecute(self, methodID, payload, headers);
     }
 
-    # Calls when executing non-blocking call with gRPC service.
-    #
-    # + methodID - Remote service method id.
-    # + payload - Request message. Message type varies with remote service method parameter..
-    # + listenerService - Call back listener service. This service listens the response message from service.
-    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
-    # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
+# Calls when executing a non-blocking call with a gRPC service.
+# ```ballerina
+# grpc:Error? result = grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers);
+# ```
+#
+# + methodID - Remote service method ID
+# + payload - Request message. The message type varies with the remote service method parameter
+# + listenerService - Call back listener service. This service listens to the response message from the service
+# + headers - Optional headers parameter. The header values are passed only if needed. The default value is `()`
+# + return - A `grpc:Error` if an error occurs while sending the request or else `()`
     public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService, Headers? headers = ()) returns Error? {
-         return externNonBlockingExecute(self, java:fromString(methodID), payload, listenerService, headers);
+         return externNonBlockingExecute(self, methodID, payload, listenerService, headers);
     }
 
 
-    # Calls when executing streaming call with gRPC service.
-    #
-    # + methodID - Remote service method id.
-    # + listenerService - Call back listener service. This service listens the response message from service.
-    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
-    # + return - Returns client connection if executes successfully, error otherwise.
+# Calls when executing  a streaming call with a gRPC service.
+# ```ballerina
+# grpc:StreamingClient|grpc:Error result = grpcClient->streamingExecute("HelloWorld/lotsOfGreetings", msgListener, headers);
+# ```
+# + methodID - Remote service method ID
+# + listenerService - Call back listener service. This service listens to the response message from the service
+# + headers - Optional headers parameter. The header values are passed only if needed. The default value is `()`
+# + return - A `grpc:StreamingClient` object if executed successfully or else `()`
     public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ()) returns StreamingClient|Error {
-        return externStreamingExecute(self, java:fromString(methodID), listenerService, headers);
+        return externStreamingExecute(self, methodID, listenerService, headers);
     }
 };
 
-function retryBlockingExecute(Client grpcClient, handle methodIdHandle, anydata payload, Headers? headers,
+function retryBlockingExecute(Client grpcClient, string methodID, anydata payload, Headers? headers,
     RetryConfiguration retryConfig) returns ([anydata, Headers]|Error) {
     int currentRetryCount = 0;
     int retryCount = retryConfig.retryCount;
@@ -99,7 +109,7 @@ function retryBlockingExecute(Client grpcClient, handle methodIdHandle, anydata 
     error? cause = ();
 
     while (currentRetryCount <= retryCount) {
-        var result = externBlockingExecute(grpcClient, methodIdHandle, payload, headers);
+        var result = externBlockingExecute(grpcClient, methodID, payload, headers);
         if (result is [anydata, Headers]) {
             return result;
         } else {
@@ -117,27 +127,27 @@ function retryBlockingExecute(Client grpcClient, handle methodIdHandle, anydata 
     return prepareError(ALL_RETRY_ATTEMPTS_FAILED, "Maximum retry attempts completed without getting a result", cause);
 }
 
-function externInit(Client clientEndpoint, handle url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns Error? =
+function externInit(Client clientEndpoint, string url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externInitStub(Client genericEndpoint, AbstractClientEndpoint clientEndpoint, handle stubType, handle descriptorKey, map<any> descriptorMap) returns Error? =
+function externInitStub(Client genericEndpoint, AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externBlockingExecute(Client clientEndpoint, handle methodID, anydata payload, Headers? headers) returns ([anydata, Headers]|Error) =
+function externBlockingExecute(Client clientEndpoint, string methodID, anydata payload, Headers? headers) returns ([anydata, Headers]|Error) =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externNonBlockingExecute(Client clientEndpoint, handle methodID, anydata payload, service listenerService, Headers? headers) returns Error? =
+function externNonBlockingExecute(Client clientEndpoint, string methodID, anydata payload, service listenerService, Headers? headers) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
-function externStreamingExecute(Client clientEndpoint, handle methodID, service listenerService, Headers? headers) returns StreamingClient|Error =
+function externStreamingExecute(Client clientEndpoint, string methodID, service listenerService, Headers? headers) returns StreamingClient|Error =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
@@ -177,11 +187,11 @@ public type ClientConfiguration record {|
     RetryConfiguration? retryConfiguration = ();
 |};
 
-# Provides configurations for facilitating secure communication with a remote HTTP endpoint.
+# Provides the configurations for facilitating secure communication with a remote HTTP endpoint.
 #
-# + disable - Disable ssl validation.
-# + trustStore - Configurations associated with TrustStore
-# + keyStore - Configurations associated with KeyStore
+# + disable - Disable the SSL validation
+# + trustStore - Configurations associated with the TrustStore
+# + keyStore - Configurations associated with the KeyStore
 # + certFile - A file containing the certificate of the client
 # + keyFile - A file containing the private key of the client
 # + keyPassword - Password of the private key if it is encrypted

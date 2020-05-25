@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateProcessingInstruction {
 
-    public static XMLValue createProcessingInstruction(Strand strand, String target, String content) {
+    public static XMLValue createProcessingInstruction(Strand strand, BString target, BString content) {
         return XMLFactory.createXMLProcessingInstruction(target, content);
     }
 }

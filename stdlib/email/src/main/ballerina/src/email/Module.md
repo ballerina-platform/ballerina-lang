@@ -1,37 +1,29 @@
-## Module overview
+## Module Overview
 
-This module contains functions to perform email operations such as sending and reading emails using SMTP, POP3, and IMAP4 protocols.
+This module contains functions to perform email operations such as sending and reading emails using the SMTP, POP3, and IMAP4 protocols.
 
-## Sample
+### Client
 
-The below sample uses the functions in the module to send an email using the SMTP protocol.
+This module supports the following three client types.
 
+- `email:SmtpClient` - The client, which supports sending an email using the SMTP protocol.
+- `email:PopClient` - The client, which supports receiving an email using the POP3 protocol.
+- `email:ImapClient` - The client, which supports receiving an email using the IMAP4 protocol.
+
+#### SMTP Client
+
+To send an email using the SMTP protocol, you must first create an `email:SmtpClient` object. The code for creating an `email:SmtpClient` can be found
+ below.
+
+##### Creating a client
+
+The following code creates an SMTP client, which connects to the default port(465) and enables SSL.
 ```ballerina
-import ballerina/email;
-import ballerina/io;
-
-public function main() {
-    email:SmtpClient smtpClient = new ("smtp.email.com", "sender@email.com", "pass123");
-    email:Email email = {
-        to: ["receiver1@email.com", "receiver2@email.com"],
-        cc: ["receiver3@email.com", "receiver4@email.com"],
-        bcc: ["receiver5@email.com"],
-        subject: "Sample Email",
-        body: "This is a sample email.",
-        'from: "author@email.com",
-        sender: "sender@email.com",
-        replyTo: ["replyTo1@email.com", "replyTo2@email.com"]
-    };
-
-    email:Error? response = smtpClient->send(email);
-    if (response is email:Error) {
-        io:println("Error while sending the email: " + response.toString());
-    }
-
-}
+email:SmtpClient smtpClient = new ("smtp.email.com",
+                                   "sender@email.com",
+                                   "pass123");
 ```
-
-Port number of the server and/or the SSL support can be also configured with a configuration as follows.
+The port number of the server and/or the SSL support can also be configured by passing the following configurations.
 
 ```ballerina
 email:SmtpConfig smtpConfig = {
@@ -39,76 +31,100 @@ email:SmtpConfig smtpConfig = {
     enableSsl: true // Set true to enable SSL (SMTPS connections)
 };
 
-email:SmtpClient smtpClient = new ("smtp.email.com", "sender@email.com", "pass123", smtpConfig);
+email:SmtpClient smtpClient = new ("smtp.email.com",
+                                   "sender@email.com",
+                                   "pass123",
+                                    smtpConfig);
 ```
 
+##### Sending an email
 
-The below sample uses the functions in the module to receive an email using the POP3 protocol.
+Once the `email:SmtpClient` is created, an email can be sent using the SMTP protocol through that client.
+Samples for this operation can be found below.
 
 ```ballerina
-import ballerina/email;
-import ballerina/io;
+email:Email email = {
+    to: ["receiver1@email.com", "receiver2@email.com"],
+    cc: ["receiver3@email.com", "receiver4@email.com"],
+    bcc: ["receiver5@email.com"],
+    subject: "Sample Email",
+    body: "This is a sample email.",
+    'from: "author@email.com",
+    sender: "sender@email.com",
+    replyTo: ["replyTo1@email.com", "replyTo2@email.com"]
+};
 
-public function main() {
-    email:PopClient|email:Error popClient = new ("pop.email.com", "reader@email.com", "pass456");
-    if (popClient is email:PopClient) {
-        email:Email|email:Error? emailResponse = popClient->read();
-        if(emailResponse is email:Email) {
-            io:println("Email Subject: ", emailResponse.subject);
-            io:println("Email Body: ", emailResponse.body);
-        } else if (emailResponse is ()) {
-            io:println("There are no emails in the INBOX.");
-        } else {
-            io:println("Error while getting getting response: " + emailResponse.toString());
-        }
-    } else {
-        io:println("Error while creating client: " + popClient.toString());
-    }
-}
+email:Error? response = smtpClient->send(email);
 ```
 
-Port number of the server and/or the SSL support can be also configured with a configuration as follows.
+#### POP3 Client
 
+To receive an email using the POP3 protocol, you must first create an `email:PopClient` object. The code for creating an
+ `email:PopClient` can be found below.
+
+##### Creating a client
+
+The following code creates a POP3 client, which connects to the default port(995) and enables SSL.
+```ballerina
+email:PopClient|email:Error popClient = new ("pop.email.com",
+                                             "reader@email.com",
+                                             "pass456");
+```
+
+The port number of the server and/or the SSL support can also be configured by passing the following configurations.
 ```ballerina
 email:PopConfig popConfig = {
     port: 995,
     enableSsl: true
 };
 
-email:PopClient|email:Error popClient = new ("pop.email.com", "reader@email.com", "pass456", popConfig);
+email:PopClient|email:Error popClient = new ("pop.email.com",
+                                             "reader@email.com",
+                                             "pass456",
+                                              popConfig);
 ```
 
-The below sample uses the functions in the module to receive an email using the IMAP4 protocol.
+##### Receiving an email
+Once the `email:PopClient` is created, emails can be received using the POP3 protocol through that client.
+Samples for this operation can be found below.
 
 ```ballerina
-import ballerina/email;
-import ballerina/io;
-
-public function main() {
-    email:ImapClient|email:Error imapClient = new ("imap.email.com", "reader@email.com", "pass456");
-    if (imapClient is email:ImapClient) {
-            email:Email|email:Error emailResponse = imapClient->read();
-        if(emailResponse is email:Email) {
-            io:println("Email Subject: ", emailResponse.subject);
-            io:println("Email Body: ", emailResponse.body);
-        } else if (emailResponse is ()) {
-            io:println("There are no emails in the INBOX.");
-        } else {
-            io:println("Error while getting getting response: " + emailResponse.toString());
-        }
-    } else {
-        io:println("Error while creating client: " + imapClient.toString());
-    }
-}
+email:Email|email:Error? emailResponse = popClient->read();
 ```
 
-Port number of the server and/or the SSL support can be also configured with a configuration as follows.
+#### IMAP4 Client
 
+To receive an email using the IMAP4 protocol, you must first create an `email:ImapClient` object. The code for creating an
+ `email:ImapClient` can be found below.
+
+##### Creating a client
+
+The following code creates an IMAP4 client, which connects to the default port(993) and enables SSL.
+```ballerina
+email:ImapClient|email:Error imapClient = new ("imap.email.com",
+                                               "reader@email.com",
+                                               "pass456");
+```
+
+The port number of the server and/or the SSL support can also be configured by passing the following configurations.
 ```ballerina
 email:ImapConfig imapConfig = {
     port: 993,
     enableSsl: true
 };
 
-email:ImapClient|email:Error imapClient = new ("imap.email.com", "reader@email.com", "pass456", imapConfig);
+email:ImapClient|email:Error imapClient = new ("imap.email.com",
+                                               "reader@email.com",
+                                               "pass456",
+                                                imapConfig);
 ```
+
+##### Receiving an email
+Once the `email:ImapClient` is created, emails can be received using the IMAP4 protocol through that client.
+Samples for this operation can be found below.
+
+```ballerina
+email:Email|email:Error emailResponse = imapClient->read();
+```
+
+For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operation, see the [Send and Receive Emails Example](https://ballerina.io/learn/by-example/send-and-receive-emails.html).

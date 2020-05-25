@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.services.nativeimpl.request;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -69,8 +70,8 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testGetHeader() {
         ObjectValue inRequest = createRequestObject();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader",
-                                              new Object[]{ inRequest, HttpHeaderNames.CONTENT_TYPE.toString() });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader", new Object[]{inRequest,
+                StringUtils.fromString(HttpHeaderNames.CONTENT_TYPE.toString())});
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "Header not found!");
     }
@@ -195,12 +196,13 @@ public class RequestNativeFunctionNegativeTest {
         httpHeaders.add("Expect", "100-continue");
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
         outRequest.set(REQUEST_ENTITY_FIELD, entity);
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testRemoveHeader", new Object[]{ outRequest, range });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testRemoveHeader",
+                                              new Object[]{outRequest, StringUtils.fromString(range)});
 
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get(range));
     }
@@ -213,7 +215,7 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(returnHeaders.size(), 0);
     }
@@ -223,7 +225,7 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertEquals(compileResultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
         BAssertUtil.validateError(compileResultNegative, 0,
-                                  "undefined function 'setStatusCode' in object 'ballerina/http:Request'", 4, 9);
+                                  "undefined method 'setStatusCode' in object 'ballerina/http:Request'", 4, 9);
         BAssertUtil.validateError(compileResultNegative, 1,
                                   "undefined field 'statusCode' in object 'ballerina/http:Request'", 5, 8);
     }

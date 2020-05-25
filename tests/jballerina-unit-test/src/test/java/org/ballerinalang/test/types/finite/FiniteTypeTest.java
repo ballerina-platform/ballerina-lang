@@ -55,7 +55,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "off");
+        Assert.assertEquals(returns[0].stringValue(), "off");
     }
 
     @Test()
@@ -73,7 +73,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "This is a string");
+        Assert.assertEquals((returns[0].stringValue()), "This is a string");
     }
 
     @Test()
@@ -119,7 +119,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()
@@ -145,7 +145,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "ss");
+        Assert.assertEquals((returns[0].stringValue()), "ss");
     }
 
     @Test()
@@ -181,7 +181,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()
@@ -199,7 +199,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()
@@ -208,7 +208,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "Anonymous name");
+        Assert.assertEquals((returns[0].stringValue()), "Anonymous name");
     }
 
     @Test()
@@ -220,7 +220,7 @@ public class FiniteTypeTest {
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 100);
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals((((BString) returns[1]).stringValue()), "hundred");
+        Assert.assertEquals((returns[1].stringValue()), "hundred");
     }
 
     @Test()
@@ -229,10 +229,10 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "John");
+        Assert.assertEquals((returns[0].stringValue()), "John");
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals((((BString) returns[1]).stringValue()), "Anne");
+        Assert.assertEquals((returns[1].stringValue()), "Anne");
     }
 
     @Test()
@@ -293,15 +293,15 @@ public class FiniteTypeTest {
     public void testAssigningIntLiteralToDecimalFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningIntLiteralToDecimalFiniteType");
         Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
-        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")) == 0, "Value mismatch");
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")), 0, "Value mismatch");
     }
 
     @Test
     public void testAssigningFloatLiteralToDecimalFiniteType() {
         BValue[] returns = BRunUtil.invoke(result, "testAssigningFloatLiteralToDecimalFiniteType");
         Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
-        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0,
-                          "Value mismatch");
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")), 0,
+                            "Value mismatch");
     }
 
     @Test
@@ -322,15 +322,15 @@ public class FiniteTypeTest {
     public void testDifferentPrecisionDecimalAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalAssignment");
         Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
-        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")) == 0,
-                          "Value mismatch");
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5.0")), 0,
+                            "Value mismatch");
     }
 
     @Test
     public void testDifferentPrecisionDecimalConstantAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalConstantAssignment");
         Assert.assertTrue(returns[0] instanceof BDecimal, "Type mismatch");
-        Assert.assertTrue(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")) == 0, "Value mismatch");
+        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(new BigDecimal("5")), 0, "Value mismatch");
     }
 
     @Test(dataProvider = "assignmentToBroaderTypeFunctions")
@@ -358,13 +358,23 @@ public class FiniteTypeTest {
     @Test(description = "Test finite type where float/decimal discriminated literals as members")
     public void testFiniteTypeWithDiscriminatedMembers() {
         BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithDiscriminatedMembers");
-        Assert.assertEquals(((BFloat) returns[0]), new BFloat(1.0));
-        Assert.assertEquals(((BDecimal) returns[1]), new BDecimal("1.0"));
+        Assert.assertEquals(returns[0], new BFloat(1.0));
+        Assert.assertEquals(returns[1], new BDecimal("1.0"));
     }
 
     @Test(description = "Test finite type where typename is espaed identifier", groups = { "brokenOnSpecDeviation" })
     public void testEscapedTypeName() {
         BValue[] returns = BRunUtil.invoke(result, "testEscapedTypeName");
         Assert.assertEquals(returns[0].stringValue(), "-");
+    }
+
+    @Test(description = "Test finite type where integer literals with positive sign as members")
+    public void testFiniteTypesWithPositiveIntegers() {
+        BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
+    }
+
+    @Test(description = "Test finite type where float literals with positive sign as members")
+    public void testFiniteTypesWithPositiveFloats() {
+        BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
     }
 }

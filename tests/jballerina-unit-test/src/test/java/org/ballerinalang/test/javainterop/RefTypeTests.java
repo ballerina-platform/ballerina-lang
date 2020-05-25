@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BBoolean;
@@ -237,10 +238,10 @@ public class RefTypeTests {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptMixTypes");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertTrue(returns[1] instanceof BHandleValue);
-        Assert.assertEquals(((BHandleValue) returns[1]).getValue(), "hello");
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "hello");
         Assert.assertTrue(returns[2] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test
@@ -260,8 +261,8 @@ public class RefTypeTests {
     @Test
     public void testUseTypeDesc() {
         BValue[] returns = BRunUtil.invoke(result, "testUseTypeDesc");
-        Assert.assertTrue(returns[0] instanceof BHandleValue);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "typedesc json");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "typedesc json");
     }
 
     @Test
@@ -327,8 +328,8 @@ public class RefTypeTests {
         return new XMLItem(new QName("hello"));
     }
 
-    public static String getStringFromXML(XMLValue x) {
-        return x.toString();
+    public static org.ballerinalang.jvm.values.api.BString getStringFromXML(XMLValue x) {
+        return StringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -360,19 +361,19 @@ public class RefTypeTests {
     }
 
     public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {
         return (FPValue) fp;
     }
 
-    public static String useTypeDesc(TypedescValue type) {
-        return type.stringValue();
+    public static org.ballerinalang.jvm.values.api.BString useTypeDesc(TypedescValue type) {
+        return StringUtils.fromString(type.stringValue());
     }
 
     public static TypedescValue getTypeDesc() {
-        return new TypedescValue(BTypes.typeXML);
+        return new TypedescValueImpl(BTypes.typeXML);
     }
 
     public static Object useFuture(FutureValue future) {

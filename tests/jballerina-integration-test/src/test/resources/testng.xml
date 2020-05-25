@@ -133,6 +133,7 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
+            <class name="org.ballerinalang.test.auth.JwkSignatureValidationTest"/>
         </classes>
     </test>
 
@@ -193,7 +194,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
-            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
+<!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
         </classes>
     </test>
 
@@ -273,7 +274,7 @@
                 @BeforeClass in test classes which have @BeforeClass -->
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
-            <!--<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>-->
         </classes>
     </test>
 
@@ -286,13 +287,6 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
-        </classes>
-    </test>
-    <test name="ballerina-socket-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
-            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
         </classes>
     </test>
 
@@ -319,15 +313,16 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
-            <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
-            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
-            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
-            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
-            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
+<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
         </classes>
     </test>
 
@@ -357,12 +352,21 @@
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
         </classes>
     </test>
+
+    <test name="ballerina-launch-listener-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
+        </classes>
+    </test>
+
 <!--    <test name="ballerina-kafka-tests" parallel="false">-->
 <!--        <parameter name="enableJBallerinaTests" value="true" />-->
 <!--        <classes>-->
 <!--            <class name="org.ballerinalang.test.kafka.KafkaSerializerDeserializerTest" />-->
 <!--        </classes>-->
 <!--    </test>-->
+
     <test name="ballerina-testerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <groups>
@@ -374,6 +378,7 @@
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>
     </test>
+
     <test name="ballerina-docerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>

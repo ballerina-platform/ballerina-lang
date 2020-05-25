@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class TypeConverter {
                 return anyToFloat(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
-                return anyToString(inputValue);
+                return StringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeBoolean));
@@ -94,10 +95,10 @@ public class TypeConverter {
                 return anyToByte(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeByte));
             default:
-                throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                     BLangExceptionHelper.getErrorMessage(
-                                             RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                             inputType, inputValue, targetType));
+                throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                  BLangExceptionHelper.getErrorMessage(
+                                                          RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                                          inputType, inputValue, targetType));
         }
     }
 
@@ -285,11 +286,12 @@ public class TypeConverter {
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!sourceMapValueImpl.containsKey(fieldName)) {
-                BField targetField = targetType.getFields().get(fieldName);
-                if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
-                    return false;
-                }
+            if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
+                continue;
+            }
+            BField targetField = targetType.getFields().get(fieldName);
+            if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
+                return false;
             }
         }
 
@@ -510,14 +512,14 @@ public class TypeConverter {
         return intToUnsigned8(floatToInt(sourceVal));
     }
 
-    public static String stringToChar(Object sourceVal) {
+    public static BString stringToChar(Object sourceVal) {
         if (!isCharLiteralValue(sourceVal)) {
             throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeStringChar);
         }
-        return Objects.toString(sourceVal);
+        return StringUtils.fromString(Objects.toString(sourceVal));
     }
 
-    public static String anyToChar(Object sourceVal) {
+    public static BString anyToChar(Object sourceVal) {
         String value = Objects.toString(sourceVal);
         return stringToChar(value);
     }
@@ -637,10 +639,7 @@ public class TypeConverter {
             return (DecimalValue) sourceVal;
         } else if (sourceVal instanceof String) {
             return new DecimalValue((String) sourceVal);
-        } else if (sourceVal instanceof DecimalValue) {
-            return (DecimalValue) sourceVal;
         }
-
         throw errorFunc.get();
     }
 

@@ -43,6 +43,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -75,6 +79,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -272,6 +278,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
         rewrite(bLangInvocationNode.requiredArgs);
         rewrite(bLangInvocationNode.restArgs);
         result = bLangInvocationNode;
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInv) {
+        actionInv.expr = rewrite(actionInv.expr);
+        rewrite(actionInv.requiredArgs);
+        rewrite(actionInv.restArgs);
+        result = actionInv;
     }
 
     @Override
@@ -511,6 +525,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        rewrite(tableMultiKeyExpr.multiKeyIndexExprs);
+        result = tableMultiKeyExpr;
+    }
+
+    @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         ternaryExpr.expr = rewrite(ternaryExpr.expr);
         ternaryExpr.thenExpr = rewrite(ternaryExpr.thenExpr);
@@ -541,6 +561,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         rewrite(listConstructorExpr.exprs);
         result = listConstructorExpr;
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        rewrite(tableConstructorExpr.recordLiteralList);
+        result = tableConstructorExpr;
     }
 
     @Override
@@ -771,9 +797,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        rewrite(queryExpr.fromClauseList);
-        rewrite(queryExpr.whereClauseList);
-        queryExpr.selectClause = rewrite(queryExpr.selectClause);
+        List<BLangNode> clauses = queryExpr.getQueryClauses();
+        for (int i = 0; i < clauses.size(); i++) {
+            BLangNode clause = clauses.get(i);
+            clauses.set(i, rewrite(clause));
+        }
         result = queryExpr;
     }
 
@@ -781,6 +809,20 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         fromClause.collection = rewrite(fromClause.collection);
         result = fromClause;
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        joinClause.collection = rewrite(joinClause.collection);
+        result = joinClause;
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            letVariable.definitionNode = (VariableDefinitionNode) rewrite((BLangNode) letVariable.definitionNode);
+        }
+        result = letClause;
     }
 
     @Override
@@ -796,10 +838,24 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        onConflictClause.expression = rewrite(onConflictClause.expression);
+        result = onConflictClause;
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        onClause.expression = rewrite(onClause.expression);
+        result = onClause;
+    }
+
+    @Override
     public void visit(BLangQueryAction queryAction) {
-        rewrite(queryAction.fromClauseList);
-        rewrite(queryAction.whereClauseList);
-        queryAction.doClause = rewrite(queryAction.doClause);
+        List<BLangNode> clauses = queryAction.getQueryClauses();
+        for (int i = 0; i < clauses.size(); i++) {
+            BLangNode clause = clauses.get(i);
+            clauses.set(i, rewrite(clause));
+        }
         result = queryAction;
     }
 

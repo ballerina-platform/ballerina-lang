@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -33,6 +34,8 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 public class BMapType extends BType {
 
     private BType constraint;
+    private final boolean readonly;
+    private BMapType immutableType;
 
     /**
      * Create a type from the given name.
@@ -44,11 +47,18 @@ public class BMapType extends BType {
     public BMapType(String typeName, BType constraint, BPackage pkg) {
         super(typeName, pkg, MapValueImpl.class);
         this.constraint = constraint;
+        this.readonly = false;
     }
 
     public BMapType(BType constraint) {
+        this(constraint, false, null);
+    }
+
+    public BMapType(BType constraint, boolean readonly, BMapType immutableType) {
         super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
         this.constraint = constraint;
+        this.readonly = readonly;
+        this.immutableType = immutableType;
     }
 
     /**
@@ -73,7 +83,7 @@ public class BMapType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new MapValueImpl<String, V>(new BMapType(constraint));
+        return (V) new MapValueImpl<BString, V>(new BMapType(constraint));
     }
 
     @Override
@@ -88,11 +98,15 @@ public class BMapType extends BType {
 
     @Override
     public String toString() {
+        String stringRep;
+
         if (constraint == BTypes.typeAny) {
-            return super.toString();
+            stringRep = super.toString();
+        } else {
+            stringRep = "map" + "<" + constraint.toString() + ">";
         }
 
-        return "map" + "<" + constraint.getName() + ">";
+        return !readonly ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override
@@ -102,6 +116,11 @@ public class BMapType extends BType {
         }
 
         BMapType other = (BMapType) obj;
+
+        if (this.readonly != other.readonly) {
+            return false;
+        }
+
         if (constraint == other.constraint) {
             return true;
         }
@@ -112,5 +131,20 @@ public class BMapType extends BType {
     @Override
     public boolean isAnydata() {
         return this.constraint.isPureType();
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
+    }
+
+    @Override
+    public BType getImmutableType() {
+        return this.immutableType;
+    }
+
+    @Override
+    public void setImmutableType(BType immutableType) {
+        this.immutableType = (BMapType) immutableType;
     }
 }

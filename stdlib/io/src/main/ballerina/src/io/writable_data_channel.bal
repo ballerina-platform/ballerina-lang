@@ -39,83 +39,111 @@ public type WritableDataChannel object {
     public function __init(WritableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
         // Remove temp once this got fixed #19842
         string temp = bOrder;
-        initWritableDataChannel(self, byteChannel, java:fromString(temp));
+        initWritableDataChannel(self, byteChannel, temp);
     }
 
-    # Writes 16 bit integer.
-    #
-    # + value - integer which will be written
-    # + return - nill if the content is written successfully or `Error` if any error occurred
+# Writes a 16 bit integer.
+# ```ballerina
+# io:Error? err = dataChannel.writeInt16(length);
+# ```
+#
+# + value - The integer, which will be written
+# + return - `()` if the content is written successfully or else an `io:Error` if any error occurred
     public function writeInt16(int value) returns Error? {
         return writeInt16Extern(self, value);
     }
 
-    # Writes 32 bit integer.
-    #
-    # + value - integer which will be written
-    # + return - nill if the content is written successfully or `Error` if any error occurred
+# Writes a 32 bit integer.
+# ```ballerina
+# io:Error? err = dataChannel.writeInt32(length);
+# ```
+# 
+# + value - The integer, which will be written
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeInt32(int value) returns Error? {
         return writeInt32Extern(self, value);
     }
 
-    # Writes 64 bit integer.
-    #
-    # + value - integer which will be written
-    # + return - nill if the content is written successfully or `Error` if any error occurred
+# Writes a 64 bit integer.
+# ```ballerina
+# io:Error? err = dataChannel.writeInt64(length);
+# ```
+#
+# + value - The integer, which will be written
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeInt64(int value) returns Error? {
         return writeInt64Extern(self, value);
     }
 
-    # Writes 32 bit float.
-    #
-    # + value - float which will be written
-    # + return - nill if the float is written successfully or `Error` if any error occurred
+# Writes a 32 bit float.
+# ```ballerina
+# io:Error? err = dataChannel.writeFloat32(3.12);
+# ```
+#
+# + value - The float, which will be written
+# + return - `()` if the float is written successfully or else `io:Error` if any error occurred
     public function writeFloat32(float value) returns Error? {
         return writeFloat32Extern(self, value);
     }
 
-    # Writes 64 bit float.
-    #
-    # + value - float which will be written
-    # + return - nill if the float is written successfully or `Error` if any error occurred
+# Writes a 64 bit float.
+# ```ballerina
+# io:Error? err = dataChannel.writeFloat32(3.12);
+# ```
+#
+# + value - The float, which will be written
+# + return - `()` if the float is written successfully or else `io:Error` if any error occurred
     public function writeFloat64(float value) returns Error? {
         return writeFloat64Extern(self, value);
     }
 
-    # Writes boolean.
-    #
-    # + value - boolean which will be written
-    # + return - nill if the content is written successfully or `Error` if any error occurred
+# Writes a boolean.
+# ```ballerina
+# io:Error? err = dataChannel.writeInt64(length);
+# ```
+#
+# + value - The boolean, which will be written
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeBool(boolean value) returns Error? {
         return writeBoolExtern(self, value);
     }
 
-    # Writes a given string value to the respective channel.
-    #
-    # + value - the value which should be written
-    # + encoding - the encoding which will represent the value string
-    # + return - nill if the content is written successfully or `Error` if any error occurred
+# Writes a given string value to the respective channel.
+# ```ballerina
+# io:Error? err = dataChannel.writeString(record);
+# ```
+#
+# + value - The value, which should be written
+# + encoding - The encoding, which will represent the value string
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeString(string value, string encoding) returns Error? {
-        return writeStringExtern(self, java:fromString(value), java:fromString(encoding));
+        return writeStringExtern(self, value, encoding);
     }
 
-    # Writes a variable length integer.
-    #
-    # + value - int which will be written
-    # + return - value of the integer which is read or `Error` if any error occurred
+# Writes a variable-length integer.
+# ```ballerina
+# io:Error? err = dataChannel.writeVarInt(length);
+# ```
+#
+# + value - The int, which will be written
+# + return - The value of the integer, which is written or else `io:Error` if any error occurred
     public function writeVarInt(int value) returns Error? {
         return writeVarIntExtern(self, value);
     }
 
-    # Closes the data channel.
-    #
-    # + return - nill if the channel is closed successfully or `Error` if any error occurred
+# Closes the data channel.
+# ```ballerina
+# io:Error? err = dataChannel.close();
+# ```
+#
+# + return - `()` if the channel is closed successfully or else `io:Error` if any error occurred
     public function close() returns Error? {
         return closeWritableDataChannelExtern(self);
     }
 };
 
-function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel, handle bOrder) = @java:Method {
+function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel,
+                                 string bOrder) = @java:Method {
     name: "initWritableDataChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
@@ -150,7 +178,8 @@ function writeBoolExtern(WritableDataChannel dataChannel, boolean value) returns
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
-function writeStringExtern(WritableDataChannel dataChannel, handle value, handle encoding) returns Error? = @java:Method {
+function writeStringExtern(WritableDataChannel dataChannel, string value, string encoding)
+                           returns Error? = @java:Method {
     name: "writeString",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

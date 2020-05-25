@@ -70,6 +70,17 @@ package org.ballerinalang.jvm.values;
      }
 
      @Override
+     public boolean equals(Object str) {
+         if (str == this) {
+             return true;
+         }
+         if (str instanceof BString) {
+             return ((BString) str).getValue().equals(value);
+         }
+         return false;
+     }
+
+     @Override
      public String toString() {
          return value;
      }
@@ -77,6 +88,12 @@ package org.ballerinalang.jvm.values;
      @Override
      public Long indexOf(BString str, int fromIndex) {
          long index = value.indexOf(str.getValue(), fromIndex);
+         return index >= 0 ? index : null;
+     }
+
+     @Override
+     public Long lastIndexOf(BString str, int fromIndex) {
+         long index = value.lastIndexOf(str.getValue(), fromIndex);
          return index >= 0 ? index : null;
      }
 

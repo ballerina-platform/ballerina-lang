@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.jdbc.connection;
 
 import org.ballerinalang.jdbc.utils.SQLDBUtils;
@@ -31,6 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.sql.SQLException;
 
 /**
  * Test JDBC Client Initialization.
@@ -44,7 +46,7 @@ public class ConnectorInitTest {
             new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws SQLException {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("connection", "connector-init-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
@@ -109,9 +111,11 @@ public class ConnectorInitTest {
         SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         BMap connectionPool = (BMap) returnVal[0];
-        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
+        Assert.assertEquals(
+                connectionPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS.getValue()).stringValue()
                 , "1800");
-        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS).stringValue(), "25");
+        Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_OPEN_CONNECTIONS.getValue()).stringValue(),
+                            "25");
     }
 
     @Test

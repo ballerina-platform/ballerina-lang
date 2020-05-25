@@ -24,9 +24,10 @@ const BYTE_ARRAY = "byte[]";
 const AVRO_RECORD = "kafka:AvroRecord";
 const ANY = "anydata";
 
-// Consumer-related constants.
-
-// Deserializer types
+// ********************************************
+//         Consumer-Related constants         *
+// ********************************************
+// Deserializer types.
 # In-built Kafka byte array deserializer.
 public const DES_BYTE_ARRAY = "BYTE_ARRAY";
 
@@ -45,16 +46,18 @@ public const DES_CUSTOM = "CUSTOM";
 # Apache Avro deserializer.
 public const DES_AVRO = "AVRO";
 
-// Isolation levels
-# Consumer isolation level value 'read_committed'
+// Isolation levels.
+# Configures the consumer to read the committed messages only in the transactional mode when poll() is called.
 public const ISOLATION_COMMITTED = "read_committed";
 
-# Consumer isolation level value 'read_uncommitted'
+# Configures the consumer to read all the messages including the aborted ones.
 public const ISOLATION_UNCOMMITTED = "read_uncommitted";
 
-// Producer related constants
-// Produce Ack types
-# Producer acknowledgement type 'all'. This will gurantee that the record will not be lost as long as at least one
+// ********************************************
+//         Producer-Related constants         *
+// ********************************************
+// Produce Ack types.
+# Producer acknowledgement type is 'all'. This will guarantee that the record will not be lost as long as at least one
 # in-sync replica is alive.
 public const ACKS_ALL = "all";
 
@@ -63,10 +66,10 @@ public const ACKS_ALL = "all";
 public const ACKS_NONE = "0";
 
 # Producer acknowledgement type '1'. If the acknowledgement type set to this, the leader will write the record to its
-# local log but will respond without awaiting full acknowledgement from all followers.
+# A local log will respond without waiting FOR full acknowledgement from all the followers.
 public const ACKS_SINGLE = "1";
 
-// Serializer types
+// Serializer types.
 # In-built Kafka Byte Array serializer.
 public const SER_BYTE_ARRAY = "BYTE_ARRAY";
 
@@ -82,21 +85,33 @@ public const SER_FLOAT = "FLOAT";
 # User-defined serializer.
 public const SER_CUSTOM = "CUSTOM";
 
-# Apache avro serializer.
+# Apache Avro serializer.
 public const SER_AVRO = "AVRO";
 
-// Compression types
-# Kafka compression type. Value 'none'
+// Compression types.
+# No compression.
 public const COMPRESSION_NONE = "none";
 
-# Kafka compression type. Value 'gzip'
+# Kafka GZIP compression type.
 public const COMPRESSION_GZIP = "gzip";
 
-# Kafka compression type. Value 'snappy'
+# Kafka Snappy compression type.
 public const COMPRESSION_SNAPPY = "snappy";
 
-# Kafka compression type. Value 'lz4'
+# Kafka LZ4 compression type.
 public const COMPRESSION_LZ4 = "lz4";
 
-# Kafka compression type. Value 'zstd'
+# Kafka ZSTD compression type.
 public const COMPRESSION_ZSTD = "zstd";
+
+// ********************************************
+//              Common constants              *
+// ********************************************
+// SASL Authentication mechanisms
+# Kafka SASL_PLAIN authentication mechanism
+public const AUTH_SASL_PLAIN = "PLAIN";
+
+
+// Security Protocols
+public const PROTOCOL_SASL_PLAINTEXT = "SASL_PLAINTEXT";
+public const PROTOCOL_SASL_SSL = "SASL_SSL";

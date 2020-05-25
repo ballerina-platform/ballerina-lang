@@ -34,8 +34,8 @@ public class BByteArrayValueNegativeTest {
         Assert.assertEquals(result.getErrorCount(), 21);
 
         int index = 0;
-        String msg1 = "expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', '==', '!=', '>', '<', " +
-                "'>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', '->>', '..<', '.@'}";
+        String msg1 = "expecting {'is', 'equals', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', '==', '!=', '>'," +
+                " '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:', '->>', '..<', '.@'}";
         
         BAssertUtil.validateError(result, index++, "mismatched input '6'. " + msg1, 2, 22);
         BAssertUtil.validateError(result, index++, "mismatched input '16'. " + msg1, 3, 21);
@@ -44,12 +44,13 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 6, 23);
         BAssertUtil.validateError(result, index++, "mismatched input '`'. expecting {'service', " +
                 "'function', 'object', 'record', 'abstract', 'client', 'typeof', 'int', 'byte', 'float', " +
-                "'decimal', 'boolean', 'string', 'error', 'map', 'json', 'xml', 'stream', 'any', " +
-                "'typedesc', 'future', 'anydata', 'handle', 'new', '__init', 'foreach', 'continue', 'trap', 'start', " +
-                "'check', 'checkpanic', 'flush', 'wait', 'from', 'let', '{', '(', '[', '+', '-', '!', '<', '~', '<-'," +
-                " '@', DecimalIntegerLiteral, HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
-                "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, Base16BlobLiteral, " +
-                "Base64BlobLiteral, 'null', Identifier, XMLLiteralStart, StringTemplateLiteralStart}", 6, 59);
+                "'decimal', 'boolean', 'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
+                "'typedesc', 'future', 'anydata', 'handle', 'readonly', 'new', '__init', 'foreach', 'continue', " +
+                "'trap', 'start', 'check', 'checkpanic', 'flush', 'wait', 'from', 'let', '{', '(', '[', '+', '-', " +
+                "'!', '<', '~', '<-', '@', DecimalIntegerLiteral, HexIntegerLiteral, " +
+                "HexadecimalFloatingPointLiteral, DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
+                "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier, XMLLiteralStart, " +
+                "StringTemplateLiteralStart}", 6, 59);
         BAssertUtil.validateError(result, index, "mismatched input '`'. " + msg1, 7, 23);
     }
 }

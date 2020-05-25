@@ -18,8 +18,10 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,12 +42,12 @@ import java.util.StringJoiner;
 )
 public class Join {
 
-    public static String join(Strand strand, String separator, ArrayValue strs) {
-        StringJoiner stringJoiner = new StringJoiner(separator);
+    public static BString join(Strand strand, BString separator, ArrayValue strs) {
+        StringJoiner stringJoiner = new StringJoiner(separator.getValue());
         int size = strs.size();
         for (int i = 0; i < size; i++) {
-            stringJoiner.add(strs.getString(i));
+            stringJoiner.add(strs.getBString(i).getValue());
         }
-        return stringJoiner.toString();
+        return StringUtils.fromString(stringJoiner.toString());
     }
 }

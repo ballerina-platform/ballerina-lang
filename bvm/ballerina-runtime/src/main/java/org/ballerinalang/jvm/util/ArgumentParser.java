@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.util;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -66,8 +67,8 @@ public class ArgumentParser {
      * Method to retrieve the {@link Object} array containing the arguments to invoke the function specified as the
      * entry function. First element is ignored to keep the strand.
      *
-     * @param funcInfo {@link ParamInfo} array for the entry function
-     * @param args     the string array of arguments specified
+     * @param funcInfo     {@link ParamInfo} array for the entry function
+     * @param args         the string array of arguments specified
      * @param hasRestParam whether function accepts rest arguments
      * @return the {@link Object} array containing the arguments to invoke the function
      */
@@ -77,7 +78,7 @@ public class ArgumentParser {
         try {
             bValueArgs = getEntryFuncArgs(funcInfo, args, hasRestParam);
         } catch (ErrorValue e) {
-            RuntimeUtils.handleUsageError(e.getReason());
+            RuntimeUtils.handleUsageError(e.getReason().getValue());
         }
         return bValueArgs;
     }
@@ -180,7 +181,7 @@ public class ArgumentParser {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
-                return value;
+                return StringUtils.fromString(value);
             case TypeTags.INT_TAG:
                 return getIntegerValue(value);
             case TypeTags.FLOAT_TAG:
@@ -400,7 +401,7 @@ public class ArgumentParser {
         }
 
         if (unionMemberTypes.contains(BTypes.typeString)) {
-            return unionArg;
+            return getBValue(BTypes.typeString, unionArg);
         }
 
         for (int memberTypeIndex = 0; memberTypeIndex < unionMemberTypes.size(); ) {

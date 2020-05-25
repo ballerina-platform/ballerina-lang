@@ -49,8 +49,6 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 )
 public class Entries {
 
-    private static int refType = -1;
-
     public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
         BType newFieldType = getFieldType(m.getType(), "entries()");
         BTupleType entryType = new BTupleType(Arrays.asList(BTypes.typeString, newFieldType));
@@ -66,4 +64,5 @@ public class Entries {
 
         return entries;
     }
+
 }

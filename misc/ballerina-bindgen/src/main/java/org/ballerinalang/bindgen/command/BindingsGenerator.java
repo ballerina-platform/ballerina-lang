@@ -19,6 +19,7 @@ package org.ballerinalang.bindgen.command;
 
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.JError;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -40,7 +41,8 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.EMPTY_OBJECT_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TYPES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
@@ -74,6 +76,7 @@ public class BindingsGenerator {
     private static Set<String> allClasses = new HashSet<>();
     private static Set<String> classListForLooping = new HashSet<>();
     private static Set<String> allJavaClasses = new HashSet<>();
+    private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
     void generateJavaBindings() throws BindgenException {
@@ -135,29 +138,28 @@ public class BindingsGenerator {
         utilsDirPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
     }
 
-    private void handleFailedClassGens() throws BindgenException {
+    private void handleFailedClassGens() {
         errStream.print("\n");
         for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
             if (classNames.contains(entry.getKey())) {
-                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated. "
-                        + entry.getValue());
+                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
+                        entry.getValue() + "\n");
             }
-            String simpleClassName = entry.getKey().substring(entry.getKey().lastIndexOf('.') + 1);
-            writeOutputFile(entry.getKey(), DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
-                    Paths.get(modulePath.toString(), simpleClassName + BAL_EXTENSION).toString(), false);
         }
     }
 
     private void generateUtilFiles() throws BindgenException {
-        createDirectory(utilsDirPath.toString());
+        String utilsDirStrPath = utilsDirPath.toString();
+        createDirectory(utilsDirStrPath);
+        createDirectory(Paths.get(utilsDirStrPath, ERROR_TYPES_DIR).toString());
 
         // Create the JObject.bal file.
         writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
-                Paths.get(utilsDirPath.toString(), JOBJECT_FILE_NAME).toString(), false);
+                Paths.get(utilsDirStrPath, JOBJECT_FILE_NAME).toString(), false);
 
         // Create the ArrayUtils.bal file.
         writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
-                Paths.get(utilsDirPath.toString(), ARRAY_UTILS_FILE_NAME).toString(), false);
+                Paths.get(utilsDirStrPath, ARRAY_UTILS_FILE_NAME).toString(), false);
 
         // Create the Constants.bal file.
         Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
@@ -168,6 +170,13 @@ public class BindingsGenerator {
         }
         if (!names.isEmpty()) {
             writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+        }
+
+        // Create the .bal files for Ballerina error types.
+        for (JError jError : exceptionList) {
+            String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
+                    Paths.get(utilsDirStrPath, ERROR_TYPES_DIR, fileName).toString(), false);
         }
     }
 
@@ -225,5 +234,13 @@ public class BindingsGenerator {
 
     public static void setAllClasses(String allClasses) {
         BindingsGenerator.allClasses.add(allClasses);
+    }
+
+    public static Set<JError> getExceptionList() {
+        return exceptionList;
+    }
+
+    public static void setExceptionList(JError exception) {
+        BindingsGenerator.exceptionList.add(exception);
     }
 }

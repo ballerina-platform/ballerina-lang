@@ -18,7 +18,9 @@
 
 package org.ballerinalang.nats;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
@@ -70,10 +72,10 @@ public class Constants {
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";
 
     // Represents the object which holds the connection.
-    public static final String CONNECTION_OBJ = "conn";
+    public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
 
     // Represents the connection url
-    public static final String URL = "url";
+    public static final BString URL = StringUtils.fromString("url");
 
     // Represents the NATS Streaming message.
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
@@ -81,7 +83,7 @@ public class Constants {
     public static final String NATS_BASIC_CONSUMER_ANNOTATION = "SubscriptionConfig";
 
     public static final String NATS_STREAMING_SUBSCRIPTION_ANNOTATION = "StreamingSubscriptionConfig";
-    public static final String NATS_STREAMING_MANUAL_ACK = "manualAck";
+    public static final BString NATS_STREAMING_MANUAL_ACK = StringUtils.fromString("manualAck");
 
     public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
 
@@ -101,13 +103,13 @@ public class Constants {
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
     public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from subject ";
 
-    public static final String CONNECTION_CONFIG_SECURE_SOCKET = "secureSocket";
-    public static final String CONNECTION_KEYSTORE = "keyStore";
-    public static final String CONNECTION_TRUSTORE = "trustStore";
-    public static final String CONNECTION_PROTOCOL = "protocol";
+    public static final BString CONNECTION_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
+    public static final BString CONNECTION_KEYSTORE = StringUtils.fromString("keyStore");
+    public static final BString CONNECTION_TRUSTORE = StringUtils.fromString("trustStore");
+    public static final BString CONNECTION_PROTOCOL = StringUtils.fromString("protocol");
     public static final String KEY_STORE_TYPE = "PKCS12";
-    public static final String KEY_STORE_PASS = "password";
-    public static final String KEY_STORE_PATH = "path";
+    public static final BString KEY_STORE_PASS = StringUtils.fromString("password");
+    public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
     public static final String MODULE = "[ballerina/nats] ";
@@ -118,11 +120,11 @@ public class Constants {
 
     // Service annotation fields.
     public static final String SUBSCRIPTION_CONFIG = "SubscriptionConfig";
-    public static final String QUEUE_NAME = "queueName";
-    public static final String SUBJECT = "subject";
-    public static final String PENDING_LIMITS = "pendingLimits";
-    public static final String MAX_MESSAGES = "maxMessages";
-    public static final String MAX_BYTES = "maxBytes";
+    public static final BString QUEUE_NAME = StringUtils.fromString("queueName");
+    public static final BString SUBJECT = StringUtils.fromString("subject");
+    public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");
+    public static final BString MAX_MESSAGES = StringUtils.fromString("maxMessages");
+    public static final BString MAX_BYTES = StringUtils.fromString("maxBytes");
 
     private Constants() {
     }

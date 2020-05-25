@@ -54,6 +54,7 @@ import java.util.List;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -72,7 +73,6 @@ public class RunCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean isInDebugMode = false;
 
     @CommandLine.Parameters(description = "Program arguments")
     private List<String> argList;
@@ -107,6 +107,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
+    private boolean newParserEnabled;
+
     public RunCommand() {
         this.outStream = System.err;
         this.errStream = System.err;
@@ -134,9 +137,9 @@ public class RunCommand implements BLauncherCmd {
             return;
         }
 
-        // enable remote debugging.
-        if (null != this.debugPort) {
-            isInDebugMode = true;
+        // Sets the debug port as a system property, which will be used when setting up debug args before running the
+        // executable jar in a separate JVM process.
+        if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
@@ -257,6 +260,7 @@ public class RunCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
@@ -278,7 +282,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CopyModuleJarTask(false, true))
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
-                .addTask(new RunExecutableTask(programArgs, isInDebugMode))
+                .addTask(new RunExecutableTask(programArgs))
                 .build();
 
         taskExecutor.executeTasks(buildContext);

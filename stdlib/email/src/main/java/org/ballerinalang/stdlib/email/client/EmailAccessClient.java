@@ -19,9 +19,9 @@
 package org.ballerinalang.stdlib.email.client;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.util.EmailAccessUtil;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.slf4j.Logger;
@@ -47,6 +47,7 @@ import javax.mail.search.FlagTerm;
 public class EmailAccessClient {
 
     private static final Logger log = LoggerFactory.getLogger(EmailAccessClient.class);
+    private static final FlagTerm UNSEEN_FLAG = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 
     private EmailAccessClient() {
         // A Singleton class.
@@ -61,21 +62,20 @@ public class EmailAccessClient {
      * @param config Properties required to configure the POP session
      * @return If an error occurs in the POP client, returns an error
      */
-    public static Object initPopClientEndpoint(ObjectValue clientEndpoint, String host, String username,
-                                               String password, MapValue<Object, Object> config) {
-        Properties properties = EmailAccessUtil.getPopProperties(config, host);
+    public static Object initPopClientEndpoint(ObjectValue clientEndpoint, BString host, BString username,
+                                               BString password, MapValue<BString, Object> config) {
+        Properties properties = EmailAccessUtil.getPopProperties(config, host.getValue());
         Session session = Session.getInstance(properties, null);
         try {
             Store store = session.getStore(EmailConstants.POP_PROTOCOL);
             clientEndpoint.addNativeData(EmailConstants.PROPS_STORE, store);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST, host);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD, password);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST.getValue(), host.getValue());
+            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username.getValue());
+            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD.getValue(), password.getValue());
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(
-                    EmailConstants.READ_CLIENT_INIT_ERROR), e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
         }
     }
 
@@ -88,21 +88,20 @@ public class EmailAccessClient {
      * @param config Properties required to configure the IMAP session
      * @return If an error occurs in the IMAP client, returns an error
      */
-    public static Object initImapClientEndpoint(ObjectValue clientEndpoint, String host, String username,
-                                               String password, MapValue<Object, Object> config) {
-        Properties properties = EmailAccessUtil.getImapProperties(config, host);
+    public static Object initImapClientEndpoint(ObjectValue clientEndpoint, BString host, BString username,
+                                                BString password, MapValue<BString, Object> config) {
+        Properties properties = EmailAccessUtil.getImapProperties(config, host.getValue());
         Session session = Session.getInstance(properties, null);
         try {
             Store store = session.getStore(EmailConstants.IMAP_PROTOCOL);
             clientEndpoint.addNativeData(EmailConstants.PROPS_STORE, store);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST, host);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
-            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD, password);
+            clientEndpoint.addNativeData(EmailConstants.PROPS_HOST.getValue(), host.getValue());
+            clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username.getValue());
+            clientEndpoint.addNativeData(EmailConstants.PROPS_PASSWORD.getValue(), password.getValue());
             return null;
         } catch (NoSuchProviderException e) {
             log.error("Failed initialize client properties : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(
-                    EmailConstants.READ_CLIENT_INIT_ERROR), e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.READ_CLIENT_INIT_ERROR, e.getMessage());
         }
     }
 
@@ -112,31 +111,36 @@ public class EmailAccessClient {
      * @param folder Name of the folder to read emails
      * @return If successful return the received email, otherwise an error
      */
-    public static Object readMessage(ObjectValue clientConnector, String folder) {
-        String host = (String) clientConnector.getNativeData(EmailConstants.PROPS_HOST);
-        String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME);
-        String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD);
+    public static Object readMessage(ObjectValue clientConnector, BString folder) {
+        String host = (String) clientConnector.getNativeData(EmailConstants.PROPS_HOST.getValue());
+        String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME.getValue());
+        String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD.getValue());
         try (Store store = (Store) clientConnector.getNativeData(EmailConstants.PROPS_STORE)) {
+            log.debug("Access email server with properties, host: " + host + " username: " + username
+                    + " folder: " + folder.getValue());
             store.connect(host, username, password);
-            Folder emailFolder = store.getFolder(folder);
-            emailFolder.open(Folder.READ_WRITE);
-            Message[] messages = emailFolder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-            MapValue mapValue = null;
-            if (messages.length > 0) {
-                Flags flags = new Flags();
-                flags.add(Flags.Flag.SEEN);
-                emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
-                mapValue = EmailAccessUtil.getMapValue(messages[0]);
+            Folder emailFolder = store.getFolder(folder.getValue());
+            MapValue<BString, Object> mapValue = null;
+            if (emailFolder == null) {
+                log.error("Email store folder, " + folder.getValue() + " is not found.");
+            } else {
+                emailFolder.open(Folder.READ_WRITE);
+                Message[] messages = emailFolder.search(UNSEEN_FLAG);
+                if (messages.length > 0) {
+                    Flags flags = new Flags();
+                    flags.add(Flags.Flag.SEEN);
+                    emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
+                    mapValue = EmailAccessUtil.getMapValue(messages[0]);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Got the messages. Email count = " + messages.length);
+                }
+                emailFolder.close(false);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("[EmailAccessClient][Read] Got the messages. Email count = " + messages.length);
-            }
-            emailFolder.close(false);
             return mapValue;
         } catch (MessagingException | IOException e) {
             log.error("Failed to read message : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.READ_ERROR),
-                    e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.READ_ERROR, e.getMessage());
         }
     }
 

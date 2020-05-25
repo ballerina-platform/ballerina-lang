@@ -46,9 +46,9 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsNaN", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test mathematical operation that returns Infinity")
@@ -56,9 +56,9 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsInfinite", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test mathematical operation that returns a finite number")
@@ -66,9 +66,9 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testIsFinite", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test result that is returned from a mathematical operation")
@@ -76,9 +76,9 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testWithCalc", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test result that is returned from a mod with divisor as zero")
@@ -86,9 +86,9 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testModWithDivisorAsZero", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test result that is returned from a mod with both dividend and divisor as zero")
@@ -96,9 +96,9 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testModZeroByZero", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test result that is returned from a mod with divisor as a finite number")
@@ -106,18 +106,18 @@ public class BuiltinOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testModWithDivisorAsFinite", new BValue[0]);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test negative tests")
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 5);
-        BAssertUtil.validateError(resNegative, 0, "undefined function 'isNaN'", 20, 28);
-        BAssertUtil.validateError(resNegative, 1, "undefined function 'isInfinite'", 21, 33);
-        BAssertUtil.validateError(resNegative, 2, "undefined function 'isFinite'", 22, 28);
-        BAssertUtil.validateError(resNegative, 3, "undefined function 'isNaN'", 24, 25);
-        BAssertUtil.validateError(resNegative, 4, "undefined function 'isInfinite'", 25, 34);
+        BAssertUtil.validateError(resNegative, 0, "undefined function 'isNaN' in type 'int'", 20, 28);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'isInfinite' in type 'int'", 21, 33);
+        BAssertUtil.validateError(resNegative, 2, "undefined function 'isFinite' in type 'int'", 22, 28);
+        BAssertUtil.validateError(resNegative, 3, "undefined function 'isNaN' in type 'int'", 24, 25);
+        BAssertUtil.validateError(resNegative, 4, "undefined function 'isInfinite' in type 'int'", 25, 34);
     }
 }

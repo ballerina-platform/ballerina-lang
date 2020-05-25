@@ -44,6 +44,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   constantDefinition
+    |   enumDefinition
     ;
 
 serviceDefinition
@@ -56,6 +57,10 @@ serviceBody
 
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
+    ;
+
+blockStatement
+    :   LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 externalFunctionBody
@@ -119,7 +124,8 @@ objectFieldDefinition
     ;
 
 fieldDefinition
-    :   documentationString? annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* TYPE_READONLY? typeName Identifier QUESTION_MARK?
+            (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -155,9 +161,18 @@ constantDefinition
     :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
+enumDefinition
+    :   documentationString? annotationAttachment* PUBLIC? ENUM Identifier LEFT_BRACE
+            (enumMember (COMMA enumMember)*)? RIGHT_BRACE
+    ;
+
+enumMember
+    :   documentationString? annotationAttachment* Identifier (ASSIGN constantExpression)?
+    ;
+
 globalVariableDefinition
     :   PUBLIC? LISTENER typeName? Identifier ASSIGN expression SEMICOLON
-    |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 attachmentPoint
@@ -212,12 +227,14 @@ typeName
     :   simpleTypeName                                                                          # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
+    |   typeName BIT_AND typeName                                                               # intersectionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
     |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
+    |   tableTypeDescriptor                                                                     # tableTypeNameLabel
     ;
 
 inclusiveRecordTypeDescriptor
@@ -246,6 +263,7 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_READONLY
     |   valueTypeName
     |   referenceTypeName
     |   nilLiteral
@@ -271,10 +289,10 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
-    |   TYPE_FUTURE LT typeName GT
+    |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_DESC LT typeName GT
+    |   TYPE_DESC (LT typeName GT)?
     |   SERVICE
     |   errorTypeName
     |   streamTypeName
@@ -283,6 +301,30 @@ builtInReferenceTypeName
 
 streamTypeName
     :   TYPE_STREAM (LT typeName (COMMA typeName)? GT)?
+    ;
+
+tableConstructorExpr
+    :   TYPE_TABLE tableKeySpecifier? LEFT_BRACKET tableRowList? RIGHT_BRACKET
+    ;
+
+tableRowList
+    :   recordLiteral (COMMA recordLiteral)*
+    ;
+
+tableTypeDescriptor
+    :   TYPE_TABLE LT typeName GT tableKeyConstraint?
+    ;
+
+tableKeyConstraint
+    :   tableKeySpecifier | tableKeyTypeConstraint
+    ;
+
+tableKeySpecifier
+    :   KEY LEFT_PARENTHESIS (Identifier (COMMA Identifier)*)? RIGHT_PARENTHESIS
+    ;
+
+tableKeyTypeConstraint
+    :   KEY LT typeName GT
     ;
 
 functionTypeName
@@ -333,6 +375,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   blockStatement
     ;
 
 variableDefinitionStatement
@@ -353,8 +396,8 @@ staticMatchLiterals
     ;
 
 recordField
-    :   Identifier
-    |   recordKey COLON expression
+    :   TYPE_READONLY? Identifier
+    |   TYPE_READONLY? recordKey COLON expression
     |   ELLIPSIS expression
     ;
 
@@ -682,7 +725,11 @@ xmlElementAccessFilter
     ;
 
 index
-    :   LEFT_BRACKET expression RIGHT_BRACKET
+    :   LEFT_BRACKET (expression | multiKeyIndex) RIGHT_BRACKET
+    ;
+
+multiKeyIndex
+    :   expression (COMMA expression)+
     ;
 
 xmlAttrib
@@ -779,6 +826,7 @@ expression
     :   simpleLiteral                                                       # simpleLiteralExpression
     |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
+    |   tableConstructorExpr                                                # tableConstructorExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
@@ -796,6 +844,7 @@ expression
     |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression JOIN_EQUALS expression                                   # binaryEqualsExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
@@ -857,8 +906,16 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+onConflictClause
+    :    ON CONFLICT expression
+    ;
+
 selectClause
     :   SELECT expression
+    ;
+
+onClause
+    :   ON expression
     ;
 
 whereClause
@@ -867,6 +924,10 @@ whereClause
 
 letClause
     :   LET letVarDecl (COMMA letVarDecl)*
+    ;
+
+joinClause
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN VAR bindingPattern) IN expression
     ;
 
 fromClause
@@ -878,11 +939,15 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause (fromClause | letClause | whereClause)*
+    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
+    ;
+
+queryConstructType
+    :   TYPE_TABLE tableKeySpecifier | TYPE_STREAM
     ;
 
 queryExpr
-    :   queryPipeline selectClause
+    :   queryConstructType? queryPipeline selectClause onConflictClause?
     ;
 
 queryAction
@@ -939,8 +1004,8 @@ formalParameterList
     ;
 
 simpleLiteral
-    :   SUB? integerLiteral
-    |   SUB? floatingPointLiteral
+    :   (ADD | SUB)? integerLiteral
+    |   (ADD | SUB)? floatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   nilLiteral
@@ -1208,11 +1273,13 @@ documentationIdentifier
     |   TYPE_JSON
     |   TYPE_XML
     |   TYPE_STREAM
+    |   TYPE_TABLE
     |   TYPE_ANY
     |   TYPE_DESC
     |   TYPE_FUTURE
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_READONLY
     ;
 
 braket

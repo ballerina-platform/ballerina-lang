@@ -91,3 +91,47 @@ public function restActionResultAssignment() {
     map<string> sm = c->foo1();
     var { a: d } = c->foo2();
 }
+
+
+function assignErrorArrayToAnyTypeArrayViseVersa() {
+    error[] ea = [];
+    any[] j = ea;
+    any[] anyArray = [];
+    error[] errorArray = anyArray;
+}
+
+public const C_ERROR = "CError";
+public const L_ERROR = "LError";
+
+public type Detail record {
+    string message;
+    error cause?;
+};
+
+type CError error<C_ERROR, Detail>;
+type LError error<L_ERROR, Detail>;
+type CLError CError|LError;
+
+function nonAssingableErrorTypeArrayAssign() {
+    CLError?[] err = [];
+    error?[] errs = err;
+    ProcessErrors(errs);
+    err = errs;
+}
+
+function ProcessErrors(CLError?[] errors) {}
+
+function assignErrorArrayToUnionWithError() {
+    error e1 = error("E1");
+    error[] x = [e1];
+    error|int[] y = x;
+}
+
+function assignErrorToUnionWithErrorArray() {
+    error e1 = error("E1");
+    int|error[] y = e1;
+}
+
+function assignFunctionParameterAnyToParameterUnionWithErrorAndAny() {
+    function (any|error...) returns () func = function (any... y) {};
+}

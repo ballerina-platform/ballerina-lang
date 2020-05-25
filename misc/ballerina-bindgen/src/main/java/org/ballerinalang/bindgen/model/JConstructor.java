@@ -21,7 +21,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
 
 /**
@@ -32,15 +34,18 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTER
 public class JConstructor implements Cloneable {
 
     private String interopType;
+    private String exceptionName;
     private String shortClassName;
     private String initObjectName;
     private String constructorName;
     private String externalFunctionName;
 
+    private boolean returnError = false;
     private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
     private boolean handleException = false; // identifies if the Java constructor throws an error
 
     private List<JParameter> parameters = new ArrayList<>();
+    private StringBuilder paramTypes = new StringBuilder();
 
     JConstructor(Constructor c) {
         shortClassName = c.getDeclaringClass().getSimpleName();
@@ -50,8 +55,11 @@ public class JConstructor implements Cloneable {
 
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
-            parameters.add(new JParameter(param));
-            if (param.getType().isArray()) {
+            JParameter parameter = new JParameter(param);
+            parameters.add(parameter);
+            paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
+            if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
+                returnError = true;
                 hasException = true;
             }
         }
@@ -63,9 +71,19 @@ public class JConstructor implements Cloneable {
         }
 
         // Populate fields to identify error return types.
-        if (c.getExceptionTypes().length > 0) {
-            hasException = true;
-            handleException = true;
+        for (Class<?> exceptionType : c.getExceptionTypes()) {
+            try {
+                if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
+                        .isAssignableFrom(exceptionType)) {
+                    JError jError = new JError(exceptionType);
+                    exceptionName = jError.getShortExceptionName();
+                    setExceptionList(jError);
+                    hasException = true;
+                    handleException = true;
+                    break;
+                }
+            } catch (ClassNotFoundException ignore) {
+            }
         }
     }
 
@@ -83,5 +101,9 @@ public class JConstructor implements Cloneable {
 
     public String getConstructorName() {
         return constructorName;
+    }
+
+    String getParamTypes() {
+        return paramTypes.toString();
     }
 }

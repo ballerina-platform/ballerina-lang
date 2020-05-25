@@ -723,11 +723,74 @@ public abstract class BIRNode {
      */
     public static class BIRLockDetailsHolder {
 
-        //This is the number of recursive locks in the current scope.
-        public long numLocks = 0;
+        //This is the list of recursive locks in the current scope.
+        private List<BIRTerminator.Lock> locks = new ArrayList<>();
 
         public boolean isEmpty() {
-            return numLocks == 0;
+            return locks.isEmpty();
+        }
+
+        public void removeLastLock() {
+            locks.remove(size() - 1);
+        }
+
+        public BIRTerminator.Lock getLock(int index) {
+            return locks.get(index);
+        }
+
+        public void addLock(BIRTerminator.Lock lock) {
+            locks.add(lock);
+        }
+
+        public int size() {
+            return locks.size();
+        }
+    }
+
+    /**
+     * Represents the entries in a mapping constructor expression.
+     *
+     * @since 1.3.0
+     */
+    public abstract static class BIRMappingConstructorEntry {
+
+        public boolean isKeyValuePair() {
+            return true;
+        }
+    }
+
+    /**
+     * Represents a key-value entry in a mapping constructor expression.
+     *
+     * @since 1.3.0
+     */
+    public static class BIRMappingConstructorKeyValueEntry extends BIRMappingConstructorEntry {
+
+        public BIROperand keyOp;
+        public BIROperand valueOp;
+
+        public BIRMappingConstructorKeyValueEntry(BIROperand keyOp, BIROperand valueOp) {
+            this.keyOp = keyOp;
+            this.valueOp = valueOp;
+        }
+    }
+
+    /**
+     * Represents a spread-field entry in a mapping constructor expression.
+     *
+     * @since 1.3.0
+     */
+    public static class BIRMappingConstructorSpreadFieldEntry extends BIRMappingConstructorEntry {
+
+        public BIROperand exprOp;
+
+        public BIRMappingConstructorSpreadFieldEntry(BIROperand exprOp) {
+            this.exprOp = exprOp;
+        }
+
+        @Override
+        public boolean isKeyValuePair() {
+            return false;
         }
     }
 }

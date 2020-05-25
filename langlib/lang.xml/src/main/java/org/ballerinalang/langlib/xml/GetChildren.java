@@ -45,6 +45,6 @@ public class GetChildren {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getChildren", "element");
         }
 
-        return (XMLValue) xmlVal.children();
+        return xmlVal.children();
     }
 }

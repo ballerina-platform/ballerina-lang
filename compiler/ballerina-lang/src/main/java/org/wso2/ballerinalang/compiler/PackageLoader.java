@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
@@ -102,7 +103,8 @@ public class PackageLoader {
     private final boolean offline;
     private final boolean testEnabled;
     private final boolean lockEnabled;
-    
+    private final boolean newParserEnabled;
+
     /**
      * Manifest of the current project.
      */
@@ -153,6 +155,7 @@ public class PackageLoader {
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
+        this.newParserEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.NEW_PARSER_ENABLED));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
@@ -492,7 +495,12 @@ public class PackageLoader {
     }
 
     private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
-        BLangPackage packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
+        BLangPackage packageNode;
+        if (this.newParserEnabled) {
+            packageNode = this.parser.parseNew(pkgSource, this.sourceDirectory.getPath());
+        } else {
+            packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());
+        }
         packageNode.packageID = pkgId;
         // Set the same packageId to the testable node
         packageNode.getTestablePkgs().forEach(testablePkg -> testablePkg.packageID = pkgId);

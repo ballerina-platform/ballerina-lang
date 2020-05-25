@@ -63,8 +63,8 @@ public class SetChildren {
         } else if (TypeTags.isXMLTypeTag(childrenType.getTag())) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString),
-                            TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
-                    childrenType);
+                                   TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
+                                                     childrenType);
         }
 
         try {
