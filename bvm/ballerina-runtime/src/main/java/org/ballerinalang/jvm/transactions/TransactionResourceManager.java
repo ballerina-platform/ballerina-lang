@@ -205,6 +205,7 @@ public class TransactionResourceManager {
     /**
      * This method acts as the callback which aborts all the resources participated in the given transaction.
      *
+     * @param strand the strand
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      * @return the status of the abort operation
