@@ -32,6 +32,7 @@ public enum OperatorKind {
     AND("&&"),
     OR("||"),
     EQUAL("=="),
+    EQUALS("equals"),
     NOT_EQUAL("!="),
     GREATER_THAN(">"),
     GREATER_EQUAL(">="),

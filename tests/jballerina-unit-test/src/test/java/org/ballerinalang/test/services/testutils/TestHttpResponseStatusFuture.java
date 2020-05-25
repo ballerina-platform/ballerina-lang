@@ -26,7 +26,7 @@ import org.wso2.transport.http.netty.contractimpl.DefaultOperationStatus;
  */
 public class TestHttpResponseStatusFuture extends DefaultHttpResponseFuture {
 
-    public TestHttpResponseStatusFuture sync() throws InterruptedException {
+    public TestHttpResponseStatusFuture sync() {
         return this;
     }
 

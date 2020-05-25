@@ -45,12 +45,12 @@ public class BStringType extends BType {
     }
 
     public <V extends Object> V getZeroValue() {
-        return (V) new String(BLangConstants.STRING_EMPTY_VALUE);
+        return (V) BLangConstants.STRING_EMPTY_VALUE;
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new String(BLangConstants.STRING_EMPTY_VALUE);
+        return (V) BLangConstants.STRING_EMPTY_VALUE;
     }
 
     @Override

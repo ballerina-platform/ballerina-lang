@@ -62,7 +62,8 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
                 "'PersonalDetails'", 60, 18);
         validateError(result, index++, "incompatible types: expected '(A|B|any & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "invalid field: 'readonly' field expected for 'details'", 105, 18);
+        validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
+                "'PersonalDetails'", 105, 18);
         validateError(result, index++, "incompatible types: expected 'Department & readonly' for field 'dept', found " +
                 "'Department'", 106, 12);
 

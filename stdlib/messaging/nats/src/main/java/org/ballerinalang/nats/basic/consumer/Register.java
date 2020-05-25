@@ -62,8 +62,8 @@ public class Register {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
                                                errorMessage + " Cannot find subscription configuration.");
         }
-        String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
-        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
+        String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
+        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         BRuntime runtime = BRuntime.getCurrentRuntime();
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
         NatsMetricsReporter natsMetricsReporter =

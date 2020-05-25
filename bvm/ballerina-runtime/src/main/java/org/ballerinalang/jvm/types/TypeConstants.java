@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
+
 /**
  * This class contains all the supported type names as string.
  *
@@ -73,8 +76,8 @@ public class TypeConstants {
 
     // Special Types and Type fields.
     public static final String DETAIL_TYPE = "detail";
-    public static final String DETAIL_MESSAGE = "message";
-    public static final String DETAIL_CAUSE = "cause";
+    public static final BString DETAIL_MESSAGE = StringUtils.fromString("message");
+    public static final BString DETAIL_CAUSE = StringUtils.fromString("cause");
 
     // Return type of the next function in iterators
     public static final String ITERATOR_NEXT_RETURN_TYPE = "$$returnType$$";

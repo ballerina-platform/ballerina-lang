@@ -43,7 +43,4 @@ public class Clone {
         return CloneUtils.cloneValue(value);
     }
 
-    public static Object clone_bstring(Strand strand, Object value) {
-        return clone(strand, value);
-    }
 }

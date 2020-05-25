@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class RecordRestDescriptorNode extends NonTerminalNode {
 
@@ -75,5 +77,56 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
                 typeName,
                 ellipsisToken,
                 semicolonToken);
+    }
+
+    public RecordRestDescriptorNodeModifier modify() {
+        return new RecordRestDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class RecordRestDescriptorNodeModifier {
+        private final RecordRestDescriptorNode oldNode;
+        private Node typeName;
+        private Token ellipsisToken;
+        private Token semicolonToken;
+
+        public RecordRestDescriptorNodeModifier(RecordRestDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.typeName = oldNode.typeName();
+            this.ellipsisToken = oldNode.ellipsisToken();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public RecordRestDescriptorNodeModifier withTypeName(
+                Node typeName) {
+            Objects.requireNonNull(typeName, "typeName must not be null");
+            this.typeName = typeName;
+            return this;
+        }
+
+        public RecordRestDescriptorNodeModifier withEllipsisToken(
+                Token ellipsisToken) {
+            Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+            this.ellipsisToken = ellipsisToken;
+            return this;
+        }
+
+        public RecordRestDescriptorNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public RecordRestDescriptorNode apply() {
+            return oldNode.modify(
+                    typeName,
+                    ellipsisToken,
+                    semicolonToken);
+        }
     }
 }

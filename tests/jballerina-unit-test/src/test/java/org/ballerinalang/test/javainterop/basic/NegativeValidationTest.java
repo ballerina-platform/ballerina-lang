@@ -35,7 +35,7 @@ public class NegativeValidationTest {
 
         String path = "test-src/javainterop/ballerina_types_as_interop_types_negative.bal";
         CompileResult compileResult = BCompileUtil.compileInProc(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 13);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 12);
     }
 
     @Test

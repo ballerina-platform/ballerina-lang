@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class LetExpressionNode extends ExpressionNode {
 
@@ -83,5 +85,66 @@ public class LetExpressionNode extends ExpressionNode {
                 letVarDeclarations,
                 inKeyword,
                 expression);
+    }
+
+    public LetExpressionNodeModifier modify() {
+        return new LetExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class LetExpressionNodeModifier {
+        private final LetExpressionNode oldNode;
+        private Token letKeyword;
+        private SeparatedNodeList<Node> letVarDeclarations;
+        private Token inKeyword;
+        private ExpressionNode expression;
+
+        public LetExpressionNodeModifier(LetExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.letKeyword = oldNode.letKeyword();
+            this.letVarDeclarations = oldNode.letVarDeclarations();
+            this.inKeyword = oldNode.inKeyword();
+            this.expression = oldNode.expression();
+        }
+
+        public LetExpressionNodeModifier withLetKeyword(
+                Token letKeyword) {
+            Objects.requireNonNull(letKeyword, "letKeyword must not be null");
+            this.letKeyword = letKeyword;
+            return this;
+        }
+
+        public LetExpressionNodeModifier withLetVarDeclarations(
+                SeparatedNodeList<Node> letVarDeclarations) {
+            Objects.requireNonNull(letVarDeclarations, "letVarDeclarations must not be null");
+            this.letVarDeclarations = letVarDeclarations;
+            return this;
+        }
+
+        public LetExpressionNodeModifier withInKeyword(
+                Token inKeyword) {
+            Objects.requireNonNull(inKeyword, "inKeyword must not be null");
+            this.inKeyword = inKeyword;
+            return this;
+        }
+
+        public LetExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public LetExpressionNode apply() {
+            return oldNode.modify(
+                    letKeyword,
+                    letVarDeclarations,
+                    inKeyword,
+                    expression);
+        }
     }
 }

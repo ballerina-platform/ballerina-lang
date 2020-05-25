@@ -21,7 +21,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
 import java.util.Iterator;
-import java.util.Spliterator;
 
 /**
  * A list of child nodes of a non-terminal node in the syntax tree.
@@ -56,11 +55,6 @@ public class ChildNodeList implements Iterable<Node> {
     @Override
     public Iterator<Node> iterator() {
         return new ChildNodeIterator(this.size);
-    }
-
-    @Override
-    public Spliterator<Node> spliterator() {
-        return null;
     }
 
     private int getChildCount(STNode parent) {
@@ -109,8 +103,9 @@ public class ChildNodeList implements Iterable<Node> {
     }
 
     private void rangeCheck(int childIndex) {
-        if (childIndex >= size || childIndex < 0)
+        if (childIndex >= size || childIndex < 0) {
             throw new IndexOutOfBoundsException("Index: '" + childIndex + "', Size: '" + size + "'");
+        }
     }
 
     /**

@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
@@ -59,7 +61,8 @@ public class ValueCreatorUtils {
     }
 
     public static ObjectValue createPushPromiseObject() {
-        return createObjectValue(httpValueCreator, PUSH_PROMISE, "/", "GET");
+        return createObjectValue(httpValueCreator, PUSH_PROMISE, StringUtils.fromString("/"),
+                                 StringUtils.fromString("GET"));
     }
 
     public static ObjectValue createRequestCacheControlObject() {
@@ -80,7 +83,7 @@ public class ValueCreatorUtils {
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
-    public static MapValue<String, Object> createHTTPRecordValue(String recordTypeName) {
+    public static MapValue<BString, Object> createHTTPRecordValue(String recordTypeName) {
         return httpValueCreator.createRecordValue(recordTypeName);
     }
 

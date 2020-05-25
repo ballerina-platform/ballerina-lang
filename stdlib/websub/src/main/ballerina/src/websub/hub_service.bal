@@ -379,7 +379,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     string key = generateKey(topic, callback);
     var retrievedRequest = pendingRequests[key];
     if (retrievedRequest is PendingSubscriptionChangeRequest) {
-        if (pendingSubscriptionChangeRequest.equals(retrievedRequest)) {
+        if (pendingSubscriptionChangeRequest.'equals(retrievedRequest)) {
             _ = pendingRequests.remove(key);
         }
     }
@@ -605,7 +605,7 @@ type PendingSubscriptionChangeRequest object {
     #
     # + pendingRequest - The pending subscription change request to be checked against pending subscription or unsubscription
     # + return - A `boolean` indicating whether the requests are equal or not
-    function equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
+    function 'equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
         return pendingRequest.mode == self.mode && pendingRequest.topic == self.topic && pendingRequest.callback == self.callback;
     }
 };

@@ -73,7 +73,7 @@ public class ErrorTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInValidErrorTypeExtraGt() {
-        test("error<NO_MATCHING_OBJECT>> a;", "error-type/error_type_assert_02.json");
+        test("error<NO_MATCHING_OBJECT>> a;", "error-type/error_type_assert_10.json");
     }
 
     @Test

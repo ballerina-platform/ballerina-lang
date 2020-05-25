@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test class for ballerina map.
@@ -103,9 +105,9 @@ public class BMapValueTest {
         map.put(new BString("IS"), new BInteger(0));
         map.put(new BString("ESB"), new BInteger(1));
         map.put(new BString("APIM"), new BInteger(2));
-        assertEquals(map.hasKey(new BString("IS")), true);
-        assertEquals(map.hasKey(new BString("ESB")), true);
-        assertEquals(map.hasKey(new BString("APIM")), true);
+        assertTrue(map.hasKey(new BString("IS")));
+        assertTrue(map.hasKey(new BString("ESB")));
+        assertTrue(map.hasKey(new BString("APIM")));
     }
 
     @Test
@@ -175,6 +177,7 @@ public class BMapValueTest {
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
         Assert.assertEquals(returnVals[0].stringValue(), "item2", "Return value din't match.");
     }
+
     @Test(description = "Testing map value access in variableDefStmt")
     void testInvalidGrammar1() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-1-negative.bal");
@@ -201,10 +204,10 @@ public class BMapValueTest {
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<String, Object> map = new MapValueImpl<>();
-        map.put("key1", 1);
-        map.put("key2", "foo");
-        map.put("key3", XMLFactory.parse("<bar>hello</bar>"));
+        MapValue<org.ballerinalang.jvm.values.api.BString, Object> map = new MapValueImpl<>();
+        map.put(StringUtils.fromString("key1"), 1);
+        map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
+        map.put(StringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));
         Assert.assertEquals(map.stringValue(), "key1=1 key2=foo key3=<bar>hello</bar>");
     }
 

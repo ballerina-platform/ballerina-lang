@@ -82,6 +82,8 @@ public class SmtpComplexEmailSendTest {
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
     private static final String EMAIL_CONTENT_TYPE = "text/html";
+    private static final String HEADER1_NAME = "header1_name";
+    private static final String HEADER1_VALUE = "header1_value";
     private static final String[] EMAIL_TO_ADDRESSES = {"hascode1@localhost", "hascode2@localhost"};
     private static final String[] EMAIL_CC_ADDRESSES = {"hascode3@localhost", "hascode4@localhost"};
     private static final String[] EMAIL_BCC_ADDRESSES = {"hascode5@localhost", "hascode6@localhost"};
@@ -102,7 +104,7 @@ public class SmtpComplexEmailSendTest {
         compileResult = BCompileUtil.compileOffline(true, sourceFilePath.toAbsolutePath().toString());
     }
 
-    @Test(description = "Test for sending an email with all the parameters")
+    @Test(description = "Test for sending an email with all the parameters", enabled = false)
     public void testSendComplexEmail() throws MessagingException, IOException {
         BValue[] args = { new BString(HOST_NAME), new BString(USER_NAME), new BString(USER_PASSWORD),
                 new BString(EMAIL_SUBJECT), new BString(EMAIL_TEXT), new BString(EMAIL_CONTENT_TYPE),
@@ -131,6 +133,7 @@ public class SmtpComplexEmailSendTest {
             testAttachment5((MimeBodyPart) multiPart.getBodyPart(5));
             testAttachment6((MimeBodyPart) multiPart.getBodyPart(6));
 
+            assertEquals(HEADER1_VALUE, message.getHeader(HEADER1_NAME)[0]);
             assertEquals(EMAIL_FROM, message.getFrom()[0].toString());
             assertEquals(EMAIL_SENDER, message.getSender().toString());
             assertTrue(containAddresses(message.getRecipients(Message.RecipientType.TO), EMAIL_TO_ADDRESSES));

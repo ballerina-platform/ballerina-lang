@@ -39,4 +39,27 @@ public class IdentifierToken extends Token {
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
+
+    public IdentifierToken modify(String text) {
+        return modify(text, this.leadingMinutiae(), this.trailingMinutiae());
+    }
+
+    public IdentifierToken modify(MinutiaeList leadingMinutiae, MinutiaeList trailingMinutiae) {
+        if (internalNode.leadingMinutiae() == leadingMinutiae.internalNode() &&
+                internalNode.trailingMinutiae() == trailingMinutiae.internalNode()) {
+            return this;
+        } else {
+            return NodeFactory.createIdentifierToken(this.text(), leadingMinutiae, trailingMinutiae);
+        }
+    }
+
+    public IdentifierToken modify(String text, MinutiaeList leadingMinutiae, MinutiaeList trailingMinutiae) {
+        if (text().equals(text) &&
+                internalNode.leadingMinutiae() == leadingMinutiae.internalNode() &&
+                internalNode.trailingMinutiae() == trailingMinutiae.internalNode()) {
+            return this;
+        } else {
+            return NodeFactory.createIdentifierToken(text, leadingMinutiae, trailingMinutiae);
+        }
+    }
 }

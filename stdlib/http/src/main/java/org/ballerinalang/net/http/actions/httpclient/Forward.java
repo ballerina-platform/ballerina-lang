@@ -40,7 +40,7 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
 public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
     public static Object forward(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         Strand strand = Scheduler.getStrand();
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path, requestObj);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
