@@ -582,12 +582,18 @@ public class TypeChecker {
         }
 
         int sourceTypeTag = sourceType.getTag();
+        int targetTypeTag = targetType.getTag();
 
         if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
-            return checkIsType(((BIntersectionType) sourceType).getEffectiveType(), targetType, unresolvedTypes);
+            return checkIsType(((BIntersectionType) sourceType).getEffectiveType(),
+                               targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                       ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
         }
 
-        int targetTypeTag = targetType.getTag();
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -664,8 +670,6 @@ public class TypeChecker {
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
                 return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
-            case TypeTags.INTERSECTION_TAG:
-                return checkIsIntersectionType(sourceType, (BIntersectionType) targetType, unresolvedTypes);
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -717,16 +721,6 @@ public class TypeChecker {
                 return false;
 
         }
-    }
-
-    private static boolean checkIsIntersectionType(BType sourceType, BIntersectionType targetType,
-                                                   List<TypePair> unresolvedTypes) {
-        for (BType constituentType : targetType.getConstituentTypes()) {
-            if (!checkIsType(sourceType, constituentType, unresolvedTypes)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
@@ -1386,16 +1380,26 @@ public class TypeChecker {
      */
     private static boolean checkIsLikeOnValue(Object sourceValue, BType sourceType, BType targetType,
                                               List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (sourceType.getTag() == TypeTags.INTERSECTION_TAG) {
-            return checkIsLikeOnValue(sourceValue, ((BIntersectionType) sourceType).getEffectiveType(), targetType,
+        int sourceTypeTag = sourceType.getTag();
+        int targetTypeTag = targetType.getTag();
+
+        if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, ((BIntersectionType) sourceType).getEffectiveType(),
+                                      targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                              ((BIntersectionType) targetType).getEffectiveType(),
                                       unresolvedValues, allowNumericConversion);
         }
 
-        switch (targetType.getTag()) {
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
+                                      unresolvedValues, allowNumericConversion);
+        }
+
+        switch (targetTypeTag) {
             case TypeTags.READONLY_TAG:
                 return true;
             case TypeTags.BYTE_TAG:
-                if (TypeTags.isIntegerTypeTag(sourceType.getTag())) {
+                if (TypeTags.isIntegerTypeTag(sourceTypeTag)) {
                     return isByteLiteral((Long) sourceValue);
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToByte(sourceValue);
@@ -1407,7 +1411,7 @@ public class TypeChecker {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                if (TypeTags.isIntegerTypeTag(sourceType.getTag()) || targetType.getTag() == TypeTags.BYTE_TAG) {
+                if (TypeTags.isIntegerTypeTag(sourceTypeTag) || targetTypeTag == TypeTags.BYTE_TAG) {
                     return TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
@@ -1440,7 +1444,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType);
             case TypeTags.XML_ELEMENT_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     XMLValue xmlSource = (XMLValue) sourceValue;
                     return xmlSource.isSingleton();
                 }
@@ -1448,12 +1452,12 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return checkIsLikeNonElementSingleton((XMLValue) sourceValue, targetType);
                 }
                 return false;
             case TypeTags.XML_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return checkIsLikeXMLSequenceType((XMLValue) sourceValue, targetType);
                 }
                 return false;
@@ -1484,13 +1488,6 @@ public class TypeChecker {
                     }
                 }
                 return false;
-            case TypeTags.INTERSECTION_TAG:
-                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
-                    if (!checkIsLikeType(sourceValue, constituentType, unresolvedValues, allowNumericConversion)) {
-                        return false;
-                    }
-                }
-                return true;
             default:
                 return false;
         }

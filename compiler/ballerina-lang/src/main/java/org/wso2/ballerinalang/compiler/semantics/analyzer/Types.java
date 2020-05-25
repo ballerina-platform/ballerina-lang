@@ -484,7 +484,14 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.INTERSECTION) {
-            return isAssignable(((BIntersectionType) source).effectiveType, target, unresolvedTypes,
+            return isAssignable(((BIntersectionType) source).effectiveType,
+                                targetTag != TypeTags.INTERSECTION ? target :
+                                        ((BIntersectionType) target).effectiveType, unresolvedTypes,
+                                unresolvedReadonlyTypes);
+        }
+
+        if (targetTag == TypeTags.INTERSECTION) {
+            return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes,
                                 unresolvedReadonlyTypes);
         }
 
@@ -580,11 +587,6 @@ public class Types {
         if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION) &&
                 isAssignableToUnionType(source, target, unresolvedTypes, unresolvedReadonlyTypes)) {
             return true;
-        }
-
-        if (targetTag == TypeTags.INTERSECTION) {
-            return isAssignableToIntersectionType(source, (BIntersectionType) target, unresolvedTypes,
-                                                  unresolvedReadonlyTypes);
         }
 
         if (targetTag == TypeTags.JSON) {
@@ -2277,16 +2279,6 @@ public class Types {
                         || (s.tag == TypeTags.XML
                             && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes,
                                                        unresolvedReadonlyTypes)));
-    }
-
-    private boolean isAssignableToIntersectionType(BType source, BIntersectionType target,
-                                                   Set<TypePair> unresolvedTypes, Set<BType> unresolvedReadonlyTypes) {
-        for (BType constituentType : target.getConstituentTypes()) {
-            if (!isAssignable(source, constituentType, unresolvedTypes, unresolvedReadonlyTypes)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes,
