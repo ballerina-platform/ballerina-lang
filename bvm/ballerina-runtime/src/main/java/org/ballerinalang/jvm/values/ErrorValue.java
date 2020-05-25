@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
@@ -60,21 +59,6 @@ public class ErrorValue extends BError implements RefValue {
     private final Object details;
 
     @Deprecated
-    public ErrorValue(String message, Object details) {
-        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-                message, null, details);
-    }
-
-    @Deprecated
-    public ErrorValue(BType type, String message, ErrorValue cause, Object details) {
-        super(message);
-        this.type = type;
-        this.message = StringUtils.fromString(message);
-        this.cause = cause;
-        this.details = details;
-    }
-
-    @Deprecated
     public ErrorValue(BString message, Object details) {
         this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
                 message, null, details);
@@ -102,7 +86,7 @@ public class ErrorValue extends BError implements RefValue {
         if (cause != null) {
             return org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(cause) + " ";
         }
-        return STRING_EMPTY_VALUE;
+        return "";
     }
 
     @Override
@@ -135,21 +119,12 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     /**
-     * Returns error reason.
+     * Returns error message.
      *
-     * @return reason string
+     * @return message string
      */
-    // todo: How do we handle this?
-//    public BString getErrorReason() {
-//        return reason;
-//    }
-
     @Override
-    public String getMessage() {
-        return this.message.getValue();
-    }
-
-    public BString getErrorMessageBString() {
+    public BString getErrorMessage() {
         return this.message;
     }
 
@@ -202,7 +177,7 @@ public class ErrorValue extends BError implements RefValue {
      * @return stack trace string
      */
     public String getPrintableStackTrace() {
-        String errorMsg = getErrorMessage();
+        String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
         // Append function/action/resource name with package path (if any)
@@ -242,7 +217,7 @@ public class ErrorValue extends BError implements RefValue {
         sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
 
-    private String getErrorMessage() {
+    private String getPrintableError() {
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add(this.message.getValue());

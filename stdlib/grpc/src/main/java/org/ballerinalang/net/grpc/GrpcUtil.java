@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -76,7 +77,7 @@ public class GrpcUtil {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcUtil.class);
 
-    public static ConnectionManager getConnectionManager(MapValue<String, Long> poolStruct) {
+    public static ConnectionManager getConnectionManager(MapValue<BString, Long> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (poolStruct) {
@@ -91,7 +92,7 @@ public class GrpcUtil {
         return poolManager;
     }
 
-    public static void populatePoolingConfig(MapValue<String, Long> poolRecord, PoolConfiguration poolConfiguration) {
+    public static void populatePoolingConfig(MapValue<BString, Long> poolRecord, PoolConfiguration poolConfiguration) {
         long maxActiveConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
         poolConfiguration.setMaxActivePerPool(
                 validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
@@ -110,7 +111,7 @@ public class GrpcUtil {
     }
 
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration,
-                                                    MapValue<String, Object> clientEndpointConfig, String scheme) {
+                                                    MapValue<BString, Object> clientEndpointConfig, String scheme) {
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
         if (secureSocket != null) {
@@ -135,15 +136,16 @@ public class GrpcUtil {
      * @param sslConfiguration  ssl configuration instance.
      * @param secureSocket    secure socket configuration.
      */
-    public static void populateSSLConfiguration(SslConfiguration sslConfiguration, MapValue secureSocket) {
+    public static void populateSSLConfiguration(SslConfiguration sslConfiguration,
+            MapValue<BString, Object> secureSocket) {
         MapValue trustStore = secureSocket.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
         MapValue keyStore = secureSocket.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
         MapValue protocols = secureSocket.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
         MapValue validateCert = secureSocket.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
-        String keyFile = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY);
-        String certFile = secureSocket.getStringValue(ENDPOINT_CONFIG_CERTIFICATE);
-        String trustCerts = secureSocket.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-        String keyPassword = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD);
+        String keyFile = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY).getValue();
+        String certFile = secureSocket.getStringValue(ENDPOINT_CONFIG_CERTIFICATE).getValue();
+        String trustCerts = secureSocket.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES).getValue();
+        String keyPassword = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD).getValue();
         boolean disableSslValidation = secureSocket.getBooleanValue(ENDPOINT_CONFIG_DISABLE_SSL);
         List<Parameter> clientParams = new ArrayList<>();
         if (disableSslValidation) {
@@ -156,11 +158,11 @@ public class GrpcUtil {
                             "trustStore and trustCerts at the same time.")));
         }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringValue(FILE_PATH);
+            String trustStoreFile = trustStore.getStringValue(FILE_PATH).getValue();
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 sslConfiguration.setTrustStoreFile(trustStoreFile);
             }
-            String trustStorePassword = trustStore.getStringValue(PASSWORD);
+            String trustStorePassword = trustStore.getStringValue(PASSWORD).getValue();
             if (StringUtils.isNotBlank(trustStorePassword)) {
                 sslConfiguration.setTrustStorePass(trustStorePassword);
             }
@@ -177,11 +179,11 @@ public class GrpcUtil {
                             "containing client ssl certificates.")));
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringValue(FILE_PATH);
+            String keyStoreFile = keyStore.getStringValue(FILE_PATH).getValue();
             if (StringUtils.isNotBlank(keyStoreFile)) {
                 sslConfiguration.setKeyStoreFile(keyStoreFile);
             }
-            String keyStorePassword = keyStore.getStringValue(PASSWORD);
+            String keyStorePassword = keyStore.getStringValue(PASSWORD).getValue();
             if (StringUtils.isNotBlank(keyStorePassword)) {
                 sslConfiguration.setKeyStorePass(keyStorePassword);
             }
@@ -202,7 +204,7 @@ public class GrpcUtil {
                 clientParams.add(clientProtocols);
             }
 
-            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION).getValue();
             if (StringUtils.isNotBlank(sslProtocol)) {
                 sslConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -244,8 +246,8 @@ public class GrpcUtil {
         }
         String enableSessionCreation = String.valueOf(secureSocket
                 .getBooleanValue(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
-        Parameter clientEnableSessionCreation = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
-                enableSessionCreation);
+        Parameter clientEnableSessionCreation = new Parameter(
+            HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION.getValue(), enableSessionCreation);
         clientParams.add(clientEnableSessionCreation);
         if (!clientParams.isEmpty()) {
             sslConfiguration.setParameters(clientParams);
@@ -259,18 +261,18 @@ public class GrpcUtil {
      * @param endpointConfig    listener endpoint configuration.
      * @return                  transport listener configuration instance.
      */
-    public static ListenerConfiguration getListenerConfig(long port, MapValue endpointConfig) {
-        String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
+    public static ListenerConfiguration getListenerConfig(long port, MapValue<BString, Object> endpointConfig) {
+        BString host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
         MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
-        if (host == null || host.trim().isEmpty()) {
+        if (host == null || host.getValue().trim().isEmpty()) {
             listenerConfiguration.setHost(ConfigRegistry.getInstance().getConfigOrDefault("b7a.http.host",
                     HttpConstants.HTTP_DEFAULT_HOST));
         } else {
-            listenerConfiguration.setHost(host);
+            listenerConfiguration.setHost(host.getValue());
         }
 
         if (port == 0) {
@@ -288,8 +290,8 @@ public class GrpcUtil {
         listenerConfiguration.setVersion(Constants.HTTP_2_0);
 
         if (endpointConfig.getType().getName().equalsIgnoreCase(LISTENER_CONFIGURATION)) {
-            String serverName = endpointConfig.getStringValue(SERVER_NAME);
-            listenerConfiguration.setServerHeader(serverName != null ? serverName : getServerName());
+            BString serverName = endpointConfig.getStringValue(SERVER_NAME);
+            listenerConfiguration.setServerHeader(serverName != null ? serverName.getValue() : getServerName());
         } else {
             listenerConfiguration.setServerHeader(getServerName());
         }
@@ -313,17 +315,22 @@ public class GrpcUtil {
         return userAgent;
     }
 
-    private static ListenerConfiguration setSslConfig(MapValue sslConfig, ListenerConfiguration listenerConfiguration) {
+    private static ListenerConfiguration setSslConfig(MapValue<BString, Object> sslConfig,
+            ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(PROTOCOL_HTTPS);
         MapValue trustStore = sslConfig.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
         MapValue keyStore = sslConfig.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
         MapValue protocols = sslConfig.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
         MapValue validateCert = sslConfig.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
         MapValue ocspStapling = sslConfig.getMapValue(ENDPOINT_CONFIG_OCSP_STAPLING);
-        String keyFile = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY);
-        String certFile = sslConfig.getStringValue(ENDPOINT_CONFIG_CERTIFICATE);
-        String trustCerts = sslConfig.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-        String keyPassword = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD);
+        String keyFile = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY) != null
+                ? sslConfig.getStringValue(ENDPOINT_CONFIG_KEY).getValue() : null;
+        String certFile = sslConfig.getStringValue(ENDPOINT_CONFIG_CERTIFICATE) != null 
+                ? sslConfig.getStringValue(ENDPOINT_CONFIG_CERTIFICATE).getValue() : null;
+        String trustCerts = sslConfig.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES) != null
+                ? sslConfig.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES).getValue() : null;
+        String keyPassword = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD) != null 
+                ? sslConfig.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD).getValue() : null;
 
         if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
             throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -335,13 +342,15 @@ public class GrpcUtil {
                             "certificateKey and server certificates must be provided for secure connection")));
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringValue(FILE_PATH);
+            String keyStoreFile = keyStore.getStringValue(FILE_PATH) != null 
+                    ? keyStore.getStringValue(FILE_PATH).getValue() : null;
             if (StringUtils.isBlank(keyStoreFile)) {
                 throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Keystore file location " +
                                 "must be provided for secure connection.")));
             }
-            String keyStorePassword = keyStore.getStringValue(PASSWORD);
+            String keyStorePassword = keyStore.getStringValue(PASSWORD) != null 
+                    ? keyStore.getStringValue(PASSWORD).getValue() : null;
             if (StringUtils.isBlank(keyStorePassword)) {
                 throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Keystore password must " +
@@ -356,7 +365,8 @@ public class GrpcUtil {
                 listenerConfiguration.setServerKeyPassword(keyPassword);
             }
         }
-        String sslVerifyClient = sslConfig.getStringValue(SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringValue(SSL_CONFIG_SSL_VERIFY_CLIENT) != null
+                    ? sslConfig.getStringValue(SSL_CONFIG_SSL_VERIFY_CLIENT).getValue() : null;
         listenerConfiguration.setVerifyClient(sslVerifyClient);
         listenerConfiguration
                 .setSslSessionTimeOut((int) sslConfig.getDefaultableIntValue(ENDPOINT_CONFIG_SESSION_TIMEOUT));
@@ -368,8 +378,10 @@ public class GrpcUtil {
                             "trustCertificates must be provided to enable Mutual SSL")));
         }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringValue(FILE_PATH);
-            String trustStorePassword = trustStore.getStringValue(PASSWORD);
+            String trustStoreFile = trustStore.getStringValue(FILE_PATH) != null 
+                        ? trustStore.getStringValue(FILE_PATH).getValue() : null;
+            String trustStorePassword = trustStore.getStringValue(PASSWORD) != null 
+                        ? trustStore.getStringValue(PASSWORD).getValue() : null;
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
                 throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Truststore location " +
@@ -397,7 +409,8 @@ public class GrpcUtil {
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION) != null
+                        ? protocols.getStringValue(SSL_PROTOCOL_VERSION).getValue() : null;
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -442,7 +455,7 @@ public class GrpcUtil {
         listenerConfiguration.setTLSStoreType(PKCS_STORE_TYPE);
         String serverEnableSessionCreation = String
                 .valueOf(sslConfig.getBooleanValue(SSL_CONFIG_ENABLE_SESSION_CREATION));
-        Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
+        Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION.getValue(),
                 serverEnableSessionCreation);
         serverParamList.add(enableSessionCreationParam);
         if (!serverParamList.isEmpty()) {
@@ -455,11 +468,11 @@ public class GrpcUtil {
         return listenerConfiguration;
     }
 
-    private static int validateConfig(long value, String configName) {
+    private static int validateConfig(long value, BString configName) {
         try {
             return Math.toIntExact(value);
         } catch (ArithmeticException e) {
-            log.warn("The value set for the configuration needs to be less than {}. The " + configName +
+            log.warn("The value set for the configuration needs to be less than {}. The " + configName.getValue() +
                     "value is set to {}", Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }

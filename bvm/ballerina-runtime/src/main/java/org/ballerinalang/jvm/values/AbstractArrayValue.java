@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -363,11 +362,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
             return;
         }
 
-        if (ArrayValueImpl.USE_BSTRING) {
-            throw BallerinaErrors.createError(
-                    StringUtils.fromString(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER)),
-                    StringUtils.fromString(BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE)));
-        }
         throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
                                           BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }

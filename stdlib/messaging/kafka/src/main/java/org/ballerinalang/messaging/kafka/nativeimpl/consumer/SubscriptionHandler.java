@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
@@ -200,8 +201,8 @@ public class SubscriptionHandler {
             BArray topicPartitionArray = BValueCreator.createArrayValue(
                     new BArrayType(getTopicPartitionRecord().getType()));
             for (TopicPartition partition : partitions) {
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-                                                                                       partition.partition());
+                MapValue<BString, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
+                                                                                        partition.partition());
                 topicPartitionArray.append(topicPartition);
             }
             return topicPartitionArray;

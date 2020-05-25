@@ -35,7 +35,7 @@ public class InitEndpoint {
 
     public static Object initEndpoint(ObjectValue listener) {
         final String path = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG).
-                getStringValue(DirectoryListenerConstants.ANNOTATION_PATH);
+                getStringValue(DirectoryListenerConstants.ANNOTATION_PATH).getValue();
         if (path == null || path.isEmpty()) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, "'path' field is empty");
         }

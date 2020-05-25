@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 
 import java.sql.SQLException;
@@ -48,7 +49,7 @@ public class ErrorGenerator {
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(Constants.ErrorRecordFields.MESSAGE, detailedErrorMessage);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
+        MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.APPLICATION_ERROR_DATA, valueMap);
         return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
     }
@@ -58,7 +59,7 @@ public class ErrorGenerator {
         valueMap.put(Constants.ErrorRecordFields.MESSAGE, message);
         valueMap.put(Constants.ErrorRecordFields.ERROR_CODE, vendorCode);
         valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues.
+        MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.DATABASE_ERROR_DATA, valueMap);
         return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, sqlClientErrorDetailRecord);
     }

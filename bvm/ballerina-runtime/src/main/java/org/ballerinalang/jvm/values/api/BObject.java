@@ -37,33 +37,27 @@ public interface BObject extends BRefValue {
 
     BObjectType getType();
 
-    @Deprecated
-    Object get(String fieldName);
-
     Object get(BString fieldName);
 
-    long getIntValue(String fieldName);
+    long getIntValue(BString fieldName);
 
-    double getFloatValue(String fieldName);
+    double getFloatValue(BString fieldName);
 
-    String getStringValue(String fieldName);
+    BString getStringValue(BString fieldName);
 
-    boolean getBooleanValue(String fieldName);
+    boolean getBooleanValue(BString fieldName);
 
-    BMap<?, ?> getMapValue(String fieldName);
+    BMap<?, ?> getMapValue(BString fieldName);
 
-    BObject getObjectValue(String fieldName);
+    BObject getObjectValue(BString fieldName);
 
-    BArray getArrayValue(String fieldName);
+    BArray getArrayValue(BString fieldName);
 
     void addNativeData(String key, Object data);
 
     Object getNativeData(String key);
 
     HashMap<String, Object> getNativeData();
-
-    @Deprecated
-    void set(String fieldName, Object value);
 
     void set(BString fieldName, Object value);
 }
