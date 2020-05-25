@@ -26,35 +26,55 @@ import com.google.gson.JsonObject;
  * @since 1.3.0
  */
 public class ASTModification {
-    private int startOffset;
-    private int endOffset;
+    private int startLine;
+    private int startColumn;
+    private int endLine;
+    private int endColumn;
     private String type;
     private JsonObject config;
 
     public ASTModification() {
     }
 
-    public ASTModification(int startOffset, int endOffset, String type, JsonObject config) {
-        this.startOffset = startOffset;
-        this.endOffset = endOffset;
+    public ASTModification(int startLine, int startColumn, int endLine, int endColumn, String type, JsonObject config) {
+        this.startLine = startLine;
+        this.startColumn = startColumn;
+        this.endLine = endLine;
+        this.endColumn = endColumn;
         this.type = type;
         this.config = config;
     }
 
-    public int getStartOffset() {
-        return startOffset;
+    public int getStartLine() {
+        return startLine;
     }
 
-    public void setStartOffset(int startOffset) {
-        this.startOffset = startOffset;
+    public void setStartLine(int startLine) {
+        this.startLine = startLine;
     }
 
-    public int getEndOffset() {
-        return endOffset;
+    public int getStartColumn() {
+        return startColumn;
     }
 
-    public void setEndOffset(int endOffset) {
-        this.endOffset = endOffset;
+    public void setStartColumn(int startColumn) {
+        this.startColumn = startColumn;
+    }
+
+    public int getEndLine() {
+        return endLine;
+    }
+
+    public void setEndLine(int endLine) {
+        this.endLine = endLine;
+    }
+
+    public int getEndColumn() {
+        return endColumn;
+    }
+
+    public void setEndColumn(int endColumn) {
+        this.endColumn = endColumn;
     }
 
     public String getType() {

@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.StringTextDocument;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
@@ -45,11 +46,14 @@ import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -57,10 +61,13 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -79,6 +86,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getProjectDir;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -92,6 +101,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
+    private final String DELETE = "delete";
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -328,19 +338,69 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String fileContent = documentManager.getFileContent(compilationPath);
             TextDocument textDocument = TextDocuments.from(fileContent);
             SyntaxTree oldTree = SyntaxTree.from(textDocument, compilationPath.toString());
+            TextDocument oldTextDocument = oldTree.textDocument();
+            ArrayList<io.ballerinalang.compiler.text.TextEdit> edits = new ArrayList<>();
 
-            ArrayList<io.ballerinalang.compiler.text.TextEdit> edits =
-                    new ArrayList<>(request.getAstModifications().length);
+            CompilerContext context = new CompilerContext();
+            CompilerOptions options = CompilerOptions.getInstance(context);
+            options.put(PROJECT_DIR, compilationPath.getParent().toString());
+            options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
+            Compiler compiler = Compiler.getInstance(context);
+            String fileName = compilationPath.toFile().getName();
+            BLangPackage bLangPackage = compiler.compile(fileName);
+            Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRange = new HashMap<>();
+
+            for (int i = 0; i < request.getAstModifications().length; i++) {
+                ASTModification astModification = request.getAstModifications()[i];
+                if (DELETE.equalsIgnoreCase(astModification.getType())) {
+                    deleteRange.put(new DeleteRange(
+                            astModification.getStartLine(),
+                            astModification.getEndLine(),
+                            astModification.getStartColumn(),
+                            astModification.getEndColumn()), astModification);
+                }
+            }
+            UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, deleteRange);
+            bLangPackage.accept(unusedNodeVisitor);
+
+            for (BLangImportPackage importPackage : unusedNodeVisitor.unusedImports()) {
+                LinePosition startLinePos = LinePosition.from(importPackage.getPosition().getStartLine() - 1,
+                        importPackage.getPosition().getStartColumn() - 1);
+                LinePosition endLinePos = LinePosition.from(importPackage.getPosition().getEndLine() - 1,
+                        importPackage.getPosition().getEndColumn() - 1);
+                int startOffset = oldTextDocument.textPositionFrom(startLinePos);
+                int endOffset = oldTextDocument.textPositionFrom(endLinePos) + 1;
+                edits.add(io.ballerinalang.compiler.text.TextEdit.from(
+                        io.ballerinalang.compiler.text.TextRange.from(startOffset,
+                                endOffset - startOffset), ""));
+            }
             for (int i = 0; i < request.getAstModifications().length; i++) {
                 ASTModification astModification = request.getAstModifications()[i];
                 String mapping = BallerinaSyntaxTreeModifyUtil.resolveMapping(astModification.getType(),
                         astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
                 if (mapping != null) {
-                    edits.add(io.ballerinalang.compiler.text.TextEdit.from(
-                            io.ballerinalang.compiler.text.TextRange.from(astModification.getStartOffset(),
-                                    astModification.getEndOffset()), mapping));
+                    boolean doEdit = false;
+                    if (DELETE.equals(astModification.getType())) {
+                        if (unusedNodeVisitor.toBeDeletedRanges().contains(astModification)) {
+                            doEdit = true;
+                        }
+                    } else {
+                        doEdit = true;
+                    }
+                    if (doEdit) {
+                        LinePosition startLinePos = LinePosition.from(astModification.getStartLine() - 1,
+                                astModification.getStartColumn() - 1);
+                        LinePosition endLinePos = LinePosition.from(astModification.getEndLine() - 1,
+                                astModification.getEndColumn() - 1);
+                        int startOffset = oldTextDocument.textPositionFrom(startLinePos);
+                        int endOffset = oldTextDocument.textPositionFrom(endLinePos);
+                        edits.add(io.ballerinalang.compiler.text.TextEdit.from(
+                                io.ballerinalang.compiler.text.TextRange.from(startOffset,
+                                        endOffset - startOffset), mapping));
+                    }
                 }
             }
+
             TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                     new io.ballerinalang.compiler.text.TextEdit[0]));
             SyntaxTree updatedTree = SyntaxTree.from(oldTree, textDocumentChange);

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
+import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -155,9 +156,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Common node visitor to override and remove assertion errors from BLangNodeVisitor methods.
@@ -165,23 +164,23 @@ import java.util.Set;
 public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     private String unitName;
-    private List<Diagnostic.DiagnosticPosition> deleteRanges;
-    private Set<Diagnostic.DiagnosticPosition> toBeDeletedRanges = new HashSet<>();
-    private HashMap<String, BLangImportPackage> imports = new HashMap<>();
-    private HashMap<String, Diagnostic.DiagnosticPosition> variables = new HashMap<String, Diagnostic.DiagnosticPosition>();
+    private Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges;
+    private Map<Diagnostic.DiagnosticPosition, ASTModification> toBeDeletedRanges = new HashMap<>();
+    private Map<String, BLangImportPackage> imports = new HashMap<>();
+    private Map<String, Diagnostic.DiagnosticPosition> variables = new HashMap<>();
 
-    public UnusedNodeVisitor(String unitName, List<Diagnostic.DiagnosticPosition> deleteRanges) {
+    public UnusedNodeVisitor(String unitName, Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges) {
         this.unitName = unitName;
         this.deleteRanges = deleteRanges;
-        this.toBeDeletedRanges.addAll(deleteRanges);
+        this.toBeDeletedRanges.putAll(deleteRanges);
     }
 
     public Collection<BLangImportPackage> unusedImports() {
         return imports.values();
     }
 
-    public Collection<Diagnostic.DiagnosticPosition> toBeDeletedRanges() {
-        return toBeDeletedRanges;
+    public Collection<ASTModification> toBeDeletedRanges() {
+        return toBeDeletedRanges.values();
     }
 
     private void addImportNode(BLangImportPackage importPkgNode) {
@@ -189,7 +188,10 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     private void removeImportNode(BLangIdentifier identifierNode) {
-        imports.remove(identifierNode.getValue());
+        Diagnostic.DiagnosticPosition range = getDeleteRange(identifierNode.getPosition());
+        if (range == null) {
+            imports.remove(identifierNode.getValue());
+        }
     }
 
     //Monitor only the variables that are in deleted range
@@ -212,7 +214,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     private Diagnostic.DiagnosticPosition getDeleteRange(Diagnostic.DiagnosticPosition position) {
-        for (Diagnostic.DiagnosticPosition aPosition : deleteRanges) {
+        for (Diagnostic.DiagnosticPosition aPosition : deleteRanges.keySet()) {
             if (aPosition.getStartLine() <= position.getStartLine() &&
                     aPosition.getEndLine() >= position.getEndLine() &&
                     aPosition.getStartColumn() <= position.getStartColumn() &&

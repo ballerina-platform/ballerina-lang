@@ -114,7 +114,7 @@ public class ASTModifyTest {
     @Test(description = "Remove content.")
     public void testDelete() throws IOException {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        ASTModification modification = new ASTModification(47, 33, "delete", null);
+        ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
                 .modifyAndGetBallerinaSyntaxTree(mainFile.toString(),
                         new ASTModification[]{modification}, this.serviceEndpoint);
@@ -129,12 +129,12 @@ public class ASTModifyTest {
     public void testInsert() throws IOException {
         TestUtil.openDocument(serviceEndpoint, mainFile);
         Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(0, 0, "IMPORT",
+        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/accuweather\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(47, 0, "DECLARATION",
+        ASTModification modification2 = new ASTModification(4, 1, 4, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"accuweather:Client\", \"VARIABLE\":\"accuweatherClient\"," +
                         "\"PARAMS\": [\"\\\"8dbh68Zg2J6WxAK37Cy2jVJTSMdnyAmV\\\"\"]}", JsonObject.class));
-        ASTModification modification3 = new ASTModification(47, 0,
+        ASTModification modification3 = new ASTModification(4, 1, 4, 1,
                 "REMOTE_SERVICE_CALL_CHECK",
                 gson.fromJson("{\"TYPE\":\"accuweather:WeatherResponse\", \"VARIABLE\":\"accuweatherResult\"," +
                         "\"CALLER\":\"accuweatherClient\", \"FUNCTION\":\"getDailyWeather\"," +
@@ -154,15 +154,15 @@ public class ASTModifyTest {
     public void testUpdate() throws IOException {
         TestUtil.openDocument(serviceEndpoint, mainFile);
         Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(0, 21, "IMPORT",
+        ASTModification modification1 = new ASTModification(1, 1, 1, 21, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/twilio\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(47, 33, "DECLARATION",
+        ASTModification modification2 = new ASTModification(4, 1, 4, 33, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"twilio:Client\", \"VARIABLE\":\"twilioClient\"," +
                         "\"PARAMS\": [" +
                         "   \"\\\"ACb2e9f049adcb98c7c31b913f8be70733\\\"\", " +
                         "   \"\\\"34b2e025b2db33da04cc53ead8ce09bf\\\"\", " +
                         "   \"\\\"\\\"\"]}", JsonObject.class));
-        ASTModification modification3 = new ASTModification(80, 0,
+        ASTModification modification3 = new ASTModification(5, 1, 5, 1,
                 "REMOTE_SERVICE_CALL_CHECK",
                 gson.fromJson("{\"TYPE\":\"twilio:WhatsAppResponse\", \"VARIABLE\":\"twilioResult\"," +
                                 "\"CALLER\":\"twilioClient\", \"FUNCTION\":\"sendWhatsAppMessage\"," +
@@ -185,19 +185,19 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, emptyFile);
         Gson gson = new Gson();
 
-        ASTModification modification1 = new ASTModification(0, 0, "IMPORT",
+        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/accuweather\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(0, 0, "MAIN_START",
+        ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_START",
                 gson.fromJson("{}", JsonObject.class));
-        ASTModification modification3 = new ASTModification(0, 0, "DECLARATION",
+        ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"accuweather:Client\", \"VARIABLE\":\"accuweatherClient\"," +
                         "\"PARAMS\": [\"\\\"8dbh68Zg2J6WxAK37Cy2jVJTSMdnyAmV\\\"\"]}", JsonObject.class));
-        ASTModification modification4 = new ASTModification(0, 0,
+        ASTModification modification4 = new ASTModification(1, 1, 1, 1,
                 "REMOTE_SERVICE_CALL_CHECK",
                 gson.fromJson("{\"TYPE\":\"accuweather:WeatherResponse\", \"VARIABLE\":\"accuweatherResult\"," +
                         "\"CALLER\":\"accuweatherClient\", \"FUNCTION\":\"getDailyWeather\"," +
                         "\"PARAMS\": [\"\\\"80000\\\"\"]}", JsonObject.class));
-        ASTModification modification5 = new ASTModification(0, 0, "MAIN_END",
+        ASTModification modification5 = new ASTModification(1, 1, 1, 1, "MAIN_END",
                 gson.fromJson("{}", JsonObject.class));
 
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
@@ -217,9 +217,9 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, emptyFile);
         Gson gson = new Gson();
 
-        ASTModification modification1 = new ASTModification(0, 0, "MAIN_START",
+        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "MAIN_START",
                 gson.fromJson("{}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(0, 0, "MAIN_END",
+        ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_END",
                 gson.fromJson("{}", JsonObject.class));
 
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
@@ -227,12 +227,12 @@ public class ASTModifyTest {
                         new ASTModification[]{modification1, modification2}, this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
 
-        ASTModification modification3 = new ASTModification(0, 0, "IMPORT",
+        ASTModification modification3 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/accuweather\"}", JsonObject.class));
-        ASTModification modification4 = new ASTModification(25, 0, "DECLARATION",
+        ASTModification modification4 = new ASTModification(2, 1, 2, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"accuweather:Client\", \"VARIABLE\":\"accuweatherClient\"," +
                         "\"PARAMS\": [\"\\\"8dbh68Zg2J6WxAK37Cy2jVJTSMdnyAmV\\\"\"]}", JsonObject.class));
-        ASTModification modification5 = new ASTModification(25, 0,
+        ASTModification modification5 = new ASTModification(2, 1, 2, 1,
                 "REMOTE_SERVICE_CALL_CHECK",
                 gson.fromJson("{\"TYPE\":\"accuweather:WeatherResponse\", \"VARIABLE\":\"accuweatherResult\"," +
                         "\"CALLER\":\"accuweatherClient\", \"FUNCTION\":\"getDailyWeather\"," +
@@ -254,22 +254,22 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, emptyFile);
         Gson gson = new Gson();
 
-        ASTModification modification0 = new ASTModification(0, 0, "IMPORT",
+        ASTModification modification0 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
-        ASTModification modification1 = new ASTModification(0, 0, "IMPORT",
+        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/accuweather\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(0, 0, "SERVICE_START",
+        ASTModification modification2 = new ASTModification(1, 1, 1, 1, "SERVICE_START",
                 gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\", \"PORT\":\"9090\"}",
                         JsonObject.class));
-        ASTModification modification3 = new ASTModification(0, 0, "DECLARATION",
+        ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"accuweather:Client\", \"VARIABLE\":\"accuweatherClient\"," +
                         "\"PARAMS\": [\"\\\"8dbh68Zg2J6WxAK37Cy2jVJTSMdnyAmV\\\"\"]}", JsonObject.class));
-        ASTModification modification4 = new ASTModification(0, 0,
+        ASTModification modification4 = new ASTModification(1, 1, 1, 1,
                 "REMOTE_SERVICE_CALL_CHECK",
                 gson.fromJson("{\"TYPE\":\"accuweather:WeatherResponse\", \"VARIABLE\":\"accuweatherResult\"," +
                         "\"CALLER\":\"accuweatherClient\", \"FUNCTION\":\"getDailyWeather\"," +
                         "\"PARAMS\": [\"\\\"80000\\\"\"]}", JsonObject.class));
-        ASTModification modification5 = new ASTModification(0, 0, "SERVICE_END",
+        ASTModification modification5 = new ASTModification(1, 1, 1, 1, "SERVICE_END",
                 gson.fromJson("{}", JsonObject.class));
 
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
@@ -284,57 +284,15 @@ public class ASTModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, emptyFile);
     }
 
-    @Test
-    public void testLookupPackageSourceForSinglePkg() {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
-        Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = compiler.compile("main.bal");
-        System.out.println(bLangPackage.getCompilationUnits().get(0).getTopLevelNodes());
-        System.out.println(bLangPackage.getImports());
-        System.out.println(bLangPackage.getFunctions());
-    }
-
-    @Test
-    public void testLookupPackageSourceForSinglePkg1() {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
-        Compiler compiler = Compiler.getInstance(context);
-
-        BLangPackage bLangPackage = compiler.compile("main.bal");
-        List<Diagnostic.DiagnosticPosition> deleteRange = new ArrayList<>();
-        deleteRange.add(new DeleteRange(4, 4, 5, 16));
-        deleteRange.add(new DeleteRange(5, 5, 5, 16));
-        UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor("main.bal", deleteRange);
-        bLangPackage.accept(unusedNodeVisitor);
-        System.out.println(unusedNodeVisitor.unusedImports());
-        System.out.println(unusedNodeVisitor.toBeDeletedRanges());
-    }
-
-    private String getPackageName(String sourceRoot, Path filePath) {
-        LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(sourceRoot);
-        String packageName = lsDocument.getOwnerModule();
-        if ("".equals(packageName)) {
-            Path path = filePath.getFileName();
-            if (path != null) {
-                packageName = path.toString();
-            }
-        }
-        return packageName;
-    }
-
-    private CompilerContext getCompilerContext(Path filePath, String sourceRoot, String packageName,
-                                               PackageRepository packageRepository) {
-        LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(filePath, sourceRoot);
-        WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
-        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
-        return LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument, documentManager,
-                false);
-    }
+//    @Test
+//    public void testLookupPackageSourceForSinglePkg() {
+//        CompilerContext context = new CompilerContext();
+//        CompilerOptions options = CompilerOptions.getInstance(context);
+//        options.put(PROJECT_DIR, sourceRootPath.toString());
+//        options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
+//        Compiler compiler = Compiler.getInstance(context);
+//        BLangPackage bLangPackage = compiler.compile("main.bal");
+//    }
 
     @AfterClass
     public void stopLangServer() {
