@@ -3565,8 +3565,8 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = findAssignableType(narrowedQueryEnv, selectClause.expression, collectionNode.type, expType,
-                queryExpr.isStream, queryExpr.isTable);
+        BType actualType = findAssignableType(narrowedQueryEnv, selectClause.expression, collectionNode.type,
+                expType, queryExpr);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -3575,7 +3575,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
-                                     boolean isStream, boolean isTable) {
+                                     BLangQueryExpr queryExpr) {
         List<BType> assignableSelectTypes = new ArrayList<>();
         BType actualType = symTable.semanticError;
 
@@ -3607,7 +3607,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (!isStream && !isTable) {
+            if (!queryExpr.isStream && !queryExpr.isTable) {
                 actualType = new BArrayType(actualType);
             }
         } else if (assignableSelectTypes.size() > 1) {
@@ -3647,10 +3647,16 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (isStream) {
+        if (queryExpr.isStream) {
             return new BStreamType(TypeTags.STREAM, actualType, errorType, symTable.streamType.tsymbol);
-        } else if (isTable) {
-            return new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
+        } else if (queryExpr.isTable) {
+            final BTableType tableType = new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
+            if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
+                tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
+                        .map(identifier -> identifier.value).collect(Collectors.toList());
+                return BUnionType.create(null, tableType, symTable.errorType);
+            }
+            return tableType;
         } else if (errorType != null) {
             return BUnionType.create(null, actualType, errorType);
         }

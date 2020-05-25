@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -56,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -93,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -186,9 +189,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
+    private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
+    private BLangExpression onConflictExpr;
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentLambdaBody;
     private Map<String, BSymbol> identifiers;
@@ -223,10 +228,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
-        // TODO check queryExpr.isTable
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
+        } else if (queryExpr.isTable) {
+            onConflictExpr = (onConflictExpr == null)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    : onConflictExpr;
+            BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
+            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
+            streamStmtExpr.type = tableRef.type;
         } else {
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
@@ -296,6 +309,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                 case LIMIT:
                     BLangVariableReference limitFunc = addLimitFunction(block, (BLangLimitClause) clause);
                     addStreamFunction(block, initPipeline, limitFunc);
+                    break;
+                case ON_CONFLICT:
+                    final BLangOnConflictClause onConflict = (BLangOnConflictClause) clause;
+                    onConflictExpr = onConflict.expression;
                     break;
             }
         }
@@ -564,6 +581,40 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference streamVarRef = getStreamFunctionVariableRef(blockStmt,
                 QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
         return streamVarRef;
+    }
+
+    /**
+     * Create a table constructor expression.
+     *
+     * @param queryExpr  query expression.
+     * @param queryBlock parent block to write to.
+     * @return reference to updated table.
+     */
+    BLangVariableReference addTableConstructor(BLangQueryExpr queryExpr, BLangBlockStmt queryBlock) {
+        // desugar `table<Customer> key(id, name) tab = table key(id, name);`
+        DiagnosticPos pos = queryExpr.pos;
+        final BType type = queryExpr.type;
+        String name = getNewVarName();
+        final List<BLangIdentifier> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
+        BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
+                TreeBuilder.createTableConstructorExpressionNode();
+        tableConstructorExpr.pos = pos;
+        tableConstructorExpr.type = type;
+        if (!keyFieldIdentifiers.isEmpty()) {
+            BLangTableKeySpecifier keySpecifier = (BLangTableKeySpecifier)
+                    TreeBuilder.createTableKeySpecifierNode();
+            keySpecifier.pos = pos;
+            for (BLangIdentifier identifier : keyFieldIdentifiers) {
+                keySpecifier.addFieldNameIdentifier(identifier);
+            }
+            tableConstructorExpr.tableKeySpecifier = keySpecifier;
+        }
+        BVarSymbol tableSymbol = new BVarSymbol(0, names.fromString(name),
+                env.scope.owner.pkgID, type, this.env.scope.owner);
+        BLangSimpleVariable tableVariable = ASTBuilderUtil.createVariable(pos,
+                name, type, tableConstructorExpr, tableSymbol);
+        queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
+        return ASTBuilderUtil.createVariableRef(pos, tableSymbol);
     }
 
     @Override
