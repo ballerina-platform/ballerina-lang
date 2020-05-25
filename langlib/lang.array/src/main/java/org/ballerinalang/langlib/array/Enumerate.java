@@ -85,7 +85,4 @@ public class Enumerate {
 
         return newArr;
     }
-    public static ArrayValue enumerate_bstring(Strand strand, ArrayValue arr) {
-        return enumerate(strand, arr);
-    }
 }

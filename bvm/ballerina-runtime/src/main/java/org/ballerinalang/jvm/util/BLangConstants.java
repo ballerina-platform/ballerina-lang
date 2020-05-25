@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.jvm.util;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -113,9 +115,10 @@ public class BLangConstants {
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
-    
+    public static final BString BSTRING_NULL_VALUE = null;
+
     // Empty value for string
-    public static final String STRING_EMPTY_VALUE = "";
+    public static final BString STRING_EMPTY_VALUE = StringUtils.fromString("");
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;

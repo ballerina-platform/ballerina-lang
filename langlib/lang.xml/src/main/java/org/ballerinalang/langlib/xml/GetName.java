@@ -46,20 +46,16 @@ public class GetName {
 
     private static final String OPERATION = "get element name in xml";
 
-    public static String getName(Strand strand, XMLValue xmlVal) {
+    public static BString getName(Strand strand, XMLValue xmlVal) {
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getName", "element");
         }
         try {
-            return xmlVal.getElementName();
+            return StringUtils.fromString(xmlVal.getElementName());
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
 
         return null;
-    }
-
-    public static BString getName_bstring(Strand strand, XMLValue xmlVal) {
-        return StringUtils.fromString(getName(strand, xmlVal));
     }
 }

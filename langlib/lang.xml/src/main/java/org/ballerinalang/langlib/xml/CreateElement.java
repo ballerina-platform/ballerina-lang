@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,7 +46,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 )
 public class CreateElement {
 
-    public static XMLValue createElement(Strand strand, String name, XMLValue children) {
+    public static XMLValue createElement(Strand strand, BString name, XMLValue children) {
         XMLQName xmlqName = new XMLQName(name);
         String temp = null;
         XMLValue xmlElement = XMLFactory.createXMLElement(xmlqName, temp);

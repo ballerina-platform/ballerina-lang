@@ -41,8 +41,4 @@ public class Length {
     public static long length(Strand strand, MapValue<?, ?> m) {
         return m.size();
     }
-
-    public static long length_bstring(Strand strand, MapValue<?, ?> m) {
-        return length(strand, m);
-    }
 }

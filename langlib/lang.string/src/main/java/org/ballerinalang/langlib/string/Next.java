@@ -49,15 +49,12 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
         isPublic = true
 )
 public class Next {
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
-            String s = USE_BSTRING ? ((BString) m.get(StringUtils.fromString("m"))).getValue() :
-                    m.getStringValue("m");
+            String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
             stringCharacterIterator = new StringCharacterIterator(s);
             m.addNativeData("&iterator&", stringCharacterIterator);
         }
@@ -65,8 +62,7 @@ public class Next {
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
-            Object charAsStr = USE_BSTRING ? StringUtils.fromString(String.valueOf(character)) :
-                               String.valueOf(character);
+            Object charAsStr = StringUtils.fromString(String.valueOf(character));
             return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
         }
 

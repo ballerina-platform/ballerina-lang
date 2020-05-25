@@ -19,12 +19,14 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.hub.Hub;
@@ -73,12 +75,12 @@ public class HubNativeOperationHandler {
         ArrayValue subscriberDetailArray = null;
         try {
             List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
-            MapValue<String, Object> subscriberDetailsRecordValue =
+            MapValue<BString, Object> subscriberDetailsRecordValue =
                     BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID, SUBSCRIPTION_DETAILS);
             subscriberDetailArray = new ArrayValueImpl(new BArrayType(subscriberDetailsRecordValue.getType()));
             for (HubSubscriber subscriber : subscribers) {
                 if (topic.equals(subscriber.getTopic())) {
-                    MapValue<String, Object> subscriberDetail = BallerinaValues.createRecord(
+                    MapValue<BString, Object> subscriberDetail = BallerinaValues.createRecord(
                             subscriberDetailsRecordValue, subscriber.getCallback(),
                             subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_LEASE_SECONDS),
                             subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_CREATED_AT));
@@ -110,7 +112,7 @@ public class HubNativeOperationHandler {
                                            String publicUrl, ObjectValue hubListener) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
-            MapValue<String, Object> hubStartedUpError =
+            MapValue<BString, Object> hubStartedUpError =
                     BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID, STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR);
             return BallerinaValues.createRecord(hubStartedUpError, "Ballerina Hub already started up", null,
                                                 hubInstance.getHubObject());
@@ -147,9 +149,11 @@ public class HubNativeOperationHandler {
      *
      * @param subscriptionDetails the details of the subscription including WebSub specifics
      */
-    public static void addSubscription(MapValue<String, Object> subscriptionDetails) {
-        String topic = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_TOPIC);
-        String callback = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_CALLBACK);
+    public static void addSubscription(MapValue<BString, Object> subscriptionDetails) {
+        String topic = subscriptionDetails.getStringValue(
+                StringUtils.fromString(SUBSCRIPTION_DETAILS_TOPIC)).getValue();
+        String callback = subscriptionDetails.getStringValue(
+                StringUtils.fromString(SUBSCRIPTION_DETAILS_CALLBACK)).getValue();
         Hub.getInstance().registerSubscription(Scheduler.getStrand(), topic, callback, subscriptionDetails);
     }
 
@@ -160,7 +164,7 @@ public class HubNativeOperationHandler {
      * @param content the content to send to subscribers, with the payload and content-type specified
      * @return `error` if an error occurred during publishing
      */
-    public static Object publishToInternalHub(String topic, MapValue<String, Object> content) {
+    public static Object publishToInternalHub(String topic, MapValue<BString, Object> content) {
         try {
             Hub.getInstance().publish(topic, content);
         } catch (BallerinaWebSubException e) {

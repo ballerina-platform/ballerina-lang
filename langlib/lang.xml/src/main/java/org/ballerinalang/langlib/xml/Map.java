@@ -65,7 +65,4 @@ public class Map {
                                                        () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
-    public static XMLValue map_bstring(Strand strand, XMLValue x, FPValue<Object, Object> func) {
-        return map(strand, x, func);
-    }
 }

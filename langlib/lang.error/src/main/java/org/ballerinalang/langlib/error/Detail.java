@@ -42,8 +42,4 @@ public class Detail {
     public static MapValue detail(Strand strand, ErrorValue value) {
         return (MapValue) value.getDetails();
     }
-
-    public static MapValue detail_bstring(Strand strand, ErrorValue value) {
-        return detail(strand, value);
-    }
 }

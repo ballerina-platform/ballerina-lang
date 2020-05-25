@@ -18,11 +18,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
@@ -38,8 +37,6 @@ import java.nio.channels.ClosedChannelException;
 
 import static org.ballerinalang.stdlib.io.utils.IOConstants.TXT_RECORD_CHANNEL_NAME;
 
-//import org.ballerinalang.jvm.values.ArrayValue;
-
 /**
  * This class hold Java inter-ops bridging functions for io# *CSVChannel/*RTextRecordChannel.
  *
@@ -54,16 +51,18 @@ public class RecordChannelUtils {
     }
 
     public static void initRecordChannel(ObjectValue textRecordChannel, ObjectValue characterChannelInfo,
-            String fieldSeparator, String recordSeparator, String format) {
+                                         BString fieldSeparator, BString recordSeparator, BString format) {
         try {
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo
                     .getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
             DelimitedRecordChannel delimitedRecordChannel;
-            if (DEFAULT.equals(format)) {
-                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);
+            if (DEFAULT.equals(format.getValue())) {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, recordSeparator.getValue(),
+                                                                    fieldSeparator.getValue());
             } else {
-                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, Format.valueOf(format));
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel,
+                                                                    Format.valueOf(format.getValue()));
             }
             textRecordChannel.addNativeData(TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
         } catch (Exception e) {
@@ -93,18 +92,14 @@ public class RecordChannelUtils {
     }
 
     public static Object getNext(ObjectValue channel) {
-        DelimitedRecordChannel textRecordChannel = (DelimitedRecordChannel) channel
-                .getNativeData(TXT_RECORD_CHANNEL_NAME);
+        DelimitedRecordChannel textRecordChannel =
+                (DelimitedRecordChannel) channel.getNativeData(TXT_RECORD_CHANNEL_NAME);
         if (textRecordChannel.hasReachedEnd()) {
             return IOUtils.createEoFError();
         } else {
             try {
                 String[] records = textRecordChannel.read();
-                HandleValue[] handleValues = new HandleValue[records.length];
-                for (int i = 0; i < records.length; i++) {
-                    handleValues[i] = new HandleValue(records[i]);
-                }
-                return BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
+                return BValueCreator.createArrayValue(StringUtils.fromStringArray(records));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e);
@@ -116,13 +111,7 @@ public class RecordChannelUtils {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
                 .getNativeData(TXT_RECORD_CHANNEL_NAME);
         try {
-            String[] arr = new String[content.size()];
-            for (int i = 0; i < content.size(); i++) {
-                HandleValue handleValue = (HandleValue) content.get(i);
-                String st = (String) handleValue.getValue();
-                arr[i] = st;
-            }
-            delimitedRecordChannel.write(arr);
+            delimitedRecordChannel.write(content.getStringArray());
         } catch (IOException e) {
             return IOUtils.createError(e);
         }

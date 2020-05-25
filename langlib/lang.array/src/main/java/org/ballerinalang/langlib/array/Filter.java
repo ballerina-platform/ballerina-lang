@@ -63,7 +63,4 @@ public class Filter {
                                                        }, () -> newArr);
         return newArr;
     }
-    public static ArrayValue filter_bstring(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
-        return filter(strand, arr, func);
-    }
 }

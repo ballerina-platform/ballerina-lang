@@ -18,7 +18,9 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -73,7 +75,9 @@ public class HttpConstants {
     public static final String DISABLE = "disable";
     public static final String DEFAULT_HOST = "b7a.default";
 
-    public static final String HTTP_REQUEST_METHOD = "method";
+    public static final String HTTP_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "http";
+
+    public static final BString HTTP_REQUEST_METHOD = StringUtils.fromString("method");
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_PUT = "PUT";
@@ -110,21 +114,23 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
-    public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
-    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLE = "enable";
-    public static final String ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES = "contentTypes";
+    public static final BString ANN_CONFIG_ATTR_COMPRESSION = StringUtils.fromString("compression");
+    public static final BString ANN_CONFIG_ATTR_COMPRESSION_ENABLE = StringUtils.fromString("enable");
+    public static final BString ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES = StringUtils.fromString("contentTypes");
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
-    public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
-    public static final String ANN_CONFIG_ATTR_PATTERN = "pattern";
-    public static final String ANN_CONFIG_ATTR_ALLOW_NO_VERSION = "allowNoVersion";
-    public static final String ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION = "matchMajorVersion";
-    public static final String ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE = "webSocketUpgrade";
-    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";
+    public static final BString ANN_CONFIG_ATTR_CHUNKING = StringUtils.fromString("chunking");
+    public static final BString ANN_CONFIG_ATTR_PATTERN = StringUtils.fromString("pattern");
+    public static final BString ANN_CONFIG_ATTR_ALLOW_NO_VERSION = StringUtils.fromString("allowNoVersion");
+    public static final BString ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION = StringUtils.fromString("matchMajorVersion");
+    public static final String CONFIG_ATTR_WEBSOCKET_UPGRADE = "webSocketUpgrade";
+    public static final BString ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE = StringUtils.fromString(
+            CONFIG_ATTR_WEBSOCKET_UPGRADE);
+    public static final BString ANN_WEBSOCKET_ATTR_UPGRADE_PATH = StringUtils.fromString("upgradePath");
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -132,7 +138,7 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
     public static final String ANN_NAME_PARAM_ORDER_CONFIG = "ParamOrderConfig";
-    public static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
+    public static final BString ANN_FIELD_PATH_PARAM_ORDER = StringUtils.fromString("pathParamOrder");
     public static final String DIRTY_RESPONSE = "dirtyResponse";
 
     public static final String VALUE_ATTRIBUTE = "value";
@@ -206,11 +212,11 @@ public class HttpConstants {
 
     public static final String HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
     public static final String HTTP_ERROR_RECORD = "HTTPError";
-    public static final String HTTP_ERROR_MESSAGE = "message";
+    public static final BString HTTP_ERROR_MESSAGE = StringUtils.fromString("message");
 
     // ServeConnector struct indices
-    public static final String HTTP_CONNECTOR_CONFIG_FIELD = "config";
-    public static final String SERVICE_ENDPOINT_CONFIG_FIELD = "config";
+    public static final BString HTTP_CONNECTOR_CONFIG_FIELD = StringUtils.fromString("config");
+    public static final BString SERVICE_ENDPOINT_CONFIG_FIELD = StringUtils.fromString("config");
     public static final String SERVICE_ENDPOINT_CONNECTION_FIELD = "caller";
 
     //Connection struct indexes
@@ -218,30 +224,30 @@ public class HttpConstants {
     public static final int CONNECTION_PORT_INDEX = 0;
 
     //Request struct field names
-    public static final String REQUEST_RAW_PATH_FIELD = "rawPath";
-    public static final String REQUEST_METHOD_FIELD = "method";
-    public static final String REQUEST_VERSION_FIELD = "httpVersion";
-    public static final String REQUEST_USER_AGENT_FIELD = "userAgent";
-    public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
-    public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
-    public static final String REQUEST_REUSE_STATUS_FIELD = "dirtyRequest";
-    public static final String REQUEST_NO_ENTITY_BODY_FIELD = "noEntityBody";
-    public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD = "mutualSslHandshake";
-    public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS = "status";
-    public static final String MUTUAL_SSL_CERTIFICATE = "base64EncodedCert";
+    public static final BString REQUEST_RAW_PATH_FIELD = StringUtils.fromString("rawPath");
+    public static final BString REQUEST_METHOD_FIELD = StringUtils.fromString("method");
+    public static final BString REQUEST_VERSION_FIELD = StringUtils.fromString("httpVersion");
+    public static final BString REQUEST_USER_AGENT_FIELD = StringUtils.fromString("userAgent");
+    public static final BString REQUEST_EXTRA_PATH_INFO_FIELD = StringUtils.fromString("extraPathInfo");
+    public static final BString REQUEST_CACHE_CONTROL_FIELD = StringUtils.fromString("cacheControl");
+    public static final BString REQUEST_REUSE_STATUS_FIELD = StringUtils.fromString("dirtyRequest");
+    public static final BString REQUEST_NO_ENTITY_BODY_FIELD = StringUtils.fromString("noEntityBody");
+    public static final BString REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD = StringUtils.fromString("mutualSslHandshake");
+    public static final BString REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS = StringUtils.fromString("status");
+    public static final BString MUTUAL_SSL_CERTIFICATE = StringUtils.fromString("base64EncodedCert");
     public static final String BASE_64_ENCODED_CERT = "BASE_64_ENCODED_CERT";
 
     //Response struct field names
-    public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
-    public static final String RESPONSE_REASON_PHRASE_FIELD = "reasonPhrase";
-    public static final String RESPONSE_SERVER_FIELD = "server";
-    public static final String RESOLVED_REQUESTED_URI_FIELD = "resolvedRequestedURI";
-    public static final String RESPONSE_CACHE_CONTROL_FIELD = "cacheControl";
+    public static final BString RESPONSE_STATUS_CODE_FIELD = StringUtils.fromString("statusCode");
+    public static final BString RESPONSE_REASON_PHRASE_FIELD = StringUtils.fromString("reasonPhrase");
+    public static final BString RESPONSE_SERVER_FIELD = StringUtils.fromString("server");
+    public static final BString RESOLVED_REQUESTED_URI_FIELD = StringUtils.fromString("resolvedRequestedURI");
+    public static final BString RESPONSE_CACHE_CONTROL_FIELD = StringUtils.fromString("cacheControl");
     public static final String IN_RESPONSE_RECEIVED_TIME_FIELD = "receivedTime";
 
     //PushPromise struct field names
-    public static final String PUSH_PROMISE_PATH_FIELD = "path";
-    public static final String PUSH_PROMISE_METHOD_FIELD = "method";
+    public static final BString PUSH_PROMISE_PATH_FIELD = StringUtils.fromString("path");
+    public static final BString PUSH_PROMISE_METHOD_FIELD = StringUtils.fromString("method");
 
     //Proxy server struct field names
     public static final int PROXY_STRUCT_INDEX = 3;
@@ -261,25 +267,25 @@ public class HttpConstants {
     public static final String RETRY_INTERVAL_FIELD = "intervalInMillis";
 
     // ResponseCacheControl struct field names
-    public static final String RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD = "mustRevalidate";
-    public static final String RES_CACHE_CONTROL_NO_CACHE_FIELD = "noCache";
-    public static final String RES_CACHE_CONTROL_NO_STORE_FIELD = "noStore";
-    public static final String RES_CACHE_CONTROL_NO_TRANSFORM_FIELD = "noTransform";
-    public static final String RES_CACHE_CONTROL_IS_PRIVATE_FIELD = "isPrivate";
-    public static final String RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD = "proxyRevalidate";
-    public static final String RES_CACHE_CONTROL_MAX_AGE_FIELD = "maxAge";
-    public static final String RES_CACHE_CONTROL_S_MAXAGE_FIELD = "sMaxAge";
-    public static final String RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD = "noCacheFields";
-    public static final String RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD = "privateFields";
+    public static final BString RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD = StringUtils.fromString("mustRevalidate");
+    public static final BString RES_CACHE_CONTROL_NO_CACHE_FIELD = StringUtils.fromString("noCache");
+    public static final BString RES_CACHE_CONTROL_NO_STORE_FIELD = StringUtils.fromString("noStore");
+    public static final BString RES_CACHE_CONTROL_NO_TRANSFORM_FIELD = StringUtils.fromString("noTransform");
+    public static final BString RES_CACHE_CONTROL_IS_PRIVATE_FIELD = StringUtils.fromString("isPrivate");
+    public static final BString RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD = StringUtils.fromString("proxyRevalidate");
+    public static final BString RES_CACHE_CONTROL_MAX_AGE_FIELD = StringUtils.fromString("maxAge");
+    public static final BString RES_CACHE_CONTROL_S_MAXAGE_FIELD = StringUtils.fromString("sMaxAge");
+    public static final BString RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD = StringUtils.fromString("noCacheFields");
+    public static final BString RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD = StringUtils.fromString("privateFields");
 
     // RequestCacheControl struct field names
-    public static final String REQ_CACHE_CONTROL_NO_CACHE_FIELD = "noCache";
-    public static final String REQ_CACHE_CONTROL_NO_STORE_FIELD = "noStore";
-    public static final String REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD = "noTransform";
-    public static final String REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD = "onlyIfCached";
-    public static final String REQ_CACHE_CONTROL_MAX_AGE_FIELD = "maxAge";
-    public static final String REQ_CACHE_CONTROL_MAX_STALE_FIELD = "maxStale";
-    public static final String REQ_CACHE_CONTROL_MIN_FRESH_FIELD = "minFresh";
+    public static final BString REQ_CACHE_CONTROL_NO_CACHE_FIELD = StringUtils.fromString("noCache");
+    public static final BString REQ_CACHE_CONTROL_NO_STORE_FIELD = StringUtils.fromString("noStore");
+    public static final BString REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD = StringUtils.fromString("noTransform");
+    public static final BString REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD = StringUtils.fromString("onlyIfCached");
+    public static final BString REQ_CACHE_CONTROL_MAX_AGE_FIELD = StringUtils.fromString("maxAge");
+    public static final BString REQ_CACHE_CONTROL_MAX_STALE_FIELD = StringUtils.fromString("maxStale");
+    public static final BString REQ_CACHE_CONTROL_MIN_FRESH_FIELD = StringUtils.fromString("minFresh");
 
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
@@ -299,71 +305,71 @@ public class HttpConstants {
 
     //Service Endpoint
     public static final int SERVICE_ENDPOINT_NAME_INDEX = 0;
-    public static final String SERVICE_ENDPOINT_CONFIG = "config";
-    public static final String SERVER_NAME = "server";
+    public static final BString SERVICE_ENDPOINT_CONFIG = StringUtils.fromString("config");
+    public static final BString SERVER_NAME = StringUtils.fromString("server");
     public static final String LISTENER_CONFIGURATION = "ListenerConfiguration";
 
     //Service Endpoint Config
-    public static final String ENDPOINT_CONFIG_HOST = "host";
-    public static final String ENDPOINT_CONFIG_PORT = "port";
-    public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
-    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutInMillis";
+    public static final BString ENDPOINT_CONFIG_HOST = StringUtils.fromString("host");
+    public static final BString ENDPOINT_CONFIG_PORT = StringUtils.fromString("port");
+    public static final BString ENDPOINT_CONFIG_KEEP_ALIVE = StringUtils.fromString("keepAlive");
+    public static final BString ENDPOINT_CONFIG_TIMEOUT = StringUtils.fromString("timeoutInMillis");
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
-    public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
+    public static final BString ENDPOINT_CONFIG_VERSION = StringUtils.fromString("httpVersion");
     public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
-    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
-    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
-    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final BString REQUEST_LIMITS_MAXIMUM_URL_LENGTH = StringUtils.fromString("maxUriLength");
+    public static final BString REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = StringUtils.fromString("maxHeaderSize");
+    public static final BString REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = StringUtils.fromString("maxEntityBodySize");
     public static final String ENDPOINT_CONFIG_PIPELINING = "pipelining";
     public static final String ENABLE_PIPELINING = "enable";
-    public static final String PIPELINING_REQUEST_LIMIT = "maxPipelinedRequests";
+    public static final BString PIPELINING_REQUEST_LIMIT = StringUtils.fromString("maxPipelinedRequests");
 
-    public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
+    public static final BString ENDPOINT_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
 
-    public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
-    public static final String FILE_PATH = "path";
-    public static final String PASSWORD = "password";
-    public static final String SSL_PROTOCOL_VERSION = "name";
-    public static final String ENABLED_PROTOCOLS = "versions";
-    public static final String ENABLE = "enable";
-    public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
-    public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
-    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
-    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
-    public static final String ENDPOINT_CONFIG_CERTIFICATE = "certFile";
-    public static final String ENDPOINT_CONFIG_KEY = "keyFile";
-    public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
-    public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
-    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeoutInSeconds";
-    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeoutInSeconds";
-    public static final String ENDPOINT_CONFIG_DISABLE_SSL = "disable";
+    public static final BString ENDPOINT_CONFIG_TRUST_STORE = StringUtils.fromString("trustStore");
+    public static final BString FILE_PATH = StringUtils.fromString("path");
+    public static final BString PASSWORD = StringUtils.fromString("password");
+    public static final BString SSL_PROTOCOL_VERSION = StringUtils.fromString("name");
+    public static final BString ENABLED_PROTOCOLS = StringUtils.fromString("versions");
+    public static final BString ENABLE = StringUtils.fromString("enable");
+    public static final BString ENDPOINT_CONFIG_OCSP_STAPLING = StringUtils.fromString("ocspStapling");
+    public static final BString ENDPOINT_CONFIG_KEY_STORE = StringUtils.fromString("keyStore");
+    public static final BString ENDPOINT_CONFIG_PROTOCOLS = StringUtils.fromString("protocol");
+    public static final BString ENDPOINT_CONFIG_VALIDATE_CERT = StringUtils.fromString("certValidation");
+    public static final BString ENDPOINT_CONFIG_CERTIFICATE = StringUtils.fromString("certFile");
+    public static final BString ENDPOINT_CONFIG_KEY = StringUtils.fromString("keyFile");
+    public static final BString ENDPOINT_CONFIG_KEY_PASSWORD = StringUtils.fromString("keyPassword");
+    public static final BString ENDPOINT_CONFIG_TRUST_CERTIFICATES = StringUtils.fromString("trustedCertFile");
+    public static final BString ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = StringUtils.fromString("handshakeTimeoutInSeconds");
+    public static final BString ENDPOINT_CONFIG_SESSION_TIMEOUT = StringUtils.fromString("sessionTimeoutInSeconds");
+    public static final BString ENDPOINT_CONFIG_DISABLE_SSL = StringUtils.fromString("disable");
 
     //SslConfiguration indexes
-    public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
-    public static final String SSL_CONFIG_CIPHERS = "ciphers";
-    public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
-    public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
-    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
+    public static final BString SSL_CONFIG_SSL_VERIFY_CLIENT = StringUtils.fromString("sslVerifyClient");
+    public static final BString SSL_CONFIG_CIPHERS = StringUtils.fromString("ciphers");
+    public static final BString SSL_CONFIG_CACHE_SIZE = StringUtils.fromString("cacheSize");
+    public static final BString SSL_CONFIG_CACHE_VALIDITY_PERIOD = StringUtils.fromString("cacheValidityPeriod");
+    public static final BString SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = StringUtils.fromString("verifyHostname");
+    public static final BString SSL_CONFIG_ENABLE_SESSION_CREATION = StringUtils.fromString("shareSession");
 
     //Client Endpoint (CallerActions)
-    public static final String CLIENT_ENDPOINT_SERVICE_URI = "url";
-    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final BString CLIENT_ENDPOINT_SERVICE_URI = StringUtils.fromString("url");
+    public static final BString CLIENT_ENDPOINT_CONFIG = StringUtils.fromString("config");
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
     public static final int CLIENT_GLOBAL_POOL_INDEX = 1;
 
     //Client Endpoint Config
-    public static final String CLIENT_EP_CHUNKING = "chunking";
-    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutInMillis";
-    public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
-    public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
-    public static final String CLIENT_EP_FORWARDED = "forwarded";
+    public static final BString CLIENT_EP_CHUNKING = StringUtils.fromString("chunking");
+    public static final BString CLIENT_EP_ENDPOINT_TIMEOUT = StringUtils.fromString("timeoutInMillis");
+    public static final BString CLIENT_EP_IS_KEEP_ALIVE = StringUtils.fromString("keepAlive");
+    public static final BString CLIENT_EP_HTTP_VERSION = StringUtils.fromString("httpVersion");
+    public static final BString CLIENT_EP_FORWARDED = StringUtils.fromString("forwarded");
     public static final String TARGET_SERVICES = "targets";
     public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
-    public static final String HTTP2_PRIOR_KNOWLEDGE = "http2PriorKnowledge";
-    public static final String HTTP1_SETTINGS = "http1Settings";
-    public static final String HTTP2_SETTINGS = "http2Settings";
+    public static final BString HTTP2_PRIOR_KNOWLEDGE = StringUtils.fromString("http2PriorKnowledge");
+    public static final BString HTTP1_SETTINGS = StringUtils.fromString("http1Settings");
+    public static final BString HTTP2_SETTINGS = StringUtils.fromString("http2Settings");
 
     //Connection Throttling field names
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
@@ -373,14 +379,16 @@ public class HttpConstants {
             "maxActiveStreamsPerConnection";
 
     //Client connection pooling configs
-    public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
-    public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
-    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeInMillis";
-    public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
+    public static final BString CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = StringUtils.fromString(
+            "maxActiveConnections");
+    public static final BString CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = StringUtils.fromString("maxIdleConnections");
+    public static final BString CONNECTION_POOLING_WAIT_TIME = StringUtils.fromString("waitTimeInMillis");
+    public static final BString CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = StringUtils.fromString(
+            "maxActiveStreamsPerConnection");
     public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
     public static final String CONNECTION_MANAGER = "ConnectionManager";
     public static final int POOL_CONFIG_INDEX = 1;
-    public static final String USER_DEFINED_POOL_CONFIG = "poolConfig";
+    public static final BString USER_DEFINED_POOL_CONFIG = StringUtils.fromString("poolConfig");
 
     //FollowRedirect field names
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
@@ -388,11 +396,11 @@ public class HttpConstants {
     public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
 
     //Proxy field names
-    public static final String PROXY_STRUCT_REFERENCE = "proxy";
-    public static final String PROXY_HOST = "host";
-    public static final String PROXY_PORT = "port";
-    public static final String PROXY_USERNAME = "userName";
-    public static final String PROXY_PASSWORD = "password";
+    public static final BString PROXY_STRUCT_REFERENCE = StringUtils.fromString("proxy");
+    public static final BString PROXY_HOST = StringUtils.fromString("host");
+    public static final BString PROXY_PORT = StringUtils.fromString("port");
+    public static final BString PROXY_USERNAME = StringUtils.fromString("userName");
+    public static final BString PROXY_PASSWORD = StringUtils.fromString("password");
 
     public static final String HTTP_SERVICE_TYPE = "Service";
     // Filter related
@@ -405,18 +413,18 @@ public class HttpConstants {
     public static final String RETRY_COUNT = "count";
     public static final String RETRY_INTERVAL = "intervalInMillis";
 
-    public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
+    public static final BString SERVICE_ENDPOINT_PROTOCOL_FIELD = StringUtils.fromString("protocol");
 
     //Remote struct field names
-    public static final String REMOTE_STRUCT_FIELD = "remoteAddress";
-    public static final String REMOTE_HOST_FIELD = "host";
-    public static final String REMOTE_PORT_FIELD = "port";
+    public static final BString REMOTE_STRUCT_FIELD = StringUtils.fromString("remoteAddress");
+    public static final BString REMOTE_HOST_FIELD = StringUtils.fromString("host");
+    public static final BString REMOTE_PORT_FIELD = StringUtils.fromString("port");
     public static final String REMOTE_SOCKET_ADDRESS = "remoteSocketAddress";
 
     //Local struct field names
-    public static final String LOCAL_STRUCT_INDEX = "localAddress";
-    public static final String LOCAL_HOST_FIELD = "host";
-    public static final String LOCAL_PORT_FIELD = "port";
+    public static final BString LOCAL_STRUCT_INDEX = StringUtils.fromString("localAddress");
+    public static final BString LOCAL_HOST_FIELD = StringUtils.fromString("host");
+    public static final BString LOCAL_PORT_FIELD = StringUtils.fromString("port");
 
     //WebSocket Related constants for WebSocket upgrade
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";

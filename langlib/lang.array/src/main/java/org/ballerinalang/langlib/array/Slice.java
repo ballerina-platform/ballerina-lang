@@ -103,8 +103,4 @@ public class Slice {
 
         return slicedArr;
     }
-
-    public static ArrayValue slice_bstring(Strand strand, ArrayValue arr, long startIndex, long endIndex) {
-        return slice(strand, arr, startIndex, endIndex);
-    }
 }

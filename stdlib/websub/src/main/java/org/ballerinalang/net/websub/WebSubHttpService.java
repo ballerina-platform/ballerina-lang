@@ -70,7 +70,7 @@ public class WebSubHttpService extends HttpService {
             // Service name cannot start with /, hence concat.
             websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
         } else {
-            websubHttpService.setBasePath(serviceConfigAnnotation.getStringValue(PATH_FIELD));
+            websubHttpService.setBasePath(serviceConfigAnnotation.getStringValue(PATH_FIELD).getValue());
         }
 
         List<HttpResource> resources = new ArrayList<>();

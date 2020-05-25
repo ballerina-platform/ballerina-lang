@@ -129,6 +129,21 @@
      }
 
      @Override
+     public Long lastIndexOf(BString str, int fromIndex) {
+         int offset = getOffset(fromIndex);
+         long index = value.lastIndexOf(str.getValue(), offset);
+         if (index < 0) {
+             return null;
+         }
+         for (int i = 0; i < index; i++) {
+             char c = value.charAt(i);
+             if (Character.isHighSurrogate(c)) {
+                 index--;
+             }
+         }
+         return index;
+     }
+     @Override
      public BString substring(int beginIndex, int endIndex) {
          int beginOffset = getOffset(beginIndex);
          int endOffset = getOffset(endIndex);

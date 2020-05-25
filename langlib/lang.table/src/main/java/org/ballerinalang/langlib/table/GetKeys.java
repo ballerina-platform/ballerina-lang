@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -80,10 +81,10 @@ public class GetKeys {
                 }
                 return (ArrayValue) BValueCreator.createArrayValue(floatArr);
             case TypeTags.STRING:
-                String[] stringArr  = new String[keys.length];
+                BString[] stringArr  = new BString[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
-                    stringArr[i] = (String) key;
+                    stringArr[i] = (BString) key;
                 }
                 return (ArrayValue) BValueCreator.createArrayValue(stringArr);
             default:

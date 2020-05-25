@@ -136,17 +136,8 @@ public class GenerateBalo {
         compiler.write(buildPackages);
 
         for (BLangPackage pkg : buildPackages) {
-            String suffix = "";
-            String version = "";
-            String bStringProp = System.getProperty("ballerina.bstring");
-            if (bStringProp != null && !"".equals(bStringProp)) {
-                suffix = "-bstring";
-            }
-            if (!pkg.packageID.version.value.equals("")) {
-                version = "-" + pkg.packageID.version;
-            }
             Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "-" + pkg.packageID.name +
-                                               version + suffix + ".jar");
+                                               "-" + pkg.packageID.version + ".jar");
             Path parent = jarOutput.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);

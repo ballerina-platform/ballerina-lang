@@ -50,29 +50,13 @@ public class Next {
         IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get("m")).getIterator();
-            m.addNativeData("&iterator&", xmlIterator);
-        }
-
-        if (xmlIterator.hasNext()) {
-            Object xmlValue = xmlIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
-        }
-
-        return null;
-    }
-
-    public static Object next_bstring(Strand strand, ObjectValue m) {
-        IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
-
-        if (xmlIterator == null) {
             xmlIterator = ((XMLValue) m.get(StringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return BallerinaValues.createRecord_bstring(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
+            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
         }
 
         return null;

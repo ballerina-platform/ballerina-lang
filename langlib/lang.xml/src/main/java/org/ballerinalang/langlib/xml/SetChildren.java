@@ -75,8 +75,4 @@ public class SetChildren {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
     }
-
-    public static void setChildren_bstring(Strand strand, XMLValue xml, Object children) {
-        setChildren(strand, xml, children);
-    }
 }

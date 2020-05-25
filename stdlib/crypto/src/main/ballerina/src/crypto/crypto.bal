@@ -273,11 +273,7 @@ public function hmacSha512(byte[] input, byte[] key) returns byte[] = @java:Meth
 #
 # + input - Value for checksum generation
 # + return - The generated checksum
-public function crc32b(byte[] input) returns string {
-    return externCrc32b(input).toString();
-}
-
-function externCrc32b(byte[] input) returns handle = @java:Method {
+public function crc32b(byte[] input) returns string = @java:Method {
     name: "crc32b",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
@@ -521,12 +517,7 @@ public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKe
 # + keyPassword - Key password
 # + return - Reference to the private key or else a `crypto:Error` if the private key was unreadable
 public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, string keyPassword)
-                                 returns PrivateKey|Error {
-    return externDecodePrivateKey(keyStore, java:fromString(keyAlias), java:fromString(keyPassword));
-}
-
-function externDecodePrivateKey(KeyStore|TrustStore keyStore, handle keyAlias, handle keyPassword)
-                                returns PrivateKey|Error = @java:Method {
+                                 returns PrivateKey|Error = @java:Method {
     name: "decodePrivateKey",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
@@ -543,12 +534,7 @@ function externDecodePrivateKey(KeyStore|TrustStore keyStore, handle keyAlias, h
 # + keyStore - Key store or Trust store configurations
 # + keyAlias - Key alias
 # + return - Reference to the public key or else a `crypto:Error` if the private key was unreadable
-public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error {
-    return externDecodePublicKey(keyStore, java:fromString(keyAlias));
-}
-
-function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
-                                      returns PublicKey|Error = @java:Method {
+public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error = @java:Method {
     name: "decodePublicKey",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
@@ -563,11 +549,7 @@ function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
 # + modulus - JWK modulus value ('n' parameter) for the RSA public key
 # + exponent - JWK exponent value ('e' paramenter) for the RSA public key
 # + return - Reference to the public key or else a `crypto:Error` if the modulus or exponent is invalid
-public function buildRsaPublicKey(string modulus, string exponent) returns PublicKey|Error {
-    return externBuildRsaPublicKey(java:fromString(modulus), java:fromString(exponent));
-}
-
-function externBuildRsaPublicKey(handle modulus, handle exponent) returns PublicKey|Error = @java:Method {
+public function buildRsaPublicKey(string modulus, string exponent) returns PublicKey|Error = @java:Method {
     name: "buildRsaPublicKey",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
@@ -589,12 +571,7 @@ function externBuildRsaPublicKey(handle modulus, handle exponent) returns Public
 # + padding - The padding
 # + return - Encrypted data or else a `crypto:Error` if the key is invalid
 public function encryptRsaEcb(byte[] input, PrivateKey|PublicKey key, RsaPadding padding = "PKCS1")
-                              returns byte[]|Error {
-     return externEncryptRsaEcb(input, key, java:fromString(padding));
-}
-
-function externEncryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padding)
-                             returns byte[]|Error = @java:Method {
+                              returns byte[]|Error = @java:Method {
     name: "encryptRsaEcb",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
@@ -619,11 +596,8 @@ function externEncryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padd
 # + iv - Initialization vector
 # + padding - The padding
 # + return - Encrypted data or else a `crypto:Error` if the key is invalid
-public function encryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5") returns byte[]|Error {
-    return externEncryptAesCbc(input, key, iv, java:fromString(padding));
-}
-
-function externEncryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding) returns byte[]|Error = @java:Method {
+public function encryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5")
+                              returns byte[]|Error = @java:Method {
     name: "encryptAesCbc",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
@@ -643,11 +617,8 @@ function externEncryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding
 # + key - Encryption key
 # + padding - The padding
 # + return - Encrypted data or else a `crypto:Error` if the key is invalid
-public function encryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PKCS5") returns byte[]|Error {
-    return externEncryptAesEcb(input, key, java:fromString(padding));
-}
-
-function externEncryptAesEcb(byte[] input, byte[] key, handle padding) returns byte[]|Error = @java:Method {
+public function encryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PKCS5")
+                              returns byte[]|Error = @java:Method {
     name: "encryptAesEcb",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
@@ -673,14 +644,8 @@ function externEncryptAesEcb(byte[] input, byte[] key, handle padding) returns b
 # + padding - The padding
 # + tagSize - Tag size
 # + return - Encrypted data or else a `crypto:Error` if the key is invalid
-
 public function encryptAesGcm(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5",
-                              int tagSize = 128) returns byte[]|Error {
-    return externEncryptAesGcm(input, key, iv, java:fromString(padding), tagSize);
-}
-
-function externEncryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding, int tagSize = 128)
-                             returns byte[]|Error = @java:Method {
+                              int tagSize = 128) returns byte[]|Error = @java:Method {
     name: "encryptAesGcm",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
@@ -704,12 +669,7 @@ function externEncryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding
 # + padding - The padding
 # + return - Decrypted data or else a `crypto:Error` if the key is invalid
 public function decryptRsaEcb(byte[] input, PrivateKey|PublicKey key, RsaPadding padding = "PKCS1")
-                              returns byte[]|Error {
-    return externDecryptRsaEcb(input, key, java:fromString(padding));
-}
-
-function externDecryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padding)
-                             returns byte[]|Error = @java:Method {
+                              returns byte[]|Error = @java:Method {
     name: "decryptRsaEcb",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
@@ -735,11 +695,8 @@ function externDecryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padd
 # + iv - Initialization vector
 # + padding - The padding
 # + return - Decrypted data or else a `crypto:Error` if the key is invalid
-public function decryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5") returns byte[]|Error {
-    return externDecryptAesCbc(input, key, iv, java:fromString(padding));
-}
-
-function externDecryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding) returns byte[]|Error = @java:Method {
+public function decryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5")
+                              returns byte[]|Error = @java:Method {
     name: "decryptAesCbc",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
@@ -760,13 +717,10 @@ function externDecryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding
 # + key - Encryption key
 # + padding - The padding
 # + return - Decrypted data or else a `crypto:Error` if the key is invalid
-public function decryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PKCS5") returns byte[]|Error {
-    return externDecryptAesEcb(input, key, java:fromString(padding));
-}
-
-function externDecryptAesEcb(byte[] input, byte[] key, handle padding) returns byte[]|Error = @java:Method {
+public function decryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PKCS5")
+                              returns byte[]|Error = @java:Method {
     name: "decryptAesEcb",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
+   class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
 
 # Returns the AES-GCM-decrypted value for the given AES-GCM-encrypted data.
@@ -792,12 +746,7 @@ function externDecryptAesEcb(byte[] input, byte[] key, handle padding) returns b
 # + tagSize - Tag size
 # + return - Decrypted data or else a `crypto:Error` if the key is invalid
 public function decryptAesGcm(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5", int tagSize = 128)
-                              returns byte[]|Error {
-    return externDecryptAesGcm(input, key, iv, java:fromString(padding), tagSize);
-}
-
-function externDecryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding, int tagSize = 128)
-                             returns byte[]|Error = @java:Method {
+                              returns byte[]|Error = @java:Method {
     name: "decryptAesGcm",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;

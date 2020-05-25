@@ -42,7 +42,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 )
 public class Concat {
 
-    public static String concat(Strand strand, ArrayValue str) {
+    public static BString concat(Strand strand, ArrayValue str) {
         StringBuilder stringBuilder = new StringBuilder();
         int size = str.size();
 
@@ -50,9 +50,6 @@ public class Concat {
             stringBuilder.append(str.getString(i));
         }
 
-        return stringBuilder.toString();
-    }
-    public static BString concat_bstring(Strand strand, ArrayValue arrayValue) {
-        return StringUtils.fromString(concat(strand, arrayValue));
+        return StringUtils.fromString(stringBuilder.toString());
     }
 }

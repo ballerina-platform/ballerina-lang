@@ -19,6 +19,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -99,7 +100,7 @@ public class FunctionUtils  extends AbstractGrpcNativeFunction  {
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(
                         BRuntime.getCurrentRuntime(), service,
-                        service.getType().getAnnotation(ANN_SERVICE_DESCRIPTOR_FQN)));
+                        service.getType().getAnnotation(StringUtils.fromString(ANN_SERVICE_DESCRIPTOR_FQN))));
                 return null;
             }
         } catch (GrpcServerException e) {

@@ -99,7 +99,7 @@ public class DefaultMessageHandler implements MessageHandler {
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT),
+            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
                                                     NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
         }
@@ -125,7 +125,7 @@ public class DefaultMessageHandler implements MessageHandler {
         } catch (ErrorValue e) {
             ErrorHandler.dispatchError(serviceObject, msgObj, e, runtime, natsMetricsReporter);
         } catch (InterruptedException e) {
-            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT),
+            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
                                                     NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             Thread.currentThread().interrupt();
             throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
@@ -133,12 +133,12 @@ public class DefaultMessageHandler implements MessageHandler {
     }
 
     private void executeResource(ObjectValue msgObj, CountDownLatch countDownLatch) {
-        String subject = msgObj.getStringValue(Constants.SUBJECT);
+        String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
-            NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_CONSUMER,
-                                                                          connectedUrl,
-                                                                          msgObj.getStringValue(Constants.SUBJECT));
+            NatsObserverContext observerContext = new NatsObserverContext(
+                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
+                    msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
@@ -151,12 +151,12 @@ public class DefaultMessageHandler implements MessageHandler {
     }
 
     private void executeResource(ObjectValue msgObj, CountDownLatch countDownLatch, Object typeBoundData) {
-        String subject = msgObj.getStringValue(Constants.SUBJECT);
+        String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
-            NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_CONSUMER,
-                                                                          connectedUrl,
-                                                                          msgObj.getStringValue(Constants.SUBJECT));
+            NatsObserverContext observerContext = new NatsObserverContext(
+                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
+                    msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),

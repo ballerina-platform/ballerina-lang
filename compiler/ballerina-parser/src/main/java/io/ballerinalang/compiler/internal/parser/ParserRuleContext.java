@@ -181,8 +181,15 @@ public enum ParserRuleContext {
     ALTERNATE_WAIT_EXPRS("alternate-wait-exprs"),
     ALTERNATE_WAIT_EXPR_LIST_END("alternate-wait-expr-lit-end"),
     DO_CLAUSE("do-clause"),
+    MODULE_ENUM_DECLARATION("module-enum-declaration"),
+    MODULE_ENUM_NAME("module-enum-name"),
+    ENUM_MEMBER_NAME("enum-member-name"),
     MEMBER_ACCESS_KEY_EXPR_END("member-access-key-expr-end"),
     MEMBER_ACCESS_KEY_EXPR("member-access-key-expr"),
+    RETRY_KEYWORD_RHS("retry-keyword-rhs"),
+    RETRY_TYPE_PARAM_RHS("retry-type-param-rhs"),
+    RETRY_BODY("retry-body"),
+    ROLLBACK_RHS("rollback-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -215,6 +222,9 @@ public enum ParserRuleContext {
     NAMED_WORKER_DECL("named-worker-decl"),
     FORK_STMT("fork-stmt"),
     FOREACH_STMT("foreach-stmt"),
+    TRANSACTION_STMT("transaction-stmt"),
+    RETRY_STMT("retry-stmt"),
+    ROLLBACK_STMT("rollback-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -275,6 +285,12 @@ public enum ParserRuleContext {
     DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
+    TRANSACTION_KEYWORD("transaction"),
+    COMMIT_KEYWORD("commit"),
+    RETRY_KEYWORD("retry"),
+    ROLLBACK_KEYWORD("rollback"),
+    TRANSACTIONAL_KEYWORD("transactional"),
+    ENUM_KEYWORD("enum"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -439,6 +455,10 @@ public enum ParserRuleContext {
     ROW_TYPE_PARAM("row-type-param"),
     TABLE_TYPE_DESC_RHS("table-type-desc-rhs"),
     SIGNED_INT_OR_FLOAT_RHS("signed-int-or-float-rhs"),
+    ENUM_MEMBER_LIST("enum-member-list"),
+    ENUM_MEMBER_RHS("enum-member-rhs"),
+    ENUM_MEMBER_INTERNAL_RHS("enum-member-internal-rhs"),
+    ENUM_MEMBER_START("enum-member-start"),
     ;
 
     private String value;

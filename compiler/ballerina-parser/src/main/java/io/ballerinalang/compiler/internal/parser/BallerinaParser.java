@@ -444,6 +444,26 @@ public class BallerinaParser extends AbstractParser {
                 return parseMemberAccessKeyExprEnd();
             case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalChainingToken();
+            case RETRY_KEYWORD_RHS:
+                return parseRetryKeywordRhs((STNode) args[0]);
+            case RETRY_TYPE_PARAM_RHS:
+                return parseRetryTypeParamRhs((STNode) args[0], (STNode) args[1]);
+            case TRANSACTION_KEYWORD:
+                return parseTransactionKeyword();
+            case COMMIT_KEYWORD:
+                return parseCommitKeyword();
+            case RETRY_KEYWORD:
+                return parseRetryKeyword();
+            case ROLLBACK_KEYWORD:
+                return parseRollbackKeyword();
+            case RETRY_BODY:
+                return parseRetryBody();
+            case ENUM_MEMBER_INTERNAL_RHS:
+                return parseEnumMemberInternalRhs((STNode) args[0], (STNode) args[1]);
+            case ENUM_MEMBER_RHS:
+                return parseEnumMemberRhs();
+            case ENUM_MEMBER_NAME:
+                return parseEnumMember();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -524,6 +544,7 @@ public class BallerinaParser extends AbstractParser {
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
             case SERVICE_KEYWORD:
+            case ENUM_KEYWORD:
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
                 break;
@@ -596,6 +617,7 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_KEYWORD:
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
+            case ENUM_KEYWORD:
                 // TODO: add type binding pattern
                 break;
             case IDENTIFIER_TOKEN:
@@ -1180,8 +1202,9 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidQualifier(qualifier);
                     return parseServiceDecl(metadata);
                 }
-
                 return parseModuleVarDecl(metadata, qualifier);
+            case ENUM_KEYWORD:
+                return parseEnumDeclaration(metadata, getQualifier(qualifier));
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -3258,6 +3281,9 @@ public class BallerinaParser extends AbstractParser {
             case FORK_KEYWORD:
             case FOREACH_KEYWORD:
             case XMLNS_KEYWORD:
+            case TRANSACTION_KEYWORD:
+            case RETRY_KEYWORD:
+            case ROLLBACK_KEYWORD:
 
                 // action-statements
             case CHECK_KEYWORD:
@@ -3267,6 +3293,7 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
+            case COMMIT_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -3375,9 +3402,16 @@ public class BallerinaParser extends AbstractParser {
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
             case FROM_KEYWORD:
+            case COMMIT_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             case XMLNS_KEYWORD:
                 return parseXMLNamepsaceDeclaration();
+            case TRANSACTION_KEYWORD:
+                return parseTransactionStatement();
+            case RETRY_KEYWORD:
+                return parseRetryStatement();
+            case ROLLBACK_KEYWORD:
+                return parseRollbackStatement();
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
@@ -3741,6 +3775,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseReceiveAction();
             case WAIT_KEYWORD:
                 return parseWaitAction();
+            case COMMIT_KEYWORD:
+                return parseCommitAction();
+            case TRANSACTIONAL_KEYWORD:
+                return parseTransactionalExpression();
             default:
                 break;
         }
@@ -5318,7 +5356,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseReturnStatementRhs(STNode returnKeyword) {
         STNode expr;
-        STNode semicolon;
         STToken token = peek();
 
         switch (token.kind) {
@@ -5330,7 +5367,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
-        semicolon = parseSemicolon();
+        STNode semicolon = parseSemicolon();
         return STNodeFactory.createReturnStatementNode(returnKeyword, expr, semicolon);
     }
 
@@ -6729,6 +6766,7 @@ public class BallerinaParser extends AbstractParser {
             case RECEIVE_ACTION:
             case WAIT_ACTION:
             case QUERY_ACTION:
+            case COMMIT_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -10857,4 +10895,392 @@ public class BallerinaParser extends AbstractParser {
         STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }
+
+    /**
+     * Parse enum declaration.
+     * <p>
+     * module-enum-decl :=
+     * metadata
+     * [public] enum identifier { enum-member (, enum-member)* }
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     * 
+     * @param metadata
+     * @param qualifier
+     *
+     * @return Parsed enum node.
+     */
+    private STNode parseEnumDeclaration(STNode metadata, STNode qualifier) {
+        startContext(ParserRuleContext.MODULE_ENUM_DECLARATION);
+        STNode enumKeywordToken = parseEnumKeyword();
+        STNode identifier = parseIdentifier(ParserRuleContext.MODULE_ENUM_NAME);
+        STNode openBraceToken = parseOpenBrace();
+        STNode enumMemberList = parseEnumMemberList();
+        STNode closeBraceToken = parseCloseBrace();
+
+        endContext();
+        return STNodeFactory.createEnumDeclarationNode(metadata, qualifier, enumKeywordToken, identifier,
+                openBraceToken, enumMemberList, closeBraceToken);
+    }
+
+    /**
+     * Parse 'enum' keyword.
+     *
+     * @return enum keyword node
+     */
+    private STNode parseEnumKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ENUM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ENUM_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse enum member list.
+     * <p>
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     *
+     * @return enum member list node.
+     */
+    private STNode parseEnumMemberList() {
+        startContext(ParserRuleContext.ENUM_MEMBER_LIST);
+        List<STNode> enumMemberList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Report an empty enum member list
+        if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            this.errorHandler.reportMissingTokenError("enum member list cannot be empty");
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first enum member, that has no leading comma
+        STNode enumMember = parseEnumMember();
+
+        // Parse the remaining enum members
+        nextToken = peek();
+        STNode enumMemberRhs;
+        while (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
+            enumMemberRhs = parseEnumMemberRhs(nextToken.kind);
+            if (enumMemberRhs == null) {
+                break;
+            }
+            enumMemberList.add(enumMember);
+            enumMemberList.add(enumMemberRhs);
+            enumMember = parseEnumMember();
+            nextToken = peek();
+        }
+
+        enumMemberList.add(enumMember);
+
+        endContext();
+        return STNodeFactory.createNodeList(enumMemberList);
+    }
+
+    /**
+     * Parse enum member.
+     * <p>
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     *
+     * @return Parsed enum member node.
+     */
+    private STNode parseEnumMember() {
+        STToken nextToken = peek();
+        STNode metadata;
+        switch (nextToken.kind) {
+            case DOCUMENTATION_LINE:
+            case AT_TOKEN:
+                metadata = parseMetaData(nextToken.kind);
+                break;
+            default:
+                metadata = STNodeFactory.createEmptyNode();
+        }
+
+        STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER_NAME);
+        return parseEnumMemberInternalRhs(metadata, identifierNode);
+    }
+
+    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode) {
+        return parseEnumMemberInternalRhs(metadata, identifierNode, peek().kind);
+    }
+
+    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode, SyntaxKind nextToken) {
+        STNode equalToken, constExprNode;
+        switch (nextToken) {
+            case EQUAL_TOKEN:
+                equalToken = parseAssignOp();
+                constExprNode = parseExpression();
+                break;
+            case COMMA_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                equalToken = STNodeFactory.createEmptyNode();
+                constExprNode = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution =
+                        recover(peek(), ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS, metadata, identifierNode);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberInternalRhs(metadata, identifierNode, solution.tokenKind);
+        }
+
+        return STNodeFactory.createEnumMemberNode(metadata, identifierNode, equalToken, constExprNode);
+    }
+
+    /**
+     * Parse transaction statement.
+     * <p>
+     * <code>transaction-stmt := "transaction" block-stmt ;</code>
+     * 
+     * @return Transaction statement node
+     */
+    private STNode parseTransactionStatement() {
+        startContext(ParserRuleContext.TRANSACTION_STMT);
+        STNode transactionKeyword = parseTransactionKeyword();
+        STNode blockStmt = parseBlockNode();
+        endContext();
+        return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt);
+    }
+
+    /**
+     * Parse transaction keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseTransactionKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRANSACTION_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TRANSACTION_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse commit action.
+     * <p>
+     * <code>commit-action := "commit"</code>
+     * 
+     * @return Commit action node
+     */
+    private STNode parseCommitAction() {
+        STNode commitKeyword = parseCommitKeyword();
+        return STNodeFactory.createCommitActionNode(commitKeyword);
+    }
+
+    /**
+     * Parse commit keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseCommitKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COMMIT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.COMMIT_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse retry statement.
+     * <p>
+     * <code>
+     * retry-stmt := "retry" retry-spec block-stmt
+     * <br/>
+     * retry-spec :=  [type-parameter] [ "(" arg-list ")" ]
+     * </code>
+     * 
+     * @return Retry statement node
+     */
+    private STNode parseRetryStatement() {
+        startContext(ParserRuleContext.RETRY_STMT);
+        STNode retryKeyword = parseRetryKeyword();
+        STNode retryStmt = parseRetryKeywordRhs(retryKeyword);
+        endContext();
+        return retryStmt;
+    }
+
+    private STNode parseRetryKeywordRhs(STNode retryKeyword) {
+        return parseRetryKeywordRhs(peek().kind, retryKeyword);
+    }
+
+    private STNode parseRetryKeywordRhs(SyntaxKind nextTokenKind, STNode retryKeyword) {
+        switch (nextTokenKind) {
+            case LT_TOKEN:
+                STNode typeParam = parseTypeParameter();
+                return parseRetryTypeParamRhs(retryKeyword, typeParam);
+            case OPEN_PAREN_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case TRANSACTION_KEYWORD:
+                typeParam = STNodeFactory.createEmptyNode();
+                return parseRetryTypeParamRhs(nextTokenKind, retryKeyword, typeParam);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.RETRY_KEYWORD_RHS, retryKeyword);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseRetryKeywordRhs(solution.tokenKind, retryKeyword);
+        }
+    }
+
+    private STNode parseRetryTypeParamRhs(STNode retryKeyword, STNode typeParam) {
+        return parseRetryTypeParamRhs(peek().kind, retryKeyword, typeParam);
+    }
+
+    private STNode parseRetryTypeParamRhs(SyntaxKind nextTokenKind, STNode retryKeyword, STNode typeParam) {
+        STNode args;
+        switch (nextTokenKind) {
+            case OPEN_PAREN_TOKEN:
+                args = parseParenthesizedArgList();
+                break;
+            case OPEN_BRACE_TOKEN:
+            case TRANSACTION_KEYWORD:
+                args = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.RETRY_TYPE_PARAM_RHS, retryKeyword, typeParam);
+                return parseRetryTypeParamRhs(solution.tokenKind, retryKeyword, typeParam);
+        }
+
+        STNode blockStmt = parseRetryBody();
+        return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt);
+    }
+
+    private STNode parseRetryBody() {
+        return parseRetryBody(peek().kind);
+    }
+
+    private STNode parseRetryBody(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case OPEN_BRACE_TOKEN:
+                return parseBlockNode();
+            case TRANSACTION_KEYWORD:
+                return parseTransactionStatement();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.RETRY_BODY);
+                return parseRetryBody(solution.tokenKind);
+        }
+    }
+
+    private STNode parseEnumMemberRhs() {
+        return parseEnumMemberRhs(peek().kind);
+    }
+
+    private STNode parseEnumMemberRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberRhs(solution.tokenKind);
+        }
+    }
+
+    /**
+     * Parse retry keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseRetryKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RETRY_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.RETRY_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse transaction statement.
+     * <p>
+     * <code>rollback-stmt := "rollback" [expression] ";"</code>
+     * 
+     * @return Rollback statement node
+     */
+    private STNode parseRollbackStatement() {
+        startContext(ParserRuleContext.ROLLBACK_STMT);
+        STNode rollbackKeyword = parseRollbackKeyword();
+        STNode expression;
+        if (peek().kind == SyntaxKind.SEMICOLON_TOKEN) {
+            expression = STNodeFactory.createEmptyNode();
+        } else {
+            expression = parseExpression();
+        }
+
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createRollbackStatementNode(rollbackKeyword, expression, semicolon);
+    }
+
+    /**
+     * Parse rollback keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseRollbackKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ROLLBACK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse transactional expression.
+     * <p>
+     * <code>transactional-expr := "transactional"</code>
+     * 
+     * @return Transactional expression node
+     */
+    private STNode parseTransactionalExpression() {
+        STNode transactionalKeyword = parseTransactionalKeyword();
+        return STNodeFactory.createTransactionalExpressionNode(transactionalKeyword);
+    }
+
+    /**
+     * Parse transactional keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseTransactionalKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
 }

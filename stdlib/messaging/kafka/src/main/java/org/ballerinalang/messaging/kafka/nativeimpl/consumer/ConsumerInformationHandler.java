@@ -22,12 +22,14 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -97,7 +99,7 @@ public class ConsumerInformationHandler {
         try {
             Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
             for (TopicPartition partition : topicPartitions) {
-                MapValue<String, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
+                MapValue<BString, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
                 topicPartitionArray.append(tp);
             }
             return topicPartitionArray;
@@ -151,7 +153,7 @@ public class ConsumerInformationHandler {
         try {
             Set<TopicPartition> pausedPartitions = kafkaConsumer.paused();
             for (TopicPartition partition : pausedPartitions) {
-                MapValue<String, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
+                MapValue<BString, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
                 topicPartitionArray.append(tp);
             }
             return topicPartitionArray;
@@ -190,7 +192,7 @@ public class ConsumerInformationHandler {
             BArray topicPartitionArray =
                     BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
             for (PartitionInfo info : partitionInfoList) {
-                MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
+                MapValue<BString, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
                 topicPartitionArray.append(partition);
             }
             return topicPartitionArray;
@@ -217,7 +219,7 @@ public class ConsumerInformationHandler {
             BArray arrayValue = BValueCreator.createArrayValue(stringArrayType);
             if (!subscriptions.isEmpty()) {
                 for (String subscription : subscriptions) {
-                    arrayValue.append(subscription);
+                    arrayValue.append(StringUtils.fromString(subscription));
                 }
             }
             return arrayValue;
@@ -238,7 +240,7 @@ public class ConsumerInformationHandler {
         BArray bArray = BValueCreator.createArrayValue(new BArrayType(BTypes.typeString));
         if (!map.keySet().isEmpty()) {
             for (String topic : map.keySet()) {
-                bArray.append(topic);
+                bArray.append(StringUtils.fromString(topic));
             }
         }
         return bArray;

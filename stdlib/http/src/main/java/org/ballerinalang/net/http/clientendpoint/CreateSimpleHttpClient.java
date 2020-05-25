@@ -18,8 +18,10 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -48,11 +50,11 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
 public class CreateSimpleHttpClient {
     @SuppressWarnings("unchecked")
     public static void createSimpleHttpClient(ObjectValue httpClient,
-                                              MapValue<String, Long> globalPoolConfig) {
-        String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).replaceAll(HttpConstants.REGEX,
-                HttpConstants.SINGLE_SLASH);
-        httpClient.set(CLIENT_ENDPOINT_SERVICE_URI, urlString);
-        MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) httpClient.get(
+                                              MapValue<BString, Long> globalPoolConfig) {
+        String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue().replaceAll(
+                HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);
+        httpClient.set(CLIENT_ENDPOINT_SERVICE_URI, StringUtils.fromString(urlString));
+        MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) httpClient.get(
                 CLIENT_ENDPOINT_CONFIG);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         String scheme;
@@ -73,18 +75,18 @@ public class CreateSimpleHttpClient {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION).getValue();
         if (HTTP_2_0_VERSION.equals(httpVersion)) {
-            MapValue<String, Object> http2Settings = (MapValue<String, Object>) clientEndpointConfig.
+            MapValue<BString, Object> http2Settings = (MapValue<BString, Object>) clientEndpointConfig.
                     get(HttpConstants.HTTP2_SETTINGS);
             boolean http2PriorKnowledge = (boolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE);
             senderConfiguration.setForceHttp2(http2PriorKnowledge);
         } else {
-            MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig.get(
+            MapValue<BString, Object> http1Settings = (MapValue<BString, Object>) clientEndpointConfig.get(
                     HttpConstants.HTTP1_SETTINGS);
-            String chunking = http1Settings.getStringValue(HttpConstants.CLIENT_EP_CHUNKING);
+            String chunking = http1Settings.getStringValue(HttpConstants.CLIENT_EP_CHUNKING).getValue();
             senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-            String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
+            String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE).getValue();
             senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
         }
         try {
@@ -93,7 +95,7 @@ public class CreateSimpleHttpClient {
             throw HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         ConnectionManager poolManager;
-        MapValue<String, Long> userDefinedPoolConfig = (MapValue<String, Long>) clientEndpointConfig.get(
+        MapValue<BString, Long> userDefinedPoolConfig = (MapValue<BString, Long>) clientEndpointConfig.get(
                 HttpConstants.USER_DEFINED_POOL_CONFIG);
 
         if (userDefinedPoolConfig == null) {

@@ -46,7 +46,4 @@ public class Sum {
         }
         return sum;
     }
-    public static long sum_bstring(Strand strand, ArrayValue ns) {
-        return sum(strand, ns);
-    }
 }

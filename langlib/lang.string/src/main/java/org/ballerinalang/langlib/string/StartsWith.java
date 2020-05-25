@@ -40,11 +40,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 )
 public class StartsWith {
 
-    public static boolean startsWith(Strand strand, String str, String substr) {
-        return str.startsWith(substr);
-    }
-
-    public static boolean startsWith_bstring(Strand strand, BString str, BString substr) {
+    public static boolean startsWith(Strand strand, BString str, BString substr) {
         return str.getValue().startsWith(substr.getValue());
     }
 }

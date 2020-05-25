@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,12 +42,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 )
 public class Length {
 
-    public static long length(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.length();
-    }
-
-    public static long length_bstring(Strand strand, BString value) {
+    public static long length(Strand strand, BString value) {
         if (value == null) {
             throw BallerinaErrors.createNullReferenceError();
         }

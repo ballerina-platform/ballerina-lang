@@ -127,7 +127,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecord
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
@@ -451,27 +450,25 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
     private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
-        String signature = String.format("(L%s;)L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE, OBJECT);
+            String signature = String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
         mv.visitCode();
 
             int fieldNameRegIndex = 1;
-            if (IS_BSTRING) {
-                mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
-                                   String.format("()L%s;", STRING_VALUE), true);
-                fieldNameRegIndex = 2;
-                mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-            }
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                               String.format("()L%s;", STRING_VALUE), true);
+            fieldNameRegIndex = 2;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
             Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
-                defaultCaseLabel);
+            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+                                                                 defaultCaseLabel);
 
         int i = 0;
         for (BField optionalField : sortedFields) {
@@ -493,8 +490,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                String.format("(L%s;L%s;)V", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE,
-                        OBJECT), null, null);
+                                              String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -503,16 +499,14 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        if (IS_BSTRING) {
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                    true);
-            mv.visitInsn(DUP);
-            fieldNameRegIndex = 3;
-            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-        }
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                           true);
+        mv.visitInsn(DUP);
+        fieldNameRegIndex = 3;
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
-                String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+                           String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
@@ -772,7 +766,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         // Attached functions are empty for type-labeling. In such cases, call the __init() of
         // the original type value;
-        if (attachedFuncs.size() != 0) {
+            if (!attachedFuncs.isEmpty()) {
             initFuncName = attachedFuncs.get(0).name.value; /*?.name ?.value;*/
             valueClassName = className;
         } else {
@@ -820,8 +814,8 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                                          String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                                          String.format("(L%s;)TV;", OBJECT), null);
+                                              String.format("(L%s;)L%s;", OBJECT, OBJECT),
+                                              String.format("(L%s;)TV;", OBJECT), null);
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
@@ -830,20 +824,18 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        if (IS_BSTRING) {
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                    true);
-        }
+                               true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
-                defaultCaseLabel);
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+                                                                 defaultCaseLabel);
 
         int i = 0;
         for (BField optionalField : sortedFields) {
@@ -880,8 +872,8 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
     private void createRecordSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue",
-                                          String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;",
-                                          null);
+                                              String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;",
+                                              null);
 
         mv.visitCode();
         int fieldNameRegIndex = 1;
@@ -891,20 +883,18 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        if (IS_BSTRING) {
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                    true);
-        }
+        mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                               true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
-                defaultCaseLabel);
+            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+                                                                 defaultCaseLabel);
 
         // case body
         int i = 0;
@@ -996,19 +986,17 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
             // field name as key
             mv.visitLdcInsn(fieldName);
-            if (IS_BSTRING) {
                 mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
-                        String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
-            }
+                                   String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
             addBoxInsn(mv, field.type);
 
-            mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, "<init>", String.format("(L%s;L%s;)V", OBJECT,
-                    OBJECT), false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
-            mv.visitInsn(POP);
+                mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, "<init>", String.format("(L%s;L%s;)V", OBJECT,
+                                                                                            OBJECT), false);
+                mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
+                mv.visitInsn(POP);
 
             mv.visitLabel(ifNotPresent);
         }
@@ -1037,11 +1025,9 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        if (IS_BSTRING) {
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                    true);
-        }
+                               true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
@@ -1189,11 +1175,9 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
-        if (IS_BSTRING) {
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
-                    String.format("()L%s;", STRING_VALUE), true);
-        }
+                               String.format("()L%s;", STRING_VALUE), true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         mv.visitVarInsn(ALOAD, 0);
@@ -1295,10 +1279,8 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitLdcInsn(fieldName);
-            if (IS_BSTRING) {
                 mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
                         String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
-            }
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
@@ -1313,7 +1295,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         mv.visitVarInsn(ALOAD, keysVarIndex);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "size", "()I", true);
-        mv.visitTypeInsn(ANEWARRAY, IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
+            mv.visitTypeInsn(ANEWARRAY, B_STRING_VALUE);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", String.format("([L%s;)[L%s;", OBJECT, OBJECT), true);
 
         mv.visitInsn(ARETURN);

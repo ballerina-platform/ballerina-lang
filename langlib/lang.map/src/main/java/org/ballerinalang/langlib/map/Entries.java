@@ -50,8 +50,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 )
 public class Entries {
 
-    private static int refType = -1;
-
     public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
         BType newFieldType = getFieldType(m.getType(), "entries()");
         BTupleType entryType = new BTupleType(Arrays.asList(BTypes.typeString, newFieldType));
@@ -68,7 +66,4 @@ public class Entries {
         return entries;
     }
 
-    public static MapValue<?, ?> entries_bstring(Strand strand, MapValue<?, ?> m) {
-        return entries(strand, m);
-    }
 }

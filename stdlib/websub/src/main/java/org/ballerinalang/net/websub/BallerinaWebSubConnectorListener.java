@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -37,6 +38,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.langlib.typedesc.ConstructFrom;
@@ -159,18 +161,19 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
             ObjectValue intentVerificationRequest = createIntentVerificationRequest();
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-                MapValue<String, Object> params = new MapValueImpl<>();
+                MapValue<BString, Object> params = new MapValueImpl<>();
                 try {
                     URIUtil.populateQueryParamMap(queryString, params);
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_MODE,
+                    intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_MODE),
                                                   getParamStringValue(params, PARAM_HUB_MODE));
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_TOPIC,
+                    intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_TOPIC),
                                                   getParamStringValue(params, PARAM_HUB_TOPIC));
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_CHALLENGE,
+                    intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_CHALLENGE),
                                                   getParamStringValue(params, PARAM_HUB_CHALLENGE));
                     if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
-                        long leaseSec = Long.parseLong(getParamStringValue(params, PARAM_HUB_LEASE_SECONDS));
-                        intentVerificationRequest.set(VERIFICATION_REQUEST_LEASE_SECONDS, leaseSec);
+                        long leaseSec = Long.parseLong(getParamStringValue(params, PARAM_HUB_LEASE_SECONDS).getValue());
+                        intentVerificationRequest.set(StringUtils.fromString(VERIFICATION_REQUEST_LEASE_SECONDS),
+                                                      leaseSec);
                     }
                 } catch (UnsupportedEncodingException e) {
                     log.error("Error populating query map for intent verification request received: "
@@ -183,7 +186,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                     return;
                 }
             }
-            intentVerificationRequest.set(REQUEST, httpRequest);
+            intentVerificationRequest.set(StringUtils.fromString(REQUEST), httpRequest);
             signatureParams[paramIndex++] = intentVerificationRequest;
             signatureParams[paramIndex] = true;
         } else { //Notification Resource
@@ -274,7 +277,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private ObjectValue createNotification(ObjectValue httpRequest) {
         ObjectValue notification = BallerinaValues.createObjectValue(WEBSUB_PACKAGE_ID, WEBSUB_NOTIFICATION_REQUEST);
-        notification.set(REQUEST, httpRequest);
+        notification.set(StringUtils.fromString(REQUEST), httpRequest);
         return notification;
     }
 
@@ -284,7 +287,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private Object createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
                                               ObjectValue httpRequest) {
         BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
+        MapValue<BString, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         return ConstructFrom.convert(recordType, jsonBody);
     }
@@ -313,7 +316,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
 
         String annotatedTopic = httpCarbonMessage.getProperty(ANNOTATED_TOPIC).toString();
         String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-        MapValue<String, Object> params = new MapValueImpl<>();
+        MapValue<BString, Object> params = new MapValueImpl<>();
         try {
             URIUtil.populateQueryParamMap(queryString, params);
             if (!params.containsKey(PARAM_HUB_MODE) || !params.containsKey(PARAM_HUB_TOPIC) ||
@@ -324,12 +327,12 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                 return;
             }
 
-            String mode = getParamStringValue(params, PARAM_HUB_MODE);
+            BString mode = getParamStringValue(params, PARAM_HUB_MODE);
             if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
-                    && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC))) {
-                String challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
+                    && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC).getValue())) {
+                BString challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
                 response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
-                        challenge.getBytes(StandardCharsets.UTF_8))));
+                        challenge.getValue().getBytes(StandardCharsets.UTF_8))));
                 response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
                 response.setHttpStatusCode(HttpResponseStatus.ACCEPTED.code());
                 String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
@@ -359,14 +362,14 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
     }
 
-    private String getParamStringValue(MapValue<String, Object> params, String key) {
+    private BString getParamStringValue(MapValue<BString, Object> params, BString key) {
         if (!params.containsKey(key)) {
-            return "";
+            return StringUtils.fromString("");
         }
         Object param = params.get(key);
         if (TypeChecker.getType(param).getTag() != TypeTags.ARRAY_TAG || ((ArrayValue) param).size() < 1) {
-            return "";
+            return StringUtils.fromString("");
         }
-        return ((ArrayValue) param).get(0).toString();
+        return StringUtils.fromString(((ArrayValue) param).get(0).toString());
     }
 }

@@ -104,7 +104,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
         for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annotationValues) {
             // Validate compression configuration
-            if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_COMPRESSION)) {
+            if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_COMPRESSION.getValue())) {
                 if (compressionConfigCount++ == 1) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                        "Invalid multiple configurations for compression");
@@ -113,7 +113,8 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                 for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) keyValue.valueExpr).getFields()) {
                     BLangRecordLiteral.BLangRecordKeyValueField compressionConfig =
                             (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                    if (checkMatchingConfigKey(compressionConfig, ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES)) {
+                    if (checkMatchingConfigKey(compressionConfig,
+                                               ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES.getValue())) {
                         BLangListConstructorExpr valueArray = (BLangListConstructorExpr) compressionConfig.valueExpr;
                         if (valueArray.getExpressions().isEmpty()) {
                             break;

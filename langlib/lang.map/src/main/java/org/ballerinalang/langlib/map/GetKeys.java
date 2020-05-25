@@ -44,10 +44,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 public class GetKeys {
 
     public static ArrayValue keys(Strand strand, MapValue<?, ?> m) {
-        return new ArrayValueImpl((String[]) m.getKeys());
-    }
-
-    public static ArrayValue keys_bstring(Strand strand, MapValue<?, ?> m) {
         return new ArrayValueImpl((BString[]) m.getKeys());
     }
 }

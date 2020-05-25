@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.internal;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,7 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CommentCtor {
 
-    public static XMLValue commentCtor(Strand strand, String content) {
+    public static XMLValue commentCtor(Strand strand, BString content) {
         return XMLFactory.createXMLComment(content);
     }
 }

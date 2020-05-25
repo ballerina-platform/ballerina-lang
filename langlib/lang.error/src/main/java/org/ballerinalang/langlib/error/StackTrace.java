@@ -71,10 +71,6 @@ public class StackTrace {
         return callStack;
     }
 
-    public static ObjectValue stackTrace_bstring(Strand strand, ErrorValue value) {
-        return stackTrace(strand, value);
-    }
-
     private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];
@@ -84,7 +80,7 @@ public class StackTrace {
         return new ArrayValueImpl(array, new BArrayType(recordType));
     }
 
-    static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+    static MapValue<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
         values[1] = stackTraceElement.getClassName();
@@ -115,20 +111,10 @@ public class StackTrace {
         }
 
         @Override
-        public Object get(String fieldName) {
-            if (fieldName.equals("callStack")) {
+        public Object get(BString fieldName) {
+            if (fieldName.getValue().equals("callStack")) {
                 return callStack;
             }
-            throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
-        public Object get(BString fieldName) {
-            return get(fieldName.getValue());
-        }
-
-        @Override
-        public void set(String fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
         }
 

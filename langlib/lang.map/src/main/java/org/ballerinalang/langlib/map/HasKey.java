@@ -41,11 +41,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(Strand strand, MapValue<?, ?> m, String k) {
-        return m.containsKey(k);
-    }
-
-    public static boolean hasKey_bstring(Strand strand, MapValue<?, ?> m, BString k) {
+    public static boolean hasKey(Strand strand, MapValue<?, ?> m, BString k) {
         return m.containsKey(k);
     }
 }

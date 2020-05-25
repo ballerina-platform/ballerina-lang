@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,15 +44,10 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 )
 public class ToLowerAscii {
 
-    public static String toLowerAscii(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.toLowerCase(Locale.getDefault());
-    }
-
-    public static BString toLowerAscii_bstring(Strand strand, BString str) {
+    public static BString toLowerAscii(Strand strand, BString str) {
         if (str == null) {
             throw BallerinaErrors.createNullReferenceError();
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(toLowerAscii(strand, str.getValue()));
+        return org.ballerinalang.jvm.StringUtils.fromString(str.getValue().toLowerCase(Locale.getDefault()));
     }
 }
