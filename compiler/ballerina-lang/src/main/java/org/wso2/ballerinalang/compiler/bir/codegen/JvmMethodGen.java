@@ -1702,12 +1702,12 @@ public class JvmMethodGen {
             mv.visitVarInsn(ALOAD, throwableVarIndex);
             mv.visitInsn(ATHROW);
         }
+        mv.visitLabel(methodEndLabel);
         if (func == module.functions.get(1)) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
                     MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
         }
-        mv.visitLabel(methodEndLabel);
         termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, false, -1);
 
         // Create Local Variable Table
