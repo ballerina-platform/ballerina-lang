@@ -273,6 +273,8 @@ public enum ParserRuleContext {
     DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
+    BASE16_KEYWORD("base16"),
+    BASE64_KEYWORD("base64"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -382,6 +384,9 @@ public enum ParserRuleContext {
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
+    HEX_DIGIT("hex-digit"),
+    BASE64_CHAR("base64-char"),
+    PADDING_CHAR("padding-char"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

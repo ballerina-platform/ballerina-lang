@@ -3739,6 +3739,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseReceiveAction();
             case WAIT_KEYWORD:
                 return parseWaitAction();
+            case BASE16_KEYWORD:
+                return parseBase16Literal();
+            case BASE64_KEYWORD:
+                return parseBase64Literal();
             default:
                 break;
         }
@@ -10740,5 +10744,192 @@ public class BallerinaParser extends AbstractParser {
         endContext();
         STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    /**
+     * Parse base16 literal.
+     * <p>
+     * <code>Base16Literal := base16 WS ` HexGroup* WS `<code>
+     *
+     * @return parsed node
+     */
+    private STNode parseBase16Literal() {
+        STNode type = parseBase16Keyword();
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START); //TODO: change context
+        STNode content = parseBase16Content();
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        return STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
+    }
+
+    /**
+     * Parse <code>base16</code> keyword.
+     *
+     * @return base16 keyword node
+     */
+    private STNode parseBase16Keyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BASE16_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BASE16_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseBase16Content() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfBacktickContent(nextToken.kind)) {
+            STNode contentItem = parseHexGroup();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    /**
+     * Parse hex group node.
+     * <p>
+     * <code> HexGroup := WS HexDigit WS HexDigit<code>
+     *
+     * @return parsed node
+     */
+    private STNode parseHexGroup() {
+        STNode startHexDigit = parseHexDigit();
+        STNode endHexDigit = parseHexDigit();
+        return STNodeFactory.createHexGroupNode(startHexDigit,endHexDigit);
+    }
+
+    /**
+     * Parse hex digit.
+     * <p>
+     * <code>HexDigit := Digit | a .. f | A .. F
+     * <br/>
+     * Digit := 0 .. 9
+     * <code>
+     *
+     * @return parsed node
+     */
+    private STNode parseHexDigit() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HEX_DIGIT) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.HEX_DIGIT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse base64 literal.
+     * <p>
+     * <code>Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
+     * <br/>
+     * Base64Group :=WS Base64Char WS Base64Char WS Base64Char WS Base64Char
+     * <br/>
+     * PaddedBase64Group :=
+     *    WS Base64Char WS Base64Char WS Base64Char WS PaddingChar
+     *    | WS Base64Char WS Base64Char WS PaddingChar WS PaddingChar
+     * <code>
+     *
+     * @return parsed node
+     */
+    private STNode parseBase64Literal() {
+        STNode type = parseBase64Keyword();
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START); //TODO: change context
+        STNode content = parseBase64Content();
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        return STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
+    }
+
+    /**
+     * Parse <code>base64</code> keyword.
+     *
+     * @return base64 keyword node
+     */
+    private STNode parseBase64Keyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BASE64_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BASE64_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseBase64Content() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+
+        while (!isEndOfBacktickContent(nextToken.kind)) {
+            STNode contentItem = parseBase64ContentItem();
+
+            if (contentItem.kind == SyntaxKind.PADDED_BASE64_GROUP) {
+                items.add(contentItem);
+                break;
+            } else {
+                items.add(contentItem);
+                nextToken = peek();
+            }
+        }
+
+        return STNodeFactory.createNodeList(items);
+    }
+
+    private STNode parseBase64ContentItem() {
+        STNode startChar = parseBase64Char();
+        STNode firstChar = parseBase64Char();
+
+        STNode secondChar;
+        STNode endChar;
+
+        if (peek().kind == SyntaxKind.PADDING_CHAR){
+            secondChar = parsePaddingChar();
+            endChar = parsePaddingChar();
+            return STNodeFactory.createPaddedBase64GroupNode(startChar, firstChar, secondChar, endChar);
+        } else {
+            secondChar = parseBase64Char();
+            if (peek().kind == SyntaxKind.PADDING_CHAR){
+                endChar = parsePaddingChar();
+                return STNodeFactory.createPaddedBase64GroupNode(startChar, firstChar, secondChar, endChar);
+            } else {
+                endChar = parseBase64Char();
+                return STNodeFactory.createBase64GroupNode(startChar, firstChar, secondChar, endChar);
+            }
+        }
+    }
+
+    /**
+     * Parse base64 char.
+     * <p>
+     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /<code>
+     *
+     * @return parsed node
+     */
+    private STNode parseBase64Char() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BASE64_CHAR) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BASE64_CHAR);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse padding char.
+     * <p>
+     * <code>PaddingChar := = <code>
+     *
+     * @return parsed node
+     */
+    private STNode parsePaddingChar() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PADDING_CHAR) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BASE64_CHAR);
+            return sol.recoveredNode;
+        }
     }
 }

@@ -85,6 +85,8 @@ public class LexerTerminals {
     public static final String DEFAULT = "default";
     public static final String WAIT = "wait";
     public static final String DO = "do";
+    public static final String BASE16 = "base16";
+    public static final String BASE64 = "base64";
 
     // Types
     public static final String INT = "int";

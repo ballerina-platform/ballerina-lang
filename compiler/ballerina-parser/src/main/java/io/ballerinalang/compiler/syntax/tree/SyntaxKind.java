@@ -84,6 +84,8 @@ public enum SyntaxKind {
     DEFAULT_KEYWORD(230, "default"),
     WAIT_KEYWORD(231, "wait"),
     DO_KEYWORD(232, "do"),
+    BASE16_KEYWORD(233, "base16"),
+    BASE64_KEYWORD(234, "base64"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -173,6 +175,9 @@ public enum SyntaxKind {
     HEX_FLOATING_POINT_LITERAL(1005),
     XML_TEXT_CONTENT(1006),
     TEMPLATE_STRING(1007),
+    HEX_DIGIT(1008),
+    BASE64_CHAR(1009),
+    PADDING_CHAR(1010),
 
     // Trivia
     WHITESPACE_MINUTIAE(1500),
@@ -353,6 +358,10 @@ public enum SyntaxKind {
     TRIPPLE_GT_TOKEN(3057, ">>>"),
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
+    BYTE_ARRAY_LITERAL(3060),
+    HEX_GROUP(3061),
+    BASE64_GROUP(3062),
+    PADDED_BASE64_GROUP(3063),
 
     // XML
     XML_ELEMENT(4000),

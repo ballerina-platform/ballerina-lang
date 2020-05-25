@@ -25,6 +25,8 @@ package io.ballerinalang.compiler.internal.parser;
 public enum ParserMode {
     DEFAULT,
     IMPORT,
+    BASE16_ARRAY,
+    BASE64_ARRAY,
     TEMPLATE,
     INTERPOLATION,
     INTERPOLATION_BRACED_CONTENT,
