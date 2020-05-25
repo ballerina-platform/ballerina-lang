@@ -9,9 +9,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.getOutputPath;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassPaths;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MVN_REPO;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.TARGET_DIR;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 
 public class MvnResolverUtils {
 
@@ -20,7 +22,16 @@ public class MvnResolverUtils {
 
     public static void mavenResolver(String groupId, String artifactId, String version, Path projectRoot)
             throws BindgenException {
-        Path mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
+        Path mvnRepository;
+        if (projectRoot == null) {
+            if (getOutputPath() != null) {
+                mvnRepository = Paths.get(getOutputPath(), TARGET_DIR, MVN_REPO);
+            } else {
+                mvnRepository = Paths.get(System.getProperty(USER_DIR), TARGET_DIR, MVN_REPO);
+            }
+        } else {
+            mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
+        }
         populateBallerinaToml(groupId, artifactId, version, mvnRepository.toString(), false);
         MavenResolver resolver = new MavenResolver(mvnRepository.toString());
         try {
