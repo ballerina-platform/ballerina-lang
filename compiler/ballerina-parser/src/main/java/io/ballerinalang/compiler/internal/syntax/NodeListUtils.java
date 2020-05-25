@@ -26,6 +26,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 2.0.0
  */
 public class NodeListUtils {
+    private NodeListUtils(){}
+
     public static boolean isSTNodeList(STNode node) {
         return node.kind == SyntaxKind.LIST;
     }
