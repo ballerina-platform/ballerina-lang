@@ -20,8 +20,10 @@ package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+/**
+ * The section that need to be deleted.
+ */
 public class DeleteRange implements Diagnostic.DiagnosticPosition {
 
     public int sLine;
@@ -66,15 +68,12 @@ public class DeleteRange implements Diagnostic.DiagnosticPosition {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof DiagnosticPos)) {
+        if (!(obj instanceof DeleteRange)) {
             return false;
         }
-        DiagnosticPos diagnosticPos = (DiagnosticPos) obj;
-        return (sLine == diagnosticPos.sLine && eLine == diagnosticPos.eLine &&
-                sCol == diagnosticPos.sCol && eCol == diagnosticPos.eCol);
+        DeleteRange deleteRange = (DeleteRange) obj;
+        return (sLine == deleteRange.sLine && eLine == deleteRange.eLine &&
+                sCol == deleteRange.sCol && eCol == deleteRange.eCol);
     }
 
     @Override

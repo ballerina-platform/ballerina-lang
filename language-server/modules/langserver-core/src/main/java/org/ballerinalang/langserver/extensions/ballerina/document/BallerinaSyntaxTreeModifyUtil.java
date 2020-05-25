@@ -39,10 +39,10 @@ public class BallerinaSyntaxTreeModifyUtil {
         put("MAIN_START", "public function main() {\n");
         put("MAIN_END", "}\n");
         put("SERVICE_START", "service $SERVICE on new http:Listener($PORT) {\n" +
-                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n" );
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n");
         put("SERVICE_END",
                 "    }\n" +
-                "}\n");
+                        "}\n");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
