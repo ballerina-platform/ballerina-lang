@@ -319,6 +319,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         return addGetStreamFromPipeline(block, initPipeline);
     }
 
+    // ---- Util methods to create the stream pipeline. ---- //
     /**
      * Desugar fromClause/joinClause to below and return a reference to created join _StreamPipeline.
      * _StreamPipeline pipeline = createPipeline(collection);
@@ -615,621 +616,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                 name, type, tableConstructorExpr, tableSymbol);
         queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
         return ASTBuilderUtil.createVariableRef(pos, tableSymbol);
-    }
-
-    @Override
-    public void visit(BLangLambdaFunction lambda) {
-        BLangFunction function = lambda.function;
-        currentFrameSymbol = function.requiredParams.get(0).symbol;
-        identifiers = new HashMap<>();
-        currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
-        List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
-        stmts.forEach(stmt -> {
-            stmt.accept(this);
-        });
-        currentFrameSymbol = null;
-        identifiers = null;
-        currentLambdaBody = null;
-    }
-
-    @Override
-    public void visit(BLangSimpleVariableDef bLangSimpleVariableDef) {
-        bLangSimpleVariableDef.getVariable().accept(this);
-    }
-
-    @Override
-    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        bLangRecordVariableDef.var.accept(this);
-    }
-
-    @Override
-    public void visit(BLangRecordVariable bLangRecordVariable) {
-        bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
-        if (bLangRecordVariable.expr != null) {
-            bLangRecordVariable.expr.accept(this);
-        }
-        if (bLangRecordVariable.hasRestParam()) {
-            ((BLangNode) bLangRecordVariable.restParam).accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangSimpleVariable bLangSimpleVariable) {
-        identifiers.putIfAbsent(bLangSimpleVariable.name.value, bLangSimpleVariable.symbol);
-        if (bLangSimpleVariable.expr != null) {
-            bLangSimpleVariable.expr.accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangTypeConversionExpr conversionExpr) {
-        conversionExpr.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        fieldAccessExpr.expr.accept(this);
-        if (fieldAccessExpr.impConversionExpr != null) {
-            fieldAccessExpr.impConversionExpr.expr.accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangExpressionStmt exprStmtNode) {
-        exprStmtNode.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangInvocation invocationExpr) {
-        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
-        if (invocationExpr.langLibInvocation) {
-            requiredArgs = requiredArgs.subList(1, requiredArgs.size());
-        }
-        requiredArgs.forEach(arg -> arg.accept(this));
-        invocationExpr.restArgs.forEach(arg -> arg.accept(this));
-        if (invocationExpr.expr != null) {
-            invocationExpr.expr.accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangLiteral literalExpr) {
-        // do nothing;
-    }
-
-    @Override
-    public void visit(BLangReturn bLangReturn) {
-        bLangReturn.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangBinaryExpr bLangBinaryExpr) {
-        bLangBinaryExpr.lhsExpr.accept(this);
-        bLangBinaryExpr.rhsExpr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangAssignment bLangAssignment) {
-        bLangAssignment.varRef.accept(this);
-        bLangAssignment.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral bLangRecordLiteral) {
-        for (RecordLiteralNode.RecordField field : bLangRecordLiteral.fields) {
-            ((BLangNode) field).accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangRecordKeyValueField recordKeyValue) {
-        recordKeyValue.key.expr.accept(this);
-        recordKeyValue.valueExpr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangRecordSpreadOperatorField spreadOperatorField) {
-        spreadOperatorField.expr.accept(this);
-    }
-
-    public void visit(BLangConstRef constRef) {
-        //do nothing
-    }
-
-    public void visit(BLangNumericLiteral literalExpr) {
-        //do nothing
-    }
-
-    public void visit(BLangTupleVarRef varRefExpr) {
-        varRefExpr.expressions.forEach(expression -> expression.accept(this));
-        if (varRefExpr.restParam != null) {
-            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
-            restExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangRecordVarRef varRefExpr) {
-        varRefExpr.recordRefFields.forEach(recordVarRefKeyValue
-                -> recordVarRefKeyValue.variableReference.accept(this));
-        if (varRefExpr.restParam != null) {
-            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
-            restExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangErrorVarRef varRefExpr) {
-        if (varRefExpr.reason != null) {
-            varRefExpr.reason.accept(this);
-        }
-        if (varRefExpr.restVar != null) {
-            varRefExpr.restVar.accept(this);
-        }
-        varRefExpr.detail.forEach(bLangNamedArgsExpression -> bLangNamedArgsExpression.accept(this));
-    }
-
-    public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
-        BSymbol symbol = bLangSimpleVarRef.symbol;
-        BSymbol resolvedSymbol = symResolver
-                .lookupClosureVarSymbol(env, names.fromIdNode(bLangSimpleVarRef.variableName),
-                        SymTag.VARIABLE);
-        if (symbol != null && resolvedSymbol == symTable.notFoundSymbol) {
-            String identifier = bLangSimpleVarRef.variableName.getValue();
-            if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
-                DiagnosticPos pos = currentLambdaBody.pos;
-                BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
-                        symTable.anyOrErrorType, currentFrameSymbol);
-                frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
-                        types.getSafeType(frameAccessExpr.expr.type, true, false));
-
-                if (symbol instanceof BVarSymbol) {
-                    ((BVarSymbol) symbol).originalSymbol = null;
-                    BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
-                            desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
-                    BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                    currentLambdaBody.stmts.add(0, variableDef);
-                }
-                identifiers.put(identifier, symbol);
-            }
-        } else if (resolvedSymbol != symTable.notFoundSymbol) {
-            resolvedSymbol.closure = true;
-        }
-    }
-
-    public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        indexAccessExpr.indexExpr.accept(this);
-        indexAccessExpr.expr.accept(this);
-    }
-
-    public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.argsExpr.forEach(arg -> arg.accept(this));
-        connectorInitExpr.initInvocation.accept(this);
-    }
-
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        actionInvocationExpr.argExprs.forEach(arg -> arg.accept(this));
-    }
-
-    public void visit(BLangTernaryExpr ternaryExpr) {
-        ternaryExpr.expr.accept(this);
-        ternaryExpr.elseExpr.accept(this);
-        ternaryExpr.thenExpr.accept(this);
-    }
-
-    public void visit(BLangWaitExpr awaitExpr) {
-        awaitExpr.exprList.forEach(expression -> expression.accept(this));
-    }
-
-    public void visit(BLangTrapExpr trapExpr) {
-        trapExpr.expr.accept(this);
-    }
-
-    public void visit(BLangElvisExpr elvisExpr) {
-        elvisExpr.lhsExpr.accept(this);
-        elvisExpr.rhsExpr.accept(this);
-    }
-
-    public void visit(BLangGroupExpr groupExpr) {
-        groupExpr.expression.accept(this);
-    }
-
-    public void visit(BLangLetExpression letExpr) {
-        letExpr.expr.accept(this);
-        letExpr.letVarDeclarations.forEach(var -> ((BLangNode) var.definitionNode).accept(this));
-    }
-
-    public void visit(BLangLetVariable letVariable) {
-        //do nothing
-    }
-
-    public void visit(BLangListConstructorExpr listConstructorExpr) {
-        listConstructorExpr.exprs.forEach(expression -> expression.accept(this));
-    }
-
-    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
-        tupleLiteral.exprs.forEach(expression -> expression.accept(this));
-    }
-
-    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
-        arrayLiteral.exprs.forEach(expression -> expression.accept(this));
-    }
-
-    public void visit(BLangUnaryExpr unaryExpr) {
-        unaryExpr.expr.accept(this);
-    }
-
-    public void visit(BLangTypedescExpr accessExpr) {
-    }
-
-    public void visit(BLangXMLQName xmlQName) {
-    }
-
-    public void visit(BLangXMLAttribute xmlAttribute) {
-    }
-
-    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        xmlElementLiteral.startTagName.accept(this);
-        xmlElementLiteral.endTagName.accept(this);
-        xmlElementLiteral.attributes.forEach(bLangXMLAttribute -> bLangXMLAttribute.accept(this));
-        xmlElementLiteral.children.forEach(child -> child.accept(this));
-    }
-
-    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.textFragments.forEach(fragment -> fragment.accept(this));
-        if (xmlTextLiteral.concatExpr != null) {
-            xmlTextLiteral.concatExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.textFragments.forEach(fragment -> fragment.accept(this));
-        if (xmlCommentLiteral.concatExpr != null) {
-            xmlCommentLiteral.concatExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        xmlProcInsLiteral.dataFragments.forEach(fragment -> fragment.accept(this));
-        if (xmlProcInsLiteral.dataConcatExpr != null) {
-            xmlProcInsLiteral.dataConcatExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.textFragments.forEach(fragment -> fragment.accept(this));
-        if (xmlQuotedString.concatExpr != null) {
-            xmlQuotedString.concatExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.exprs.forEach(expression -> expression.accept(this));
-    }
-
-    public void visit(BLangArrowFunction bLangArrowFunction) {
-        bLangArrowFunction.params.forEach(param -> param.accept(this));
-        bLangArrowFunction.function.accept(this);
-        bLangArrowFunction.body.accept(this);
-    }
-
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-    }
-
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        intRangeExpression.startExpr.accept(this);
-        intRangeExpression.endExpr.accept(this);
-    }
-
-    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        bLangVarArgsExpression.expr.accept(this);
-    }
-
-    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        bLangNamedArgsExpression.expr.accept(this);
-    }
-
-    public void visit(BLangIsAssignableExpr assignableExpr) {
-        assignableExpr.lhsExpr.accept(this);
-    }
-
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        bLangMatchExpression.expr.accept(this);
-        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
-                bLangMatchExpression.patternClauses.forEach(pattern -> pattern.expr.accept(this)));
-        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
-                bLangMatchExpression.patternClauses.forEach(pattern -> pattern.variable.accept(this)));
-        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
-                bLangMatchExpression.expr.accept(this));
-    }
-
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-    }
-
-    public void visit(BLangCheckedExpr checkedExpr) {
-        checkedExpr.expr.accept(this);
-    }
-
-    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        checkPanickedExpr.expr.accept(this);
-    }
-
-    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        serviceConstructorExpr.serviceNode.accept(this);
-    }
-
-    public void visit(BLangTypeTestExpr typeTestExpr) {
-        typeTestExpr.expr.accept(this);
-    }
-
-    public void visit(BLangIsLikeExpr typeTestExpr) {
-        typeTestExpr.expr.accept(this);
-    }
-
-    public void visit(BLangIgnoreExpr ignoreExpr) {
-    }
-
-    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-    }
-
-    public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-    }
-
-    public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-    }
-
-    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        bLangXMLSequenceLiteral.xmlItems.forEach(item -> item.accept(this));
-    }
-
-    public void visit(BLangStatementExpression bLangStatementExpression) {
-        bLangStatementExpression.expr.accept(this);
-        bLangStatementExpression.stmt.accept(this);
-    }
-
-    public void visit(BLangTupleVariable bLangTupleVariable) {
-        if (bLangTupleVariable.restVariable != null) {
-            bLangTupleVariable.restVariable.accept(this);
-        }
-        bLangTupleVariable.memberVariables.forEach(var -> var.accept(this));
-    }
-
-    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        if (bLangTupleVariableDef.var.restVariable != null) {
-            bLangTupleVariableDef.var.restVariable.accept(this);
-        }
-        if (bLangTupleVariableDef.var.expr != null) {
-            bLangTupleVariableDef.var.expr.accept(this);
-        }
-        if (bLangTupleVariableDef.var.memberVariables != null) {
-            bLangTupleVariableDef.var.memberVariables.forEach(var -> var.accept(this));
-        }
-    }
-
-    public void visit(BLangErrorVariable bLangErrorVariable) {
-        if (bLangErrorVariable.reason != null) {
-            bLangErrorVariable.reason.accept(this);
-        }
-        bLangErrorVariable.detail.forEach(var -> var.valueBindingPattern.accept(this));
-        if (bLangErrorVariable.restDetail != null) {
-            bLangErrorVariable.restDetail.accept(this);
-        }
-        if (bLangErrorVariable.detailExpr != null) {
-            bLangErrorVariable.detailExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        bLangErrorVariableDef.errorVariable.accept(this);
-    }
-
-    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        bLangMatchStmtStaticBindingPatternClause.literal.accept(this);
-    }
-
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
-        if (bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable != null) {
-            bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable.accept(this);
-        }
-        if (bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr != null) {
-            bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-    }
-
-    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-    }
-
-    public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        waitForAllExpr.keyValuePairs.forEach(pair -> pair.accept(this));
-    }
-
-    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-    }
-
-
-    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
-    }
-
-    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        waitKeyValue.key.accept(this);
-        waitKeyValue.valueExpr.accept(this);
-    }
-
-    public void visit(BLangXMLElementFilter xmlElementFilter) {
-    }
-
-    public void visit(BLangXMLElementAccess xmlElementAccess) {
-    }
-
-    public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        if (xmlNavigation.childIndex != null) {
-            xmlNavigation.childIndex.accept(this);
-        }
-    }
-
-    //statements
-    public void visit(BLangBlockStmt blockNode) {
-        blockNode.stmts.forEach(statement -> statement.accept(this));
-    }
-
-    public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        lockStmtNode.body.accept(this);
-    }
-
-    public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        unLockNode.body.accept(this);
-    }
-
-    public void visit(BLangCompoundAssignment compoundAssignNode) {
-        if (compoundAssignNode.expr != null) {
-            compoundAssignNode.expr.accept(this);
-        }
-        if (compoundAssignNode.modifiedExpr != null) {
-            compoundAssignNode.modifiedExpr.accept(this);
-        }
-        if (compoundAssignNode.varRef != null) {
-            compoundAssignNode.varRef.accept(this);
-        }
-    }
-
-    public void visit(BLangAbort abortNode) {
-    }
-
-    public void visit(BLangRetry retryNode) {
-    }
-
-    public void visit(BLangContinue continueNode) {
-    }
-
-    public void visit(BLangBreak breakNode) {
-    }
-
-    public void visit(BLangThrow throwNode) {
-        throwNode.expr.accept(this);
-    }
-
-    public void visit(BLangPanic panicNode) {
-        panicNode.expr.accept(this);
-    }
-
-    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        xmlnsStmtNode.xmlnsDecl.accept(this);
-    }
-
-    public void visit(BLangIf ifNode) {
-        ifNode.expr.accept(this);
-        ifNode.body.accept(this);
-        if (ifNode.elseStmt != null) {
-            ifNode.elseStmt.accept(this);
-        }
-    }
-
-    public void visit(BLangQueryAction queryAction) {
-    }
-
-    public void visit(BLangMatch matchNode) {
-        matchNode.expr.accept(this);
-        matchNode.patternClauses.forEach(pattern -> pattern.accept(this));
-    }
-
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        patternClauseNode.body.accept(this);
-        patternClauseNode.matchExpr.accept(this);
-        patternClauseNode.variable.accept(this);
-    }
-
-    public void visit(BLangForeach foreach) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangFromClause fromClause) {
-    }
-
-    public void visit(BLangLetClause letClause) {
-    }
-
-    public void visit(BLangSelectClause selectClause) {
-    }
-
-    public void visit(BLangWhereClause whereClause) {
-    }
-
-    public void visit(BLangDoClause doClause) {
-    }
-
-    public void visit(BLangLimitClause limitClause) {
-    }
-
-    public void visit(BLangWhile whileNode) {
-        whileNode.expr.accept(this);
-        whileNode.body.accept(this);
-    }
-
-    public void visit(BLangLock lockNode) {
-        lockNode.body.accept(this);
-    }
-
-    public void visit(BLangTransaction transactionNode) {
-        transactionNode.transactionBody.accept(this);
-        if (transactionNode.abortedBody != null) {
-            transactionNode.abortedBody.accept(this);
-        }
-        if (transactionNode.committedBody != null) {
-            transactionNode.committedBody.accept(this);
-        }
-        if (transactionNode.onRetryBody != null) {
-            transactionNode.onRetryBody.accept(this);
-        }
-        if (transactionNode.retryCount != null) {
-            transactionNode.retryCount.accept(this);
-        }
-    }
-
-    public void visit(BLangTryCatchFinally tryNode) {
-        tryNode.tryBody.accept(this);
-        tryNode.catchBlocks.forEach(block -> block.accept(this));
-        if (tryNode.finallyBody != null) {
-            tryNode.finallyBody.accept(this);
-        }
-    }
-
-    public void visit(BLangTupleDestructure stmt) {
-        stmt.varRef.accept(this);
-        stmt.expr.accept(this);
-    }
-
-    public void visit(BLangRecordDestructure stmt) {
-        stmt.expr.accept(this);
-        stmt.varRef.accept(this);
-    }
-
-    public void visit(BLangErrorDestructure stmt) {
-        stmt.expr.accept(this);
-        stmt.varRef.accept(this);
-    }
-
-    public void visit(BLangCatch catchNode) {
-        catchNode.param.accept(this);
-        catchNode.body.accept(this);
-    }
-
-    public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers.forEach(worker -> worker.accept(this));
-    }
-
-    public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr.accept(this);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr.accept(this);
-        }
-    }
-
-    public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.sendExpression.accept(this);
-        if (workerReceiveNode.keyExpr != null) {
-            workerReceiveNode.keyExpr.accept(this);
-        }
     }
 
     /**
@@ -1576,6 +962,717 @@ public class QueryDesugar extends BLangNodeVisitor {
     private BRecordTypeSymbol getFrameTypeSymbol() {
         return (BRecordTypeSymbol) symTable.langQueryModuleSymbol
                 .scope.lookup(names.fromString("_Frame")).symbol;
+    }
+
+    // ---- Visitor methods to replace frame access and mark closure variables ---- //
+    @Override
+    public void visit(BLangLambdaFunction lambda) {
+        BLangFunction function = lambda.function;
+        currentFrameSymbol = function.requiredParams.get(0).symbol;
+        identifiers = new HashMap<>();
+        currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
+        List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
+        stmts.forEach(stmt -> {
+            stmt.accept(this);
+        });
+        currentFrameSymbol = null;
+        identifiers = null;
+        currentLambdaBody = null;
+    }
+
+    @Override
+    public void visit(BLangSimpleVariableDef bLangSimpleVariableDef) {
+        bLangSimpleVariableDef.getVariable().accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        bLangRecordVariableDef.var.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
+        if (bLangRecordVariable.expr != null) {
+            bLangRecordVariable.expr.accept(this);
+        }
+        if (bLangRecordVariable.hasRestParam()) {
+            ((BLangNode) bLangRecordVariable.restParam).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleVariable bLangSimpleVariable) {
+        identifiers.putIfAbsent(bLangSimpleVariable.name.value, bLangSimpleVariable.symbol);
+        if (bLangSimpleVariable.expr != null) {
+            bLangSimpleVariable.expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        conversionExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        fieldAccessExpr.expr.accept(this);
+        if (fieldAccessExpr.impConversionExpr != null) {
+            fieldAccessExpr.impConversionExpr.expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        exprStmtNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
+        if (invocationExpr.langLibInvocation) {
+            requiredArgs = requiredArgs.subList(1, requiredArgs.size());
+        }
+        requiredArgs.forEach(arg -> arg.accept(this));
+        invocationExpr.restArgs.forEach(arg -> arg.accept(this));
+        if (invocationExpr.expr != null) {
+            invocationExpr.expr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        // do nothing;
+    }
+
+    @Override
+    public void visit(BLangReturn bLangReturn) {
+        bLangReturn.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr bLangBinaryExpr) {
+        bLangBinaryExpr.lhsExpr.accept(this);
+        bLangBinaryExpr.rhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangAssignment bLangAssignment) {
+        bLangAssignment.varRef.accept(this);
+        bLangAssignment.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral bLangRecordLiteral) {
+        for (RecordLiteralNode.RecordField field : bLangRecordLiteral.fields) {
+            ((BLangNode) field).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordKeyValueField recordKeyValue) {
+        recordKeyValue.key.expr.accept(this);
+        recordKeyValue.valueExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordSpreadOperatorField spreadOperatorField) {
+        spreadOperatorField.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        //do nothing
+    }
+
+    @Override
+    public void visit(BLangNumericLiteral literalExpr) {
+        //do nothing
+    }
+
+    @Override
+    public void visit(BLangTupleVarRef varRefExpr) {
+        varRefExpr.expressions.forEach(expression -> expression.accept(this));
+        if (varRefExpr.restParam != null) {
+            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
+            restExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordVarRef varRefExpr) {
+        varRefExpr.recordRefFields.forEach(recordVarRefKeyValue
+                -> recordVarRefKeyValue.variableReference.accept(this));
+        if (varRefExpr.restParam != null) {
+            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
+            restExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
+        if (varRefExpr.reason != null) {
+            varRefExpr.reason.accept(this);
+        }
+        if (varRefExpr.restVar != null) {
+            varRefExpr.restVar.accept(this);
+        }
+        varRefExpr.detail.forEach(bLangNamedArgsExpression -> bLangNamedArgsExpression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
+        BSymbol symbol = bLangSimpleVarRef.symbol;
+        BSymbol resolvedSymbol = symResolver
+                .lookupClosureVarSymbol(env, names.fromIdNode(bLangSimpleVarRef.variableName),
+                        SymTag.VARIABLE);
+        if (symbol != null && resolvedSymbol == symTable.notFoundSymbol) {
+            String identifier = bLangSimpleVarRef.variableName.getValue();
+            if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
+                DiagnosticPos pos = currentLambdaBody.pos;
+                BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
+                        symTable.anyOrErrorType, currentFrameSymbol);
+                frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
+                        types.getSafeType(frameAccessExpr.expr.type, true, false));
+
+                if (symbol instanceof BVarSymbol) {
+                    ((BVarSymbol) symbol).originalSymbol = null;
+                    BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                            desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
+                    BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                    currentLambdaBody.stmts.add(0, variableDef);
+                }
+                identifiers.put(identifier, symbol);
+            }
+        } else if (resolvedSymbol != symTable.notFoundSymbol) {
+            resolvedSymbol.closure = true;
+        }
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        indexAccessExpr.indexExpr.accept(this);
+        indexAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(arg -> arg.accept(this));
+        connectorInitExpr.initInvocation.accept(this);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        actionInvocationExpr.argExprs.forEach(arg -> arg.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        ternaryExpr.expr.accept(this);
+        ternaryExpr.elseExpr.accept(this);
+        ternaryExpr.thenExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangWaitExpr awaitExpr) {
+        awaitExpr.exprList.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        trapExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangElvisExpr elvisExpr) {
+        elvisExpr.lhsExpr.accept(this);
+        elvisExpr.rhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpr) {
+        letExpr.expr.accept(this);
+        letExpr.letVarDeclarations.forEach(var -> ((BLangNode) var.definitionNode).accept(this));
+    }
+
+    @Override
+    public void visit(BLangLetVariable letVariable) {
+        //do nothing
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        tupleLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
+        arrayLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        unaryExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr accessExpr) {
+    }
+
+    @Override
+    public void visit(BLangXMLQName xmlQName) {
+    }
+
+    @Override
+    public void visit(BLangXMLAttribute xmlAttribute) {
+    }
+
+    @Override
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        xmlElementLiteral.startTagName.accept(this);
+        xmlElementLiteral.endTagName.accept(this);
+        xmlElementLiteral.attributes.forEach(bLangXMLAttribute -> bLangXMLAttribute.accept(this));
+        xmlElementLiteral.children.forEach(child -> child.accept(this));
+    }
+
+    @Override
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.textFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlTextLiteral.concatExpr != null) {
+            xmlTextLiteral.concatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        xmlCommentLiteral.textFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlCommentLiteral.concatExpr != null) {
+            xmlCommentLiteral.concatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        xmlProcInsLiteral.dataFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlProcInsLiteral.dataConcatExpr != null) {
+            xmlProcInsLiteral.dataConcatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+        xmlQuotedString.textFragments.forEach(fragment -> fragment.accept(this));
+        if (xmlQuotedString.concatExpr != null) {
+            xmlQuotedString.concatExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        stringTemplateLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        bLangArrowFunction.params.forEach(param -> param.accept(this));
+        bLangArrowFunction.function.accept(this);
+        bLangArrowFunction.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangIntRangeExpression intRangeExpression) {
+        intRangeExpression.startExpr.accept(this);
+        intRangeExpression.endExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+        bLangVarArgsExpression.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        bLangNamedArgsExpression.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIsAssignableExpr assignableExpr) {
+        assignableExpr.lhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        bLangMatchExpression.expr.accept(this);
+        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
+                bLangMatchExpression.patternClauses.forEach(pattern -> pattern.expr.accept(this)));
+        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
+                bLangMatchExpression.patternClauses.forEach(pattern -> pattern.variable.accept(this)));
+        bLangMatchExpression.patternClauses.forEach(bLangMatchExprPatternClause ->
+                bLangMatchExpression.expr.accept(this));
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        checkedExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+        checkPanickedExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        serviceConstructorExpr.serviceNode.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIsLikeExpr typeTestExpr) {
+        typeTestExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
+    }
+
+    @Override
+    public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
+        bLangXMLSequenceLiteral.xmlItems.forEach(item -> item.accept(this));
+    }
+
+    @Override
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        bLangStatementExpression.expr.accept(this);
+        bLangStatementExpression.stmt.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+        if (bLangTupleVariable.restVariable != null) {
+            bLangTupleVariable.restVariable.accept(this);
+        }
+        bLangTupleVariable.memberVariables.forEach(var -> var.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+        if (bLangTupleVariableDef.var.restVariable != null) {
+            bLangTupleVariableDef.var.restVariable.accept(this);
+        }
+        if (bLangTupleVariableDef.var.expr != null) {
+            bLangTupleVariableDef.var.expr.accept(this);
+        }
+        if (bLangTupleVariableDef.var.memberVariables != null) {
+            bLangTupleVariableDef.var.memberVariables.forEach(var -> var.accept(this));
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        if (bLangErrorVariable.reason != null) {
+            bLangErrorVariable.reason.accept(this);
+        }
+        bLangErrorVariable.detail.forEach(var -> var.valueBindingPattern.accept(this));
+        if (bLangErrorVariable.restDetail != null) {
+            bLangErrorVariable.restDetail.accept(this);
+        }
+        if (bLangErrorVariable.detailExpr != null) {
+            bLangErrorVariable.detailExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        bLangErrorVariableDef.errorVariable.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
+        bLangMatchStmtStaticBindingPatternClause.literal.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
+        if (bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable != null) {
+            bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable.accept(this);
+        }
+        if (bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr != null) {
+            bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        waitForAllExpr.keyValuePairs.forEach(pair -> pair.accept(this));
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+    }
+
+    @Override
+    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        waitKeyValue.key.accept(this);
+        waitKeyValue.valueExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLElementFilter xmlElementFilter) {
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        if (xmlNavigation.childIndex != null) {
+            xmlNavigation.childIndex.accept(this);
+        }
+    }
+
+    //statements
+    @Override
+    public void visit(BLangBlockStmt blockNode) {
+        blockNode.stmts.forEach(statement -> statement.accept(this));
+    }
+
+    @Override
+    public void visit(BLangLock.BLangLockStmt lockStmtNode) {
+        lockStmtNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLock.BLangUnLockStmt unLockNode) {
+        unLockNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment compoundAssignNode) {
+        if (compoundAssignNode.expr != null) {
+            compoundAssignNode.expr.accept(this);
+        }
+        if (compoundAssignNode.modifiedExpr != null) {
+            compoundAssignNode.modifiedExpr.accept(this);
+        }
+        if (compoundAssignNode.varRef != null) {
+            compoundAssignNode.varRef.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
+    }
+
+    @Override
+    public void visit(BLangContinue continueNode) {
+    }
+
+    @Override
+    public void visit(BLangBreak breakNode) {
+    }
+
+    @Override
+    public void visit(BLangThrow throwNode) {
+        throwNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangPanic panicNode) {
+        panicNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        xmlnsStmtNode.xmlnsDecl.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIf ifNode) {
+        ifNode.expr.accept(this);
+        ifNode.body.accept(this);
+        if (ifNode.elseStmt != null) {
+            ifNode.elseStmt.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        matchNode.expr.accept(this);
+        matchNode.patternClauses.forEach(pattern -> pattern.accept(this));
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
+        patternClauseNode.body.accept(this);
+        patternClauseNode.matchExpr.accept(this);
+        patternClauseNode.variable.accept(this);
+    }
+
+    @Override
+    public void visit(BLangForeach foreach) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+    }
+
+    @Override
+    public void visit(BLangWhile whileNode) {
+        whileNode.expr.accept(this);
+        whileNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLock lockNode) {
+        lockNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        transactionNode.transactionBody.accept(this);
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
+        }
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
+        }
+        if (transactionNode.onRetryBody != null) {
+            transactionNode.onRetryBody.accept(this);
+        }
+        if (transactionNode.retryCount != null) {
+            transactionNode.retryCount.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangTryCatchFinally tryNode) {
+        tryNode.tryBody.accept(this);
+        tryNode.catchBlocks.forEach(block -> block.accept(this));
+        if (tryNode.finallyBody != null) {
+            tryNode.finallyBody.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        stmt.varRef.accept(this);
+        stmt.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordDestructure stmt) {
+        stmt.expr.accept(this);
+        stmt.varRef.accept(this);
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        stmt.expr.accept(this);
+        stmt.varRef.accept(this);
+    }
+
+    @Override
+    public void visit(BLangCatch catchNode) {
+        catchNode.param.accept(this);
+        catchNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangForkJoin forkJoin) {
+        forkJoin.workers.forEach(worker -> worker.accept(this));
+    }
+
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.expr.accept(this);
+        if (workerSendNode.keyExpr != null) {
+            workerSendNode.keyExpr.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        workerReceiveNode.sendExpression.accept(this);
+        if (workerReceiveNode.keyExpr != null) {
+            workerReceiveNode.keyExpr.accept(this);
+        }
     }
 
 }
