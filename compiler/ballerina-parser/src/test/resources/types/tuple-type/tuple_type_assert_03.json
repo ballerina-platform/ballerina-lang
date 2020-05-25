@@ -1,129 +1,129 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "TYPE_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "TYPE_DEFINITION",
-                    "children": [
-                        {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "TYPE_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "myType"
-                        },
-                        {
-                            "kind": "TUPLE_TYPE_DESC",
-                            "children": [
-                                {
-                                    "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                            "kind": "FLOAT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                            "kind": "REST_TYPE",
-                                            "children": [
-                                                {
-                                                    "kind": "STRING_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "ELLIPSIS_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN"
-                        }
-                    ]
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "TYPE_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "myType"
+            },
+            {
+              "kind": "TUPLE_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "OPEN_BRACKET_TOKEN"
                 },
                 {
-                    "kind": "TYPE_DEFINITION",
-                    "children": [
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "FLOAT_KEYWORD"
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "REST_TYPE",
+                      "children": [
                         {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                }
-                            ]
+                          "kind": "STRING_KEYWORD"
                         },
                         {
-                            "kind": "TYPE_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "myType"
-                        },
-                        {
-                            "kind": "TUPLE_TYPE_DESC",
-                            "children": [
-                                {
-                                    "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "INT_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                            "kind": "FLOAT_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "SEMICOLON_TOKEN"
+                          "kind": "ELLIPSIS_TOKEN"
                         }
-                    ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CLOSE_BRACKET_TOKEN"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
         },
         {
-            "kind": "EOF_TOKEN"
+          "kind": "TYPE_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "TYPE_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "myType"
+            },
+            {
+              "kind": "TUPLE_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    },
+                    {
+                      "kind": "COMMA_TOKEN"
+                    },
+                    {
+                      "kind": "FLOAT_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "CLOSE_BRACKET_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

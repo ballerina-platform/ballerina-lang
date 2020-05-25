@@ -1,16 +1,16 @@
 {
-    "kind": "ANNOT_ACCESS",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "ANNOT_CHAINING_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        }
-    ]
+  "kind": "ANNOT_ACCESS",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "ANNOT_CHAINING_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

@@ -1,24 +1,23 @@
 {
-    "kind": "LOCAL_VAR_DECL",
-    "children": [
-        {
-            "kind": "LIST",
-            "children": [
-            ]
-        },
-        {
-            "kind": "FINAL_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "Person"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "p"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
-        }
-    ]
+  "kind": "LOCAL_VAR_DECL",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FINAL_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "Person"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "p"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }
