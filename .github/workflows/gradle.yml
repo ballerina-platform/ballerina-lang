@@ -60,7 +60,7 @@ jobs:
           java-version: 1.8
 
       - name: Initialize sub-modules
-        run: git submodule update --i
+        run: git submodule update --init
 
       - name: Cache Gradle packages
         uses: actions/cache@v1
