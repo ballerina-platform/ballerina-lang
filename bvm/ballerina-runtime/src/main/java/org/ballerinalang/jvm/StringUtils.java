@@ -120,6 +120,9 @@ public class StringUtils {
     }
 
     public static BString fromString(String s) {
+        if (s == null) {
+            return null;
+        }
         List<Integer> highSurrogates = null;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
@@ -141,5 +144,13 @@ public class StringUtils {
             highSurrogatesArr[i] = highSurrogate;
         }
         return new NonBmpStringValue(s, highSurrogatesArr);
+    }
+
+    public static BString[] fromStringArray(String[] s) {
+        BString[] bStringArray = new BString[s.length];
+        for (int i = 0; i < s.length; i++) {
+            bStringArray[i] = StringUtils.fromString(s[i]);
+        }
+        return bStringArray;
     }
 }

@@ -24,23 +24,30 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum OperatorPrecedence {
 
-    MEMBER_ACCESS(0),   //  x.k, x.@a, f(x), x.f(y), x[y]
-    UNARY(1),           //  (+x), (-x), (~x), (!x), (<T>x), (typeof x), (check x), (checkpanic x)
-    MULTIPLICATIVE(2),  //  (x * y), (x / y), (x % y)
-    ADDITIVE(3),        //  (x + y), (x - y)
-    SHIFT(4),           //  (x << y), (x >> y), (x >>> y)
-    RANGE(5),           //  (x ... y), (x ..< y)
-    BINARY_COMPARE(6),  //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
-    EQUALITY(7),        //  (x == y), (x != y), (x == y), (x === y), (x !== y)
-    BITWISE_AND(8),     //  (x & y)
-    BITWISE_XOR(9),     //  (x ^ y)
-    BITWISE_OR(10),     //  (x | y)
-    LOGICAL_AND(11),    //  (x && y)
-    LOGICAL_OR(12),     //  (x || y)
+    MEMBER_ACCESS(0),       //  x.k, x.@a, f(x), x.f(y), x[y], x?.k
+    UNARY(1),               //  (+x), (-x), (~x), (!x), (<T>x), (typeof x),
+    EXPRESSION_ACTION(1),   //  Expression that can also be an action. eg: (check x), (checkpanic x). Same as unary.
+    MULTIPLICATIVE(2),      //  (x * y), (x / y), (x % y)
+    ADDITIVE(3),            //  (x + y), (x - y)
+    SHIFT(4),               //  (x << y), (x >> y), (x >>> y)
+    RANGE(5),               //  (x ... y), (x ..< y)
+    BINARY_COMPARE(6),      //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
+    EQUALITY(7),            //  (x == y), (x != y), (x == y), (x === y), (x !== y)
+    BITWISE_AND(8),         //  (x & y)
+    BITWISE_XOR(9),         //  (x ^ y)
+    BITWISE_OR(10),         //  (x | y)
+    LOGICAL_AND(11),        //  (x && y)
+    LOGICAL_OR(12),         //  (x || y)
+    ELVIS_CONDITIONAL(13),  //  x ?: y
+    CONDITIONAL(14),        //  x ? y : z
 
-    ANON_FUNC(16),      //  (x) => y
-    ACTION(17),         //  Actions cannot reside inside expressions, hence they have the lowest precedence.
-                        //  (x -> y()), (start x), ...
+    ANON_FUNC_OR_LET(16),   //  (x) => y
+    QUERY(17),              //  from x, select x, where x
+
+    //  Actions cannot reside inside expressions, hence they have the lowest precedence.
+    REMOTE_CALL_ACTION(18), //  (x -> y()), 
+    ACTION(19),             //  (start x), ...
+    
     ;
 
     private int level = 0;
@@ -49,7 +56,12 @@ public enum OperatorPrecedence {
         this.level = level;
     }
 
-    public boolean isHigherThan(OperatorPrecedence opPrecedence) {
+    public boolean isHigherThan(OperatorPrecedence opPrecedence, boolean allowActions) {
+        if (allowActions) {
+            if (this == EXPRESSION_ACTION && opPrecedence == REMOTE_CALL_ACTION) {
+                return false;
+            }
+        }
         return this.level < opPrecedence.level;
     }
 }

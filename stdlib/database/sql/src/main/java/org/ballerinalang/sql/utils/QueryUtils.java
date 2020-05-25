@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
@@ -59,7 +60,7 @@ import java.util.Set;
  */
 public class QueryUtils {
 
-    public static StreamValue nativeQuery(ObjectValue client, MapValue<String, Object> paramSQLString,
+    public static StreamValue nativeQuery(ObjectValue client, MapValue<BString, Object> paramSQLString,
                                           Object recordType) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {

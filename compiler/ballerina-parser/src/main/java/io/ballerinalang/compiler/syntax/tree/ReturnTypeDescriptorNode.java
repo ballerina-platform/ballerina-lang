@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ReturnTypeDescriptorNode extends NonTerminalNode {
 
@@ -75,5 +77,56 @@ public class ReturnTypeDescriptorNode extends NonTerminalNode {
                 returnsKeyword,
                 annotations,
                 type);
+    }
+
+    public ReturnTypeDescriptorNodeModifier modify() {
+        return new ReturnTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ReturnTypeDescriptorNodeModifier {
+        private final ReturnTypeDescriptorNode oldNode;
+        private Token returnsKeyword;
+        private NodeList<AnnotationNode> annotations;
+        private Node type;
+
+        public ReturnTypeDescriptorNodeModifier(ReturnTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.returnsKeyword = oldNode.returnsKeyword();
+            this.annotations = oldNode.annotations();
+            this.type = oldNode.type();
+        }
+
+        public ReturnTypeDescriptorNodeModifier withReturnsKeyword(
+                Token returnsKeyword) {
+            Objects.requireNonNull(returnsKeyword, "returnsKeyword must not be null");
+            this.returnsKeyword = returnsKeyword;
+            return this;
+        }
+
+        public ReturnTypeDescriptorNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public ReturnTypeDescriptorNodeModifier withType(
+                Node type) {
+            Objects.requireNonNull(type, "type must not be null");
+            this.type = type;
+            return this;
+        }
+
+        public ReturnTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    returnsKeyword,
+                    annotations,
+                    type);
+        }
     }
 }

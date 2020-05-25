@@ -52,7 +52,7 @@
                   "children": []
                 },
                 {
-                  "kind": "INDEXED_EXPRESSION",
+                  "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
                       "kind": "INT_KEYWORD"
@@ -93,8 +93,13 @@
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
@@ -115,7 +120,7 @@
                   "children": []
                 },
                 {
-                  "kind": "INDEXED_EXPRESSION",
+                  "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
                       "kind": "INT_KEYWORD"
@@ -150,7 +155,7 @@
                   "children": []
                 },
                 {
-                  "kind": "INDEXED_EXPRESSION",
+                  "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
                       "kind": "INT_KEYWORD"
@@ -180,7 +185,7 @@
                   "children": []
                 },
                 {
-                  "kind": "INDEXED_EXPRESSION",
+                  "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
                       "kind": "INT_KEYWORD"
@@ -210,7 +215,7 @@
                   "children": []
                 },
                 {
-                  "kind": "INDEXED_EXPRESSION",
+                  "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",

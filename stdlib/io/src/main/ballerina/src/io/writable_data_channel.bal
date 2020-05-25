@@ -39,7 +39,7 @@ public type WritableDataChannel object {
     public function __init(WritableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
         // Remove temp once this got fixed #19842
         string temp = bOrder;
-        initWritableDataChannel(self, byteChannel, java:fromString(temp));
+        initWritableDataChannel(self, byteChannel, temp);
     }
 
 # Writes a 16 bit integer.
@@ -117,7 +117,7 @@ public type WritableDataChannel object {
 # + encoding - The encoding, which will represent the value string
 # + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeString(string value, string encoding) returns Error? {
-        return writeStringExtern(self, java:fromString(value), java:fromString(encoding));
+        return writeStringExtern(self, value, encoding);
     }
 
 # Writes a variable-length integer.
@@ -142,7 +142,8 @@ public type WritableDataChannel object {
     }
 };
 
-function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel, handle bOrder) = @java:Method {
+function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel,
+                                 string bOrder) = @java:Method {
     name: "initWritableDataChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
@@ -177,7 +178,8 @@ function writeBoolExtern(WritableDataChannel dataChannel, boolean value) returns
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
-function writeStringExtern(WritableDataChannel dataChannel, handle value, handle encoding) returns Error? = @java:Method {
+function writeStringExtern(WritableDataChannel dataChannel, string value, string encoding)
+                           returns Error? = @java:Method {
     name: "writeString",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

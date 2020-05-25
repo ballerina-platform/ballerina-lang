@@ -199,7 +199,6 @@ public class BootstrapRunner {
             javaCommand = System.getProperty("java.command");
         }
         commands.add(javaCommand);
-        setSystemProperty(commands, "ballerina.bstring");
         commands.add(COMPILER_BACKEND_JVM);
         commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true,
                 birCachePaths, jarFilePaths));

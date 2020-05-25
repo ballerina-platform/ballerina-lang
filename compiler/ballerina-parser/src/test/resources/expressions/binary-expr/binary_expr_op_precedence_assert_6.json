@@ -76,21 +76,53 @@
                                                                     "value": "h"
                                                                 },
                                                                 {
-                                                                    "kind": "PLUS_TOKEN"
+                                                                    "kind": "ELLIPSIS_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "BINARY_EXPRESSION",
                                                                     "children": [
                                                                         {
                                                                             "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "i"
+                                                                            "value": "m"
                                                                         },
                                                                         {
-                                                                            "kind": "SLASH_TOKEN"
+                                                                            "kind": "DOUBLE_GT_TOKEN",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "GT_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "GT_TOKEN"
+                                                                                }
+                                                                            ]
                                                                         },
                                                                         {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "j"
+                                                                            "kind": "BINARY_EXPRESSION",
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "n"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "PLUS_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "BINARY_EXPRESSION",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                            "value": "i"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "SLASH_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                            "value": "j"
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
                                                                         }
                                                                     ]
                                                                 }

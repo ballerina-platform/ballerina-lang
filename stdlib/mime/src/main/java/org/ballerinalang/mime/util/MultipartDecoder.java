@@ -21,6 +21,7 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
@@ -160,7 +161,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentId(MIMEPart mimePart, ObjectValue partStruct) {
-        partStruct.set(CONTENT_ID_FIELD, mimePart.getContentId());
+        partStruct.set(CONTENT_ID_FIELD, StringUtils.fromString(mimePart.getContentId()));
     }
 
     private static void populateContentLength(MIMEPart mimePart, ObjectValue partStruct) {

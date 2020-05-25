@@ -58,8 +58,9 @@ public class NodeList<T extends Node> implements Iterable<T> {
     }
 
     protected void rangeCheck(int index, int size) {
-        if (index >= size || index < 0)
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
     }
 
     NonTerminalNode underlyingListNode() {

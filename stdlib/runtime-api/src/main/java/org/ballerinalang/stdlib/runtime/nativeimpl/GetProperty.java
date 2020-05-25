@@ -18,7 +18,9 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Extern function ballerina.runtime:getProperty.
@@ -27,11 +29,11 @@ import org.ballerinalang.jvm.types.BTypes;
  */
 public class GetProperty {
 
-    public static String getProperty(String name) {
-        String value = System.getProperty(name);
+    public static BString getProperty(BString name) {
+        String value = System.getProperty(name.getValue());
         if (value == null) {
             return BTypes.typeString.getZeroValue();
         }
-        return value;
+        return StringUtils.fromString(value);
     }
 }

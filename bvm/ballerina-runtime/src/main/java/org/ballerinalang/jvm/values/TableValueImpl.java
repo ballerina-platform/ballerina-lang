@@ -51,7 +51,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR;
 
 /**
  * The runtime representation of table.
@@ -161,10 +160,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                if (ArrayValueImpl.USE_BSTRING) {
-                    throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
-                            StringUtils.fromString(e.getDetail()));
-                }
                 throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
             }
         }
@@ -382,8 +377,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
-            throw BallerinaErrors.createError(VALUE_INCONSISTENT_WITH_TABLE_TYPE_ERROR, "value type inconsistent "
-                    + "with the inherent table type");
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
+            UUID uuid = UUID.randomUUID();
+            entries.put((long) uuid.hashCode(), entry);
+            return values.put((long) uuid.hashCode(), data);
         }
 
         public V remove(K key) {
@@ -491,7 +488,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             public K wrapKey(MapValue data) {
-                return (K) data.get(fieldNames[0]);
+                return (K) data.get(StringUtils.fromString(fieldNames[0]));
             }
         }
 
@@ -515,7 +512,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 TupleValueImpl arr = (TupleValueImpl) BValueCreator
                         .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
-                    arr.add(i, data.get(fieldNames[i]));
+                    arr.add(i, data.get(StringUtils.fromString(fieldNames[i])));
                 }
                 return (K) arr;
             }

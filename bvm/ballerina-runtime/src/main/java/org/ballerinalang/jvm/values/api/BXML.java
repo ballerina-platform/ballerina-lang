@@ -99,7 +99,7 @@ public interface BXML extends BRefValue, BCollection {
      * @param namespace Namespace of the attribute
      * @return Value of the attribute
      */
-    String getAttribute(String localName, String namespace);
+    BString getAttribute(String localName, String namespace);
 
     /**
      * Get the value of a single attribute as a string.
@@ -109,7 +109,7 @@ public interface BXML extends BRefValue, BCollection {
      * @param prefix Prefix of the namespace
      * @return Value of the attribute
      */
-    String getAttribute(String localName, String namespace, String prefix);
+    BString getAttribute(String localName, String namespace, String prefix);
 
     /**
      * Get the value of a single attribute as a string.
@@ -117,7 +117,7 @@ public interface BXML extends BRefValue, BCollection {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    String getAttribute(BXMLQName attributeName);
+    BString getAttribute(BXMLQName attributeName);
 
     /**
      * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
@@ -144,14 +144,14 @@ public interface BXML extends BRefValue, BCollection {
      * 
      * @return Attributes as a {@link BMap}
      */
-    BMap<String, ?> getAttributesMap();
+    BMap<BString, ?> getAttributesMap();
 
     /**
      * Set the attributes of the XML{@link BMap}.
      * 
      * @param attributes Attributes to be set.
      */
-    void setAttributes(BMap<String, ?> attributes);
+    void setAttributes(BMap<BString, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.

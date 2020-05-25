@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -96,8 +97,8 @@ public class IOUtils {
         return IOUtils.createError(EoF, "EoF when reading from the channel");
     }
 
-    private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues.
+    private static MapValue<BString, Object> createDetailRecord(Object... values) {
+        MapValue<BString, Object> detail = BallerinaValues.
                 createRecordValue(IO_PACKAGE_ID, IOConstants.DETAIL_RECORD_TYPE_NAME);
         return BallerinaValues.createRecord(detail, values);
     }

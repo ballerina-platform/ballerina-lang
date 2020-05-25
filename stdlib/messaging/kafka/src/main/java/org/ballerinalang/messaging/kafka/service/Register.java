@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.messaging.kafka.api.KafkaListener;
 import org.ballerinalang.messaging.kafka.api.KafkaServerConnector;
 import org.ballerinalang.messaging.kafka.exceptions.KafkaConnectorException;
@@ -47,7 +48,7 @@ public class Register {
     @SuppressWarnings(UNCHECKED)
     public static Object register(ObjectValue listener, ObjectValue service, Object name) {
         Strand strand = Scheduler.getStrand();
-        MapValue<String, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
+        MapValue<BString, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         Properties configs = KafkaUtils.processKafkaConsumerConfig(listenerConfigurations);
 
         try {

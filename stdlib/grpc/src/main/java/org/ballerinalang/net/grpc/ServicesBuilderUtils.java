@@ -22,6 +22,7 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
@@ -31,6 +32,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
@@ -78,12 +80,13 @@ public class ServicesBuilderUtils {
     }
 
     private static String getServiceName(ObjectValue service) {
-        Object serviceConfigData = service.getType().getAnnotation("ballerina/grpc:ServiceConfig");
+        Object serviceConfigData = service.getType().getAnnotation(
+                StringUtils.fromString("ballerina/grpc:ServiceConfig"));
         if (serviceConfigData != null) {
             MapValue configMap = (MapValue) serviceConfigData;
-            String providedName = configMap.getStringValue("name");
-            if (providedName != null && !providedName.isEmpty()) {
-                return providedName;
+            BString providedName = configMap.getStringValue(StringUtils.fromString("name"));
+            if (providedName != null && !providedName.getValue().isEmpty()) {
+                return providedName.getValue();
             }
         }
         String serviceTypeName = service.getType().getName(); // typeName format: <name>$$<type>$$<version>
@@ -182,9 +185,10 @@ public class ServicesBuilderUtils {
         }
 
         try {
-            MapValue<String, Object> annotationMap = (MapValue) annotationData;
-            String descriptorData = annotationMap.getStringValue("descriptor");
-            MapValue<String, String> descMap = (MapValue<String, String>) annotationMap.getMapValue("descMap");
+            MapValue<BString, Object> annotationMap = (MapValue) annotationData;
+            BString descriptorData = annotationMap.getStringValue(StringUtils.fromString("descriptor"));
+            MapValue<BString, BString> descMap = (MapValue<BString, BString>) annotationMap.getMapValue(
+                StringUtils.fromString("descMap"));
             return getFileDescriptor(descriptorData, descMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
@@ -192,9 +196,10 @@ public class ServicesBuilderUtils {
         }
     }
 
-    private static Descriptors.FileDescriptor getFileDescriptor(String descriptorData, MapValue<String, String> descMap)
-            throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcServerException {
-        byte[] descriptor = hexStringToByteArray(descriptorData);
+    private static Descriptors.FileDescriptor getFileDescriptor(
+        BString descriptorData, MapValue<BString, BString> descMap) 
+        throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcServerException {
+        byte[] descriptor = hexStringToByteArray(descriptorData.getValue());
         if (descriptor.length == 0) {
             throw new GrpcServerException("Error while reading the service proto descriptor. input descriptor string " +
                     "is null.");
@@ -210,8 +215,8 @@ public class ServicesBuilderUtils {
         int i = 0;
         for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
             String dependencyKey = dependency.toStringUtf8();
-            if (descMap.containsKey(dependencyKey)) {
-                fileDescriptors[i++] = getFileDescriptor(descMap.get(dependencyKey), descMap);
+            if (descMap.containsKey(StringUtils.fromString(dependencyKey))) {
+                fileDescriptors[i++] = getFileDescriptor(descMap.get(StringUtils.fromString(dependencyKey)), descMap);
             } else if (descMap.size() == 0) {
                 Descriptors.FileDescriptor dependentDescriptor = StandardDescriptorBuilder.getFileDescriptor
                         (dependencyKey);
