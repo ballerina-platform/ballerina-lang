@@ -10325,7 +10325,7 @@ public class BallerinaParser extends AbstractParser {
         STNode colon = STNodeFactory.createEmptyNode();
         STNode bindingPattern = STNodeFactory.createEmptyNode();
 
-        if (!isEndOfFieldBindingPattern(peek().kind)){
+        if (!isEndOfFieldBindingPattern(peek().kind)) {
             colon = parseColon();
             bindingPattern = parseBindingPattern();
         }

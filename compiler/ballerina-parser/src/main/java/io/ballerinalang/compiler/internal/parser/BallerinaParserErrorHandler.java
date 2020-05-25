@@ -2712,8 +2712,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_PATTERN:
                 return ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS;
             case FIELD_BINDING_PATTERN:
-                endContext();
-                //fall through
+                endContext(); //end field binding pattern
+                return ParserRuleContext.MAPPING_BINDING_PATTERN_CONTENTS;
             case MAPPING_BINDING_PATTERN:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_CONTENTS;
             case MULTI_RECEIVE_WORKERS:
