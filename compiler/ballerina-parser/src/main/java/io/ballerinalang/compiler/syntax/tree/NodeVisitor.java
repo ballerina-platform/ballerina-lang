@@ -567,6 +567,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(listBindingPatternNode);
     }
 
+    public void visit(MappingBindingPatternNode mappingBindingPatternNode) {
+        visitSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public void visit(FieldBindingPatternNode fieldBindingPatternNode) {
+        visitSyntaxNode(fieldBindingPatternNode);
+    }
+
     public void visit(RestBindingPatternNode restBindingPatternNode) {
         visitSyntaxNode(restBindingPatternNode);
     }

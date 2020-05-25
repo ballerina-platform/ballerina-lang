@@ -2197,6 +2197,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public MappingBindingPatternNode transform(
+            MappingBindingPatternNode mappingBindingPatternNode) {
+        Token openBrace =
+                modifyToken(mappingBindingPatternNode.openBrace());
+        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns =
+                modifySeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns());
+        RestBindingPatternNode restBindingPattern =
+                modifyNode(mappingBindingPatternNode.restBindingPattern().orElse(null));
+        Token closeBrace =
+                modifyToken(mappingBindingPatternNode.closeBrace());
+        return mappingBindingPatternNode.modify(
+                openBrace,
+                fieldBindingPatterns,
+                restBindingPattern,
+                closeBrace);
+    }
+
+    @Override
+    public FieldBindingPatternNode transform(
+            FieldBindingPatternNode fieldBindingPatternNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(fieldBindingPatternNode.variableName());
+        Token colon =
+                modifyToken(fieldBindingPatternNode.colon().orElse(null));
+        BindingPatternNode bindingPattern =
+                modifyNode(fieldBindingPatternNode.bindingPattern().orElse(null));
+        return fieldBindingPatternNode.modify(
+                variableName,
+                colon,
+                bindingPattern);
+    }
+
+    @Override
     public RestBindingPatternNode transform(
             RestBindingPatternNode restBindingPatternNode) {
         Token ellipsisToken =

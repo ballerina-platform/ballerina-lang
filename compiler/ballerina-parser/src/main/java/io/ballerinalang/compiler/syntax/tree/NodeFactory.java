@@ -2179,6 +2179,36 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stListBindingPatternNode.createUnlinkedFacade();
     }
 
+    public static MappingBindingPatternNode createMappingBindingPatternNode(
+            Token openBrace,
+            SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns,
+            RestBindingPatternNode restBindingPattern,
+            Token closeBrace) {
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(fieldBindingPatterns, "fieldBindingPatterns must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stMappingBindingPatternNode = STNodeFactory.createMappingBindingPatternNode(
+                openBrace.internalNode(),
+                fieldBindingPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restBindingPattern),
+                closeBrace.internalNode());
+        return stMappingBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static FieldBindingPatternNode createFieldBindingPatternNode(
+            SimpleNameReferenceNode variableName,
+            Token colon,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stFieldBindingPatternNode = STNodeFactory.createFieldBindingPatternNode(
+                variableName.internalNode(),
+                getOptionalSTNode(colon),
+                getOptionalSTNode(bindingPattern));
+        return stFieldBindingPatternNode.createUnlinkedFacade();
+    }
+
     public static RestBindingPatternNode createRestBindingPatternNode(
             Token ellipsisToken,
             SimpleNameReferenceNode variableName) {

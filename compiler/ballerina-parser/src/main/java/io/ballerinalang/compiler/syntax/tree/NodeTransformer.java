@@ -568,6 +568,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(listBindingPatternNode);
     }
 
+    public T transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        return transformSyntaxNode(mappingBindingPatternNode);
+    }
+
+    public T transform(FieldBindingPatternNode fieldBindingPatternNode) {
+        return transformSyntaxNode(fieldBindingPatternNode);
+    }
+
     public T transform(RestBindingPatternNode restBindingPatternNode) {
         return transformSyntaxNode(restBindingPatternNode);
     }
