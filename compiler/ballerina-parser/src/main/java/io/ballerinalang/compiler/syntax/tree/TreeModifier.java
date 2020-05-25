@@ -2412,6 +2412,72 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 endExpression);
     }
 
+    @Override
+    public ByteArrayLiteralNode transform(
+            ByteArrayLiteralNode byteArrayLiteralNode) {
+        Token type =
+                modifyToken(byteArrayLiteralNode.type());
+        Token startBacktick =
+                modifyToken(byteArrayLiteralNode.startBacktick());
+        NodeList<Node> content =
+                modifyNodeList(byteArrayLiteralNode.content());
+        Token endBacktick =
+                modifyToken(byteArrayLiteralNode.endBacktick());
+        return byteArrayLiteralNode.modify(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    @Override
+    public HexGroupNode transform(
+            HexGroupNode hexGroupNode) {
+        Token startHexDigit =
+                modifyToken(hexGroupNode.startHexDigit());
+        Token endHexDigit =
+                modifyToken(hexGroupNode.endHexDigit());
+        return hexGroupNode.modify(
+                startHexDigit,
+                endHexDigit);
+    }
+
+    @Override
+    public Base64GroupNode transform(
+            Base64GroupNode base64GroupNode) {
+        Token startChar =
+                modifyToken(base64GroupNode.startChar());
+        Token secondChar =
+                modifyToken(base64GroupNode.secondChar());
+        Token thirdChar =
+                modifyToken(base64GroupNode.thirdChar());
+        Token endChar =
+                modifyToken(base64GroupNode.endChar());
+        return base64GroupNode.modify(
+                startChar,
+                secondChar,
+                thirdChar,
+                endChar);
+    }
+
+    @Override
+    public PaddedBase64GroupNode transform(
+            PaddedBase64GroupNode paddedBase64GroupNode) {
+        Token startChar =
+                modifyToken(paddedBase64GroupNode.startChar());
+        Token secondChar =
+                modifyToken(paddedBase64GroupNode.secondChar());
+        Token thirdChar =
+                modifyToken(paddedBase64GroupNode.thirdChar());
+        Token endChar =
+                modifyToken(paddedBase64GroupNode.endChar());
+        return paddedBase64GroupNode.modify(
+                startChar,
+                secondChar,
+                thirdChar,
+                endChar);
+    }
+
     // Tokens
 
     @Override

@@ -628,6 +628,22 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(conditionalExpressionNode);
     }
 
+    public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        return transformSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public T transform(HexGroupNode hexGroupNode) {
+        return transformSyntaxNode(hexGroupNode);
+    }
+
+    public T transform(Base64GroupNode base64GroupNode) {
+        return transformSyntaxNode(base64GroupNode);
+    }
+
+    public T transform(PaddedBase64GroupNode paddedBase64GroupNode) {
+        return transformSyntaxNode(paddedBase64GroupNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

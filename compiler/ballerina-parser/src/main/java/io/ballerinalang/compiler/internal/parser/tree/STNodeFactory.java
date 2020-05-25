@@ -1780,5 +1780,53 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 colonToken,
                 endExpression);
     }
+
+    public static STNode createByteArrayLiteralNode(
+            STNode type,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STByteArrayLiteralNode(
+                type,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    public static STNode createHexGroupNode(
+            STNode startHexDigit,
+            STNode endHexDigit) {
+
+        return new STHexGroupNode(
+                startHexDigit,
+                endHexDigit);
+    }
+
+    public static STNode createBase64GroupNode(
+            STNode startChar,
+            STNode secondChar,
+            STNode thirdChar,
+            STNode endChar) {
+
+        return new STBase64GroupNode(
+                startChar,
+                secondChar,
+                thirdChar,
+                endChar);
+    }
+
+    public static STNode createPaddedBase64GroupNode(
+            STNode startChar,
+            STNode secondChar,
+            STNode thirdChar,
+            STNode endChar) {
+
+        return new STPaddedBase64GroupNode(
+                startChar,
+                secondChar,
+                thirdChar,
+                endChar);
+    }
 }
 

@@ -3191,6 +3191,91 @@
                     "type": "ExpressionNode"
                 }
             ]
+        },
+        {
+            "name": "ByteArrayLiteralNode",
+            "base": "ExpressionNode",
+            "kind": "BYTE_ARRAY_LITERAL",
+            "attributes": [
+                {
+                    "name": "type",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "HexGroupNode",
+            "base": "Node",
+            "kind": "HEX_GROUP",
+            "attributes": [
+                {
+                    "name": "startHexDigit",
+                    "type": "Token"
+                },
+                {
+                    "name": "endHexDigit",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "Base64GroupNode",
+            "base": "Node",
+            "kind": "BASE64_GROUP",
+            "attributes": [
+                {
+                    "name": "startChar",
+                    "type": "Token"
+                },
+                {
+                    "name": "secondChar",
+                    "type": "Token"
+                },
+                {
+                    "name": "thirdChar",
+                    "type": "Token"
+                },
+                {
+                    "name": "endChar",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "PaddedBase64GroupNode",
+            "base": "Node",
+            "kind": "PADDED_BASE64_GROUP",
+            "attributes": [
+                {
+                    "name": "startChar",
+                    "type": "Token"
+                },
+                {
+                    "name": "secondChar",
+                    "type": "Token"
+                },
+                {
+                    "name": "thirdChar",
+                    "type": "Token"
+                },
+                {
+                    "name": "endChar",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
