@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +24,11 @@ import java.util.List;
  * Represents a finite type.
  */
 public class FiniteType extends Type {
-
+    @Expose
     public List<String> valueSpace = new ArrayList<>();
 
-    public FiniteType(String name, String description, List<String> valueSpace) {
-        super(name, description);
+    public FiniteType(String name, String description, boolean isDeprecated,  List<String> valueSpace) {
+        super(name, description, isDeprecated);
         this.valueSpace = valueSpace;
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,14 +26,18 @@ import java.util.stream.Collectors;
  * Represent documentation for an Object.
  */
 public class Object extends Construct {
-
-    public List<DefaultableVarible> fields = new ArrayList<>();
+    @Expose
+    public List<DefaultableVariable> fields = new ArrayList<>();
+    @Expose
     public List<Function> methods = new ArrayList<>();
+    @Expose
     public Function initMethod;
+    @Expose
     public List<Function> otherMethods = new ArrayList<>();
 
-    public Object(String name, String description, List<DefaultableVarible> fields, List<Function> methods) {
-        super(name, description);
+    public Object(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+            List<Function> methods) {
+        super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;
         Optional<Function> initMethod = getInitMethod(methods);

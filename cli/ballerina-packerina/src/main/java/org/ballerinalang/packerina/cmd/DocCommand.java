@@ -73,6 +73,9 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--all", "-a"}, description = "Generate docs for all the modules of the project.")
     private boolean buildAll;
 
+    @CommandLine.Option(names = {"--toJSON", "-toJSON"}, description = "Generate a JSON containing Doc data.")
+    private boolean toJson;
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Path to folder to which API docs will be written.")
     private String output;
 
@@ -282,7 +285,7 @@ public class DocCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateDocsTask(outputPath)) // creates API documentation
+                .addTask(new CreateDocsTask(outputPath, toJson)) // creates API documentation
                 .build();
         
         taskExecutor.executeTasks(buildContext);
