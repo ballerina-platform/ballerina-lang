@@ -1,5 +1,23 @@
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.bindgen.utils;
 
+import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
@@ -10,8 +28,8 @@ import org.ballerinalang.toml.model.Platform;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,6 +40,11 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.MVN_REPO;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.TARGET_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 
+/**
+ * This class contains the util methods related to the maven support of Ballerina Bindgen CLI tool.
+ *
+ * @since 1.2.5
+ */
 public class MvnResolverUtils {
 
     private MvnResolverUtils() {
@@ -49,11 +72,12 @@ public class MvnResolverUtils {
         }
     }
 
-    private static void dependencyTraversal(Dependency dependency, String mvnRepository, Path projectRoot) throws BindgenException {
+    private static void dependencyTraversal(Dependency dependency, String mvnRepository, Path projectRoot)
+            throws BindgenException {
         if (dependency.getDepedencies() == null) {
             return;
         }
-        for (Dependency transitive: dependency.getDepedencies()) {
+        for (Dependency transitive : dependency.getDepedencies()) {
             handleDependency(transitive.getGroupId(), transitive.getArtifactId(), transitive.getVersion(),
                     mvnRepository, projectRoot, true);
             dependencyTraversal(transitive, mvnRepository, projectRoot);
@@ -66,7 +90,7 @@ public class MvnResolverUtils {
         setClassPaths(mvnPath.toString());
         if (projectRoot != null) {
             File tomlFile = new File(Paths.get(projectRoot.toString(), BALLERINA_TOML).toString());
-            if(tomlFile.exists() && !tomlFile.isDirectory()) {
+            if (tomlFile.exists() && !tomlFile.isDirectory()) {
                 populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, isTransitive);
             }
         }
@@ -75,16 +99,16 @@ public class MvnResolverUtils {
     private static void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
                                               Path projectRoot, boolean isTransitive) throws BindgenException {
         Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-        try (FileWriter fileWriter = new FileWriter(tomlFile, true)) {
+        try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
             Platform platform = manifest.getPlatform();
             if (platform.target == null && platform.libraries == null) {
                 fileWriter.write("\n\n[platform]\n");
                 fileWriter.write("target = \"java8\"\n");
             } else {
-                for (Library library:platform.getLibraries()) {
+                for (Library library : platform.getLibraries()) {
                     if (library.groupId != null && library.artifactId != null && library.version != null &&
                             library.groupId.equals(groupId) && library.artifactId.equals(artifactId)
-                                && library.version.equals(version)) {
+                            && library.version.equals(version)) {
                         return;
                     }
                 }
@@ -98,7 +122,7 @@ public class MvnResolverUtils {
             fileWriter.write("artifactId = \"" + artifactId + "\"\n");
             fileWriter.write("version = \"" + version + "\"\n");
         } catch (IOException io) {
-            throw new BindgenException("Error while updating the Ballerina.toml file.");
+            throw new BindgenException("Error while updating the Ballerina.toml file.", io);
         }
     }
 
@@ -108,7 +132,7 @@ public class MvnResolverUtils {
             return groupId;
         }
         File combined = new File(paths[0]);
-        for (int i = 1; i < paths.length ; i++) {
+        for (int i = 1; i < paths.length; i++) {
             combined = new File(combined, paths[i]);
         }
         return combined.getPath();

@@ -637,6 +637,8 @@ public class BindgenUtils {
             }
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
                     -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
+        } catch (RuntimeException e) {
+            throw new BindgenException("Error while loading the classpaths.", e);
         } catch (Exception e) {
             throw new BindgenException("Error while processing the classpaths.", e);
         }

@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setOutputPath;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIFIER;
 
 /**
@@ -93,7 +94,7 @@ public class BindgenCommand implements BLauncherCmd {
             } else {
                 targetOutputPath = Paths.get(sourceRootPath.toString(), outputPath);
             }
-            bindingsGenerator.setOutputPath(outputPath);
+            setOutputPath(outputPath);
         }
 
         if (!ProjectDirs.isProject(targetOutputPath)) {
