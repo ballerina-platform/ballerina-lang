@@ -53,6 +53,7 @@ public class BindgenConstants {
     static final String MVN_REPO = "maven-repo";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
     static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
+    static final String BALLERINA_TOML = "Ballerina.toml";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";

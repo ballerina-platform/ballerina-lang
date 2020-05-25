@@ -94,14 +94,20 @@ public class BindingsGenerator {
                 List<Library> platformLibraries = manifest.getPlatform().getLibraries();
                 if (platformLibraries != null) {
                     for (Library library: platformLibraries) {
-                        classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
+                        if (library.path != null) {
+                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
+                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
+                            mavenResolver(library.groupId, library.artifactId, library.version, projectRoot);
+                        }
                     }
                 }
             }
         }
 
-        // Resolve the maven dependency and update the Ballerina
-        mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot);
+        // Resolve the maven dependency and update the Ballerina.toml file
+        if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
+            mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot);
+        }
 
         ClassLoader classLoader = setClassLoader();
         if (classLoader != null) {
