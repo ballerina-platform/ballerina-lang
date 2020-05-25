@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class QueryPipelineNode extends NonTerminalNode {
 
@@ -67,5 +69,46 @@ public class QueryPipelineNode extends NonTerminalNode {
         return NodeFactory.createQueryPipelineNode(
                 fromClause,
                 intermediateClauses);
+    }
+
+    public QueryPipelineNodeModifier modify() {
+        return new QueryPipelineNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class QueryPipelineNodeModifier {
+        private final QueryPipelineNode oldNode;
+        private FromClauseNode fromClause;
+        private NodeList<Node> intermediateClauses;
+
+        public QueryPipelineNodeModifier(QueryPipelineNode oldNode) {
+            this.oldNode = oldNode;
+            this.fromClause = oldNode.fromClause();
+            this.intermediateClauses = oldNode.intermediateClauses();
+        }
+
+        public QueryPipelineNodeModifier withFromClause(
+                FromClauseNode fromClause) {
+            Objects.requireNonNull(fromClause, "fromClause must not be null");
+            this.fromClause = fromClause;
+            return this;
+        }
+
+        public QueryPipelineNodeModifier withIntermediateClauses(
+                NodeList<Node> intermediateClauses) {
+            Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
+            this.intermediateClauses = intermediateClauses;
+            return this;
+        }
+
+        public QueryPipelineNode apply() {
+            return oldNode.modify(
+                    fromClause,
+                    intermediateClauses);
+        }
     }
 }

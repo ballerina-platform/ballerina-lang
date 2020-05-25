@@ -53,8 +53,8 @@ public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
         SyntaxTree oldTree = SyntaxTree.from(textDocument);
 
         // Applying a change
-        TextEdit[] edits = new TextEdit[]{new TextEdit(new TextRange(0, 0), "public function main() {\n }\n")};
-        TextDocumentChange textDocumentChange = new TextDocumentChange(edits);
+        TextEdit[] edits = new TextEdit[]{TextEdit.from(TextRange.from(0, 0), "public function main() {\n }\n")};
+        TextDocumentChange textDocumentChange = TextDocumentChange.from(edits);
         SyntaxTree newTree = SyntaxTree.from(oldTree, textDocumentChange);
 
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) newTree.modulePart().members().get(0);

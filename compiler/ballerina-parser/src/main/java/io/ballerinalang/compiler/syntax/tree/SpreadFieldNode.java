@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SpreadFieldNode extends MappingFieldNode {
 
@@ -75,5 +77,56 @@ public class SpreadFieldNode extends MappingFieldNode {
                 leadingComma,
                 ellipsis,
                 valueExpr);
+    }
+
+    public SpreadFieldNodeModifier modify() {
+        return new SpreadFieldNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class SpreadFieldNodeModifier {
+        private final SpreadFieldNode oldNode;
+        private Token leadingComma;
+        private Token ellipsis;
+        private ExpressionNode valueExpr;
+
+        public SpreadFieldNodeModifier(SpreadFieldNode oldNode) {
+            this.oldNode = oldNode;
+            this.leadingComma = oldNode.leadingComma();
+            this.ellipsis = oldNode.ellipsis();
+            this.valueExpr = oldNode.valueExpr();
+        }
+
+        public SpreadFieldNodeModifier withLeadingComma(
+                Token leadingComma) {
+            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
+            this.leadingComma = leadingComma;
+            return this;
+        }
+
+        public SpreadFieldNodeModifier withEllipsis(
+                Token ellipsis) {
+            Objects.requireNonNull(ellipsis, "ellipsis must not be null");
+            this.ellipsis = ellipsis;
+            return this;
+        }
+
+        public SpreadFieldNodeModifier withValueExpr(
+                ExpressionNode valueExpr) {
+            Objects.requireNonNull(valueExpr, "valueExpr must not be null");
+            this.valueExpr = valueExpr;
+            return this;
+        }
+
+        public SpreadFieldNode apply() {
+            return oldNode.modify(
+                    leadingComma,
+                    ellipsis,
+                    valueExpr);
+        }
     }
 }

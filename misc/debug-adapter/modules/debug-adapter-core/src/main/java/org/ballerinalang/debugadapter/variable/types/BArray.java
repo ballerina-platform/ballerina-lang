@@ -16,70 +16,91 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.Value;
 import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.VariableUtils;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-/**
- * Array variable type.
- */
-public class BArray extends VariableImpl {
 
-    private final ObjectReferenceImpl value;
-    private Map<String, Value> childVariables;
+/**
+ * Ballerina array variable type.
+ */
+public class BArray extends BCompoundVariable {
+
+    private final ObjectReferenceImpl jvmValueRef;
 
     public BArray(Value value, Variable dapVariable) {
-        this.value = (ObjectReferenceImpl) value;
+         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        dapVariable.setType(BVariableType.ARRAY.getString());
+        dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
-        dapVariable.setType(this.toString());
-        dapVariable.setValue(this.toString());
-
-        Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
-        this.setChildVariables(values);
+        this.computeChildVariables();
     }
 
     @Override
-    public Map<String, Value> getChildVariables() {
-        return childVariables;
+    public String getValue() {
+        try {
+            List<Field> fields = jvmValueRef.referenceType().allFields();
+            Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+                    fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
+                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+
+            String arrayType = arrayValueField.toString();
+            arrayType = arrayType.replaceFirst("org.ballerinalang.jvm.values.ArrayValueImpl.", "")
+                    .replaceFirst("Values", "").replaceFirst("ref", "any");
+
+            Field arraySizeField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+                    fieldValueEntry.getValue() != null &&
+                            fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+            int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
+            return String.format("%s[%d]", arrayType, arraySize);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            return "unknown";
+        }
     }
 
     @Override
-    public void setChildVariables(Map<String, Value> childVariables) {
-        this.childVariables = childVariables;
+    public void computeChildVariables() {
+        try {
+            List<Field> fields = jvmValueRef.referenceType().allFields();
+            Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+                    fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
+                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+
+            Field arraySizeField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+                    fieldValueEntry.getValue() != null &&
+                            fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+
+            int arraySize = ((IntegerValue) jvmValueRef.getValue(arraySizeField)).value();
+            List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
+
+            // List length is 100 by default. Create a sub list with actual array size
+            List<Value> valueSubList = valueList.subList(0, arraySize);
+            Map<String, Value> values = new TreeMap<>();
+            AtomicInteger nextVarIndex = new AtomicInteger(0);
+            valueSubList.forEach(item -> {
+                int varIndex = nextVarIndex.getAndIncrement();
+                values.put("[" + varIndex + "]", valueSubList.get(varIndex));
+            });
+            this.setChildVariables(values);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception ignored) {
+            this.setChildVariables(new HashMap<>());
+        }
     }
-
-    @Override
-    public String toString() {
-        List<Field> fields = value.referenceType().allFields();
-        Field arrayValueField = value.getValues(fields).entrySet().stream()
-                .filter(fieldValueEntry ->
-                        fieldValueEntry.getValue() != null
-                                && fieldValueEntry.getKey().toString().endsWith("Values"))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList()).get(0);
-        String arrayType = arrayValueField.toString();
-
-        arrayType = arrayType.replaceFirst("org.ballerinalang.jvm.values.ArrayValue.", "");
-        arrayType = arrayType.replaceFirst("Values", "");
-        arrayType = arrayType.replaceFirst("ref", "Array");
-
-        Field arraySizeField = value
-                .getValues(fields).entrySet().stream()
-                .filter(fieldValueEntry ->
-                        fieldValueEntry.getValue() != null
-                                && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList()).get(0);
-        int arraySize = ((IntegerValue) value.getValue(arraySizeField)).value();
-
-        return arrayType + "[" + arraySize + "]";
-    }
-
 }

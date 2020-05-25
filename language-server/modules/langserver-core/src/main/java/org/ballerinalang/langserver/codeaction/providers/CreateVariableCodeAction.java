@@ -403,7 +403,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 }
             } else if (bLangNode instanceof BLangQueryExpr) {
                 BLangQueryExpr queryExpr = (BLangQueryExpr) bLangNode;
-                ExpressionNode expression = queryExpr.selectClause.getExpression();
+                ExpressionNode expression = queryExpr.getSelectClause().getExpression();
                 if (expression instanceof BLangRecordLiteral) {
                     BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                     return getPossibleTypesAndNames(context, referenceAtCursor, hasDefaultInitFunction,

@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class BasicLiteralNode extends ExpressionNode {
 
@@ -61,5 +63,37 @@ public class BasicLiteralNode extends ExpressionNode {
         return NodeFactory.createBasicLiteralNode(
                 kind,
                 literalToken);
+    }
+
+    public BasicLiteralNodeModifier modify() {
+        return new BasicLiteralNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class BasicLiteralNodeModifier {
+        private final BasicLiteralNode oldNode;
+        private Token literalToken;
+
+        public BasicLiteralNodeModifier(BasicLiteralNode oldNode) {
+            this.oldNode = oldNode;
+            this.literalToken = oldNode.literalToken();
+        }
+
+        public BasicLiteralNodeModifier withLiteralToken(
+                Token literalToken) {
+            Objects.requireNonNull(literalToken, "literalToken must not be null");
+            this.literalToken = literalToken;
+            return this;
+        }
+
+        public BasicLiteralNode apply() {
+            return oldNode.modify(
+                    oldNode.kind(),
+                    literalToken);
+        }
     }
 }

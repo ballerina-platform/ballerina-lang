@@ -63,7 +63,8 @@ public class WSServiceTemplate extends AbstractTestTemplate {
 
         // If service base path overridden by annotations
         for (BLangAnnotationAttachment annotation : service.annAttachments) {
-            Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH, annotation);
+            Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH.getValue(),
+                                                              annotation);
             serviceBasePath = optionalPath.orElse("");
         }
         String serviceName = upperCaseFirstLetter(service.name.value);

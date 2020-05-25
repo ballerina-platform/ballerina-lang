@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
@@ -28,6 +29,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.ByteArrayOutputStream;
@@ -95,7 +97,7 @@ public final class XMLItem extends XMLValue {
         this.type = readonly ? BTypes.typeReadonlyElement : BTypes.typeElement;
     }
 
-    private void addDefaultNamespaceAttribute(QName name, MapValue<String, String> attributes) {
+    private void addDefaultNamespaceAttribute(QName name, MapValue<BString, BString> attributes) {
         String namespace = name.getNamespaceURI();
         if (namespace == null || namespace.isEmpty()) {
             return;
@@ -106,7 +108,7 @@ public final class XMLItem extends XMLValue {
             prefix = XMLNS;
         }
 
-        attributes.put(XMLNS_URL_PREFIX + prefix, namespace);
+        attributes.put(StringUtils.fromString(XMLNS_URL_PREFIX + prefix), StringUtils.fromString(namespace));
     }
 
     /**
@@ -169,7 +171,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public String getAttribute(String localName, String namespace) {
+    public BString getAttribute(String localName, String namespace) {
         return getAttribute(localName, namespace, XMLConstants.DEFAULT_NS_PREFIX);
     }
 
@@ -177,18 +179,18 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public String getAttribute(String localName, String namespace, String prefix) {
+    public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(XMLNS_URL_PREFIX + prefix);
-            String attrVal = attributes.get("{" + ns + "}" + localName);
+            String ns = attributes.get(StringUtils.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
+            BString attrVal = attributes.get(StringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;
             }
         }
         if (namespace != null && !namespace.isEmpty()) {
-            return attributes.get("{" + namespace + "}" + localName);
+            return attributes.get(StringUtils.fromString("{" + namespace + "}" + localName));
         }
-        return attributes.get(localName);
+        return attributes.get(StringUtils.fromString(localName));
     }
 
     /**
@@ -209,7 +211,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public MapValue<String, String> getAttributesMap() {
+    public MapValue<BString, BString> getAttributesMap() {
         return this.attributes;
     }
 
@@ -218,7 +220,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     @Deprecated
-    public void setAttributes(BMap<String, ?> attributes) {
+    public void setAttributes(BMap<BString, ?> attributes) {
         synchronized (this) {
             if (this.type.isReadOnly()) {
                 ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
@@ -226,12 +228,12 @@ public final class XMLItem extends XMLValue {
         }
 
         String localName, uri;
-        for (String qname : attributes.getKeys()) {
-            if (qname.startsWith("{") && qname.indexOf('}') > 0) {
-                localName = qname.substring(qname.indexOf('}') + 1, qname.length());
-                uri = qname.substring(1, qname.indexOf('}'));
+        for (BString qname : attributes.getKeys()) {
+            if (qname.getValue().startsWith("{") && qname.getValue().indexOf('}') > 0) {
+                localName = qname.getValue().substring(qname.getValue().indexOf('}') + 1);
+                uri = qname.getValue().substring(1, qname.getValue().indexOf('}'));
             } else {
-                localName = qname;
+                localName = qname.getValue();
                 uri = STRING_NULL_VALUE;
             }
 
@@ -480,13 +482,13 @@ public final class XMLItem extends XMLValue {
         QName elemName = new QName(this.name.getNamespaceURI(), this.name.getLocalPart(), this.name.getPrefix());
         XMLItem xmlItem = new XMLItem(elemName, (XMLSequence) children.copy(refs));
 
-        MapValue<String, String> attributesMap = xmlItem.getAttributesMap();
-        MapValue<String, String> copy = (MapValue<String, String>) this.getAttributesMap().copy(refs);
+        MapValue<BString, BString> attributesMap = xmlItem.getAttributesMap();
+        MapValue<BString, BString> copy = (MapValue<BString, BString>) this.getAttributesMap().copy(refs);
         if (attributesMap instanceof MapValueImpl) {
-            MapValueImpl<String, String> map = (MapValueImpl<String, String>) attributesMap;
-            map.putAll((Map<String, String>) copy);
+            MapValueImpl<BString, BString> map = (MapValueImpl<BString, BString>) attributesMap;
+            map.putAll((Map<BString, BString>) copy);
         } else {
-            for (Map.Entry<String, String> entry : copy.entrySet()) {
+            for (Map.Entry<BString, BString> entry : copy.entrySet()) {
                 attributesMap.put(entry.getKey(), entry.getValue());
             }
         }

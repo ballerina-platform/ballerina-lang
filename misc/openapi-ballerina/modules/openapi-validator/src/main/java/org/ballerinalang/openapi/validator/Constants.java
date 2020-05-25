@@ -39,4 +39,5 @@ public class Constants {
     static final String TAGS = "tags";
     static final String OPERATIONS = "operations";
     static final String BODY = "body";
+    static final String FAILONERRORS = "failOnErrors";
 }

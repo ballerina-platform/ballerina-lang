@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class TypeTestExpressionNode extends ExpressionNode {
 
@@ -75,5 +77,56 @@ public class TypeTestExpressionNode extends ExpressionNode {
                 expression,
                 isKeyword,
                 typeDescriptor);
+    }
+
+    public TypeTestExpressionNodeModifier modify() {
+        return new TypeTestExpressionNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class TypeTestExpressionNodeModifier {
+        private final TypeTestExpressionNode oldNode;
+        private ExpressionNode expression;
+        private Token isKeyword;
+        private Node typeDescriptor;
+
+        public TypeTestExpressionNodeModifier(TypeTestExpressionNode oldNode) {
+            this.oldNode = oldNode;
+            this.expression = oldNode.expression();
+            this.isKeyword = oldNode.isKeyword();
+            this.typeDescriptor = oldNode.typeDescriptor();
+        }
+
+        public TypeTestExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public TypeTestExpressionNodeModifier withIsKeyword(
+                Token isKeyword) {
+            Objects.requireNonNull(isKeyword, "isKeyword must not be null");
+            this.isKeyword = isKeyword;
+            return this;
+        }
+
+        public TypeTestExpressionNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
+            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public TypeTestExpressionNode apply() {
+            return oldNode.modify(
+                    expression,
+                    isKeyword,
+                    typeDescriptor);
+        }
     }
 }

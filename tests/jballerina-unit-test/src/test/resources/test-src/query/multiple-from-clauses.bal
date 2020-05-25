@@ -180,7 +180,7 @@ function testMultipleFromAndSelectClausesWithRecordVariable() returns Person1[]{
     return  outputPersonList;
 }
 
-function testQueryExprTupleTypedBinding1() returns string[]{
+function testQueryExprTupleTypedBinding1() returns boolean{
 
     [string,float][] arr1 = [["A",2.0],["B",3.0],["C",4.0]];
     [string|int|float,[string|float, int]][] arr2 = [["Ballerina",[3.4,234]],[34,["APIM",89]],[45.9,[78.2,90]]];
@@ -191,7 +191,7 @@ function testQueryExprTupleTypedBinding1() returns string[]{
     	where g1 == "Ballerina"
     	select a;
 
-    return  ouputStringList;
+    return  ouputStringList == ["A", "B", "C"];
 }
 
 function testQueryExprWithOpenRecords() returns Section[]{

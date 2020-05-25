@@ -42,15 +42,7 @@ import java.util.StringJoiner;
 )
 public class Join {
 
-    public static String join(Strand strand, String separator, ArrayValue strs) {
-        StringJoiner stringJoiner = new StringJoiner(separator);
-        int size = strs.size();
-        for (int i = 0; i < size; i++) {
-            stringJoiner.add(strs.getString(i));
-        }
-        return stringJoiner.toString();
-    }
-    public static BString join_bstring(Strand strand, BString separator, ArrayValue strs) {
+    public static BString join(Strand strand, BString separator, ArrayValue strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
         int size = strs.size();
         for (int i = 0; i < size; i++) {

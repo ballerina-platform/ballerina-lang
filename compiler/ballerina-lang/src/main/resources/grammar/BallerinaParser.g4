@@ -844,6 +844,7 @@ expression
     |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression JOIN_EQUALS expression                                   # binaryEqualsExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
@@ -905,8 +906,16 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+onConflictClause
+    :    ON CONFLICT expression
+    ;
+
 selectClause
     :   SELECT expression
+    ;
+
+onClause
+    :   ON expression
     ;
 
 whereClause
@@ -915,6 +924,10 @@ whereClause
 
 letClause
     :   LET letVarDecl (COMMA letVarDecl)*
+    ;
+
+joinClause
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN VAR bindingPattern) IN expression
     ;
 
 fromClause
@@ -926,11 +939,15 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause (fromClause | letClause | whereClause)*
+    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
+    ;
+
+queryConstructType
+    :   TYPE_TABLE tableKeySpecifier | TYPE_STREAM
     ;
 
 queryExpr
-    :   queryPipeline selectClause
+    :   queryConstructType? queryPipeline selectClause onConflictClause?
     ;
 
 queryAction

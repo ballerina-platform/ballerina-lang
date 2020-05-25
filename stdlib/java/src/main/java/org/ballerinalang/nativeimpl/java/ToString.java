@@ -39,13 +39,6 @@ public class ToString {
         if (referredValue == null) {
             return null;
         }
-        return referredValue.toString();
-    }
-    public static Object toString_bstring(Strand strand, HandleValue value) {
-        Object referredValue = value.getValue();
-        if (referredValue == null) {
-            return null;
-        }
         if (value instanceof BString) {
             return value;
         }

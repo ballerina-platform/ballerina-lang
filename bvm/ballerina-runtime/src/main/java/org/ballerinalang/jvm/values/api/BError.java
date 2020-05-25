@@ -44,7 +44,7 @@ public abstract class BError extends RuntimeException implements BRefValue {
      *
      * @return reason string
      */
-    public abstract String getMessage();
+    public abstract BString getErrorMessage();
 
     /**
      * Returns error details.

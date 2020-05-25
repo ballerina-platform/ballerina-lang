@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -191,13 +192,13 @@ public class MimeEntityBody {
     }
 
     public static void setByteChannel(ObjectValue entityObj, ObjectValue byteChannel,
-                                      String contentType) {
+                                      BString contentType) {
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME));
         Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
             entityObj.addNativeData(MESSAGE_DATA_SOURCE, null);
         }
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
     public static void setJson(ObjectValue entityObj, Object jsonContent, String contentType) {

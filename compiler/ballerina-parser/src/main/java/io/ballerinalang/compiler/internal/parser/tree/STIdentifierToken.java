@@ -47,6 +47,6 @@ public class STIdentifierToken extends STToken {
 
     @Override
     public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+        return leadingMinutiae + text + trailingMinutiae;
     }
 }

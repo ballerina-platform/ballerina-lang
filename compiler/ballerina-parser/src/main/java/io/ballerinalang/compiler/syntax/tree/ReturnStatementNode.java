@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ReturnStatementNode extends StatementNode {
 
@@ -77,5 +78,56 @@ public class ReturnStatementNode extends StatementNode {
                 returnKeyword,
                 expression,
                 semicolonToken);
+    }
+
+    public ReturnStatementNodeModifier modify() {
+        return new ReturnStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ReturnStatementNodeModifier {
+        private final ReturnStatementNode oldNode;
+        private Token returnKeyword;
+        private ExpressionNode expression;
+        private Token semicolonToken;
+
+        public ReturnStatementNodeModifier(ReturnStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.returnKeyword = oldNode.returnKeyword();
+            this.expression = oldNode.expression().orElse(null);
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public ReturnStatementNodeModifier withReturnKeyword(
+                Token returnKeyword) {
+            Objects.requireNonNull(returnKeyword, "returnKeyword must not be null");
+            this.returnKeyword = returnKeyword;
+            return this;
+        }
+
+        public ReturnStatementNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public ReturnStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public ReturnStatementNode apply() {
+            return oldNode.modify(
+                    returnKeyword,
+                    expression,
+                    semicolonToken);
+        }
     }
 }

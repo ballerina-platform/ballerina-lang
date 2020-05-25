@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class PanicStatementNode extends StatementNode {
 
@@ -75,5 +77,56 @@ public class PanicStatementNode extends StatementNode {
                 panicKeyword,
                 expression,
                 semicolonToken);
+    }
+
+    public PanicStatementNodeModifier modify() {
+        return new PanicStatementNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class PanicStatementNodeModifier {
+        private final PanicStatementNode oldNode;
+        private Token panicKeyword;
+        private ExpressionNode expression;
+        private Token semicolonToken;
+
+        public PanicStatementNodeModifier(PanicStatementNode oldNode) {
+            this.oldNode = oldNode;
+            this.panicKeyword = oldNode.panicKeyword();
+            this.expression = oldNode.expression();
+            this.semicolonToken = oldNode.semicolonToken();
+        }
+
+        public PanicStatementNodeModifier withPanicKeyword(
+                Token panicKeyword) {
+            Objects.requireNonNull(panicKeyword, "panicKeyword must not be null");
+            this.panicKeyword = panicKeyword;
+            return this;
+        }
+
+        public PanicStatementNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
+            return this;
+        }
+
+        public PanicStatementNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
+        public PanicStatementNode apply() {
+            return oldNode.modify(
+                    panicKeyword,
+                    expression,
+                    semicolonToken);
+        }
     }
 }

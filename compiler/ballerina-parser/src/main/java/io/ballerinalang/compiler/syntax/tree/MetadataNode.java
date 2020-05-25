@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class MetadataNode extends NonTerminalNode {
 
@@ -69,5 +70,46 @@ public class MetadataNode extends NonTerminalNode {
         return NodeFactory.createMetadataNode(
                 documentationString,
                 annotations);
+    }
+
+    public MetadataNodeModifier modify() {
+        return new MetadataNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class MetadataNodeModifier {
+        private final MetadataNode oldNode;
+        private Node documentationString;
+        private NodeList<AnnotationNode> annotations;
+
+        public MetadataNodeModifier(MetadataNode oldNode) {
+            this.oldNode = oldNode;
+            this.documentationString = oldNode.documentationString().orElse(null);
+            this.annotations = oldNode.annotations();
+        }
+
+        public MetadataNodeModifier withDocumentationString(
+                Node documentationString) {
+            Objects.requireNonNull(documentationString, "documentationString must not be null");
+            this.documentationString = documentationString;
+            return this;
+        }
+
+        public MetadataNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
+            return this;
+        }
+
+        public MetadataNode apply() {
+            return oldNode.modify(
+                    documentationString,
+                    annotations);
+        }
     }
 }

@@ -2152,6 +2152,7 @@ public class BIRGen extends BLangNodeVisitor {
             case MOD:
                 return InstructionKind.MOD;
             case EQUAL:
+            case EQUALS:
                 return InstructionKind.EQUAL;
             case NOT_EQUAL:
                 return InstructionKind.NOT_EQUAL;

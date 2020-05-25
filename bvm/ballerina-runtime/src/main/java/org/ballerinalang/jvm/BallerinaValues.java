@@ -44,7 +44,7 @@ public class BallerinaValues {
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
-    public static MapValue<String, Object> createRecordValue(BPackage packageId, String recordTypeName) {
+    public static MapValue<BString, Object> createRecordValue(BPackage packageId, String recordTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         return valueCreator.createRecordValue(recordTypeName);
     }
@@ -58,11 +58,15 @@ public class BallerinaValues {
      * @param valueMap values to be used for fields when creating the record.
      * @return value of the populated record.
      */
-    public static MapValue<String, Object> createRecordValue(BPackage packageId, String recordTypeName,
-                                                             Map<String, Object> valueMap) {
-        MapValue<String, Object> record = createRecordValue(packageId, recordTypeName);
+    public static MapValue<BString, Object> createRecordValue(BPackage packageId, String recordTypeName,
+                                                              Map<String, Object> valueMap) {
+        MapValue<BString, Object> record = createRecordValue(packageId, recordTypeName);
         for (Entry<String, Object> fieldEntry : valueMap.entrySet()) {
-            record.put(fieldEntry.getKey(), fieldEntry.getValue());
+            Object val = fieldEntry.getValue();
+            if (val instanceof String) {
+                val = StringUtils.fromString((String) val);
+            }
+            record.put(StringUtils.fromString(fieldEntry.getKey()), val);
         }
 
         return record;
@@ -96,28 +100,7 @@ public class BallerinaValues {
      * @param values field values of the record.
      * @return value of the record.
      */
-    public static MapValue<String, Object> createRecord(MapValue<String, Object> record, Object... values) {
-        BRecordType recordType = (BRecordType) record.getType();
-        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
-        int i = 0;
-        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
-            Object value = values[i++];
-            if (Flags.isFlagOn(fieldEntry.getValue().flags, Flags.OPTIONAL) && value == null) {
-                continue;
-            }
-            mapValue.put(fieldEntry.getKey(), value);
-        }
-        return mapValue;
-    }
-
-    /**
-     * Method to populate a runtime record value with given field values.
-     *
-     * @param record which needs to get populated
-     * @param values field values of the record.
-     * @return value of the record.
-     */
-    public static MapValue<BString, Object> createRecord_bstring(MapValue<BString, Object> record, Object... values) {
+    public static MapValue<BString, Object> createRecord(MapValue<BString, Object> record, Object... values) {
         BRecordType recordType = (BRecordType) record.getType();
         MapValue<BString, Object> mapValue = new MapValueImpl<>(recordType);
         int i = 0;

@@ -22,9 +22,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public abstract class XMLItemNode extends BacktickTemplateMemberNode {
+public abstract class XMLItemNode extends TemplateMemberNode {
 
     public XMLItemNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

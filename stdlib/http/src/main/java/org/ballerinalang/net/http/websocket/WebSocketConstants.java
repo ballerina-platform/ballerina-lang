@@ -18,8 +18,10 @@
 
 package org.ballerinalang.net.http.websocket;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Constants of WebSocket.
@@ -47,10 +49,10 @@ public class WebSocketConstants {
 
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "WebSocketServiceConfig";
-    public static final String ANNOTATION_ATTR_PATH = "path";
-    public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
-    public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
-    public static final String ANNOTATION_ATTR_MAX_FRAME_SIZE = "maxFrameSize";
+    public static final BString ANNOTATION_ATTR_PATH = StringUtils.fromString("path");
+    public static final BString ANNOTATION_ATTR_SUB_PROTOCOLS = StringUtils.fromString("subProtocols");
+    public static final BString ANNOTATION_ATTR_IDLE_TIMEOUT = StringUtils.fromString("idleTimeoutInSeconds");
+    public static final BString ANNOTATION_ATTR_MAX_FRAME_SIZE = StringUtils.fromString("maxFrameSize");
 
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
     public static final String RESOURCE_NAME_ON_TEXT = "onText";
@@ -73,42 +75,43 @@ public class WebSocketConstants {
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
     public static final String NATIVE_DATA_BASE_PATH = "BASE_PATH";
 
-    public static final String CLIENT_URL_CONFIG = "url";
-    public static final String CLIENT_SERVICE_CONFIG = "callbackService";
-    public static final String CLIENT_CUSTOM_HEADERS_CONFIG = "customHeaders";
-    public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
-    public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
+    public static final BString CLIENT_URL_CONFIG = StringUtils.fromString("url");
+    public static final BString CLIENT_SERVICE_CONFIG = StringUtils.fromString("callbackService");
+    public static final BString CLIENT_CUSTOM_HEADERS_CONFIG = StringUtils.fromString("customHeaders");
+    public static final BString CLIENT_READY_ON_CONNECT = StringUtils.fromString("readyOnConnect");
+    public static final BString WEBSOCKET_UPGRADE_SERVICE_CONFIG = StringUtils.fromString("upgradeService");
 
-    public static final String RETRY_CONTEXT = "retryConfig";
+    public static final BString RETRY_CONTEXT = StringUtils.fromString("retryConfig");
     public static final String COUNT_DOWN_LATCH = "countDownLatch";
     public static final String CLIENT_LISTENER = "clientListener";
     public static final String CLIENT_CONNECTOR = "clientConnector";
 
-    public static final String CLIENT_ENDPOINT_CONFIG = "config";
-    public static final String TARGET_URLS = "targetUrls";
+    public static final BString CLIENT_ENDPOINT_CONFIG = StringUtils.fromString("config");
+    public static final BString TARGET_URLS = StringUtils.fromString("targetUrls");
     public static final String FAILOVER_CONTEXT = "failoverContext";
     public static final String CONNECTOR_FACTORY = "connectorFactory";
     public static final String FAILOVER_WEBSOCKET_CLIENT = "WebSocketFailoverClient";
     public static final String FULL_FAILOVER_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
-    PACKAGE_HTTP + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
+            PACKAGE_HTTP + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
 
-    public static final String COMPRESSION_ENABLED_CONFIG = "webSocketCompressionEnabled";
+    public static final BString COMPRESSION_ENABLED_CONFIG = StringUtils.fromString("webSocketCompressionEnabled");
 
     // WebSocketListener field names
-    public static final String LISTENER_ID_FIELD = "id";
-    public static final String LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = "negotiatedSubProtocol";
-    public static final String LISTENER_IS_SECURE_FIELD = "secure";
-    public static final String LISTENER_IS_OPEN_FIELD = "open";
-    public static final String LISTENER_CONNECTOR_FIELD = "conn";
+    public static final BString LISTENER_ID_FIELD = StringUtils.fromString("id");
+    public static final BString LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = StringUtils.fromString(
+            "negotiatedSubProtocol");
+    public static final BString LISTENER_IS_SECURE_FIELD = StringUtils.fromString("secure");
+    public static final BString LISTENER_IS_OPEN_FIELD = StringUtils.fromString("open");
+    public static final BString LISTENER_CONNECTOR_FIELD = StringUtils.fromString("conn");
 
     // WebSocketClient struct field names
-    public static final String CLIENT_RESPONSE_FIELD = "response";
-    public static final String CLIENT_CONNECTOR_FIELD = "conn";
+    public static final BString CLIENT_RESPONSE_FIELD = StringUtils.fromString("response");
+    public static final BString CLIENT_CONNECTOR_FIELD = StringUtils.fromString("conn");
 
     public static final String WEBSOCKET_ERROR_DETAILS = "Detail";
 
     // WebSocketConnector
-    public static final String CONNECTOR_IS_READY_FIELD = "isReady";
+    public static final BString CONNECTOR_IS_READY_FIELD = StringUtils.fromString("isReady");
 
     public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
     public static final int STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT = 1005;

@@ -39,11 +39,7 @@ public class Message {
 
 
     @Deprecated
-    public static String message(Strand strand, ErrorValue value) {
-        return value.getMessage();
-    }
-
-    public static BString message_bstring(Strand strand, ErrorValue value) {
-        return value.getErrorMessageBString();
+    public static BString message(Strand strand, ErrorValue value) {
+        return value.getErrorMessage();
     }
 }
