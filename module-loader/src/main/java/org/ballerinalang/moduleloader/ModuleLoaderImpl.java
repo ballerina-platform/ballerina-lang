@@ -6,12 +6,12 @@ import org.ballerinalang.moduleloader.model.Project;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import static org.ballerinalang.moduleloader.Util.isGreaterVersion;
@@ -19,39 +19,30 @@ import static org.ballerinalang.moduleloader.Util.isGreaterVersion;
 public class ModuleLoaderImpl implements ModuleLoader {
 
     private Project project;
-    private List<Repo> repos;
+    private RepoHierarchy repoHierarchy;
+    // store moduleId and Repo which module exists
+    Map<ModuleId,Repo> resolvedModules = new HashMap<>();
 
-    public ModuleLoaderImpl(Project project, List<Repo> repos) {
+    public ModuleLoaderImpl(Project project, RepoHierarchy repoHierarchy) {
         this.project = project;
-        this.repos = repos;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public List<Repo> getRepos() {
-        return repos;
-    }
-
-    public void setRepos(List<Repo> repos) {
-        this.repos = repos;
+        this.repoHierarchy = repoHierarchy;
     }
 
     @Override
     public ModuleId resolveVersion(ModuleId moduleId, ModuleId enclModuleId) throws IOException {
         // if version already exists in moduleId
         if (isVersionExists(moduleId)) {
-            return moduleId;
+            ModuleId resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), moduleId,
+                    moduleId.getVersion());
+            if (resolvedModuleId.getVersion() != null) {
+                return resolvedModuleId;
+            }
         }
 
         // if module is in the current project
         if (this.project.isModuleExists(moduleId)) {
             moduleId.setVersion(this.project.getManifest().getProject().getVersion());
+            resolvedModules.put(moduleId, repoHierarchy.getProjectModules());
             return moduleId;
         }
 
@@ -61,10 +52,10 @@ public class ModuleLoaderImpl implements ModuleLoader {
             String versionFromLockfile = resolveVersionFromLockFile(moduleId, enclModuleId);
             // version in lock can be null if the import is added after creating the lock
             if (versionFromLockfile != null) {
-                String resolvedVersion =  resolveModuleVersionFromRepos(this.repos, moduleId, versionFromLockfile);
-                moduleId.setVersion(resolvedVersion);
-                if (moduleId.getVersion() != null) {
-                    return moduleId;
+                ModuleId resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), moduleId,
+                        versionFromLockfile);
+                if (resolvedModuleId.getVersion() != null) {
+                    return resolvedModuleId;
                 }
             }
         }
@@ -76,9 +67,10 @@ public class ModuleLoaderImpl implements ModuleLoader {
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(moduleId, this.project.getManifest());
             if (versionFromManifest != null) {
-                moduleId.setVersion(resolveModuleVersionFromRepos(this.repos, moduleId, versionFromManifest));
-                if (moduleId.getVersion() != null) {
-                    return moduleId;
+                ModuleId resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), moduleId,
+                        versionFromManifest);
+                if (resolvedModuleId.getVersion() != null) {
+                    return resolvedModuleId;
                 }
             }
         }
@@ -86,14 +78,15 @@ public class ModuleLoaderImpl implements ModuleLoader {
         // if enclosing module is not a project module, module is transitive
         // if it is a transitive we need to check the toml file of the dependent module
         if (enclModuleId != null && !this.project.isModuleExists(enclModuleId)) {
-            BaloCache homeBaloCache = (BaloCache) this.repos.get(4);
+            BaloCache homeBaloCache = this.repoHierarchy.getHomeBaloCache();
             Module parentModule = homeBaloCache.getModule(enclModuleId);
             Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
             versionFromManifest = resolveVersionFromManifest(moduleId, parentManifest);
             if (versionFromManifest != null) {
-                moduleId.setVersion(resolveModuleVersionFromRepos(this.repos, moduleId, versionFromManifest));
-                if (moduleId.getVersion() != null) {
-                    return moduleId;
+                ModuleId resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), moduleId,
+                        versionFromManifest);
+                if (resolvedModuleId.getVersion() != null) {
+                    return resolvedModuleId;
                 }
             }
         }
@@ -103,13 +96,19 @@ public class ModuleLoaderImpl implements ModuleLoader {
 
     @Override
     public Module resolveModule(ModuleId moduleId) {
-        for (Repo repo : this.repos) {
-            if (repo.isModuleExists(moduleId)) {
-                if (repo instanceof Cache) {
-                    return ((Cache) repo).getModule(moduleId);
-                }
-            }
+        // if moduleId exists in `resolvedModules` map
+        if (resolvedModules.containsKey(moduleId)) {
+            Cache cache = (Cache) resolvedModules.get(moduleId);
+            return cache.getModule(moduleId);
         }
+
+//        for (Repo repo : this.repoHierarchy.getRepoList()) {
+//            if (repo.isModuleExists(moduleId)) {
+//                if (repo instanceof Cache) {
+//                    return ((Cache) repo).getModule(moduleId);
+//                }
+//            }
+//        }
         return null;
     }
 
@@ -139,41 +138,9 @@ public class ModuleLoaderImpl implements ModuleLoader {
         return null;
     }
 
-    public void generateRepoHierarchy(List<Repo> repos) {
-        // 1. product modules
-        ProjectModules projectModules = new ProjectModules(Paths.get(System.getProperty("user.dir")),
-                this.project.getManifest().getProject().getOrgName(),
-                this.project.getManifest().getProject().getVersion());
-        repos.add(projectModules);
-
-        // 2. project bir cache
-        BirCache projectBirCache = new BirCache(Paths.get(String.valueOf(Paths.get(System.getProperty("user.dir"))),
-                ProjectDirConstants.TARGET_DIR_NAME, ProjectDirConstants.CACHES_DIR_NAME,
-                ProjectDirConstants.BIR_CACHE_DIR_NAME));
-        repos.add(projectBirCache);
-
-        // 3. distribution bir cache
-        BirCache distBirCache = new BirCache(
-                Paths.get(System.getProperty(ProjectDirConstants.BALLERINA_HOME), "bir-cache"));
-        repos.add(distBirCache);
-
-        // 4. home bir cache
-        BirCache homeBirCache = new BirCache(
-                RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME));
-        repos.add(homeBirCache);
-
-        // 5. home balo cache
-        BaloCache homeBaloCache = new BaloCache(
-                RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
-        repos.add(homeBaloCache);
-
-        // 6. central repo
-        Central central = new Central();
-        repos.add(central);
-    }
-
-    private String resolveModuleVersionFromRepos(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
+    private ModuleId resolveModuleVersionFromRepos(List<Repo> repos, ModuleId moduleId, String filter) throws IOException {
         TreeMap<String, Repo> moduleVersions = new TreeMap<>();
+
         for (Repo repo : repos) {
             for (String versionStr : repo.resolveVersions(moduleId, filter)) {
                 if (moduleVersions.isEmpty() || isGreaterVersion(moduleVersions.lastKey(), versionStr)) {
@@ -181,15 +148,22 @@ public class ModuleLoaderImpl implements ModuleLoader {
                 }
             }
         }
+
         if (!moduleVersions.isEmpty()) {
             // pull if the module is in a remote repo.
             Repo versionResolvedRepo = moduleVersions.lastEntry().getValue();
             if (versionResolvedRepo instanceof Central) {
                 ((Central) versionResolvedRepo).pullModule(moduleId);
+
+                // when pulled, module is in the Balo cache
+                moduleId.setVersion(moduleVersions.lastEntry().getKey());
+                resolvedModules.put(moduleId, this.repoHierarchy.getHomeBaloCache());
+            } else {
+                moduleId.setVersion(moduleVersions.lastEntry().getKey());
+                resolvedModules.put(moduleId, moduleVersions.lastEntry().getValue());
             }
-            return moduleVersions.lastEntry().getKey();
         }
-        return null;
+        return moduleId;
     }
 
     private boolean isVersionExists(ModuleId moduleId) {
