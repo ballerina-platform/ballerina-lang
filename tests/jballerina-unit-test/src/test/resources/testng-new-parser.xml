@@ -141,7 +141,9 @@
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionsInFunctionParamsTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveTypeFunctionParamTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.UnionsWithPrimitiveTypesTest"></class>
-
+            <class name="org.ballerinalang.test.statements.returnstmt.NamedReturnParameterTest"></class>
+            <class name="org.ballerinalang.test.statements.returnstmt.ReturnStmtInBranchTest"></class>
+            
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
