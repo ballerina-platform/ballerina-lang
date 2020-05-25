@@ -1,0 +1,331 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ROLLBACK_STATEMENT",
+              "children": [
+                {
+                  "kind": "RETRY_KEYWORD"
+                },
+                {
+                  "kind": "TRANSACTION_STATEMENT",
+                  "children": [
+                    {
+                      "kind": "TRANSACTION_KEYWORD"
+                    },
+                    {
+                      "kind": "BLOCK_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ROLLBACK_STATEMENT",
+              "children": [
+                {
+                  "kind": "RETRY_KEYWORD"
+                },
+                {
+                  "kind": "TYPE_PARAMETER",
+                  "children": [
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "T"
+                    },
+                    {
+                      "kind": "GT_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "TRANSACTION_STATEMENT",
+                  "children": [
+                    {
+                      "kind": "TRANSACTION_KEYWORD"
+                    },
+                    {
+                      "kind": "BLOCK_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ROLLBACK_STATEMENT",
+              "children": [
+                {
+                  "kind": "RETRY_KEYWORD"
+                },
+                {
+                  "kind": "TYPE_PARAMETER",
+                  "children": [
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "TYPE_DESC",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "TRANSACTION_STATEMENT",
+                  "children": [
+                    {
+                      "kind": "TRANSACTION_KEYWORD"
+                    },
+                    {
+                      "kind": "BLOCK_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ROLLBACK_STATEMENT",
+              "children": [
+                {
+                  "kind": "RETRY_KEYWORD"
+                },
+                {
+                  "kind": "PARENTHESIZED_ARG_LIST",
+                  "children": [
+                    {
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "POSITIONAL_ARG",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "POSITIONAL_ARG",
+                          "children": [
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "TRANSACTION_STATEMENT",
+                  "children": [
+                    {
+                      "kind": "TRANSACTION_KEYWORD"
+                    },
+                    {
+                      "kind": "BLOCK_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ROLLBACK_STATEMENT",
+              "children": [
+                {
+                  "kind": "RETRY_KEYWORD"
+                },
+                {
+                  "kind": "TYPE_PARAMETER",
+                  "children": [
+                    {
+                      "kind": "LT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "T"
+                    },
+                    {
+                      "kind": "GT_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "PARENTHESIZED_ARG_LIST",
+                  "children": [
+                    {
+                      "kind": "OPEN_PAREN_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "POSITIONAL_ARG",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "POSITIONAL_ARG",
+                          "children": [
+                            {
+                              "kind": "COMMA_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "TRANSACTION_STATEMENT",
+                  "children": [
+                    {
+                      "kind": "TRANSACTION_KEYWORD"
+                    },
+                    {
+                      "kind": "BLOCK_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
+}
