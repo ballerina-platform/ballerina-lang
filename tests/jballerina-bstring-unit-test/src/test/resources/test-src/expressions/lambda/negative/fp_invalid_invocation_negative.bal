@@ -10,7 +10,7 @@ type Employee object {
     
     function () returns (string) getLname;
     
-    function __init() {
+    function init() {
         self.getLname = function () returns (string) {
                             return self.fname;
                         };

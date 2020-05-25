@@ -69,7 +69,7 @@ function testArrayFieldInRecord() returns BarRec {
 type BarObj object {
     Foo[] fArr;
 
-    function __init() {
+    function init() {
         Foo[*] arr = [1, 2];
         self.fArr = arr;
     }
@@ -116,7 +116,7 @@ type P1 object {
     Q1 q;
     string p1;
 
-    function __init() {
+    function init() {
         self.q = new;
         self.p1 = "P1";
     }
@@ -126,7 +126,7 @@ type Q1 object {
     P1 p;
     string q1;
 
-    function __init() {
+    function init() {
         self.p = new;
         self.q1 = "Q1";
     }
@@ -156,7 +156,7 @@ function testGetFromFrozenArray() returns int {
 
 type Age object {
     public int age;
-    public function __init(int age) {
+    public function init(int age) {
     	 self.age = age;
     }
 };
@@ -176,7 +176,7 @@ type AbstractPersonObject abstract object {
 
 type Employee object {
     *AbstractPersonObject;
-    function __init(string fname, string lname) {
+    function init(string fname, string lname) {
         self.fName = fname;
         self.lName = lname;
     }

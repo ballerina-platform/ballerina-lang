@@ -15,7 +15,7 @@ public type Employee record {
 
 public type Person object {
     int age = 9;
-    public function __init(int age) {
+    public function init(int age) {
         self.age = age;
     }
 };

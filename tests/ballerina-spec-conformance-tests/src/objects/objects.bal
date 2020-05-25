@@ -18,7 +18,7 @@ public type PublicNormalObject object {
     public string publicStringField;
     private int counter;
 
-    public function __init(string argOne) {
+    public function init(string argOne) {
         self.publicStringField = argOne;
         self.counter = 10;
     }
@@ -40,7 +40,7 @@ public type PublicClientObject client object {
     public string publicStringField;
     private int counter;
 
-    public function __init(string argOne) {
+    public function init(string argOne) {
         self.publicStringField = argOne;
         self.counter = 10;
     }
@@ -91,7 +91,7 @@ public type ObjReferenceToAbstractObject object {
         return self.counter;
     }
 
-    public function __init(string argOne) {
+    public function init(string argOne) {
         self.publicStringField = argOne;
         self.counter = 10;
     }
@@ -130,7 +130,7 @@ public type ObjReferenceToAbstractClientObject client object {
         return self.counter;
     }
 
-    public function __init(string argOne) {
+    public function init(string argOne) {
         self.publicStringField = argOne;
         self.counter = 10;
     }

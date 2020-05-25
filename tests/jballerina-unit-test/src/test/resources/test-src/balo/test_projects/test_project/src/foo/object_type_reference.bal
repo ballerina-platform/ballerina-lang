@@ -38,7 +38,7 @@ public type Manager1 object {
         return self.salary*ratio*months;
     }
 
-    public function __init(int age=20) {
+    public function init(int age=20) {
         self.age = age;
         self.name = "John";
         self.salary = 1000.0;

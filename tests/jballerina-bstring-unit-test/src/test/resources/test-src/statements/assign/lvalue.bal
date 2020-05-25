@@ -39,7 +39,7 @@ type Baz object {
     string x;
     Qux q;
 
-    function __init() {
+    function init() {
         self.x = "string value";
         self.q = new;
     }
@@ -49,7 +49,7 @@ type BazTwo object {
     int x;
     Qux q;
 
-    function __init() {
+    function init() {
         self.x = 1;
         self.q = new;
     }
@@ -189,7 +189,7 @@ function testInherentTypeViolatingUpdate1() {
 type AObj object {
     boolean|int i;
 
-    function __init(boolean|int i) {
+    function init(boolean|int i) {
         self.i = i;
     }
 };
@@ -197,7 +197,7 @@ type AObj object {
 type BObj object {
     boolean i;
 
-    function __init(boolean i) {
+    function init(boolean i) {
         self.i = i;
     }
 };
@@ -271,7 +271,7 @@ type G object {
 
     string s;
 
-    function __init(string s) {
+    function init(string s) {
         self.s = s;
     }
 };

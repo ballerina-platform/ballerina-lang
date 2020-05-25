@@ -99,7 +99,7 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: panicked while initializing module B \n" +
-                "\tat unit-tests.b:__init(main.bal:6)";
+                "\tat unit-tests.b:init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }

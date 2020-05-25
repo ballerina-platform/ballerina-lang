@@ -300,7 +300,7 @@ type Foo object {
     int d;
     int e;
 
-    function __init (int c, int f, int x, int e=4) {
+    function init (int c, int f, int x, int e=4) {
         self.a = globalVar;
         self.b = e;
         self.c = c;
@@ -405,7 +405,7 @@ type A object {
     private int b;
     int c;
 
-    function __init() {
+    function init() {
         self.a = 1;
         self.b = 2;
         self.c = 3;
@@ -417,7 +417,7 @@ type B object {
     private int b;
     int c;
 
-    function __init(int a, int b, int c) {
+    function init(int a, int b, int c) {
         self.a = a;
         self.b = b;
         self.c = c;
@@ -429,7 +429,7 @@ type C object {
     private int b;
     int c;
 
-    function __init() {
+    function init() {
     }
 };
 
@@ -573,7 +573,7 @@ type F object {
     public int b;
     string c;
 
-    function __init() {
+    function init() {
         self.a = 1;
     }
 };

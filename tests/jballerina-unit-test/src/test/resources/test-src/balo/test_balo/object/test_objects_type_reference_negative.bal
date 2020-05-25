@@ -21,7 +21,7 @@ type Manager1 object {
 
     *foo:Employee1;
 
-    function __init(string name, int age=25) {
+    function init(string name, int age=25) {
         self.name = name;
         self.age = age;
         self.salary = 3000.0;

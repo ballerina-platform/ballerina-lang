@@ -22,7 +22,7 @@ type Foo record {
 type Bar object {
     int i;
 
-    public function __init(int i) {
+    public function init(int i) {
         self.i = i;
     }
 };

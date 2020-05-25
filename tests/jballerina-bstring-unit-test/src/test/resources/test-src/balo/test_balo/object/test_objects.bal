@@ -72,7 +72,7 @@ public type DustBin object {
     public int year = 50;
     public string month = "february";
 
-    public function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+    public function init(int year, int count, string name = "sample value1", string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age = self.age + count + 50;
@@ -116,7 +116,7 @@ function returnDifferentObectInit() returns foo:Girl {
 public type Women object {
     public int age;
 
-    public function __init (int age, int addVal) {
+    public function init(int age, int addVal) {
         self.age = age + addVal;
     }
 };
@@ -185,7 +185,7 @@ type Manager2 object {
 
     *foo:Employee2;
 
-    function __init(string name, int age=25) {
+    function init(string name, int age=25) {
         self.name = name;
         self.age = age;
         self.salary = 3000.0;
@@ -220,7 +220,7 @@ type Manager3 object {
 
     *Employee3;
 
-    function __init(string name, int age=25) {
+    function init(string name, int age=25) {
         self.name = name;
         self.age = age;
         self.salary = 3000.0;

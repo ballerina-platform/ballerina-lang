@@ -34,7 +34,7 @@ type Abc object {
     float salary;
     int id;
 
-    public function __init (string name, float salary, int id) {
+    public function init (string name, float salary, int id) {
         self.name = name;
         self.salary = salary;
         self.id = id;
@@ -47,7 +47,7 @@ type Def object {
     int id;
     private int idTwo = 0;
 
-    public function __init(string name, float salary, int id) {
+    public function init(string name, float salary, int id) {
         self.name = name;
         self.salary = salary;
         self.id = id;
