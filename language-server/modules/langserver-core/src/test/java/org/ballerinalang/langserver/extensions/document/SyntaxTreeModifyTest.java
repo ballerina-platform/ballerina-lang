@@ -104,7 +104,7 @@ public class SyntaxTreeModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, mainFile);
     }
 
-    @Test(description = "Insert content.")
+    @Test(description = "Insert content.", dependsOnMethods = "testDelete")
     public void testInsert() throws IOException {
         TestUtil.openDocument(serviceEndpoint, mainFile);
         Gson gson = new Gson();
@@ -129,7 +129,7 @@ public class SyntaxTreeModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, mainFile);
     }
 
-    @Test(description = "Update content.")
+    @Test(description = "Update content.", dependsOnMethods = "testInsert")
     public void testUpdate() throws IOException {
         TestUtil.openDocument(serviceEndpoint, mainFile);
         Gson gson = new Gson();
@@ -159,7 +159,7 @@ public class SyntaxTreeModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, mainFile);
     }
 
-    @Test(description = "Main content.")
+    @Test(description = "Main content.", dependsOnMethods = "testUpdate")
     public void testMain() throws IOException {
         TestUtil.openDocument(serviceEndpoint, emptyFile);
         Gson gson = new Gson();
@@ -228,7 +228,7 @@ public class SyntaxTreeModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, emptyFile);
     }
 
-    @Test(description = "Main to Service.")
+    @Test(description = "Main to Service.", dependsOnMethods = "testMainInsert")
     public void testMainToService() throws IOException {
         TestUtil.openDocument(serviceEndpoint, emptyFile);
         Gson gson = new Gson();
