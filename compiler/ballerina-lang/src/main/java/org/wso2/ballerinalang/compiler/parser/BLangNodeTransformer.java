@@ -279,6 +279,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private Stack<TopLevelNode> additionalTopLevelNodes = new Stack<>();
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
+    /* To keep track if we are inside a block statment for the use of type definition creation */
+    private boolean isInLocalContext = false;
 
     public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource) {
         this.dlog = BLangDiagnosticLogHelper.getInstance(context);
@@ -673,7 +675,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         boolean hasRestField = false;
         boolean isAnonymous = recordTypeDescritorIsAnonymous(recordTypeDescriptorNode);
-        boolean isLocal = ifInLocalContext(recordTypeDescriptorNode.parent());
 
         for (Node field : recordTypeDescriptorNode.fields()) {
             if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
@@ -688,10 +689,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         recordTypeNode.sealed = !hasRestField;
         recordTypeNode.pos = getPosition(recordTypeDescriptorNode);
         recordTypeNode.isAnonymous = isAnonymous;
-        recordTypeNode.isLocal = isLocal;
+        recordTypeNode.isLocal = this.isInLocalContext;
 
         // If anonymous type, create a user defined type and return it.
-        if (!isAnonymous || isLocal) {
+        if (!isAnonymous || this.isInLocalContext) {
             return recordTypeNode;
         }
 
@@ -812,6 +813,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
+        this.isInLocalContext = true;
         List<BLangStatement> statements = generateBLangStatements(functionBodyBlockNode.statements());
 
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
@@ -830,6 +832,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
+        this.isInLocalContext = false;
         return bLFuncBody;
     }
 
@@ -1417,7 +1420,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(BlockStatementNode blockStatement) {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        this.isInLocalContext = true;
         bLBlockStmt.stmts = generateBLangStatements(blockStatement.statements());
+        this.isInLocalContext = false;
         return bLBlockStmt;
     }
 
