@@ -19,11 +19,12 @@
 package org.ballerinalang.observability.anaylze;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
+import org.ballerinalang.observability.anaylze.model.CUnitASTHolder;
+import org.ballerinalang.observability.anaylze.model.PkgASTHolder;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -41,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +78,8 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
 
     @Override
     public void process(BLangPackage module) {
-        JsonObject moduleJson = getModuleJson(module);
-        JsonASTHolder.getInstance().addAST(module.packageID.name.getValue(), moduleJson);
+        PkgASTHolder pkgASTHolder = getModuleASTHolder(module);
+        JsonASTHolder.getInstance().addAST(module.packageID.name.getValue(), pkgASTHolder);
     }
 
     @Override
@@ -86,17 +88,16 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         if (Files.notExists(targetDirPath)) {
             Files.createDirectory(targetDirPath);
         }
-        Set<String> packages = getUserPackages();
 
-        JsonObject ast = new JsonObject();
-        for (Map.Entry<String, JsonObject> entry : JsonASTHolder.getInstance()
-                .getASTMap().entrySet()) {
-            if (packages.contains(entry.getKey())) {
-                ast.add(entry.getKey(), entry.getValue());
+        Set<String> userPackages = getUserPackages();
+        Map<String, PkgASTHolder> userPackageASTMap = new HashMap<>();
+        for (Map.Entry<String, PkgASTHolder> entry : JsonASTHolder.getInstance().getASTMap().entrySet()) {
+            if (userPackages.contains(entry.getKey())) {
+                userPackageASTMap.put(entry.getKey(), entry.getValue());
             }
         }
 
-        String astDataString = JsonCanonicalizer.getEncodedString(ast.toString());
+        String astDataString = generateCanonicalJsonString(userPackageASTMap);
         Files.write(targetDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
 
         Properties props = new Properties();
@@ -113,22 +114,19 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
                 .collect(Collectors.toSet());
     }
 
-    private JsonObject getModuleJson(BLangPackage module) {
-        JsonObject moduleJson = new JsonObject();
-        moduleJson.addProperty(NAME, module.packageID.name.getValue());
-        moduleJson.addProperty(ORG_NAME, module.packageID.getOrgName().getValue());
-        moduleJson.addProperty(PKG_VERSION, module.packageID.getPackageVersion().getValue());
+    private PkgASTHolder getModuleASTHolder(BLangPackage module) {
+        PkgASTHolder pkgASTHolder = new PkgASTHolder();
+        pkgASTHolder.setName(module.packageID.name.getValue());
+        pkgASTHolder.setOrgName(module.packageID.getOrgName().getValue());
+        pkgASTHolder.setVersion(module.packageID.getPackageVersion().getValue());
         Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = getVisibleEndpoints(module);
 
-        JsonObject jsonCUnits = new JsonObject();
         List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
         for (BLangCompilationUnit cUnit : compilationUnits) {
-            JsonObject jsonCUnit = getCUnitJson(visibleEPsByNode, cUnit);
-            jsonCUnits.add(cUnit.name, jsonCUnit);
+            CUnitASTHolder jsonCUnit = getCUnitASTHolder(visibleEPsByNode, cUnit);
+            pkgASTHolder.addCompilationUnit(cUnit.name, jsonCUnit);
         }
-
-        moduleJson.add(COMPILATION_UNITS, jsonCUnits);
-        return moduleJson;
+        return pkgASTHolder;
     }
 
     private Map<BLangNode, List<SymbolMetaInfo>> getVisibleEndpoints(BLangPackage packageNode) {
@@ -139,23 +137,63 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         return visibleEPsByNode;
     }
 
-    private JsonObject getCUnitJson(Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode, BLangCompilationUnit cUnit) {
-        JsonObject jsonCUnit = new JsonObject();
-        jsonCUnit.addProperty(NAME, cUnit.name);
+    private CUnitASTHolder getCUnitASTHolder(Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode,
+                                             BLangCompilationUnit cUnit) {
+        CUnitASTHolder cUnitASTHolder = new CUnitASTHolder();
+        cUnitASTHolder.setName(cUnit.name);
 
         SourceDirectory sourceDirectory = compilerContext.get(SourceDirectory.class);
         Path sourceRoot = sourceDirectory.getPath();
         String uri = sourceRoot.resolve(
                 Paths.get(SRC, cUnit.getPosition().getSource().cUnitName,
                         cUnit.getPosition().getSource().cUnitName)).toUri().toString();
-        jsonCUnit.addProperty(KEY_URI, uri);
+        cUnitASTHolder.setUri(uri);
         try {
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
-            jsonCUnit.add(AST, jsonAST);
+            cUnitASTHolder.setAst(jsonAST);
         } catch (JSONGenerationException e) {
             diagnosticLog.logDiagnostic(Diagnostic.Kind.WARNING, cUnit.getPosition(),
                     "Error while generating json AST for " + cUnit.name + ". " + e.getMessage());
         }
-        return jsonCUnit;
+        return cUnitASTHolder;
+    }
+
+    private String generateCanonicalJsonString(Map<String, PkgASTHolder> packageMap) throws IOException {
+        StringBuilder jsonStringBuilder = new StringBuilder().append("{");
+        String[] packageNames = packageMap.keySet().toArray(new String[0]);
+        Arrays.sort(packageNames);
+        for (int i = 0, packageNamesLength = packageNames.length; i < packageNamesLength; i++) {
+            String packageName = packageNames[i];
+            PkgASTHolder pkgASTHolder = packageMap.get(packageName);
+
+            if (i != 0) {
+                jsonStringBuilder.append(",");
+            }
+
+            jsonStringBuilder.append("\"").append(packageName).append("\":{\"")
+                    .append(NAME).append("\":\"").append(pkgASTHolder.getName()).append("\",\"")
+                    .append(ORG_NAME).append("\":\"").append(pkgASTHolder.getOrgName()).append("\",\"")
+                    .append(PKG_VERSION).append("\":\"").append(pkgASTHolder.getVersion()).append("\",\"")
+                    .append(COMPILATION_UNITS).append("\":").append("{");
+
+            String[] cUnitNames = pkgASTHolder.getCompilationUnits().keySet().toArray(new String[0]);
+            Arrays.sort(cUnitNames);
+            for (int j = 0, cUnitNamesLength = cUnitNames.length; j < cUnitNamesLength; j++) {
+                String cUnitName = cUnitNames[j];
+                CUnitASTHolder cUnitASTHolder = pkgASTHolder.getCompilationUnits().get(cUnitName);
+                String astDataString = JsonCanonicalizer.getEncodedString(cUnitASTHolder.getAst().toString());
+
+                if (j != 0) {
+                    jsonStringBuilder.append(",");
+                }
+                jsonStringBuilder.append("\"").append(cUnitName).append("\":{\"")
+                        .append(NAME).append("\":\"").append(cUnitASTHolder.getName()).append("\",\"")
+                        .append(KEY_URI).append("\":\"").append(cUnitASTHolder.getUri()).append("\",\"")
+                        .append(AST).append("\":").append(astDataString)
+                        .append("}");
+            }
+            jsonStringBuilder.append("}}");
+        }
+        return jsonStringBuilder.append("}").toString();
     }
 }
