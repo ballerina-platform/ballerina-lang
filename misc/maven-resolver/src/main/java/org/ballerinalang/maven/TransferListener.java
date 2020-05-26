@@ -51,12 +51,11 @@ public class TransferListener extends AbstractTransferListener {
         downloads.put(resource, event.getTransferredBytes());
         for (Map.Entry<TransferResource, Long> entry : downloads.entrySet()) {
             if (progressBar == null) {
-                progressBar = new ProgressBar("Downloading ", toKB(entry.getKey().getContentLength()),
+                progressBar = new ProgressBar("Downloading ", getKB(entry.getKey().getContentLength()),
                         1000, out, ProgressBarStyle.ASCII, " KB", 1);
             }
-
         }
-        long transferredLength = toKB(event.getTransferredBytes());
+        long transferredLength = getKB(event.getTransferredBytes());
         progressBar.stepBy(transferredLength - previousStep);
         previousStep = transferredLength;
     }
@@ -66,8 +65,7 @@ public class TransferListener extends AbstractTransferListener {
         progressBar.close();
     }
 
-    protected long toKB(long bytes) {
+    private long getKB(long bytes) {
         return (bytes + 1023) / 1024;
     }
-
 }
