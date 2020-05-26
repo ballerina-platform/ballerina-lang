@@ -10,12 +10,12 @@ import java.util.List;
  *
  * @since 1.3.0
  */
-public interface JarResolver {
+public interface NativeDependencyResolver {
 
     Path moduleJar(PackageID packageID, String platform);
 
-    List<Path> nativeLibraries(PackageID packageID);
+    List<Path> nativeDependencies(PackageID packageID);
 
-    List<Path> nativeLibrariesForTests(PackageID packageID);
+    List<Path> nativeDependenciesForTests(PackageID packageID);
 
 }
