@@ -37,6 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Arrays;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:enumerate(Type[]).
@@ -44,7 +45,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "enumerate",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "enumerate",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.TUPLE)},
         isPublic = true

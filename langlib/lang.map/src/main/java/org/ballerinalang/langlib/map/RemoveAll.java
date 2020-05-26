@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.MapUtils.validateRecord;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * ENative implementation of lang.map:removeAll(map&lt;Type&gt;).
@@ -34,7 +35,7 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "removeAll",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "removeAll",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         isPublic = true
 )

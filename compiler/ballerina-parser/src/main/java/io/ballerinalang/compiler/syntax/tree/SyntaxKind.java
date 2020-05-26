@@ -366,6 +366,7 @@ public enum SyntaxKind {
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
     ENUM_MEMBER(3060),
+    LIST_BP_OR_TUPLE_TYPE_DESC(3061),
 
     // XML
     XML_ELEMENT(4000),

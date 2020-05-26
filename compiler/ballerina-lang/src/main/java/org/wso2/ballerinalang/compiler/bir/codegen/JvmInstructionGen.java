@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
@@ -173,8 +175,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 
 /**
  * Instruction generator helper class to hold its enclosing pkg and index map.
@@ -200,7 +200,8 @@ public class JvmInstructionGen {
         this.currentPackage = currentPackage;
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.currentPackageName = getPackageName(currentPackage.org.value, currentPackage.name.value);
+        this.currentPackageName = getPackageName(currentPackage.org.value, currentPackage.name.value,
+                                                 currentPackage.version.value);
     }
 
     static void addBoxInsn(MethodVisitor mv, BType bType) {
@@ -413,7 +414,7 @@ public class JvmInstructionGen {
         if (varDcl.kind == VarKind.GLOBAL) {
             BIRNode.BIRGlobalVariableDcl globalVar = (BIRNode.BIRGlobalVariableDcl) varDcl;
             PackageID modId = globalVar.pkgId;
-            String moduleName = getPackageName(modId.orgName, modId.name);
+            String moduleName = getPackageName(modId.orgName, modId.name, modId.version);
 
             String varName = varDcl.name.value;
             String className = jvmPackageGen.lookupGlobalVarClassName(moduleName, varName);
@@ -427,7 +428,7 @@ public class JvmInstructionGen {
         } else if (varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = getPackageName(moduleId.orgName, moduleId.name);
+            String pkgName = getPackageName(moduleId.orgName, moduleId.name, moduleId.version);
             String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
@@ -489,7 +490,7 @@ public class JvmInstructionGen {
         } else if (varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = getPackageName(moduleId.orgName, moduleId.name);
+            String pkgName = getPackageName(moduleId.orgName, moduleId.name, moduleId.version);
             String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
@@ -1574,7 +1575,7 @@ public class JvmInstructionGen {
 
         String lambdaName = inst.funcName.value + "$lambda" + lambdaMetadata.getLambdaIndex() + "$";
         lambdaMetadata.incrementLambdaIndex();
-        String pkgName = JvmPackageGen.getPackageName(inst.pkgId.orgName, inst.pkgId.name);
+        String pkgName = JvmPackageGen.getPackageName(inst.pkgId.orgName, inst.pkgId.name, inst.pkgId.version);
 
         BType returnType = inst.lhsOp.variableDcl.type;
         if (returnType.tag != TypeTags.INVOKABLE) {

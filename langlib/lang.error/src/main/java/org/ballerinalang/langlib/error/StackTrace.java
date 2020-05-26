@@ -44,6 +44,7 @@ import java.util.Collections;
 
 import static org.ballerinalang.jvm.BallerinaErrors.CALL_STACK_ELEMENT;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
+import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
 
 /**
  * Get the stackTrace of an error value.
@@ -51,7 +52,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG
  * @since 0.990.4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
+        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
         functionName = "stackTrace",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)})

@@ -254,7 +254,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         if (type.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
         } else {
-            String fieldName = ((BString) key).getValue();
+            BString fieldName = (BString) key;
             MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true);
         }
 

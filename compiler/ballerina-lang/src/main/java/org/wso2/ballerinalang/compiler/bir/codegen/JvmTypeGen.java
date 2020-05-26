@@ -77,9 +77,11 @@ import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -464,7 +466,15 @@ class JvmTypeGen {
 
             int tempVarIndex = indexMap.getIndex(tempVar);
             mv.visitVarInsn(ASTORE, tempVarIndex);
+            BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.anyType, new Name("strandVar"), VarScope.FUNCTION,
+                    VarKind.LOCAL);
+            int strandVarIndex = indexMap.getIndex(strandVar);
 
+            mv.visitVarInsn(ALOAD, parentIndex);
+            Label parentNonNullLabel = new Label();
+            mv.visitJumpInsn(IFNONNULL, parentNonNullLabel);
+            Label parentNullLabel = new Label();
+            mv.visitLabel(parentNullLabel);
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, schedulerIndex);
@@ -472,11 +482,13 @@ class JvmTypeGen {
             mv.visitVarInsn(ALOAD, propertiesIndex);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>",
                     String.format("(L%s;L%s;L%s;)V", SCHEDULER, STRAND, MAP), false);
-            BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.anyType, new Name("strandVar"), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-
-            int strandVarIndex = indexMap.getIndex(strandVar);
             mv.visitVarInsn(ASTORE, strandVarIndex);
+            Label endConditionLabel = new Label();
+            mv.visitJumpInsn(GOTO, endConditionLabel);
+            mv.visitLabel(parentNonNullLabel);
+            mv.visitVarInsn(ALOAD, parentIndex);
+            mv.visitVarInsn(ASTORE, strandVarIndex);
+            mv.visitLabel(endConditionLabel);
 
             mv.visitVarInsn(ALOAD, tempVarIndex);
             mv.visitVarInsn(ALOAD, strandVarIndex);
@@ -954,7 +966,7 @@ class JvmTypeGen {
 
     private static String typeRefToClassName(PackageID typeRef, String className) {
 
-        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, className);
+        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, typeRef.version.value, className);
     }
 
     // -------------------------------------------------------
@@ -1259,7 +1271,9 @@ class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
             return;
         }
-        String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =
+                getPackageName(packageID.orgName.value, packageID.name.value, packageID.version.value) +
+                        MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(errorType));
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));
     }
@@ -1397,7 +1411,9 @@ class JvmTypeGen {
 
         PackageID packageID = bType.tsymbol.pkgID;
 
-        String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =
+                getPackageName(packageID.orgName.value, packageID.name.value, packageID.version.value) +
+                        MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(bType));
 
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));

@@ -1,231 +1,227 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "f1"
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
+                  "kind": "EQUAL_TOKEN"
                 },
                 {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
+                  "kind": "START_ACTION",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
                         {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
+                          "kind": "ANNOTATION",
+                          "children": [
+                            {
+                              "kind": "AT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "strand"
+                            },
+                            {
+                              "kind": "MAPPING_CONSTRUCTOR",
+                              "children": [
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "f1"
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "START_ACTION",
-                                    "children": [
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "SPECIFIC_FIELD",
+                                      "children": [
                                         {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "ANNOTATION",
-                                                    "children": [
-                                                        {
-                                                            "kind": "AT_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "strand"
-                                                        },
-                                                        {
-                                                            "kind": "MAPPING_CONSTRUCTOR",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "SPECIFIC_FIELD",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "thread"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "COLON_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "any"
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "thread"
                                         },
                                         {
-                                            "kind": "START_KEYWORD"
+                                          "kind": "COLON_TOKEN"
                                         },
                                         {
-                                            "kind": "FUNCTION_CALL",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "add_1"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
+                                          "kind": "STRING_LITERAL",
+                                          "value": "any"
                                         }
-                                    ]
+                                      ]
+                                    }
+                                  ]
                                 },
                                 {
-                                    "kind": "SEMICOLON_TOKEN"
+                                  "kind": "CLOSE_BRACE_TOKEN"
                                 }
-                            ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "START_KEYWORD"
+                    },
+                    {
+                      "kind": "FUNCTION_CALL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "add_1"
                         },
                         {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "START_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "ANNOTATION",
-                                                    "children": [
-                                                        {
-                                                            "kind": "AT_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "strand"
-                                                        },
-                                                        {
-                                                            "kind": "MAPPING_CONSTRUCTOR",
-                                                            "children": [
-                                                                {
-                                                                    "kind": "OPEN_BRACE_TOKEN"
-                                                                },
-                                                                {
-                                                                    "kind": "LIST",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "SPECIFIC_FIELD",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "thread"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "COLON_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "STRING_LITERAL",
-                                                                                    "value": "any"
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                {
-                                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "START_KEYWORD"
-                                        },
-                                        {
-                                            "kind": "FUNCTION_CALL",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "add_2"
-                                                },
-                                                {
-                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "CLOSE_PAREN_TOKEN"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
-                    ]
+                      ]
+                    }
+                  ]
                 },
                 {
-                    "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "SEMICOLON_TOKEN"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "START_ACTION",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "ANNOTATION",
+                          "children": [
+                            {
+                              "kind": "AT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "strand"
+                            },
+                            {
+                              "kind": "MAPPING_CONSTRUCTOR",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACE_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "SPECIFIC_FIELD",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "thread"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "any"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACE_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "START_KEYWORD"
+                    },
+                    {
+                      "kind": "FUNCTION_CALL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "add_2"
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
         }
-    ]
+      ]
+    }
+  ]
 }

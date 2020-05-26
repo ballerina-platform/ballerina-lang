@@ -239,6 +239,7 @@ public class BTestRunner {
         // Load module init class
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                                                                     suite.getPackageID(),
+                                                                    suite.getVersion(),
                                                                     MODULE_INIT_CLASS_NAME);
         Class<?> initClazz;
         try {
@@ -254,7 +255,7 @@ public class BTestRunner {
         if (hasTestablePackage) {
             // Load test init class
             String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getPackageID(),
-                    suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
+                    suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
             try {
                 testInitClazz = classLoader.loadClass(testClassName);
             } catch (Throwable e) {
