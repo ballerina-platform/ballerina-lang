@@ -95,9 +95,9 @@ public class ListenerUtils {
         }
         for (ObjectValue service : services) {
             if (startedServices == null || !startedServices.contains(service)) {
-                MapValue serviceConfig =
-                        (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                                RabbitMQConstants.SERVICE_CONFIG);
+                MapValue serviceConfig = (MapValue) service.getType()
+                        .getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN,
+                                       RabbitMQConstants.SERVICE_CONFIG);
                 @SuppressWarnings(RabbitMQConstants.UNCHECKED)
                 MapValue<String, Object> queueConfig =
                         (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
@@ -159,8 +159,8 @@ public class ListenerUtils {
     }
 
     private static void declareQueueIfNotExists(ObjectValue service, Channel channel) throws IOException {
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                RabbitMQConstants.SERVICE_CONFIG);
+        MapValue serviceConfig = (MapValue) service.getType()
+                .getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN, RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =
                 (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
@@ -232,8 +232,8 @@ public class ListenerUtils {
 
     private static boolean getAckMode(ObjectValue service) {
         boolean autoAck;
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                RabbitMQConstants.SERVICE_CONFIG);
+        MapValue serviceConfig = (MapValue) service.getType()
+                .getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ_FQN, RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE).getValue();
         switch (ackMode) {

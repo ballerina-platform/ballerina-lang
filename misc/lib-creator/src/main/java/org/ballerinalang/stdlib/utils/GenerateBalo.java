@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -137,8 +136,8 @@ public class GenerateBalo {
         compiler.write(buildPackages);
 
         for (BLangPackage pkg : buildPackages) {
-            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
-                                               ".jar");
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "-" + pkg.packageID.name +
+                                               "-" + pkg.packageID.version + ".jar");
             Path parent = jarOutput.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
@@ -210,7 +209,7 @@ public class GenerateBalo {
             String dirName = fileName.endsWith(BLANG_COMPILED_PKG_EXT) ?
                              fileName.substring(0, fileName.length() - BLANG_COMPILED_PKG_EXT.length()) :
                              fileName;
-            Path path = Paths.get(targetDir, dirName, Names.DEFAULT_VERSION.getValue());
+            Path path = Paths.get(targetDir, dirName, compiledPackage.getPackageID().version.value);
             super.saveCompiledPackage(compiledPackage, path, fileName);
         }
     }

@@ -1,28 +1,28 @@
 {
-    "kind": "MAPPING_CONSTRUCTOR",
-    "children": [
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACE_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "SPREAD_FIELD",
-                    "children": [
-                        {
-                            "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "SPREAD_FIELD",
+          "children": [
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
 }

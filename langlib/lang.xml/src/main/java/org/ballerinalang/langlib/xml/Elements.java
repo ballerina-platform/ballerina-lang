@@ -32,13 +32,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Get all the elements-type items of a xml.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "elements",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true

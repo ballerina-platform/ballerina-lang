@@ -27,13 +27,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
+
 /**
  * Extern function lang.string:concat(string...).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "concat",
+        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "concat",
         args = {@Argument(name = "str", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

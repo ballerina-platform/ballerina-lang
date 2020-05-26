@@ -25,6 +25,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Append children to an XML if its an element type XML. Error otherwise.
  * New children will be appended at the end of the existing children.
@@ -32,7 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.982.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "appendChildren",
         args = {@Argument(name = "children", type = TypeKind.XML)},
         isPublic = true

@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -37,7 +38,7 @@ import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "removeIfHasKey",
+        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "removeIfHasKey",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

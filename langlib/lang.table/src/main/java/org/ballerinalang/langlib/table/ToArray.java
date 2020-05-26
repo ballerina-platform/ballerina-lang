@@ -32,13 +32,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collection;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Function for returning the values of the table as an array. T[] vals = tbl.toArray();
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION,
         functionName = "toArray",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
