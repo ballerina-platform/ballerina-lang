@@ -16,11 +16,9 @@
 package org.ballerinalang.langserver.extensions.document;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -36,7 +34,7 @@ import java.nio.file.Path;
 /**
  * Test visible endpoint detection.
  */
-public class ASTModifyTest {
+public class SyntaxTreeModifyTest {
 
     private Endpoint serviceEndpoint;
 
@@ -96,36 +94,14 @@ public class ASTModifyTest {
     public void testDelete() throws IOException {
         TestUtil.openDocument(serviceEndpoint, mainFile);
         ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
-        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaAST(mainFile.toString(),
+        BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
+                .modifyAndGetBallerinaSyntaxTree(mainFile.toString(),
                         new ASTModification[]{modification}, this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
-        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
+        BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
                 mainEmptyFile.toString(), this.serviceEndpoint);
-        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+        Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
         TestUtil.closeDocument(this.serviceEndpoint, mainFile);
-    }
-
-    private void assertTree(JsonElement actual, JsonElement expected) {
-        if(expected.isJsonObject()) {
-            Assert.assertEquals(expected.getAsJsonObject().keySet(), actual.getAsJsonObject().keySet());
-            for (String key : expected.getAsJsonObject().keySet()) {
-                if (!key.equals("id")) {
-                    JsonElement expectedElement = expected.getAsJsonObject().get(key);
-                    JsonElement actualElement = actual.getAsJsonObject().get(key);
-                    assertTree(actualElement, expectedElement);
-                }
-            }
-        }else if(expected.isJsonArray()) {
-            Assert.assertEquals(expected.getAsJsonObject().keySet(), actual.getAsJsonObject().keySet());
-            for (String key : expected.getAsJsonArray()..keySet()) {
-                if (!key.equals("id")) {
-                    JsonElement expectedElement = expected.getAsJsonObject().get(key);
-                    JsonElement actualElement = actual.getAsJsonObject().get(key);
-                    assertTree(actualElement, expectedElement);
-                }
-            }
-        }
     }
 
     @Test(description = "Insert content.")
