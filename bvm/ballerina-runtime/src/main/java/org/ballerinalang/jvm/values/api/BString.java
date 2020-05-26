@@ -34,5 +34,7 @@ public interface BString {
 
     Long indexOf(BString str, int fromIndex);
 
+    Long lastIndexOf(BString str, int fromIndex);
+
     BString substring(int beginIndex, int endIndex);
 }

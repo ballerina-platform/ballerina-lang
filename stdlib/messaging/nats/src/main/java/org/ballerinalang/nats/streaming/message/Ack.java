@@ -31,7 +31,7 @@ public class Ack {
 
     public static Object externAck(ObjectValue message) {
         Message streamingMessage = (Message) message.getNativeData(Constants.NATS_STREAMING_MSG);
-        boolean manualAck = (Boolean) message.getNativeData(Constants.NATS_STREAMING_MANUAL_ACK);
+        boolean manualAck = (Boolean) message.getNativeData(Constants.NATS_STREAMING_MANUAL_ACK.getValue());
         try {
             if (manualAck) {
                 streamingMessage.ack();

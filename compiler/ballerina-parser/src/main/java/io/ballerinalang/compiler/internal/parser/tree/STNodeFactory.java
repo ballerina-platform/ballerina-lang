@@ -167,8 +167,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -176,8 +175,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STVariableDeclarationNode(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -816,8 +814,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -825,8 +822,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -1824,6 +1820,53 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBracket,
                 arrayLength,
                 closeBracket);
+    }
+
+    public static STNode createTransactionStatementNode(
+            STNode transactionKeyword,
+            STNode blockStatement) {
+
+        return new STTransactionStatementNode(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    public static STNode createRollbackStatementNode(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon) {
+
+        return new STRollbackStatementNode(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    public static STNode createRetryStatementNode(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody) {
+
+        return new STRetryStatementNode(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody);
+    }
+
+    public static STNode createCommitActionNode(
+            STNode commitKeyword) {
+
+        return new STCommitActionNode(
+                commitKeyword);
+    }
+
+    public static STNode createTransactionalExpressionNode(
+            STNode transactionalKeyword) {
+
+        return new STTransactionalExpressionNode(
+                transactionalKeyword);
     }
 }
 

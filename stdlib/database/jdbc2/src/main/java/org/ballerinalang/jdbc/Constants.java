@@ -15,7 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.jdbc;
+
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Constants for JDBC client.
@@ -27,13 +31,13 @@ public final class Constants {
      * Constants for Endpoint Configs.
      */
     public static final class ClientConfiguration {
-        static final String URL = "url";
-        static final String USER = "user";
-        static final String PASSWORD = "password";
-        static final String DATASOURCE_NAME = "datasourceName";
-        static final String CONNECTION_POOL_OPTIONS = "connectionPool";
-        static final String OPTIONS = "options";
-        static final String PROPERTIES = "properties";
+        static final BString URL = StringUtils.fromString("url");
+        static final BString USER = StringUtils.fromString("user");
+        static final BString PASSWORD = StringUtils.fromString("password");
+        static final BString DATASOURCE_NAME = StringUtils.fromString("datasourceName");
+        static final BString CONNECTION_POOL_OPTIONS = StringUtils.fromString("connectionPool");
+        static final BString OPTIONS = StringUtils.fromString("options");
+        static final BString PROPERTIES = StringUtils.fromString("properties");
     }
 
     public static final String CONNECT_TIMEOUT = ".*(connect).*(timeout).*";

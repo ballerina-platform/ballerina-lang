@@ -20,7 +20,8 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
-import org.ballerinalang.debugadapter.DebuggerAttachingVM;
+import org.ballerinalang.debugadapter.DebugExecutionManager;
+import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,17 +108,18 @@ public abstract class LauncherImpl {
         return command;
     }
 
-    public VirtualMachine attachToLaunchedProcess() {
+    public void attachToLaunchedProcess(JBallerinaDebugServer server) {
         try {
-            VirtualMachine debuggee = new DebuggerAttachingVM(Integer.parseInt(debuggeePort)).initialize();
-            EventRequestManager erm = debuggee.eventRequestManager();
+            DebugExecutionManager execManager = new DebugExecutionManager();
+            VirtualMachine attachedVm = execManager.attach(debuggeePort);
+            EventRequestManager erm = attachedVm.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
-            return debuggee;
+            server.setDebuggeeVM(attachedVm);
+            server.setExecutionManager(execManager);
         } catch (IOException | IllegalConnectorArgumentsException e) {
             LOGGER.error("Debugger failed to attach");
         }
-        return null;
     }
 
     public String getBallerinaHome() {

@@ -147,8 +147,8 @@ public class LocksInServicesTest {
         executor.submit(new TestRequestSender(semaphore, "/sample3/echo"));
 
         try {
-            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
-                Assert.fail("request execution not finished within 100ms");
+            if (!semaphore.tryAcquire(1, TimeUnit.MINUTES)) {
+                Assert.fail("request execution not finished within 1minute");
             }
             String path = "/sample3/getMsg";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");

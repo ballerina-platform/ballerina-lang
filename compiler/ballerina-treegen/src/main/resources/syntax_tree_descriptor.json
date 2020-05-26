@@ -280,12 +280,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -1449,12 +1445,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -2947,7 +2939,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2966,7 +2958,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2981,7 +2973,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "Node"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -3271,6 +3263,88 @@
                 },
                 {
                     "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TransactionStatementNode",
+            "base": "StatementNode",
+            "kind": "TRANSACTION_STATEMENT",
+            "attributes": [
+                {
+                    "name": "transactionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "RollbackStatementNode",
+            "base": "StatementNode",
+            "kind": "ROLLBACK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "rollbackKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "semicolon",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RetryStatementNode",
+            "base": "StatementNode",
+            "kind": "ROLLBACK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "retryKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameter",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "arguments",
+                    "type": "ParenthesizedArgList",
+                    "isOptional": true
+                },
+                {
+                    "name": "retryBody",
+                    "type": "StatementNode"
+                }
+            ]
+        },
+        {
+            "name": "CommitActionNode",
+            "base": "ActionNode",
+            "kind": "COMMIT_ACTION",
+            "attributes": [
+                {
+                    "name": "commitKeyword",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TransactionalExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TRANSACTIONAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "transactionalKeyword",
                     "type": "Token"
                 }
             ]

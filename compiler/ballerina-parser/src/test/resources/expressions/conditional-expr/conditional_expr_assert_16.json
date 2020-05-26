@@ -1,57 +1,57 @@
 {
-    "kind": "LIST_CONSTRUCTOR",
-    "children": [
+  "kind": "LIST_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACKET_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         },
         {
-            "kind": "LIST",
-            "children": [
+          "kind": "COMMA_TOKEN"
+        },
+        {
+          "kind": "CONDITIONAL_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true
+            },
+            {
+              "kind": "QUESTION_MARK_TOKEN"
+            },
+            {
+              "kind": "BRACED_EXPRESSION",
+              "children": [
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
+                  "kind": "OPEN_PAREN_TOKEN"
                 },
                 {
-                    "kind": "COMMA_TOKEN"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 },
                 {
-                    "kind": "CONDITIONAL_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "QUESTION_MARK_TOKEN"
-                        },
-                        {
-                            "kind": "BRACED_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                },
-                                {
-                                    "kind": "CLOSE_PAREN_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
-                        }
-                    ]
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
-            ]
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN"
+              ]
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

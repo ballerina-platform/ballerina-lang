@@ -218,10 +218,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(variableDeclarationNode.annotations());
         Token finalKeyword =
                 modifyToken(variableDeclarationNode.finalKeyword().orElse(null));
-        Node typeName =
-                modifyNode(variableDeclarationNode.typeName());
-        Token variableName =
-                modifyToken(variableDeclarationNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(variableDeclarationNode.typedBindingPattern());
         Token equalsToken =
                 modifyToken(variableDeclarationNode.equalsToken().orElse(null));
         ExpressionNode initializer =
@@ -231,8 +229,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return variableDeclarationNode.modify(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -1104,10 +1101,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(moduleVariableDeclarationNode.metadata());
         Token finalKeyword =
                 modifyToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
-        Node typeName =
-                modifyNode(moduleVariableDeclarationNode.typeName());
-        Token variableName =
-                modifyToken(moduleVariableDeclarationNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(moduleVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
                 modifyToken(moduleVariableDeclarationNode.equalsToken());
         ExpressionNode initializer =
@@ -1117,8 +1112,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return moduleVariableDeclarationNode.modify(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -2215,7 +2209,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(asyncSendActionNode.expression());
         Token rightArrowToken =
                 modifyToken(asyncSendActionNode.rightArrowToken());
-        NameReferenceNode peerWorker =
+        SimpleNameReferenceNode peerWorker =
                 modifyNode(asyncSendActionNode.peerWorker());
         return asyncSendActionNode.modify(
                 expression,
@@ -2230,7 +2224,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(syncSendActionNode.expression());
         Token syncSendToken =
                 modifyToken(syncSendActionNode.syncSendToken());
-        NameReferenceNode peerWorker =
+        SimpleNameReferenceNode peerWorker =
                 modifyNode(syncSendActionNode.peerWorker());
         return syncSendActionNode.modify(
                 expression,
@@ -2243,7 +2237,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveActionNode receiveActionNode) {
         Token leftArrow =
                 modifyToken(receiveActionNode.leftArrow());
-        Node receiveWorkers =
+        SimpleNameReferenceNode receiveWorkers =
                 modifyNode(receiveActionNode.receiveWorkers());
         return receiveActionNode.modify(
                 leftArrow,
@@ -2473,6 +2467,69 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBracket,
                 arrayLength,
                 closeBracket);
+    }
+
+    @Override
+    public TransactionStatementNode transform(
+            TransactionStatementNode transactionStatementNode) {
+        Token transactionKeyword =
+                modifyToken(transactionStatementNode.transactionKeyword());
+        BlockStatementNode blockStatement =
+                modifyNode(transactionStatementNode.blockStatement());
+        return transactionStatementNode.modify(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    @Override
+    public RollbackStatementNode transform(
+            RollbackStatementNode rollbackStatementNode) {
+        Token rollbackKeyword =
+                modifyToken(rollbackStatementNode.rollbackKeyword());
+        ExpressionNode expression =
+                modifyNode(rollbackStatementNode.expression().orElse(null));
+        Token semicolon =
+                modifyToken(rollbackStatementNode.semicolon());
+        return rollbackStatementNode.modify(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    @Override
+    public RetryStatementNode transform(
+            RetryStatementNode retryStatementNode) {
+        Token retryKeyword =
+                modifyToken(retryStatementNode.retryKeyword());
+        TypeParameterNode typeParameter =
+                modifyNode(retryStatementNode.typeParameter().orElse(null));
+        ParenthesizedArgList arguments =
+                modifyNode(retryStatementNode.arguments().orElse(null));
+        StatementNode retryBody =
+                modifyNode(retryStatementNode.retryBody());
+        return retryStatementNode.modify(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody);
+    }
+
+    @Override
+    public CommitActionNode transform(
+            CommitActionNode commitActionNode) {
+        Token commitKeyword =
+                modifyToken(commitActionNode.commitKeyword());
+        return commitActionNode.modify(
+                commitKeyword);
+    }
+
+    @Override
+    public TransactionalExpressionNode transform(
+            TransactionalExpressionNode transactionalExpressionNode) {
+        Token transactionalKeyword =
+                modifyToken(transactionalExpressionNode.transactionalKeyword());
+        return transactionalExpressionNode.modify(
+                transactionalKeyword);
     }
 
     // Tokens

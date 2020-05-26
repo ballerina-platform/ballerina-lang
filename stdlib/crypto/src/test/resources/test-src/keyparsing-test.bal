@@ -22,7 +22,7 @@ function testParsingPrivateKeyFromP12(string path, string keyStorePassword, stri
         path: path,
         password: keyStorePassword
     };
-    return crypto:decodePrivateKey(keyStore,  keyAlias, keyPassword);
+    return crypto:decodePrivateKey(keyStore, keyAlias, keyPassword);
 }
 
 function testParsingPublicKeyFromP12(string path, string keyStorePassword, string keyAlias)

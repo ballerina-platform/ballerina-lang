@@ -18,8 +18,8 @@
 package io.ballerinalang.compiler.internal.parser.incremental;
 
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 import io.ballerinalang.compiler.internal.parser.utils.PersistentStack;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.TextRange;

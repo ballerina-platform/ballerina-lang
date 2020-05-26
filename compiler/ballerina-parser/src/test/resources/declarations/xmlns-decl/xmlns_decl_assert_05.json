@@ -9,22 +9,39 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "XML_NAMESPACE_DECLARATION",
+          "kind": "MODULE_VAR_DECL",
           "children": [
             {
-              "kind": "XMLNS_KEYWORD",
-              "isMissing": true
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
             },
             {
-              "kind": "STRING_LITERAL",
-              "value": "http://ballerinalang.org/ns1"
-            },
-            {
-              "kind": "AS_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "ns1"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "SINGLETON_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "http://ballerinalang.org/ns1"
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "ns1"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN"
