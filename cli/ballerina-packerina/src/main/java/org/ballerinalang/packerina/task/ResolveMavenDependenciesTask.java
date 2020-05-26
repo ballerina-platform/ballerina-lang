@@ -44,7 +44,7 @@ public class ResolveMavenDependenciesTask implements Task {
             return;
         }
 
-        String targetRepo = buildContext.get(BuildContextField.TARGET_DIR).toString() + File.separator + "maven-repo";
+        String targetRepo = buildContext.get(BuildContextField.TARGET_DIR).toString() + File.separator + "platform-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
 
         buildContext.out().println();

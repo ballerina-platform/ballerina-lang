@@ -28,7 +28,7 @@ import java.nio.file.Paths;
  * Tests for {@link MavenResolver}.
  */
 public class MavenResolverTest {
-    String targetRepo = Paths.get("build").toAbsolutePath().toString() + File.separator + "maven-repo";
+    String targetRepo = Paths.get("build").toAbsolutePath().toString() + File.separator + "platform-libs";
     MavenResolver resolver = new MavenResolver(targetRepo);
 
     @Test
