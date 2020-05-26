@@ -54,9 +54,14 @@ public abstract class STAbstractNodeFactory {
         return null;
     }
 
-    public static STNode createMissingToken(SyntaxKind kind) {
+    public static STToken createMissingToken(SyntaxKind kind) {
         // TODO Seems like we can get these tokens from a cache
         return new STMissingToken(kind);
+    }
+
+    public static STToken createMissingToken(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        // TODO Seems like we can get these tokens from a cache
+        return new STMissingToken(kind, diagnostics);
     }
 
     public static STToken createToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
