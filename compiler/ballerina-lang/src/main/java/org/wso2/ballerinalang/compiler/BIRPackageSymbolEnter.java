@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.ConstrainedType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -100,6 +102,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
@@ -496,10 +499,11 @@ public class BIRPackageSymbolEnter {
 
     private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
         BInvokableType clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType,
-                bInvokableType.retType, null);
+                                                       bInvokableType.retType, null);
         clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                bInvokableType.flags, env.pkgSymbol.pkgID, null,
-                env.pkgSymbol.owner);
+                                                               bInvokableType.flags, env.pkgSymbol.pkgID, null,
+                                                               env.pkgSymbol.owner);
+        clonedType.flags = bInvokableType.flags;
         //TODO: tsymbol param values should be read from bir and added here
         return clonedType;
     }
@@ -630,7 +634,7 @@ public class BIRPackageSymbolEnter {
             String paramName = getStringCPEntryValue(dataInStream);
             int flags = dataInStream.readInt();
             BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                    invokableType.paramTypes.get(i), invokableSymbol);
+                                                  invokableType.paramTypes.get(i), invokableSymbol);
             varSymbol.defaultableParam = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
             invokableSymbol.params.add(varSymbol);
         }
@@ -638,8 +642,19 @@ public class BIRPackageSymbolEnter {
         if (dataInStream.readBoolean()) { //if rest param exist
             String paramName = getStringCPEntryValue(dataInStream);
             invokableSymbol.restParam = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                    invokableType.restType, invokableSymbol);
+                                                       invokableType.restType, invokableSymbol);
         }
+
+        if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
+            Map<Name, BVarSymbol> paramsMap = new HashMap<>();
+            for (BVarSymbol param : invokableSymbol.params) {
+                if (paramsMap.put(param.getName(), param) != null) {
+                    throw new IllegalStateException("Duplicate key: " + param.getName());
+                }
+            }
+            populateParameterizedType(invokableSymbol.retType, paramsMap, invokableSymbol);
+        }
+
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
         tsymbol.flags = invokableSymbol.flags;
         tsymbol.params = invokableSymbol.params;
@@ -651,6 +666,76 @@ public class BIRPackageSymbolEnter {
             dataInStream.readByte();
             readBType(dataInStream);
             getStringCPEntryValue(dataInStream);
+        }
+    }
+
+    /**
+     * This method is used for filling the `paramSymbol` field in a parameterized type. Since we want to use the same
+     * symbol of the parameter referred to by the type, we have to wait until the parameter symbols are defined to fill
+     * in the `paramSymbol` field. Only types with constituent types are considered here since those are the only types
+     * which can recursively hold a parameterized type.
+     *
+     * @param type      The return type of a function, which possibly contains a parameterized type
+     * @param paramsMap A mapping between the parameter names and the parameter symbols of the function
+     * @param invSymbol The symbol of the function
+     */
+    private void populateParameterizedType(BType type, final Map<Name, BVarSymbol> paramsMap,
+                                           BInvokableSymbol invSymbol) {
+        if (type == null) {
+            return;
+        }
+
+        switch (type.tag) {
+            case TypeTags.PARAMETERIZED_TYPE:
+                BParameterizedType varType = (BParameterizedType) type;
+                varType.paramSymbol = paramsMap.get(varType.name);
+                varType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | varType.paramSymbol.flags,
+                                                  varType.paramSymbol.name, varType.paramSymbol.pkgID, varType,
+                                                  invSymbol);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.XML:
+            case TypeTags.FUTURE:
+            case TypeTags.TYPEDESC:
+                ConstrainedType constrainedType = (ConstrainedType) type;
+                populateParameterizedType((BType) constrainedType.getConstraint(), paramsMap, invSymbol);
+                break;
+            case TypeTags.ARRAY:
+                populateParameterizedType(((BArrayType) type).eType, paramsMap, invSymbol);
+                break;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType t : tupleType.tupleTypes) {
+                    populateParameterizedType(t, paramsMap, invSymbol);
+                }
+                populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
+                break;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) type;
+                populateParameterizedType(streamType.constraint, paramsMap, invSymbol);
+                populateParameterizedType(streamType.error, paramsMap, invSymbol);
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) type;
+                populateParameterizedType(tableType.constraint, paramsMap, invSymbol);
+                populateParameterizedType(tableType.keyTypeConstraint, paramsMap, invSymbol);
+                break;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) type;
+
+                for (BType t : invokableType.paramTypes) {
+                    populateParameterizedType(t, paramsMap, invSymbol);
+                }
+
+                populateParameterizedType(invokableType.restType, paramsMap, invSymbol);
+                populateParameterizedType(invokableType.retType, paramsMap, invSymbol);
+                break;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType t : unionType.getMemberTypes()) {
+                    populateParameterizedType(t, paramsMap, invSymbol);
+                }
+                break;
         }
     }
 
@@ -875,6 +960,11 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     typedescType.flags = flags;
                     return typedescType;
+                case TypeTags.PARAMETERIZED_TYPE:
+                    BParameterizedType type = new BParameterizedType(null, null, null, name);
+                    type.paramValueType = readTypeFromCp();
+                    type.flags = flags;
+                    return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();

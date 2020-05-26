@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -30,15 +31,18 @@ public class BParameterizedType extends BType {
     public BVarSymbol paramSymbol;
     public BType paramValueType;
 
-    public BParameterizedType(BType valueType, BVarSymbol paramSymbol, BTypeSymbol tSymbol) {
+    public BParameterizedType(BType valueType, BVarSymbol paramSymbol, BTypeSymbol tSymbol, Name name) {
         super(TypeTags.PARAMETERIZED_TYPE, tSymbol);
         this.paramSymbol = paramSymbol;
         this.paramValueType = valueType;
+        this.name = name;
     }
 
     @Override
     public boolean isNullable() {
-        return this.paramSymbol.type.isNullable();
+        // TODO: Check what the correct behaviour is for this
+//        return this.paramSymbol.type.isNullable();
+        return false;
     }
 
     @Override

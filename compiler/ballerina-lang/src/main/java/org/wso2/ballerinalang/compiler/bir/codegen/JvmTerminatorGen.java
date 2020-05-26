@@ -675,7 +675,8 @@ public class JvmTerminatorGen {
             jvmClass = getModuleLevelClassName(orgName, moduleName, version,
                                                cleanupPathSeperators(cleanupBalExt(balFileName)));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-            methodDesc = getMethodDesc(params, type.retType, null, false);
+            BType retType = typeBuilder.buildType(type.retType);
+            methodDesc = getMethodDesc(params, retType, null, false);
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
