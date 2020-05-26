@@ -2192,6 +2192,13 @@ public class TypeChecker extends BLangNodeVisitor {
                                    fieldAccessExpr.field.value, varRefType);
                         resultType = symTable.semanticError;
                         return;
+                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT) &&
+                            isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_OBJECT_FIELD,
+                                   fieldAccessExpr.field.value, varRefType);
+                        resultType = symTable.semanticError;
+                        return;
+
                     }
                 }
             }
@@ -2215,14 +2222,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isInvalidReadonlyFieldUpdate(BType type, String fieldName) {
         if (type.tag == TypeTags.RECORD) {
+            if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                return true;
+            }
+
             BRecordType recordType = (BRecordType) type;
             for (BField field : recordType.fields.values()) {
                 if (!field.name.value.equals(fieldName)) {
                     continue;
-                }
-
-                if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                    return true;
                 }
 
                 return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
@@ -2237,6 +2244,43 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean allInvalidUpdates = true;
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             if (!isInvalidReadonlyFieldUpdate(memberType, fieldName)) {
+                allInvalidUpdates = false;
+            }
+        }
+        return allInvalidUpdates;
+    }
+
+    private boolean isInvalidObjectFieldUpdate(BType type, String fieldName) {
+        if (type.tag == TypeTags.OBJECT) {
+            BObjectType objectType = (BObjectType) type;
+            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+            BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+
+            if (env.enclInvokable != null && initializerFunc != null &&
+                    env.enclInvokable.symbol == initializerFunc.symbol) {
+                // This is a field update within the initializer. This update is valid.
+                return false;
+            }
+
+            if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                return true;
+            }
+
+            for (BField field : objectType.fields.values()) {
+                if (!field.name.value.equals(fieldName)) {
+                    continue;
+                }
+
+                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY);
+            }
+            return false; // Wouldn't get here.
+        }
+
+        // For unions, we consider this an invalid update only if it is invalid for all member types. If for at least
+        // one member this is valid, we allow this at compile time with the potential to fail at runtime.
+        boolean allInvalidUpdates = true;
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isInvalidObjectFieldUpdate(memberType, fieldName)) {
                 allInvalidUpdates = false;
             }
         }

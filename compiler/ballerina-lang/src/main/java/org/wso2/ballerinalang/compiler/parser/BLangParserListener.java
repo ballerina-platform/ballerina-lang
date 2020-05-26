@@ -569,9 +569,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
         boolean markdownExists = ctx.documentationString() != null;
+        boolean isReadonly = ctx.TYPE_READONLY() != null;
 
         this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, identifierPos, exprAvailable, annotationCount,
-                                               isPrivate, isPublic, markdownExists);
+                                               isPrivate, isPublic, markdownExists, isReadonly);
     }
 
     /**
