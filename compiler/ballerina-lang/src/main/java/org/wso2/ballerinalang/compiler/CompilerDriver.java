@@ -172,6 +172,8 @@ public class CompilerDriver {
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
 
+        symResolver.reloadErrorAndDependentTypes();
+
         if (langLib.equals(JAVA)) {
             symbolTable.langJavaModuleSymbol = getLangModuleFromSource(JAVA);
             return; // Nothing else to load.
@@ -180,7 +182,6 @@ public class CompilerDriver {
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
 
-        symResolver.reloadErrorAndDependentTypes();
 
         if (langLib.equals(INTERNAL)) {
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);
