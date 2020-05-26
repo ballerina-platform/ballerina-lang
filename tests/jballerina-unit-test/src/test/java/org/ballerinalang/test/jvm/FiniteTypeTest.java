@@ -52,7 +52,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "off");
+        Assert.assertEquals(returns[0].stringValue(), "off");
     }
 
     @Test()
@@ -70,7 +70,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "This is a string");
+        Assert.assertEquals((returns[0].stringValue()), "This is a string");
     }
 
     @Test()
@@ -116,7 +116,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()
@@ -142,7 +142,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "ss");
+        Assert.assertEquals((returns[0].stringValue()), "ss");
     }
 
     @Test()
@@ -178,7 +178,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()
@@ -196,7 +196,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()
@@ -205,7 +205,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "Anonymous name");
+        Assert.assertEquals((returns[0].stringValue()), "Anonymous name");
     }
 
     @Test()
@@ -217,7 +217,7 @@ public class FiniteTypeTest {
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 100);
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals((((BString) returns[1]).stringValue()), "hundred");
+        Assert.assertEquals((returns[1].stringValue()), "hundred");
     }
 
     @Test()
@@ -226,10 +226,10 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "John");
+        Assert.assertEquals((returns[0].stringValue()), "John");
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals((((BString) returns[1]).stringValue()), "Anne");
+        Assert.assertEquals((returns[1].stringValue()), "Anne");
     }
 
     @Test

@@ -2947,7 +2947,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2966,7 +2966,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2981,7 +2981,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "Node"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -3193,6 +3193,65 @@
             ]
         },
         {
+            "name": "EnumDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "ENUM_DECLARATION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "qualifier",
+                    "type": "Token"
+                },
+                {
+                    "name": "enumKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "enumMemberList",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "EnumMemberNode",
+            "base": "Node",
+            "kind": "ENUM_MEMBER",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "constExprNode",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "ArrayTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "ARRAY_TYPE_DESC",
@@ -3212,6 +3271,88 @@
                 },
                 {
                     "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TransactionStatementNode",
+            "base": "StatementNode",
+            "kind": "TRANSACTION_STATEMENT",
+            "attributes": [
+                {
+                    "name": "transactionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "RollbackStatementNode",
+            "base": "StatementNode",
+            "kind": "ROLLBACK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "rollbackKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "semicolon",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RetryStatementNode",
+            "base": "StatementNode",
+            "kind": "ROLLBACK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "retryKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParameter",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "arguments",
+                    "type": "ParenthesizedArgList",
+                    "isOptional": true
+                },
+                {
+                    "name": "retryBody",
+                    "type": "StatementNode"
+                }
+            ]
+        },
+        {
+            "name": "CommitActionNode",
+            "base": "ActionNode",
+            "kind": "COMMIT_ACTION",
+            "attributes": [
+                {
+                    "name": "commitKeyword",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TransactionalExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TRANSACTIONAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "transactionalKeyword",
                     "type": "Token"
                 }
             ]

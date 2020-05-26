@@ -2194,7 +2194,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AsyncSendActionNode createAsyncSendActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
-            NameReferenceNode peerWorker) {
+            SimpleNameReferenceNode peerWorker) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
         Objects.requireNonNull(peerWorker, "peerWorker must not be null");
@@ -2209,7 +2209,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static SyncSendActionNode createSyncSendActionNode(
             ExpressionNode expression,
             Token syncSendToken,
-            NameReferenceNode peerWorker) {
+            SimpleNameReferenceNode peerWorker) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(syncSendToken, "syncSendToken must not be null");
         Objects.requireNonNull(peerWorker, "peerWorker must not be null");
@@ -2223,7 +2223,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReceiveActionNode createReceiveActionNode(
             Token leftArrow,
-            Node receiveWorkers) {
+            SimpleNameReferenceNode receiveWorkers) {
         Objects.requireNonNull(leftArrow, "leftArrow must not be null");
         Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
 
@@ -2395,6 +2395,51 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stConditionalExpressionNode.createUnlinkedFacade();
     }
 
+    public static EnumDeclarationNode createEnumDeclarationNode(
+            MetadataNode metadata,
+            Token qualifier,
+            Token enumKeywordToken,
+            IdentifierToken identifier,
+            Token openBraceToken,
+            SeparatedNodeList<Node> enumMemberList,
+            Token closeBraceToken) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(qualifier, "qualifier must not be null");
+        Objects.requireNonNull(enumKeywordToken, "enumKeywordToken must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(enumMemberList, "enumMemberList must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stEnumDeclarationNode = STNodeFactory.createEnumDeclarationNode(
+                metadata.internalNode(),
+                qualifier.internalNode(),
+                enumKeywordToken.internalNode(),
+                identifier.internalNode(),
+                openBraceToken.internalNode(),
+                enumMemberList.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stEnumDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static EnumMemberNode createEnumMemberNode(
+            MetadataNode metadata,
+            IdentifierToken identifier,
+            Token equalToken,
+            ExpressionNode constExprNode) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(equalToken, "equalToken must not be null");
+        Objects.requireNonNull(constExprNode, "constExprNode must not be null");
+
+        STNode stEnumMemberNode = STNodeFactory.createEnumMemberNode(
+                metadata.internalNode(),
+                identifier.internalNode(),
+                equalToken.internalNode(),
+                constExprNode.internalNode());
+        return stEnumMemberNode.createUnlinkedFacade();
+    }
+
     public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
             TypeDescriptorNode memberTypeDesc,
             Token openBracket,
@@ -2410,6 +2455,66 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(arrayLength),
                 closeBracket.internalNode());
         return stArrayTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static TransactionStatementNode createTransactionStatementNode(
+            Token transactionKeyword,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(transactionKeyword, "transactionKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stTransactionStatementNode = STNodeFactory.createTransactionStatementNode(
+                transactionKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stTransactionStatementNode.createUnlinkedFacade();
+    }
+
+    public static RollbackStatementNode createRollbackStatementNode(
+            Token rollbackKeyword,
+            ExpressionNode expression,
+            Token semicolon) {
+        Objects.requireNonNull(rollbackKeyword, "rollbackKeyword must not be null");
+        Objects.requireNonNull(semicolon, "semicolon must not be null");
+
+        STNode stRollbackStatementNode = STNodeFactory.createRollbackStatementNode(
+                rollbackKeyword.internalNode(),
+                getOptionalSTNode(expression),
+                semicolon.internalNode());
+        return stRollbackStatementNode.createUnlinkedFacade();
+    }
+
+    public static RetryStatementNode createRetryStatementNode(
+            Token retryKeyword,
+            TypeParameterNode typeParameter,
+            ParenthesizedArgList arguments,
+            StatementNode retryBody) {
+        Objects.requireNonNull(retryKeyword, "retryKeyword must not be null");
+        Objects.requireNonNull(retryBody, "retryBody must not be null");
+
+        STNode stRetryStatementNode = STNodeFactory.createRetryStatementNode(
+                retryKeyword.internalNode(),
+                getOptionalSTNode(typeParameter),
+                getOptionalSTNode(arguments),
+                retryBody.internalNode());
+        return stRetryStatementNode.createUnlinkedFacade();
+    }
+
+    public static CommitActionNode createCommitActionNode(
+            Token commitKeyword) {
+        Objects.requireNonNull(commitKeyword, "commitKeyword must not be null");
+
+        STNode stCommitActionNode = STNodeFactory.createCommitActionNode(
+                commitKeyword.internalNode());
+        return stCommitActionNode.createUnlinkedFacade();
+    }
+
+    public static TransactionalExpressionNode createTransactionalExpressionNode(
+            Token transactionalKeyword) {
+        Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
+
+        STNode stTransactionalExpressionNode = STNodeFactory.createTransactionalExpressionNode(
+                transactionalKeyword.internalNode());
+        return stTransactionalExpressionNode.createUnlinkedFacade();
     }
 }
 

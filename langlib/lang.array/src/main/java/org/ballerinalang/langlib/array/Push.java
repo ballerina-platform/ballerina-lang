@@ -58,8 +58,4 @@ public class Push {
                 throw createOpNotSupportedError(arrType, FUNCTION_SIGNATURE);
         }
     }
-
-    public static void push_bstring(Strand strand, ArrayValue arr, ArrayValue vals) {
-        push(strand, arr, vals);
-    }
 }

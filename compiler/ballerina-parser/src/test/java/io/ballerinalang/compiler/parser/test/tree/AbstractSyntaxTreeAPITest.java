@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LineRange;
 import org.testng.Assert;
@@ -33,16 +34,24 @@ import java.nio.file.Paths;
  */
 abstract class AbstractSyntaxTreeAPITest {
 
-    SyntaxTree parseFile(String sourceFilePath) {
+    protected SyntaxTree parseFile(String sourceFileName) {
+        return ParserTestUtils.parseFile(getPath(sourceFileName));
+    }
+
+    protected SyntaxTree parseFile(Path sourceFilePath) {
         return ParserTestUtils.parseFile(getPath(sourceFilePath));
     }
 
-    String getFileContentAsString(String filePath) {
+    protected String getFileContentAsString(String filePath) {
         return ParserTestUtils.getSourceText(getPath(filePath));
     }
 
-    Path getPath(String filePath) {
-        return Paths.get("tree", filePath);
+    protected Path getPath(String fileName) {
+        return Paths.get("tree", fileName);
+    }
+
+    protected Path getPath(Path filePath) {
+        return Paths.get("tree").resolve(filePath);
     }
 
     protected void assertLineRange(LineRange actualLineRange, LineRange expectedLineRange) {
@@ -54,5 +63,9 @@ abstract class AbstractSyntaxTreeAPITest {
     protected ModulePartNode getModulePartNode(String sourceFileName) {
         SyntaxTree syntaxTree = parseFile(sourceFileName);
         return syntaxTree.modulePart();
+    }
+
+    protected void testTree(Node node, Path jsonFilePath) {
+        ParserTestUtils.testTree(node, Paths.get("tree").resolve(jsonFilePath));
     }
 }

@@ -43,7 +43,7 @@ public class ObservableClientConnectorListener extends ClientConnectorListener {
     @Override
     public void onMessage(HttpCarbonMessage httpCarbonMessage) {
         super.onMessage(httpCarbonMessage);
-        Integer statusCode = (Integer) httpCarbonMessage.getProperty(RESPONSE_STATUS_CODE_FIELD);
+        Integer statusCode = (Integer) httpCarbonMessage.getProperty(RESPONSE_STATUS_CODE_FIELD.getValue());
         addHttpStatusCode(statusCode == null ? 0 : statusCode);
     }
 

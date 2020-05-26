@@ -33,7 +33,7 @@ public type ReadableTextRecordChannel object {
         self.charChannel = charChannel;
         self.rs = rs;
         self.fs = fs;
-        initReadableTextRecordChannel(self, charChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
+        initReadableTextRecordChannel(self, charChannel, fs, rs, fmt);
     }
 
 # Checks whether there's a record left to be read.
@@ -53,16 +53,7 @@ public type ReadableTextRecordChannel object {
 #
 # + return - Set of fields included in the record or else `io:Error`
     public function getNext() returns @tainted string[]|Error {
-        handle[]|Error result = getNextExtern(self);
-        if (result is Error) {
-            return result;
-        } else {
-            string[] records = [];
-            foreach handle v in result {
-                records.push(<string>java:toString(v));
-            }
-            return records;
-        }
+        return getNextExtern(self);
     }
 
 # Closes a given record channel.
@@ -77,7 +68,7 @@ public type ReadableTextRecordChannel object {
 };
 
 function initReadableTextRecordChannel(ReadableTextRecordChannel textChannel, ReadableCharacterChannel charChannel,
-            handle fs, handle rs, handle fmt) = @java:Method {
+                                       string fs, string rs, string fmt) = @java:Method {
     name: "initRecordChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
@@ -87,7 +78,7 @@ function hasNextExtern(ReadableTextRecordChannel textChannel) returns boolean = 
     class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
-function getNextExtern(ReadableTextRecordChannel textChannel) returns @tainted handle[]|Error = @java:Method {
+function getNextExtern(ReadableTextRecordChannel textChannel) returns @tainted string[]|Error = @java:Method {
     name: "getNext",
     class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;

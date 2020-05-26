@@ -172,7 +172,7 @@ public class AnydataTest {
     @Test(description = "Test anydata array")
     public void testAnydataArray() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataArray", new BValue[]{});
-        assertTrue(((BArrayType) returns[0].getType()).getElementType().getTag() == TypeTags.ANYDATA_TAG);
+        assertEquals(TypeTags.ANYDATA_TAG, ((BArrayType) returns[0].getType()).getElementType().getTag());
         BValueArray adArr = (BValueArray) returns[0];
 
         assertEquals(((BInteger) adArr.getRefValue(0)).intValue(), 1234);

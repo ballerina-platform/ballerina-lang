@@ -85,6 +85,12 @@ public class LexerTerminals {
     public static final String DEFAULT = "default";
     public static final String WAIT = "wait";
     public static final String DO = "do";
+    public static final String TRANSACTION = "transaction";
+    public static final String TRANSACTIONAL = "transactional";
+    public static final String COMMIT = "commit";
+    public static final String RETRY = "retry";
+    public static final String ROLLBACK = "rollback";
+    public static final String ENUM = "enum";
 
     // Types
     public static final String INT = "int";

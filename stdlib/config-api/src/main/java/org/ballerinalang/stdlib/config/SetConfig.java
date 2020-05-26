@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Extern function ballerina.config:setConfig.
@@ -29,7 +30,7 @@ public class SetConfig {
 
     private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
 
-    public static void setConfig(String configKey, Object configValue) {
-        CONFIG_REGISTRY.addConfiguration(configKey, configValue);
+    public static void setConfig(BString configKey, Object configValue) {
+        CONFIG_REGISTRY.addConfiguration(configKey.getValue(), configValue);
     }
 }
