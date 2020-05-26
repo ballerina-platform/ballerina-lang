@@ -19,6 +19,7 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
@@ -39,13 +40,23 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for compiling a package.
  */
 public class CompileTask implements Task {
+    private boolean skipCopyLibsFromDist;
+
+    public CompileTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public CompileTask() {
+        this(false);
+    }
 
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
+        JarResolverImpl jarResolverImpl = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
+        buildContext.put(buildContext.get(BuildContextField.JAR_RESOLVER), jarResolverImpl);
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
