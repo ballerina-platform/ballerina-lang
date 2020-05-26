@@ -83,8 +83,7 @@ public class MavenResolver {
         String localRepoPath = System.getProperty("user.home") + File.separator + ".m2"
                 + File.separator + "repository";
         if (new File(localRepoPath).exists()) {
-            repositories.add(new RemoteRepository.Builder(
-                    "local", "default", "file:" + localRepoPath).build());
+            repositories.add(new RemoteRepository.Builder("local", "default", "file:" + localRepoPath).build());
         }
     }
 
