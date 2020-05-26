@@ -15,19 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.internal.syntax;
 
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
 /**
  * Contains utility methods works with both internal and external syntax trees.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class SyntaxUtils {
-
     private SyntaxUtils() {
     }
 
@@ -53,9 +53,5 @@ public class SyntaxUtils {
 
     public static boolean isSTNodePresent(STNode node) {
         return node != null;
-    }
-
-    public static boolean isSTNodeList(STNode node) {
-        return node.kind == SyntaxKind.LIST;
     }
 }

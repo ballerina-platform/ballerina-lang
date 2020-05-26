@@ -35,6 +35,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -50,7 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
+import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
@@ -136,6 +137,20 @@ public class ParserTestUtils {
 
         // Validate the tree against the assertion file
         assertNode(syntaxTree, assertJson);
+    }
+
+    /**
+     * Compares the actualTree with the given json.
+     *
+     * @param actualTreeRoot the syntax tree to be compared
+     * @param assertFilePath json file path which contains the tree structure
+     */
+    public static void testTree(Node actualTreeRoot, Path assertFilePath) {
+        // Read the assertion file
+        JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
+
+        // Validate the tree against the assertion file
+        assertNode(actualTreeRoot.internalNode(), assertJson);
     }
 
     /**
@@ -729,7 +744,7 @@ public class ParserTestUtils {
                 return SyntaxKind.ASYNC_SEND_ACTION;
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
-            case "RECEIVE_SEND_ACTION":
+            case "RECEIVE_ACTION":
                 return SyntaxKind.RECEIVE_ACTION;
             case "WAIT_ACTION":
                 return SyntaxKind.WAIT_ACTION;
