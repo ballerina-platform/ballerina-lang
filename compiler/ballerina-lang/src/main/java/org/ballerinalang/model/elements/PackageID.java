@@ -44,6 +44,8 @@ public class PackageID {
     // Visible Lang modules.
     public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ANNOTATIONS), Names.EMPTY);
+    public static final PackageID JAVA = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.JAVA), Names.EMPTY);
     public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ARRAY), Names.EMPTY);
     public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,

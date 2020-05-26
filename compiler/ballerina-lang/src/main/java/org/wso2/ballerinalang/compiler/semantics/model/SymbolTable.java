@@ -164,6 +164,7 @@ public class SymbolTable {
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
+    public BPackageSymbol langJavaModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;
     public BPackageSymbol langErrorModuleSymbol;

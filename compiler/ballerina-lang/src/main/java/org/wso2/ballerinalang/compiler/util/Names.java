@@ -47,6 +47,7 @@ public class Names {
     public static final Name LANG = new Name("lang");
     public static final Name INTERNAL = new Name("__internal");
     public static final Name ANNOTATIONS = new Name("annotations");
+    public static final Name JAVA = new Name("java");
     public static final Name ARRAY = new Name("array");
     public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
