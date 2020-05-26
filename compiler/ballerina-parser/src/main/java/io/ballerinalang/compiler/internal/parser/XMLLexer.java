@@ -33,7 +33,7 @@ import java.util.List;
 public class XMLLexer extends AbstractLexer {
 
     public XMLLexer(CharReader charReader) {
-        super(charReader, ParserMode.XML_CONTENT, SyntaxKind.NONE);
+        super(charReader, ParserMode.XML_CONTENT);
     }
 
     /**

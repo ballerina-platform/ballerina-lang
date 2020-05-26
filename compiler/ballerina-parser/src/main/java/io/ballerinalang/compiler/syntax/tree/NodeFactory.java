@@ -2397,7 +2397,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ByteArrayLiteralNode createByteArrayLiteralNode(
             Token type,
             Token startBacktick,
-            NodeList<Node> content,
+            Token content,
             Token endBacktick) {
         Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
@@ -2407,57 +2407,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stByteArrayLiteralNode = STNodeFactory.createByteArrayLiteralNode(
                 type.internalNode(),
                 startBacktick.internalNode(),
-                content.underlyingListNode().internalNode(),
+                content.internalNode(),
                 endBacktick.internalNode());
         return stByteArrayLiteralNode.createUnlinkedFacade();
-    }
-
-    public static HexGroupNode createHexGroupNode(
-            Token startHexDigit,
-            Token endHexDigit) {
-        Objects.requireNonNull(startHexDigit, "startHexDigit must not be null");
-        Objects.requireNonNull(endHexDigit, "endHexDigit must not be null");
-
-        STNode stHexGroupNode = STNodeFactory.createHexGroupNode(
-                startHexDigit.internalNode(),
-                endHexDigit.internalNode());
-        return stHexGroupNode.createUnlinkedFacade();
-    }
-
-    public static Base64GroupNode createBase64GroupNode(
-            Token startChar,
-            Token secondChar,
-            Token thirdChar,
-            Token endChar) {
-        Objects.requireNonNull(startChar, "startChar must not be null");
-        Objects.requireNonNull(secondChar, "secondChar must not be null");
-        Objects.requireNonNull(thirdChar, "thirdChar must not be null");
-        Objects.requireNonNull(endChar, "endChar must not be null");
-
-        STNode stBase64GroupNode = STNodeFactory.createBase64GroupNode(
-                startChar.internalNode(),
-                secondChar.internalNode(),
-                thirdChar.internalNode(),
-                endChar.internalNode());
-        return stBase64GroupNode.createUnlinkedFacade();
-    }
-
-    public static PaddedBase64GroupNode createPaddedBase64GroupNode(
-            Token startChar,
-            Token secondChar,
-            Token thirdChar,
-            Token endChar) {
-        Objects.requireNonNull(startChar, "startChar must not be null");
-        Objects.requireNonNull(secondChar, "secondChar must not be null");
-        Objects.requireNonNull(thirdChar, "thirdChar must not be null");
-        Objects.requireNonNull(endChar, "endChar must not be null");
-
-        STNode stPaddedBase64GroupNode = STNodeFactory.createPaddedBase64GroupNode(
-                startChar.internalNode(),
-                secondChar.internalNode(),
-                thirdChar.internalNode(),
-                endChar.internalNode());
-        return stPaddedBase64GroupNode.createUnlinkedFacade();
     }
 }
 

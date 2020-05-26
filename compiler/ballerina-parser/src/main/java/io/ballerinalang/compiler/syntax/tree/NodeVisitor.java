@@ -631,18 +631,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(byteArrayLiteralNode);
     }
 
-    public void visit(HexGroupNode hexGroupNode) {
-        visitSyntaxNode(hexGroupNode);
-    }
-
-    public void visit(Base64GroupNode base64GroupNode) {
-        visitSyntaxNode(base64GroupNode);
-    }
-
-    public void visit(PaddedBase64GroupNode paddedBase64GroupNode) {
-        visitSyntaxNode(paddedBase64GroupNode);
-    }
-
     // Tokens
 
     public void visit(Token token) {

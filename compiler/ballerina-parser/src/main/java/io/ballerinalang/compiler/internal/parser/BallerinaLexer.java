@@ -33,7 +33,7 @@ import java.util.List;
 public class BallerinaLexer extends AbstractLexer {
 
     public BallerinaLexer(CharReader charReader) {
-        super(charReader, ParserMode.DEFAULT, SyntaxKind.NONE);
+        super(charReader, ParserMode.DEFAULT);
     }
 
     /**
@@ -43,12 +43,6 @@ public class BallerinaLexer extends AbstractLexer {
      */
     public STToken nextToken() {
         switch (this.mode) {
-            case BASE16_ARRAY:
-                processLeadingTrivia();
-                return readBase16Array();
-            case BASE64_ARRAY:
-                processLeadingTrivia();
-                return readBase64Array();
             case TEMPLATE:
                 this.leadingTriviaList = new ArrayList<>(0);
                 return readTemplateToken();
@@ -68,10 +62,6 @@ public class BallerinaLexer extends AbstractLexer {
 
     public STToken nextTokenInternal() {
         switch (this.mode) {
-            case BASE16_ARRAY:
-                return readBase16Array();
-            case BASE64_ARRAY:
-                return readBase64Array();
             case TEMPLATE:
                 return readTemplateToken();
             case INTERPOLATION:
@@ -229,17 +219,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
                 break;
             case LexerTerminals.BACKTICK:
-                switch (this.precedingSyntaxKind) {
-                    case BASE16_KEYWORD:
-                        startMode(ParserMode.BASE16_ARRAY);
-                        break;
-                    case BASE64_KEYWORD:
-                        startMode(ParserMode.BASE64_ARRAY);
-                        break;
-                    default:
-                        startMode(ParserMode.TEMPLATE);
-                        break;
-                }
+                startMode(ParserMode.TEMPLATE);
                 token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 break;
             case LexerTerminals.SINGLE_QUOTE:
@@ -981,10 +961,8 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.DO:
                 return getSyntaxToken(SyntaxKind.DO_KEYWORD);
             case LexerTerminals.BASE16:
-                setPrecedingSyntaxKind(SyntaxKind.BASE16_KEYWORD);
                 return getSyntaxToken(SyntaxKind.BASE16_KEYWORD);
             case LexerTerminals.BASE64:
-                setPrecedingSyntaxKind(SyntaxKind.BASE64_KEYWORD);
                 return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
@@ -1498,82 +1476,5 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return readToken();
-    }
-
-    private STToken readBase16Array() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        char nextChar = this.reader.peek();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                reader.advance();
-                endMode();
-                setPrecedingSyntaxKind(SyntaxKind.NONE);
-                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-            default:
-                if (isHexDigit(nextChar)) {
-                    reader.advance();
-                    break;
-                } else {
-                    processInvalidToken();
-                    processLeadingTrivia();
-                    return readBase16Array();
-                }
-        }
-            return getLiteral(SyntaxKind.HEX_DIGIT);
-    }
-
-    private STToken readBase64Array() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        char nextChar = this.reader.peek();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                reader.advance();
-                endMode();
-                setPrecedingSyntaxKind(SyntaxKind.NONE);
-                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-            default:
-                if (nextChar == '=') {
-                    reader.advance();
-                    return getLiteral(SyntaxKind.PADDING_CHAR);
-                } else if (isBase64Char(nextChar)) {
-                    reader.advance();
-                    break;
-                } else {
-                    processInvalidToken();
-                    processLeadingTrivia();
-                    return readBase64Array();
-                }
-        }
-        return getLiteral(SyntaxKind.BASE64_CHAR);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a base64 char.
-     * </p>
-     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a base64 char. <code>false</code> otherwise.
-     */
-    private boolean isBase64Char(int c) {
-        if ('a' <= c && c <= 'z') {
-            return true;
-        }
-        if ('A' <= c && c <= 'Z') {
-            return true;
-        }
-        if (c == '+' || c == '/') {
-            return true;
-        }
-        return isDigit(c);
     }
 }

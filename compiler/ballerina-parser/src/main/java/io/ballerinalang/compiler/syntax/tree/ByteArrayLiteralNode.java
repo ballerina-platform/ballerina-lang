@@ -40,8 +40,8 @@ public class ByteArrayLiteralNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public NodeList<Node> content() {
-        return new NodeList<>(childInBucket(2));
+    public Token content() {
+        return childInBucket(2);
     }
 
     public Token endBacktick() {
@@ -70,12 +70,12 @@ public class ByteArrayLiteralNode extends ExpressionNode {
     public ByteArrayLiteralNode modify(
             Token type,
             Token startBacktick,
-            NodeList<Node> content,
+            Token content,
             Token endBacktick) {
         if (checkForReferenceEquality(
                 type,
                 startBacktick,
-                content.underlyingListNode(),
+                content,
                 endBacktick)) {
             return this;
         }
@@ -100,7 +100,7 @@ public class ByteArrayLiteralNode extends ExpressionNode {
         private final ByteArrayLiteralNode oldNode;
         private Token type;
         private Token startBacktick;
-        private NodeList<Node> content;
+        private Token content;
         private Token endBacktick;
 
         public ByteArrayLiteralNodeModifier(ByteArrayLiteralNode oldNode) {
@@ -126,7 +126,7 @@ public class ByteArrayLiteralNode extends ExpressionNode {
         }
 
         public ByteArrayLiteralNodeModifier withContent(
-                NodeList<Node> content) {
+                Token content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;

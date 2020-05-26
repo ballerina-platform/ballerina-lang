@@ -687,12 +687,6 @@ public class ParserTestUtils {
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
             case "BYTE_ARRAY_LITERAL":
                 return SyntaxKind.BYTE_ARRAY_LITERAL;
-            case "HEX_DIGIT":
-                return SyntaxKind.HEX_DIGIT;
-            case "BASE64_CHAR":
-                return SyntaxKind.BASE64_CHAR;
-            case "PADDING_CHAR":
-                return SyntaxKind.PADDING_CHAR;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -935,12 +929,6 @@ public class ParserTestUtils {
                 return SyntaxKind.WAIT_FIELDS_LIST;
             case "WAIT_FIELD":
                 return SyntaxKind.WAIT_FIELD;
-            case "HEX_GROUP":
-                return SyntaxKind.HEX_GROUP;
-            case "BASE64_GROUP":
-                return SyntaxKind.BASE64_GROUP;
-            case "PADDED_BASE64_GROUP":
-                return SyntaxKind.PADDED_BASE64_GROUP;
 
             // XML template
             case "XML_ELEMENT":

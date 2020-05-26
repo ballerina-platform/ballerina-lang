@@ -384,9 +384,6 @@ public enum ParserRuleContext {
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
-    HEX_DIGIT("hex-digit"),
-    BASE64_CHAR("base64-char"),
-    PADDING_CHAR("padding-char"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
