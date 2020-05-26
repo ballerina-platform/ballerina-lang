@@ -25,13 +25,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
+
 /**
  * Native implementation of assertValueEqual(anydata expected, anydata actual).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertValueEqual",
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertValueEqual",
         args = {@Argument(name = "expected", type = TypeKind.ANYDATA),
                 @Argument(name = "actual", type = TypeKind.ANYDATA)},
         isPublic = true

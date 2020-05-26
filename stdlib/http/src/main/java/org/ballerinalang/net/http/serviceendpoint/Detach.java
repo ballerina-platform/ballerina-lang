@@ -44,7 +44,7 @@ public class Detach extends AbstractHttpNativeFunction {
                 String callerType = param.getQualifiedName();
                 if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                     httpServicesRegistry.unRegisterService(serviceObj);
-                } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
                     return webSocketServicesRegistry.unRegisterService(serviceObj);
                 }
             } else {

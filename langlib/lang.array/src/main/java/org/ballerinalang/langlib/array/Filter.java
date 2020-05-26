@@ -31,13 +31,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+
 /**
  * Native implementation of lang.array:filter(Type[], function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "filter",
+        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "filter",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true

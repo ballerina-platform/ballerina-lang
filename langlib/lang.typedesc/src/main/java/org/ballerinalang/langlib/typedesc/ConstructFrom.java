@@ -60,6 +60,7 @@ import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static org.ballerinalang.util.BLangCompilerConstants.TYPEDESC_VERSION;
 
 /**
  * Extern function lang.typedesc:constructFrom.
@@ -67,7 +68,8 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.typedesc", functionName = "constructFrom",
+        orgName = "ballerina", packageName = "lang.typedesc", version = TYPEDESC_VERSION,
+        functionName = "constructFrom",
         args = {
                 @Argument(name = "t", type = TypeKind.TYPEDESC),
                 @Argument(name = "v", type = TypeKind.ANYDATA)

@@ -1439,7 +1439,7 @@ public class JvmMethodGen {
                                    BType attachedType,
                                    LambdaMetadata lambdaMetadata) {
 
-        String currentPackageName = getPackageName(module.org.value, module.name.value);
+        String currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         String funcName = cleanupFunctionName(func.name.value);
         int returnVarRefIndex = -1;
@@ -1915,7 +1915,8 @@ public class JvmMethodGen {
                 generateDiagnosticPos(terminator.pos, mv);
                 if ((isModuleInitFunction(module, func) || isModuleTestInitFunction(module, func)) &&
                         terminator instanceof Return) {
-                    generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
+                    generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value,
+                                                                          module.version.value));
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
                         isObserved, lambdaMetadata);
@@ -1936,6 +1937,7 @@ public class JvmMethodGen {
         BType lhsType;
         String orgName;
         String moduleName;
+        String version;
         String funcName;
         int paramIndex = 1;
         boolean isVirtual = false;
@@ -1946,12 +1948,14 @@ public class JvmMethodGen {
             lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
             orgName = asyncIns.calleePkg.orgName.value;
             moduleName = asyncIns.calleePkg.name.value;
+            version = asyncIns.calleePkg.version.value;
             funcName = asyncIns.name.getValue();
         } else if (kind == InstructionKind.FP_LOAD) {
             FPLoad fpIns = (FPLoad) ins;
             lhsType = fpIns.lhsOp.variableDcl.type;
             orgName = fpIns.pkgId.orgName.value;
             moduleName = fpIns.pkgId.name.value;
+            version = fpIns.pkgId.version.value;
             funcName = fpIns.funcName.getValue();
         } else {
             throw new BLangCompilerException("JVM lambda method generation is not supported for instruction " +
@@ -2088,7 +2092,7 @@ public class JvmMethodGen {
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
             String jvmClass;
-            String lookupKey = getPackageName(orgName, moduleName) + funcName;
+            String lookupKey = getPackageName(orgName, moduleName, version) + funcName;
             BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
@@ -2110,7 +2114,7 @@ public class JvmMethodGen {
                     balFileName = MODULE_INIT_CLASS_NAME;
                 }
 
-                jvmClass = getModuleLevelClassName(orgName, moduleName,
+                jvmClass = getModuleLevelClassName(orgName, moduleName, version,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
             }
 
@@ -2177,7 +2181,8 @@ public class JvmMethodGen {
                     String.format("%s", callIns));
         }
 
-        String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
+        String key = getPackageName(packageID.orgName.value, packageID.name.value,
+                                    packageID.version.value) + methodName;
 
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
         return functionWrapper != null && isExternFunc(functionWrapper.func);
@@ -2214,13 +2219,10 @@ public class JvmMethodGen {
         registerShutdownListener(mv, initClass);
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        String pkgName = getPackageName(pkg.org.value, pkg.name.value);
-
         // add main string[] args param first
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
                 VarKind.ARG);
         int ignoreArgsVarIndex = indexMap.getIndex(argsVar);
-
         boolean isVoidFunction = userMainFunc != null && userMainFunc.type.retType.tag == TypeTags.NIL;
 
         mv.visitTypeInsn(NEW, SCHEDULER);
@@ -2453,10 +2455,10 @@ public class JvmMethodGen {
 
         for (PackageID id : depMods) {
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-            // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
+            // String lookupKey = getPackageName(id.orgName, id.name, id.version) + fullFuncName;
 
             // String jvmClass = lookupFullQualifiedClassName(lookupKey);
-            String jvmClass = getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
+            String jvmClass = getPackageName(id.orgName, id.name, id.version) + MODULE_INIT_CLASS_NAME;
             generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
         }
     }
@@ -2670,7 +2672,7 @@ public class JvmMethodGen {
                                                Map<String, byte[]> pkgEntries,
                                                BType attachedType) {
 
-        String pkgName = getPackageName(pkg.org.value, pkg.name.value);
+        String pkgName = getPackageName(pkg.org.value, pkg.name.value, pkg.version.value);
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -2705,7 +2707,7 @@ public class JvmMethodGen {
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
-        String pkgName = getPackageName(orgName, moduleName);
+        String pkgName = getPackageName(orgName, moduleName, version);
 
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
@@ -2739,7 +2741,7 @@ public class JvmMethodGen {
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
-        String pkgName = getPackageName(orgName, moduleName);
+        String pkgName = getPackageName(orgName, moduleName, version);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, MODULE_STOP, "()V", null, null);
         mv.visitCode();
 

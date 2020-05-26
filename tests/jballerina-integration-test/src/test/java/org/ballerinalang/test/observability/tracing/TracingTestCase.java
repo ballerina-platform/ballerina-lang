@@ -51,7 +51,7 @@ public class TracingTestCase extends BaseTest {
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
-    private static final String TEST_OBSERVE_JAR = "ballerina.testobserve.jar";
+    private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
 
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
