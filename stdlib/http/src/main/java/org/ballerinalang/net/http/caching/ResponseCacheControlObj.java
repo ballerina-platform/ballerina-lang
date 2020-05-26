@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -241,11 +242,11 @@ public class ResponseCacheControlObj {
         return "";
     }
 
-    private boolean getBooleanValue(ObjectValue responseCacheControl, String fieldName) {
+    private boolean getBooleanValue(ObjectValue responseCacheControl, BString fieldName) {
         return (Boolean) responseCacheControl.get(fieldName);
     }
 
-    private long getIntValue(ObjectValue responseCacheControl, String fieldName) {
+    private long getIntValue(ObjectValue responseCacheControl, BString fieldName) {
         return Long.parseLong(responseCacheControl.get(fieldName).toString());
     }
 }

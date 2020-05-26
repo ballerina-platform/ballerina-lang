@@ -38,11 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class EndsWith {
 
-    public static boolean endsWith(Strand strand, String str, String substr) {
-        return str.endsWith(substr);
-    }
-
-    public static boolean endsWith_bstring(Strand strand, BString str, BString substr) {
+    public static boolean endsWith(Strand strand, BString str, BString substr) {
         return str.getValue().endsWith(substr.getValue());
     }
 }

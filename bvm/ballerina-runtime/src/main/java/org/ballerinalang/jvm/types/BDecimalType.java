@@ -55,4 +55,9 @@ public class BDecimalType extends BType {
     public int getTag() {
         return TypeTags.DECIMAL_TAG;
     }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
 }

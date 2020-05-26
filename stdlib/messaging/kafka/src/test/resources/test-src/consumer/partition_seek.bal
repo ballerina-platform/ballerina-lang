@@ -17,14 +17,15 @@
 import ballerina/kafka;
 
 kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers: "localhost:14104",
+    bootstrapServers: "localhost:14103",
     groupId: "test-group",
     clientId: "seek-consumer",
     offsetReset: "earliest",
+    autoCommit: true,
     topics: ["test"]
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfigs);
+kafka:Consumer kafkaConsumer = new (consumerConfigs);
 
 kafka:TopicPartition topicPartition = {
     topic: "test",
@@ -38,35 +39,38 @@ kafka:PartitionOffset partitionOffset = {
 
 kafka:TopicPartition[] topicPartitions = [topicPartition];
 
-function funcKafkaPoll() returns int|error {
+int retrievedRecordsCount = 0;
+
+function testPoll() returns int|error {
     var records = kafkaConsumer->poll(1000);
     if (records is error) {
         return records;
     } else {
-        return records.length();
+        retrievedRecordsCount += records.length();
     }
+    return retrievedRecordsCount;
 }
 
-function funcKafkaGetPositionOffset() returns int|error {
+function testGetPositionOffset() returns int|error {
     return kafkaConsumer->getPositionOffset(topicPartition);
 }
 
-function funcKafkaSeekOffset() returns error? {
+function testSeekOffset() returns error? {
     return kafkaConsumer->seek(partitionOffset);
 }
 
-function funcKafkaSeekToBegin() returns error? {
+function testSeekToBegin() returns error? {
     return kafkaConsumer->seekToBeginning(topicPartitions);
 }
 
-function funcKafkaBeginOffsets() returns kafka:PartitionOffset[]|error {
+function testBeginOffsets() returns kafka:PartitionOffset[]|error {
     return kafkaConsumer->getBeginningOffsets(topicPartitions);
 }
 
-function funcKafkaSeekToEnd() returns error? {
+function testSeekToEnd() returns error? {
     return kafkaConsumer->seekToEnd(topicPartitions);
 }
 
-function funcKafkaEndOffsets() returns kafka:PartitionOffset[]|error {
+function testEndOffsets() returns kafka:PartitionOffset[]|error {
     return kafkaConsumer->getEndOffsets(topicPartitions);
 }

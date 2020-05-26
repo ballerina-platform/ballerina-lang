@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * This class represents the "handle" type in Ballerina.
@@ -31,7 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 public class BHandleType extends BBuiltInRefType {
 
     public BHandleType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+        super(tag, tsymbol, Flags.READONLY);
     }
 
     @Override

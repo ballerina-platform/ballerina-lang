@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.email.client;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.ballerinalang.stdlib.email.util.SmtpUtil;
 import org.slf4j.Logger;
@@ -55,17 +56,17 @@ public class SmtpClient {
      * @param password Represents the password of the SMTP server
      * @param config Properties required to configure the SMTP Session
      */
-    public static void initClientEndpoint(ObjectValue clientEndpoint, String host, String username, String password,
-                                          MapValue<Object, Object> config) {
-        Properties properties = SmtpUtil.getProperties(config, host);
+    public static void initClientEndpoint(ObjectValue clientEndpoint, BString host, BString username, BString password,
+                                          MapValue<BString, Object> config) {
+        Properties properties = SmtpUtil.getProperties(config, host.getValue());
         Session session = Session.getInstance(properties,
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password);
+                        return new PasswordAuthentication(username.getValue(), password.getValue());
                     }
                 });
         clientEndpoint.addNativeData(EmailConstants.PROPS_SESSION, session);
-        clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME, username);
+        clientEndpoint.addNativeData(EmailConstants.PROPS_USERNAME.getValue(), username.getValue());
     }
 
     /**
@@ -74,11 +75,11 @@ public class SmtpClient {
      * @param message Fields of an email
      * @return If an error occurs in the SMTP client, error
      */
-    public static Object sendMessage(ObjectValue clientConnector, MapValue<Object, Object> message) {
+    public static Object sendMessage(ObjectValue clientConnector, MapValue<BString, Object> message) {
         try {
             Transport.send(SmtpUtil.generateMessage(
                     (Session) clientConnector.getNativeData(EmailConstants.PROPS_SESSION),
-                    (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME), message));
+                    (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME.getValue()), message));
             return null;
         } catch (MessagingException | IOException e) {
             log.error("Failed to send message to SMTP server : ", e);

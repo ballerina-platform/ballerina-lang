@@ -56,67 +56,67 @@ function testStringFreeze(string a) returns [boolean, boolean] {
 function testBasicTypeNullableUnionFreeze() returns [boolean, boolean] {
     int? i = 5;
     anydata j = i.cloneReadOnly();
-    boolean equals = i == j;
+    boolean 'equals = i == j;
     boolean isFrozen = i.isReadOnly() && j.isReadOnly();
 
     string? k = "hello world";
     string? l = k.cloneReadOnly();
-    equals = l == k;
+    'equals = l == k;
     isFrozen = l.isReadOnly() && k.isReadOnly();
 
     float? f = -1.29;
     j = f.cloneReadOnly();
-    equals = f == j;
+    'equals = f == j;
     isFrozen = f.isReadOnly() && j.isReadOnly();
 
     decimal dec = 123.9;
     decimal? d = dec;
     j = d.cloneReadOnly();
-    equals = d == j;
+    'equals = d == j;
     isFrozen = d.isReadOnly() && j.isReadOnly();
 
     boolean? b = ();
     j = b.cloneReadOnly();
-    equals = d == b;
+    'equals = d == b;
     isFrozen = d.isReadOnly() && b.isReadOnly();
 
     int|string? m = "hello ballerina";
     j = m.cloneReadOnly();
-    equals = m == j;
+    'equals = m == j;
     isFrozen = m.isReadOnly() && j.isReadOnly();
 
-    return [equals, isFrozen];
+    return ['equals, isFrozen];
 }
 
 function testBasicTypeUnionFreeze() returns [boolean, boolean] {
     int|string i = 5;
     anydata j = i.cloneReadOnly();
-    boolean equals = i == j;
+    boolean 'equals = i == j;
     boolean isFrozen = i.isReadOnly() && j.isReadOnly();
 
     boolean|float|int k = 123.2;
     boolean|float|int|decimal l = k.cloneReadOnly();
-    equals = l == k;
+    'equals = l == k;
     isFrozen = k.isReadOnly() && l.isReadOnly();
-    return [equals, isFrozen];
+    return ['equals, isFrozen];
 }
 
 function testBasicTypesAsJsonFreeze() returns boolean {
     json a = 5;
     json b = a.cloneReadOnly();
-    boolean equals = a == b;
+    boolean 'equals = a == b;
 
     a = 5.1;
     b = a.cloneReadOnly();
-    equals = equals && a == b;
+    'equals = 'equals && a == b;
 
     a = "Hello from Ballerina";
     b = a.cloneReadOnly();
-    equals = equals && a == b;
+    'equals = 'equals && a == b;
 
     a = true;
     b = a.cloneReadOnly();
-    return equals && a == b;
+    return 'equals && a == b;
 }
 
 function testIsFrozenOnStructuralTypes() returns [boolean, boolean]|error {

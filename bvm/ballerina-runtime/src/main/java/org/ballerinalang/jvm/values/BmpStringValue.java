@@ -92,6 +92,12 @@ package org.ballerinalang.jvm.values;
      }
 
      @Override
+     public Long lastIndexOf(BString str, int fromIndex) {
+         long index = value.lastIndexOf(str.getValue(), fromIndex);
+         return index >= 0 ? index : null;
+     }
+
+     @Override
      public BString substring(int beginIndex, int endIndex) {
          return new BmpStringValue(value.substring(beginIndex, endIndex));
      }

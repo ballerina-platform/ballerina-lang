@@ -58,6 +58,13 @@ public class BType implements ValueType {
         this.flags = 0;
     }
 
+    public BType(int tag, BTypeSymbol tsymbol, int flags) {
+        this.tag = tag;
+        this.tsymbol = tsymbol;
+        this.name = Names.EMPTY;
+        this.flags = flags;
+    }
+
     public BType(int tag, BTypeSymbol tsymbol, Name name, int flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;

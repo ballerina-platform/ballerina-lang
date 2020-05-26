@@ -49,7 +49,7 @@ public type StreamingClient client object {
 # + message - Error message
 # + return - A `grpc:Error` if an error occurs while sending the response or else `()`
     public remote function sendError(int statusCode, string message) returns Error? {
-        return streamSendError(self, statusCode, java:fromString(message));
+        return streamSendError(self, statusCode, message);
     }
 };
 
@@ -63,7 +63,7 @@ function streamComplete(StreamingClient streamConnection) returns Error? =
     class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
 } external;
 
-function streamSendError(StreamingClient streamConnection, int statusCode, handle message) returns Error? =
+function streamSendError(StreamingClient streamConnection, int statusCode, string message) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
 } external;

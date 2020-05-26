@@ -97,7 +97,7 @@ public class TupleDestructureTest {
                 "string...]'", 30, 17);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,string[]]', found '[int," +
                 "string...]'", 38, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,int]', found '[int,int," +
+        BAssertUtil.validateError(resultNegative, i, "incompatible types: expected '[int,int]', found '[int,int," +
                 "int]'", 46, 14);
     }
 

@@ -82,7 +82,7 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
-        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
+        BAssertUtil.validateError(result, i, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class PackageImportTest {
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 1, 1);
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io as otherIO'", 2, 1);
+        BAssertUtil.validateError(result, i, "unused import module 'ballerina/io as otherIO'", 2, 1);
     }
 
     @Test

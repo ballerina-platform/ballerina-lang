@@ -18,6 +18,7 @@
 package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 
@@ -160,7 +161,8 @@ public class CryptoUtils {
      * @return conversion error
      */
     public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(Constants.CRYPTO_ERROR_CODE, errMsg);
+        return BallerinaErrors.createError(StringUtils.fromString(Constants.CRYPTO_ERROR_CODE),
+                                           StringUtils.fromString(errMsg));
     }
 
     /**

@@ -1,3 +1,0 @@
-// Object types can be defined in-line as well. These types do not have a type name associated with them.
-// Such anonymous object types can be used in instances in which there is no need to refer to the object type by its name
-// (e.g., objects as fields of records or objects or objects as function parameters).

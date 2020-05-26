@@ -65,8 +65,7 @@ function getData(json payload) returns [string, string]? {
                 }
             }
         } else
-    {
+{}
+        io:println("not a map");
     }
-    io:println("not a map");
-}
 }

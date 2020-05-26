@@ -42,7 +42,4 @@ public class Length {
         return xml.size();
     }
 
-    public static long length_bstring(Strand strand, XMLValue xml) {
-        return length(strand, xml);
-    }
 }

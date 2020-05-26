@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
@@ -145,9 +146,9 @@ public class HTTPServicesRegistry {
     }
 
     private ObjectValue getUpgradeService(HttpResource upgradeToWebSocketResource) {
-        MapValue resourceConfigAnnotation =
+        MapValue<BString, Object> resourceConfigAnnotation =
                 HttpResource.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource());
-        MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
+        MapValue<BString, Object> webSocketConfig = (MapValue<BString, Object>) resourceConfigAnnotation.getMapValue(
                 HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
         return (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
     }

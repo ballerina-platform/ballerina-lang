@@ -1,4 +1,4 @@
-function recordWithClosureInDefaults(){
+function recordWithClosureInDefaults() returns error? {
     int x = 20;
 
     record {
@@ -9,6 +9,16 @@ function recordWithClosureInDefaults(){
     x = 25;
 
     assertEquality(20, person.age);
+
+    var personType = typeof person;
+    x = 26;
+    check createUsingConstructFrom(personType);
+
+}
+
+function createUsingConstructFrom(typedesc<record { string name; int age; }> personType) returns error? {
+    var person2 = check personType.constructFrom({ name: "Manu" });
+    assertEquality(26, person2.age);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

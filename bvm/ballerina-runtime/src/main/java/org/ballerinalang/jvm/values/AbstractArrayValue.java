@@ -20,18 +20,14 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.State;
-import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +37,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 
 /**
  * <p>
@@ -55,7 +54,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 public abstract class AbstractArrayValue implements ArrayValue {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
-    protected volatile Status freezeStatus = new Status(State.UNFROZEN);
 
     /**
      * The maximum size of arrays to allocate.
@@ -290,21 +288,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public abstract void attemptFreeze(Status freezeStatus);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public abstract void freezeDirect();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
-    }
 
     /**
      * {@inheritDoc}
@@ -319,7 +303,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         if (length == size) {
             return;
         }
-        handleFrozenArrayValue();
+        handleImmutableArrayValue();
         int newLength = (int) length;
         checkFixedLength(length);
         rangeCheck(length, size);
@@ -371,22 +355,15 @@ public abstract class AbstractArrayValue implements ArrayValue {
     protected abstract void rangeCheck(long index, int size);
 
     /**
-     * Util method to handle frozen array values.
+     * Util method to handle immutable array values.
      */
-    protected void handleFrozenArrayValue() {
-        synchronized (this) {
-            try {
-                if (this.freezeStatus.getState() != State.UNFROZEN) {
-                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), ARRAY_LANG_LIB);
-                }
-            } catch (BLangFreezeException e) {
-                if (ArrayValueImpl.USE_BSTRING) {
-                    throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
-                                                      StringUtils.fromString(e.getDetail()));
-                }
-                throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
-            }
+    protected void handleImmutableArrayValue() {
+        if (!this.getType().isReadOnly()) {
+            return;
         }
+
+        throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                          BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

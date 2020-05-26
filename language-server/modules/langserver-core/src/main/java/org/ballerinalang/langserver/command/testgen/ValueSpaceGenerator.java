@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -177,7 +178,7 @@ public class ValueSpaceGenerator {
             return template;
         } else if (bType instanceof BRecordType) {
             BRecordType bRecordType = (BRecordType) bType;
-            List<BField> params = bRecordType.fields;
+            List<BField> params = new ArrayList<>(bRecordType.fields.values());
             String[][] list = new String[template.length][params.size()];
             IntStream.range(0, params.size()).forEach(paramIndex -> {
                 BField field = params.get(paramIndex);
