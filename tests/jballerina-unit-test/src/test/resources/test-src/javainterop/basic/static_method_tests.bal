@@ -159,10 +159,10 @@ public function testUnionReturn() returns string {
     ResourceDefinition resourceDef = {path:"path", method:"method"};
     ResourceDefinition[] resources = [resourceDef];
     ApiDefinition apiDef = {resources:resources};
-    return value:toString(getMapOrError(java:fromString("swagger"), apiDef));
+    return value:toString(getMapOrError("swagger", apiDef));
 }
 
-function getMapOrError(handle swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
+function getMapOrError(string swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

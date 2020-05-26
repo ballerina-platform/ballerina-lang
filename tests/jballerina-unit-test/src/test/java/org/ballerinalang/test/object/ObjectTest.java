@@ -450,7 +450,7 @@ public class ObjectTest {
         int index = 0;
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'int'", 13, 16);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found 'string'", 23, 17);
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'int', found 'string'", 23, 17);
     }
 
     @Test(description = "Negative test to test self reference types")
@@ -542,7 +542,7 @@ public class ObjectTest {
                                   49, 19);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 50, 17);
-        BAssertUtil.validateError(result, index++, "undefined method 'getEmail' in object " +
+        BAssertUtil.validateError(result, index, "undefined method 'getEmail' in object " +
                                                    "'testorg/pkg1:1.0.0:Employee'",
                                   50, 22);
     }

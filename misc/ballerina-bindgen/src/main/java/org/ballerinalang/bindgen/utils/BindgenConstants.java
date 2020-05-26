@@ -49,6 +49,7 @@ public class BindgenConstants {
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_UTILS_FILE_NAME = "ArrayUtils.bal";
     public static final String DEPENDENCIES_DIR = "dependencies";
+    public static final String ERROR_TYPES_DIR = "error_types";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
     static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
     static final String FLOAT = "float";

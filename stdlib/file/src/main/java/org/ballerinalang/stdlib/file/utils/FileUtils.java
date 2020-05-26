@@ -19,9 +19,11 @@ package org.ballerinalang.stdlib.file.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,13 +85,14 @@ public class FileUtils {
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {
-        MapValue<String, Object> lastModifiedInstance;
+        MapValue<BString, Object> lastModifiedInstance;
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                lastModified.toMillis(), zonedDateTime.getZone().toString());
-        return BallerinaValues.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE, inputFile.getName(),
-                inputFile.length(), lastModifiedInstance, inputFile.isDirectory(), inputFile.getAbsolutePath());
+                lastModified.toMillis(), StringUtils.fromString(zonedDateTime.getZone().toString()));
+        return BallerinaValues.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE,
+                StringUtils.fromString(inputFile.getName()), inputFile.length(), lastModifiedInstance,
+                inputFile.isDirectory(), StringUtils.fromString(inputFile.getAbsolutePath()));
     }
 
 

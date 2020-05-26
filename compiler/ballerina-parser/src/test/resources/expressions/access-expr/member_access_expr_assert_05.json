@@ -1,73 +1,87 @@
 {
-    "kind": "INDEXED_EXPRESSION",
-    "children": [
+  "kind": "INDEXED_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "x"
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "x"
-        },
-        {
-            "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-            "kind": "INDEXED_EXPRESSION",
-            "children": [
+          "kind": "INDEXED_EXPRESSION",
+          "children": [
+            {
+              "kind": "METHOD_CALL",
+              "children": [
                 {
-                    "kind": "METHOD_CALL",
-                    "children": [
+                  "kind": "INDEXED_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "y"
+                    },
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
                         {
-                            "kind": "INDEXED_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "y"
-                                },
-                                {
-                                    "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "z"
-                                },
-                                {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "DOT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "call"
-                        },
-                        {
-                            "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_PAREN_TOKEN"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "z"
                         }
-                    ]
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
                 },
                 {
-                    "kind": "OPEN_BRACKET_TOKEN"
+                  "kind": "DOT_TOKEN"
                 },
                 {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": "3"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "call"
                 },
                 {
-                    "kind": "CLOSE_BRACKET_TOKEN"
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
-            ]
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN",
-            "isMissing": true
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "3"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

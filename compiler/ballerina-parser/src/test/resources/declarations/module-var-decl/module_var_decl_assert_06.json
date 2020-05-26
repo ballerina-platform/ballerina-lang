@@ -55,6 +55,15 @@
               "kind": "CONST_KEYWORD"
             },
             {
+              "kind": "SINGLETON_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello3.com"
+                }
+              ]
+            },
+            {
               "kind": "IDENTIFIER_TOKEN",
               "isMissing": true
             },
@@ -63,8 +72,8 @@
               "isMissing": true
             },
             {
-              "kind": "STRING_LITERAL",
-              "value": "http://hello3.com"
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true
             },
             {
               "kind": "SEMICOLON_TOKEN"

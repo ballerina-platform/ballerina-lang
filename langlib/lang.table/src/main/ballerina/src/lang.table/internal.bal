@@ -17,9 +17,17 @@
 type TableIterator object {
 
     private table<Type> t;
+    private KeyType[] keys;
+    private int size;
 
     public function init(table<Type> t) {
        self.t = t;
+        self.size = length(t);
+       if (t is table<Type> key<KeyType>) {
+           self.keys = keys(t);
+       } else {
+           self.keys = [];
+       }
     }
 
     # Return the next member in table iterator, nil if end of iterator is reached.

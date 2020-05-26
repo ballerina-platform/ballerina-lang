@@ -22,7 +22,7 @@ import ballerina/java;
 # ```
 #
 # + msg - The message to be logged
-public function printDebug(string|(function () returns (string)) msg) = @java:Method {
+public function printDebug(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -34,7 +34,7 @@ public function printDebug(string|(function () returns (string)) msg) = @java:Me
 # 
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public function printError(string|(function () returns (string)) msg, public error? err = ()) = @java:Method {
+public function printError(anydata|(function () returns (anydata)) msg, public error? err = ()) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -44,7 +44,7 @@ public function printError(string|(function () returns (string)) msg, public err
 # ```
 # 
 # + msg - The message to be logged
-public function printInfo(string|(function () returns (string)) msg) = @java:Method {
+public function printInfo(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -54,7 +54,7 @@ public function printInfo(string|(function () returns (string)) msg) = @java:Met
 # ```
 # 
 # + msg - The message to be logged
-public function printTrace(string|(function () returns (string)) msg) = @java:Method {
+public function printTrace(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
@@ -64,6 +64,6 @@ public function printTrace(string|(function () returns (string)) msg) = @java:Me
 # ```
 # 
 # + msg - The message to be logged
-public function printWarn(string|(function () returns (string)) msg) = @java:Method {
+public function printWarn(anydata|(function () returns (anydata)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;

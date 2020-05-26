@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -83,5 +85,66 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
                 ltToken,
                 typeNode,
                 gtToken);
+    }
+
+    public ParameterizedTypeDescriptorNodeModifier modify() {
+        return new ParameterizedTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class ParameterizedTypeDescriptorNodeModifier {
+        private final ParameterizedTypeDescriptorNode oldNode;
+        private Token parameterizedType;
+        private Token ltToken;
+        private Node typeNode;
+        private Token gtToken;
+
+        public ParameterizedTypeDescriptorNodeModifier(ParameterizedTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.parameterizedType = oldNode.parameterizedType();
+            this.ltToken = oldNode.ltToken();
+            this.typeNode = oldNode.typeNode();
+            this.gtToken = oldNode.gtToken();
+        }
+
+        public ParameterizedTypeDescriptorNodeModifier withParameterizedType(
+                Token parameterizedType) {
+            Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
+            this.parameterizedType = parameterizedType;
+            return this;
+        }
+
+        public ParameterizedTypeDescriptorNodeModifier withLtToken(
+                Token ltToken) {
+            Objects.requireNonNull(ltToken, "ltToken must not be null");
+            this.ltToken = ltToken;
+            return this;
+        }
+
+        public ParameterizedTypeDescriptorNodeModifier withTypeNode(
+                Node typeNode) {
+            Objects.requireNonNull(typeNode, "typeNode must not be null");
+            this.typeNode = typeNode;
+            return this;
+        }
+
+        public ParameterizedTypeDescriptorNodeModifier withGtToken(
+                Token gtToken) {
+            Objects.requireNonNull(gtToken, "gtToken must not be null");
+            this.gtToken = gtToken;
+            return this;
+        }
+
+        public ParameterizedTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    parameterizedType,
+                    ltToken,
+                    typeNode,
+                    gtToken);
+        }
     }
 }

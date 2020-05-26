@@ -71,21 +71,21 @@ public class KafkaRecordConsumer {
         } else {
             this.kafkaConsumer = kafkaConsumer;
         }
-        List<String> topics = (ArrayList<String>) configParams.get(KafkaConstants.ALIAS_TOPICS);
+        List<String> topics = (ArrayList<String>) configParams.get(KafkaConstants.ALIAS_TOPICS.getValue());
         // Subscribe Kafka Consumer to given topics.
         this.kafkaConsumer.subscribe(topics);
         this.kafkaListener = kafkaListener;
-        if (configParams.get(KafkaConstants.ALIAS_POLLING_TIMEOUT) != null) {
+        if (configParams.get(KafkaConstants.ALIAS_POLLING_TIMEOUT.getValue()) != null) {
             this.pollingTimeout = Duration.ofMillis((Integer) configParams.get(KafkaConstants.ALIAS_POLLING_TIMEOUT));
         }
-        if (configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL) != null) {
-            this.pollingInterval = (Integer) configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL);
+        if (configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL.getValue()) != null) {
+            this.pollingInterval = (Integer) configParams.get(KafkaConstants.ALIAS_POLLING_INTERVAL.getValue());
         }
         if (configParams.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG) != null) {
             this.decoupleProcessing = (Boolean) configParams.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG);
         }
         // This is to override default decouple processing setting if required.
-        if (configParams.get(KafkaConstants.ALIAS_DECOUPLE_PROCESSING) != null) {
+        if (configParams.get(KafkaConstants.ALIAS_DECOUPLE_PROCESSING.getValue()) != null) {
             this.decoupleProcessing = (Boolean) configParams.get(KafkaConstants.ALIAS_DECOUPLE_PROCESSING);
         }
         this.groupId = (String) configParams.get(ConsumerConfig.GROUP_ID_CONFIG);

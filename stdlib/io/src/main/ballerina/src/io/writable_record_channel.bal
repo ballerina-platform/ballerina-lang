@@ -36,7 +36,7 @@ public type WritableTextRecordChannel object {
         self.characterChannel = characterChannel;
         self.fs = fs;
         self.rs = rs;
-        initWritableTextRecordChannel(self, characterChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
+        initWritableTextRecordChannel(self, characterChannel, fs, rs, fmt);
     }
 
 # Writes records to a given output resource.
@@ -47,11 +47,7 @@ public type WritableTextRecordChannel object {
 # + textRecord - List of fields to be written
 # + return - An `io:Error` if the records could not be written properly or else `()`
     public function write(string[] textRecord) returns Error? {
-        handle[] records = [];
-            foreach string v in textRecord {
-                records.push(java:fromString(v));
-            }
-        return writeRecordExtern(self, records);
+        return writeRecordExtern(self, textRecord);
     }
 
 # Closes a given record channel.
@@ -66,12 +62,12 @@ public type WritableTextRecordChannel object {
 };
 
 function initWritableTextRecordChannel(WritableTextRecordChannel textChannel, WritableCharacterChannel charChannel,
-            handle fs, handle rs, handle fmt) = @java:Method {
+                                       string fs, string rs, string fmt) = @java:Method {
     name: "initRecordChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
-function writeRecordExtern(WritableTextRecordChannel textChannel, handle[] textRecord) returns Error? = @java:Method {
+function writeRecordExtern(WritableTextRecordChannel textChannel, string[] textRecord) returns Error? = @java:Method {
     name: "write",
     class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;

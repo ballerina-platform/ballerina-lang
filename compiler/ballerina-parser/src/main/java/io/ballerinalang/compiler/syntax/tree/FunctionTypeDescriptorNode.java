@@ -19,10 +19,12 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Objects;
+
 /**
  * This is a generated syntax tree node.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
 
@@ -67,5 +69,46 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
         return NodeFactory.createFunctionTypeDescriptorNode(
                 functionKeyword,
                 functionSignature);
+    }
+
+    public FunctionTypeDescriptorNodeModifier modify() {
+        return new FunctionTypeDescriptorNodeModifier(this);
+    }
+
+    /**
+     * This is a generated tree node modifier utility.
+     *
+     * @since 2.0.0
+     */
+    public static class FunctionTypeDescriptorNodeModifier {
+        private final FunctionTypeDescriptorNode oldNode;
+        private Token functionKeyword;
+        private FunctionSignatureNode functionSignature;
+
+        public FunctionTypeDescriptorNodeModifier(FunctionTypeDescriptorNode oldNode) {
+            this.oldNode = oldNode;
+            this.functionKeyword = oldNode.functionKeyword();
+            this.functionSignature = oldNode.functionSignature();
+        }
+
+        public FunctionTypeDescriptorNodeModifier withFunctionKeyword(
+                Token functionKeyword) {
+            Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
+            this.functionKeyword = functionKeyword;
+            return this;
+        }
+
+        public FunctionTypeDescriptorNodeModifier withFunctionSignature(
+                FunctionSignatureNode functionSignature) {
+            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
+            this.functionSignature = functionSignature;
+            return this;
+        }
+
+        public FunctionTypeDescriptorNode apply() {
+            return oldNode.modify(
+                    functionKeyword,
+                    functionSignature);
+        }
     }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
@@ -49,7 +50,7 @@ public class PublisherNativeOperationHandler {
      * @return `error` if an error occurred during publishing
      */
     public static Object validateAndPublishToInternalHub(String hubUrl, String topic,
-                                                         MapValue<String, Object> content) {
+                                                         MapValue<BString, Object> content) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.getPublishUrl().equals(hubUrl)) {
             try {

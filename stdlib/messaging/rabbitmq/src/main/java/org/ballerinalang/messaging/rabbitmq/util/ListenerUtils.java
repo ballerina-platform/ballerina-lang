@@ -130,7 +130,7 @@ public class ListenerUtils {
         ArrayList<ObjectValue> services =
                 (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
         String serviceName = service.getType().getName();
-        String queueName = (String) service.getNativeData(RabbitMQConstants.QUEUE_NAME);
+        String queueName = (String) service.getNativeData(RabbitMQConstants.QUEUE_NAME.getValue());
         try {
             channel.basicCancel(serviceName);
             console.println("[ballerina/rabbitmq] Consumer service unsubscribed from the queue " + queueName);
@@ -164,7 +164,7 @@ public class ListenerUtils {
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =
                 (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-        String queueName = queueConfig.getStringValue(RabbitMQConstants.QUEUE_NAME);
+        String queueName = queueConfig.getStringValue(RabbitMQConstants.QUEUE_NAME).getValue();
         boolean durable = queueConfig.getBooleanValue(RabbitMQConstants.QUEUE_DURABLE);
         boolean exclusive = queueConfig.getBooleanValue(RabbitMQConstants.QUEUE_EXCLUSIVE);
         boolean autoDelete = queueConfig.getBooleanValue(RabbitMQConstants.QUEUE_AUTO_DELETE);
@@ -235,7 +235,7 @@ public class ListenerUtils {
         MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
                 RabbitMQConstants.SERVICE_CONFIG);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE);
+        String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE).getValue();
         switch (ackMode) {
             case RabbitMQConstants.AUTO_ACKMODE:
                 autoAck = true;
