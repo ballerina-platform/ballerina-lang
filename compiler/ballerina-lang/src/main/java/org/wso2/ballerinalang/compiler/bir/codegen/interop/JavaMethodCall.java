@@ -36,12 +36,10 @@ public class JavaMethodCall extends BIRTerminator {
     List<BIROperand> args;
     public String jClassName;
     public String jMethodVMSig;
-    public String jMethodVMSigBString;
     public String name;
 
     public JavaMethodCall(DiagnosticPos pos, InstructionKind kind, List<BIROperand> args,
-                          BIROperand lhsOp, String jClassName, String jMethodVMSig,
-                          String jMethodVMSigBString, String name, BIRBasicBlock thenBB) {
+                          BIROperand lhsOp, String jClassName, String jMethodVMSig, String name, BIRBasicBlock thenBB) {
 
         super(pos, kind);
         this.pos = pos;
@@ -50,7 +48,6 @@ public class JavaMethodCall extends BIRTerminator {
         this.lhsOp = lhsOp;
         this.jClassName = jClassName;
         this.jMethodVMSig = jMethodVMSig;
-        this.jMethodVMSigBString = jMethodVMSigBString;
         this.name = name;
         this.thenBB = thenBB;
     }

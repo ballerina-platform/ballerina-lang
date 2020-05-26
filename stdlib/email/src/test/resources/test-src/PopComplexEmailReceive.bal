@@ -31,7 +31,7 @@ function testReceiveComplexEmail(string host, string username, string password) 
         email:Email|email:Error? emailResponse = popClient->read();
         if (emailResponse is email:Email) {
             returnArray[0] = emailResponse.subject;
-            returnArray[1] = emailResponse.body;
+            returnArray[1] = <string>emailResponse.body;
             returnArray[2] = emailResponse.'from;
             returnArray[3] = getNonNilString(emailResponse?.sender);
             returnArray[4] = concatStrings(emailResponse.to);
@@ -66,6 +66,13 @@ function testReceiveComplexEmail(string host, string username, string password) 
                 }
                 returnArray[11] = attachments[0].getHeader("H1");
                 returnArray[12] = attachments[0].getContentType();
+                json? headers = emailResponse?.headers;
+                if (!(headers is ())) {
+                    json|error headerValue = headers.header1_name;
+                    if (headerValue is json && !(headerValue is ())) {
+                        returnArray[13] = <string>headerValue;
+                    }
+                }
             }
             return returnArray;
         } else if (emailResponse is ()) {
@@ -78,9 +85,9 @@ function testReceiveComplexEmail(string host, string username, string password) 
     }
 }
 
-function getNonNilString(string? sender) returns string {
-    if sender is string {
-        return sender;
+function getNonNilString(string? nilableString) returns string {
+    if nilableString is string {
+        return nilableString;
     } else {
         return "";
     }

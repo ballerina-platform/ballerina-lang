@@ -47,8 +47,4 @@ public class GetChildren {
 
         return xmlVal.children();
     }
-
-    public static XMLValue getChildren_bstring(Strand strand, XMLValue xmlVal) {
-        return getChildren(strand, xmlVal);
-    }
 }

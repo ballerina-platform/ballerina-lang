@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.ErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * Represents error type in Ballerina.
@@ -39,13 +40,13 @@ public class BErrorType extends BType implements ErrorType {
     private static final String CLOSE_ERROR = ">";
 
     public BErrorType(BTypeSymbol tSymbol, BType reasonType, BType detailType) {
-        super(TypeTags.ERROR, tSymbol);
+        super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.reasonType = reasonType;
         this.detailType = detailType;
     }
 
     public BErrorType(BTypeSymbol tSymbol) {
-        super(TypeTags.ERROR, tSymbol);
+        super(TypeTags.ERROR, tSymbol, Flags.READONLY);
     }
 
     @Override

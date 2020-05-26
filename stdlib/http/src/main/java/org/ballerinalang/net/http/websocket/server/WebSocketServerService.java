@@ -21,6 +21,7 @@ package org.ballerinalang.net.http.websocket.server;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
@@ -55,12 +56,12 @@ public class WebSocketServerService extends WebSocketService {
         MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource.getBalResource());
         MapValue webSocketConfig =
                 resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-        String upgradePath = webSocketConfig.getStringValue(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
+        String upgradePath = webSocketConfig.getStringValue(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getValue();
         setBasePathToServiceObj(httpBasePath.concat(upgradePath));
     }
 
     private void populateConfigs() {
-        MapValue<String, Object> configAnnotation = getServiceConfigAnnotation();
+        MapValue<BString, Object> configAnnotation = getServiceConfigAnnotation();
         if (configAnnotation != null) {
             negotiableSubProtocols = WebSocketUtil.findNegotiableSubProtocols(configAnnotation);
             idleTimeoutInSeconds = WebSocketUtil.findTimeoutInSeconds(configAnnotation,
@@ -72,8 +73,8 @@ public class WebSocketServerService extends WebSocketService {
     }
 
     @SuppressWarnings(WebSocketConstants.UNCHECKED)
-    private MapValue<String, Object> getServiceConfigAnnotation() {
-        return (MapValue<String, Object>) service.getType().getAnnotation(
+    private MapValue<BString, Object> getServiceConfigAnnotation() {
+        return (MapValue<BString, Object>) service.getType().getAnnotation(
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
     }
 
@@ -117,7 +118,7 @@ public class WebSocketServerService extends WebSocketService {
     private String findFullWebSocketUpgradePath(MapValue config) {
         String path = null;
         if (config != null) {
-            String basePathVal = config.getStringValue(WebSocketConstants.ANNOTATION_ATTR_PATH);
+            String basePathVal = config.getStringValue(WebSocketConstants.ANNOTATION_ATTR_PATH).getValue();
             if (!basePathVal.trim().isEmpty()) {
                 path = HttpUtil.sanitizeBasePath(basePathVal);
             }

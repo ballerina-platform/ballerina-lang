@@ -40,6 +40,8 @@ type EmployeeTable table<Employee> key(name);
 
 type CustomerTable table<Customer> key(id);
 
+type CustomerKeyLessTable table<Customer>;
+
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
   { name: "Mohan", age: 37 },
@@ -87,8 +89,58 @@ function testIterator() returns boolean {
     testPassed = testPassed && person == personList[2];
     person = getPerson(itr.next());
     testPassed = testPassed && person == personList[3];
-
+    person = getPerson(itr.next());
+    testPassed = testPassed && person == ();
     return testPassed;
+}
+
+function testAddNewRecordAfterIteratorCreation() {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    Person p = { name: "Lasini", age: 25 };
+    tab.put(p);
+    var value = itr.next();
+}
+
+function testRemoveAlreadyReturnedRecordFromIterator() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    _ = tab.remove("Chiran");
+    value = itr.next();
+
+    return value?.value?.name == "Gima";
+}
+
+function testChangeValueForAGivenKeyWhileIterating() returns boolean {
+    table<Person> key(name) tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    var itr = tab.iterator();
+    var value = itr.next();
+    value = itr.next();
+    Person p = { name: "Gima", age: 50 };
+    tab["Gima"] = p;
+    value = itr.next();
+
+    return value?.value?.age == 50;
 }
 
 function getValueFromKey() returns boolean {
@@ -221,4 +273,86 @@ function testNextKey() returns int {
       { id: 5, firstName: "Gimantha", lastName: "Bandara" }
     ];
     return custTbl.nextKey();
+}
+
+function testAddData() returns boolean {
+    boolean testPassed = true;
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer data = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    custTbl.add(data);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && tableToList[3] == data;
+    return testPassed;
+}
+
+function testAddExistingMember() returns any[]|error {
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer data = { id: 5, firstName: "Gimantha", lastName: "Bandara" };
+    custTbl.add(data);
+    return custTbl.toArray();
+}
+
+
+function testPutData() returns boolean {
+    boolean testPassed = true;
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer customer1 = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    Customer customer2 = { id: 5, firstName: "Grainier", lastName: "Perera" };
+    custTbl.put(customer1);
+    custTbl.put(customer2);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && tableToList[2] == customer2;
+    testPassed = testPassed && tableToList[3] == customer1;
+    return testPassed;
+}
+
+//function testPutInconsistentData() returns any[]|error {
+//    CustomerTable custTbl = table key(id) [
+//      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+//      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+//    ];
+//    var person = { name: "Chiran", age: 33 };
+//    custTbl.put(person);
+//    return custTbl.toArray();
+//}
+
+function testPutWithKeyLessTbl() returns boolean {
+    boolean testPassed = true;
+    CustomerKeyLessTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer customer = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    custTbl.put(customer);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == customer;
+    return testPassed;
+}
+
+function testAddWithKeyLessTbl() returns boolean {
+    boolean testPassed = true;
+    CustomerKeyLessTable custTbl = table [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    Customer customer = { id: 100, firstName: "Chiran", lastName: "Fernando" };
+    custTbl.add(customer);
+    Customer[] tableToList = custTbl.toArray();
+    testPassed = testPassed && tableToList.length() == 3;
+    testPassed = testPassed && tableToList[2] == customer;
+    return testPassed;
 }

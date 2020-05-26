@@ -46,10 +46,7 @@ public class XMLText extends XMLNonElementItem {
 
     @Override
     public boolean isEmpty() {
-        if (getNodeType() == XMLNodeType.TEXT) {
-            return data.isEmpty();
-        }
-        return false;
+        return data.isEmpty();
     }
 
     @Override
@@ -65,11 +62,6 @@ public class XMLText extends XMLNonElementItem {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         return this;
-    }
-
-    @Override
-    public synchronized boolean isFrozen() {
-        return true;
     }
 
     @Override

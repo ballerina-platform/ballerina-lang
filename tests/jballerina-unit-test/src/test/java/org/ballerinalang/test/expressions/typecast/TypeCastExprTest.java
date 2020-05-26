@@ -194,7 +194,7 @@ public class TypeCastExprTest {
     public void testJsonToBoolean() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonToBoolean");
         Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     /*@Test
@@ -579,7 +579,7 @@ public class TypeCastExprTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test

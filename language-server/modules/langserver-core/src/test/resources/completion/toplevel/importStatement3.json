@@ -366,19 +366,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.query",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'query;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.int",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
       "insertText": "lang.'int;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "socket",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "socket",
       "insertTextFormat": "Snippet"
     },
     {

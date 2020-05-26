@@ -73,9 +73,6 @@ public class Strand {
     private State state;
     private final ReentrantLock strandLock;
 
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
-
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
@@ -193,11 +190,7 @@ public class Strand {
                     throw future.panic;
                 }
                 ctx.waitCount.decrementAndGet();
-                Object key = entry.getKey();
-                if (USE_BSTRING) {
-                    key = StringUtils.fromString((String) key);
-                }
-                target.put(key, future.result);
+                target.put(StringUtils.fromString(entry.getKey()), future.result);
             } else {
                 this.setState(BLOCK_ON_AND_YIELD);
                 entry.getValue().strand.waitingContexts.add(ctx);

@@ -20,12 +20,14 @@ package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.List;
@@ -42,21 +44,21 @@ public class GetConfig {
     private static final BMapType mapType = new BMapType(BTypes.typeAnydata);
     private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata);
 
-    public static Object get(String configKey, String type) {
+    public static Object get(BString configKey, BString type) {
         try {
-            switch (type) {
+            switch (type.getValue()) {
                 case "STRING":
-                    return configRegistry.getAsString(configKey);
+                    return StringUtils.fromString(configRegistry.getAsString(configKey.getValue()));
                 case "INT":
-                    return configRegistry.getAsInt(configKey);
+                    return configRegistry.getAsInt(configKey.getValue());
                 case "FLOAT":
-                    return configRegistry.getAsFloat(configKey);
+                    return configRegistry.getAsFloat(configKey.getValue());
                 case "BOOLEAN":
-                    return configRegistry.getAsBoolean(configKey);
+                    return configRegistry.getAsBoolean(configKey.getValue());
                 case "MAP":
-                    return buildMapValue(configRegistry.getAsMap(configKey));
+                    return buildMapValue(configRegistry.getAsMap(configKey.getValue()));
                 case "ARRAY":
-                    return buildArrayValue(configRegistry.getAsArray(configKey));
+                    return buildArrayValue(configRegistry.getAsArray(configKey.getValue()));
                 default:
                     throw new IllegalStateException("invalid value type: " + type);
             }
@@ -66,10 +68,10 @@ public class GetConfig {
     }
 
     @SuppressWarnings("unchecked")
-    private static MapValue buildMapValue(Map<String, Object> section) {
-        MapValue map = new MapValueImpl<String, Object>(mapType);
+    private static MapValue<BString, Object> buildMapValue(Map<String, Object> section) {
+        MapValue<BString, Object> map = new MapValueImpl<>(mapType);
         for (Map.Entry<String, Object> entry : section.entrySet()) {
-            map.put(entry.getKey(), getConvertedValue(entry.getValue()));
+            map.put(StringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
         }
         return map;
     }
@@ -84,13 +86,13 @@ public class GetConfig {
 
     @SuppressWarnings("unchecked")
     private static Object getConvertedValue(Object obj) {
-        if (obj instanceof String || obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
+        if (obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
             return obj;
         } else if (obj instanceof Map) {
             return buildMapValue((Map<String, Object>) obj);
         } else if (obj instanceof List) {
             return buildArrayValue((List) obj);
         }
-        return String.valueOf(obj);
+        return StringUtils.fromString(String.valueOf(obj));
     }
 }

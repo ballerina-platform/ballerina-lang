@@ -152,7 +152,7 @@ public abstract class AbstractTestTemplate implements TestTemplate {
                 BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expression;
                 if (namedArgsExpression.name.value.equals("config") &&
                         namedArgsExpression.expr instanceof BLangRecordLiteral) {
-                    return isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET,
+                    return isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET.getValue(),
                                                (BLangRecordLiteral) namedArgsExpression.expr);
                 }
             }

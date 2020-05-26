@@ -44,6 +44,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   constantDefinition
+    |   enumDefinition
     ;
 
 serviceDefinition
@@ -56,6 +57,10 @@ serviceBody
 
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
+    ;
+
+blockStatement
+    :   LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 externalFunctionBody
@@ -156,9 +161,18 @@ constantDefinition
     :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
+enumDefinition
+    :   documentationString? annotationAttachment* PUBLIC? ENUM Identifier LEFT_BRACE
+            (enumMember (COMMA enumMember)*)? RIGHT_BRACE
+    ;
+
+enumMember
+    :   documentationString? annotationAttachment* Identifier (ASSIGN constantExpression)?
+    ;
+
 globalVariableDefinition
     :   PUBLIC? LISTENER typeName? Identifier ASSIGN expression SEMICOLON
-    |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 attachmentPoint
@@ -213,6 +227,7 @@ typeName
     :   simpleTypeName                                                                          # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
+    |   typeName BIT_AND typeName                                                               # intersectionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
@@ -274,10 +289,10 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
-    |   TYPE_FUTURE LT typeName GT
+    |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_DESC LT typeName GT
+    |   TYPE_DESC (LT typeName GT)?
     |   SERVICE
     |   errorTypeName
     |   streamTypeName
@@ -361,6 +376,7 @@ statement
     |   retryTransactionStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   blockStatement
     ;
 
 variableDefinitionStatement
@@ -805,6 +821,7 @@ expression
     |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression JOIN_EQUALS expression                                   # binaryEqualsExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
@@ -876,8 +893,16 @@ commitAction
     :   COMMIT
     ;
 
+onConflictClause
+    :    ON CONFLICT expression
+    ;
+
 selectClause
     :   SELECT expression
+    ;
+
+onClause
+    :   ON expression
     ;
 
 whereClause
@@ -886,6 +911,10 @@ whereClause
 
 letClause
     :   LET letVarDecl (COMMA letVarDecl)*
+    ;
+
+joinClause
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN VAR bindingPattern) IN expression
     ;
 
 fromClause
@@ -897,11 +926,15 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause (fromClause | letClause | whereClause)*
+    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
+    ;
+
+queryConstructType
+    :   TYPE_TABLE tableKeySpecifier | TYPE_STREAM
     ;
 
 queryExpr
-    :   queryPipeline selectClause
+    :   queryConstructType? queryPipeline selectClause onConflictClause?
     ;
 
 queryAction

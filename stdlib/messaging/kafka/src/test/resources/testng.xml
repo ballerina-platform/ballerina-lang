@@ -20,55 +20,46 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-kafka-test-suite">
-    <test name="ballerina-kafka-consumer-tests">
-        <!-- Consumer-Related tests -->
-        <classes>
-            <class name="org.ballerinalang.messaging.kafka.consumer.TopicAssignTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.TopicsTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.ConsumerFunctionsTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.ManualCommitTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.TopicPauseResumeTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribePartitionRebalanceTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeToPatternTest" />
-            <class name="org.ballerinalang.messaging.kafka.consumer.PartitionSeekTest" />
-        </classes>
-    </test>
-    <test name="ballerina-kafka-producer-tests">
-        <!-- Producer-Related tests -->
-        <classes>
-            <class name="org.ballerinalang.messaging.kafka.producer.ProducerFunctionsTest" />
-        </classes>
-    </test>
-    <test name="ballerina-kafka-service-tests">
-        <!-- Service-Related tests -->
-        <classes>
-            <class name="org.ballerinalang.messaging.kafka.services.ServiceTest" />
-        </classes>
-    </test>
     <test name="ballerina-kafka-compiler-test">
-        <!-- Compiler plugin validation tests -->
         <classes>
             <class name="org.ballerinalang.messaging.kafka.compiler.CompilerPluginTest" />
         </classes>
     </test>
-    <test name="ballerina-kafka-transactions-test">
+    <test name="ballerina-kafka-consumer-tests">
         <classes>
-            <!-- Transactions-Related tests -->
-            <class name="org.ballerinalang.messaging.kafka.transactions.TransactionalProducerTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.ConsumerFunctionsTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.ManualCommitTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.PartitionSeekTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.TopicPauseResumeTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.TopicsTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeToPatternTest" />
+            <class name="org.ballerinalang.messaging.kafka.consumer.TopicSubscribeWithPartitionRebalanceTest" />
+        </classes>
+    </test>
+    <test name="ballerina-kafka-producer-tests">
+        <classes>
+            <class name="org.ballerinalang.messaging.kafka.producer.ProducerFunctionsTest" />
         </classes>
     </test>
     <test name="ballerina-kafka-security-tests">
         <classes>
-            <!-- SASL Based Authentication Tests-->
-            <class name="org.ballerinalang.messaging.kafka.security.SaslPlainAuthenticationTest"></class>
-            <!-- SSL-Based Consumer/Producer-Related tests -->
-            <class name="org.ballerinalang.messaging.kafka.security.ConsumerAndProducerWithSslTest" />
+            <class name="org.ballerinalang.messaging.kafka.security.SaslPlainAuthenticationTest" />
+            <class name="org.ballerinalang.messaging.kafka.security.SslConsumerAndProducerTest" />
         </classes>
     </test>
     <test name="ballerina-kafka-serializer-deserializer-tests">
         <classes>
-            <!-- SSL-Based Consumer/Producer-Related tests -->
             <class name="org.ballerinalang.messaging.kafka.serdes.SerializerDeserializerTest" />
+        </classes>
+    </test>
+    <test name="ballerina-kafka-service-tests">
+        <classes>
+            <class name="org.ballerinalang.messaging.kafka.services.ServiceTest" />
+        </classes>
+    </test>
+    <test name="ballerina-kafka-transactions-test">
+        <classes>
+            <class name="org.ballerinalang.messaging.kafka.transactions.TransactionalProducerTest" />
         </classes>
     </test>
 </suite>

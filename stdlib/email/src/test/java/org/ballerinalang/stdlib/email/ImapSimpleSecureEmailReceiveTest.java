@@ -114,7 +114,7 @@ public class ImapSimpleSecureEmailReceiveTest {
             fail("IMAP Client could read zero emails.");
         } else {
             BMap<String, BValue> email = (BMap<String, BValue>) returns[0];
-            String subject = email.get(EmailConstants.MESSAGE_SUBJECT).stringValue();
+            String subject = email.get(EmailConstants.MESSAGE_SUBJECT.getValue()).stringValue();
             assertEquals(EMAIL_SUBJECT, subject);
         }
     }
