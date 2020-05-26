@@ -596,11 +596,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         DiagnosticPos pos = queryExpr.pos;
         final BType type = queryExpr.type;
         String name = getNewVarName();
+        BType tableType = type;
+        if (type.tag == TypeTags.UNION) {
+            tableType = ((BUnionType) type).getMemberTypes()
+                    .stream().filter(m -> m.tag == TypeTags.TABLE)
+                    .findFirst().orElse(symTable.tableType);
+        }
         final List<BLangIdentifier> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
         tableConstructorExpr.pos = pos;
-        tableConstructorExpr.type = type;
+        tableConstructorExpr.type = tableType;
         if (!keyFieldIdentifiers.isEmpty()) {
             BLangTableKeySpecifier keySpecifier = (BLangTableKeySpecifier)
                     TreeBuilder.createTableKeySpecifierNode();
@@ -611,9 +617,9 @@ public class QueryDesugar extends BLangNodeVisitor {
             tableConstructorExpr.tableKeySpecifier = keySpecifier;
         }
         BVarSymbol tableSymbol = new BVarSymbol(0, names.fromString(name),
-                env.scope.owner.pkgID, type, this.env.scope.owner);
+                env.scope.owner.pkgID, tableType, this.env.scope.owner);
         BLangSimpleVariable tableVariable = ASTBuilderUtil.createVariable(pos,
-                name, type, tableConstructorExpr, tableSymbol);
+                name, tableType, tableConstructorExpr, tableSymbol);
         queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
         return ASTBuilderUtil.createVariableRef(pos, tableSymbol);
     }
