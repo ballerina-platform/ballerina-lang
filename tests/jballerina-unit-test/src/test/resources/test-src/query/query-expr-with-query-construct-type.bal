@@ -34,7 +34,22 @@ type EmpProfileValue record {|
     EmpProfile value;
 |};
 
-function getPersonValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal) returns PersonValue? {
+type Customer record {
+    readonly int id;
+    readonly string name;
+    int noOfItems;
+};
+
+type CustomerTable table<Customer> key(id, name);
+
+type CustomerKeyLessTable table<Customer>;
+
+type CustomerValue record {|
+  Customer value;
+|};
+
+function getPersonValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal)
+returns PersonValue? {
     var result = returnedVal;
     if (result is PersonValue) {
         return result;
@@ -63,6 +78,16 @@ returns EmpProfileValue? {
     }
 }
 
+function getCustomer(record {| Customer value; |}? returnedVal) returns Customer? {
+    if (returnedVal is CustomerValue) {
+       return returnedVal.value;
+    } else {
+       return ();
+    }
+}
+
+# functions to test query-construct-type --> stream
+
 function testSimpleQueryReturnStream() returns boolean {
     boolean testPassed = true;
 
@@ -73,13 +98,13 @@ function testSimpleQueryReturnStream() returns boolean {
     Person[] personList = [p1, p2, p3];
 
     stream<Person> outputPersonStream = stream from var person in personList
-                                where person.firstName == "John"
-                                let int newAge = 34
-                                select {
-                                    firstName: person.firstName,
-                                    lastName: person.lastName,
-                                    age: newAge
-                                };
+        where person.firstName == "John"
+        let int newAge = 34
+        select {
+            firstName: person.firstName,
+            lastName: person.lastName,
+            age: newAge
+        };
 
     record {| Person value; |}? person = getPersonValue(outputPersonStream.next());
     testPassed = testPassed && person?.value?.firstName == "John" && person?.value?.lastName == "David" &&
@@ -139,8 +164,7 @@ function testMultipleFromWhereAndLetReturnStream() returns boolean {
     Employee[] employeeList = [e1, e2];
     Department[] departmentList = [d1, d2];
 
-    stream<Employee> outputEmployeeStream =
-         stream from var emp in employeeList
+    stream<Employee> outputEmployeeStream = stream from var emp in employeeList
          from var department in departmentList
          where emp.firstName == "John"
          where emp.dept == "Engineering"
@@ -166,7 +190,7 @@ function testMultipleFromWhereAndLetReturnStream() returns boolean {
     return testPassed;
 }
 
-function testInnerJoinReturnStream() returns boolean {
+function testInnerJoinAndLimitReturnStream() returns boolean {
     boolean testPassed = true;
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
@@ -179,8 +203,7 @@ function testInnerJoinReturnStream() returns boolean {
     Person[] personList = [p1, p2];
     Employee[] employeeList = [e1, e2, e3];
 
-    stream<EmpProfile> outputEmpProfileStream =
-            stream from var person in personList.toStream()
+    stream<EmpProfile> outputEmpProfileStream = stream from var person in personList.toStream()
             join Employee employee in employeeList.toStream()
             on person.firstName equals employee.firstName
             select {
@@ -199,6 +222,193 @@ function testInnerJoinReturnStream() returns boolean {
 
     empProfile = getEmpProfileValue(outputEmpProfileStream.next());
     testPassed = testPassed && empProfile == ();
+
+    return testPassed;
+}
+
+# functions to test query-construct-type --> table
+
+function testSimpleQueryExprReturnTable() returns boolean {
+    boolean testPassed = true;
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+
+    if (customerTable is CustomerTable) {
+        var itr = customerTable.iterator();
+        Customer? customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[0];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[1];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[2];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == ();
+    }
+
+    return testPassed;
+}
+
+function testTableWithDuplicateKeys() returns CustomerTable|error {
+    boolean testPassed = false;
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+    Customer[] customerList = [c1, c2, c1];
+
+    CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+
+    return customerTable;
+}
+
+function testTableNoDuplicatesAndOnConflictReturnTable() returns boolean {
+    boolean testPassed = true;
+    error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict onConflictError;
+
+    if (customerTable is CustomerTable) {
+        var itr = customerTable.iterator();
+        Customer? customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[0];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[1];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[2];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == ();
+    }
+
+    return testPassed;
+}
+
+function testTableWithDuplicatesAndOnConflictReturnTable() returns CustomerTable|error {
+     error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+     Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+     Customer[] customerList = [c1, c2, c1];
+
+     CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+         select {
+             id: customer.id,
+             name: customer.name,
+             noOfItems: customer.noOfItems
+         }
+         on conflict onConflictError;
+
+     return customerTable;
+}
+
+function testQueryExprWithOtherClausesReturnTable() returns CustomerTable|error {
+     error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+     Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+     Customer[] customerList = [c1, c2, c1];
+     Person[] personList = [p1, p2];
+
+     CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+         from var person in personList
+         let int items = 25
+         let string customerName = "Bini"
+         where customer.id == 1
+         where person.firstName == "Amy"
+         select {
+             id: customer.id,
+             name: customerName,
+             noOfItems: items
+         }
+         on conflict onConflictError;
+
+     return customerTable;
+}
+
+function testQueryExprWithJoinClauseReturnTable() returns CustomerTable|error {
+     error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+     Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+     Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+     Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+     Customer[] customerList = [c1, c2, c1];
+     Person[] personList = [p1, p2];
+
+     CustomerTable|error customerTable = table key(id, name) from var customer in customerList
+         join var person in personList
+         on customer.name equals person.lastName
+         select {
+             id: customer.id,
+             name: person.firstName,
+             noOfItems: customer.noOfItems
+         }
+         on conflict onConflictError;
+
+     return customerTable;
+}
+
+function testQueryExprWithLimitClauseReturnTable() returns boolean {
+     boolean testPassed = true;
+     error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+     Customer c2 = {id: 2, name: "James", noOfItems: 5};
+     Customer c3 = {id: 3, name: "Melina", noOfItems: 25};
+
+     Customer[] customerList = [c1, c2, c3];
+
+     CustomerTable|error customerTable = table key(id, name) from var customer in customerList.toStream()
+         where customer.name == "Melina"
+         select {
+             id: customer.id,
+             name: customer.name,
+             noOfItems: customer.noOfItems
+         }
+         on conflict onConflictError
+         limit 1;
+
+    if (customerTable is CustomerTable) {
+        var itr = customerTable.iterator();
+        Customer? customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[0];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == ();
+    }
 
     return testPassed;
 }

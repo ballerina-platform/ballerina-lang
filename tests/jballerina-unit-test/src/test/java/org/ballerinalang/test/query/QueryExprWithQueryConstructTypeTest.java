@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -25,6 +27,8 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * This contains methods to test query expression with query construct type.
@@ -34,10 +38,12 @@ import org.testng.annotations.Test;
 public class QueryExprWithQueryConstructTypeTest {
 
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/query-expr-with-query-construct-type.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
     }
 
     @Test(description = "Test query expr returning a stream ")
@@ -68,11 +74,99 @@ public class QueryExprWithQueryConstructTypeTest {
     }
 
     @Test(description = "Test query expr with inner join returning a stream ")
-    public void testInnerJoinReturnStream() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testInnerJoinReturnStream");
+    public void testInnerJoinAndLimitReturnStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test query expr returning table")
+    public void testSimpleQueryExprReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test query expr with table having duplicate keys")
+    public void testTableWithDuplicateKeys() {
+
+        BValue[] returnValues = BRunUtil.invoke(result, "testTableWithDuplicateKeys");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BError expectedError = (BError) returnValues[0];
+        Assert.assertEquals(expectedError.stringValue(), "{ballerina/lang.table}KeyConstraintViolation " +
+                "{message:\"A value found for key '1 Melina'\"}");
+    }
+
+    @Test(description = "Test query expr with table having no duplicates and on conflict clause")
+    public void testTableNoDuplicatesAndOnConflictReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testTableNoDuplicatesAndOnConflictReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test query expr with table having duplicate keys")
+    public void testTableWithDuplicatesAndOnConflictReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testTableWithDuplicatesAndOnConflictReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BError expectedError = (BError) returnValues[0];
+        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {message:\"cannot insert.\"}");
+    }
+
+    @Test(description = "Test query expr with table having duplicate keys")
+    public void testQueryExprWithOtherClausesReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOtherClausesReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BError expectedError = (BError) returnValues[0];
+        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {message:\"cannot insert.\"}");
+    }
+
+    @Test(description = "Test query expr with table having duplicate keys")
+    public void testQueryExprWithJoinClauseReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithJoinClauseReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BError expectedError = (BError) returnValues[0];
+        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {message:\"cannot insert.\"}");
+    }
+
+    @Test(description = "Test query expr with table having no duplicates and on conflict clause")
+    public void testQueryExprWithLimitClauseReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitClauseReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test negative scenarios for query expr with query construct type")
+    public void testNegativeScenarios() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        int index = 0;
+
+        validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
+                36, 35);
+        validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
+                        "found '(table<Customer> key(id, name)|error)'",
+                53, 32);
+        validateError(negativeResult, index, "incompatible types: expected " +
+                        "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
+                83, 35);
     }
 }
