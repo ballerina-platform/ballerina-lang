@@ -221,7 +221,7 @@ public class ModuleExecutionFlowTests {
     }
 
     private void cleanCrashLog() {
-        File crashLog = new File("ballerina-internal.log");
+        File crashLog = new File("ballerina-internal.log.1");
         if (crashLog.exists()) {
             crashLog.delete();
         }
@@ -229,7 +229,7 @@ public class ModuleExecutionFlowTests {
 
     private String getCrashLogOutput() {
         try {
-            String output = BCompileUtil.readFileAsString("ballerina-internal.log");
+            String output = BCompileUtil.readFileAsString("ballerina-internal.log.1");
             return output.substring(output.indexOf("]") + 1);
         } catch (IOException e) {
             throw new RuntimeException(e);
