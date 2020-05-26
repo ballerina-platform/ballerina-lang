@@ -19,7 +19,6 @@ package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
@@ -71,7 +70,7 @@ public class ReplaceNodesAPITest extends AbstractSyntaxTreeAPITest {
 
         // Update the return keyword with no leading minutiae
         Token toBeReplacedReturnKw = returnStmt.returnKeyword();
-        Token replacementReturnKw = toBeReplacedReturnKw.modify(MinutiaeList.emptyList(),
+        Token replacementReturnKw = toBeReplacedReturnKw.modify(NodeFactory.createEmptyMinutiaeList(),
                 toBeReplacedReturnKw.trailingMinutiae());
 
         // Create a new semicolon token with no minutiae

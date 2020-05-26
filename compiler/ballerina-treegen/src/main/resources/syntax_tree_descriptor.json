@@ -2939,7 +2939,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2958,7 +2958,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -2973,7 +2973,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "Node"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
