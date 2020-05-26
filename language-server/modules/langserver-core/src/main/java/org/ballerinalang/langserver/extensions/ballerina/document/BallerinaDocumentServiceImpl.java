@@ -61,13 +61,11 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -86,8 +84,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getProjectDir;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -346,8 +342,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
-            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false,
-                    false);
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
+                    LSCustomErrorStrategy.class, false, false);
             Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRange = new HashMap<>();
 
             for (int i = 0; i < request.getAstModifications().length; i++) {
