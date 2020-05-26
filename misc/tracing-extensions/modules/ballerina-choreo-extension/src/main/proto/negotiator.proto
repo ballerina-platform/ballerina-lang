@@ -8,6 +8,7 @@ import "google/protobuf/wrappers.proto";
 
 service Registration {
     rpc register (RegisterRequest) returns (RegisterResponse);
+    rpc publishProgram (PublishProgramRequest) returns (google.protobuf.Empty);
 }
 
 message RegisterRequest {
