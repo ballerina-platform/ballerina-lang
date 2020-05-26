@@ -306,8 +306,21 @@
                                                       "isMissing": true
                                                     },
                                                     {
-                                                      "kind": "STRING_LITERAL",
-                                                      "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                      "kind": "BINARY_EXPRESSION",
+                                                      "children": [
+                                                        {
+                                                          "kind": "STRING_LITERAL",
+                                                          "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
+                                                        },
+                                                        {
+                                                          "kind": "PLUS_TOKEN",
+                                                          "isMissing": true
+                                                        },
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "b"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },

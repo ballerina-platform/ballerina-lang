@@ -1,7 +1,7 @@
 public function foo() {
-    int a =
+    int a = 
         service {
             function foo() {
             }
-        ;
+        };
 }
