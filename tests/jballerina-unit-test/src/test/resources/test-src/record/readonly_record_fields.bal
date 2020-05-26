@@ -21,6 +21,7 @@ function testReadonlyRecordFields() {
     testInvalidRecordSimpleReadonlyFieldUpdate();
     testValidUpdateOfPossiblyReadonlyFieldInUnion();
     testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
+    testRecordWithStructuredReadonlyFields();
 }
 
 type Student record {
@@ -136,7 +137,45 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
 }
 
 function testRecordWithStructuredReadonlyFields() {
-    // TODO
+    Details & readonly details = {
+        name: "Maryam",
+        id: 1234
+    };
+
+    Employee emp = {
+        details,
+        department: "finance"
+    };
+
+    assertEquality("Maryam", emp.details.name);
+    assertEquality(1234, emp.details.id);
+    assertEquality("finance", emp.department);
+
+    Employee emp2 = {
+        details: {
+            name: "Ziyad",
+            id: 8910
+        },
+        department: "IT"
+    };
+
+    assertEquality("Ziyad", emp2.details.name);
+    assertEquality(8910, emp2.details.id);
+    assertEquality("IT", emp2.department);
+
+    var fn = function () {
+        record {} empVal = emp;
+        empVal["details"] = {
+            name: "Jo",
+            id: 3456
+        };
+    };
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality("cannot update 'readonly' field 'details' in record of type 'Employee'", err.detail()?.message);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
