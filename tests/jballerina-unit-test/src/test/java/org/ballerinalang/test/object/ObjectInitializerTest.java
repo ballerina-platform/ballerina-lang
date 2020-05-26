@@ -86,13 +86,13 @@ public class ObjectInitializerTest {
         validateError(result, i++, "incompatible types: expected 'Person', found '(Person|error)'", 47, 17);
         validateError(result, i++, "incompatible types: expected 'Person', found '(Person|error)'", 48, 17);
         validateError(result, i++, "invalid object constructor return type 'string?', " +
-                              "expected a subtype of 'error?' containing '()'", 54, 31);
+                              "expected a subtype of 'error?' containing '()'", 54, 29);
         validateError(result, i++,
                       "invalid object constructor return type 'error', expected a subtype of 'error?' containing '()'",
-                      63, 31);
+                      63, 29);
         validateError(result, i++,
                       "invalid object constructor return type '(FooErr|BarErr)', expected a subtype of 'error?' " +
-                              "containing '()'", 89, 31);
+                              "containing '()'", 89, 29);
         validateError(result, i,  "object 'init' method call is allowed only within the type descriptor",
                 106, 5);
     }

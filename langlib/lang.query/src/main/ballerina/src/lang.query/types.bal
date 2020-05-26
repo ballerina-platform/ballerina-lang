@@ -56,7 +56,7 @@ public type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function __init(
+    public function init(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
@@ -84,7 +84,7 @@ public type _StreamPipeline object {
             public _StreamPipeline pipeline;
             public typedesc<Type> outputType;
 
-            public function __init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+            public function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
                 self.pipeline = pipeline;
                 self.outputType = outputType;
             }
@@ -111,7 +111,7 @@ public type _InitFunction object {
     boolean resettable = true;
     (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection;
 
-    public function __init(
+    public function init(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
@@ -172,7 +172,7 @@ public type _InputFunction object {
     #   frame {dept: deptList[x]}
     public function(_Frame _frame) returns _Frame|error? inputFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? inputFunc) {
+    public function init(function(_Frame _frame) returns _Frame|error? inputFunc) {
         self.inputFunc = inputFunc;
         self.prevFunc = ();
     }
@@ -204,7 +204,7 @@ public type _LetFunction object {
     #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
     public function(_Frame _frame) returns _Frame|error? letFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? letFunc) {
+    public function init(function(_Frame _frame) returns _Frame|error? letFunc) {
         self.letFunc = letFunc;
         self.prevFunc = ();
     }
@@ -234,7 +234,7 @@ public type _JoinFunction object {
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    public function __init(_StreamPipeline pipelineToJoin) {
+    public function init(_StreamPipeline pipelineToJoin) {
         self.pipelineToJoin = pipelineToJoin;
         self.prevFunc = ();
         self.currentFrame = ();
@@ -289,7 +289,7 @@ public type _FilterFunction object {
     # emit the next frame which satisfies the condition
     function(_Frame _frame) returns boolean filterFunc;
 
-    public function __init(function(_Frame _frame) returns boolean filterFunc) {
+    public function init(function(_Frame _frame) returns boolean filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
@@ -323,7 +323,7 @@ public type _SelectFunction object {
     # };
     public function(_Frame _frame) returns _Frame|error? selectFunc;
 
-    public function __init(function(_Frame _frame) returns _Frame|error? selectFunc) {
+    public function init(function(_Frame _frame) returns _Frame|error? selectFunc) {
         self.selectFunc = selectFunc;
         self.prevFunc = ();
     }
@@ -356,7 +356,7 @@ public type _DoFunction object {
     # };
     public function(_Frame _frame) doFunc;
 
-    public function __init(function(_Frame _frame) doFunc) {
+    public function init(function(_Frame _frame) doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
