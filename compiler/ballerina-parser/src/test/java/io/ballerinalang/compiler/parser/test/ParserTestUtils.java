@@ -88,36 +88,6 @@ public class ParserTestUtils {
         test(content, context, assertFilePath);
     }
 
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
     /**
      * Test parsing a valid source.
      *
@@ -344,6 +314,36 @@ public class ParserTestUtils {
 
     private static String cleanupText(String text) {
         return text.replace(System.lineSeparator(), "\n");
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
     }
 
     private static SyntaxKind getNodeKind(String kind) {

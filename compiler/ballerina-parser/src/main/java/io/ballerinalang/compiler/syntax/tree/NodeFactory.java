@@ -211,21 +211,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static VariableDeclarationNode createVariableDeclarationNode(
             NodeList<AnnotationNode> annotations,
             Token finalKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stVariableDeclarationNode = STNodeFactory.createVariableDeclarationNode(
                 annotations.underlyingListNode().internalNode(),
                 getOptionalSTNode(finalKeyword),
-                typeName.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 getOptionalSTNode(equalsToken),
                 getOptionalSTNode(initializer),
                 semicolonToken.internalNode());
@@ -1088,14 +1085,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
             Token finalKeyword,
-            Node typeName,
-            Token variableName,
+            TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(metadata, "metadata must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
-        Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(initializer, "initializer must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
@@ -1103,8 +1098,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 metadata.internalNode(),
                 getOptionalSTNode(finalKeyword),
-                typeName.internalNode(),
-                variableName.internalNode(),
+                typedBindingPattern.internalNode(),
                 equalsToken.internalNode(),
                 initializer.internalNode(),
                 semicolonToken.internalNode());

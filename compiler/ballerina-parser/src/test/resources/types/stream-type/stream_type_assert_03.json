@@ -1,46 +1,46 @@
 {
-    "kind": "TYPE_DEFINITION",
-    "children": [
+  "kind": "TYPE_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "TYPE_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "mysteam"
-        },
-        {
-            "kind": "STREAM_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "STREAM_KEYWORD"
-                },
-                {
-                    "kind": "STREAM_TYPE_PARAMS",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPE_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "mysteam"
+    },
+    {
+      "kind": "STREAM_TYPE_DESC",
+      "children": [
+        {
+          "kind": "STREAM_KEYWORD"
+        },
+        {
+          "kind": "STREAM_TYPE_PARAMS",
+          "children": [
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "STRING_KEYWORD"
+            },
+            {
+              "kind": "GT_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

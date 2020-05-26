@@ -351,8 +351,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
-        BLangSimpleVariable simpleVar = createSimpleVar(modVarDeclrNode.variableName(),
-                modVarDeclrNode.typeName(), modVarDeclrNode.initializer(),
+        TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
+        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+        BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.finalKeyword().isPresent(), false, null);
         simpleVar.pos = getPosition(modVarDeclrNode);
         return simpleVar;
@@ -1513,9 +1515,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         bLVarDef.pos = getPosition(varDeclaration);
 
+        TypedBindingPatternNode typedBindingPattern = varDeclaration.typedBindingPattern();
+        CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
+
         BLangSimpleVariable simpleVar = new SimpleVarBuilder()
-                .with(varDeclaration.variableName().text(), getPosition(varDeclaration.variableName()))
-                .setTypeByNode(varDeclaration.typeName())
+                .with(bindingPattern.variableName().text(), getPosition(bindingPattern.variableName()))
+                .setTypeByNode(typedBindingPattern.typeDescriptor())
                 .setExpressionByNode(varDeclaration.initializer().orElse(null))
                 .setFinal(varDeclaration.finalKeyword().isPresent())
                 .build();

@@ -167,8 +167,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -176,8 +175,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STVariableDeclarationNode(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
@@ -816,8 +814,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
@@ -825,8 +822,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);

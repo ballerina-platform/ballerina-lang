@@ -1,29 +1,38 @@
 {
-    "kind": "LOCAL_VAR_DECL",
-    "children": [
+  "kind": "LOCAL_VAR_DECL",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
         {
-            "kind": "LIST",
-            "children": [
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "Foo"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "EQUAL_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 5
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EQUAL_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "value": "5"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

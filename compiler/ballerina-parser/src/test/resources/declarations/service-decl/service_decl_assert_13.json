@@ -109,11 +109,51 @@
               ]
             },
             {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "ppp"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN",
+                      "isMissing": true
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN"
+                        },
+                        {
+                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "ppp"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "isMissing": true
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",

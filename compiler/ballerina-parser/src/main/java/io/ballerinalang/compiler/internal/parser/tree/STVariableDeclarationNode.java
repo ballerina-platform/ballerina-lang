@@ -30,8 +30,7 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 public class STVariableDeclarationNode extends STStatementNode {
     public final STNode annotations;
     public final STNode finalKeyword;
-    public final STNode typeName;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode equalsToken;
     public final STNode initializer;
     public final STNode semicolonToken;
@@ -39,16 +38,14 @@ public class STVariableDeclarationNode extends STStatementNode {
     STVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode initializer,
             STNode semicolonToken) {
         super(SyntaxKind.LOCAL_VAR_DECL);
         this.annotations = annotations;
         this.finalKeyword = finalKeyword;
-        this.typeName = typeName;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
@@ -56,8 +53,7 @@ public class STVariableDeclarationNode extends STStatementNode {
         addChildren(
                 annotations,
                 finalKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 initializer,
                 semicolonToken);
