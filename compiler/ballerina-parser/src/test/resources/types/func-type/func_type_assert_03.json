@@ -444,7 +444,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "MODULE_VAR_DECL",
+                      "kind": "OBJECT_FIELD",
                       "children": [
                         {
                           "kind": "METADATA",
@@ -456,41 +456,31 @@
                           ]
                         },
                         {
-                          "kind": "TYPED_BINDING_PATTERN",
+                          "kind": "FUNCTION_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "FUNCTION_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_KEYWORD"
-                                },
-                                {
-                                  "kind": "FUNCTION_SIGNATURE",
-                                  "children": [
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "kind": "FUNCTION_KEYWORD"
                             },
                             {
-                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "kind": "FUNCTION_SIGNATURE",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "f1"
+                                  "kind": "OPEN_PAREN_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "CLOSE_PAREN_TOKEN"
                                 }
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "f1"
                         },
                         {
                           "kind": "EQUAL_TOKEN"

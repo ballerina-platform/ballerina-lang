@@ -121,7 +121,8 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
             // Create a new identifier that does not inherit minutiae from the old one.
             IdentifierToken newVarName = NodeFactory.createIdentifierToken(varNameToken.text() + "new");
             CaptureBindingPatternNode newCaptureBP = NodeFactory.createCaptureBindingPatternNode(newVarName);
-            TypedBindingPatternNode newTypedBP = NodeFactory.createTypedBindingPatternNode(typedBindingPattern.typeDescriptor(), newCaptureBP);
+            TypedBindingPatternNode newTypedBP =
+                    NodeFactory.createTypedBindingPatternNode(typedBindingPattern.typeDescriptor(), newCaptureBP);
             return NodeFactory.createVariableDeclarationNode(varDeclStmt.annotations(),
                     varDeclStmt.finalKeyword().orElse(null), newTypedBP, varDeclStmt.equalsToken().orElse(null),
                     varDeclStmt.initializer().orElse(null), varDeclStmt.semicolonToken());
