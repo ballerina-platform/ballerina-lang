@@ -79,6 +79,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
@@ -1201,8 +1202,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
-        // TODO: Fix this when optional field access is available
         bLFieldBasedAccess.optionalFieldAccess = false;
+        return bLFieldBasedAccess;
+    }
+
+    @Override
+    public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        Token fieldName = optionalFieldAccessExpressionNode.fieldName();
+        bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
+        BLangNameReference nameRef = createBLangNameReference(fieldName);
+        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
+        bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
+        bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
+        bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        bLFieldBasedAccess.optionalFieldAccess = true;
         return bLFieldBasedAccess;
     }
 
