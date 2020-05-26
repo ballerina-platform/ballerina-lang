@@ -57,6 +57,14 @@ import static org.ballerinalang.jvm.types.TypeTags.STRING_TAG;
  */
 public class VariableReturnType {
 
+    private static final BString NAME = new BmpStringValue("name");
+    private static final BString AGE = new BmpStringValue("age");
+    private static final BString DESIGNATION = new BmpStringValue("designation");
+    private static final BString CITY = new BmpStringValue("city");
+    private static final BString JOHN_DOE = new BmpStringValue("John Doe");
+    private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
+    private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
+
     public static Object echo(BTypedesc td, BValue value) {
         return value;
     }
@@ -99,12 +107,12 @@ public class VariableReturnType {
 
         if (type.getTag() == INT_TAG) {
             map = new MapValueImpl(new BMapType(type));
-            map.put("one", 10);
-            map.put("two", 20);
+            map.put(new BmpStringValue("one"), 10);
+            map.put(new BmpStringValue("two"), 20);
         } else if (type.getTag() == STRING_TAG) {
             map = new MapValueImpl(new BMapType(type));
-            map.put("name", "Pubudu");
-            map.put("city", "Panadura");
+            map.put(NAME, new BmpStringValue("Pubudu"));
+            map.put(CITY, new BmpStringValue("Panadura"));
         } else {
             map = new MapValueImpl(new BMapType(BTypes.typeAny));
         }
@@ -132,12 +140,12 @@ public class VariableReturnType {
         MapValueImpl person = new MapValueImpl(recType);
 
         if (recType.getName().equals("Person")) {
-            person.put("name", "John Doe");
-            person.put("age", 20);
+            person.put(NAME, JOHN_DOE);
+            person.put(AGE, 20);
         } else if (recType.getName().equals("Employee")) {
-            person.put("name", "Jane Doe");
-            person.put("age", 25);
-            person.put("designation", "Software Engineer");
+            person.put(NAME, JANE_DOE);
+            person.put(AGE, 25);
+            person.put(DESIGNATION, SOFTWARE_ENGINEER);
         } else {
             throw new IllegalStateException();
         }
@@ -154,16 +162,16 @@ public class VariableReturnType {
                 case INT_TAG:
                     return 100L;
                 case STRING_TAG:
-                    return "Foo";
+                    return new BmpStringValue("Foo");
             }
         }
 
         MapValueImpl rec = new MapValueImpl(type2);
         if (type2.getName().equals("Person")) {
-            rec.put("name", "John Doe");
-            rec.put("age", 20);
+            rec.put(NAME, JOHN_DOE);
+            rec.put(AGE, 20);
         } else {
-            rec.put("type", "Unknown");
+            rec.put(new BmpStringValue("type"), new BmpStringValue("Unknown"));
         }
 
         return rec;
@@ -202,12 +210,12 @@ public class VariableReturnType {
                 MapValueImpl person = new MapValueImpl(recType);
 
                 if (recType.getName().equals("Person")) {
-                    person.put("name", "John Doe");
-                    person.put("age", 20);
+                    person.put(NAME, JOHN_DOE);
+                    person.put(AGE, 20);
                 } else if (recType.getName().equals("Employee")) {
-                    person.put("name", "Jane Doe");
-                    person.put("age", 25);
-                    person.put("designation", "Software Engineer");
+                    person.put(NAME, JANE_DOE);
+                    person.put(AGE, 25);
+                    person.put(DESIGNATION, SOFTWARE_ENGINEER);
                 } else {
                     throw new IllegalStateException();
                 }
