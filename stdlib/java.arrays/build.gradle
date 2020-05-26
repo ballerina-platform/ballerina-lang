@@ -17,11 +17,11 @@
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
-//configurations.testCompileClasspath {
-//    resolutionStrategy {
-//        preferProjectModules()
-//    }
-//}
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
 
 dependencies {
     baloCreat project(':lib-creator')
@@ -37,6 +37,6 @@ createBalo {
 
 description = 'Ballerina - Java Array Utils'
 
-//configurations.all {
-//    resolutionStrategy.preferProjectModules()
-//}
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
