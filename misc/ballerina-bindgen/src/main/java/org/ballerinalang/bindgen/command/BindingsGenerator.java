@@ -94,7 +94,7 @@ public class BindingsGenerator {
         // Resolve the maven dependency received through the tool and update the Ballerina.toml file
         // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
-            mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot);
+            mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot, true);
         }
 
         ClassLoader classLoader = setClassLoader();
@@ -140,7 +140,7 @@ public class BindingsGenerator {
                         if (library.path != null) {
                             classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
                         } else if (library.groupId != null && library.artifactId != null && library.version != null) {
-                            mavenResolver(library.groupId, library.artifactId, library.version, projectRoot);
+                            mavenResolver(library.groupId, library.artifactId, library.version, projectRoot, false);
                         }
                     }
                 }
