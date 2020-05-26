@@ -48,6 +48,7 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +79,13 @@ public class MavenResolver {
         repositories = new ArrayList<>();
         repositories.add(new RemoteRepository.Builder(
                 "central", "default", "https://repo.maven.apache.org/maven2/").build());
+
+        String localRepoPath = System.getProperty("user.home") + File.separator + ".m2"
+                + File.separator + "repository";
+        if (new File(localRepoPath).exists()) {
+            repositories.add(new RemoteRepository.Builder(
+                    "local", "default", "file:" + localRepoPath).build());
+        }
     }
 
     /**
