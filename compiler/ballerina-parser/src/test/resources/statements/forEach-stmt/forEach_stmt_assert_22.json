@@ -232,6 +232,14 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "isMissing": true
+                                },
+                                {
+                                  "kind": "COLON_TOKEN",
+                                  "isMissing": true
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true
                                 }
                               ]
                             }
