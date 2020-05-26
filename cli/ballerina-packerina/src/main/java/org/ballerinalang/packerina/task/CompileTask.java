@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.JarResolverImpl;
+import org.ballerinalang.packerina.NativeDependencyResolverImpl;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
@@ -28,6 +28,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -55,8 +56,9 @@ public class CompileTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
-        JarResolverImpl jarResolverImpl = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
-        buildContext.put(buildContext.get(BuildContextField.JAR_RESOLVER), jarResolverImpl);
+        NativeDependencyResolver nativeDependencyResolver = NativeDependencyResolverImpl.getInstance(buildContext,
+                skipCopyLibsFromDist);
+        buildContext.put(buildContext.get(BuildContextField.JAR_RESOLVER), nativeDependencyResolver);
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();

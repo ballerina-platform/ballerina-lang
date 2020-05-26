@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.JarResolverImpl;
+import org.ballerinalang.packerina.NativeDependencyResolverImpl;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.ExecutableJar;
@@ -39,7 +39,7 @@ import java.util.Set;
 public class CopyNativeLibTask implements Task {
     private boolean skipTests;
     private PackageCache packageCache;
-    private JarResolverImpl jarResolverImpl;
+    private NativeDependencyResolverImpl nativeDependencyResolverImpl;
 
     @Override
     public void execute(BuildContext buildContext) {
@@ -47,7 +47,7 @@ public class CopyNativeLibTask implements Task {
         packageCache = PackageCache.getInstance(context);
         skipTests = buildContext.skipTests();
 
-        jarResolverImpl = buildContext.get(buildContext.get(BuildContextField.JAR_RESOLVER));
+        nativeDependencyResolverImpl = buildContext.get(buildContext.get(BuildContextField.JAR_RESOLVER));
         copyImportedJarsForModules(buildContext, buildContext.getModules());
     }
 
@@ -80,8 +80,8 @@ public class CopyNativeLibTask implements Task {
     }
 
     private void copyPlatformLibsForModules(PackageID packageID, ExecutableJar executableJar) {
-        executableJar.moduleLibs.addAll(jarResolverImpl.nativeLibraries(packageID));
-        executableJar.testLibs.addAll(jarResolverImpl.nativeLibrariesForTests(packageID));
+        executableJar.moduleLibs.addAll(nativeDependencyResolverImpl.nativeDependencies(packageID));
+        executableJar.testLibs.addAll(nativeDependencyResolverImpl.nativeDependenciesForTests(packageID));
     }
 
     private void copyImportedLibs(List<BPackageSymbol> imports, Set<Path> moduleDependencySet,
@@ -95,7 +95,7 @@ public class CopyNativeLibTask implements Task {
                     jar = new ExecutableJar();
                     buildContext.moduleDependencyPathMap.put(pkgId, jar);
                 }
-                jar.moduleLibs.addAll(jarResolverImpl.nativeLibraries(pkgId));
+                jar.moduleLibs.addAll(nativeDependencyResolverImpl.nativeDependencies(pkgId));
                 copyImportedLibs(importSymbol.imports, jar.moduleLibs, buildContext, alreadyImportedSet);
             }
             moduleDependencySet.addAll(jar.moduleLibs);
