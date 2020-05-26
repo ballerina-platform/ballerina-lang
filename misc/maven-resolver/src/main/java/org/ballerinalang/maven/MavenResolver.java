@@ -75,6 +75,7 @@ public class MavenResolver {
         session = MavenRepositorySystemUtils.newSession();
         LocalRepository localRepo = new LocalRepository(targetLocation);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        session.setTransferListener(new TransferListener());
 
         repositories = new ArrayList<>();
         repositories.add(new RemoteRepository.Builder(
