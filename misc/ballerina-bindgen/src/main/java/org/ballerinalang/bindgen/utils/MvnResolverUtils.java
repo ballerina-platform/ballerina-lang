@@ -51,7 +51,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
  */
 public class MvnResolverUtils {
 
-    private static final PrintStream outStream = System.out;
+    public static PrintStream outStream = System.out;
 
     private MvnResolverUtils() {
     }
@@ -73,7 +73,9 @@ public class MvnResolverUtils {
             outStream.println("\nResolving maven dependencies...");
             Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
             dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);
-            outStream.println("\nUpdated the Ballerina.toml file with new platform libraries.");
+            if (projectRoot != null) {
+                outStream.println("\nUpdated the Ballerina.toml file with new platform libraries.");
+            }
         }
     }
 
