@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,9 +43,9 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 )
 public class GetCodePoint {
 
-    public static long getCodePoint(Strand strand, String str, long i) {
+    public static long getCodePoint(Strand strand, BString str, long i) {
         try {
-            return str.codePointAt((int) i);
+            return str.getCodePoint((int) i);
         } catch (IndexOutOfBoundsException e) {
             throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
                                                                       INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),

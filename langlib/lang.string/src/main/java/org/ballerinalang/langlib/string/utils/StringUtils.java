@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.string.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Arrays;
 
@@ -29,6 +30,14 @@ import java.util.Arrays;
 public class StringUtils {
 
     public static void checkForNull(String... values) {
+        Arrays.stream(values).forEach(value -> {
+            if (value == null) {
+                throw BallerinaErrors.createNullReferenceError();
+            }
+        });
+    }
+
+    public static void checkForNull(BString... values) {
         Arrays.stream(values).forEach(value -> {
             if (value == null) {
                 throw BallerinaErrors.createNullReferenceError();

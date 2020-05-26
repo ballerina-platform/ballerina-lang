@@ -56,7 +56,7 @@ public class VariableDefinitionTest {
 
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         boolean b = ((BBoolean) returns[1]).booleanValue();
-        Assert.assertEquals(b, false);
+        Assert.assertFalse(b);
 
         Assert.assertSame(returns[2].getClass(), BString.class);
         String s = returns[2].stringValue();
@@ -78,10 +78,10 @@ public class VariableDefinitionTest {
 
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         boolean b = ((BBoolean) returns[1]).booleanValue();
-        Assert.assertEquals(b, true);
+        Assert.assertTrue(b);
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = ((BString) returns[2]).stringValue();
+        String s = returns[2].stringValue();
         Assert.assertEquals(s, "hello");
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
@@ -112,7 +112,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(b, v3);
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = ((BString) returns[2]).stringValue();
+        String s = returns[2].stringValue();
         Assert.assertEquals(s, v4);
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
@@ -143,7 +143,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(b, v3);
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = ((BString) returns[2]).stringValue();
+        String s = returns[2].stringValue();
         Assert.assertEquals(s, v4);
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);

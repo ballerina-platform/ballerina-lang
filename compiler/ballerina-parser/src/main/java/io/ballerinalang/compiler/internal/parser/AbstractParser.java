@@ -80,6 +80,7 @@ public abstract class AbstractParser {
     }
 
     protected STToken getNextNextToken(SyntaxKind tokenKind) {
-        return peek(1).kind == tokenKind ? peek(2) : peek(1);
+        STToken nextToken = peek(1);
+        return nextToken.kind == tokenKind ? peek(2) : nextToken;
     }
 }

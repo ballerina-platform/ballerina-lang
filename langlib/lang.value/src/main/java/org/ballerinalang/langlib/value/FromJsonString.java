@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,12 +45,13 @@ import java.io.StringReader;
 )
 public class FromJsonString {
 
-    public static Object fromJsonString(Strand strand, String value) {
+    public static Object fromJsonString(Strand strand, BString value) {
 
-        if (value.equals("null")) {
+        String str = value.getValue();
+        if (str.equals("null")) {
             return null;
         }
-        Reader reader = new StringReader(value);
+        Reader reader = new StringReader(str);
         try {
             return JSONParser.parse(reader);
         } catch (BallerinaException e) {

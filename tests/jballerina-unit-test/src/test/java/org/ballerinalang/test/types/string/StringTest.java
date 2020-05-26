@@ -61,6 +61,7 @@ public class StringTest {
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
+
     @Test
     public void testFloatValueOf() {
         BValue[] args = {new BFloat(1.345f)};
@@ -89,6 +90,27 @@ public class StringTest {
         BValue[] args = {new BString("Lion in the town"), new BString("in")};
         BValue[] results = BRunUtil.invoke(result, "indexOf", args);
         Assert.assertEquals(((BInteger) results[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testIndexOfAfterEmoji() {
+        BValue[] args = {new BString("Lion\uD83E\uDD81 in the town"), new BString("in")};
+        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 6);
+    }
+
+    @Test
+    public void testIndexOfAtEmoji() {
+        BValue[] args = {new BString("Lion\uD83E\uDD81 in the town"), new BString("\uD83E\uDD81")};
+        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 4);
+    }
+
+    @Test
+    public void testIndexOfBeforeEmoji() {
+        BValue[] args = {new BString("Lion\uD83E\uDD81 in the town"), new BString("Lion")};
+        BValue[] results = BRunUtil.invoke(result, "indexOf", args);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 0);
     }
 
     @Test
@@ -132,6 +154,31 @@ public class StringTest {
         BValue[] returns = BRunUtil.invoke(result, "substring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "testValue");
+    }
+
+    @Test
+    public void testSubStringAfterEmoji() {
+        BValue[] args = {new BString("test\uD83D\uDC87\uD83C\uDFFE\u200D♂️Values"), new BInteger(0), new BInteger(12)};
+        BValue[] returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "test\uD83D\uDC87\uD83C\uDFFE\u200D♂️Val");
+    }
+
+    @Test
+    public void testSubStringBeforeEmoji() {
+        BValue[] args = {new BString("test\uD83D\uDC69\uD83C\uDFFC\u200D⚖️️️Values"), new BInteger(0), new BInteger(4)};
+        BValue[] returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "test");
+    }
+
+    @Test
+    public void testSubStringAtEmoji() {
+        BValue[] args = {new BString("test\uD83D\uDC69\uD83C\uDFFE\u200D\uD83C\uDF7C️️Values"), new BInteger(0),
+                new BInteger(8)};
+        BValue[] returns = BRunUtil.invoke(result, "substring", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "test\uD83D\uDC69\uD83C\uDFFE\u200D\uD83C\uDF7C");
     }
 
     @Test

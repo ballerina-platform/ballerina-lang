@@ -21,10 +21,12 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
 
@@ -44,11 +46,11 @@ public class HubSubscriber extends Consumer {
     private final String queue;
     private final String topic;
     private final String callback;
-    private final MapValue<String, Object> subscriptionDetails;
+    private final MapValue<BString, Object> subscriptionDetails;
     private final Scheduler scheduler;
 
     HubSubscriber(Strand strand, String queue, String topic, String callback,
-                  MapValue<String, Object> subscriptionDetails) {
+                  MapValue<BString, Object> subscriptionDetails) {
         this.scheduler = strand.scheduler;
         this.queue = queue;
         this.topic = topic;
@@ -59,10 +61,10 @@ public class HubSubscriber extends Consumer {
     @Override
     @SuppressWarnings("unchecked")
     protected void send(Message message) throws BrokerException {
-        MapValue<String, Object> content =
-                (MapValue<String, Object>) ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf())
+        MapValue<BString, Object> content =
+                (MapValue<BString, Object>) ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf())
                         .unwrap()).getValue();
-        Object[] args = {getCallback(), getSubscriptionDetails(), content};
+        Object[] args = {StringUtils.fromString(getCallback()), getSubscriptionDetails(), content};
         try {
             Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
                                      "distributeContent", args);
@@ -118,7 +120,7 @@ public class HubSubscriber extends Consumer {
         return callback;
     }
 
-    public MapValue<String, Object> getSubscriptionDetails() {
+    public MapValue<BString, Object> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 }

@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -65,10 +66,11 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testIntArrayInputClient() {
         //TestInt intArray = {values:[1,2,3,4,5]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestInt");
+        MapValue<org.ballerinalang.jvm.values.api.BString, Object>
+                requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestInt");
 
         ArrayValue intArray = new ArrayValueImpl(new long[]{1L, 2L, 3L, 4L, 5L});
-        requestStruct.put("values", intArray);
+        requestStruct.put(StringUtils.fromString("values"), intArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testIntArrayInput", new Object[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -80,9 +82,10 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testStringArrayInputClient() {
         //TestString stringArray = {values:["A", "B", "C"]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestString");
-        ArrayValue stringArray = new ArrayValueImpl(new String[] {"A", "B", "C"});
-        requestStruct.put("values", stringArray);
+        MapValue<org.ballerinalang.jvm.values.api.BString, Object>
+                requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestString");
+        ArrayValue stringArray = new ArrayValueImpl(new String[]{"A", "B", "C"});
+        requestStruct.put(StringUtils.fromString("values"), stringArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testStringArrayInput", new Object[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -94,9 +97,10 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testFloatArrayInputClient() {
         //TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestFloat");
-        ArrayValue floatArray = new ArrayValueImpl(new double[] {1.1, 1.2, 1.3, 1.4, 1.5});
-        requestStruct.put("values", floatArray);
+        MapValue<org.ballerinalang.jvm.values.api.BString, Object>
+                requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestFloat");
+        ArrayValue floatArray = new ArrayValueImpl(new double[]{1.1, 1.2, 1.3, 1.4, 1.5});
+        requestStruct.put(StringUtils.fromString("values"), floatArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testFloatArrayInput", new Object[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -108,9 +112,10 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
     @Test
     public void testBooleanArrayInputClient() {
         //TestBoolean booleanArray = {values:[true, false, true]};
-        MapValue<String, Object> requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestBoolean");
+        MapValue<org.ballerinalang.jvm.values.api.BString, Object>
+                requestStruct = BallerinaValues.createRecordValue(defaultPkg, "TestBoolean");
         ArrayValue booleanArray = new ArrayValueImpl(new boolean[] {true, false, true});
-        requestStruct.put("values", booleanArray);
+        requestStruct.put(StringUtils.fromString("values"), booleanArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testBooleanArrayInput", new Object[]{requestStruct});
         Assert.assertEquals(responses.length, 1);

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.service.grpc.sample;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -50,7 +51,8 @@ public class UnaryAnonymousServiceTestCase {
     public void testBlockingBallerinaClient() {
         final String serverMsg = "Hello WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"WSO2"});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient",
+                new Object[] { StringUtils.fromString("WSO2") });
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), "Client got response: " + serverMsg);

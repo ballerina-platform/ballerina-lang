@@ -36,8 +36,7 @@ public class QuerySemanticNegativeTests {
     public void testMultipleFromClauseStreamType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-semantics-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        int index = 0;
-        validateError(compileResult, index++, "type stream not allowed here; to use from on a " +
+        validateError(compileResult, 0, "type stream not allowed here; to use from on a " +
                         "type stream, it should be the first from clause in the query.",
                 24, 36);
     }

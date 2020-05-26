@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.impl.KafkaTransactionContext;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
@@ -72,10 +73,11 @@ public class ProducerActions {
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
     public static Object init(ObjectValue producerObject) {
-        MapValue<String, Object> configs = producerObject.getMapValue(PRODUCER_CONFIG_FIELD_NAME);
+        MapValue<BString, Object> configs = producerObject.getMapValue(PRODUCER_CONFIG_FIELD_NAME);
         Properties producerProperties = processKafkaProducerConfig(configs);
         try {
-            if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
+            if (Objects.nonNull(
+                    producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
                 if (!((boolean) producerProperties.get(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG))) {
                     throw new IllegalStateException("configuration enableIdempotence must be set to true to enable " +
                                                             "transactional producer");
@@ -134,7 +136,7 @@ public class ProducerActions {
                                        new OffsetAndMetadata(position));
         }
         MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
-        String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
+        String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG).getValue();
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
@@ -212,7 +214,7 @@ public class ProducerActions {
             BArray topicPartitionArray =
                     BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
             for (PartitionInfo info : partitionInfoList) {
-                MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
+                MapValue<BString, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
                 topicPartitionArray.append(partition);
             }
             return topicPartitionArray;

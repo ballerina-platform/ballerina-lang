@@ -22,9 +22,11 @@ import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -56,16 +58,16 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class Init {
 
-    private static final String RECONNECT_WAIT = "reconnectWaitInSeconds";
+    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
     private static final String SERVER_URL_SEPARATOR = ",";
-    private static final String CONNECTION_NAME = "connectionName";
-    private static final String MAX_RECONNECT = "maxReconnect";
-    private static final String CONNECTION_TIMEOUT = "connectionTimeoutInSeconds";
-    private static final String PING_INTERVAL = "pingIntervalInMinutes";
-    private static final String MAX_PINGS_OUT = "maxPingsOut";
-    private static final String INBOX_PREFIX = "inboxPrefix";
-    private static final String NO_ECHO = "noEcho";
-    private static final String ENABLE_ERROR_LISTENER = "enableErrorListener";
+    private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
+    private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
+    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
+    private static final BString PING_INTERVAL = StringUtils.fromString("pingIntervalInMinutes");
+    private static final BString MAX_PINGS_OUT = StringUtils.fromString("maxPingsOut");
+    private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
+    private static final BString NO_ECHO = StringUtils.fromString("noEcho");
+    private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
 
     public static void externInit(ObjectValue connectionObject, ArrayValueImpl urlString, MapValue connectionConfig) {
         Options.Builder opts = new Options.Builder();
@@ -74,7 +76,7 @@ public class Init {
             opts.servers(serverUrls);
 
             // Add connection name.
-            opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME));
+            opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME).getValue());
 
             // Add max reconnect.
             opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
@@ -92,7 +94,7 @@ public class Init {
             opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
 
             // Add inbox prefix.
-            opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
+            opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX).getValue());
 
             List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
 
@@ -145,8 +147,8 @@ public class Init {
             MapValue cryptoKeyStore = secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
             KeyManagerFactory keyManagerFactory = null;
             if (cryptoKeyStore != null) {
-                char[] keyPassphrase = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PASS).toCharArray();
-                String keyFilePath = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PATH);
+                char[] keyPassphrase = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PASS).getValue().toCharArray();
+                String keyFilePath = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
                 KeyStore keyStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
                 if (keyFilePath != null) {
                     try (FileInputStream keyFileInputStream = new FileInputStream(keyFilePath)) {
@@ -165,8 +167,9 @@ public class Init {
             TrustManagerFactory trustManagerFactory = null;
             if (cryptoTrustStore != null) {
                 KeyStore trustStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
-                char[] trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).toCharArray();
-                String trustFilePath = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PATH);
+                char[] trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).getValue()
+                        .toCharArray();
+                String trustFilePath = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
                 if (trustFilePath != null) {
                     try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
                         trustStore.load(trustFileInputStream, trustPassphrase);
@@ -180,7 +183,7 @@ public class Init {
                 trustManagerFactory.init(trustStore);
             }
 
-            String tlsVersion = secureSocket.getStringValue(Constants.CONNECTION_PROTOCOL);
+            String tlsVersion = secureSocket.getStringValue(Constants.CONNECTION_PROTOCOL).getValue();
             SSLContext sslContext = SSLContext.getInstance(tlsVersion);
             sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
                             trustManagerFactory != null ? trustManagerFactory.getTrustManagers() : null, null);
