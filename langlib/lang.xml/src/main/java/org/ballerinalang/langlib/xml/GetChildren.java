@@ -21,23 +21,19 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Return children of provided xml element value, panic if provided is not a element.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "getChildren",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "getChildren",
+//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class GetChildren {
 
     public static XMLValue getChildren(Strand strand, XMLValue xmlVal) {

@@ -23,19 +23,49 @@ configurations.all {
 }
 
 dependencies {
-    implementation 'io.swagger.parser.v3:swagger-parser'
-    implementation 'io.swagger:swagger-core'
+    implementation ('io.swagger.parser.v3:swagger-parser') {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-models'
+        exclude group: 'io.swagger.core.v3', module: 'swagger-parser-core'
+        exclude group: 'io.swagger.core.v3', module: 'swagger-parser-v3'
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'io.swagger', module: 'swagger-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger:swagger-core') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.yaml', module: 'snakeyaml'
+        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-joda'
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.swagger', module: 'swagger-parser'
+        exclude group: 'io.swagger', module: 'swagger-models'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'io.swagger:swagger-models'
-    implementation 'io.swagger:swagger-parser'
-    implementation 'io.swagger.core.v3:swagger-core'
-    implementation 'io.swagger.core.v3:swagger-models'
-    implementation 'io.swagger.parser.v3:swagger-parser'
-    implementation 'io.swagger.parser.v3:swagger-parser-core'
-    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
-    implementation 'io.swagger.parser.v3:swagger-parser-v3'
+    implementation ('io.swagger:swagger-parser') {
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.core.v3:swagger-core') {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotation'
+    }
+    implementation ('io.swagger.core.v3:swagger-models') {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser') {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser-core')
+    implementation ('io.swagger.parser.v3:swagger-parser-v2-converter') {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser-v3') {
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'info.picocli:picocli:4.0.1'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
+    implementation 'javax.activation:javax.activation-api:1.2.0'
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':language-server:language-server-compiler')
@@ -50,3 +80,15 @@ test {
 }
 
 description = 'Ballerina - OpenApi Tooling - OpenApi to Ballerina'
+
+ext.moduleName = 'openapi-to-ballerina-generator'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

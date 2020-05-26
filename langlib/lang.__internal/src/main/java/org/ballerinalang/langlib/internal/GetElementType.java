@@ -27,21 +27,17 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getElementType",
-        args = {@Argument(name = "td", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal", functionName = "getElementType",
+//        args = {@Argument(name = "td", type = TypeKind.UNION)},
+//        returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
+//)
 public class GetElementType {
 
     public static TypedescValue getElementType(Strand strand, Object td) {

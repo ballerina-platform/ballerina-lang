@@ -19,23 +19,19 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Test xml to be single xml element.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "isElement",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "isElement",
+//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class IsElement {
 
     public static boolean isElement(Strand strand, XMLValue xmlValue) {

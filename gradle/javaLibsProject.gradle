@@ -139,6 +139,7 @@ dependencies {
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
+    dist project(':testerina:testerina-runtime')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

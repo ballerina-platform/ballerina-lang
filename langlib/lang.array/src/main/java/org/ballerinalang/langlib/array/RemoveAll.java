@@ -20,20 +20,17 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native implementation of lang.array:removeAll((any|error)[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "removeAll",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "removeAll",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class RemoveAll {
 
     public static void removeAll(Strand strand, ArrayValue arr) {

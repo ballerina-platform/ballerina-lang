@@ -24,10 +24,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -37,12 +33,12 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
+//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Remove {
 
     public static Object remove(Strand strand, MapValue<?, ?> m, String k) {

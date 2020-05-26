@@ -20,10 +20,6 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
@@ -32,12 +28,12 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "pop",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "pop",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Pop {
 
     private static final String FUNCTION_SIGNATURE = "pop()";

@@ -21,21 +21,18 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.HashMap;
 
 /**
  * Make a deep copy of an XML.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "copy",
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "copy",
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class Copy {
 
     private static final String OPERATION = "copy xml";

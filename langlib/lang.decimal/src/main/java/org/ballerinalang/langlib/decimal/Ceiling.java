@@ -20,10 +20,6 @@ package org.ballerinalang.langlib.decimal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.RoundingMode;
 
@@ -32,12 +28,12 @@ import java.math.RoundingMode;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
-        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
-        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
+//        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
+//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
+//        isPublic = true
+//)
 public class Ceiling {
 
     public static DecimalValue ceiling(Strand strand, DecimalValue x) {

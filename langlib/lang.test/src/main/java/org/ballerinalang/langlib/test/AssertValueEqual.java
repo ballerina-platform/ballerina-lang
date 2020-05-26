@@ -21,21 +21,18 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native implementation of assertValueEqual(anydata expected, anydata actual).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertValueEqual",
-        args = {@Argument(name = "expected", type = TypeKind.ANYDATA),
-                @Argument(name = "actual", type = TypeKind.ANYDATA)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.test", functionName = "assertValueEqual",
+//        args = {@Argument(name = "expected", type = TypeKind.ANYDATA),
+//                @Argument(name = "actual", type = TypeKind.ANYDATA)},
+//        isPublic = true
+//)
 public class AssertValueEqual {
     public static void assertValueEqual(Strand strand, Object expected, Object actual) {
         if (!TypeChecker.isEqual(expected, actual)) {

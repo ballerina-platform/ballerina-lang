@@ -21,9 +21,6 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the type of a XML as a string. If the xml is singleton, type can be one of 
@@ -31,12 +28,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "getItemType",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "getItemType",
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class GetItemType {
 
     private static final String OPERATION = "get xml item type";

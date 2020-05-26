@@ -79,3 +79,15 @@ test {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+//ext.moduleName = 'config-api'
+
+//compileJava {
+////    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

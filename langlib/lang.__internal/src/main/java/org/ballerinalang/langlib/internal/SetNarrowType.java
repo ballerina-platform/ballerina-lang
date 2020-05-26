@@ -27,10 +27,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.HashMap;
 
@@ -39,11 +35,11 @@ import java.util.HashMap;
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
-        args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.RECORD)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
+//        args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
+//        returnType = {@ReturnType(type = TypeKind.RECORD)}
+//)
 public class SetNarrowType {
 
     public static MapValue setNarrowType(Strand strand, TypedescValue td, MapValue value) {

@@ -99,7 +99,7 @@ dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser-core'
     implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
     implementation 'io.swagger.parser.v3:swagger-parser-v3'
-    implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'com.github.jknack:handlebars'
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

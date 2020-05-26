@@ -19,22 +19,18 @@
 package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.float:cosh(float).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "cosh",
-        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "cosh",
+//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
+//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+//        isPublic = true
+//)
 public class Cosh {
 
     public static double cosh(Strand strand, double x) {

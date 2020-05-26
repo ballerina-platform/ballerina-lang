@@ -20,10 +20,6 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function to check existence of key.
@@ -31,12 +27,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "hasKey",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "hasKey",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class HasKey {
 
     @Deprecated

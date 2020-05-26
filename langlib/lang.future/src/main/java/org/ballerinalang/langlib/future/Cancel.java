@@ -17,19 +17,16 @@ package org.ballerinalang.langlib.future;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Extern function future.cancel().
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.future",
-        functionName = "cancel",
-        args = {@Argument(name = "f", type = TypeKind.FUTURE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.future",
+//        functionName = "cancel",
+//        args = {@Argument(name = "f", type = TypeKind.FUTURE)},
+//        isPublic = true
+//)
 public class Cancel {
 
     public static void cancel(Strand strand, FutureValue futureValue) {

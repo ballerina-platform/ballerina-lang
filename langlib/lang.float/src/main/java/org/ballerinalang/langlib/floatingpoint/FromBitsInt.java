@@ -19,22 +19,18 @@
 package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.float:fromBitsInt(int).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "fromBitsInt",
-        args = {@Argument(name = "x", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "fromBitsInt",
+//        args = {@Argument(name = "x", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+//        isPublic = true
+//)
 public class FromBitsInt {
 
     public static double fromBitsInt(Strand strand, long x) {

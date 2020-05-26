@@ -22,10 +22,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.util.Lists;
 
 /**
@@ -34,13 +30,13 @@ import org.wso2.ballerinalang.util.Lists;
  * 
  * @since 0.92
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "selectDescendants",
-        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "selectDescendants",
+//        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";

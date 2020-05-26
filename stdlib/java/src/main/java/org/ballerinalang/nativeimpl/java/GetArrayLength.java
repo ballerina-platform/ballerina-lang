@@ -17,22 +17,17 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * This class contains the implementation of the "getArrayLength" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
-        functionName = "getArrayLength"
-)
+
 public class GetArrayLength {
 
-    public static long getArrayLength(Strand strand, HandleValue arrayValue) {
+    public static long getArrayLength(HandleValue arrayValue) {
         Object[] arr = (Object[]) arrayValue.getValue();
         if (arr == null) {
             throw JValues.getJavaNullReferenceError();

@@ -21,23 +21,19 @@ package org.ballerinalang.langlib.value;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Returns a simple, human-readable representation of the given value as a String.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
-        functionName = "toString",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.value",
+//        functionName = "toString",
+//        args = {@Argument(name = "value", type = TypeKind.ANY)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class ToString {
     public static String toString(Strand strand, Object value) {
         return StringUtils.getStringValue(value);

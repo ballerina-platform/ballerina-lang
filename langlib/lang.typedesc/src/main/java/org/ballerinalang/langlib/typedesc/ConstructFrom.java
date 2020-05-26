@@ -46,10 +46,6 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,23 +63,11 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.typedesc", functionName = "constructFrom",
-        args = {
-                @Argument(name = "t", type = TypeKind.TYPEDESC),
-                @Argument(name = "v", type = TypeKind.ANYDATA)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ANYDATA),
-                @ReturnType(type = TypeKind.ERROR)
-        },
-        isPublic = true
-)
 public class ConstructFrom {
 
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
-    public static Object constructFrom(Strand strand, TypedescValue t, Object v) {
+    public static Object constructFrom(TypedescValue t, Object v) {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {

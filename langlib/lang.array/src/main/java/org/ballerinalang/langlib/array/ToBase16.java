@@ -24,10 +24,6 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -38,12 +34,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "toBase16",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "toBase16",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();

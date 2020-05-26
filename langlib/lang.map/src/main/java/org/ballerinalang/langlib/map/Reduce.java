@@ -22,10 +22,6 @@ import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,13 +31,13 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "reduce",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION),
-                @Argument(name = "initial", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "reduce",
+//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION),
+//                @Argument(name = "initial", type = TypeKind.ANY)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Reduce {
 
     public static Object reduce(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {

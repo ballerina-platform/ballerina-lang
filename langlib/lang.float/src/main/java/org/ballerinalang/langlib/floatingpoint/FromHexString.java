@@ -19,22 +19,18 @@
 package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.float:fromHexString(string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "fromHexString",
-        args = {@Argument(name = "x", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "fromHexString",
+//        args = {@Argument(name = "x", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class FromHexString {
 
     public static Object fromHexString(Strand strand, String s) {
