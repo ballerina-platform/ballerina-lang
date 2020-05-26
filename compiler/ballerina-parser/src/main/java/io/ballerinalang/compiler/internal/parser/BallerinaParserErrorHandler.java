@@ -1386,9 +1386,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_WITH_EXPR_RHS:
                 alternativeRules = STMT_START_WITH_EXPR_RHS;
                 break;
-            // case STMT_START_WITH_IDENTIFIER:
-            // alternativeRules = STMT_START_WITH_IDENTIFIER;
-            // break;
             case EXPRESSION_STATEMENT_START:
                 alternativeRules = EXPRESSION_STATEMENT_START;
                 break;
@@ -3809,6 +3806,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IN_KEYWORD:
                 return SyntaxKind.IN_KEYWORD;
             case PIPE:
+            case UNION_OR_INTERSECTION_TOKEN:
                 return SyntaxKind.PIPE_TOKEN;
             case TABLE_KEYWORD:
                 return SyntaxKind.TABLE_KEYWORD;

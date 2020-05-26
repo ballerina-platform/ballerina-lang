@@ -3564,7 +3564,8 @@ public class BallerinaParser extends AbstractParser {
                 // If the member type was figured out as a binding pattern, then parse the
                 // remaining members as binding patterns and be done with it.
                 STNode bindingPattern = parseAsListBindingPattern(openBracket, new ArrayList<>(), member);
-                return STNodeFactory.createTypedBindingPatternNode(typeDescOrExpr, bindingPattern);
+                STNode typeDesc = getTypeDescFromExpr(typeDescOrExpr);
+                return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
             case INDEXED_EXPRESSION:
                 return parseAsMemberAccessExpr(typeDescOrExpr, openBracket, member);
             case NONE:
@@ -3582,7 +3583,8 @@ public class BallerinaParser extends AbstractParser {
             memberList.add(member);
             memberList.add(memberEnd);
             STNode bindingPattern = parseAsListBindingPattern(openBracket, memberList);
-            return STNodeFactory.createTypedBindingPatternNode(typeDescOrExpr, bindingPattern);
+            STNode typeDesc = getTypeDescFromExpr(typeDescOrExpr);
+            return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
         }
 
         // We reach here if it is still ambiguous, even after parsing the full list.
@@ -3642,6 +3644,16 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN: // rest binding pattern
                 return parseListBindingPatternMember();
             case IDENTIFIER_TOKEN:
+                if (isTypedBindingPattern) {
+                    STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+                    nextTokenKind = peek().kind;
+                    if (nextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
+                        // error|T (args) --> functional-binding-pattern
+                        return parseListBindingPatternMember();
+                    }
+
+                    return identifier;
+                }
                 break;
             default:
                 if (!isTypedBindingPattern && isValidExpressionStart(nextTokenKind, 1)) {
@@ -3786,7 +3798,6 @@ public class BallerinaParser extends AbstractParser {
                 }
                 return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
             case EQUAL_TOKEN: // T[a] =
-            case SEMICOLON_TOKEN:
                 if (context == ParserRuleContext.FOREACH_STMT) {
                     // equal and semi-colon are not valid terminators for typed-binding-pattern
                     // in foreach-stmt. Therefore recover.
@@ -3800,6 +3811,14 @@ public class BallerinaParser extends AbstractParser {
                 // could be member-access or typed-binding-pattern.
                 keyExpr = STNodeFactory.createNodeList(member);
                 return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
+            case SEMICOLON_TOKEN: // T[a];
+                if (context == ParserRuleContext.FOREACH_STMT) {
+                    // equal and semi-colon are not valid terminators for typed-binding-pattern
+                    // in foreach-stmt. Therefore recover.
+                    break;
+                }
+
+                return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
             default:
                 if (isValidExprRhsStart(nextTokenKind)) {
                     // We come here if T[a] is in some expression context.
@@ -3827,11 +3846,18 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createTypedBindingPattern(STNode typeDescOrExpr, STNode openBracket, STNode member,
                                              STNode closeBracket) {
-        STNode bindingPatterns = STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(member));
+        STNode bindingPatterns;
+        if (isEmpty(member)) {
+            bindingPatterns = STNodeFactory.createNodeList();
+        } else {
+            bindingPatterns = STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(member));
+        }
+
         STNode restBindingPattern = STNodeFactory.createEmptyNode();
         STNode bindingPattern = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatterns,
                 restBindingPattern, closeBracket);
-        return STNodeFactory.createTypedBindingPatternNode(typeDescOrExpr, bindingPattern);
+        STNode typeDesc = getTypeDescFromExpr(typeDescOrExpr);
+        return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
     }
 
     /**
@@ -7192,7 +7218,8 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case ASTERISK_TOKEN:
-            case IDENTIFIER_TOKEN:
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
                 this.errorHandler.reportInvalidNode(null, "invalid array length");
