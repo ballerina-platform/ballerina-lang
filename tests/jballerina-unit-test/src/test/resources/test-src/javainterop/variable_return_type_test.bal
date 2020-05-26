@@ -44,8 +44,8 @@ function testSimpleTypes() {
     decimal d = getValue(decimal);
     assert(23.45d, d);
 
-    //string s = getValue(string);
-    //assert("Hello World!", s);
+    string s = getValue(string);
+    assert("Hello World!", s);
 
     boolean b = getValue(boolean);
     assert(true, b);
