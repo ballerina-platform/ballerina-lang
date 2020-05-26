@@ -935,8 +935,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        if (bLangErrorVariable.reason != null) {
-            bLangErrorVariable.reason.accept(this);
+        if (bLangErrorVariable.message != null) {
+            bLangErrorVariable.message.accept(this);
         }
         bLangErrorVariable.detail.forEach(var -> var.valueBindingPattern.accept(this));
         if (bLangErrorVariable.restDetail != null) {
@@ -1391,8 +1391,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             } else if (variable.getKind() == NodeKind.ERROR_VARIABLE) {
                 // Error binding
                 BLangErrorVariable error = (BLangErrorVariable) variable;
-                if (error.reason != null) {
-                    symbols.addAll(getIntroducedSymbols(error.reason));
+                if (error.message != null) {
+                    symbols.addAll(getIntroducedSymbols(error.message));
                 }
                 if (error.restDetail != null) {
                     symbols.addAll(getIntroducedSymbols(error.restDetail));

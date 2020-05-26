@@ -879,7 +879,7 @@ public class BLangPackageBuilder {
             BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
             errorVariable.typeNode = errorType;
 
-            errorVariable.reason = createIgnoreVar();
+            errorVariable.message = createIgnoreVar();
         }
         this.errorMatchPatternWS.push(ws);
         ((BLangErrorVariable) this.varStack.peek()).isInMatchStmt = true;
@@ -903,15 +903,15 @@ public class BLangPackageBuilder {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
             errorVariable.reasonMatchConst = reasonLiteral;
-            errorVariable.reason = (BLangSimpleVariable)
+            errorVariable.message = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
         } else {
-            errorVariable.reason = (BLangSimpleVariable)
+            errorVariable.message = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, reason, pos, false);
         }
 
         if (this.simpleMatchPatternWS.size() > 0) {
-            errorVariable.reason.addWS(this.simpleMatchPatternWS.pop());
+            errorVariable.message.addWS(this.simpleMatchPatternWS.pop());
         }
 
         errorVariable.reasonVarPrefixAvailable = reasonVar;
@@ -937,7 +937,7 @@ public class BLangPackageBuilder {
         BLangType typeNode = (BLangType) this.typeNodeStack.pop();
         errorVariable.typeNode = typeNode;
 
-        errorVariable.reason = (BLangSimpleVariable)
+        errorVariable.message = (BLangSimpleVariable)
                 generateBasicVarNodeWithoutType(currentPos, null, "$reason$", currentPos, false);
 
         if (restIdName != null) {
@@ -1006,7 +1006,7 @@ public class BLangPackageBuilder {
             } else if (this.varStack.size() == 1) {
                 BLangVariable var = this.varStack.pop();
                 BLangErrorVariable errorVariable = new BLangErrorVariable();
-                errorVariable.reason = createIgnoreVar();
+                errorVariable.message = createIgnoreVar();
                 errorVariable.typeNode = (BLangType) typeNodeStack.pop();
                 errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
                 varStack.push(errorVariable);
@@ -1527,7 +1527,7 @@ public class BLangPackageBuilder {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.reason);
+                markVariableAsFinal(errorVariable.message);
                 errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
                 if (errorVariable.restDetail != null) {
                     markVariableAsFinal(errorVariable.restDetail);

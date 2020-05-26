@@ -967,7 +967,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                recursivelySetFinalFlag(errorVariable.reason);
+                recursivelySetFinalFlag(errorVariable.message);
                 recursivelySetFinalFlag(errorVariable.restDetail);
                 errorVariable.detail.forEach(bLangErrorDetailEntry ->
                         recursivelySetFinalFlag(bLangErrorDetailEntry.valueBindingPattern));
@@ -1292,12 +1292,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         errorVariable.type = errorType;
 
-        if (errorVariable.detail == null || (errorVariable.detail.isEmpty()
-                && !isRestDetailBindingAvailable(errorVariable))) {
-            return validateErrorReasonMatchPatternSyntax(errorVariable);
+        if (!errorVariable.isInMatchStmt) {
+            errorVariable.message.type = symTable.stringType;
+            errorVariable.message.accept(this);
         }
 
-        if (errorType.detailType.getKind() == TypeKind.RECORD) {
+        if (errorVariable.detail == null || (errorVariable.detail.isEmpty()
+                && !isRestDetailBindingAvailable(errorVariable))) {
+            return validateErrorMessageMatchPatternSyntax(errorVariable);
+        }
+
+        if (errorType.detailType.getKind() == TypeKind.RECORD || errorType.detailType.getKind() == TypeKind.MAP) {
             return validateErrorVariable(errorVariable, errorType);
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
@@ -1308,7 +1313,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isRestDetailBindingAvailable(errorVariable)) {
-            // TODO : Fix me.
             errorVariable.restDetail.type = symTable.detailType;
             errorVariable.restDetail.accept(this);
         }
@@ -1316,12 +1320,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        if (!validateErrorReasonMatchPatternSyntax(errorVariable)) {
-            return false;
-        }
+        errorVariable.message.type = symTable.stringType;
+        errorVariable.message.accept(this);
 
-        // todo: Support error detal to be a map
-        BRecordType recordType = (BRecordType) errorType.detailType;
+        BRecordType recordType = getDetailAsARecordType(errorType);
         LinkedHashMap<String, BField> detailFields = recordType.fields;
         Set<String> matchedDetailFields = new HashSet<>();
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
@@ -1366,6 +1368,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
+    private BRecordType getDetailAsARecordType(BErrorType errorType) {
+        if (errorType.detailType.getKind() == TypeKind.RECORD) {
+            return (BRecordType) errorType.detailType;
+        }
+        BRecordType detailRecord = new BRecordType(null);
+        BMapType detailMap = (BMapType) errorType.detailType;
+        detailRecord.sealed = false;
+        detailRecord.restFieldType = detailMap.constraint;
+        return detailRecord;
+    }
+
     private BType getRestMapConstraintType(Map<String, BField> errorDetailFields, Set<String> matchedDetailFields,
                                            BRecordType recordType) {
         BUnionType restUnionType = BUnionType.create(null);
@@ -1389,19 +1402,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return restUnionType;
     }
 
-    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
+    private boolean validateErrorMessageMatchPatternSyntax(BLangErrorVariable errorVariable) {
         if (errorVariable.isInMatchStmt
                 && !errorVariable.reasonVarPrefixAvailable
                 && errorVariable.reasonMatchConst == null
                 && isReasonSpecified(errorVariable)) {
 
             BSymbol reasonConst = symResolver.lookupSymbolInMainSpace(this.env.enclEnv,
-                    names.fromString(errorVariable.reason.name.value));
+                    names.fromString(errorVariable.message.name.value));
             if ((reasonConst.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-                dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                        errorVariable.reason.name);
+                dlog.error(errorVariable.message.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                        errorVariable.message.name);
             } else {
-                dlog.error(errorVariable.reason.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
+                dlog.error(errorVariable.message.pos, DiagnosticCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
             }
             return false;
         }
@@ -1409,7 +1422,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isReasonSpecified(BLangErrorVariable errorVariable) {
-        return !isIgnoredOrEmpty(errorVariable.reason);
+        return !isIgnoredOrEmpty(errorVariable.message);
     }
 
     private boolean isIgnoredOrEmpty(BLangSimpleVariable varNode) {
@@ -1982,7 +1995,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (rhsErrorType.detailType.tag != TypeTags.RECORD) {
             return;
         }
-        BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
+        BRecordType rhsDetailType = getDetailAsARecordType(rhsErrorType);
         Map<String, BField> fields = rhsDetailType.fields;
 
         BType wideType = interpolateWideType(rhsDetailType, lhsRef.detail);

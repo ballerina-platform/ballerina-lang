@@ -280,7 +280,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
     private static final String BASE_64 = "base64";
-    private static final String ERROR_REASON_FUNCTION_NAME = "reason";
+    private static final String ERROR_MESSAGE_FUNCTION_NAME = "message";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
     private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String LENGTH_FUNCTION_NAME = "length";
@@ -1583,15 +1583,15 @@ public class Desugar extends BLangNodeVisitor {
             convertedErrorVarSymbol = errorVariableSymbol;
         }
 
-        parentErrorVariable.reason.expr = generateErrorReasonBuiltinFunction(parentErrorVariable.reason.pos,
-                parentErrorVariable.reason.type, convertedErrorVarSymbol, null);
+        parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
+                parentErrorVariable.message.type, convertedErrorVarSymbol, null);
 
-        if (names.fromIdNode((parentErrorVariable.reason).name) == Names.IGNORE) {
-            parentErrorVariable.reason = null;
+        if (names.fromIdNode((parentErrorVariable.message).name) == Names.IGNORE) {
+            parentErrorVariable.message = null;
         } else {
             BLangSimpleVariableDef reasonVariableDef =
-                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.reason.pos, parentBlockStmt);
-            reasonVariableDef.var = parentErrorVariable.reason;
+                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
+            reasonVariableDef.var = parentErrorVariable.message;
         }
 
         if ((parentErrorVariable.detail == null || parentErrorVariable.detail.isEmpty())
@@ -1896,13 +1896,13 @@ public class Desugar extends BLangNodeVisitor {
         return createLangLibInvocationNode(ERROR_DETAIL_FUNCTION_NAME, onExpr, new ArrayList<>(), null, pos);
     }
 
-    private BLangInvocation generateErrorReasonBuiltinFunction(DiagnosticPos pos, BType reasonType,
-                                                               BVarSymbol errorVarSymbol,
-                                                               BLangIndexBasedAccess parentIndexBasedAccess) {
+    private BLangInvocation generateErrorMessageBuiltinFunction(DiagnosticPos pos, BType reasonType,
+                                                                BVarSymbol errorVarSymbol,
+                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
         BLangExpression onExpr =
                 parentIndexBasedAccess != null
                         ? parentIndexBasedAccess : ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
-        return createLangLibInvocationNode(ERROR_REASON_FUNCTION_NAME, onExpr, new ArrayList<>(), reasonType, pos);
+        return createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME, onExpr, new ArrayList<>(), reasonType, pos);
     }
 
     private BLangInvocation generateConstructFromInvocation(DiagnosticPos pos,
@@ -2474,7 +2474,7 @@ public class Desugar extends BLangNodeVisitor {
                 names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.reason).variableName) != Names.IGNORE) {
             BLangAssignment reasonAssignment = ASTBuilderUtil
                     .createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
-            reasonAssignment.expr = generateErrorReasonBuiltinFunction(parentErrorVarRef.reason.pos,
+            reasonAssignment.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.reason.pos,
                     symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
             reasonAssignment.expr = addConversionExprIfRequired(reasonAssignment.expr, parentErrorVarRef.reason.type);
             reasonAssignment.varRef = parentErrorVarRef.reason;
