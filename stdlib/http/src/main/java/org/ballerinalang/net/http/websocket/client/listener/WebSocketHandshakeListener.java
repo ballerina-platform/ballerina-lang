@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.websocket.client.listener;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -66,7 +67,8 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         if (isFirstConnectionEstablished(webSocketClient)) {
             webSocketConnector = (ObjectValue) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
-            webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
+            webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD,
+                                StringUtils.fromString(webSocketConnection.getChannelId()));
         } else {
             webSocketConnector = createWebSocketConnector(readyOnConnect);
             WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
@@ -124,10 +126,11 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
     }
 
     private boolean isFirstConnectionEstablished(ObjectValue webSocketClient) {
-        return (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(WebSocketConstants.
-                RETRY_CONTEXT) != null && ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.
-                RETRY_CONTEXT)).isFirstConnectionEstablished()) || (WebSocketUtil.isFailoverClient(webSocketClient) &&
-                ((FailoverContext) webSocketClient.getNativeData(WebSocketConstants.FAILOVER_CONTEXT)).
-                        isFirstConnectionEstablished());
+        return (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(
+                WebSocketConstants.RETRY_CONTEXT) != null && ((RetryContext) webSocketClient.getNativeData(
+                WebSocketConstants.RETRY_CONTEXT.getValue())).isFirstConnectionEstablished()) ||
+                (WebSocketUtil.isFailoverClient(webSocketClient) &&
+                        ((FailoverContext) webSocketClient.getNativeData(WebSocketConstants.FAILOVER_CONTEXT)).
+                                isFirstConnectionEstablished());
     }
 }

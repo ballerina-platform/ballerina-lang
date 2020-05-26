@@ -59,28 +59,29 @@
                                       "kind": "COLON_TOKEN"
                                     },
                                     {
-                                      "kind": "STRING_LITERAL",
-                                      "value": "foo"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SPECIFIC_FIELD",
-                                  "children": [
-                                    {
-                                      "kind": "COMMA_TOKEN",
-                                      "isMissing": true
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "description"
-                                    },
-                                    {
-                                      "kind": "COLON_TOKEN"
-                                    },
-                                    {
-                                      "kind": "STRING_LITERAL",
-                                      "value": "some function"
+                                      "kind": "CONDITIONAL_EXPRESSION",
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "foo"
+                                        },
+                                        {
+                                          "kind": "QUESTION_MARK_TOKEN",
+                                          "isMissing": true
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "description"
+                                        },
+                                        {
+                                          "kind": "COLON_TOKEN",
+                                          "isMissing": true
+                                        },
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "some function"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },

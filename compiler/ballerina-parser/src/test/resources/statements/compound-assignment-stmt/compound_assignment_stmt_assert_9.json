@@ -168,8 +168,13 @@
                           "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "4"
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "4"
+                            }
+                          ]
                         },
                         {
                           "kind": "CLOSE_BRACKET_TOKEN"

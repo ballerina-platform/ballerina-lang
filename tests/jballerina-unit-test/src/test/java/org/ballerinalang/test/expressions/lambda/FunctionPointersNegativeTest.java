@@ -88,7 +88,7 @@ public class FunctionPointersNegativeTest {
         BAssertUtil.validateError(result, i++, "undefined function 'f3'", 46, 9);
         BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 77, 15);
         BAssertUtil.validateError(result, i++, "undefined function 'f3'", 78, 9);
-        BAssertUtil.validateError(result, i++, "undefined method 'getLname' in object 'Employee'", 83, 11);
+        BAssertUtil.validateError(result, i, "undefined method 'getLname' in object 'Employee'", 83, 11);
     }
 
     @Test
@@ -100,6 +100,6 @@ public class FunctionPointersNegativeTest {
         BAssertUtil.validateError(result, i++, "missing required parameter 'i' in call to 'fn'()", 9, 16);
         BAssertUtil.validateError(result, i++, "missing required parameter 'i' in call to 'fn'()", 20, 16);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn()'", 31, 16);
-        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn()'", 42, 16);
+        BAssertUtil.validateError(result, i, "too many arguments in call to 'fn()'", 42, 16);
     }
 }

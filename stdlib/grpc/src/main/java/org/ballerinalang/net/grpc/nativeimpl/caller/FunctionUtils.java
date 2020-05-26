@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -155,7 +156,7 @@ public class FunctionUtils {
      * @param headerValues custom metadata to pass with response.
      * @return Error if there is an error while responding the caller, else returns nil
      */
-    public static Object externSendError(ObjectValue endpointClient, long statusCode, String errorMsg,
+    public static Object externSendError(ObjectValue endpointClient, long statusCode, BString errorMsg,
                                          Object headerValues) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Optional<ObserverContext> observerContext =
@@ -169,7 +170,7 @@ public class FunctionUtils {
                 // Update response headers when request headers exists in the context.
                 HttpHeaders headers = null;
                 Message errorMessage = new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
-                        .withDescription(errorMsg)));
+                        .withDescription(errorMsg.getValue())));
                 if (headerValues != null &&
                         (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
                     headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);

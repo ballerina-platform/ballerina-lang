@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
@@ -42,12 +43,12 @@ public class Authenticate {
     private static final Logger LOG = LoggerFactory.getLogger(Authenticate.class);
     private static LdapConnectionContext connectionSource;
 
-    public static Object doAuthenticate(MapValue<?, ?> ldapConnection, String userName, String password) {
-        if (userName == null || userName.isEmpty()) {
+    public static Object doAuthenticate(MapValue<BString, Object> ldapConnection, BString userName, BString password) {
+        if (userName == null || userName.getValue().isEmpty()) {
             return LdapUtils.createError("Username is null or empty.");
         }
 
-        byte[] credential = password.getBytes(StandardCharsets.UTF_8);
+        byte[] credential = password.getValue().getBytes(StandardCharsets.UTF_8);
         connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
         DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
                 LdapConstants.LDAP_CONNECTION_CONTEXT);
@@ -59,7 +60,7 @@ public class Authenticate {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Authenticating user " + userName);
             }
-            String name = LdapUtils.getNameInSpaceForUsernameFromLDAP(userName.trim(), ldapConfiguration,
+            String name = LdapUtils.getNameInSpaceForUsernameFromLDAP(userName.getValue().trim(), ldapConfiguration,
                     ldapConnectionContext);
             if (name != null) {
                 if (LOG.isDebugEnabled()) {

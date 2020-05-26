@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -57,9 +58,9 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get("t");
-        ArrayValueImpl keys = (ArrayValueImpl) t.get("keys");
-        long initialSize = (long) t.get("size");
+        TableValueImpl table = (TableValueImpl) t.get(StringUtils.fromString("t"));
+        ArrayValueImpl keys = (ArrayValueImpl) t.get(StringUtils.fromString("keys"));
+        long initialSize = (long) t.get(StringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
             t.addNativeData("&iterator&", tableIterator);

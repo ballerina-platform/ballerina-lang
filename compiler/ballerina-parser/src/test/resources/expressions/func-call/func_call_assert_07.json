@@ -1,76 +1,76 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "5"
+            }
+          ]
         },
         {
-            "kind": "OPEN_PAREN_TOKEN"
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "COMMA_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         },
         {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "5"
-                        }
-                    ]
-                },
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        }
-                    ]
-                },
-                {
-                    "kind": "NAMED_ARG",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "age"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "18"
-                        }
-                    ]
-                },
-                {
-                    "kind": "REST_ARG",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "subjects"
-                        }
-                    ]
-                }
-            ]
+          "kind": "NAMED_ARG",
+          "children": [
+            {
+              "kind": "COMMA_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "age"
+            },
+            {
+              "kind": "EQUAL_TOKEN"
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "18"
+            }
+          ]
         },
         {
-            "kind": "CLOSE_PAREN_TOKEN",
-            "isMissing": true
+          "kind": "REST_ARG",
+          "children": [
+            {
+              "kind": "COMMA_TOKEN"
+            },
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "subjects"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN",
+      "isMissing": true
+    }
+  ]
 }

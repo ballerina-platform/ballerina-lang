@@ -42,7 +42,9 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for filling the elements of the array with its type's implicit initial value.
@@ -335,10 +337,10 @@ public class ArrayFillTest {
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(((BBoolean) unionArr.getBValue(i)).booleanValue(), false);
+            assertFalse(((BBoolean) unionArr.getBValue(i)).booleanValue());
         }
 
-        assertEquals(((BBoolean) unionArr.getBValue(index)).booleanValue(), true);
+        assertTrue(((BBoolean) unionArr.getBValue(index)).booleanValue());
     }
 
     @Test
@@ -352,7 +354,7 @@ public class ArrayFillTest {
             assertNull(unionArr.getBValue(i));
         }
 
-        assertEquals(((BBoolean) unionArr.getBValue(index)).booleanValue(), true);
+        assertTrue(((BBoolean) unionArr.getBValue(index)).booleanValue());
     }
 
     @Test

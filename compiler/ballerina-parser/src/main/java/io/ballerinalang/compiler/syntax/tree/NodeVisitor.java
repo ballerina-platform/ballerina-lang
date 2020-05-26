@@ -587,6 +587,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(RestDescriptorNode restDescriptorNode) {
+        visitSyntaxNode(restDescriptorNode);
+    }
+
     public void visit(DoubleGTTokenNode doubleGTTokenNode) {
         visitSyntaxNode(doubleGTTokenNode);
     }
@@ -605,6 +609,54 @@ public abstract class NodeVisitor {
 
     public void visit(WaitFieldNode waitFieldNode) {
         visitSyntaxNode(waitFieldNode);
+    }
+
+    public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        visitSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public void visit(QueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
+    }
+
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        visitSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        visitSyntaxNode(conditionalExpressionNode);
+    }
+
+    public void visit(EnumDeclarationNode enumDeclarationNode) {
+        visitSyntaxNode(enumDeclarationNode);
+    }
+
+    public void visit(EnumMemberNode enumMemberNode) {
+        visitSyntaxNode(enumMemberNode);
+    }
+
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public void visit(TransactionStatementNode transactionStatementNode) {
+        visitSyntaxNode(transactionStatementNode);
+    }
+
+    public void visit(RollbackStatementNode rollbackStatementNode) {
+        visitSyntaxNode(rollbackStatementNode);
+    }
+
+    public void visit(RetryStatementNode retryStatementNode) {
+        visitSyntaxNode(retryStatementNode);
+    }
+
+    public void visit(CommitActionNode commitActionNode) {
+        visitSyntaxNode(commitActionNode);
+    }
+
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        visitSyntaxNode(transactionalExpressionNode);
     }
 
     // Tokens

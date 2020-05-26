@@ -55,8 +55,4 @@ public class Reduce {
                                                        accum::set, accum::get);
         return accum.get();
     }
-
-    public static Object reduce_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
-        return reduce(strand, m, func, initial);
-    }
 }

@@ -35,6 +35,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -50,7 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
+import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
@@ -87,21 +88,6 @@ public class ParserTestUtils {
         test(content, context, assertFilePath);
     }
 
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
-
     /**
      * Test parsing a valid source.
      *
@@ -110,6 +96,8 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
+        // updateAssertFiles(source, assertFilePath, context);
+
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
         STNode syntaxTree = parser.parse(context);
@@ -119,6 +107,20 @@ public class ParserTestUtils {
 
         // Validate the tree against the assertion file
         assertNode(syntaxTree, assertJson);
+    }
+
+    /**
+     * Compares the actualTree with the given json.
+     *
+     * @param actualTreeRoot the syntax tree to be compared
+     * @param assertFilePath json file path which contains the tree structure
+     */
+    public static void testTree(Node actualTreeRoot, Path assertFilePath) {
+        // Read the assertion file
+        JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
+
+        // Validate the tree against the assertion file
+        assertNode(actualTreeRoot.internalNode(), assertJson);
     }
 
     /**
@@ -314,6 +316,36 @@ public class ParserTestUtils {
         return text.replace(System.lineSeparator(), "\n");
     }
 
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
+        if (UPDATE_ASSERTS) {
+            try {
+                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
+                    writer.write(jsonString);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
             case "MODULE_PART":
@@ -336,6 +368,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAMESPACE_DECLARATION;
             case "ANNOTATION_DECLARATION":
                 return SyntaxKind.ANNOTATION_DECLARATION;
+            case "ENUM_DECLARATION":
+                return SyntaxKind.ENUM_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -490,6 +524,20 @@ public class ParserTestUtils {
                 return SyntaxKind.DEFAULT_KEYWORD;
             case "WAIT_KEYWORD":
                 return SyntaxKind.WAIT_KEYWORD;
+            case "DO_KEYWORD":
+                return SyntaxKind.DO_KEYWORD;
+            case "TRANSACTION_KEYWORD":
+                return SyntaxKind.TRANSACTION_KEYWORD;
+            case "COMMIT_KEYWORD":
+                return SyntaxKind.COMMIT_KEYWORD;
+            case "RETRY_KEYWORD":
+                return SyntaxKind.RETRY_KEYWORD;
+            case "ROLLBACK_KEYWORD":
+                return SyntaxKind.ROLLBACK_KEYWORD;
+            case "TRANSACTIONAL_KEYWORD":
+                return SyntaxKind.TRANSACTIONAL_KEYWORD;
+            case "ENUM_KEYWORD":
+                return SyntaxKind.ENUM_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -544,6 +592,12 @@ public class ParserTestUtils {
                 return SyntaxKind.TRIPPLE_GT_TOKEN;
             case "DOUBLE_DOT_LT_TOKEN":
                 return SyntaxKind.DOUBLE_DOT_LT_TOKEN;
+            case "ANNOT_CHAINING_TOKEN":
+                return SyntaxKind.ANNOT_CHAINING_TOKEN;
+            case "OPTIONAL_CHAINING_TOKEN":
+                return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+            case "ELVIS_TOKEN":
+                return SyntaxKind.ELVIS_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -664,6 +718,14 @@ public class ParserTestUtils {
                 return SyntaxKind.IMPLICIT_NEW_EXPRESSION;
             case "EXPLICIT_NEW_EXPRESSION":
                 return SyntaxKind.EXPLICIT_NEW_EXPRESSION;
+            case "ANNOT_ACCESS":
+                return SyntaxKind.ANNOT_ACCESS;
+            case "OPTIONAL_FIELD_ACCESS":
+                return SyntaxKind.OPTIONAL_FIELD_ACCESS;
+            case "CONDITIONAL_EXPRESSION":
+                return SyntaxKind.CONDITIONAL_EXPRESSION;
+            case "TRANSACTIONAL_EXPRESSION":
+                return SyntaxKind.TRANSACTIONAL_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -682,10 +744,14 @@ public class ParserTestUtils {
                 return SyntaxKind.ASYNC_SEND_ACTION;
             case "SYNC_SEND_ACTION":
                 return SyntaxKind.SYNC_SEND_ACTION;
-            case "RECEIVE_SEND_ACTION":
+            case "RECEIVE_ACTION":
                 return SyntaxKind.RECEIVE_ACTION;
             case "WAIT_ACTION":
                 return SyntaxKind.WAIT_ACTION;
+            case "QUERY_ACTION":
+                return SyntaxKind.QUERY_ACTION;
+            case "COMMIT_ACTION":
+                return SyntaxKind.COMMIT_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -722,6 +788,12 @@ public class ParserTestUtils {
                 return SyntaxKind.FORK_STATEMENT;
             case "FOREACH_STATEMENT":
                 return SyntaxKind.FOREACH_STATEMENT;
+            case "TRANSACTION_STATEMENT":
+                return SyntaxKind.TRANSACTION_STATEMENT;
+            case "RETRY_STATEMENT":
+                return SyntaxKind.RETRY_STATEMENT;
+            case "ROLLBACK_STATEMENT":
+                return SyntaxKind.ROLLBACK_STATEMENT;
 
             // Types
             case "TYPE_DESC":
@@ -898,10 +970,14 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_TYPE_CONSTRAINT;
             case "RECEIVE_FIELDS":
                 return SyntaxKind.RECEIVE_FIELDS;
+            case "REST_TYPE":
+                return SyntaxKind.REST_TYPE;
             case "WAIT_FIELDS_LIST":
                 return SyntaxKind.WAIT_FIELDS_LIST;
             case "WAIT_FIELD":
                 return SyntaxKind.WAIT_FIELD;
+            case "ENUM_MEMBER":
+                return SyntaxKind.ENUM_MEMBER;
 
             // XML template
             case "XML_ELEMENT":

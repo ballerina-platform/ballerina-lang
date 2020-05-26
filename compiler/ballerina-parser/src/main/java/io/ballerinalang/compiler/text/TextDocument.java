@@ -42,7 +42,7 @@ public abstract class TextDocument {
     }
 
     public int textPositionFrom(LinePosition linePosition) {
-        return lineMap.textPositionFrom(linePosition);
+        return lines().textPositionFrom(linePosition);
     }
 
     protected LineMap lines() {

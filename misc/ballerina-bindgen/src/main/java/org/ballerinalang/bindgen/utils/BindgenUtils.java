@@ -132,6 +132,14 @@ public class BindgenUtils {
         fileTemplateLoader.setSuffix(MUSTACHE_FILE_EXTENSION);
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
 
+        // Helper to to carry out a string replace.
+        handlebars.registerHelper("replace", (object, options) -> {
+            if (object instanceof String) {
+                return ((String) object).replace(options.param(0), options.param(1));
+            }
+            return "";
+        });
+
         // Helper to obtain a single quote escape character in front of Ballerina reserved words.
         handlebars.registerHelper("controlChars", (object, options) -> {
             if (object instanceof String) {
@@ -292,9 +300,8 @@ public class BindgenUtils {
                     returnString.append("|error");
                 }
             }
-            returnString.append(" ");
         } else if (jMethod.getHasException() || jMethod.getHasPrimitiveParam()) {
-            returnString.append("returns error? ");
+            returnString.append("returns error?");
         }
         return returnString.toString();
     }

@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.util.IllegalFormatConversionException;
@@ -48,7 +49,7 @@ public class Sprintf {
      * @param args   Arguments referenced by the format specifiers in the format string
      * @return a formatted string that specified as in format
      */
-    public static String sprintf(String format, Object... args) {
+    public static BString sprintf(BString format, Object... args) {
         StringBuilder result = new StringBuilder();
 
         /* Special chars in case additional formatting is required later
@@ -70,7 +71,7 @@ public class Sprintf {
         // j reads format specifier to apply
         // k records number of format specifiers seen so far, used to read respective array element
         for (int i = 0, j, k = 0; i < format.length(); i++) {
-            if (format.charAt(i) == '%' && ((i + 1) < format.length())) {
+            if (format.getValue().charAt(i) == '%' && ((i + 1) < format.length())) {
 
                 // skip % character
                 j = i + 1;
@@ -80,12 +81,12 @@ public class Sprintf {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
-                while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
-                    padding.append(format.charAt(j));
+                while (Character.isDigit(format.getValue().charAt(j)) || format.getValue().charAt(j) == '.') {
+                    padding.append(format.getValue().charAt(j));
                     j += 1;
                 }
                 try {
-                    char formatSpecifier = format.charAt(j);
+                    char formatSpecifier = format.getValue().charAt(j);
                     Object ref = args[k];
                     switch (formatSpecifier) {
                         case 'b':
@@ -94,7 +95,7 @@ public class Sprintf {
                         case 'f':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                                                               format.getValue().charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref));
                             break;
@@ -102,7 +103,7 @@ public class Sprintf {
                         case 'X':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                                                               format.getValue().charAt(j) + " != ()");
                             }
                             formatHexString(result, k, padding, formatSpecifier, args);
                             break;
@@ -117,13 +118,14 @@ public class Sprintf {
                         default:
                             // format string not supported
                             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_FORMAT_SPECIFIER,
-                                    format.charAt(j));
+                                                                           format.getValue().charAt(j));
                     }
                 } catch (IllegalFormatConversionException e) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                            format.charAt(j) + " != " + TypeChecker.getType(args[k]));
+                                                                   format.getValue().charAt(j) + " != " +
+                                                                           TypeChecker.getType(args[k]));
                 }
-                if (format.charAt(j) == '%') {
+                if (format.getValue().charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
                     i++;
                 } else {
@@ -133,9 +135,9 @@ public class Sprintf {
                 continue;
             }
             // no match, copy and continue
-            result.append(format.charAt(i));
+            result.append(format.getValue().charAt(i));
         }
-        return result.toString();
+        return org.ballerinalang.jvm.StringUtils.fromString(result.toString());
     }
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {

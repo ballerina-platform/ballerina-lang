@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.client.EmailAccessClient;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.slf4j.Logger;
@@ -52,28 +53,30 @@ public class EmailConsumer {
      */
     public EmailConsumer(Map<String, Object> emailProperties, EmailListener listener) throws EmailConnectorException {
         this.emailListener = listener;
-        String host = (String) emailProperties.get(EmailConstants.PROPS_HOST);
-        String username = (String) emailProperties.get(EmailConstants.PROPS_USERNAME);
-        String password = (String) emailProperties.get(EmailConstants.PROPS_PASSWORD);
-        String protocol = (String) emailProperties.get(EmailConstants.PROPS_PROTOCOL);
-        MapValue protocolConfig = (MapValue) emailProperties.get(EmailConstants.PROTOCOL_CONFIG);
+        String host = (String) emailProperties.get(EmailConstants.PROPS_HOST.getValue());
+        String username = (String) emailProperties.get(EmailConstants.PROPS_USERNAME.getValue());
+        String password = (String) emailProperties.get(EmailConstants.PROPS_PASSWORD.getValue());
+        String protocol = (String) emailProperties.get(EmailConstants.PROPS_PROTOCOL.getValue());
+        MapValue<BString, Object> protocolConfig = (MapValue<BString, Object>) emailProperties.get(
+                EmailConstants.PROTOCOL_CONFIG.getValue());
         if (protocol.equals(EmailConstants.IMAP)) {
             client = BallerinaValues.createObjectValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.IMAP_CLIENT,
-                    host, username, password, (MapValue<Object, Object>) protocolConfig);
+                                                       StringUtils.fromString(host), StringUtils.fromString(username),
+                                                       StringUtils.fromString(password), protocolConfig);
             EmailAccessClient.initImapClientEndpoint(client, StringUtils.fromString(host),
-                    StringUtils.fromString(username), StringUtils.fromString(password),
-                    (MapValue<Object, Object>) protocolConfig);
+                                                     StringUtils.fromString(username), StringUtils.fromString(password),
+                                                     protocolConfig);
         } else if (protocol.equals(EmailConstants.POP)) {
             client = BallerinaValues.createObjectValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.POP_CLIENT,
-                    host, username, password, (MapValue<Object, Object>) protocolConfig);
+                                                       StringUtils.fromString(host), StringUtils.fromString(username),
+                                                       StringUtils.fromString(password), protocolConfig);
             EmailAccessClient.initPopClientEndpoint(client, StringUtils.fromString(host),
-                    StringUtils.fromString(username), StringUtils.fromString(password),
-                    (MapValue<Object, Object>) protocolConfig);
+                                                    StringUtils.fromString(username), StringUtils.fromString(password),
+                                                    protocolConfig);
         } else {
             String errorMsg = "Protocol should either be 'IMAP' or 'POP'.";
             throw new EmailConnectorException(errorMsg);
         }
-
     }
 
     /**

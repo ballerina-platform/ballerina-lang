@@ -129,7 +129,15 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
-                token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                if (peek() == LexerTerminals.DOT) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.OPTIONAL_CHAINING_TOKEN);
+                } else if (peek() == LexerTerminals.COLON) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.ELVIS_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                }
                 break;
             case LexerTerminals.DOUBLE_QUOTE:
                 token = processStringLiteral();
@@ -443,16 +451,22 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        if (reader.peek() == LexerTerminals.DOT) {
-            if (reader.peek(1) == LexerTerminals.DOT) {
+        int nexChar = reader.peek();
+        if (nexChar == LexerTerminals.DOT) {
+            int nextNextChar = reader.peek(1);
+            if (nextNextChar == LexerTerminals.DOT) {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
-            } else if (reader.peek(1) == LexerTerminals.LT) {
+            } else if (nextNextChar == LexerTerminals.LT) {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
             }
+        } else if (nexChar == LexerTerminals.AT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
         }
-        if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
+
+        if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
             return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
@@ -944,6 +958,20 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DEFAULT_KEYWORD);
             case LexerTerminals.WAIT:
                 return getSyntaxToken(SyntaxKind.WAIT_KEYWORD);
+            case LexerTerminals.DO:
+                return getSyntaxToken(SyntaxKind.DO_KEYWORD);
+            case LexerTerminals.TRANSACTION:
+                return getSyntaxToken(SyntaxKind.TRANSACTION_KEYWORD);
+            case LexerTerminals.COMMIT:
+                return getSyntaxToken(SyntaxKind.COMMIT_KEYWORD);
+            case LexerTerminals.RETRY:
+                return getSyntaxToken(SyntaxKind.RETRY_KEYWORD);
+            case LexerTerminals.ROLLBACK:
+                return getSyntaxToken(SyntaxKind.ROLLBACK_KEYWORD);
+            case LexerTerminals.TRANSACTIONAL:
+                return getSyntaxToken(SyntaxKind.TRANSACTIONAL_KEYWORD);
+            case LexerTerminals.ENUM:
+                return getSyntaxToken(SyntaxKind.ENUM_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1386,7 +1414,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     reader.advance(2);
                     continue;
-                    // TODO: UnicodePatternWhiteSpaceChar is also not allowed
+                // TODO: UnicodePatternWhiteSpaceChar is also not allowed
             }
             break;
         }

@@ -74,8 +74,7 @@ public type ContentDisposition object {
     }
 };
 
-function convertContentDispositionToString(ContentDisposition contentDisposition) returns handle =
-@java:Method {
+function convertContentDispositionToString(ContentDisposition contentDisposition) returns handle = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.ContentDisposition"
 } external;
 
@@ -385,7 +384,7 @@ public type Entity object {
     #                 The `application/octet-stream` is the default value
     public function setByteChannel(io:ReadableByteChannel byteChannel, @untainted public string contentType =
                                                                                     "application/octet-stream") {
-        return externSetByteChannel(self, byteChannel, java:fromString(contentType));
+        return externSetByteChannel(self, byteChannel, contentType);
     }
 
     # Gets the entity body as a byte channel from a given entity.
@@ -567,7 +566,7 @@ function externGetByteArray(Entity entity) returns @tainted byte[]|ParserError =
     name: "getByteArray"
 } external;
 
-function externSetByteChannel(Entity entity, io:ReadableByteChannel byteChannel, handle contentType) = @java:Method {
+function externSetByteChannel(Entity entity, io:ReadableByteChannel byteChannel, string contentType) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setByteChannel"
 } external;
@@ -609,8 +608,7 @@ function externGetHeaderNames(Entity entity, HeaderPosition position) returns @t
     name: "getHeaderNames"
 } external;
 
-function externAddHeader(Entity entity, handle headerName, handle headerValue, HeaderPosition position) =
-@java:Method {
+function externAddHeader(Entity entity, handle headerName, handle headerValue, HeaderPosition position) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "addHeader"
 } external;
@@ -648,9 +646,8 @@ public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeE
     return externBase64Encode(contentToBeEncoded, java:fromString(charset));
 }
 
-function externBase64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, handle charset) returns
-                                                                (string|byte[]|io:ReadableByteChannel|EncodeError) =
-@java:Method {
+function externBase64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, handle charset)
+                            returns (string|byte[]|io:ReadableByteChannel|EncodeError) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.MimeBase64",
     name: "base64Encode"
 } external;
@@ -667,9 +664,8 @@ public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeD
     return externBase64Decode(contentToBeDecoded, java:fromString(charset));
 }
 
-function externBase64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, handle charset) returns
-                                                                (string|byte[]|io:ReadableByteChannel|DecodeError) =
-@java:Method {
+function externBase64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, handle charset)
+                            returns (string|byte[]|io:ReadableByteChannel|DecodeError) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.MimeBase64",
     name: "base64Decode"
 } external;

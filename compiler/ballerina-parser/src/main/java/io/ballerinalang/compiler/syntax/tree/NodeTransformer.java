@@ -588,6 +588,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(RestDescriptorNode restDescriptorNode) {
+        return transformSyntaxNode(restDescriptorNode);
+    }
+
     public T transform(DoubleGTTokenNode doubleGTTokenNode) {
         return transformSyntaxNode(doubleGTTokenNode);
     }
@@ -606,6 +610,54 @@ public abstract class NodeTransformer<T> {
 
     public T transform(WaitFieldNode waitFieldNode) {
         return transformSyntaxNode(waitFieldNode);
+    }
+
+    public T transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return transformSyntaxNode(annotAccessExpressionNode);
+    }
+
+    public T transform(QueryActionNode queryActionNode) {
+        return transformSyntaxNode(queryActionNode);
+    }
+
+    public T transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return transformSyntaxNode(optionalFieldAccessExpressionNode);
+    }
+
+    public T transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return transformSyntaxNode(conditionalExpressionNode);
+    }
+
+    public T transform(EnumDeclarationNode enumDeclarationNode) {
+        return transformSyntaxNode(enumDeclarationNode);
+    }
+
+    public T transform(EnumMemberNode enumMemberNode) {
+        return transformSyntaxNode(enumMemberNode);
+    }
+
+    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        return transformSyntaxNode(arrayTypeDescriptorNode);
+    }
+
+    public T transform(TransactionStatementNode transactionStatementNode) {
+        return transformSyntaxNode(transactionStatementNode);
+    }
+
+    public T transform(RollbackStatementNode rollbackStatementNode) {
+        return transformSyntaxNode(rollbackStatementNode);
+    }
+
+    public T transform(RetryStatementNode retryStatementNode) {
+        return transformSyntaxNode(retryStatementNode);
+    }
+
+    public T transform(CommitActionNode commitActionNode) {
+        return transformSyntaxNode(commitActionNode);
+    }
+
+    public T transform(TransactionalExpressionNode transactionalExpressionNode) {
+        return transformSyntaxNode(transactionalExpressionNode);
     }
 
     // Tokens

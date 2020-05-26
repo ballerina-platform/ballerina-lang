@@ -52,7 +52,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "Error One");
         Assert.assertEquals(returns[2].stringValue(), "Error Two");
         Assert.assertEquals(returns[3].stringValue(), "Error Two");
-        Assert.assertEquals(((BMap) returns[4]).toString(), "{\"detail\":\"Detail Msg\"}");
+        Assert.assertEquals(returns[4].toString(), "{\"detail\":\"Detail Msg\"}");
         Assert.assertEquals(returns[5].stringValue(), "Msg One");
         Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
         Assert.assertNull(returns[7]);

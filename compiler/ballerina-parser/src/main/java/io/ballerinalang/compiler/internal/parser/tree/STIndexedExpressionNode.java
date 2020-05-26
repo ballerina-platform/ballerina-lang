@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class STIndexedExpressionNode extends STExpressionNode {
+public class STIndexedExpressionNode extends STTypeDescriptorNode {
     public final STNode containerExpression;
     public final STNode openBracket;
     public final STNode keyExpression;

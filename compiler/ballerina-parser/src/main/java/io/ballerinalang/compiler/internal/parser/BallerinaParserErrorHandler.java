@@ -98,7 +98,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
-            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT };
+            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
+            ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
+            ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
@@ -107,19 +109,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
             ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.LISTENER_DECL,
             ParserRuleContext.CONSTANT_DECL, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.SERVICE_DECL,
-            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
+            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
+            ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = new ParserRuleContext[] {
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
             ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL,
             ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.VAR_DECL_STMT,
-            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
+            ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
+            ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
             { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.MODULE_TYPE_DEFINITION,
                     ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL, ParserRuleContext.LISTENER_DECL,
                     ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.VAR_DECL_STMT,
-                    ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.EOF };
+                    ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.MODULE_ENUM_DECLARATION,
+                    ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -223,7 +228,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
             ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD,
-            ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD };
+            ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
+            ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -267,10 +273,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
-
-    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS,
-                    ParserRuleContext.VAR_DECL_STARTED_WITH_DENTIFIER };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
@@ -365,8 +367,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_RHS =
             { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
 
-    private static final ParserRuleContext[] QUERY_EXPRESSION_RHS = { ParserRuleContext.SELECT_CLAUSE,
-            ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE, ParserRuleContext.LET_CLAUSE };
+    private static final ParserRuleContext[] QUERY_EXPRESSION_RHS =
+            { ParserRuleContext.SELECT_CLAUSE, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
+                    ParserRuleContext.LET_CLAUSE, ParserRuleContext.DO_CLAUSE, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -381,7 +384,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] TYPE_DESC_IN_TUPLE_RHS =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.ELLIPSIS };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_MEMBER_END =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
@@ -425,6 +428,49 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] WAIT_FUTURE_EXPR_END =
             { ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END, ParserRuleContext.PIPE };
 
+    private static final ParserRuleContext[] ENUM_MEMBER_START =
+            { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.ENUM_MEMBER_NAME };
+
+    private static final ParserRuleContext[] ENUM_MEMBER_INTERNAL_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.ENUM_MEMBER_RHS };
+
+    private static final ParserRuleContext[] ENUM_MEMBER_RHS =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
+
+    private static final ParserRuleContext[] MEMBER_ACCESS_KEY_EXPR_END =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
+    private static final ParserRuleContext[] ROLLBACK_RHS =
+            { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
+
+    private static final ParserRuleContext[] RETRY_KEYWORD_RHS =
+            { ParserRuleContext.LT, ParserRuleContext.RETRY_TYPE_PARAM_RHS };
+
+    private static final ParserRuleContext[] RETRY_TYPE_PARAM_RHS =
+            { ParserRuleContext.ARG_LIST_START, ParserRuleContext.RETRY_BODY };
+
+    private static final ParserRuleContext[] RETRY_BODY =
+            { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TRANSACTION_STMT };
+
+    private static final ParserRuleContext[] LIST_BP_OR_TUPLE_TYPE_MEMBER =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS };
+
+    private static final ParserRuleContext[] LIST_BP_OR_TUPLE_TYPE_DESC_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME };
+
+    private static final ParserRuleContext[] BRACKETED_LIST_MEMBER_END =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
+    private static final ParserRuleContext[] BRACKETED_LIST_MEMBER =
+            // array length is also an expression
+            { ParserRuleContext.EXPRESSION, ParserRuleContext.BINDING_PATTERN };
+
+    private static final ParserRuleContext[] LIST_BINDING_MEMBER_OR_ARRAY_LENGTH =
+            { ParserRuleContext.ARRAY_LENGTH, ParserRuleContext.BINDING_PATTERN };
+
+    private static final ParserRuleContext[] BRACKETED_LIST_RHS = { ParserRuleContext.ASSIGN_OP,
+            ParserRuleContext.VARIABLE_NAME, ParserRuleContext.BINDING_PATTERN, ParserRuleContext.EXPRESSION_RHS };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -465,7 +511,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_DEF:
             case PARAMETER_WITHOUT_ANNOTS:
             case PARAMETER_START:
-            case STMT_START_WITH_IDENTIFIER:
             case STMT_START_WITH_EXPR_RHS:
             case RECORD_FIELD_OR_RECORD_END:
             case CONST_DECL_TYPE:
@@ -486,7 +531,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TERMINAL_EXPRESSION:
             case TABLE_CONSTRUCTOR_OR_QUERY_START:
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
-            case QUERY_EXPRESSION_RHS:
+            case QUERY_PIPELINE_RHS:
             case ANON_FUNC_BODY:
             case BINDING_PATTERN:
             case LIST_BINDING_PATTERN_CONTENTS:
@@ -500,6 +545,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FIELD_END:
             case WAIT_FUTURE_EXPR_END:
             case MAPPING_FIELD_END:
+            case ENUM_MEMBER_START:
+            case ENUM_MEMBER_INTERNAL_RHS:
+            case ENUM_MEMBER_RHS:
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+            case STMT_START_IDENTIFIER_RHS:
+            case BRACKETED_LIST_RHS:
+            case BRACKETED_LIST_MEMBER:
+            case BRACKETED_LIST_MEMBER_END:
+            case AMBIGUOUS_STMT:
+            case TYPED_BINDING_PATTERN_TYPE_RHS:
+            case TYPE_DESC_IN_TUPLE_RHS:
+            case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
                 return true;
             default:
                 return false;
@@ -919,12 +977,48 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.CHECK_KEYWORD ||
                             nextToken.kind == SyntaxKind.CHECKPANIC_KEYWORD;
                     break;
+                case DO_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.DO_KEYWORD;
+                    break;
+                case ANNOT_CHAINING_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.ANNOT_CHAINING_TOKEN;
+                    break;
+                case OPTIONAL_CHAINING_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+                    break;
+                case TRANSACTION_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRANSACTION_KEYWORD;
+                    break;
+                case COMMIT_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.COMMIT_KEYWORD;
+                    break;
+                case RETRY_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.RETRY_KEYWORD;
+                    break;
+                case ROLLBACK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.ROLLBACK_KEYWORD;
+                    break;
+                case TRANSACTIONAL_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
+                    break;
+                case ENUM_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.ENUM_KEYWORD;
+                    break;
+                case MODULE_ENUM_NAME:
+                case ENUM_MEMBER_NAME:
+                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                    break;
+                case UNION_OR_INTERSECTION_TOKEN:
+                    hasMatch =
+                            nextToken.kind == SyntaxKind.PIPE_TOKEN || nextToken.kind == SyntaxKind.BITWISE_AND_TOKEN;
+                    break;
 
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
+                case ANNOT_TAG_REFERENCE:
 
                     // Contexts that expect a type
                 case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -941,7 +1035,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_IN_NEW_EXPR:
                 default:
                     if (hasAlternativePaths(currentCtx)) {
-                        return sekkMatchInAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
+                        return seekMatchInAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
                                 isEntryPoint);
                     }
 
@@ -1031,7 +1125,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PARAMETER_START:
             case PARAMETER_WITHOUT_ANNOTS:
             case STMT_START_WITH_EXPR_RHS:
-            case STMT_START_WITH_IDENTIFIER:
             case EXPRESSION_STATEMENT_START:
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
@@ -1065,7 +1158,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NEW_KEYWORD_RHS:
             case TABLE_CONSTRUCTOR_OR_QUERY_START:
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
-            case QUERY_EXPRESSION_RHS:
+            case QUERY_PIPELINE_RHS:
             case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
             case ANON_FUNC_PARAM_RHS:
             case PARAM_END:
@@ -1084,13 +1177,29 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WAIT_FIELD_END:
             case WAIT_FUTURE_EXPR_END:
             case OPTIONAL_PEER_WORKER:
+            case ENUM_MEMBER_START:
+            case ENUM_MEMBER_INTERNAL_RHS:
+            case ENUM_MEMBER_RHS:
+            case MEMBER_ACCESS_KEY_EXPR_END:
+            case ROLLBACK_RHS:
+            case RETRY_KEYWORD_RHS:
+            case RETRY_TYPE_PARAM_RHS:
+            case RETRY_BODY:
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+            case STMT_START_IDENTIFIER_RHS:
+            case BRACKETED_LIST_RHS:
+            case BRACKETED_LIST_MEMBER:
+            case BRACKETED_LIST_MEMBER_END:
+            case AMBIGUOUS_STMT:
+            case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
                 return true;
             default:
                 return false;
         }
     }
 
-    private Result sekkMatchInAlternativePaths(ParserRuleContext currentCtx, int lookahead, int currentDepth,
+    private Result seekMatchInAlternativePaths(ParserRuleContext currentCtx, int lookahead, int currentDepth,
                                                int matchingRulesCount, boolean isEntryPoint) {
         ParserRuleContext[] alternativeRules;
         switch (currentCtx) {
@@ -1277,9 +1386,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_START_WITH_EXPR_RHS:
                 alternativeRules = STMT_START_WITH_EXPR_RHS;
                 break;
-            case STMT_START_WITH_IDENTIFIER:
-                alternativeRules = STMT_START_WITH_IDENTIFIER;
-                break;
             case EXPRESSION_STATEMENT_START:
                 alternativeRules = EXPRESSION_STATEMENT_START;
                 break;
@@ -1379,7 +1485,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
                 alternativeRules = TABLE_CONSTRUCTOR_OR_QUERY_RHS;
                 break;
-            case QUERY_EXPRESSION_RHS:
+            case QUERY_PIPELINE_RHS:
                 alternativeRules = QUERY_EXPRESSION_RHS;
                 break;
             case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
@@ -1434,8 +1540,51 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_PEER_WORKER:
                 alternativeRules = OPTIONAL_PEER_WORKER;
                 break;
+            case ENUM_MEMBER_START:
+                alternativeRules = ENUM_MEMBER_START;
+                break;
+            case ENUM_MEMBER_INTERNAL_RHS:
+                alternativeRules = ENUM_MEMBER_INTERNAL_RHS;
+                break;
+            case ENUM_MEMBER_RHS:
+                alternativeRules = ENUM_MEMBER_RHS;
+                break;
+            case MEMBER_ACCESS_KEY_EXPR_END:
+                alternativeRules = MEMBER_ACCESS_KEY_EXPR_END;
+                break;
+            case ROLLBACK_RHS:
+                alternativeRules = ROLLBACK_RHS;
+                break;
+            case RETRY_KEYWORD_RHS:
+                alternativeRules = RETRY_KEYWORD_RHS;
+                break;
+            case RETRY_TYPE_PARAM_RHS:
+                alternativeRules = RETRY_TYPE_PARAM_RHS;
+                break;
+            case RETRY_BODY:
+                alternativeRules = RETRY_BODY;
+                break;
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+                alternativeRules = LIST_BP_OR_TUPLE_TYPE_MEMBER;
+                break;
+            case LIST_BP_OR_TUPLE_TYPE_DESC_RHS:
+                alternativeRules = LIST_BP_OR_TUPLE_TYPE_DESC_RHS;
+                break;
+            case BRACKETED_LIST_MEMBER_END:
+                alternativeRules = BRACKETED_LIST_MEMBER_END;
+                break;
+            case BRACKETED_LIST_MEMBER:
+                alternativeRules = BRACKETED_LIST_MEMBER;
+                break;
+            case BRACKETED_LIST_RHS:
+            case STMT_START_IDENTIFIER_RHS:
+                alternativeRules = BRACKETED_LIST_RHS;
+                break;
+            case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
+                alternativeRules = LIST_BINDING_MEMBER_OR_ARRAY_LENGTH;
+                break;
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException(currentCtx.toString());
         }
 
         return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules, isEntryPoint);
@@ -1443,7 +1592,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     /**
      * Search for matching token sequences within different kinds of statements and returns the most optimal solution.
-     * 
+     *
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -1468,7 +1617,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Search for matching token sequences within access expressions and returns the most optimal solution.
      * Access expression can be one of: method-call, field-access, member-access.
-     * 
+     *
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -1479,6 +1628,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private Result seekInAccessExpression(ParserRuleContext currentCtx, int lookahead, int currentDepth,
                                           int currentMatches, boolean isEntryPoint) {
+        // TODO: Remove this method
         STToken nextToken = this.tokenReader.peek(lookahead);
         currentDepth++;
         if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
@@ -1496,7 +1646,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 nextContext = ParserRuleContext.DOT;
                 break;
             case OPEN_BRACKET_TOKEN:
-                nextContext = ParserRuleContext.OPEN_BRACKET;
+                nextContext = ParserRuleContext.MEMBER_ACCESS_KEY_EXPR;
                 break;
             default:
                 nextContext = getNextRuleForExpr();
@@ -1512,7 +1662,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Search for a match in rhs of an expression. RHS of an expression can be the end
      * of the expression or the rhs of a binary expression.
-     * 
+     *
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
@@ -1525,49 +1675,67 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         switch (parentCtx) {
             case ARG_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START,
-                        ParserRuleContext.ARG_LIST_END };
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                        ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START, ParserRuleContext.ARG_LIST_END };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
                 next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA,
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case COMPUTED_FIELD_NAME:
                 // Here we give high priority to the comma. Therefore order of the below array matters.
                 next = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LISTENERS_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_BRACE,
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.OPEN_BRACE,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LIST_CONSTRUCTOR:
+            case MEMBER_ACCESS_KEY_EXPR:
+            case BRACKETED_LIST:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.CLOSE_BRACKET,
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.CLOSE_BRACKET,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LET_EXPR_LET_VAR_DECL:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.IN_KEYWORD,
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.IN_KEYWORD,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case LET_CLAUSE_LET_VAR_DECL:
                 next = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.QUERY_EXPRESSION_RHS,
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.LET_CLAUSE_END,
                         ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             case QUERY_EXPRESSION:
                 next = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.OPEN_BRACKET, ParserRuleContext.QUERY_EXPRESSION_RHS,
-                        ParserRuleContext.ARG_LIST_START };
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                        ParserRuleContext.QUERY_PIPELINE_RHS, ParserRuleContext.ARG_LIST_START };
                 return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
             default:
                 if (isParameter(parentCtx)) {
                     next = new ParserRuleContext[] { ParserRuleContext.CLOSE_PARENTHESIS,
-                            ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET,
+                            ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                            ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                            ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
                             ParserRuleContext.COMMA, ParserRuleContext.ARG_LIST_START };
                     return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
                 }
@@ -1595,19 +1763,26 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.SEMICOLON;
         } else if (parentCtx == ParserRuleContext.ALTERNATE_WAIT_EXPRS) {
             nextContext = ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END;
+        } else if (parentCtx == ParserRuleContext.CONDITIONAL_EXPRESSION) {
+            nextContext = ParserRuleContext.COLON;
+        } else if (parentCtx == ParserRuleContext.ENUM_MEMBER_LIST) {
+            nextContext = ParserRuleContext.ENUM_MEMBER_RHS;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
-                ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ARG_LIST_START,
-                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
+                ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.RIGHT_ARROW,
+                ParserRuleContext.SYNC_SEND_TOKEN, nextContext, ParserRuleContext.ARG_LIST_START };
+
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
     /**
      * Get the next parser rule/context given the current parser context.
-     * 
+     *
      * @param currentCtx Current parser context
      * @param nextLookahead Position of the next token to consider, relative to the position of the original error
      * @return Next parser context
@@ -1717,6 +1892,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR || parentCtx == ParserRuleContext.ARG_LIST) {
                     return ParserRuleContext.EXPRESSION;
+                }
+
+                if (parentCtx == ParserRuleContext.TYPE_DESC_IN_TUPLE ||
+                        parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC ||
+                        parentCtx == ParserRuleContext.BRACKETED_LIST) {
+                    return ParserRuleContext.CLOSE_BRACKET;
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
@@ -1831,6 +2012,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.PEER_WORKER_NAME;
                 } else if (parentCtx == ParserRuleContext.MULTI_WAIT_FIELDS) {
                     return ParserRuleContext.EXPRESSION;
+                } else if (parentCtx == ParserRuleContext.CONDITIONAL_EXPRESSION) {
+                    endContext(); // end conditional-expr
+                    return ParserRuleContext.EXPRESSION;
                 }
 
                 return ParserRuleContext.IDENTIFIER;
@@ -1895,6 +2079,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
+            case ANNOT_TAG_REFERENCE:
                 return ParserRuleContext.QUALIFIED_IDENTIFIER;
             case QUALIFIED_IDENTIFIER:
                 nextToken = this.tokenReader.peek(nextLookahead);
@@ -1910,12 +2095,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         return getNextRuleForExpr();
                     case TYPE_REFERENCE:
                         endContext();
+                        if (isInTypeDescContext()) {
+                            return ParserRuleContext.TYPEDESC_RHS;
+                        }
                         return ParserRuleContext.SEMICOLON;
                     case ANNOT_REFERENCE:
                         endContext();
                         return ParserRuleContext.ANNOTATION_REF_RHS;
                     case ANNOTATION_DECL:
                         return ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS;
+                    case ANNOT_TAG_REFERENCE:
+                        endContext();
+                        return ParserRuleContext.EXPRESSION_RHS;
                     default:
                         throw new IllegalStateException(parentCtx.toString());
                 }
@@ -1983,6 +2174,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME_RHS;
             case FORK_STMT:
                 return ParserRuleContext.FORK_KEYWORD;
+            default:
+                return getNextRuleInternal(currentCtx, nextLookahead);
+
+        }
+    }
+
+    private ParserRuleContext getNextRuleInternal(ParserRuleContext currentCtx, int nextLookahead) {
+        ParserRuleContext parentCtx;
+        switch (currentCtx) {
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
             case TRAP_KEYWORD:
@@ -2212,6 +2412,51 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case ALTERNATE_WAIT_EXPRS:
                 return ParserRuleContext.EXPRESSION;
+            case ANNOT_CHAINING_TOKEN:
+                return ParserRuleContext.ANNOT_TAG_REFERENCE;
+            case DO_CLAUSE:
+                return ParserRuleContext.DO_KEYWORD;
+            case DO_KEYWORD:
+                return ParserRuleContext.OPEN_BRACE;
+            case LET_CLAUSE_END:
+                endContext();
+                return ParserRuleContext.QUERY_PIPELINE_RHS;
+            case MEMBER_ACCESS_KEY_EXPR:
+                return ParserRuleContext.OPEN_BRACKET;
+            case OPTIONAL_CHAINING_TOKEN:
+                return ParserRuleContext.FIELD_OR_FUNC_NAME;
+            case CONDITIONAL_EXPRESSION:
+                return ParserRuleContext.QUESTION_MARK;
+            case TRANSACTION_STMT:
+                return ParserRuleContext.TRANSACTION_KEYWORD;
+            case RETRY_STMT:
+                return ParserRuleContext.RETRY_KEYWORD;
+            case ROLLBACK_STMT:
+                return ParserRuleContext.ROLLBACK_KEYWORD;
+            case TRANSACTION_KEYWORD:
+                return ParserRuleContext.BLOCK_STMT;
+            case COMMIT_KEYWORD:
+                return ParserRuleContext.EXPRESSION_RHS;
+            case ROLLBACK_KEYWORD:
+                return ParserRuleContext.ROLLBACK_RHS;
+            case RETRY_KEYWORD:
+                return ParserRuleContext.RETRY_KEYWORD_RHS;
+            case TRANSACTIONAL_KEYWORD:
+                return ParserRuleContext.EXPRESSION_RHS;
+            case MODULE_ENUM_DECLARATION:
+                return ParserRuleContext.ENUM_KEYWORD;
+            case ENUM_KEYWORD:
+                return ParserRuleContext.MODULE_ENUM_NAME;
+            case MODULE_ENUM_NAME:
+                return ParserRuleContext.OPEN_BRACE;
+            case ENUM_MEMBER_LIST:
+                return ParserRuleContext.ENUM_MEMBER_START;
+            case ENUM_MEMBER_NAME:
+                return ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS;
+            case TYPED_BINDING_PATTERN_TYPE_RHS:
+                return ParserRuleContext.BINDING_PATTERN;
+            case UNION_OR_INTERSECTION_TOKEN:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2261,6 +2506,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
+            case ANNOT_TAG_REFERENCE:
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
@@ -2288,6 +2534,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
             case ALTERNATE_WAIT_EXPRS:
+            case DO_CLAUSE:
+            case MEMBER_ACCESS_KEY_EXPR:
+            case CONDITIONAL_EXPRESSION:
+            case TRANSACTION_STMT:
+            case RETRY_STMT:
+            case ROLLBACK_STMT:
+            case MODULE_ENUM_DECLARATION:
+            case ENUM_MEMBER_LIST:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2355,7 +2609,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.EXPRESSION_STATEMENT) {
             return ParserRuleContext.EXPRESSION_STATEMENT_START;
-        } else if (isExpressionContext(parentCtx) || parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
+        } else if (isStatement(parentCtx) || isExpressionContext(parentCtx) ||
+                parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.EXPRESSION;
         } else if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE ||
                 parentCtx == ParserRuleContext.FUNC_TYPE_DESC || parentCtx == ParserRuleContext.FUNC_DEF ||
@@ -2396,6 +2651,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RECEIVE_FIELD;
             case MULTI_WAIT_FIELDS:
                 return ParserRuleContext.WAIT_FIELD_NAME;
+            case MODULE_ENUM_DECLARATION:
+                return ParserRuleContext.ENUM_MEMBER_LIST;
             default:
                 return ParserRuleContext.STATEMENT;
         }
@@ -2416,13 +2673,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
                 return true;
             default:
-                return isStatement(ctx);
+                return false;
         }
     }
 
     /**
      * Get the next parser context to visit after a {@link ParserRuleContext#AFTER_PARAMETER_TYPE}.
-     * 
+     *
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForParamType() {
@@ -2439,7 +2696,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a {@link ParserRuleContext#COMMA}.
-     * 
+     *
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForComma() {
@@ -2479,6 +2736,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RECEIVE_FIELD;
             case MULTI_WAIT_FIELDS:
                 return ParserRuleContext.WAIT_FIELD_NAME;
+            case ENUM_MEMBER_LIST:
+                return ParserRuleContext.ENUM_MEMBER_START;
+            case MEMBER_ACCESS_KEY_EXPR:
+                return ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END;
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+                return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER;
+            case BRACKETED_LIST:
+                return ParserRuleContext.BRACKETED_LIST_MEMBER;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -2596,6 +2861,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.ARG_LIST_START;
             case TYPE_DESC_IN_TUPLE:
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
@@ -2619,6 +2885,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case BRACKETED_LIST:
                 return true;
             default:
                 return false;
@@ -2627,7 +2895,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a {@link ParserRuleContext#ASSIGN_OP}.
-     * 
+     *
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForEqualOp() {
@@ -2644,13 +2912,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONSTANT_DECL:
             case LET_EXPR_LET_VAR_DECL:
             case LET_CLAUSE_LET_VAR_DECL:
+            case ENUM_MEMBER_LIST:
                 return ParserRuleContext.EXPRESSION;
             default:
-                if (parentCtx == ParserRuleContext.STMT_START_WITH_IDENTIFIER) {
-                    switchContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT);
-                    return ParserRuleContext.EXPRESSION;
-                }
-
                 if (isStatement(parentCtx)) {
                     return ParserRuleContext.EXPRESSION;
                 }
@@ -2709,34 +2973,43 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BLOCK_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.IF_BLOCK) {
-                    endContext(); // end if-block
-                    return ParserRuleContext.ELSE_BLOCK;
-                } else if (parentCtx == ParserRuleContext.WHILE_BLOCK) {
-                    endContext(); // end while-block
-                    return ParserRuleContext.STATEMENT;
-                } else if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
-                    endContext(); // end named-worker
-                    parentCtx = getParentContext();
-                    if (parentCtx == ParserRuleContext.FORK_STMT) {
-                        nextToken = this.tokenReader.peek(nextLookahead);
-                        switch (nextToken.kind) {
-                            case CLOSE_BRACE_TOKEN:
-                                return ParserRuleContext.CLOSE_BRACE;
-                            default:
-                                return ParserRuleContext.STATEMENT;
-                        }
-                    } else {
+                switch (parentCtx) {
+                    case LOCK_STMT:
+                    case FOREACH_STMT:
+                    case WHILE_BLOCK:
+                    case RETRY_STMT:
+                        endContext();
                         return ParserRuleContext.STATEMENT;
-                    }
-                } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
-                    endContext();
-                    return ParserRuleContext.STATEMENT;
-                } else if (parentCtx == ParserRuleContext.FOREACH_STMT) {
-                    endContext();
-                    return ParserRuleContext.STATEMENT;
+                    case IF_BLOCK:
+                        endContext(); // end parent stmt if/lock/while/ block
+                        return ParserRuleContext.ELSE_BLOCK;
+                    case TRANSACTION_STMT:
+                        endContext(); // end transaction context
+                        parentCtx = getParentContext();
+
+                        // If this is a retry-transaction block, then end the enclosing retry
+                        // context as well.
+                        if (parentCtx == ParserRuleContext.RETRY_STMT) {
+                            endContext();
+                        }
+                        return ParserRuleContext.STATEMENT;
+                    case NAMED_WORKER_DECL:
+                        endContext(); // end named-worker
+                        parentCtx = getParentContext();
+                        if (parentCtx == ParserRuleContext.FORK_STMT) {
+                            nextToken = this.tokenReader.peek(nextLookahead);
+                            switch (nextToken.kind) {
+                                case CLOSE_BRACE_TOKEN:
+                                    return ParserRuleContext.CLOSE_BRACE;
+                                default:
+                                    return ParserRuleContext.STATEMENT;
+                            }
+                        } else {
+                            return ParserRuleContext.STATEMENT;
+                        }
+                    default:
+                        return ParserRuleContext.STATEMENT;
                 }
-                return ParserRuleContext.STATEMENT;
             case MAPPING_CONSTRUCTOR:
                 endContext(); // end mapping constructor
                 parentCtx = getParentContext();
@@ -2757,8 +3030,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TEMPLATE_MEMBER;
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
+            case DO_CLAUSE:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
+            case ENUM_MEMBER_LIST:
+                endContext(); // end ENUM_MEMBER_LIST context
+                endContext(); // end MODULE_ENUM_DECLARATION ctx
+                return ParserRuleContext.TOP_LEVEL_NODE;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -2797,6 +3075,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXTERNAL_KEYWORD;
             case TYPE_CAST:
                 return ParserRuleContext.TYPE_CAST_PARAM_RHS;
+            case ENUM_MEMBER_LIST:
+                return ParserRuleContext.ENUM_MEMBER_NAME;
             default:
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.REQUIRED_PARAM;
@@ -2809,7 +3089,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a variable/parameter name.
-     * 
+     *
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForVarName() {
@@ -2826,7 +3106,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return getNextRuleForTypedBindingPattern();
         } else if (parentCtx == ParserRuleContext.CAPTURE_BINDING_PATTERN) {
             return getNextRuleForTypedBindingPattern();
-        } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN) {
+        } else if (parentCtx == ParserRuleContext.LIST_BINDING_PATTERN ||
+                parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER) {
             return getNextRuleForTypedBindingPattern();
         } else if (parentCtx == ParserRuleContext.REST_BINDING_PATTERN) {
             return getNextRuleForTypedBindingPattern();
@@ -2872,7 +3153,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
-        } else if (isExpression(parentCtx)) {
+        } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
+            endContext(); // end expression
+            return getNextRuleForSemicolon(nextLookahead);
+        } else if (isExpressionContext(parentCtx)) {
             // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
             endContext(); // end statement
             return ParserRuleContext.STATEMENT;
@@ -2951,6 +3235,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_TYPE_DESCRIPTOR:
                 endContext();
                 return ParserRuleContext.TYPEDESC_RHS;
+            case CONDITIONAL_EXPRESSION:
+                return ParserRuleContext.EXPRESSION;
             default:
                 return ParserRuleContext.SEMICOLON;
         }
@@ -3000,8 +3286,20 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForTypedBindingPattern();
             case LIST_CONSTRUCTOR:
             case TABLE_CONSTRUCTOR:
+            case MEMBER_ACCESS_KEY_EXPR:
                 endContext();
                 return getNextRuleForExpr();
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+                endContext();
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                    return ParserRuleContext.BRACKETED_LIST_MEMBER_END;
+                }
+
+                return ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC_RHS;
+            case BRACKETED_LIST:
+                endContext();
+                return ParserRuleContext.BRACKETED_LIST_RHS;
             default:
                 return getNextRuleForExpr();
         }
@@ -3073,7 +3371,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.ROW_TYPE_PARAM) {
             endContext(); // end row type param ctx
             return ParserRuleContext.TABLE_TYPE_DESC_RHS;
+        } else if (parentCtx == ParserRuleContext.RETRY_STMT) {
+            return ParserRuleContext.RETRY_TYPE_PARAM_RHS;
         }
+
         // Type cast expression:
         endContext();
         return ParserRuleContext.EXPRESSION;
@@ -3094,10 +3395,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FOREACH_STMT:
                 return ParserRuleContext.IN_KEYWORD;
             case LIST_BINDING_PATTERN:
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            case BRACKETED_LIST:
                 return ParserRuleContext.LIST_BINDING_PATTERN_END_OR_CONTINUE;
             case REST_BINDING_PATTERN:
                 endContext();
                 return ParserRuleContext.CLOSE_BRACKET;
+            case ASSIGNMENT_OR_VAR_DECL_STMT:
+            case VAR_DECL_STMT:
+            case AMBIGUOUS_STMT:
+                return ParserRuleContext.VAR_DECL_STMT_RHS;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -3111,7 +3418,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     /**
      * Check whether the given context is a statement.
-     * 
+     *
      * @param ctx Parser context to check
      * @return <code>true</code> if the given context is a statement. <code>false</code> otherwise
      */
@@ -3132,11 +3439,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETURN_STMT:
             case COMPOUND_ASSIGNMENT_STMT:
             case LOCAL_TYPE_DEFINITION_STMT:
-            case STMT_START_WITH_IDENTIFIER:
             case EXPRESSION_STATEMENT:
             case LOCK_STMT:
             case FORK_STMT:
             case FOREACH_STMT:
+            case TRANSACTION_STMT:
+            case RETRY_STMT:
+            case ROLLBACK_STMT:
+            case AMBIGUOUS_STMT:
                 return true;
             default:
                 return false;
@@ -3144,18 +3454,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     /**
-     * Check whether the given context is an expression.
-     * 
-     * @param ctx Parser context to check
-     * @return <code>true</code> if the given context is an expression. <code>false</code> otherwise
-     */
-    private boolean isExpression(ParserRuleContext ctx) {
-        return ctx == ParserRuleContext.EXPRESSION || ctx == ParserRuleContext.TERMINAL_EXPRESSION;
-    }
-
-    /**
      * Check whether the given token refers to a binary operator.
-     * 
+     *
      * @param token Token to check
      * @return <code>true</code> if the given token refers to a binary operator. <code>false</code> otherwise
      */
@@ -3183,6 +3483,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TRIPPLE_GT_TOKEN:
             case ELLIPSIS_TOKEN:
             case DOUBLE_DOT_LT_TOKEN:
+            case ELVIS_TOKEN:
                 return true;
 
             // Treat these also as binary operators.
@@ -3210,7 +3511,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,
      * then the corresponding terminal token kind is returned. If the parser rule is a production,
      * then {@link SyntaxKind#NONE} is returned.
-     * 
+     *
      * @param ctx Parser rule context
      * @return Token kind expected at the given parser rule
      */
@@ -3294,6 +3595,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case TYPE_REFERENCE:
+            case ANNOT_TAG_REFERENCE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case RECORD_BODY_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
@@ -3313,6 +3615,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_SECOND_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case CLOSE_BRACKET:
+            case MEMBER_ACCESS_KEY_EXPR_END:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case DOT:
                 return SyntaxKind.DOT_TOKEN;
@@ -3503,6 +3806,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IN_KEYWORD:
                 return SyntaxKind.IN_KEYWORD;
             case PIPE:
+            case UNION_OR_INTERSECTION_TOKEN:
                 return SyntaxKind.PIPE_TOKEN;
             case TABLE_KEYWORD:
                 return SyntaxKind.TABLE_KEYWORD;
@@ -3555,84 +3859,28 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case WAIT_KEYWORD:
                 return SyntaxKind.WAIT_KEYWORD;
-
-            // TODO:
-            case COMP_UNIT:
-            case TOP_LEVEL_NODE:
-            case TOP_LEVEL_NODE_WITHOUT_METADATA:
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
-            case ANNOTATIONS:
-            case PARAM_LIST:
-            case PARAMETER_NAME_RHS:
-            case FIELD_OR_REST_DESCIPTOR_RHS:
-            case MODULE_TYPE_DEFINITION:
-            case RECORD_TYPE_DESCRIPTOR:
-            case EOF:
-            case FUNC_CALL:
-            case NAMED_OR_POSITIONAL_ARG_RHS:
-            case OBJECT_FUNC_OR_FIELD:
-            case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
-            case OBJECT_MEMBER:
-            case OBJECT_METHOD_START:
-            case OBJECT_TYPE_DESCRIPTOR:
-            case OBJECT_TYPE_DESCRIPTOR_START:
-            case AFTER_IMPORT_MODULE_NAME:
-            case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
-            case BLOCK_STMT:
-            case CALL_STMT:
-            case CALL_STMT_START:
-            case ELSE_BLOCK:
-            case ELSE_BODY:
-            case IF_BLOCK:
-            case IMPORT_DECL:
-            case IMPORT_PREFIX_DECL:
-            case MAJOR_MINOR_VERSION_END:
-            case WHILE_BLOCK:
-            case ACCESS_EXPRESSION:
-            case IMPORT_VERSION_DECL:
-            case MAPPING_CONSTRUCTOR:
-            case PANIC_STMT:
-            case SPECIFIC_FIELD_RHS:
-            case COMPUTED_FIELD_NAME:
-            case LISTENERS_LIST:
-            case RESOURCE_DEF:
-            case RETURN_STMT:
-            case RETURN_STMT_RHS:
-            case SERVICE_DECL:
-            case OPTIONAL_SERVICE_NAME:
-            case BREAK_STATEMENT:
-            case CONTINUE_STATEMENT:
-            case LISTENER_DECL:
-            case CONSTANT_DECL:
-            case ANNOT_REFERENCE:
-            case DOC_STRING:
-            case COMPOUND_ASSIGNMENT_STMT:
-            case PARAMETER_START:
-            case STMT_START_WITH_IDENTIFIER:
-            case LOCAL_TYPE_DEFINITION_STMT:
-            case LOCK_STMT:
-            case FORK_STMT:
-            case ANNOTATION_DECL:
-            case ANNOT_ATTACH_POINTS_LIST:
-            case ANNOT_OPTIONAL_ATTACH_POINTS:
-            case EXPRESSION_STATEMENT:
-            case EXPRESSION_STATEMENT_START:
-            case RECORD_FIELD_START:
-            case ATTACH_POINT:
-            case DEFAULT_WORKER:
-            case DEFAULT_WORKER_INIT:
-            case LIST_CONSTRUCTOR:
-            case FOREACH_STMT:
-            case TYPE_CAST:
-            case TABLE_CONSTRUCTOR:
-            case KEY_SPECIFIER:
-            case LET_EXPR_LET_VAR_DECL:
-            case LET_CLAUSE_LET_VAR_DECL:
-            case LET_EXPRESSION:
-            case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
-            case TABLE_CONSTRUCTOR_OR_QUERY_START:
-            case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
-            case QUERY_EXPRESSION_RHS:
+            case ANNOT_CHAINING_TOKEN:
+                return SyntaxKind.ANNOT_CHAINING_TOKEN;
+            case OPTIONAL_CHAINING_TOKEN:
+                return SyntaxKind.OPTIONAL_CHAINING_TOKEN;
+            case TRANSACTION_KEYWORD:
+                return SyntaxKind.TRANSACTION_KEYWORD;
+            case COMMIT_KEYWORD:
+                return SyntaxKind.COMMIT_KEYWORD;
+            case RETRY_KEYWORD:
+                return SyntaxKind.RETRY_KEYWORD;
+            case ROLLBACK_KEYWORD:
+                return SyntaxKind.ROLLBACK_KEYWORD;
+            case ENUM_KEYWORD:
+                return SyntaxKind.ENUM_KEYWORD;
+            case MODULE_ENUM_NAME:
+            case ENUM_MEMBER_NAME:
+                return SyntaxKind.IDENTIFIER_TOKEN;
+            case ENUM_MEMBER_INTERNAL_RHS:
+            case ENUM_MEMBER_RHS:
+                return SyntaxKind.CLOSE_BRACE_TOKEN;
+            case TYPED_BINDING_PATTERN_TYPE_RHS:
+                return SyntaxKind.IDENTIFIER_TOKEN;
             default:
                 break;
         }
@@ -3642,7 +3890,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     /**
      * Check whether a token kind is a basic literal.
-     * 
+     *
      * @param kind Token kind to check
      * @return <code>true</code> if the given token kind belongs to a basic literal.<code>false</code> otherwise
      */
