@@ -22,10 +22,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -35,13 +31,13 @@ import java.io.StringReader;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
-        functionName = "fromJsonString",
-        args = {@Argument(name = "str", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.value",
+//        functionName = "fromJsonString",
+//        args = {@Argument(name = "str", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
+//        isPublic = true
+//)
 public class FromJsonString {
 
     public static Object fromJsonString(Strand strand, String value) {

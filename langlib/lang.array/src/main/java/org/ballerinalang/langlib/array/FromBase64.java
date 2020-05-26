@@ -21,10 +21,6 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Base64;
 
@@ -33,12 +29,12 @@ import java.util.Base64;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase64",
-        args = {@Argument(name = "str", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase64",
+//        args = {@Argument(name = "str", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class FromBase64 {
 
     public static Object fromBase64(Strand strand, String str) {

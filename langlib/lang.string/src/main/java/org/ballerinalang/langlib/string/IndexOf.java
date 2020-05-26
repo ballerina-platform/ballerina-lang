@@ -24,10 +24,6 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -38,14 +34,14 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "indexOf",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
-                @Argument(name = "substring", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "indexOf",
+//        args = {@Argument(name = "s", type = TypeKind.STRING),
+//                @Argument(name = "substring", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class IndexOf {
 
     public static Object indexOf(Strand strand, String value, String subString, long startIndx) {

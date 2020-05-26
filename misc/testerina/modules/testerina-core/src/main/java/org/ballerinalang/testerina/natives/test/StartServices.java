@@ -19,13 +19,7 @@ package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.test:startServices.
@@ -33,13 +27,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
  *
  * @since 0.94.1
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServices", args = {@Argument
-        (name = "moduleName", type = TypeKind.STRING)}, returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Starts all " +
-        "the" + " services defined in the module specified in the 'moduleName' argument")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of the "
-        + "module")})
+//@BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServices", args = {@Argument
+//        (name = "moduleName", type = TypeKind.STRING)}, returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true)
+//@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Starts all " +
+//        "the" + " services defined in the module specified in the 'moduleName' argument")})
+//@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of the "
+//        + "module")})
 public class StartServices extends BlockingNativeCallableUnit {
 
     /**

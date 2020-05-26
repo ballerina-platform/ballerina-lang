@@ -28,10 +28,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collection;
 
@@ -42,13 +38,13 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map",
-        functionName = "toArray",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map",
+//        functionName = "toArray",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class ToArray {
 
     public static ArrayValue toArray(Strand strand, MapValue<?, ?> m) {

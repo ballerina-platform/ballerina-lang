@@ -19,17 +19,12 @@ package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
-        functionName = "setArrayElement"
-)
 public class SetArrayElement {
 
     public static void setArrayElement(Strand strand, HandleValue arrayValue, long index, HandleValue value) {

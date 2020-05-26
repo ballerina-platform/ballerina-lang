@@ -21,9 +21,6 @@ package org.ballerinalang.langlib.map;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.MapUtils.validateRecord;
@@ -33,11 +30,11 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "removeAll",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "removeAll",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        isPublic = true
+//)
 public class RemoveAll {
 
     public static void removeAll(Strand strand, MapValue<?, ?> m) {

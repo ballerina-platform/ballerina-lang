@@ -20,10 +20,6 @@ package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
@@ -34,12 +30,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "fromHexString",
-        args = {@Argument(name = "n", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.int", functionName = "fromHexString",
+//        args = {@Argument(name = "n", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class FromHexString {
 
     public static Object fromHexString(Strand strand, String s) {

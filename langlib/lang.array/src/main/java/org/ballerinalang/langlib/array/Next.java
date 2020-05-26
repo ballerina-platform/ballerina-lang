@@ -25,23 +25,19 @@ import org.ballerinalang.jvm.values.AbstractArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.array.ArrayIterator:next().
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ArrayIterator",
-                structPackage = "ballerina/lang.array"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "next",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ArrayIterator",
+//                structPackage = "ballerina/lang.array"),
+//        returnType = {@ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {

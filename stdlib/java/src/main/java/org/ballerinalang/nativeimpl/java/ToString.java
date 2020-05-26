@@ -18,30 +18,24 @@
 package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * This class contains the implementation of the "toString" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
-        functionName = "toString"
-)
 public class ToString {
 
-    public static Object toString(Strand strand, HandleValue value) {
+    public static Object toString(HandleValue value) {
         Object referredValue = value.getValue();
         if (referredValue == null) {
             return null;
         }
         return referredValue.toString();
     }
-    public static Object toString_bstring(Strand strand, HandleValue value) {
+    public static Object toString_bstring(HandleValue value) {
         Object referredValue = value.getValue();
         if (referredValue == null) {
             return null;

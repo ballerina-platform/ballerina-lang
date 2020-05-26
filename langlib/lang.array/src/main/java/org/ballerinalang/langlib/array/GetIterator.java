@@ -21,22 +21,18 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.array:iterator(Type[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "iterator",
-        args = {@Argument(name = "m", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "iterator",
+//        args = {@Argument(name = "m", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+//        isPublic = true
+//)
 public class GetIterator {
 
     public static IteratorValue iterator(Strand strand, ArrayValue arr) {

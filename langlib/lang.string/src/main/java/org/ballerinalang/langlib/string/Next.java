@@ -25,10 +25,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -39,13 +35,13 @@ import java.text.StringCharacterIterator;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
-                structPackage = "ballerina/lang.string"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "next",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
+//                structPackage = "ballerina/lang.string"),
+//        returnType = {@ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class Next {
     public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
     public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;

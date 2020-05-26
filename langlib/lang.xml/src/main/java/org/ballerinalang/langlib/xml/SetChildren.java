@@ -29,9 +29,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Arrays;
 
@@ -41,12 +38,12 @@ import java.util.Arrays;
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "setChildren",
-        args = {@Argument(name = "children", type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "setChildren",
+//        args = {@Argument(name = "children", type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";

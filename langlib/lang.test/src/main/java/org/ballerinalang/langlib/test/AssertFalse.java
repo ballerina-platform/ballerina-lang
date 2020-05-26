@@ -20,20 +20,17 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native implementation of assertFalse(boolean value).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertFalse",
-        args = {@Argument(name = "value", type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.test", functionName = "assertFalse",
+//        args = {@Argument(name = "value", type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class AssertFalse {
     public static void assertFalse(Strand strand, boolean value) {
         if (value) {

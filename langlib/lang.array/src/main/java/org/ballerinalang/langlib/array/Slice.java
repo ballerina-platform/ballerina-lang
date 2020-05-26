@@ -28,10 +28,6 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +39,13 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "slice",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "startIndex", type = TypeKind.INT),
-                @Argument(name = "endIndex", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "slice",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "startIndex", type = TypeKind.INT),
+//                @Argument(name = "endIndex", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Slice {
 
     public static ArrayValue slice(Strand strand, ArrayValue arr, long startIndex, long endIndex) {

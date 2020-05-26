@@ -91,15 +91,15 @@ createBalo {
 
 description = 'Ballerina - gRPC Implementation'
 
-ext.moduleName = 'grpc'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
+//ext.moduleName = 'grpc'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}
 

@@ -1,5 +1,7 @@
 module io.ballerina.http {
     exports org.ballerinalang.net.http;
+    exports org.ballerinalang.net.uri;
+    exports org.ballerinalang.net.http.websocket.server;
     requires org.wso2.transport.http.netty;
     requires slf4j.api;
     requires io.ballerina.jvm;

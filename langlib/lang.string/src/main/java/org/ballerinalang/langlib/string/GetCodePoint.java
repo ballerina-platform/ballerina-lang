@@ -20,10 +20,6 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -34,12 +30,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "getCodePoint",
-        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "i", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "getCodePoint",
+//        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "i", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class GetCodePoint {
 
     public static long getCodePoint(Strand strand, String str, long i) {

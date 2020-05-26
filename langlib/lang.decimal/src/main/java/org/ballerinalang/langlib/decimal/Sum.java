@@ -21,22 +21,18 @@ package org.ballerinalang.langlib.decimal;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
 
 /**
  * Native implementation of lang.decimal:sum(decimal...).
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "sum",
-        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.decimal", functionName = "sum",
+//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
+//        isPublic = true
+//)
 public class Sum {
 
     public static DecimalValue sum(Strand strand, ArrayValue ns) {

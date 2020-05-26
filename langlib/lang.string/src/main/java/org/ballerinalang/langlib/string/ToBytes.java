@@ -21,24 +21,20 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.charset.StandardCharsets;
 
 /**
  * Convert String to byte array.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "toBytes",
-        args = {@Argument(name = "string", type = TypeKind.STRING),
-                @Argument(name = "encoding", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "toBytes",
+//        args = {@Argument(name = "string", type = TypeKind.STRING),
+//                @Argument(name = "encoding", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+//        isPublic = true
+//)
 public class ToBytes {
 
     public static ArrayValue toBytes(Strand strand, String value) {

@@ -19,22 +19,18 @@
 package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.float:isNaN(float).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "isNaN",
-        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "isNaN",
+//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class IsNaN {
 
     public static boolean isNaN(Strand strand, double x) {

@@ -21,22 +21,18 @@ package org.ballerinalang.langlib.map;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.map:iterator(map).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "iterator",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "iterator",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+//        isPublic = true
+//)
 public class GetIterator {
 
     public static IteratorValue iterator(Strand strand, MapValue<?, ?> map) {

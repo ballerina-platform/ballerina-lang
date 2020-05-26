@@ -92,14 +92,14 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 
-ext.moduleName = 'mime'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
+//ext.moduleName = 'mime'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

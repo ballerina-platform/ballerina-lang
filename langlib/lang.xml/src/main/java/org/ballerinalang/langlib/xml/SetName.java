@@ -23,10 +23,6 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import javax.xml.namespace.QName;
 
@@ -35,14 +31,14 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "setName",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
-                @Argument(name = "newName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "setName",
+//        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
+//                @Argument(name = "newName", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.NIL)},
+//        isPublic = true
+//)
 public class SetName {
     private static final String OPERATION = "set element name in xml";
 

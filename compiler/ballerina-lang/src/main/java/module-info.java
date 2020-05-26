@@ -44,4 +44,9 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.packaging.repo;
     exports org.wso2.ballerinalang.compiler.bir;
     exports org.ballerinalang.toml.exceptions;
+    exports org.ballerinalang.model.tree.types;
+    exports org.wso2.ballerinalang.compiler.parser.antlr4;
+    exports org.wso2.ballerinalang.compiler.parser;
+    exports org.ballerinalang.model.symbols;
+    exports org.ballerinalang.repository.fs;
 }

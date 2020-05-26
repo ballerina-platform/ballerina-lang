@@ -28,10 +28,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,12 +38,12 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "map",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "map",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Map {
 
     public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
