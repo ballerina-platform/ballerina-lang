@@ -60,11 +60,21 @@
               ]
             },
             {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "B"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "EQUAL_TOKEN"
@@ -86,11 +96,21 @@
               "children": []
             },
             {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "C"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "C"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "EQUAL_TOKEN"
@@ -184,11 +204,21 @@
               ]
             },
             {
-              "kind": "INT_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "D"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "D"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "EQUAL_TOKEN"

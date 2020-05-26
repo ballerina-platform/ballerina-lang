@@ -3405,6 +3405,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VAR_DECL_STMT:
             case AMBIGUOUS_STMT:
                 return ParserRuleContext.VAR_DECL_STMT_RHS;
+            case LET_CLAUSE_LET_VAR_DECL:
+            case LET_EXPR_LET_VAR_DECL:
+                return ParserRuleContext.ASSIGN_OP;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }

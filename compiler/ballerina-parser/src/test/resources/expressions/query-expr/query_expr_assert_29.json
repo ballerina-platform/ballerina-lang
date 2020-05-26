@@ -46,11 +46,21 @@
                           "children": []
                         },
                         {
-                          "kind": "INT_KEYWORD"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "c"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "EQUAL_TOKEN"
@@ -73,11 +83,21 @@
                           "children": []
                         },
                         {
-                          "kind": "INT_KEYWORD"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "e"
+                          "kind": "TYPED_BINDING_PATTERN",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "e"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "kind": "EQUAL_TOKEN"
