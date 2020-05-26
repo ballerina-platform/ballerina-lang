@@ -51,7 +51,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
  */
 public class MvnResolverUtils {
 
-    public static PrintStream outStream = System.out;
+    private static PrintStream outStream;
 
     private MvnResolverUtils() {
     }
@@ -172,5 +172,9 @@ public class MvnResolverUtils {
             return moduleName;
         }
         return null;
+    }
+
+    public static void setOutStream(PrintStream outStream) {
+        MvnResolverUtils.outStream = outStream;
     }
 }

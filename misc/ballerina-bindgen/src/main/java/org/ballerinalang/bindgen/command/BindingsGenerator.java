@@ -88,9 +88,9 @@ public class BindingsGenerator {
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
-    public BindingsGenerator(PrintStream stream) {
-        this.outStream = stream;
-        this.errStream = stream;
+    public BindingsGenerator(PrintStream out, PrintStream err) {
+        this.outStream = out;
+        this.errStream = err;
     }
 
     void generateJavaBindings() throws BindgenException {
