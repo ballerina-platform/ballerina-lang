@@ -2538,6 +2538,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 transactionalKeyword);
     }
 
+    @Override
+    public ServiceConstructorExpressionNode transform(
+            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(serviceConstructorExpressionNode.annotations());
+        Token serviceKeyword =
+                modifyToken(serviceConstructorExpressionNode.serviceKeyword());
+        Node serviceBody =
+                modifyNode(serviceConstructorExpressionNode.serviceBody());
+        return serviceConstructorExpressionNode.modify(
+                annotations,
+                serviceKeyword,
+                serviceBody);
+    }
+
     // Tokens
 
     @Override

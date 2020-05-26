@@ -3356,6 +3356,26 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "ServiceConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "SERVICE_CONSTRUCTOR_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "serviceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "serviceBody",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

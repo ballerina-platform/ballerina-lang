@@ -1872,5 +1872,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STTransactionalExpressionNode(
                 transactionalKeyword);
     }
+
+    public static STNode createServiceConstructorExpressionNode(
+            STNode annotations,
+            STNode serviceKeyword,
+            STNode serviceBody) {
+
+        return new STServiceConstructorExpressionNode(
+                annotations,
+                serviceKeyword,
+                serviceBody);
+    }
 }
 

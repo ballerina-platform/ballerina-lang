@@ -404,6 +404,7 @@ public enum ParserRuleContext {
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
+    SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

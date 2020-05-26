@@ -3786,6 +3786,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseCommitAction();
             case TRANSACTIONAL_KEYWORD:
                 return parseTransactionalExpression();
+            case SERVICE_KEYWORD:
+                return parseServiceConstructorExpression(annots);
             default:
                 break;
         }
@@ -11582,5 +11584,28 @@ public class BallerinaParser extends AbstractParser {
 
         STToken nameToken = (STToken) ((STSimpleNameReferenceNode) node).name;
         return "_".equals(nameToken.text());
+    }
+
+    /**
+     * Parse service-constructor-expr.
+     *
+     * service-constructor-expr := [annots] service service-body-block
+     * service-body-block := { service-method-defn* }
+     * service-method-defn :=
+     *    metadata
+     *    [resource]
+     *    function identifier function-signature method-defn-body
+     *
+     * @param annots Annots
+     * @return Parsed node
+     */
+    private STNode parseServiceConstructorExpression(STNode annots) {
+        startContext(ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION);
+        STNode serviceKeyword = parseServiceKeyword();
+        STNode serviceBody = parseServiceBody();
+        endContext();
+        return STNodeFactory.createServiceConstructorExpressionNode(annots,
+                serviceKeyword,
+                serviceBody);
     }
 }

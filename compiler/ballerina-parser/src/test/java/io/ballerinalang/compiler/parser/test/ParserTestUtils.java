@@ -726,6 +726,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
             case "TRANSACTIONAL_EXPRESSION":
                 return SyntaxKind.TRANSACTIONAL_EXPRESSION;
+            case "SERVICE_CONSTRUCTOR_EXPRESSION":
+                return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
