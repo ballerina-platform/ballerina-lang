@@ -57,6 +57,10 @@
                       "kind": "TYPE_CAST_PARAM",
                       "children": [
                         {
+                            "kind": "LIST",
+                            "children": []
+                        },
+                          {
                           "kind": "IDENTIFIER_TOKEN",
                           "value": "MyRecord"
                         }
