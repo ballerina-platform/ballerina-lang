@@ -17,12 +17,6 @@
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
-//configurations.testCompileClasspath {
-//    resolutionStrategy {
-//        preferProjectModules()
-//    }
-//}
-
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
@@ -36,7 +30,3 @@ createBalo {
 }
 
 description = 'ballerina/lang.java - Java Interop Implementation'
-
-//configurations.all {
-//    resolutionStrategy.preferProjectModules()
-//}
