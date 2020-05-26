@@ -27,7 +27,6 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * Progress bar implementation for Maven Resolver.
  */
