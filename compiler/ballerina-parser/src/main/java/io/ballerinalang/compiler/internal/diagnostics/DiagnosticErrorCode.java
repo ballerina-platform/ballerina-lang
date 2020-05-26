@@ -89,12 +89,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     }
 
     @Override
-    public DiagnosticSeverity getSeverity() {
+    public DiagnosticSeverity severity() {
         return DiagnosticSeverity.ERROR;
     }
 
     @Override
-    public String getDiagnosticId() {
+    public String diagnosticId() {
         return diagnosticId;
     }
 }

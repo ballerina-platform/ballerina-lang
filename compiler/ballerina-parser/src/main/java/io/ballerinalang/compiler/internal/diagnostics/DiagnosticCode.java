@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
  * @since 2.0.0
  */
 public interface DiagnosticCode {
-    DiagnosticSeverity getSeverity();
+    DiagnosticSeverity severity();
 
-    String getDiagnosticId();
+    String diagnosticId();
 }

@@ -56,8 +56,8 @@ public class SyntaxDiagnostic extends Diagnostic {
 
         DiagnosticCode diagnosticCode = nodeDiagnostic.diagnosticCode();
         // TODO Fix the following conversion
-        diagnosticInfo = new DiagnosticInfo(diagnosticCode.getDiagnosticId(), diagnosticCode.toString(),
-                diagnosticCode.getSeverity());
+        diagnosticInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.toString(),
+                diagnosticCode.severity());
         // TODO
         // TODO Severity comes from the error Code
         return diagnosticInfo;

@@ -34,12 +34,12 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     }
 
     @Override
-    public DiagnosticSeverity getSeverity() {
+    public DiagnosticSeverity severity() {
         return DiagnosticSeverity.WARNING;
     }
 
     @Override
-    public String getDiagnosticId() {
+    public String diagnosticId() {
         return diagnosticId;
     }
 }
