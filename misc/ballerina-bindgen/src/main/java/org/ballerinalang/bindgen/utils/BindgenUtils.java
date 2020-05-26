@@ -90,8 +90,8 @@ public class BindgenUtils {
     private BindgenUtils() {
     }
 
-    private static final PrintStream errStream = System.err;
-    private static final PrintStream outStream = System.out;
+    public static PrintStream errStream = System.err;
+    public static PrintStream outStream = System.out;
 
     public static void writeOutputFile(Object object, String templateDir, String templateName, String outPath,
                                        Boolean append) throws BindgenException {

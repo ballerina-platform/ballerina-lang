@@ -73,13 +73,13 @@ public class BindingsGenerator {
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
+    private PrintStream errStream;
+    private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
 
     private static String outputPath;
     private static boolean directJavaClass = true;
     private static Set<String> classPaths = new HashSet<>();
-    private static final PrintStream errStream = System.err;
-    private static final PrintStream outStream = System.out;
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     private static Set<String> allClasses = new HashSet<>();
@@ -87,6 +87,11 @@ public class BindingsGenerator {
     private static Set<String> allJavaClasses = new HashSet<>();
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
+
+    public BindingsGenerator(PrintStream stream) {
+        this.outStream = stream;
+        this.errStream = stream;
+    }
 
     void generateJavaBindings() throws BindgenException {
         // Resolve existing platform.libraries specified in the Ballerina.toml
