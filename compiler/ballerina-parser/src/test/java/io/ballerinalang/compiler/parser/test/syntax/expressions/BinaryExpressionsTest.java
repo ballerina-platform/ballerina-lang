@@ -31,6 +31,33 @@ public class BinaryExpressionsTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testSimpleShiftExpression() {
+        test("a << b", "binary-expr/shift_expr_assert_1.json");
+        test("a >> b ", "binary-expr/shift_expr_assert_2.json");
+        test("a >>> b ", "binary-expr/shift_expr_assert_3.json");
+    }
+
+    @Test
+    public void testShiftExpression() {
+        test("a <<b> c", "binary-expr/shift_expr_assert_4.json");
+        test("a <<<b> c", "binary-expr/shift_expr_assert_5.json");
+        test("a <<<map<int>> b >> c", "binary-expr/shift_expr_assert_6.json");
+        test("<map<map<int>>> b >>> c", "binary-expr/shift_expr_assert_7.json");
+    }
+
+    @Test
+    public void testSimpleRangeExpression() {
+        test("a ... b", "binary-expr/range_expr_assert_1.json");
+        test("a ..< b", "binary-expr/range_expr_assert_2.json");
+    }
+
+    @Test
+    public void testRangeExpression() {
+        test("a ..<<int> b", "binary-expr/range_expr_assert_3.json");
+        test("a ..<<map<int>> b", "binary-expr/range_expr_assert_4.json");
+    }
+
+    @Test
     public void testSimpleNumericalComparisonExpression() {
         test("a < b", "binary-expr/numerical_comparison_expr_assert_1.json");
         test("a > b ", "binary-expr/numerical_comparison_expr_assert_2.json");
@@ -86,6 +113,7 @@ public class BinaryExpressionsTest extends AbstractExpressionsTest {
 
     @Test
     public void testComplexBinaryOpPrecedenceUpToLogicalOr() {
-        test("a || b && c | d ^ e & f !== g >= h + i / j", "binary-expr/binary_expr_op_precedence_assert_6.json");
+        test("a || b && c | d ^ e & f !== g >= h ... m >> n + i / j",
+                "binary-expr/binary_expr_op_precedence_assert_6.json");
     }
 }

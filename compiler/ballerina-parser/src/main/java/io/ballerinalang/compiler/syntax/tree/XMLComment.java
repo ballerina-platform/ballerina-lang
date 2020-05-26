@@ -101,19 +101,22 @@ public class XMLComment extends XMLItemNode {
             this.commentEnd = oldNode.commentEnd();
         }
 
-        public XMLCommentModifier withCommentStart(Token commentStart) {
+        public XMLCommentModifier withCommentStart(
+                Token commentStart) {
             Objects.requireNonNull(commentStart, "commentStart must not be null");
             this.commentStart = commentStart;
             return this;
         }
 
-        public XMLCommentModifier withContent(NodeList<Node> content) {
+        public XMLCommentModifier withContent(
+                NodeList<Node> content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
         }
 
-        public XMLCommentModifier withCommentEnd(Token commentEnd) {
+        public XMLCommentModifier withCommentEnd(
+                Token commentEnd) {
             Objects.requireNonNull(commentEnd, "commentEnd must not be null");
             this.commentEnd = commentEnd;
             return this;

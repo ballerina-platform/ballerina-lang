@@ -91,13 +91,15 @@ public class ImportOrgNameNode extends NonTerminalNode {
             this.slashToken = oldNode.slashToken();
         }
 
-        public ImportOrgNameNodeModifier withOrgName(Token orgName) {
+        public ImportOrgNameNodeModifier withOrgName(
+                Token orgName) {
             Objects.requireNonNull(orgName, "orgName must not be null");
             this.orgName = orgName;
             return this;
         }
 
-        public ImportOrgNameNodeModifier withSlashToken(Token slashToken) {
+        public ImportOrgNameNodeModifier withSlashToken(
+                Token slashToken) {
             Objects.requireNonNull(slashToken, "slashToken must not be null");
             this.slashToken = slashToken;
             return this;

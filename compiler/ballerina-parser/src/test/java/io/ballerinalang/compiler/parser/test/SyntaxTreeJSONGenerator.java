@@ -60,7 +60,7 @@ public class SyntaxTreeJSONGenerator {
      * Change the below two constants as required, depending on the type of test.
      */
     private static final boolean INCLUDE_TRIVIA = false;
-    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
 
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
@@ -81,7 +81,7 @@ public class SyntaxTreeJSONGenerator {
         return generateJSON(content, context);
     }
 
-    private static String generateJSON(String source, ParserRuleContext context) {
+    public static String generateJSON(String source, ParserRuleContext context) {
         STNode tree = getParserTree(source, context);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(getJSON(tree));

@@ -131,37 +131,43 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             this.serviceBody = oldNode.serviceBody();
         }
 
-        public ServiceDeclarationNodeModifier withMetadata(MetadataNode metadata) {
+        public ServiceDeclarationNodeModifier withMetadata(
+                MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withServiceKeyword(Token serviceKeyword) {
+        public ServiceDeclarationNodeModifier withServiceKeyword(
+                Token serviceKeyword) {
             Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
             this.serviceKeyword = serviceKeyword;
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withServiceName(IdentifierToken serviceName) {
+        public ServiceDeclarationNodeModifier withServiceName(
+                IdentifierToken serviceName) {
             Objects.requireNonNull(serviceName, "serviceName must not be null");
             this.serviceName = serviceName;
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withOnKeyword(Token onKeyword) {
+        public ServiceDeclarationNodeModifier withOnKeyword(
+                Token onKeyword) {
             Objects.requireNonNull(onKeyword, "onKeyword must not be null");
             this.onKeyword = onKeyword;
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withExpressions(NodeList<ExpressionNode> expressions) {
+        public ServiceDeclarationNodeModifier withExpressions(
+                NodeList<ExpressionNode> expressions) {
             Objects.requireNonNull(expressions, "expressions must not be null");
             this.expressions = expressions;
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withServiceBody(Node serviceBody) {
+        public ServiceDeclarationNodeModifier withServiceBody(
+                Node serviceBody) {
             Objects.requireNonNull(serviceBody, "serviceBody must not be null");
             this.serviceBody = serviceBody;
             return this;

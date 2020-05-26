@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -76,6 +77,37 @@ public abstract class NonTerminalNode extends Node {
         throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
     }
 
+    // TODO Find an efficient implementation which uses the previous children positions
+    // TODO Can we optimize this algo?
+    public Token findToken(int position) {
+        if (!textRangeWithMinutiae().contains(position)) {
+            // TODO Fix with a proper error message
+            throw new IllegalArgumentException();
+        }
+
+        Node foundNode = this;
+        while (!SyntaxUtils.isToken(foundNode)) {
+            foundNode = ((NonTerminalNode) foundNode).findChildNode(position);
+        }
+
+        return (Token) foundNode;
+    }
+
+
+    // Node modification operations
+
+    /**
+     * Replaces the given target node with the replacement.
+     *
+     * @param target      the node to be replaced
+     * @param replacement the replacement node
+     * @param <T>         the type of the root node
+     * @return return the new root node after replacing the target with the replacement
+     */
+    public <T extends NonTerminalNode> T replace(Node target, Node replacement) {
+        return TreeModifiers.replace((T) this, target, replacement);
+    }
+
     protected abstract String[] childNames();
 
     protected int bucketCount() {
@@ -100,7 +132,6 @@ public abstract class NonTerminalNode extends Node {
         return Optional.ofNullable(childInBucket(bucket));
     }
 
-    // TODO Find an efficient implementation which uses the previous children positions
     protected int getChildPosition(int bucket) {
         int childPos = this.position;
         for (int i = 0; i < bucket; i++) {
@@ -123,21 +154,6 @@ public abstract class NonTerminalNode extends Node {
             }
         }
         return true;
-    }
-
-    // TODO Can we optimize this algo?
-    public Token findToken(int position) {
-        if (!textRangeWithMinutiae().contains(position)) {
-            // TODO Fix with a proper error message
-            throw new IllegalArgumentException();
-        }
-
-        Node foundNode = this;
-        while (!SyntaxUtils.isToken(foundNode)) {
-            foundNode = ((NonTerminalNode) foundNode).findChildNode(position);
-        }
-
-        return (Token) foundNode;
     }
 
     private Node findChildNode(int position) {

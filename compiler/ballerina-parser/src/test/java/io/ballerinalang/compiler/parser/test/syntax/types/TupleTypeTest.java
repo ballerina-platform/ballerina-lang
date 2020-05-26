@@ -33,5 +33,21 @@ public class TupleTypeTest extends AbstractTypesTest {
         testTopLevelNode("tuple-type/tuple_type_source_01.bal", "tuple-type/tuple_type_assert_01.json");
     }
 
+    @Test
+    public void testLocalLevelTupleTypes() {
+        testTopLevelNode("tuple-type/tuple_type_source_02.bal", "tuple-type/tuple_type_assert_02.json");
+    }
+
+    @Test
+    public void testTupleTypesAsTypeDef() {
+        testFile("tuple-type/tuple_type_source_03.bal", "tuple-type/tuple_type_assert_03.json");
+    }
+
     // Recovery test
+
+    @Test
+    public void testLocalLevelInValidTupleTypes() {
+        testTopLevelNode("tuple-type/tuple_type_source_04.bal", "tuple-type/tuple_type_assert_04.json");
+    }
+
 }

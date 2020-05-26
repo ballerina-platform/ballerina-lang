@@ -36,7 +36,7 @@ public class FlushActionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Token peerWorker() {
+    public NameReferenceNode peerWorker() {
         return childInBucket(1);
     }
 
@@ -59,7 +59,7 @@ public class FlushActionNode extends ExpressionNode {
 
     public FlushActionNode modify(
             Token flushKeyword,
-            Token peerWorker) {
+            NameReferenceNode peerWorker) {
         if (checkForReferenceEquality(
                 flushKeyword,
                 peerWorker)) {
@@ -83,7 +83,7 @@ public class FlushActionNode extends ExpressionNode {
     public static class FlushActionNodeModifier {
         private final FlushActionNode oldNode;
         private Token flushKeyword;
-        private Token peerWorker;
+        private NameReferenceNode peerWorker;
 
         public FlushActionNodeModifier(FlushActionNode oldNode) {
             this.oldNode = oldNode;
@@ -91,13 +91,15 @@ public class FlushActionNode extends ExpressionNode {
             this.peerWorker = oldNode.peerWorker();
         }
 
-        public FlushActionNodeModifier withFlushKeyword(Token flushKeyword) {
+        public FlushActionNodeModifier withFlushKeyword(
+                Token flushKeyword) {
             Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
             this.flushKeyword = flushKeyword;
             return this;
         }
 
-        public FlushActionNodeModifier withPeerWorker(Token peerWorker) {
+        public FlushActionNodeModifier withPeerWorker(
+                NameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;

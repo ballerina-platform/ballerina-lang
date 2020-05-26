@@ -49,8 +49,8 @@ public class DefaultableParameterNode extends ParameterNode {
         return childInBucket(3);
     }
 
-    public Token paramName() {
-        return childInBucket(4);
+    public Optional<Token> paramName() {
+        return optionalChildInBucket(4);
     }
 
     public Token equalsToken() {
@@ -137,48 +137,55 @@ public class DefaultableParameterNode extends ParameterNode {
             this.annotations = oldNode.annotations();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.typeName = oldNode.typeName();
-            this.paramName = oldNode.paramName();
+            this.paramName = oldNode.paramName().orElse(null);
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();
         }
 
-        public DefaultableParameterNodeModifier withLeadingComma(Token leadingComma) {
+        public DefaultableParameterNodeModifier withLeadingComma(
+                Token leadingComma) {
             Objects.requireNonNull(leadingComma, "leadingComma must not be null");
             this.leadingComma = leadingComma;
             return this;
         }
 
-        public DefaultableParameterNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public DefaultableParameterNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public DefaultableParameterNodeModifier withVisibilityQualifier(Token visibilityQualifier) {
+        public DefaultableParameterNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
-        public DefaultableParameterNodeModifier withTypeName(Node typeName) {
+        public DefaultableParameterNodeModifier withTypeName(
+                Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public DefaultableParameterNodeModifier withParamName(Token paramName) {
+        public DefaultableParameterNodeModifier withParamName(
+                Token paramName) {
             Objects.requireNonNull(paramName, "paramName must not be null");
             this.paramName = paramName;
             return this;
         }
 
-        public DefaultableParameterNodeModifier withEqualsToken(Token equalsToken) {
+        public DefaultableParameterNodeModifier withEqualsToken(
+                Token equalsToken) {
             Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
-        public DefaultableParameterNodeModifier withExpression(Node expression) {
+        public DefaultableParameterNodeModifier withExpression(
+                Node expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

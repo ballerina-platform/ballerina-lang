@@ -81,7 +81,8 @@ public class DocumentationStringNode extends NonTerminalNode {
             this.documentationLines = oldNode.documentationLines();
         }
 
-        public DocumentationStringNodeModifier withDocumentationLines(NodeList<Token> documentationLines) {
+        public DocumentationStringNodeModifier withDocumentationLines(
+                NodeList<Token> documentationLines) {
             Objects.requireNonNull(documentationLines, "documentationLines must not be null");
             this.documentationLines = documentationLines;
             return this;

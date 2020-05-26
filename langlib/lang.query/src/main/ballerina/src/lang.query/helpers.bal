@@ -75,6 +75,24 @@ public function toArray(stream<Type, error?> strm) returns Type[]|error {
     return arr;
 }
 
+public function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        error? e = trap tbl.add(<map<Type>> v.value);
+        if (e is error) {
+            if (err is error) {
+                return err;
+            }
+            return e;
+        }
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return tbl;
+}
+
 public function consumeStream(stream<Type, error?> strm) returns error? {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {

@@ -111,25 +111,29 @@ public class KeySpecifierNode extends NonTerminalNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public KeySpecifierNodeModifier withKeyKeyword(Token keyKeyword) {
+        public KeySpecifierNodeModifier withKeyKeyword(
+                Token keyKeyword) {
             Objects.requireNonNull(keyKeyword, "keyKeyword must not be null");
             this.keyKeyword = keyKeyword;
             return this;
         }
 
-        public KeySpecifierNodeModifier withOpenParenToken(Token openParenToken) {
+        public KeySpecifierNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public KeySpecifierNodeModifier withFieldNames(SeparatedNodeList<Node> fieldNames) {
+        public KeySpecifierNodeModifier withFieldNames(
+                SeparatedNodeList<Node> fieldNames) {
             Objects.requireNonNull(fieldNames, "fieldNames must not be null");
             this.fieldNames = fieldNames;
             return this;
         }
 
-        public KeySpecifierNodeModifier withCloseParenToken(Token closeParenToken) {
+        public KeySpecifierNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

@@ -32,8 +32,10 @@ import org.ballerinalang.debugadapter.launchrequest.Launch;
 import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
+import org.ballerinalang.debugadapter.variable.BCompoundVariable;
+import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
-import org.ballerinalang.debugadapter.variable.VariableImpl;
 import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -93,7 +95,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
@@ -343,44 +345,43 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 String varTypeStr = (value == null) ? "null" : value.type().name();
                 String name = entry.getKey();
 
-                VariableImpl variable = new VariableFactory().getVariable(value, varTypeStr, name);
-                if (variable != null && variable.getChildVariables() != null) {
-                    long variableReference = (long) nextVarReference.getAndIncrement();
-                    variable.getDapVariable().setVariablesReference(variableReference);
-                    this.childVariables.put(variableReference, variable.getChildVariables());
-                }
+                BVariable variable = VariableFactory.getVariable(value, varTypeStr, name);
                 if (variable == null) {
                     return null;
+                } else if (variable instanceof BPrimitiveVariable) {
+                    variable.getDapVariable().setVariablesReference(0L);
+                } else if (variable instanceof BCompoundVariable) {
+                    long variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
                 }
                 return variable.getDapVariable();
             }).filter(Objects::nonNull).toArray(Variable[]::new);
         } else {
             try {
-                dapVariables = stackFrame.getValues(stackFrame.visibleVariables())
-                        .entrySet()
-                        .stream()
-                        .map(localVariableValueEntry -> {
+                dapVariables = stackFrame.getValues(stackFrame.visibleVariables()).entrySet().stream()
+                        .map(varValueEntry -> {
                             String varType;
                             try {
-                                varType = localVariableValueEntry.getKey().type().name();
+                                varType = varValueEntry.getKey().type().name();
                             } catch (ClassNotLoadedException e) {
-                                varType = localVariableValueEntry.getKey().toString();
+                                varType = varValueEntry.getKey().toString();
                             }
-                            String name = localVariableValueEntry.getKey() == null ? "" :
-                                    localVariableValueEntry.getKey().name();
+                            String name = varValueEntry.getKey() != null ? varValueEntry.getKey().name() : "";
                             if (name.equals("__strand")) {
                                 return null;
                             }
 
-                            VariableImpl variable = new VariableFactory()
-                                    .getVariable(localVariableValueEntry.getValue(), varType, name);
-                            if (variable != null && variable.getChildVariables() != null) {
-                                long variableReference = (long) nextVarReference.getAndIncrement();
-                                variable.getDapVariable().setVariablesReference(variableReference);
-                                this.childVariables.put(variableReference, variable.getChildVariables());
-                            }
+                            BVariable variable = VariableFactory.getVariable(varValueEntry.getValue(), varType, name);
                             if (variable == null) {
                                 return null;
+                            } else if (variable instanceof BPrimitiveVariable) {
+                                variable.getDapVariable().setVariablesReference(0L);
+                            } else if (variable instanceof BCompoundVariable) {
+                                long variableReference = nextVarReference.getAndIncrement();
+                                variable.getDapVariable().setVariablesReference(variableReference);
+                                this.childVariables.put(variableReference, ((BCompoundVariable) variable)
+                                        .getChildVariables());
                             }
                             return variable.getDapVariable();
                         }).filter(Objects::nonNull).toArray(Variable[]::new);

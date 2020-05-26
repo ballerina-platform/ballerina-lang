@@ -1297,6 +1297,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangQueryExpr clone = new BLangQueryExpr();
         source.cloneRef = clone;
         clone.queryClauseList = cloneList(source.queryClauseList);
+        clone.fieldNameIdentifierList = cloneList(source.fieldNameIdentifierList);
         clone.isStream = source.isStream;
         clone.isTable = source.isTable;
     }

@@ -122,31 +122,36 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
             this.workerBody = oldNode.workerBody();
         }
 
-        public NamedWorkerDeclarationNodeModifier withAnnotations(NodeList<AnnotationNode> annotations) {
+        public NamedWorkerDeclarationNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public NamedWorkerDeclarationNodeModifier withWorkerKeyword(Token workerKeyword) {
+        public NamedWorkerDeclarationNodeModifier withWorkerKeyword(
+                Token workerKeyword) {
             Objects.requireNonNull(workerKeyword, "workerKeyword must not be null");
             this.workerKeyword = workerKeyword;
             return this;
         }
 
-        public NamedWorkerDeclarationNodeModifier withWorkerName(IdentifierToken workerName) {
+        public NamedWorkerDeclarationNodeModifier withWorkerName(
+                IdentifierToken workerName) {
             Objects.requireNonNull(workerName, "workerName must not be null");
             this.workerName = workerName;
             return this;
         }
 
-        public NamedWorkerDeclarationNodeModifier withReturnTypeDesc(Node returnTypeDesc) {
+        public NamedWorkerDeclarationNodeModifier withReturnTypeDesc(
+                Node returnTypeDesc) {
             Objects.requireNonNull(returnTypeDesc, "returnTypeDesc must not be null");
             this.returnTypeDesc = returnTypeDesc;
             return this;
         }
 
-        public NamedWorkerDeclarationNodeModifier withWorkerBody(BlockStatementNode workerBody) {
+        public NamedWorkerDeclarationNodeModifier withWorkerBody(
+                BlockStatementNode workerBody) {
             Objects.requireNonNull(workerBody, "workerBody must not be null");
             this.workerBody = workerBody;
             return this;

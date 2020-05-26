@@ -1,35 +1,35 @@
 {
-    "kind": "TYPE_CAST_EXPRESSION",
+    "kind": "BINARY_EXPRESSION",
     "children": [
         {
-            "kind": "LT_TOKEN"
-        },
-        {
-            "kind": "TYPE_CAST_PARAM",
+            "kind": "TYPE_CAST_EXPRESSION",
             "children": [
-                {
-                    "kind": "INT_KEYWORD"
-                }
-            ]
-        },
-        {
-            "kind": "GT_TOKEN"
-        },
-        {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
                 {
                     "kind": "LT_TOKEN"
                 },
                 {
+                    "kind": "TYPE_CAST_PARAM",
+                    "children": [
+                        {
+                            "kind": "INT_KEYWORD"
+                        }
+                    ]
+                },
+                {
+                    "kind": "GT_TOKEN"
+                },
+                {
                     "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
+                    "value": "a"
                 }
             ]
+        },
+        {
+            "kind": "LT_TOKEN"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "b"
         }
     ]
 }

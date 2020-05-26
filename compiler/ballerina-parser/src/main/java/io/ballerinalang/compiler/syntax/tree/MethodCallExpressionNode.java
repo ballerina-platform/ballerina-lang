@@ -131,37 +131,43 @@ public class MethodCallExpressionNode extends ExpressionNode {
             this.closeParenToken = oldNode.closeParenToken();
         }
 
-        public MethodCallExpressionNodeModifier withExpression(ExpressionNode expression) {
+        public MethodCallExpressionNodeModifier withExpression(
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public MethodCallExpressionNodeModifier withDotToken(Token dotToken) {
+        public MethodCallExpressionNodeModifier withDotToken(
+                Token dotToken) {
             Objects.requireNonNull(dotToken, "dotToken must not be null");
             this.dotToken = dotToken;
             return this;
         }
 
-        public MethodCallExpressionNodeModifier withMethodName(Token methodName) {
+        public MethodCallExpressionNodeModifier withMethodName(
+                Token methodName) {
             Objects.requireNonNull(methodName, "methodName must not be null");
             this.methodName = methodName;
             return this;
         }
 
-        public MethodCallExpressionNodeModifier withOpenParenToken(Token openParenToken) {
+        public MethodCallExpressionNodeModifier withOpenParenToken(
+                Token openParenToken) {
             Objects.requireNonNull(openParenToken, "openParenToken must not be null");
             this.openParenToken = openParenToken;
             return this;
         }
 
-        public MethodCallExpressionNodeModifier withArguments(NodeList<FunctionArgumentNode> arguments) {
+        public MethodCallExpressionNodeModifier withArguments(
+                NodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;
         }
 
-        public MethodCallExpressionNodeModifier withCloseParenToken(Token closeParenToken) {
+        public MethodCallExpressionNodeModifier withCloseParenToken(
+                Token closeParenToken) {
             Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
             this.closeParenToken = closeParenToken;
             return this;

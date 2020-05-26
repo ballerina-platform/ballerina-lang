@@ -101,19 +101,22 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
             this.parenthesizedArgList = oldNode.parenthesizedArgList();
         }
 
-        public ExplicitNewExpressionNodeModifier withNewKeyword(Token newKeyword) {
+        public ExplicitNewExpressionNodeModifier withNewKeyword(
+                Token newKeyword) {
             Objects.requireNonNull(newKeyword, "newKeyword must not be null");
             this.newKeyword = newKeyword;
             return this;
         }
 
-        public ExplicitNewExpressionNodeModifier withTypeDescriptor(TypeDescriptorNode typeDescriptor) {
+        public ExplicitNewExpressionNodeModifier withTypeDescriptor(
+                TypeDescriptorNode typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public ExplicitNewExpressionNodeModifier withParenthesizedArgList(Node parenthesizedArgList) {
+        public ExplicitNewExpressionNodeModifier withParenthesizedArgList(
+                Node parenthesizedArgList) {
             Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
             this.parenthesizedArgList = parenthesizedArgList;
             return this;

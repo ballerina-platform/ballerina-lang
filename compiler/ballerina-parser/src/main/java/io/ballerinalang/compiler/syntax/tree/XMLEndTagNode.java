@@ -111,25 +111,29 @@ public class XMLEndTagNode extends XMLElementTagNode {
             this.getToken = oldNode.getToken();
         }
 
-        public XMLEndTagNodeModifier withLtToken(Token ltToken) {
+        public XMLEndTagNodeModifier withLtToken(
+                Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public XMLEndTagNodeModifier withSlashToken(Token slashToken) {
+        public XMLEndTagNodeModifier withSlashToken(
+                Token slashToken) {
             Objects.requireNonNull(slashToken, "slashToken must not be null");
             this.slashToken = slashToken;
             return this;
         }
 
-        public XMLEndTagNodeModifier withName(XMLNameNode name) {
+        public XMLEndTagNodeModifier withName(
+                XMLNameNode name) {
             Objects.requireNonNull(name, "name must not be null");
             this.name = name;
             return this;
         }
 
-        public XMLEndTagNodeModifier withGetToken(Token getToken) {
+        public XMLEndTagNodeModifier withGetToken(
+                Token getToken) {
             Objects.requireNonNull(getToken, "getToken must not be null");
             this.getToken = getToken;
             return this;

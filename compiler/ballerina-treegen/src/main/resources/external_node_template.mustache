@@ -20,15 +20,13 @@ package {{packageName}};
 {{#imports}}
 import {{name}};
 {{/imports}}
-{{^optionalFieldExists}}
+{{^isAbstract}}
 
 import java.util.Objects;
-{{/optionalFieldExists}}
 {{#optionalFieldExists}}
-
-import java.util.Objects;
 import java.util.Optional;
 {{/optionalFieldExists}}
+{{/isAbstract}}
 
 /**
  * This is a generated syntax tree node.
@@ -121,7 +119,8 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{externalClassName}} extend
         }
 
         {{#fields}}
-        public {{externalClassName}}Modifier with{{titleCaseFieldName}}({{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}) {
+        public {{externalClassName}}Modifier with{{titleCaseFieldName}}(
+                {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}) {
             Objects.requireNonNull({{fieldName}}, "{{fieldName}} must not be null");
             this.{{fieldName}} = {{fieldName}};
             return this;

@@ -113,25 +113,29 @@ public class TemplateExpressionNode extends ExpressionNode {
             this.endBacktick = oldNode.endBacktick();
         }
 
-        public TemplateExpressionNodeModifier withType(Token type) {
+        public TemplateExpressionNodeModifier withType(
+                Token type) {
             Objects.requireNonNull(type, "type must not be null");
             this.type = type;
             return this;
         }
 
-        public TemplateExpressionNodeModifier withStartBacktick(Token startBacktick) {
+        public TemplateExpressionNodeModifier withStartBacktick(
+                Token startBacktick) {
             Objects.requireNonNull(startBacktick, "startBacktick must not be null");
             this.startBacktick = startBacktick;
             return this;
         }
 
-        public TemplateExpressionNodeModifier withContent(NodeList<TemplateMemberNode> content) {
+        public TemplateExpressionNodeModifier withContent(
+                NodeList<TemplateMemberNode> content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
         }
 
-        public TemplateExpressionNodeModifier withEndBacktick(Token endBacktick) {
+        public TemplateExpressionNodeModifier withEndBacktick(
+                Token endBacktick) {
             Objects.requireNonNull(endBacktick, "endBacktick must not be null");
             this.endBacktick = endBacktick;
             return this;

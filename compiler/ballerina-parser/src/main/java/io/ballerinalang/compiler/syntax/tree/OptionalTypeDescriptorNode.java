@@ -91,13 +91,15 @@ public class OptionalTypeDescriptorNode extends TypeDescriptorNode {
             this.questionMarkToken = oldNode.questionMarkToken();
         }
 
-        public OptionalTypeDescriptorNodeModifier withTypeDescriptor(Node typeDescriptor) {
+        public OptionalTypeDescriptorNodeModifier withTypeDescriptor(
+                Node typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public OptionalTypeDescriptorNodeModifier withQuestionMarkToken(Token questionMarkToken) {
+        public OptionalTypeDescriptorNodeModifier withQuestionMarkToken(
+                Token questionMarkToken) {
             Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
             this.questionMarkToken = questionMarkToken;
             return this;
