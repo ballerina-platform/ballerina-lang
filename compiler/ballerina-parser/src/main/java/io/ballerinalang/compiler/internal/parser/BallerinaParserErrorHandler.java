@@ -3006,6 +3006,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TEMPLATE_MEMBER;
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
+            case SERVICE_CONSTRUCTOR_EXPRESSION:
             case DO_CLAUSE:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
@@ -3013,9 +3014,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end ENUM_MEMBER_LIST context
                 endContext(); // end MODULE_ENUM_DECLARATION ctx
                 return ParserRuleContext.TOP_LEVEL_NODE;
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
-                endContext();
-                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
