@@ -68,13 +68,12 @@ public class MvnResolverUtils {
         } else {
             mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
-        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null, false);
+        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null);
         if (resolve) {
             outStream.println("\nResolving maven dependencies...");
             Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
-            outStream.println("\nPopulating the Ballerina.toml file with platform libraries.");
-            outStream.println("\t" + groupId + ":" + artifactId + ":" + version);
             dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);
+            outStream.println("\nUpdated the Ballerina.toml file with new platform libraries.");
         }
     }
 
@@ -86,7 +85,7 @@ public class MvnResolverUtils {
         String parent = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
         for (Dependency transitive : dependency.getDepedencies()) {
             handleDependency(transitive.getGroupId(), transitive.getArtifactId(), transitive.getVersion(),
-                    mvnRepository, projectRoot, parent, true);
+                    mvnRepository, projectRoot, parent);
             dependencyTraversal(resolveDependency(transitive.getGroupId(), transitive.getArtifactId(),
                     transitive.getVersion(), mvnRepository), mvnRepository, projectRoot);
         }
@@ -103,10 +102,10 @@ public class MvnResolverUtils {
     }
 
     private static void handleDependency(String groupId, String artifactId, String version, String mvnRepository,
-                                         Path projectRoot, String parent, boolean resolve) throws BindgenException {
+                                         Path projectRoot, String parent) throws BindgenException {
         Path mvnPath = Paths.get(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
         setClassPaths(mvnPath.toString());
-        if (projectRoot != null && resolve) {
+        if (projectRoot != null) {
             File tomlFile = new File(Paths.get(projectRoot.toString(), BALLERINA_TOML).toString());
             if (tomlFile.exists() && !tomlFile.isDirectory()) {
                 populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, parent);
@@ -143,7 +142,6 @@ public class MvnResolverUtils {
             fileWriter.write("    groupId = \"" + groupId + "\"\n");
             fileWriter.write("    artifactId = \"" + artifactId + "\"\n");
             fileWriter.write("    version = \"" + version + "\"\n");
-            outStream.println("\t" + groupId + ":" + artifactId + ":" + version);
         } catch (IOException io) {
             throw new BindgenException("Error while updating the Ballerina.toml file.", io);
         }
