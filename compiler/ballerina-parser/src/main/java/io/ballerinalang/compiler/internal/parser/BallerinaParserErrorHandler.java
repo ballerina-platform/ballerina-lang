@@ -927,7 +927,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.BITWISE_AND_TOKEN;
                     break;
                 case EXPR_FUNC_BODY_START:
-                    hasMatch = nextToken.kind == SyntaxKind.RIGHT_DOUBLE_ARROW;
+                    hasMatch = nextToken.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
                     break;
                 case START_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.START_KEYWORD;
@@ -3452,7 +3452,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
             // Treat these also as binary operators.
             case RIGHT_ARROW_TOKEN:
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 return true;
             default:
                 return false;
@@ -3803,7 +3803,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FROM_KEYWORD:
                 return SyntaxKind.FROM_KEYWORD;
             case EXPR_FUNC_BODY_START:
-                return SyntaxKind.RIGHT_DOUBLE_ARROW;
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;

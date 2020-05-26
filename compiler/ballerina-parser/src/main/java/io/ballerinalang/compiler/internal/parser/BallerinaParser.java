@@ -44,6 +44,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME;
+
 /**
  * A LL(k) recursive-descent parser for ballerina.
  *
@@ -1408,8 +1410,8 @@ public class BallerinaParser extends AbstractParser {
         // Treat as function definition.
 
         // We reach this method only if the func-name is not present.
-        this.errorHandler.reportMissingTokenError("missing " + ParserRuleContext.FUNC_NAME);
-        STNode name = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        STNode name = errorHandler.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                ERROR_MISSING_FUNCTION_NAME);
 
         // Function definition cannot have missing param-names. So validate it.
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
@@ -2228,7 +2230,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseExternalFunctionBody();
             case OPEN_BRACE_TOKEN:
                 return parseFunctionBodyBlock(false);
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 return parseExpressionFuncBody(false);
             case SEMICOLON_TOKEN:
                 if (isObjectMethod) {
@@ -2688,7 +2690,7 @@ public class BallerinaParser extends AbstractParser {
                 return OperatorPrecedence.LOGICAL_OR;
             case RIGHT_ARROW_TOKEN:
                 return OperatorPrecedence.REMOTE_CALL_ACTION;
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
             case SYNC_SEND_TOKEN:
                 return OperatorPrecedence.ACTION;
             case DOUBLE_LT_TOKEN:
@@ -4093,7 +4095,7 @@ public class BallerinaParser extends AbstractParser {
                     this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
                 }
                 break;
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr);
                 break;
             case ANNOT_CHAINING_TOKEN:
@@ -4138,7 +4140,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
             case IS_KEYWORD:
             case RIGHT_ARROW_TOKEN:
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
             case SYNC_SEND_TOKEN:
             case ANNOT_CHAINING_TOKEN:
             case OPTIONAL_CHAINING_TOKEN:
@@ -9047,7 +9049,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode body = parseFunctionBodyBlock(true);
                 endContext();
                 return body;
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 // we end the anon-func context here, before going for expressions.
                 // That is because we wouldn't know when will it end inside expressions.
                 endContext();
@@ -9088,7 +9090,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseDoubleRightArrow() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW) {
+        if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
@@ -9197,7 +9199,7 @@ public class BallerinaParser extends AbstractParser {
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case OPEN_BRACE_TOKEN:
-            case RIGHT_DOUBLE_ARROW:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 return true;
             default:
                 return false;
@@ -10683,7 +10685,7 @@ public class BallerinaParser extends AbstractParser {
         // Return an empty list
         if (isEndOfReceiveFields(nextToken.kind)) {
             this.errorHandler.reportMissingTokenError("missing wait field");
-            return STNodeFactory.createNodeList(waitFields);
+            return STNodeFactory.createEmptyNodeList();
         }
 
         // Parse first receive field, that has no leading comma
