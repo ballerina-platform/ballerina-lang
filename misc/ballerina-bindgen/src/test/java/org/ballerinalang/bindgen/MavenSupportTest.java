@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.bindgen;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.bindgen.command.BindgenCommand;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -35,7 +36,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -75,7 +75,8 @@ public class MavenSupportTest extends CommandTest {
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina project detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
-        Assert.assertTrue(output.contains("Following jars were added to the classpath:\n\tsnakeyaml-1.25.jar"));
+        Assert.assertTrue(output.contains("Following jars were added to the classpath"));
+        Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
         Assert.assertTrue(isJarAvailable(mavenRepoPath, jarName));
     }
 
@@ -95,9 +96,7 @@ public class MavenSupportTest extends CommandTest {
     private boolean isTomlUpdated(String updated, String expected) throws IOException {
         File updatedToml = new File(updated);
         File expectedToml = new File(expected);
-        byte[] updatedContent = Files.readAllBytes(updatedToml.toPath());
-        byte[] expectedContent = Files.readAllBytes(expectedToml.toPath());
-        return Arrays.equals(updatedContent, expectedContent);
+        return FileUtils.contentEqualsIgnoreEOL(updatedToml, expectedToml, null);
     }
 
     private boolean isJarAvailable(Path directory, String jarName) {
