@@ -69,7 +69,7 @@ dependencies {
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-task')
     implementation project(':ballerina-stringutils')
-    implementation project(':ballerina-java')
+
     implementation project(':ballerina-jsonutils')
     implementation project(':ballerina-xmlutils')
     implementation project(':observability-test-utils')
@@ -115,7 +115,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')

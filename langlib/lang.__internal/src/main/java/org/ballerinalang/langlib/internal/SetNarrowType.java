@@ -66,4 +66,18 @@ public class SetNarrowType {
         newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
         return newRecord;
     }
+
+
+    public static MapValue setNarrowType(TypedescValue td, MapValue value) {
+        BRecordType recordType = (BRecordType) value.getType();
+        BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
+                recordType.sealed, recordType.typeFlags);
+        newRecordType.setFields(new HashMap<String, BField>() {{
+            put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
+        }});
+
+        MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
+        newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
+        return newRecord;
+    }
 }

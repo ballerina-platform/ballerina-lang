@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.java;
+
 # This file contains the utility functions implemented natively which are used by the 'stream' langib module.
 
 # A type parameter that is a subtype of `any|error`.
@@ -34,7 +36,10 @@ public type Type1 any|error;
 # + td - The narrowed type to be set.
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
-public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) returns record {|Type value;|} = external;
+public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) returns record {|Type value;|} = @java:Method {
+    class: "org.ballerinalang.langlib.internal.SetNarrowType",
+    name: "setNarrowType"
+} external;
 
 # Takes in an iterator object and returns a new stream out of it.
 #

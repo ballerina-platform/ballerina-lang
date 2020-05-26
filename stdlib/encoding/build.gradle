@@ -25,7 +25,6 @@ dependencies {
     implementation project(':ballerina-system')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-java')
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
@@ -37,7 +36,6 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 

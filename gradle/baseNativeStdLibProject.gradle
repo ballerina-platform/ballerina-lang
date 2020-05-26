@@ -19,6 +19,7 @@
 dependencies {
     // lang lib dependencies
     implementation project(':ballerina-lang:annotations')
+
     implementation project(':ballerina-lang:array')
     implementation project(':ballerina-lang:decimal')
     implementation project(':ballerina-lang:error')
@@ -36,6 +37,7 @@ dependencies {
     implementation project(':ballerina-lang:bool')
     implementation project(':ballerina-lang:internal')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+
     baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
