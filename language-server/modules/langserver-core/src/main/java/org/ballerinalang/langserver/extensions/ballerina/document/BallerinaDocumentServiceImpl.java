@@ -340,14 +340,14 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             SyntaxTree oldTree = SyntaxTree.from(textDocument, compilationPath.toString());
             TextDocument oldTextDocument = oldTree.textDocument();
             ArrayList<io.ballerinalang.compiler.text.TextEdit> edits = new ArrayList<>();
-
-            CompilerContext context = new CompilerContext();
-            CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(PROJECT_DIR, compilationPath.getParent().toString());
-            options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
-            Compiler compiler = Compiler.getInstance(context);
             String fileName = compilationPath.toFile().getName();
-            BLangPackage bLangPackage = compiler.compile(fileName);
+
+            LSContext astContext = new DocumentOperationContext
+                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+                    .withCommonParams(null, fileUri, documentManager)
+                    .build();
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false,
+                    false);
             Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRange = new HashMap<>();
 
             for (int i = 0; i < request.getAstModifications().length; i++) {
