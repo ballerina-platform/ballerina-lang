@@ -43,19 +43,20 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
         description = "A CLI tool for generating Ballerina bindings for Java APIs.")
 public class BindgenCommand implements BLauncherCmd {
 
-    private PrintStream outStream = System.out;
-    private PrintStream outError = System.err;
+    private PrintStream outStream;
+    private PrintStream outError;
     private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
 
     public BindgenCommand() {
+        this(System.out, System.err);
     }
 
-    public BindgenCommand(PrintStream stream) {
-        this.outStream = stream;
-        this.outError = stream;
-        BindgenUtils.outStream = stream;
-        BindgenUtils.errStream = stream;
-        MvnResolverUtils.outStream = stream;
+    public BindgenCommand(PrintStream out, PrintStream err) {
+        this.outStream = out;
+        this.outError = err;
+        BindgenUtils.setOutStream(out);
+        BindgenUtils.setErrStream(err);
+        MvnResolverUtils.setOutStream(out);
     }
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
@@ -100,7 +101,7 @@ public class BindgenCommand implements BLauncherCmd {
             return;
         }
 
-        BindingsGenerator bindingsGenerator = new BindingsGenerator(outStream);
+        BindingsGenerator bindingsGenerator = new BindingsGenerator(outStream, outError);
         if (this.outputPath != null) {
             if (Paths.get(outputPath).isAbsolute()) {
                 targetOutputPath = Paths.get(outputPath);
