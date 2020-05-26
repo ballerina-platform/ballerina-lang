@@ -42,21 +42,22 @@ import ballerina/lang.'xml;
 // - table
 
 function testReadonlyType() {
-    testSimpleAssignmentForSelectivelyImmutableTypes();
+    testSimpleInitializationForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
     testImmutabilityOfNestedXmlWithAttributes();
     testImmutableTypedRecordFields();
+    testImmutabilityForSelfReferencingType();
 }
 
-function testSimpleAssignmentForSelectivelyImmutableTypes() {
-    testSimpleAssignmentForSelectivelyImmutableXmlTypes();
-    testSimpleAssignmentForSelectivelyImmutableListTypes();
-    testSimpleAssignmentForSelectivelyImmutableMappingTypes();
-    testSimpleAssignmentForSelectivelyImmutableTableTypes();
+function testSimpleInitializationForSelectivelyImmutableTypes() {
+    testSimpleInitializationForSelectivelyImmutableXmlTypes();
+    testSimpleInitializationForSelectivelyImmutableListTypes();
+    testSimpleInitializationForSelectivelyImmutableMappingTypes();
+    testSimpleInitializationForSelectivelyImmutableTableTypes();
 }
 
-function testSimpleAssignmentForSelectivelyImmutableXmlTypes() {
+function testSimpleInitializationForSelectivelyImmutableXmlTypes() {
     'xml:Comment & readonly a = xml `<!--I'm a comment-->`;
     readonly r1 = a;
     assertTrue(r1 is 'xml:Comment & readonly);
@@ -89,7 +90,7 @@ type Details record {|
     int id;
 |};
 
-function testSimpleAssignmentForSelectivelyImmutableListTypes() {
+function testSimpleInitializationForSelectivelyImmutableListTypes() {
     int[] & readonly a = [1, 2];
     readonly r1 = a;
     assertTrue(r1 is int[] & readonly);
@@ -149,9 +150,20 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
     assertEquality(<Employee> {details, department: "finance"}, e);
     assertTrue(e.isReadOnly());
     assertTrue(e.details.isReadOnly());
+
+    (int[] & readonly)|string[] arr = [1, 2];
+    assertEquality(<int[]> [1, 2], arr);
+    assertTrue(arr is int[] & readonly);
+    assertTrue(arr.isReadOnly());
+
+    arr = ["hello"];
+    assertEquality(<string[]> ["hello"], arr);
+    assertTrue(arr is string[]);
+    assertFalse(arr is string[] & readonly);
+    assertFalse(arr.isReadOnly());
 }
 
-function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
+function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     boolean bool = false;
 
     map<boolean> & readonly a = {
@@ -215,7 +227,7 @@ type Identifier record {|
     int id;
 |};
 
-function testSimpleAssignmentForSelectivelyImmutableTableTypes() {
+function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     table<map<string>> & readonly a = table [
         {x: "x", y: "y"},
         {z: "z"}
@@ -566,6 +578,48 @@ function testImmutableTypedRecordFields() {
     assertTrue(val is Baz & readonly);
     assertTrue(val.isReadOnly());
     assertEquality(immBaz, val);
+}
+
+type Qux record {|
+    Qux a?;
+    Qux? b = ();
+    int c;
+    Qux|boolean...;
+|};
+
+function testImmutabilityForSelfReferencingType() {
+    Qux & readonly q1 = {b: {c: 2, "f": true}, c: 1, "d": true, "e": {c: 3}};
+    any a1 = q1;
+    anydata ad1 = q1;
+
+    assertTrue(a1 is Qux & readonly);
+    assertTrue(ad1.isReadOnly());
+    Qux qVal = <Qux & readonly> a1;
+    assertEquality(<Qux> {b: {c: 2, "f": true}, c: 1, "d": true, "e": {c: 3}}, qVal);
+    assertTrue(qVal?.a is ());
+    assertTrue(qVal.b is Qux & readonly);
+    assertTrue(qVal["d"] is boolean & readonly);
+    assertTrue(qVal["e"] is Qux & readonly);
+
+    Qux q2 = {a: q1, b: (), c: 23, "d": true, "e": {c: 4}};
+    any a2 = q2;
+    anydata ad2 = q2;
+
+    assertTrue(a2 is Qux);
+    assertFalse(a2 is Qux & readonly);
+    assertFalse(ad2.isReadOnly());
+    qVal = <Qux> a2;
+    assertEquality(<Qux> {a: q1, b: (), c: 23, "d": true, "e": {c: 4}}, qVal);
+    assertTrue(qVal?.a is Qux & readonly);
+
+    Qux aQux =  <Qux> qVal?.a;
+    assertTrue(aQux.isReadOnly());
+
+    assertTrue(qVal.b is ());
+    assertTrue(qVal["e"] is Qux);
+    assertFalse(qVal["e"] is Qux & readonly);
+    Qux eQux =  <Qux> qVal["e"];
+    assertFalse(eQux.isReadOnly());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

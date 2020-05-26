@@ -1270,6 +1270,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
                         ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.arrayType, env,
                                                                          symTable, anonymousModelHelper, names);
+            case TypeTags.INTERSECTION:
+                return ((BIntersectionType) type).effectiveType;
         }
         return symTable.semanticError;
     }
@@ -1491,6 +1493,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
                         ImmutableTypeCloner.getImmutableIntersectionType(null, types, symTable.mapType, env,
                                                                          symTable, anonymousModelHelper, names);
+            case TypeTags.INTERSECTION:
+                return ((BIntersectionType) type).effectiveType;
         }
         return symTable.semanticError;
     }
