@@ -29,16 +29,20 @@ import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getOutputPath;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassPaths;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_TOML;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MVN_REPO;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.TARGET_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
 
 /**
  * This class contains the util methods related to the maven support of Ballerina Bindgen CLI tool.
@@ -47,11 +51,13 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
  */
 public class MvnResolverUtils {
 
+    private static final PrintStream outStream = System.out;
+
     private MvnResolverUtils() {
     }
 
-    public static void mavenResolver(String groupId, String artifactId, String version, Path projectRoot)
-            throws BindgenException {
+    public static void mavenResolver(String groupId, String artifactId, String version, Path projectRoot,
+                                     boolean resolve) throws BindgenException {
         Path mvnRepository;
         if (projectRoot == null) {
             if (getOutputPath() != null) {
@@ -62,13 +68,13 @@ public class MvnResolverUtils {
         } else {
             mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
-        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, false);
-        MavenResolver resolver = new MavenResolver(mvnRepository.toString());
-        try {
-            Dependency dependency = resolver.resolve(groupId, artifactId, version, true);
+        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null, false);
+        if (resolve) {
+            outStream.println("\nResolving maven dependencies...");
+            Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
+            outStream.println("\nPopulating the Ballerina.toml file with platform libraries.");
+            outStream.println("\t" + groupId + ":" + artifactId + ":" + version);
             dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);
-        } catch (MavenResolverException e) {
-            throw new BindgenException(e.getMessage());
         }
     }
 
@@ -77,50 +83,67 @@ public class MvnResolverUtils {
         if (dependency.getDepedencies() == null) {
             return;
         }
+        String parent = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
         for (Dependency transitive : dependency.getDepedencies()) {
             handleDependency(transitive.getGroupId(), transitive.getArtifactId(), transitive.getVersion(),
-                    mvnRepository, projectRoot, true);
-            dependencyTraversal(transitive, mvnRepository, projectRoot);
+                    mvnRepository, projectRoot, parent, true);
+            dependencyTraversal(resolveDependency(transitive.getGroupId(), transitive.getArtifactId(),
+                    transitive.getVersion(), mvnRepository), mvnRepository, projectRoot);
+        }
+    }
+
+    private static Dependency resolveDependency(String groupId, String artifactId, String version,
+                                                String mvnRepository) throws BindgenException {
+        MavenResolver resolver = new MavenResolver(mvnRepository);
+        try {
+            return resolver.resolve(groupId, artifactId, version, true);
+        } catch (MavenResolverException e) {
+            throw new BindgenException(e.getMessage());
         }
     }
 
     private static void handleDependency(String groupId, String artifactId, String version, String mvnRepository,
-                                         Path projectRoot, Boolean isTransitive) throws BindgenException {
+                                         Path projectRoot, String parent, boolean resolve) throws BindgenException {
         Path mvnPath = Paths.get(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
         setClassPaths(mvnPath.toString());
-        if (projectRoot != null) {
+        if (projectRoot != null && resolve) {
             File tomlFile = new File(Paths.get(projectRoot.toString(), BALLERINA_TOML).toString());
             if (tomlFile.exists() && !tomlFile.isDirectory()) {
-                populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, isTransitive);
+                populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, parent);
             }
         }
     }
 
     private static void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
-                                              Path projectRoot, boolean isTransitive) throws BindgenException {
+                                              Path projectRoot, String parent) throws BindgenException {
         Manifest manifest = TomlParserUtils.getManifest(projectRoot);
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
             Platform platform = manifest.getPlatform();
-            if (platform.target == null && platform.libraries == null) {
+            if (platform == null || (platform.target == null && platform.libraries == null)) {
                 fileWriter.write("\n\n[platform]\n");
                 fileWriter.write("target = \"java8\"\n");
-            } else {
+            } else if (platform.getLibraries() != null) {
                 for (Library library : platform.getLibraries()) {
-                    if (library.groupId != null && library.artifactId != null && library.version != null &&
-                            library.groupId.equals(groupId) && library.artifactId.equals(artifactId)
-                            && library.version.equals(version)) {
+                    if (library.path == null && library.groupId != null && library.artifactId != null &&
+                            library.version != null && library.groupId.equals(groupId) &&
+                            library.artifactId.equals(artifactId) && library.version.equals(version)) {
                         return;
                     }
                 }
             }
             fileWriter.write("\n");
-            if (isTransitive) {
-                fileWriter.write("# Transitive Dependency\n");
+            if (parent != null) {
+                fileWriter.write("    # transitive dependency of " + parent + "\n");
             }
-            fileWriter.write("[[platform.libraries]]\n");
-            fileWriter.write("groupId = \"" + groupId + "\"\n");
-            fileWriter.write("artifactId = \"" + artifactId + "\"\n");
-            fileWriter.write("version = \"" + version + "\"\n");
+            fileWriter.write("    [[platform.libraries]]\n");
+            String moduleName = getModuleName(projectRoot, getOutputPath());
+            if (moduleName != null) {
+                fileWriter.write("    modules = [\"" + moduleName + "\"]\n");
+            }
+            fileWriter.write("    groupId = \"" + groupId + "\"\n");
+            fileWriter.write("    artifactId = \"" + artifactId + "\"\n");
+            fileWriter.write("    version = \"" + version + "\"\n");
+            outStream.println("\t" + groupId + ":" + artifactId + ":" + version);
         } catch (IOException io) {
             throw new BindgenException("Error while updating the Ballerina.toml file.", io);
         }
@@ -136,5 +159,18 @@ public class MvnResolverUtils {
             combined = new File(combined, paths[i]);
         }
         return combined.getPath();
+    }
+
+    private static String getModuleName(Path projectRoot, String outputPath) {
+        if (outputPath == null) {
+            outputPath = Paths.get(System.getProperty(USER_DIR)).toString();
+        }
+        String splitRegex = Pattern.quote(System.getProperty(FILE_SEPARATOR));
+        String[] splittedPath = outputPath.split(splitRegex);
+        String moduleName = splittedPath[splittedPath.length - 1];
+        if (isModuleExist(projectRoot, moduleName)) {
+            return moduleName;
+        }
+        return null;
     }
 }

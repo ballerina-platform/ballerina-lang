@@ -51,7 +51,8 @@ public class BindgenConstants {
     public static final String DEPENDENCIES_DIR = "dependencies";
     public static final String ERROR_TYPES_DIR = "error_types";
     static final String TARGET_DIR = "target";
-    static final String MVN_REPO = "maven-repo";
+    static final String MVN_REPO = "platform-libs";
+    static final String FILE_SEPARATOR = "file.separator";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
     static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
     static final String BALLERINA_TOML = "Ballerina.toml";
