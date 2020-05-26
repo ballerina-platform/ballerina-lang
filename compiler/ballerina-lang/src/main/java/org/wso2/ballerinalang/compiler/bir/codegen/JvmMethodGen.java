@@ -1937,6 +1937,13 @@ public class JvmMethodGen {
                 mv.visitIntInsn(SIPUSH, caseIndex);
                 mv.visitVarInsn(ISTORE, stateVarIndex);
                 caseIndex += 1;
+
+                //set module start success to true for ___init class
+                if (func == module.functions.get(1) && terminator instanceof Return) {
+                    mv.visitInsn(ICONST_1);
+                    mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
+                            MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
+                }
             }
 
             // process terminator

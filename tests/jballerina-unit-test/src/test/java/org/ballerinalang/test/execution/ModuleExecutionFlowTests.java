@@ -23,6 +23,9 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Test class for program execution order tests.
  *
@@ -114,7 +117,7 @@ public class ModuleExecutionFlowTests {
     }
 
     @Test
-    public void testModuleStopPanic() {
+    public void testModuleImmediateStopPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj6", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
 
@@ -161,10 +164,74 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
+    @Test
+    public void testModuleStopPanic() {
+        cleanCrashLog();
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj9", "c", false);
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "Initializing module a\n" +
+                "Initializing module b\n" +
+                "Initializing module c\n" +
+                "Module c main function invoked\n" +
+                "a:ABC listener __start called, service name - ModA\n" +
+                "a:ABC listener __start called, service name - ModB\n" +
+                "a:ABC listener __start called, service name - ModC\n" +
+                "a:ABC listener __gracefulStop called, service name - ModC\n" +
+                "a:ABC listener __gracefulStop called, service name - ModB\n" +
+                "listener __gracefulStop panicked, service name - ModB\n" +
+                "a:ABC listener __gracefulStop called, service name - ModA";
+        String expectedCrashLogString = " SEVERE {b7a.log.crash} " +
+                "- panicked while stopping module B \n" +
+                "error: panicked while stopping module B \n" +
+                "\tat unit-tests.a.ABC:__gracefulStop(main.bal:28) ";
+
+        Assert.assertEquals(getCrashLogOutput(), expectedCrashLogString, "evaluated to invalid value");
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testModuleStartAndStopPanic() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj10", "c", false);
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "Initializing module a\n" +
+                "Initializing module b\n" +
+                "Initializing module c\n" +
+                "Module c main function invoked\n" +
+                "a:ABC listener __start called, service name - ModA\n" +
+                "a:ABC listener __start called, service name - ModB\n" +
+                "listener __start panicked for service name - ModB\n" +
+                "a:ABC listener __gracefulStop called, service name - ModB\n" +
+                "listener __gracefulStop panicked for service name - ModB\n" +
+                "a:ABC listener __gracefulStop called, service name - ModA";
+
+        String expectedErrorString = "error: panicked while starting module B \n" +
+                "\tat unit-tests.a.ABC:__start(main.bal:24)";
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
+    }
+
     private ExitDetails run(CompileResult compileResult, String[] args) {
         try {
             return BCompileUtil.run(compileResult, args);
         } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void cleanCrashLog() {
+        File crashLog = new File("ballerina-internal.log");
+        if (crashLog.exists()) {
+            crashLog.delete();
+        }
+    }
+
+    private String getCrashLogOutput() {
+        try {
+            String output = BCompileUtil.readFileAsString("ballerina-internal.log");
+            return output.substring(output.indexOf("]") + 1);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
