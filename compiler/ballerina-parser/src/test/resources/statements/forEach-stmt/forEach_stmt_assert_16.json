@@ -78,37 +78,38 @@
                               "kind": "COMMA_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
-                            },
-                            {
-                              "kind": "COMMA_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true
+                                }
+                              ]
                             }
                           ]
                         },
                         {
-                          "kind": "CLOSE_BRACKET_TOKEN"
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "isMissing": true
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "IN_KEYWORD"
+                  "kind": "IN_KEYWORD",
+                  "isMissing": true
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "test"
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "2"
                 },
                 {
                   "kind": "BLOCK_STATEMENT",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN"
+                      "kind": "OPEN_BRACE_TOKEN",
+                      "isMissing": true
                     },
                     {
                       "kind": "LIST",
@@ -124,50 +125,126 @@
                               "kind": "TYPED_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "TUPLE_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN",
+                                      "isMissing": true
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "TYPE_DESC",
+                                          "isMissing": true
+                                        },
+                                        {
+                                          "kind": "COMMA_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SINGLETON_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "value": "3"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "CAPTURE_BINDING_PATTERN",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "k"
+                                      "value": "test"
                                     }
                                   ]
                                 }
                               ]
                             },
                             {
-                              "kind": "EQUAL_TOKEN"
-                            },
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "2"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
+                              "kind": "SEMICOLON_TOKEN",
+                              "isMissing": true
                             }
                           ]
                         },
                         {
-                          "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
+                          "kind": "BLOCK_STATEMENT",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "k"
+                              "kind": "OPEN_BRACE_TOKEN"
                             },
                             {
-                              "kind": "PLUS_TOKEN"
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "LOCAL_VAR_DECL",
+                                  "children": [
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "TYPED_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "k"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "value": "2"
+                                    },
+                                    {
+                                      "kind": "SEMICOLON_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k"
+                                    },
+                                    {
+                                      "kind": "PLUS_TOKEN"
+                                    },
+                                    {
+                                      "kind": "EQUAL_TOKEN"
+                                    },
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "value": "5"
+                                    },
+                                    {
+                                      "kind": "SEMICOLON_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
-                              "kind": "EQUAL_TOKEN"
-                            },
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "5"
-                            },
-                            {
-                              "kind": "SEMICOLON_TOKEN"
+                              "kind": "CLOSE_BRACE_TOKEN"
                             }
                           ]
                         }
@@ -183,7 +260,8 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "CLOSE_BRACE_TOKEN",
+          "isMissing": true
         }
       ]
     }

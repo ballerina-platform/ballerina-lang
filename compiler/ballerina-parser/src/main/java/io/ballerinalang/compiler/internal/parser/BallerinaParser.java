@@ -417,8 +417,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingPattern();
             case BINDING_PATTERN:
                 return parseBindingPattern();
-            case TYPED_BINDING_PATTERN:
-                return parseTypedBindingPattern();
             case PEER_WORKER_NAME:
                 return parsePeerWorkerName();
             case SYNC_SEND_TOKEN:
@@ -470,10 +468,10 @@ public class BallerinaParser extends AbstractParser {
             case LIST_BP_OR_TUPLE_TYPE_MEMBER:
                 return parseListBindingPatternOrTupleTypeAmbiguousMember();
             case TYPED_BINDING_PATTERN_TYPE_RHS:
-                return parseTypedBindingPatternTypeRhs((STNode) args[0]);
+                return parseTypedBindingPatternTypeRhs((STNode) args[0], (ParserRuleContext) args[1]);
             case BRACKETED_LIST_RHS:
                 return parseTypedBindingPatternOrMemberAccessRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
-                        (STNode) args[3], (boolean) args[4]);
+                        (STNode) args[3], (boolean) args[4], (ParserRuleContext) args[5]);
             case UNION_OR_INTERSECTION_TOKEN:
                 return parseUnionOrIntersectionToken();
             case BRACKETED_LIST_MEMBER:
@@ -1412,7 +1410,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 startContext(ParserRuleContext.VAR_DECL_STMT);
-                STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc);
+                STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
                 STNode varDecl = parseVarDeclRhs(metadata, visibilityQualifier, typedBindingPattern, true);
                 endContext();
                 return varDecl;
@@ -3495,7 +3493,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseVariableDecl(STNode annots, STNode finalKeyword, boolean isModuleVar) {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
-        STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc);
+        STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
         STNode varDecl = parseVarDeclRhs(annots, finalKeyword, typeBindingPattern, isModuleVar);
         endContext();
         return varDecl;
@@ -3507,11 +3505,12 @@ public class BallerinaParser extends AbstractParser {
      * @param typeDesc Starting type-desc of the typed-binding-pattern
      * @return Typed-binding pattern
      */
-    private STNode parseTypedBindingPatternTypeRhs(STNode typeDesc) {
-        return parseTypedBindingPatternTypeRhs(peek().kind, typeDesc);
+    private STNode parseTypedBindingPatternTypeRhs(STNode typeDesc, ParserRuleContext context) {
+        return parseTypedBindingPatternTypeRhs(peek().kind, typeDesc, context);
     }
 
-    private STNode parseTypedBindingPatternTypeRhs(SyntaxKind nextTokenKind, STNode typeDesc) {
+    private STNode parseTypedBindingPatternTypeRhs(SyntaxKind nextTokenKind, STNode typeDesc,
+                                                   ParserRuleContext context) {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN: // Capture/Functional binding pattern: T x, T(..)
             case OPEN_BRACE_TOKEN: // Map binding pattern: T { }
@@ -3520,11 +3519,12 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
             case OPEN_BRACKET_TOKEN:
                 // T[..] ..
-                STNode typedBindingPattern = parseTypedBindingPatternOrMemberAccess(typeDesc, true);
+                STNode typedBindingPattern = parseTypedBindingPatternOrMemberAccess(typeDesc, true, context);
                 assert typedBindingPattern.kind == SyntaxKind.TYPED_BINDING_PATTERN;
                 return typedBindingPattern;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS, typeDesc);
+                Solution solution =
+                        recover(peek(), ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS, typeDesc, context);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3533,7 +3533,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseTypedBindingPatternTypeRhs(solution.tokenKind, typeDesc);
+                return parseTypedBindingPatternTypeRhs(solution.tokenKind, typeDesc, context);
         }
     }
 
@@ -3544,13 +3544,14 @@ public class BallerinaParser extends AbstractParser {
      * @param isTypedBindingPattern Is this is a typed-binding-pattern.
      * @return
      */
-    private STNode parseTypedBindingPatternOrMemberAccess(STNode typeDescOrExpr, boolean isTypedBindingPattern) {
+    private STNode parseTypedBindingPatternOrMemberAccess(STNode typeDescOrExpr, boolean isTypedBindingPattern,
+                                                          ParserRuleContext context) {
         startContext(ParserRuleContext.BRACKETED_LIST);
         STNode openBracket = parseOpenBracket();
 
         // If the bracketed list is empty, i.e: T[] then T is an array-type-desc, and [] could be anything.
         if (isBracketedListEnd(peek().kind)) {
-            return parseAsArrayTypeDesc(typeDescOrExpr, openBracket, STNodeFactory.createEmptyNode());
+            return parseAsArrayTypeDesc(typeDescOrExpr, openBracket, STNodeFactory.createEmptyNode(), context);
         }
 
         // Parse first member
@@ -3558,7 +3559,7 @@ public class BallerinaParser extends AbstractParser {
         SyntaxKind currentNodeType = getBracketedListNodeType(member);
         switch (currentNodeType) {
             case ARRAY_TYPE_DESC:
-                STNode typedBindingPattern = parseAsArrayTypeDesc(typeDescOrExpr, openBracket, member);
+                STNode typedBindingPattern = parseAsArrayTypeDesc(typeDescOrExpr, openBracket, member, context);
                 return typedBindingPattern;
             case LIST_BINDING_PATTERN:
                 // If the member type was figured out as a binding pattern, then parse the
@@ -3593,7 +3594,7 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBracket = parseCloseBracket();
         endContext();
         return parseTypedBindingPatternOrMemberAccessRhs(typeDescOrExpr, openBracket, member, closeBracket,
-                isTypedBindingPattern);
+                isTypedBindingPattern, context);
     }
 
     private STNode parseAsMemberAccessExpr(STNode typeNameOrExpr, STNode openBracket, STNode member) {
@@ -3687,13 +3688,13 @@ public class BallerinaParser extends AbstractParser {
      * @param member Member
      * @return Parsed node
      */
-    private STNode parseAsArrayTypeDesc(STNode typeDesc, STNode openBracket, STNode member) {
+    private STNode parseAsArrayTypeDesc(STNode typeDesc, STNode openBracket, STNode member, ParserRuleContext context) {
         // In ambiguous scenarios typDesc: T[a] may have parsed as an indexed expression.
         // Therefore make an array-type-desc out of it.
         typeDesc = getTypeDescFromExpr(typeDesc);
         STNode closeBracket = parseCloseBracket();
         endContext();
-        return parseTypedBindingPatternOrMemberAccessRhs(typeDesc, openBracket, member, closeBracket, true);
+        return parseTypedBindingPatternOrMemberAccessRhs(typeDesc, openBracket, member, closeBracket, true, context);
     }
 
     private STNode parseBracketedListMemberEnd() {
@@ -3734,15 +3735,16 @@ public class BallerinaParser extends AbstractParser {
      * @return Specific node that matches to T[a], after solving ambiguity.
      */
     private STNode parseTypedBindingPatternOrMemberAccessRhs(STNode typeDescOrExpr, STNode openBracket, STNode member,
-                                                             STNode closeBracket, boolean isTypedBindingPattern) {
+                                                             STNode closeBracket, boolean isTypedBindingPattern,
+                                                             ParserRuleContext context) {
         STToken nextToken = peek();
         return parseTypedBindingPatternOrMemberAccessRhs(nextToken.kind, typeDescOrExpr, openBracket, member,
-                closeBracket, isTypedBindingPattern);
+                closeBracket, isTypedBindingPattern, context);
     }
 
     private STNode parseTypedBindingPatternOrMemberAccessRhs(SyntaxKind nextTokenKind, STNode typeDescOrExpr,
                                                              STNode openBracket, STNode member, STNode closeBracket,
-                                                             boolean isTypedBindingPattern) {
+                                                             boolean isTypedBindingPattern, ParserRuleContext context) {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN: // Capture binding pattern: T[a] b
             case OPEN_BRACE_TOKEN: // Map binding pattern: T[a] { }
@@ -3751,20 +3753,20 @@ public class BallerinaParser extends AbstractParser {
                 STNode typeDesc = getTypeDescFromExpr(typeDescOrExpr);
                 STNode arrayTypeDesc =
                         STNodeFactory.createArrayTypeDescriptorNode(typeDesc, openBracket, member, closeBracket);
-                return parseTypedBindingPatternTypeRhs(arrayTypeDesc);
+                return parseTypedBindingPatternTypeRhs(arrayTypeDesc, context);
             case OPEN_BRACKET_TOKEN: // T[a][b]..
                 if (isTypedBindingPattern) {
                     typeDesc = getTypeDescFromExpr(typeDescOrExpr);
                     arrayTypeDesc =
                             STNodeFactory.createArrayTypeDescriptorNode(typeDesc, openBracket, member, closeBracket);
-                    return parseTypedBindingPatternTypeRhs(arrayTypeDesc);
+                    return parseTypedBindingPatternTypeRhs(arrayTypeDesc, context);
                 }
 
                 // T[a] could be member-access or array-type-desc.
                 STNode keyExpr = STNodeFactory.createNodeList(member);
                 STNode expr =
                         STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
-                return parseTypedBindingPatternOrMemberAccess(expr, false);
+                return parseTypedBindingPatternOrMemberAccess(expr, false, context);
             case QUESTION_MARK_TOKEN:
                 // T[a]? --> Treat T[a] as array type
                 typeDesc = getTypeDescFromExpr(typeDescOrExpr);
@@ -3772,48 +3774,66 @@ public class BallerinaParser extends AbstractParser {
                         STNodeFactory.createArrayTypeDescriptorNode(typeDesc, openBracket, member, closeBracket);
                 typeDesc = parseComplexTypeDescriptor(arrayTypeDesc,
                         ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
-                return parseTypedBindingPatternTypeRhs(typeDesc);
+                return parseTypedBindingPatternTypeRhs(typeDesc, context);
             case PIPE_TOKEN:
             case BITWISE_AND_TOKEN:
                 // "T[a] | R.." or "T[a] & R.."
-                return parseComplexTypeDescInTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
+                return parseComplexTypeDescInTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket,
+                        context);
+            case IN_KEYWORD:
+                // "in" keyword is only valid for for-each stmt.
+                if (context != ParserRuleContext.FOREACH_STMT) {
+                    break;
+                }
+                return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
             case EQUAL_TOKEN: // T[a] =
             case SEMICOLON_TOKEN:
-                // could be member-access or typed-binding-pattern.
-                if (isTypedBindingPattern) {
-                    STNode bindingPatterns =
-                            STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(member));
-                    STNode restBindingPattern = STNodeFactory.createEmptyNode();
-                    STNode bindingPattern = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatterns,
-                            restBindingPattern, closeBracket);
-                    return STNodeFactory.createTypedBindingPatternNode(typeDescOrExpr, bindingPattern);
+                if (context == ParserRuleContext.FOREACH_STMT) {
+                    // equal and semi-colon are not valid terminators for typed-binding-pattern
+                    // in foreach-stmt. Therefore recover.
+                    break;
                 }
 
+                if (isTypedBindingPattern) {
+                    return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
+                }
+
+                // could be member-access or typed-binding-pattern.
                 keyExpr = STNodeFactory.createNodeList(member);
                 return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
             default:
                 if (isValidExprRhsStart(nextTokenKind)) {
-                    break;
+                    // We come here if T[a] is in some expression context.
+                    keyExpr = STNodeFactory.createNodeList(member);
+                    return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr,
+                            closeBracket);
                 }
 
-                Solution solution = recover(peek(), ParserRuleContext.BRACKETED_LIST_RHS, typeDescOrExpr, openBracket,
-                        member, closeBracket, true);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
-                return parseTypedBindingPatternOrMemberAccessRhs(solution.tokenKind, typeDescOrExpr, openBracket,
-                        member, closeBracket, true);
+                break;
 
         }
 
-        // We come here if T[a] is in some expression context.
-        STNode keyExpr = STNodeFactory.createNodeList(member);
-        return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
+        Solution solution = recover(peek(), ParserRuleContext.BRACKETED_LIST_RHS, typeDescOrExpr, openBracket, member,
+                closeBracket, true, context);
+
+        // If the parser recovered by inserting a token, then try to re-parse the same
+        // rule with the inserted token. This is done to pick the correct branch
+        // to continue the parsing.
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
+
+        return parseTypedBindingPatternOrMemberAccessRhs(solution.tokenKind, typeDescOrExpr, openBracket, member,
+                closeBracket, true, context);
+    }
+
+    private STNode createTypedBindingPattern(STNode typeDescOrExpr, STNode openBracket, STNode member,
+                                             STNode closeBracket) {
+        STNode bindingPatterns = STNodeFactory.createNodeList(STNodeFactory.createCaptureBindingPatternNode(member));
+        STNode restBindingPattern = STNodeFactory.createEmptyNode();
+        STNode bindingPattern = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatterns,
+                restBindingPattern, closeBracket);
+        return STNodeFactory.createTypedBindingPatternNode(typeDescOrExpr, bindingPattern);
     }
 
     /**
@@ -3830,10 +3850,11 @@ public class BallerinaParser extends AbstractParser {
      * @param openBracket Open bracket
      * @param member Member
      * @param closeBracket Close bracket
+     * @param context COntext in which the typed binding pattern occurs
      * @return Parsed node
      */
     private STNode parseComplexTypeDescInTypedBindingPattern(STNode typeDescOrExpr, STNode openBracket, STNode member,
-                                                             STNode closeBracket) {
+                                                             STNode closeBracket, ParserRuleContext context) {
         // Treat T[a] as an array-type-desc. But we dont know what R is.
         // R could be R[b] or R[b, c]
         STNode lhsTypeDesc = getTypeDescFromExpr(typeDescOrExpr);
@@ -3844,7 +3865,7 @@ public class BallerinaParser extends AbstractParser {
         // Since T[a] was decided to be an array-type-desc, parse the remaining as type-binding-pattern.
         STNode rhsType = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
         STTypedBindingPatternNode rhsTypedBindingPattern =
-                (STTypedBindingPatternNode) parseTypedBindingPatternTypeRhs(rhsType);
+                (STTypedBindingPatternNode) parseTypedBindingPatternTypeRhs(rhsType, context);
         STNode newTypeDesc;
         if (pipeOrAndToken.kind == SyntaxKind.PIPE_TOKEN) {
             newTypeDesc = STNodeFactory.createUnionTypeDescriptorNode(lhsTypeDesc, pipeOrAndToken,
@@ -7030,7 +7051,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStatementStartIdentifierRhs(SyntaxKind nextTokenKind, STNode annots, STNode identifier) {
         switch (nextTokenKind) {
             case OPEN_BRACKET_TOKEN:
-                STNode tbpOrMemberAccess = parseTypedBindingPatternOrMemberAccess(identifier, false);
+                STNode tbpOrMemberAccess =
+                        parseTypedBindingPatternOrMemberAccess(identifier, false, ParserRuleContext.AMBIGUOUS_STMT);
                 if (tbpOrMemberAccess.kind == SyntaxKind.INDEXED_EXPRESSION) {
                     STNode expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, tbpOrMemberAccess, false, false);
                     return parseStatementStartWithExpr(annots, expr);
@@ -7090,7 +7112,7 @@ public class BallerinaParser extends AbstractParser {
         endContext();
 
         STNode finalKeyword = STNodeFactory.createEmptyNode();
-        STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc);
+        STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
         return parseVarDeclRhs(annots, finalKeyword, typeBindingPattern, false);
     }
 
@@ -8599,7 +8621,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseForEachStatement() {
         startContext(ParserRuleContext.FOREACH_STMT);
         STNode forEachKeyword = parseForEachKeyword();
-        STNode typedBindingPattern = parseTypedBindingPattern();
+        STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.FOREACH_STMT);
         STNode inKeyword = parseInKeyword();
         STNode actionOrExpr = parseActionOrExpression();
         STNode blockStatement = parseBlockNode();
@@ -10446,12 +10468,8 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfListBindingPattern(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
-            case IN_KEYWORD:
             case CLOSE_BRACKET_TOKEN:
             case EOF_TOKEN:
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case ASTERISK_TOKEN:
                 return true;
             default:
                 return false;
@@ -10493,12 +10511,12 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseListBindingPatternMember() {
         STToken token = peek();
         switch (token.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case ASTERISK_TOKEN:
-                return consume();
             case ELLIPSIS_TOKEN:
-                return parseRestBindingPattern();
+                startContext(ParserRuleContext.REST_BINDING_PATTERN);
+                STNode ellipsis = parseEllipsis();
+                STNode varName = parseVariableName();
+                endContext();
+                return STNodeFactory.createRestBindingPatternNode(ellipsis, varName);
             default:
                 return parseBindingPattern();
         }
@@ -10515,24 +10533,28 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Typed binding pattern node
      */
-    private STNode parseTypedBindingPattern() {
-        startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
+    private STNode parseTypedBindingPattern(ParserRuleContext context) {
+        // startContext(ParserRuleContext.TYPED_BINDING_PATTERN);
 
-        // Parse the type-desc only up to '['. This is because of the ambiguity where T[a]
-        // could be a typed-binding-pattern or array-type-desc or member-access.
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
+        STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, context);
+        return typeBindingPattern;
 
-        // TODO: replace this with new one
-        STNode bindingPattern = null;
-        if (peek().kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-            STNode typedBindingPattern = parseArrayTypeDescOrListBindingPattern(typeDesc);
-            endContext();
-            return typedBindingPattern;
-        }
-        bindingPattern = parseBindingPattern();
-
-        endContext();
-        return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
+        // // Parse the type-desc only up to '['. This is because of the ambiguity where T[a]
+        // // could be a typed-binding-pattern or array-type-desc or member-access.
+        // STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
+        //
+        // // TODO: replace this with new one
+        // STNode bindingPattern = null;
+        // if (peek().kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+        // STNode typedBindingPattern = parseArrayTypeDescOrListBindingPattern(typeDesc);
+        // endContext();
+        // return typedBindingPattern;
+        // }
+        // bindingPattern = parseBindingPattern();
+        //
+        // endContext();
+        // return STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
     }
 
     private STNode parseArrayTypeDescOrListBindingPattern(STNode typeDesc) {
@@ -11937,17 +11959,22 @@ public class BallerinaParser extends AbstractParser {
             // Here we assume that items in ambiguous list can only be
             // either simple name references, or list of simple name
             // references (i.e: another ambiguous list).
-            if (item.kind != SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC) {
-                typeDescList.add(item);
-                continue;
+            switch (item.kind) {
+                case SIMPLE_NAME_REFERENCE:
+                    typeDescList.add(STNodeFactory.createCaptureBindingPatternNode(item));
+                    break;
+                case LIST_BP_OR_TUPLE_TYPE_DESC:
+                    STAmbiguousListNode innerList = (STAmbiguousListNode) item;
+                    STNode memberBindingPatterns = STNodeFactory.createNodeList(innerList.members);
+                    STNode restBindingPattern = STNodeFactory.createEmptyNode();
+                    STNode typeDesc = STNodeFactory.createListBindingPatternNode(innerList.openBracket, memberBindingPatterns,
+                            restBindingPattern, innerList.closeBracket);
+                    typeDescList.add(typeDesc);
+                    break;
+                default:
+                    typeDescList.add(item);
+                    break;
             }
-
-            STAmbiguousListNode innerList = (STAmbiguousListNode) item;
-            STNode memberBindingPatterns = STNodeFactory.createNodeList(innerList.members);
-            STNode restBindingPattern = STNodeFactory.createEmptyNode();
-            STNode typeDesc = STNodeFactory.createListBindingPatternNode(innerList.openBracket, memberBindingPatterns,
-                    restBindingPattern, innerList.closeBracket);
-            typeDescList.add(typeDesc);
         }
 
         return typeDescList;
