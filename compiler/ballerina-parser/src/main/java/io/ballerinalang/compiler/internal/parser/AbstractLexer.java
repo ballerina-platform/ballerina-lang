@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -33,11 +34,13 @@ public abstract class AbstractLexer {
     protected List<STNode> leadingTriviaList;
     protected CharReader reader;
     protected ParserMode mode;
+    protected SyntaxKind precedingSyntaxKind;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
     protected final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
 
-    public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
+    public AbstractLexer(CharReader charReader, ParserMode initialParserMode, SyntaxKind precedingSyntaxKind) {
         this.reader = charReader;
+        this.precedingSyntaxKind = precedingSyntaxKind;
         startMode(initialParserMode);
     }
 
@@ -76,4 +79,14 @@ public abstract class AbstractLexer {
         this.mode = this.modeStack.peek();
     }
 
+    /**
+     * Set the preceding syntax kind of the lexer.
+     * This is used when there's an ambiguity for which mode to switch in the lexer.
+     * e.g. Enabling BASE16_ARRAY and BASE64_ARRAY modes require to know preceding syntax kind
+     *
+     * @param kind Syntax kind to set
+     */
+    public void setPrecedingSyntaxKind(SyntaxKind kind) {
+        this.precedingSyntaxKind = kind;
+    }
 }

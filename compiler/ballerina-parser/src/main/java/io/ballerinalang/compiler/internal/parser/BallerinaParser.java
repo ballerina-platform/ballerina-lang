@@ -10749,7 +10749,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse base16 literal.
      * <p>
-     * <code>Base16Literal := base16 WS ` HexGroup* WS `<code>
+     * <code>Base16Literal := base16 WS ` HexGroup* WS `</code>
      *
      * @return parsed node
      */
@@ -10790,14 +10790,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse hex group node.
      * <p>
-     * <code> HexGroup := WS HexDigit WS HexDigit<code>
+     * <code> HexGroup := WS HexDigit WS HexDigit</code>
      *
      * @return parsed node
      */
     private STNode parseHexGroup() {
         STNode startHexDigit = parseHexDigit();
         STNode endHexDigit = parseHexDigit();
-        return STNodeFactory.createHexGroupNode(startHexDigit,endHexDigit);
+        return STNodeFactory.createHexGroupNode(startHexDigit, endHexDigit);
     }
 
     /**
@@ -10806,7 +10806,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>HexDigit := Digit | a .. f | A .. F
      * <br/>
      * Digit := 0 .. 9
-     * <code>
+     * </code>
      *
      * @return parsed node
      */
@@ -10830,7 +10830,7 @@ public class BallerinaParser extends AbstractParser {
      * PaddedBase64Group :=
      *    WS Base64Char WS Base64Char WS Base64Char WS PaddingChar
      *    | WS Base64Char WS Base64Char WS PaddingChar WS PaddingChar
-     * <code>
+     * </code>
      *
      * @return parsed node
      */
@@ -10883,13 +10883,13 @@ public class BallerinaParser extends AbstractParser {
         STNode secondChar;
         STNode endChar;
 
-        if (peek().kind == SyntaxKind.PADDING_CHAR){
+        if (peek().kind == SyntaxKind.PADDING_CHAR) {
             secondChar = parsePaddingChar();
             endChar = parsePaddingChar();
             return STNodeFactory.createPaddedBase64GroupNode(startChar, firstChar, secondChar, endChar);
         } else {
             secondChar = parseBase64Char();
-            if (peek().kind == SyntaxKind.PADDING_CHAR){
+            if (peek().kind == SyntaxKind.PADDING_CHAR) {
                 endChar = parsePaddingChar();
                 return STNodeFactory.createPaddedBase64GroupNode(startChar, firstChar, secondChar, endChar);
             } else {
@@ -10902,7 +10902,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse base64 char.
      * <p>
-     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /<code>
+     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /</code>
      *
      * @return parsed node
      */
@@ -10919,7 +10919,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse padding char.
      * <p>
-     * <code>PaddingChar := = <code>
+     * <code>PaddingChar := = </code>
      *
      * @return parsed node
      */

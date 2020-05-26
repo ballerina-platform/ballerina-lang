@@ -33,7 +33,7 @@ import java.util.List;
 public class BallerinaLexer extends AbstractLexer {
 
     public BallerinaLexer(CharReader charReader) {
-        super(charReader, ParserMode.DEFAULT);
+        super(charReader, ParserMode.DEFAULT, SyntaxKind.NONE);
     }
 
     /**
@@ -229,7 +229,17 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
                 break;
             case LexerTerminals.BACKTICK:
-                startMode(ParserMode.TEMPLATE);
+                switch (this.precedingSyntaxKind) {
+                    case BASE16_KEYWORD:
+                        startMode(ParserMode.BASE16_ARRAY);
+                        break;
+                    case BASE64_KEYWORD:
+                        startMode(ParserMode.BASE64_ARRAY);
+                        break;
+                    default:
+                        startMode(ParserMode.TEMPLATE);
+                        break;
+                }
                 token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 break;
             case LexerTerminals.SINGLE_QUOTE:
@@ -971,8 +981,10 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.DO:
                 return getSyntaxToken(SyntaxKind.DO_KEYWORD);
             case LexerTerminals.BASE16:
+                setPrecedingSyntaxKind(SyntaxKind.BASE16_KEYWORD);
                 return getSyntaxToken(SyntaxKind.BASE16_KEYWORD);
             case LexerTerminals.BASE64:
+                setPrecedingSyntaxKind(SyntaxKind.BASE64_KEYWORD);
                 return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
@@ -1499,6 +1511,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.BACKTICK:
                 reader.advance();
                 endMode();
+                setPrecedingSyntaxKind(SyntaxKind.NONE);
                 return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
             default:
                 if (isHexDigit(nextChar)) {
@@ -1507,6 +1520,7 @@ public class BallerinaLexer extends AbstractLexer {
                 } else {
                     processInvalidToken();
                     endMode();
+                    setPrecedingSyntaxKind(SyntaxKind.NONE);
                     return readToken();
                 }
         }
@@ -1524,6 +1538,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.BACKTICK:
                 reader.advance();
                 endMode();
+                setPrecedingSyntaxKind(SyntaxKind.NONE);
                 return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
             default:
                 if (nextChar == '=') {
@@ -1535,6 +1550,7 @@ public class BallerinaLexer extends AbstractLexer {
                 } else {
                     processInvalidToken();
                     endMode();
+                    setPrecedingSyntaxKind(SyntaxKind.NONE);
                     return readToken();
                 }
         }
@@ -1557,7 +1573,7 @@ public class BallerinaLexer extends AbstractLexer {
         if ('A' <= c && c <= 'Z') {
             return true;
         }
-        if ( c == '+' || c == '/') {
+        if (c == '+' || c == '/') {
             return true;
         }
         return isDigit(c);
