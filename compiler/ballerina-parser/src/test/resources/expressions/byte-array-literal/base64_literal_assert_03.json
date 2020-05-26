@@ -1,0 +1,61 @@
+{
+    "kind": "BYTE_ARRAY_LITERAL",
+    "children": [
+        {
+            "kind": "BASE64_KEYWORD"
+        },
+        {
+            "kind": "BACKTICK_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "BASE64_GROUP",
+                    "children": [
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "a"
+                        },
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "z"
+                        },
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "0"
+                        },
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "9"
+                        }
+                    ]
+                },
+                {
+                    "kind": "BASE64_GROUP",
+                    "children": [
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "2"
+                        },
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "B"
+                        },
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "+"
+                        },
+                        {
+                            "kind": "BASE64_CHAR",
+                            "value": "/"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "BACKTICK_TOKEN"
+        }
+    ]
+}

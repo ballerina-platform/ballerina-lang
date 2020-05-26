@@ -1,0 +1,58 @@
+{
+    "kind": "BYTE_ARRAY_LITERAL",
+    "children": [
+        {
+            "kind": "BASE16_KEYWORD"
+        },
+        {
+            "kind": "BACKTICK_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "HEX_GROUP",
+                    "children": [
+                        {
+                            "kind": "HEX_DIGIT",
+                            "value": "5"
+                        },
+                        {
+                            "kind": "HEX_DIGIT",
+                            "value": "A"
+                        }
+                    ]
+                },
+                {
+                    "kind": "HEX_GROUP",
+                    "children": [
+                        {
+                            "kind": "HEX_DIGIT",
+                            "value": "B"
+                        },
+                        {
+                            "kind": "HEX_DIGIT",
+                            "value": "C"
+                        }
+                    ]
+                },
+                {
+                    "kind": "HEX_GROUP",
+                    "children": [
+                        {
+                            "kind": "HEX_DIGIT",
+                            "value": "3"
+                        },
+                        {
+                            "kind": "HEX_DIGIT",
+                            "value": "4"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "BACKTICK_TOKEN"
+        }
+    ]
+}

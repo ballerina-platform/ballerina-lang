@@ -1,0 +1,18 @@
+{
+    "kind": "BYTE_ARRAY_LITERAL",
+    "children": [
+        {
+            "kind": "BASE64_KEYWORD"
+        },
+        {
+            "kind": "BACKTICK_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": []
+        },
+        {
+            "kind": "BACKTICK_TOKEN"
+        }
+    ]
+}
