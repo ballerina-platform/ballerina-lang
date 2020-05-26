@@ -26,10 +26,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
 
@@ -40,13 +36,13 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map",
-        functionName = "entries",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map",
+//        functionName = "entries",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        returnType = {@ReturnType(type = TypeKind.MAP)},
+//        isPublic = true
+//)
 public class Entries {
 
     private static int refType = -1;

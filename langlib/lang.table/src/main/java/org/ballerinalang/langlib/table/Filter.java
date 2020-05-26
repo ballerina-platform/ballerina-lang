@@ -24,10 +24,6 @@ import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,12 +32,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.TABLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.TABLE)},
+//        isPublic = true
+//)
 public class Filter {
 
     public static TableValueImpl filter(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {

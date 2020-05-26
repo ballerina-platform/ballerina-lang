@@ -22,22 +22,18 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.array:reverse((any|error)[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "reverse",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "reverse",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Reverse {
 
     public static ArrayValue reverse(Strand strand, ArrayValue arr) {

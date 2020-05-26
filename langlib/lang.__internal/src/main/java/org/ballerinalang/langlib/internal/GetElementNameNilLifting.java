@@ -19,10 +19,6 @@ package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
@@ -32,13 +28,13 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "getElementNameNilLifting",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal",
+//        functionName = "getElementNameNilLifting",
+//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class GetElementNameNilLifting {
 
     public static Object getElementNameNilLifting(Strand strand, XMLValue xmlVal, String attrName) {

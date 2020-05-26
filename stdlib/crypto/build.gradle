@@ -63,16 +63,16 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'Ballerina - Crypto'
-
-ext.moduleName = 'crypto'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
+//description = 'Ballerina - Crypto'
+//
+//ext.moduleName = 'crypto'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

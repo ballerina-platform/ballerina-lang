@@ -22,10 +22,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Locale;
 
@@ -34,13 +30,13 @@ import java.util.Locale;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "toLowerAscii",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "toLowerAscii",
+//        args = {@Argument(name = "s", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class ToLowerAscii {
 
     public static String toLowerAscii(Strand strand, String value) {

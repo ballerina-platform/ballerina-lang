@@ -22,9 +22,6 @@ import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,13 +30,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "forEach",
-        args = {
-                @Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "func", type = TypeKind.FUNCTION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "forEach",
+//        args = {
+//                @Argument(name = "x", type = TypeKind.XML),
+//                @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        isPublic = true
+//)
 public class ForEach {
 
     public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {

@@ -20,13 +20,7 @@ package org.ballerinalang.testerina.natives.test;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
@@ -47,14 +41,14 @@ import java.nio.file.Paths;
  *
  * @since 0.97.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServiceSkeleton", args =
-        {@Argument(name = "moduleName", type = TypeKind
-                .STRING), @Argument(name = "openApiFilePath", type = TypeKind.STRING)}, returnType = {@ReturnType
-        (type = TypeKind.BOOLEAN)}, isPublic = true)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Start a " +
-        "service skeleton from a given OpenApi definition in the given ballerina module.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of " +
-        "the module"), @Attribute(name = "openApiFilePath", value = "Path to the OpenApi definition")})
+//@BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServiceSkeleton", args =
+//        {@Argument(name = "moduleName", type = TypeKind
+//                .STRING), @Argument(name = "openApiFilePath", type = TypeKind.STRING)}, returnType = {@ReturnType
+//        (type = TypeKind.BOOLEAN)}, isPublic = true)
+//@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Start a " +
+//        "service skeleton from a given OpenApi definition in the given ballerina module.")})
+//@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of " +
+//        "the module"), @Attribute(name = "openApiFilePath", value = "Path to the OpenApi definition")})
 public class StartServiceSkeleton extends BlockingNativeCallableUnit {
 
     private static PrintStream errStream = System.err;

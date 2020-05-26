@@ -65,14 +65,14 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 
-ext.moduleName = 'io'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
+//ext.moduleName = 'io'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

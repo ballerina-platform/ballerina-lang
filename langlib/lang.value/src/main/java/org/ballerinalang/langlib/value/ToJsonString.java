@@ -21,23 +21,19 @@ package org.ballerinalang.langlib.value;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Return the string that represents `v` in JSON format.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
-        functionName = "toJsonString",
-        args = {@Argument(name = "v", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.value",
+//        functionName = "toJsonString",
+//        args = {@Argument(name = "v", type = TypeKind.JSON)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class ToJsonString {
 
     public static String toJsonString(Strand strand, Object value) {

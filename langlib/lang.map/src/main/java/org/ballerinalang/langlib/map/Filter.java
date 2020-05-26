@@ -28,10 +28,6 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,12 +38,12 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "filter",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "filter",
+//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.MAP)},
+//        isPublic = true
+//)
 public class Filter {
 
     public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {

@@ -24,10 +24,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,13 +35,13 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "reduce",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION),
-                @Argument(name = "initial", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "reduce",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION),
+//                @Argument(name = "initial", type = TypeKind.ANY)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Reduce {
 
     public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {

@@ -23,10 +23,6 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +32,13 @@ import java.util.List;
  *
  * @since 1.2
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "elementChildren",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "elementChildren",
+//        args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class ElementChildren {
 
     public static XMLValue elementChildren(Strand strand, XMLValue xmlVal, Object name) {

@@ -17,22 +17,16 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * This class contains the implementation of the "getArrayElement" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
-        functionName = "getArrayElement"
-)
 public class GetArrayElement {
 
-    public static HandleValue getArrayElement(Strand strand, HandleValue arrayValue, long index) {
+    public static HandleValue getArrayElement(HandleValue arrayValue, long index) {
         Object[] arr = (Object[]) arrayValue.getValue();
         if (arr == null) {
             throw JValues.getJavaNullReferenceError();

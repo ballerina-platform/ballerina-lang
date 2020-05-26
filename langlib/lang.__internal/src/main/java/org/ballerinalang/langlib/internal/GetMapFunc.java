@@ -24,21 +24,17 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.internal:getMapFunc(func).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "getMapFunc",
-        args = {@Argument(name = "func", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal", functionName = "getMapFunc",
+//        args = {@Argument(name = "func", type = TypeKind.ANY)},
+//        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
+//)
 public class GetMapFunc {
 
     public static FPValue getMapFunc(Strand strand, Object obj) {

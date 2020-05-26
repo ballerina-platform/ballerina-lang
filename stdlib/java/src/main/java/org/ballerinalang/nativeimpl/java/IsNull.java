@@ -17,26 +17,20 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * This class contains the implementation of the "isNull" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
-        functionName = "isNull"
-)
 public class IsNull {
 
-    public static boolean isNull(Strand strand, HandleValue value) {
+    public static boolean isNull(HandleValue value) {
         return value.getValue() == null;
     }
 
-    public static boolean isNull_bstring(Strand strand, HandleValue value) {
-        return isNull(strand, value);
+    public static boolean isNull_bstring(HandleValue value) {
+        return isNull(value);
     }
 }

@@ -20,23 +20,19 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Converts a XML to the corresponding JSON representation.
  *
  * @since 0.90
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "fromString",
-        args = {@Argument(name = "string", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "fromString",
+//        args = {@Argument(name = "string", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class FromString {
 
     public static Object fromString(Strand strand, String string) {

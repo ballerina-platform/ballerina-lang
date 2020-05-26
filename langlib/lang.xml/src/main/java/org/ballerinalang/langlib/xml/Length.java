@@ -20,22 +20,18 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.xml:length(xml).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "length",
-        args = {@Argument(name = "x", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "length",
+//        args = {@Argument(name = "x", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class Length {
 
     public static long length(Strand strand, XMLValue xml) {

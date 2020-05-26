@@ -21,21 +21,18 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Remove an attribute from an XML.
  * 
  * @since 0.95
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "removeAttribute",
-        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "removeAttribute",
+//        args = {@Argument(name = "qname", type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";

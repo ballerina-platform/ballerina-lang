@@ -21,9 +21,6 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Remove any children that matches a given name, from an XML.
@@ -31,12 +28,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * 
  * @since 0.982.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "removeChildren",
-        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "removeChildren",
+//        args = {@Argument(name = "qname", type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";

@@ -22,20 +22,17 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native implementation of assertError(anydata|error value).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertError",
-        args = {@Argument(name = "value", type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.test", functionName = "assertError",
+//        args = {@Argument(name = "value", type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class AssertError {
     public static void assertError(Strand strand, Object value) {
         if (TypeChecker.getType(value).getTag() != TypeTags.ERROR_TAG) {

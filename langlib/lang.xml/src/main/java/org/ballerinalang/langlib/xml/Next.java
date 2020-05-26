@@ -26,22 +26,18 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
+//        returnType = {@ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {

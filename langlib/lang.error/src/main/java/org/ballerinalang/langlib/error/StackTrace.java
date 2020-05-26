@@ -35,10 +35,6 @@ import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collections;
 
@@ -50,11 +46,11 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG
  *
  * @since 0.990.4
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
-        functionName = "stackTrace",
-        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)})
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.error",
+//        functionName = "stackTrace",
+//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
+//        returnType = {@ReturnType(type = TypeKind.OBJECT)})
 public class StackTrace {
 
     public static ObjectValue stackTrace(Strand strand, ErrorValue value) {

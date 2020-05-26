@@ -25,22 +25,18 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.map.MapIterator:next().
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator", structPackage = "ballerina/lang.map"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "next",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator", structPackage = "ballerina/lang.map"),
+//        returnType = {@ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {

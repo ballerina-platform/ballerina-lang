@@ -23,23 +23,19 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "substring",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "startIndex", type = TypeKind.INT),
-                @Argument(name = "endIndex", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "substring",
+//        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+//                @Argument(name = "startIndex", type = TypeKind.INT),
+//                @Argument(name = "endIndex", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class Substring {
 
     public static String substring(Strand strand, String value, long startIndex, long endIndex) {

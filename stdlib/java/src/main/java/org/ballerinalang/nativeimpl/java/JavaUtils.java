@@ -18,10 +18,8 @@
 package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR;
 
@@ -30,10 +28,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_C
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
-        functionName = "getClass"
-)
 public class JavaUtils {
     private static final String booleanTypeName = "boolean";
     private static final String byteTypeName = "byte";
@@ -48,11 +42,10 @@ public class JavaUtils {
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
      *
-     * @param strand current strand
      * @param name   class name
      * @return a Java Class object instance
      */
-    public static Object getClass(Strand strand, String name) {
+    public static Object getClass(String name) {
         Class<?> clazz = getPrimitiveTypeClass(name);
         if (clazz != null) {
             return new HandleValue(clazz);
@@ -66,8 +59,8 @@ public class JavaUtils {
         }
     }
 
-    public static Object getClass_bstring(Strand strand, BString name) {
-        return getClass(strand, name.getValue());
+    public static Object getClass_bstring(BString name) {
+        return getClass(name.getValue());
     }
 
     private static Class<?> getPrimitiveTypeClass(String name) {

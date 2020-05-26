@@ -21,21 +21,18 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Check whether the XML sequence contains only a single element.
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "isSingleton",
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "isSingleton",
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 public class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";

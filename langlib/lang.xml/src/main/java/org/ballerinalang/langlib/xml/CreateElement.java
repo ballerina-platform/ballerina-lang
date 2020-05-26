@@ -22,25 +22,21 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Create XML element from tag name and children sequence.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "createElement",
-        args = {
-                @Argument(name = "name", type = TypeKind.STRING),
-                @Argument(name = "children", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "createElement",
+//        args = {
+//                @Argument(name = "name", type = TypeKind.STRING),
+//                @Argument(name = "children", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class CreateElement {
 
     public static XMLValue createElement(Strand strand, String name, XMLValue children) {

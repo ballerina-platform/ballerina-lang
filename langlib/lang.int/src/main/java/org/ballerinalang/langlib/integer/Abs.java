@@ -19,22 +19,18 @@
 package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.int:abs(int).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "abs",
-        args = {@Argument(name = "n", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.int", functionName = "abs",
+//        args = {@Argument(name = "n", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class Abs {
 
     public static long abs(Strand strand, long n) {

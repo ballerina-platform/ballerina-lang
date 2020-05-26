@@ -19,10 +19,6 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -34,12 +30,12 @@ import java.nio.charset.CharsetDecoder;
  *
  * @since 1.2
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "equalsIgnoreCaseAscii",
-        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string", functionName = "equalsIgnoreCaseAscii",
+//        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+//        isPublic = true
+//)
 
 public class EqualsIgnoreCaseAscii {
     private static CharsetDecoder decoder;

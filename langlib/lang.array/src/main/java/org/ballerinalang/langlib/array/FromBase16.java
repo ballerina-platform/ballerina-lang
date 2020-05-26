@@ -21,10 +21,6 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +30,12 @@ import java.util.List;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase16",
-        args = {@Argument(name = "str", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase16",
+//        args = {@Argument(name = "str", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class FromBase16 {
 
     public static Object fromBase16(Strand strand, String str) {
