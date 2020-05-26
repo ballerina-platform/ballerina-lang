@@ -444,10 +444,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseMemberAccessKeyExprEnd();
             case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalChainingToken();
-            case ENUM_MEMBER_INTERNAL_RHS:
-                return parseEnumMemberInternalRhs((STNode) args[0], (STNode) args[1]);
             case ENUM_MEMBER_RHS:
-                return parseEnumMemberRhs();
+                return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
+            case ENUM_MEMBER_END:
+                return parseEnumMemberEnd();
             case ENUM_MEMBER_NAME:
                 return parseEnumMember();
             default:
@@ -10917,7 +10917,7 @@ public class BallerinaParser extends AbstractParser {
         nextToken = peek();
         STNode enumMemberRhs;
         while (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
-            enumMemberRhs = parseEnumMemberRhs(nextToken.kind);
+            enumMemberRhs = parseEnumMemberEnd(nextToken.kind);
             if (enumMemberRhs == null) {
                 break;
             }
@@ -10952,14 +10952,14 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER_NAME);
-        return parseEnumMemberInternalRhs(metadata, identifierNode);
+        return parseEnumMemberRhs(metadata, identifierNode);
     }
 
-    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode) {
-        return parseEnumMemberInternalRhs(metadata, identifierNode, peek().kind);
+    private STNode parseEnumMemberRhs(STNode metadata, STNode identifierNode) {
+        return parseEnumMemberRhs(peek().kind, metadata, identifierNode);
     }
 
-    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode, SyntaxKind nextToken) {
+    private STNode parseEnumMemberRhs(SyntaxKind nextToken, STNode metadata, STNode identifierNode) {
         STNode equalToken, constExprNode;
         switch (nextToken) {
             case EQUAL_TOKEN:
@@ -10972,7 +10972,7 @@ public class BallerinaParser extends AbstractParser {
                 constExprNode = STNodeFactory.createEmptyNode();
                 break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS, metadata,
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS, metadata,
                         identifierNode);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
@@ -10982,24 +10982,24 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseEnumMemberInternalRhs(metadata, identifierNode, solution.tokenKind);
+                return parseEnumMemberRhs(solution.tokenKind, metadata, identifierNode);
         }
 
         return STNodeFactory.createEnumMemberNode(metadata, identifierNode, equalToken, constExprNode);
     }
 
-    private STNode parseEnumMemberRhs() {
-        return parseEnumMemberRhs(peek().kind);
+    private STNode parseEnumMemberEnd() {
+        return parseEnumMemberEnd(peek().kind);
     }
 
-    private STNode parseEnumMemberRhs(SyntaxKind nextTokenKind) {
+    private STNode parseEnumMemberEnd(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACE_TOKEN:
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_END);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -11008,7 +11008,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseEnumMemberRhs(solution.tokenKind);
+                return parseEnumMemberEnd(solution.tokenKind);
         }
     }
 
