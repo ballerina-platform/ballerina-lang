@@ -136,7 +136,8 @@ public enum DiagnosticCode {
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
 
     //Transaction related error codes
-    ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
+    ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("rollback.cannot.be.outside.transaction.block"),
+    COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("commit.cannot.be.outside.transaction.block"),
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
@@ -145,13 +146,21 @@ public enum DiagnosticCode {
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
     INVALID_COMMIT_COUNT("invalid.commit.count"),
+    INVALID_ROLLBACK_COUNT("invalid.rollback.count"),
     INVALID_TRANSACTION_HANDLER_ARGS("invalid.transaction.handler.args"),
     INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE("transaction.cannot.be.used.within.transactional.scope"),
+    TRANSACTIONAL_FUNC_CANNOT_BE_INVOKED_OUTSIDE_TRANSACTIONAL_SCOPE("transactional.function.cannot.be.invoked.outside.transactional.scope"),
     NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
+    USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED("usage.of.start.within.transaction.is.prohibited"),
+    ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION("rollback.cannot.be.within.transactional.function"),
+    COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION("commit.cannot.be.within.transactional.function"),
+    MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH("max.one.commit.rollback.allowed.within.branch"),
+    COMMIT_NOT_ALLOWED("commit.not.allowed"),
+    ROLLBACK_NOT_ALLOWED("rollback.not.allowed"),
 
     // Service, endpoint related errors codes
     SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
