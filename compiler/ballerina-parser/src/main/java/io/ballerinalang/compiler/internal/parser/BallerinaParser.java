@@ -9107,15 +9107,13 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseLetVarDec(boolean isRhsExpr) {
         STNode annot = parseAnnotations();
-        // TODO: Replace type and varName with typed-binding-pattern
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-        STNode varName = parseVariableName();
+        STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.LET_EXPR_LET_VAR_DECL);
         STNode assign = parseAssignOp();
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-var-decl, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
-        return STNodeFactory.createLetVariableDeclarationNode(annot, type, varName, assign, expression);
+        return STNodeFactory.createLetVariableDeclarationNode(annot, typedBindingPattern, assign, expression);
     }
 
     /**

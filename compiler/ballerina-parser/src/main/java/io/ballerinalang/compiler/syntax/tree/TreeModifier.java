@@ -1555,18 +1555,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             LetVariableDeclarationNode letVariableDeclarationNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(letVariableDeclarationNode.annotations());
-        Node typeName =
-                modifyNode(letVariableDeclarationNode.typeName());
-        Token variableName =
-                modifyToken(letVariableDeclarationNode.variableName());
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(letVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
                 modifyToken(letVariableDeclarationNode.equalsToken());
         ExpressionNode expression =
                 modifyNode(letVariableDeclarationNode.expression());
         return letVariableDeclarationNode.modify(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }

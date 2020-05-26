@@ -1149,15 +1149,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createLetVariableDeclarationNode(
             STNode annotations,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode expression) {
 
         return new STLetVariableDeclarationNode(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
