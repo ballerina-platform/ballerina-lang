@@ -1519,9 +1519,8 @@ public class BallerinaLexer extends AbstractLexer {
                     break;
                 } else {
                     processInvalidToken();
-                    endMode();
-                    setPrecedingSyntaxKind(SyntaxKind.NONE);
-                    return readToken();
+                    processLeadingTrivia();
+                    return readBase16Array();
                 }
         }
             return getLiteral(SyntaxKind.HEX_DIGIT);
@@ -1549,9 +1548,8 @@ public class BallerinaLexer extends AbstractLexer {
                     break;
                 } else {
                     processInvalidToken();
-                    endMode();
-                    setPrecedingSyntaxKind(SyntaxKind.NONE);
-                    return readToken();
+                    processLeadingTrivia();
+                    return readBase64Array();
                 }
         }
         return getLiteral(SyntaxKind.BASE64_CHAR);

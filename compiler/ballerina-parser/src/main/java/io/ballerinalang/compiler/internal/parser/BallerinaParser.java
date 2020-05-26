@@ -10928,7 +10928,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PADDING_CHAR) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.BASE64_CHAR);
+            Solution sol = recover(token, ParserRuleContext.PADDING_CHAR);
             return sol.recoveredNode;
         }
     }
