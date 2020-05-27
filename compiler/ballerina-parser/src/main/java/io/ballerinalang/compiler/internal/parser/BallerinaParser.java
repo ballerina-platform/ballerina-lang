@@ -442,6 +442,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseDoKeyword();
             case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalChainingToken();
+            case BASE16_KEYWORD:
+                return parseBase16Keyword();
+            case BASE64_KEYWORD:
+                return parseBase64Keyword();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -3743,7 +3747,7 @@ public class BallerinaParser extends AbstractParser {
             case BASE64_KEYWORD:
                 nextNextToken = getNextNextToken(kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
-                    return parseByteArrayLiteral();
+                    return parseByteArrayLiteral(kind);
                 }
                 break;
             default:
@@ -10752,20 +10756,29 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse base16 literal.
      * <p>
-     * <code>Base16Literal := base16 WS ` HexGroup* WS `</code>
+     * <code>
+     * byte-array-literal := Base16Literal | Base64Literal
+     * <br/>
+     * Base16Literal := base16 WS ` HexGroup* WS `
+     * <br/>
+     * Base64Literal := base64 WS ` Base64Group* [PaddedBase64Group] WS `
+     * </code>
      *
+     * @param kind byte array literal kind
      * @return parsed node
      */
-    private STNode parseByteArrayLiteral() {
+    private STNode parseByteArrayLiteral(SyntaxKind kind) {
         STNode type;
-        if (peek().kind == SyntaxKind.BASE16_KEYWORD) {
+
+        if (kind == SyntaxKind.BASE16_KEYWORD) {
             type = parseBase16Keyword();
         } else {
             type = parseBase64Keyword();
         }
-        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START); //TODO: change context
-        STNode content = parseByteArrayContent();
-        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+
+        STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode content = parseByteArrayContent(kind);
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
     }
 
@@ -10799,50 +10812,42 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseByteArrayContent() {
-        STNode base16Content = STNodeFactory.createEmptyNode();
+    /**
+     * Validate and parse byte array literal content.
+     * An error is reported, if the content is invalid.
+     *
+     * @param kind byte array literal kind
+     * @return parsed node
+     */
+    private STNode parseByteArrayContent(SyntaxKind kind) {
+        STNode content = null;
+        boolean isValidContent = false;
         STToken nextToken = peek();
-        boolean hasContent = false;
-
 
         while (!isEndOfBacktickContent(nextToken.kind)) {
             STNode contentItem = parseTemplateItem();
-            if (contentItem.kind == SyntaxKind.TEMPLATE_STRING) {
-                if (!hasContent){
-                    // validate and parse
-                    base16Content = contentItem;
-                    hasContent = true;
-                } else {
-                    this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+
+            if (content == null && contentItem.kind == SyntaxKind.TEMPLATE_STRING) {
+                if (kind == SyntaxKind.BASE16_KEYWORD &&
+                        BallerinaLexer.isValidBase16LiteralContent(contentItem.toString())) {
+                        content = contentItem;
+                        isValidContent = true;
+                } else if (kind == SyntaxKind.BASE64_KEYWORD &&
+                        BallerinaLexer.isValidBase64LiteralContent(contentItem.toString())) {
+                        content = contentItem;
+                        isValidContent = true;
                 }
             } else {
-                this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+                isValidContent = false;
             }
+
             nextToken = peek();
         }
 
-        return base16Content;
-    }
+        if (!isValidContent) {
+            this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
+        }
 
-//    /**
-//     * <p>
-//     * Check whether a given char is a base64 char.
-//     * </p>
-//     * <code>Base64Char := A .. Z | a .. z | 0 .. 9 | + | /</code>
-//     *
-//     * @param c character to check
-//     * @return <code>true</code>, if the character represents a base64 char. <code>false</code> otherwise.
-//     */
-//    private boolean isBase64Char(int c) {
-//        if ('a' <= c && c <= 'z') {
-//            return true;
-//        }
-//        if ('A' <= c && c <= 'Z') {
-//            return true;
-//        }
-//        if (c == '+' || c == '/') {
-//            return true;
-//        }
-//        return isDigit(c);
-//    }
+        return content != null ? content : STNodeFactory.createEmptyNode();
+    }
 }

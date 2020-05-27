@@ -292,9 +292,6 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-            case HEX_DIGIT:
-            case BASE64_CHAR:
-            case PADDING_CHAR:
                 return ((STLiteralValueToken) token).text();
             case WHITESPACE_MINUTIAE:
             case COMMENT_MINUTIAE:

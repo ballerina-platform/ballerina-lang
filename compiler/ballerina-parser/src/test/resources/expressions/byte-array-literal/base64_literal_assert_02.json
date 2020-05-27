@@ -1,40 +1,172 @@
 {
-    "kind": "BYTE_ARRAY_LITERAL",
+    "kind": "FUNCTION_DEFINITION",
     "children": [
         {
-            "kind": "BASE64_KEYWORD"
-        },
-        {
-            "kind": "BACKTICK_TOKEN"
-        },
-        {
-            "kind": "LIST",
+            "kind": "METADATA",
             "children": [
                 {
-                    "kind": "BASE64_GROUP",
-                    "children": [
-                        {
-                            "kind": "BASE64_CHAR",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "BASE64_CHAR",
-                            "value": "z"
-                        },
-                        {
-                            "kind": "BASE64_CHAR",
-                            "value": "0"
-                        },
-                        {
-                            "kind": "BASE64_CHAR",
-                            "value": "9"
-                        }
-                    ]
+                    "kind": "LIST",
+                    "children": []
                 }
             ]
         },
         {
-            "kind": "BACKTICK_TOKEN"
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "FUNCTION_SIGNATURE",
+            "children": [
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": []
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "FUNCTION_BODY_BLOCK",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "INDEXED_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "BYTE_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "arr1"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "BYTE_ARRAY_LITERAL",
+                                            "children": [
+                                                {
+                                                    "kind": "BASE64_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "BACKTICK_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "BACKTICK_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN",
+                                            "isMissing": true
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "Aws"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "zl"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "q"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                    "value": "2"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VAR_DECL",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "rt"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "y"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
         }
     ]
 }

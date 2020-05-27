@@ -28,13 +28,19 @@ public class ByteArrayLiteralTest extends AbstractExpressionsTest {
 
     @Test
     public void testBase16Literal() {
-        testFile("byte-array-literal/base16_literal_assert_01.bal", "byte-array-literal/base16_literal_assert_01.json");
+        testFile("byte-array-literal/base16_literal_source_01.bal", "byte-array-literal/base16_literal_assert_01.json");
     }
 
     @Test
     public void testBase64Literal() {
-        testFile("byte-array-literal/base64_literal_assert_01.bal", "byte-array-literal/base64_literal_assert_01.json");
+        testFile("byte-array-literal/base64_literal_source_01.bal", "byte-array-literal/base64_literal_assert_01.json");
     }
 
     // Recovery tests
+
+    @Test
+    public void testMissingClosingBacktick() {
+        testFile("byte-array-literal/base16_literal_source_02.bal", "byte-array-literal/base16_literal_assert_02.json");
+        testFile("byte-array-literal/base64_literal_source_02.bal", "byte-array-literal/base64_literal_assert_02.json");
+    }
 }
