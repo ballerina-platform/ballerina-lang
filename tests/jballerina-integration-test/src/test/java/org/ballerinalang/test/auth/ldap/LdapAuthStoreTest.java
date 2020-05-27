@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.ldap;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -34,6 +36,7 @@ import java.util.Map;
 public class LdapAuthStoreTest extends AuthBaseTest {
 
     private final int servicePort = 20021;
+    private final BServerInstance serverInstance = ldapAuthServerInstance;
 
     @Test(description = "Test authentication failure request against ldap auth store")
     public void testAuthenticationFailure() throws Exception {

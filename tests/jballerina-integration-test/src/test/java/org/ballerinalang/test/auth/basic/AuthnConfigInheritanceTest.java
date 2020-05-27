@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.basic;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -32,6 +34,7 @@ import java.util.Map;
 public class AuthnConfigInheritanceTest extends AuthBaseTest {
 
     private final int servicePort = 20000;
+    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Auth enabled resource, Auth enabled service test case with no auth headers")
     public void testNoAuthHeaders1() throws Exception {

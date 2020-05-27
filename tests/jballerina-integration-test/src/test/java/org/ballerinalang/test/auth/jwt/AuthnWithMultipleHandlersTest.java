@@ -16,9 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.jwt;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,6 +38,7 @@ import java.util.Map;
 public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
 
     private final int servicePort = 20007;
+    private final BServerInstance serverInstance = jwtAuthServerInstance;
 
     @Test(description = "Authn success test case with example1 issuer")
     public void testAuthSuccessWithExample1Issuer() throws Exception {

@@ -16,9 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.jwt;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,6 +38,7 @@ import java.util.Map;
 public class JwkSignatureValidationTest extends AuthBaseTest {
 
     private final int servicePort = 20029;
+    private final BServerInstance serverInstance = jwtAuthServerInstance;
 
     @Test(description = "Test authentication success request by validating JWT signature with JWK")
     public void testAuthenticationSuccess() throws Exception {

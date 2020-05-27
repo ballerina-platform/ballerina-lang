@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.basic;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -34,6 +36,7 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
     private final int servicePort1 = 20001;
     private final int servicePort2 = 20002;
     private final int servicePort3 = 20003;
+    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Listener - valid scopes, service - valid scopes and resource - valid scopes")
     public void testValidScopesAtListener1() throws Exception {

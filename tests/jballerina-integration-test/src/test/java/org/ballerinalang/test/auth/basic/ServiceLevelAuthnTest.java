@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.basic;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -26,26 +28,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for inbound authentication with OAuth2.
+ * Test cases for service level authorization.
  */
 @Test(groups = "auth-test")
-public class AuthnWithOAuth2Test extends AuthBaseTest {
+public class ServiceLevelAuthnTest extends AuthBaseTest {
 
-    private final int servicePort = 20027;
+    private final int servicePort = 20005;
+    private final BServerInstance serverInstance = basicAuthServerInstance;
 
-    @Test(description = "Test inbound OAuth2 success with valid token")
-    public void testOAuth2SuccessTest() throws Exception {
+    @Test(description = "Authn and authz success test case")
+    public void testAuthSuccessWithServiceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer 2YotnFZFEjr1zCsicMWpAA");
+        headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
         assertOK(response);
     }
 
-    @Test(description = "Test inbound OAuth2 failure with invalid token")
-    public void testOAuth2FailureTest() throws Exception {
+    @Test(description = "Authn success and authz failure test case")
+    public void testAuthzFailureWithServiceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer invalid_token");
+        headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        assertForbidden(response);
+    }
+
+    @Test(description = "Authn and authz failure test case")
+    public void testAuthFailureWithServiceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);

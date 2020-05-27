@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.basic;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -38,6 +40,7 @@ import java.util.Map;
 public class AuthzConfigPatternTest extends AuthBaseTest {
 
     private final int servicePort = 20026;
+    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Test valid user for pattern 1")
     public void testValidUserForPattern1() throws Exception {

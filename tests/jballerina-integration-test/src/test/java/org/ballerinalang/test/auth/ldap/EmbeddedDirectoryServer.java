@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.ldap;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -79,6 +79,10 @@ public class EmbeddedDirectoryServer {
         return partition;
     }
 
+    public static void main(String[] args) throws Exception {
+        EmbeddedDirectoryServer e = new EmbeddedDirectoryServer();
+        e.startLdapServer(20100);
+    }
     /**
      * Starts directory apache directory service.
      *
@@ -119,8 +123,8 @@ public class EmbeddedDirectoryServer {
 
         // Load the LDIF file
         String ldif = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "auth" + File.separator + "src" + File.separator + "ldif").getAbsolutePath() + File.separator +
-                "users-import.ldif";
+                                       "auth" + File.separator + "src" + File.separator + "ldap").getAbsolutePath() +
+                File.separator + "users.ldif";
         LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldif);
         ldifLoader.execute();
     }
@@ -166,7 +170,7 @@ public class EmbeddedDirectoryServer {
     /**
      * Stops directory apache directory service.
      */
-    void stopLdapService() {
+    public void stopLdapService() {
         ldapServer.stop();
         workDir.delete();
     }

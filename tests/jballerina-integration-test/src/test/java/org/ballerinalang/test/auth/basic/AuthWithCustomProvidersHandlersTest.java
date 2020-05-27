@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.basic;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -28,6 +30,7 @@ import org.testng.annotations.Test;
 public class AuthWithCustomProvidersHandlersTest extends AuthBaseTest {
 
     private final int servicePort = 20023;
+    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Auth success with outbound custom auth provider initially generated token")
     public void testAuthSuccess1() throws Exception {

@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.jwt;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
@@ -30,6 +32,8 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class TokenPropagationTest extends AuthBaseTest {
+
+    private final BServerInstance serverInstance = jwtAuthServerInstance;
 
     @Test(description = "Test JWT propagation with basic auth as the inbound authentication mechanism")
     public void testTokenPropagationWithBasicAuthInbound() throws Exception {

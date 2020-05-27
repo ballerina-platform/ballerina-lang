@@ -17,19 +17,22 @@
  *
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.oauth2;
 
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
 
 /**
- * Testing OAuth2 Client Authentication Configs.
+ * Testing OAuth2 client authentication configurations.
  */
 @Test(groups = "auth-test")
 public class OAuth2ConfigTest extends AuthBaseTest {
 
     private final int servicePort = 20028;
+    private final BServerInstance serverInstance = oauth2ServerInstance;
 
     @Test(description = "Test client credentials grant type with valid credentials")
     public void testClientCredentialsGrantType1() throws Exception {

@@ -16,43 +16,48 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.auth;
+package org.ballerinalang.test.auth.basic;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.auth.AuthBaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for service level authentication and authorization when service and resource do not have config
- * annotations attached.
- *
- * @since 0.982.1
+ * Test cases for resource level authorization.
  */
 @Test(groups = "auth-test")
-public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
+public class ResourceLevelAuthTest extends AuthBaseTest {
 
-    private final int servicePort = 20006;
+    private final int servicePort = 20004;
+    private final BServerInstance serverInstance = basicAuthServerInstance;
 
     @Test(description = "Authn and authz success test case")
-    public void testAuthSuccess() throws Exception {
+    public void testAuthSuccessWithResourceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
         assertOK(response);
     }
 
-    @Test(description = "Authn failure test case")
-    public void testAuthnFailure() throws Exception {
+    @Test(description = "Authn success and authz failure test case")
+    public void testAuthzFailureWithResourceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        headers.put("Authorization", "Basic aW52YWxpZFVzZXI6YWJj");
+        headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headers, serverInstance.getServerHome());
+        assertForbidden(response);
+    }
+
+    @Test(description = "Authn and authz failure test case")
+    public void testAuthFailureWithResourceLevelConfigs() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
