@@ -2934,12 +2934,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean checkNextBreakValidityInTransaction() {
-        return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0 && !withinTransactionScope;
+        return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0 && withinTransactionScope;
     }
 
     private boolean checkReturnValidityInTransaction() {
         return (this.returnWithintransactionCheckStack.empty() || !this.returnWithintransactionCheckStack.peek())
-                && transactionCount > 0 && !withinTransactionScope;
+                && transactionCount > 0 && withinTransactionScope;
     }
 
     private void validateMainFunction(BLangFunction funcNode) {

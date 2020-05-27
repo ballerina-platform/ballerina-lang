@@ -82,125 +82,116 @@ transactional function testTransactionalInvo(string str) returns string {
     return str + " transactional call";
 }
 
-//function txStmtWithInvalidRollbackExp(int i) returns (string) {
-//     string a = "start";
-//     transaction {
-//         a = a + " inTrx";
-//         if (i == 0) {
-//             a = a + " rollback";
-//             rollback "rollback str";
-//         }
-//         var res = commit;
-//         a = a + " endTrx";
-//     }
-//     return a;
-//}
 
-//function testTransactionAbort3() {
-//    int i = 10;
-//    abort;
-//    i = i + 11;
-//}
-//
-//function testTransactionAbort4() {
-//    int i = 10;
-//    transaction {
-//        i = i + 1;
-//        abort;
-//        i = i + 2;
-//    }
-//}
-//
-//function testTransactionAbort5() {
-//    int i = 10;
-//    transaction {
-//        i = i + 1;
-//        if (i > 10) {
-//            abort;
-//        }
-//        while (i < 40) {
-//            i = i + 2;
-//            if (i == 44) {
-//                break;
-//                int k = 9;
-//            }
-//        }
-//        abort;
-//        i = i + 2;
-//    }
-//}
-//
-//function testBreakWithinTransaction() returns (string) {
-//    int i = 0;
-//    while (i < 5) {
-//        i = i + 1;
-//        transaction {
-//            if (i == 2) {
-//                break;
-//            }
-//        }
-//    }
-//    return "done";
-//}
-//
-//function testNextWithinTransaction() returns (string) {
-//    int i = 0;
-//    while (i < 5) {
-//        i = i + 1;
-//        transaction {
-//            if (i == 2) {
-//                continue;
-//            }
-//        }
-//    }
-//    return "done";
-//}
-//
-//function testReturnWithinTransaction() returns (string) {
-//    int i = 0;
-//    while (i < 5) {
-//        i = i + 1;
-//        transaction {
-//            if (i == 2) {
-//                return "ff";
-//            }
-//        }
-//    }
-//    return "done";
-//}
-//
-//function testInvalidDoneWithinTransaction() {
-//    string workerTest = "";
-//
-//    int i = 0;
-//    transaction {
-//        workerTest = workerTest + " withinTx";
-//        if (i == 0) {
-//            workerTest = workerTest + " beforeDone";
-//            return;
-//        }
-//    }
-//    workerTest = workerTest + " beforeReturn";
-//    return;
-//}
-//
-//function testReturnWithinMatchWithinTransaction() returns (string) {
-//    int i = 0;
-//    string|int unionVar = "test";
-//    while (i < 5) {
-//        i = i + 1;
-//        transaction {
-//            if (unionVar is string) {
-//                if (i == 2) {
-//                    return "ff";
-//                }
-//            } else {
-//                if (i == 2) {
-//                    return "ff";
-//                }
-//            }
-//
-//        }
-//    }
-//    return "done";
-//}
+function testTransactionRollback() {
+    int i = 10;
+    transaction {
+        i = i + 1;
+        if (i > 10) {
+            rollback;
+        }
+        while (i < 40) {
+            i = i + 2;
+            if (i == 44) {
+                rollback;
+                int k = 9;
+            }
+        }
+        rollback;
+        i = i + 2;
+        var o = commit;
+    }
+}
+
+function testBreakWithinTransaction() returns (string) {
+    int i = 0;
+    while (i < 5) {
+        i = i + 1;
+        transaction {
+            if (i == 2) {
+                var o = commit;
+                break;
+            }
+        }
+        transaction {
+            if (i == 4) {
+                break;
+            }
+        }
+    }
+    var o = commit;
+    return "done";
+}
+
+function testNextWithinTransaction() returns (string) {
+    int i = 0;
+    while (i < 5) {
+        i = i + 1;
+        transaction {
+            if (i == 2) {
+                continue;
+            } else {
+                var o = commit;
+            }
+        }
+    }
+    return "done";
+}
+
+function testReturnWithinTransaction() returns (string) {
+    int i = 0;
+    while (i < 5) {
+        i = i + 1;
+        transaction {
+            if (i == 2) {
+                return "ff";
+            } else {
+                var o = commit;
+            }
+        }
+    }
+    return "done";
+}
+
+function testInvalidDoneWithinTransaction() {
+    string workerTest = "";
+
+    int i = 0;
+    transaction {
+        workerTest = workerTest + " withinTx";
+        if (i == 0) {
+            workerTest = workerTest + " beforeDone";
+            return;
+        } else {
+            var o = commit;
+        }
+    }
+    workerTest = workerTest + " beforeReturn";
+    return;
+}
+
+function testReturnWithinMatchWithinTransaction() returns (string) {
+    int i = 0;
+    string|int unionVar = "test";
+    while (i < 5) {
+        i = i + 1;
+        transaction {
+            if (unionVar is string) {
+                if (i == 2) {
+                    var o = commit;
+                    return "ff";
+                } else {
+                    return "ff";
+                }
+            } else {
+                if (i == 2) {
+                    return "ff";
+                } else {
+                    var o = commit;
+                    return "ff";
+                }
+            }
+        }
+    }
+    return "done";
+}
