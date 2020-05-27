@@ -33,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TransferListener extends AbstractTransferListener {
     private PrintStream out;
     private Map<TransferResource, Long> downloads = new ConcurrentHashMap<>();
-    private long previousStep = 0;
-    private ProgressBar progressBar;
+    private Map<String, ProgressBar> progressBars = new ConcurrentHashMap<>();
+    private Map<String, Long> progresses = new ConcurrentHashMap<>();
 
     public TransferListener() {
         this(System.out);
@@ -49,19 +49,23 @@ public class TransferListener extends AbstractTransferListener {
         TransferResource resource = event.getResource();
         downloads.put(resource, event.getTransferredBytes());
         for (Map.Entry<TransferResource, Long> entry : downloads.entrySet()) {
-            if (progressBar == null) {
-                progressBar = new ProgressBar("Downloading ", getKB(entry.getKey().getContentLength()),
-                        1000, out, ProgressBarStyle.ASCII, " KB", 1);
+            String currentResource = entry.getKey().getResourceName();
+            // Each transitive dependency download be displayed in own progress bars
+            if (progressBars.get(currentResource) == null) {
+                String[] files = currentResource.split("/");
+                progressBars.put(currentResource, new ProgressBar(files[files.length - 1],
+                        getKB(entry.getKey().getContentLength()), 1000, out, ProgressBarStyle.ASCII, " KB", 1));
             }
+            long transferredLength = getKB(event.getTransferredBytes());
+            Long previousStep = progresses.get(currentResource) == null ? 0L : progresses.get(currentResource);
+            progressBars.get(currentResource).stepBy(transferredLength - previousStep);
+            progresses.put(currentResource, transferredLength);
         }
-        long transferredLength = getKB(event.getTransferredBytes());
-        progressBar.stepBy(transferredLength - previousStep);
-        previousStep = transferredLength;
     }
 
     @Override
     public void transferSucceeded(TransferEvent event) {
-        progressBar.close();
+        progressBars.get(event.getResource().getResourceName()).close();
     }
 
     private long getKB(long bytes) {
