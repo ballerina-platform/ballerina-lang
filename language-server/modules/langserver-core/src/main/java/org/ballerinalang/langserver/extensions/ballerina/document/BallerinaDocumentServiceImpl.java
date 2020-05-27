@@ -63,6 +63,8 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -101,6 +103,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private static final String DELETE = "delete";
     public static final LSContext.Key<SyntaxTree> UPDATED_SYNTAX_TREE = new LSContext.Key<>();
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -368,6 +371,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
@@ -450,7 +454,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new io.ballerinalang.compiler.text.TextEdit[0]));
         SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
-        System.out.println("Updated Tree : " + updatedSyntaxTree);
+        logger.info("Updated Tree : " + updatedSyntaxTree);
         documentManager.updateFile(compilationPath, updatedSyntaxTree.toString());
         astContext.put(UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         return astContext;
