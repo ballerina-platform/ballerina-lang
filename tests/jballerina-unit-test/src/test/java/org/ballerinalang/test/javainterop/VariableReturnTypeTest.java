@@ -21,8 +21,11 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Test cases for interop functions with variable return types through typedesc refs.
@@ -32,6 +35,35 @@ import org.testng.annotations.Test;
 public class VariableReturnTypeTest {
 
     private CompileResult result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
+
+    @Test
+    public void testNegatives() {
+        CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
+        int indx = 0;
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 27, 16);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'float'", 29, 13);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'decimal'", 30, 9);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 31, 9);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'boolean'", 32, 9);
+        validateError(errors, indx++, "incompatible types: expected 'boolean', found 'int'", 34, 17);
+        validateError(errors, indx++, "incompatible types: expected 'float', found 'int'", 36, 15);
+        validateError(errors, indx++, "incompatible types: expected 'typedesc<(int|float|decimal|string|boolean)>', " +
+                "found 'typedesc<json>'", 40, 23);
+        validateError(errors, indx++, "unknown type 'aTypeVar'", 43, 60);
+        validateError(errors, indx++, "incompatible types: expected 'map<int>', found 'map<other>'", 50, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found '(int|float)'", 60, 13);
+        validateError(errors, indx++, "incompatible types: expected 'float', found '(int|float)'", 61, 15);
+        validateError(errors, indx++, "unknown type 'td'", 64, 73);
+        validateError(errors, indx++, "unknown type 'td'", 72, 54);
+        validateError(errors, indx++, "unknown type 'td'", 74, 90);
+        validateError(errors, indx++, "invalid error reason type 'other', expected a subtype of 'string'", 86, 83);
+        validateError(errors, indx++, "unknown type 'reason'", 86, 83);
+        validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of 'record {| " +
+                "string message?; error cause?; (anydata|error)...; |}'", 86, 91);
+        validateError(errors, indx++, "unknown type 'detail'", 86, 91);
+
+        Assert.assertEquals(errors.getErrorCount(), indx);
+    }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map' cannot be cast to " +
