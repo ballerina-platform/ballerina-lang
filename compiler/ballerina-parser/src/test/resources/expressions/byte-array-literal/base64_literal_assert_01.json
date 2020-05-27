@@ -52,22 +52,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr2"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr2"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -99,22 +109,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr2"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr2"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -150,22 +170,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr2"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr2"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -201,22 +231,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr2"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr2"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -252,22 +292,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr2"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr2"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -303,22 +353,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr2"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr2"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -354,22 +414,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr3"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr3"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"

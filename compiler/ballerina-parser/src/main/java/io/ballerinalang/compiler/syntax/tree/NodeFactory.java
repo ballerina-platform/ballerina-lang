@@ -2522,5 +2522,23 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 serviceBody.internalNode());
         return stServiceConstructorExpressionNode.createUnlinkedFacade();
     }
+
+    public static ByteArrayLiteralNode createByteArrayLiteralNode(
+            Token type,
+            Token startBacktick,
+            Token content,
+            Token endBacktick) {
+        Objects.requireNonNull(type, "type must not be null");
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(content, "content must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stByteArrayLiteralNode = STNodeFactory.createByteArrayLiteralNode(
+                type.internalNode(),
+                startBacktick.internalNode(),
+                content.internalNode(),
+                endBacktick.internalNode());
+        return stByteArrayLiteralNode.createUnlinkedFacade();
+    }
 }
 

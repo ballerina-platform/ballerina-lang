@@ -9190,7 +9190,7 @@ public class BallerinaParser extends AbstractParser {
         STNode type = parseStringKeyword();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         STNode content = parseTemplateContent();
-        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.STRING_TEMPLATE_EXPRESSION, type, startingBackTick,
                 content, endingBackTick);
     }
@@ -11992,6 +11992,8 @@ public class BallerinaParser extends AbstractParser {
                         BallerinaLexer.isValidBase64LiteralContent(contentItem.toString())) {
                     content = contentItem;
                     isValidContent = true;
+                } else {
+                    content = contentItem;
                 }
             } else {
                 isValidContent = false;
@@ -12000,7 +12002,7 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
         }
 
-        if (!isValidContent) {
+        if (content != null && !isValidContent) {
             this.errorHandler.reportInvalidNode(null, "invalid content within backticks");
         }
 

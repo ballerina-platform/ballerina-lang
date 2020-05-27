@@ -52,22 +52,32 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "INDEXED_EXPRESSION",
+                                    "kind": "TYPED_BINDING_PATTERN",
                                     "children": [
                                         {
-                                            "kind": "BYTE_KEYWORD"
+                                            "kind": "ARRAY_TYPE_DESC",
+                                            "children": [
+                                                {
+                                                    "kind": "BYTE_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
                                         },
                                         {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "arr1"
+                                                }
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "arr1"
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"
@@ -83,6 +93,10 @@
                                                 },
                                                 {
                                                     "kind": "BACKTICK_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "TEMPLATE_STRING",
+                                                    "value": "aGVsbG8gYmFsbGVyaW5hICEhIQ\u003d\u003d;\n    byte[] arr2 \u003d base64 "
                                                 },
                                                 {
                                                     "kind": "BACKTICK_TOKEN"
@@ -113,12 +127,22 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "zl"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "q"
+                                    "kind": "TYPED_BINDING_PATTERN",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "zl"
+                                        },
+                                        {
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "q"
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN",
@@ -142,12 +166,22 @@
                                     "children": []
                                 },
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "rt"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "y"
+                                    "kind": "TYPED_BINDING_PATTERN",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "rt"
+                                        },
+                                        {
+                                            "kind": "CAPTURE_BINDING_PATTERN",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "y"
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 },
                                 {
                                     "kind": "EQUAL_TOKEN"

@@ -226,10 +226,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
             ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
-            ParserRuleContext.STRING_KEYWORD, ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD,
-            ParserRuleContext.NEW_KEYWORD, ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD,
-            ParserRuleContext.LEFT_ARROW_TOKEN, ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
-            ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION};
+            ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
+            ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
+            ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
+            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
+            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION};
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -917,13 +918,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
                     break;
                 case STRING_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
+                    hasMatch = nextToken.kind == SyntaxKind.STRING_KEYWORD;
                     break;
                 case BASE16_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
+                    hasMatch = nextToken.kind == SyntaxKind.BASE16_KEYWORD;
                     break;
                 case BASE64_KEYWORD:
-                    hasMatch = nextToken.kind == SyntaxKind.XML_KEYWORD;
+                    hasMatch = nextToken.kind == SyntaxKind.BASE64_KEYWORD;
                     break;
                 case ASTERISK:
                 case INFERRED_TYPE_DESC:
