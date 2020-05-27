@@ -1354,6 +1354,9 @@ public class BLangPackageBuilder {
             var.isDeclaredWithVar = true;
         } else {
             var.setTypeNode(this.typeNodeStack.pop());
+            if (var.getTypeNode().getKind() == NodeKind.ERROR_TYPE) {
+                var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).inferErrorType;
+            }
         }
         if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
@@ -2529,6 +2532,9 @@ public class BLangPackageBuilder {
             if (!isTypeNameProvided) {
                 var.isDeclaredWithVar = true;
             }
+        }
+        if (var.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).inferErrorType;
         }
 
         attachAnnotations(var);
