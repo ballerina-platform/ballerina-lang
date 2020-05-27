@@ -22,7 +22,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.StringTextDocument;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -311,7 +310,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            TextDocument doc = new StringTextDocument(documentManager.getFileContent(compilationPath));
+            TextDocument doc = TextDocuments.from(documentManager.getFileContent(compilationPath));
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
             reply.setSyntaxTree(mapGenerator.transform(syntaxTree.modulePart()));
