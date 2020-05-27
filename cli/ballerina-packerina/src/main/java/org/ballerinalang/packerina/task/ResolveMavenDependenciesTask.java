@@ -53,11 +53,9 @@ public class ResolveMavenDependenciesTask implements Task {
             if (library.getPath() == null) {
                 buildContext.out().println("Resolving " + library.getArtifactId());
                 try {
-
                     Dependency dependency = resolver.resolve(library.getGroupId(), library.getArtifactId(),
                             library.getVersion(), false);
                     library.setPath(Utils.getJarPath(targetRepo, dependency));
-
                 } catch (MavenResolverException e) {
                     buildContext.err().print("cannot resolve " + library.getArtifactId());
                 }
