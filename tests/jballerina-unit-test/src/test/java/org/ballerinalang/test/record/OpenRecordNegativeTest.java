@@ -111,7 +111,7 @@ public class OpenRecordNegativeTest {
                       22);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
-        validateError(result, index++, "ambiguous type '(A|B|C)'", 74, 25);
+        validateError(result, index, "ambiguous type '(A|B|C)'", 74, 25);
         // validateError(result, index, "unnecessary condition: expression will always evaluate to 'true'", 78, 9);
     }
 

@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,13 +40,13 @@ import java.util.PrimitiveIterator;
 )
 public class CodePointCompare {
 
-    public static long codePointCompare(Strand strand, String str1, String str2) {
+    public static long codePointCompare(Strand strand, BString str1, BString str2) {
         // Compare each code point of str1 with str2's codepoint at corresponding position.
         // If all all previous codepoints being equal and str1 is exhausted and str2 has more
         // codepoints remain in it then str2 is consider lager.
 
-        PrimitiveIterator.OfInt iterator1 = str1.codePoints().iterator();
-        PrimitiveIterator.OfInt iterator2 = str2.codePoints().iterator();
+        PrimitiveIterator.OfInt iterator1 = str1.getValue().codePoints().iterator();
+        PrimitiveIterator.OfInt iterator2 = str2.getValue().codePoints().iterator();
         while (iterator1.hasNext()) {
             if (!iterator2.hasNext()) {
                 return 1;

@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.tree.STAmbiguousListNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCaptureBindingPatternNode;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
@@ -444,6 +445,30 @@ public class BallerinaParser extends AbstractParser {
                 return parseMemberAccessKeyExprEnd();
             case OPTIONAL_CHAINING_TOKEN:
                 return parseOptionalChainingToken();
+            case RETRY_KEYWORD_RHS:
+                return parseRetryKeywordRhs((STNode) args[0]);
+            case RETRY_TYPE_PARAM_RHS:
+                return parseRetryTypeParamRhs((STNode) args[0], (STNode) args[1]);
+            case TRANSACTION_KEYWORD:
+                return parseTransactionKeyword();
+            case COMMIT_KEYWORD:
+                return parseCommitKeyword();
+            case RETRY_KEYWORD:
+                return parseRetryKeyword();
+            case ROLLBACK_KEYWORD:
+                return parseRollbackKeyword();
+            case RETRY_BODY:
+                return parseRetryBody();
+            case ENUM_MEMBER_INTERNAL_RHS:
+                return parseEnumMemberInternalRhs((STNode) args[0], (STNode) args[1]);
+            case ENUM_MEMBER_RHS:
+                return parseEnumMemberRhs();
+            case ENUM_MEMBER_NAME:
+                return parseEnumMember();
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER_END:
+                return parseListBindingPatternMemberOrTupleMemberEnd();
+            case LIST_BP_OR_TUPLE_TYPE_MEMBER:
+                return parseListBindingPatternOrTupleTypeAmbiguousMember();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -524,6 +549,7 @@ public class BallerinaParser extends AbstractParser {
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
             case SERVICE_KEYWORD:
+            case ENUM_KEYWORD:
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
                 break;
@@ -596,6 +622,7 @@ public class BallerinaParser extends AbstractParser {
             case IMPORT_KEYWORD:
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
+            case ENUM_KEYWORD:
                 // TODO: add type binding pattern
                 break;
             case IDENTIFIER_TOKEN:
@@ -1180,8 +1207,9 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidQualifier(qualifier);
                     return parseServiceDecl(metadata);
                 }
-
                 return parseModuleVarDecl(metadata, qualifier);
+            case ENUM_KEYWORD:
+                return parseEnumDeclaration(metadata, getQualifier(qualifier));
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -3258,6 +3286,9 @@ public class BallerinaParser extends AbstractParser {
             case FORK_KEYWORD:
             case FOREACH_KEYWORD:
             case XMLNS_KEYWORD:
+            case TRANSACTION_KEYWORD:
+            case RETRY_KEYWORD:
+            case ROLLBACK_KEYWORD:
 
                 // action-statements
             case CHECK_KEYWORD:
@@ -3267,6 +3298,7 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
+            case COMMIT_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -3375,9 +3407,20 @@ public class BallerinaParser extends AbstractParser {
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
             case FROM_KEYWORD:
+            case COMMIT_KEYWORD:
                 return parseExpressionStament(tokenKind, getAnnotations(annots));
             case XMLNS_KEYWORD:
                 return parseXMLNamepsaceDeclaration();
+            case TRANSACTION_KEYWORD:
+                return parseTransactionStatement();
+            case RETRY_KEYWORD:
+                return parseRetryStatement();
+            case ROLLBACK_KEYWORD:
+                return parseRollbackStatement();
+            case OPEN_BRACKET_TOKEN:
+                // any statement starts with `[` can be either a var-decl with tuple type
+                // or a destructuring assignment with list-binding-pattern.
+                return parseDestructureAssignmentOrVarDecl(getAnnotations(annots));
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
@@ -3501,9 +3544,6 @@ public class BallerinaParser extends AbstractParser {
                 semicolon = parseSemicolon();
                 break;
             case SEMICOLON_TOKEN:
-                if (isModuleVar) {
-                    this.errorHandler.reportMissingTokenError("assignment required");
-                }
                 assign = STNodeFactory.createEmptyNode();
                 expr = STNodeFactory.createEmptyNode();
                 semicolon = parseSemicolon();
@@ -3596,6 +3636,7 @@ public class BallerinaParser extends AbstractParser {
         switch (expression.kind) {
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
+            case LIST_BINDING_PATTERN:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -3741,6 +3782,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseReceiveAction();
             case WAIT_KEYWORD:
                 return parseWaitAction();
+            case COMMIT_KEYWORD:
+                return parseCommitAction();
+            case TRANSACTIONAL_KEYWORD:
+                return parseTransactionalExpression();
             default:
                 break;
         }
@@ -5318,7 +5363,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseReturnStatementRhs(STNode returnKeyword) {
         STNode expr;
-        STNode semicolon;
         STToken token = peek();
 
         switch (token.kind) {
@@ -5330,7 +5374,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
-        semicolon = parseSemicolon();
+        STNode semicolon = parseSemicolon();
         return STNodeFactory.createReturnStatementNode(returnKeyword, expr, semicolon);
     }
 
@@ -6729,6 +6773,7 @@ public class BallerinaParser extends AbstractParser {
             case RECEIVE_ACTION:
             case WAIT_ACTION:
             case QUERY_ACTION:
+            case COMMIT_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -6829,7 +6874,7 @@ public class BallerinaParser extends AbstractParser {
                 name = parseDefaultKeyword();
                 return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
-                name = parseFunctionName();
+                name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                 break;
             default:
                 STToken token = peek();
@@ -6881,7 +6926,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseDefaultKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
-            return consume();
+            return STNodeFactory.createSimpleNameReferenceNode(consume());
         } else {
             Solution sol = recover(token, ParserRuleContext.DEFAULT_KEYWORD);
             return sol.recoveredNode;
@@ -7830,7 +7875,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return true;
             default:
-                if (isSingletonTypeDescStart(nodeKind, false)) {
+                if (isSingletonTypeDescStart(nodeKind, true)) {
                     return true;
                 }
                 return isSimpleType(nodeKind);
@@ -9199,6 +9244,11 @@ public class BallerinaParser extends AbstractParser {
         // Parse first typedesc, that has no leading comma
         STNode typeDesc = parseTypeDescriptorInternal(ParserRuleContext.TYPE_DESC_IN_TUPLE);
 
+        return parseTupleTypeMembers(typeDesc, typeDescList);
+    }
+
+    private STNode parseTupleTypeMembers(STNode typeDesc, List<STNode> typeDescList) {
+        STToken nextToken;
         // Parse the remaining type descs
         nextToken = peek();
         STNode tupleMemberRhs;
@@ -9751,15 +9801,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isSingletonTypeDescStart(SyntaxKind tokenKind, boolean inTypeDescCtx) {
-        STToken nextToken = peek();
-        STToken nextNextToken, nextNextNextToken;
-        if (tokenKind != nextToken.kind) { // this will be true if and only if we come here after recovering
-            nextNextToken = nextToken;
-            nextNextNextToken = peek(2);
-        } else {
-            nextNextToken = peek(2);
-            nextNextNextToken = peek(3);
-        }
+        STToken nextNextToken = getNextNextToken(tokenKind);
         switch (tokenKind) {
             case STRING_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
@@ -9775,13 +9817,7 @@ public class BallerinaParser extends AbstractParser {
                 return false;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
-                if (inTypeDescCtx) {
-                    return true;
-                }
-                if (isIntOrFloat(nextNextToken) && nextNextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    return true;
-                }
-                // fall through
+                return isIntOrFloat(nextNextToken);
             default:
                 return false;
         }
@@ -9897,40 +9933,42 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseListBindingPattern() {
         startContext(ParserRuleContext.LIST_BINDING_PATTERN);
-        ArrayList<STNode> bindingPatterns = new ArrayList<>();
+        List<STNode> bindingPatternsList = new ArrayList<>();
         STNode openBracket = parseOpenBracket();
+        STNode listBindingPatternMember = parseListBindingPatternMember();
+        bindingPatternsList.add(listBindingPatternMember);
+        STNode listBindingPattern = parseListBindingPattern(openBracket, listBindingPatternMember, bindingPatternsList);
+        endContext();
+        return listBindingPattern;
+    }
 
-        STNode listBindingPatternMember = parselistBindingPatternMember();
-        bindingPatterns.add(listBindingPatternMember);
-
-        // parsing the main chunck of list-binding-pattern
+    private STNode parseListBindingPattern(STNode openBracket, STNode firstMember, List<STNode> bindingPatterns) {
+        STNode member = firstMember;
+        // parsing the main chunk of list-binding-pattern
         STToken token = peek(); // get next valid token
         STNode listBindingPatternRhs = null;
-        while (!isEndOfListBindingPattern(token.kind) &&
-                listBindingPatternMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
+        while (!isEndOfListBindingPattern(token.kind) && member.kind != SyntaxKind.REST_BINDING_PATTERN) {
             listBindingPatternRhs = parseListBindingpatternRhs(token.kind);
             if (listBindingPatternRhs == null) {
                 break;
             }
 
             bindingPatterns.add(listBindingPatternRhs);
-            listBindingPatternMember = parselistBindingPatternMember();
-            bindingPatterns.add(listBindingPatternMember);
+            member = parseListBindingPatternMember();
+            bindingPatterns.add(member);
             token = peek();
         }
 
-        STNode closeBracket = parseCloseBracket();
-
-        // seperating out the rest-binding-pattern
+        // separating out the rest-binding-pattern
         STNode restBindingPattern;
-        if (listBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+        if (member.kind == SyntaxKind.REST_BINDING_PATTERN) {
             restBindingPattern = bindingPatterns.remove(bindingPatterns.size() - 1);
         } else {
             restBindingPattern = STNodeFactory.createEmptyNode();
         }
 
+        STNode closeBracket = parseCloseBracket();
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
-        endContext();
         return STNodeFactory.createListBindingPatternNode(openBracket, bindingPatternsNode, restBindingPattern,
                 closeBracket);
     }
@@ -10005,7 +10043,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return rest-binding-pattern node
      */
-    private STNode parselistBindingPatternMember() {
+    private STNode parseListBindingPatternMember() {
         STToken token = peek();
         switch (token.kind) {
             case DECIMAL_INTEGER_LITERAL:
@@ -10364,7 +10402,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfReceiveFields(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
                 return true;
             default:
                 return false;
@@ -10856,5 +10894,693 @@ public class BallerinaParser extends AbstractParser {
         endContext();
         STNode endExpr = parseExpression(OperatorPrecedence.ELVIS_CONDITIONAL, true, false);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    /**
+     * Parse enum declaration.
+     * <p>
+     * module-enum-decl :=
+     * metadata
+     * [public] enum identifier { enum-member (, enum-member)* }
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     * 
+     * @param metadata
+     * @param qualifier
+     *
+     * @return Parsed enum node.
+     */
+    private STNode parseEnumDeclaration(STNode metadata, STNode qualifier) {
+        startContext(ParserRuleContext.MODULE_ENUM_DECLARATION);
+        STNode enumKeywordToken = parseEnumKeyword();
+        STNode identifier = parseIdentifier(ParserRuleContext.MODULE_ENUM_NAME);
+        STNode openBraceToken = parseOpenBrace();
+        STNode enumMemberList = parseEnumMemberList();
+        STNode closeBraceToken = parseCloseBrace();
+
+        endContext();
+        return STNodeFactory.createEnumDeclarationNode(metadata, qualifier, enumKeywordToken, identifier,
+                openBraceToken, enumMemberList, closeBraceToken);
+    }
+
+    /**
+     * Parse 'enum' keyword.
+     *
+     * @return enum keyword node
+     */
+    private STNode parseEnumKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ENUM_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ENUM_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse enum member list.
+     * <p>
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     *
+     * @return enum member list node.
+     */
+    private STNode parseEnumMemberList() {
+        startContext(ParserRuleContext.ENUM_MEMBER_LIST);
+        List<STNode> enumMemberList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Report an empty enum member list
+        if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            this.errorHandler.reportMissingTokenError("enum member list cannot be empty");
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first enum member, that has no leading comma
+        STNode enumMember = parseEnumMember();
+
+        // Parse the remaining enum members
+        nextToken = peek();
+        STNode enumMemberRhs;
+        while (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
+            enumMemberRhs = parseEnumMemberRhs(nextToken.kind);
+            if (enumMemberRhs == null) {
+                break;
+            }
+            enumMemberList.add(enumMember);
+            enumMemberList.add(enumMemberRhs);
+            enumMember = parseEnumMember();
+            nextToken = peek();
+        }
+
+        enumMemberList.add(enumMember);
+
+        endContext();
+        return STNodeFactory.createNodeList(enumMemberList);
+    }
+
+    /**
+     * Parse enum member.
+     * <p>
+     * enum-member := metadata identifier [= const-expr]
+     * </p>
+     *
+     * @return Parsed enum member node.
+     */
+    private STNode parseEnumMember() {
+        STToken nextToken = peek();
+        STNode metadata;
+        switch (nextToken.kind) {
+            case DOCUMENTATION_LINE:
+            case AT_TOKEN:
+                metadata = parseMetaData(nextToken.kind);
+                break;
+            default:
+                metadata = STNodeFactory.createEmptyNode();
+        }
+
+        STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER_NAME);
+        return parseEnumMemberInternalRhs(metadata, identifierNode);
+    }
+
+    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode) {
+        return parseEnumMemberInternalRhs(metadata, identifierNode, peek().kind);
+    }
+
+    private STNode parseEnumMemberInternalRhs(STNode metadata, STNode identifierNode, SyntaxKind nextToken) {
+        STNode equalToken, constExprNode;
+        switch (nextToken) {
+            case EQUAL_TOKEN:
+                equalToken = parseAssignOp();
+                constExprNode = parseExpression();
+                break;
+            case COMMA_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                equalToken = STNodeFactory.createEmptyNode();
+                constExprNode = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution =
+                        recover(peek(), ParserRuleContext.ENUM_MEMBER_INTERNAL_RHS, metadata, identifierNode);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberInternalRhs(metadata, identifierNode, solution.tokenKind);
+        }
+
+        return STNodeFactory.createEnumMemberNode(metadata, identifierNode, equalToken, constExprNode);
+    }
+
+    /**
+     * Parse transaction statement.
+     * <p>
+     * <code>transaction-stmt := "transaction" block-stmt ;</code>
+     * 
+     * @return Transaction statement node
+     */
+    private STNode parseTransactionStatement() {
+        startContext(ParserRuleContext.TRANSACTION_STMT);
+        STNode transactionKeyword = parseTransactionKeyword();
+        STNode blockStmt = parseBlockNode();
+        endContext();
+        return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt);
+    }
+
+    /**
+     * Parse transaction keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseTransactionKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRANSACTION_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TRANSACTION_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse commit action.
+     * <p>
+     * <code>commit-action := "commit"</code>
+     * 
+     * @return Commit action node
+     */
+    private STNode parseCommitAction() {
+        STNode commitKeyword = parseCommitKeyword();
+        return STNodeFactory.createCommitActionNode(commitKeyword);
+    }
+
+    /**
+     * Parse commit keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseCommitKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COMMIT_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.COMMIT_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse retry statement.
+     * <p>
+     * <code>
+     * retry-stmt := "retry" retry-spec block-stmt
+     * <br/>
+     * retry-spec :=  [type-parameter] [ "(" arg-list ")" ]
+     * </code>
+     * 
+     * @return Retry statement node
+     */
+    private STNode parseRetryStatement() {
+        startContext(ParserRuleContext.RETRY_STMT);
+        STNode retryKeyword = parseRetryKeyword();
+        STNode retryStmt = parseRetryKeywordRhs(retryKeyword);
+        endContext();
+        return retryStmt;
+    }
+
+    private STNode parseRetryKeywordRhs(STNode retryKeyword) {
+        return parseRetryKeywordRhs(peek().kind, retryKeyword);
+    }
+
+    private STNode parseRetryKeywordRhs(SyntaxKind nextTokenKind, STNode retryKeyword) {
+        switch (nextTokenKind) {
+            case LT_TOKEN:
+                STNode typeParam = parseTypeParameter();
+                return parseRetryTypeParamRhs(retryKeyword, typeParam);
+            case OPEN_PAREN_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case TRANSACTION_KEYWORD:
+                typeParam = STNodeFactory.createEmptyNode();
+                return parseRetryTypeParamRhs(nextTokenKind, retryKeyword, typeParam);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.RETRY_KEYWORD_RHS, retryKeyword);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseRetryKeywordRhs(solution.tokenKind, retryKeyword);
+        }
+    }
+
+    private STNode parseRetryTypeParamRhs(STNode retryKeyword, STNode typeParam) {
+        return parseRetryTypeParamRhs(peek().kind, retryKeyword, typeParam);
+    }
+
+    private STNode parseRetryTypeParamRhs(SyntaxKind nextTokenKind, STNode retryKeyword, STNode typeParam) {
+        STNode args;
+        switch (nextTokenKind) {
+            case OPEN_PAREN_TOKEN:
+                args = parseParenthesizedArgList();
+                break;
+            case OPEN_BRACE_TOKEN:
+            case TRANSACTION_KEYWORD:
+                args = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.RETRY_TYPE_PARAM_RHS, retryKeyword, typeParam);
+                return parseRetryTypeParamRhs(solution.tokenKind, retryKeyword, typeParam);
+        }
+
+        STNode blockStmt = parseRetryBody();
+        return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt);
+    }
+
+    private STNode parseRetryBody() {
+        return parseRetryBody(peek().kind);
+    }
+
+    private STNode parseRetryBody(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case OPEN_BRACE_TOKEN:
+                return parseBlockNode();
+            case TRANSACTION_KEYWORD:
+                return parseTransactionStatement();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.RETRY_BODY);
+                return parseRetryBody(solution.tokenKind);
+        }
+    }
+
+    private STNode parseEnumMemberRhs() {
+        return parseEnumMemberRhs(peek().kind);
+    }
+
+    private STNode parseEnumMemberRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ENUM_MEMBER_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseEnumMemberRhs(solution.tokenKind);
+        }
+    }
+
+    /**
+     * Parse retry keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseRetryKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RETRY_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.RETRY_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse transaction statement.
+     * <p>
+     * <code>rollback-stmt := "rollback" [expression] ";"</code>
+     * 
+     * @return Rollback statement node
+     */
+    private STNode parseRollbackStatement() {
+        startContext(ParserRuleContext.ROLLBACK_STMT);
+        STNode rollbackKeyword = parseRollbackKeyword();
+        STNode expression;
+        if (peek().kind == SyntaxKind.SEMICOLON_TOKEN) {
+            expression = STNodeFactory.createEmptyNode();
+        } else {
+            expression = parseExpression();
+        }
+
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createRollbackStatementNode(rollbackKeyword, expression, semicolon);
+    }
+
+    /**
+     * Parse rollback keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseRollbackKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ROLLBACK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse transactional expression.
+     * <p>
+     * <code>transactional-expr := "transactional"</code>
+     * 
+     * @return Transactional expression node
+     */
+    private STNode parseTransactionalExpression() {
+        STNode transactionalKeyword = parseTransactionalKeyword();
+        return STNodeFactory.createTransactionalExpressionNode(transactionalKeyword);
+    }
+
+    /**
+     * Parse transactional keyword.
+     *
+     * @return parsed node
+     */
+    private STNode parseTransactionalKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseDestructureAssignmentOrVarDecl(STNode annots) {
+        startContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT);
+        STNode stmt;
+        STNode listBindingPatternOrTupleType = parseListBindingPatternOrTupleType(true);
+        if (listBindingPatternOrTupleType.kind == SyntaxKind.LIST_BINDING_PATTERN) {
+            switchContext(ParserRuleContext.ASSIGNMENT_STMT);
+            stmt = parseAssignmentStmtRhs(listBindingPatternOrTupleType);
+        } else {
+            switchContext(ParserRuleContext.VAR_DECL_STMT);
+            STNode varName = parseVariableName();
+            stmt = parseVarDeclRhs(annots, STNodeFactory.createEmptyNode(), listBindingPatternOrTupleType, varName,
+                    false);
+        }
+
+        endContext();
+        return stmt;
+    }
+
+    private STNode parseListBindingPatternOrTupleType(boolean isRoot) {
+        startContext(ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_DESC);
+        STNode openBracket = parseOpenBracket();
+        List<STNode> memberList = new ArrayList<>();
+        // we start parsing members, keeping their type as ambiguous.
+        SyntaxKind expectedMemberType = SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC;
+
+        // Return an empty list
+        STToken nextToken = peek();
+        if (!isEndOfReceiveFields(nextToken.kind)) {
+            // Parse the members
+            STNode member;
+            STNode memberEnd;
+            nextToken = peek();
+            while (!isEndOfReceiveFields(nextToken.kind)) {
+                // Parse member
+                member = parseListBindingPatternOrTupleTypeMember(expectedMemberType);
+                expectedMemberType = getParsingNodeType(member);
+
+                switch (expectedMemberType) {
+                    case TUPLE_TYPE_DESC:
+                        // If the member type was figured out as a tuple-type-desc member, then parse the
+                        // remaining members as tuple type members and be done with it.
+                        return parseAsTupleTypeDesc(openBracket, memberList, member);
+                    case LIST_BINDING_PATTERN:
+                        // If the member type was figured out as a binding pattern, then parse the
+                        // remaining members as binding patterns and be done with it.
+                        return parseAsListBindingPattern(openBracket, memberList, member);
+                    case LIST_BP_OR_TUPLE_TYPE_DESC:
+                    default:
+                        memberList.add(member);
+                        break;
+                }
+
+                // Parse separator
+                memberEnd = parseListBindingPatternMemberOrTupleMemberEnd();
+                if (memberEnd == null) {
+                    break;
+                }
+                memberList.add(memberEnd);
+                nextToken = peek();
+            }
+        }
+
+        // We reach here if it is still ambiguous, even after parsing the full list.
+        STNode closeBracket = parseCloseBracket();
+        STNode listBindingPatternOrTupleTypeDesc =
+                parseListBindingPatternOrTupleType(openBracket, memberList, closeBracket, isRoot);
+        endContext();
+        return listBindingPatternOrTupleTypeDesc;
+    }
+
+    private STNode parseListBindingPatternOrTupleTypeMember(SyntaxKind expectedNodeType) {
+        switch (expectedNodeType) {
+            case TUPLE_TYPE_DESC:
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            case LIST_BINDING_PATTERN:
+                return parseBindingPattern();
+            case LIST_BP_OR_TUPLE_TYPE_DESC:
+            default:
+                return parseListBindingPatternOrTupleTypeAmbiguousMember();
+        }
+    }
+
+    private STNode parseListBindingPatternOrTupleTypeAmbiguousMember() {
+        return parseListBindingPatternOrTupleTypeAmbiguousMember(peek().kind);
+    }
+
+    /**
+     * Parse a member of a list-binding-pattern or tuple-type-desc, when the parent is ambiguous.
+     * 
+     * @param nextTokenKind Kind of the next token.
+     * @return Parsed node
+     */
+    private STNode parseListBindingPatternOrTupleTypeAmbiguousMember(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case OPEN_BRACKET_TOKEN:
+                // we don't know which one
+                return parseListBindingPatternOrTupleType(false);
+            case IDENTIFIER_TOKEN:
+                STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+                nextTokenKind = peek().kind;
+                if (isWildcardBP(identifier)) {
+                    return STNodeFactory.createCaptureBindingPatternNode(identifier);
+                }
+                if (isTypeFollowingToken(nextTokenKind)) {
+                    return parseComplexTypeDescriptor(identifier, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                }
+                if (nextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN) {
+                    // error|T (args) --> functional-binding-pattern
+                    return parseListBindingPatternMember();
+                }
+                if (nextTokenKind == SyntaxKind.ELLIPSIS_TOKEN) {
+                    STNode ellipsis = parseEllipsis();
+                    return STNodeFactory.createRestDescriptorNode(identifier, ellipsis);
+                }
+
+                // we don't know which one
+                return identifier;
+            case OPEN_BRACE_TOKEN:
+                // mapping-binding-pattern
+                return parseListBindingPatternMember();
+            case ERROR_KEYWORD:
+                if (getNextNextToken(nextTokenKind).kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+                    // functional-binding-pattern
+                    return parseListBindingPatternMember();
+                }
+
+                // error-type-desc
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            case ELLIPSIS_TOKEN:
+                return parseListBindingPatternMember();
+            default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+                }
+
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseListBindingPatternOrTupleTypeAmbiguousMember(solution.tokenKind);
+        }
+    }
+
+    private STNode parseAsTupleTypeDesc(STNode openBracket, List<STNode> memberList, STNode member) {
+        memberList = getTypeDescList(memberList);
+        switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+        startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        STNode tupleTypeMembers = parseTupleTypeMembers(member, memberList);
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        endContext();
+        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, tupleTypeMembers, closeBracket);
+    }
+
+    private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList, STNode member) {
+        memberList = getBindingPattern(memberList);
+        switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
+        memberList.add(member);
+        STNode listBindingPattern = parseListBindingPattern(openBracket, member, memberList);
+        endContext();
+        return listBindingPattern;
+    }
+
+    private List<STNode> getTypeDescList(List<STNode> ambibuousList) {
+        List<STNode> typeDescList = new ArrayList<STNode>();
+        for (STNode item : ambibuousList) {
+            // Here we assume that items in ambiguous list can only be
+            // either simple name references, or list of simple name
+            // references (i.e: another ambiguous list).
+            if (item.kind != SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                typeDescList.add(item);
+                continue;
+            }
+
+            STAmbiguousListNode innerList = (STAmbiguousListNode) item;
+            STNode memberTypeDescList = STNodeFactory.createNodeList(innerList.members);
+            STNode typeDesc = STNodeFactory.createTupleTypeDescriptorNode(innerList.openBracket, memberTypeDescList,
+                    innerList.closeBracket);
+            typeDescList.add(typeDesc);
+        }
+
+        return typeDescList;
+    }
+
+    private List<STNode> getBindingPattern(List<STNode> ambibuousList) {
+        List<STNode> typeDescList = new ArrayList<STNode>();
+        for (STNode item : ambibuousList) {
+            // Here we assume that items in ambiguous list can only be
+            // either simple name references, or list of simple name
+            // references (i.e: another ambiguous list).
+            if (item.kind != SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC) {
+                typeDescList.add(item);
+                continue;
+            }
+
+            STAmbiguousListNode innerList = (STAmbiguousListNode) item;
+            STNode memberBindingPatterns = STNodeFactory.createNodeList(innerList.members);
+            STNode restBindingPattern = STNodeFactory.createEmptyNode();
+            STNode typeDesc = STNodeFactory.createListBindingPatternNode(innerList.openBracket, memberBindingPatterns,
+                    restBindingPattern, innerList.closeBracket);
+            typeDescList.add(typeDesc);
+        }
+
+        return typeDescList;
+    }
+
+    private STNode parseListBindingPatternMemberOrTupleMemberEnd() {
+        return parseListBindingPatternMemberOrTupleMemberEnd(peek().kind);
+    }
+
+    private STNode parseListBindingPatternMemberOrTupleMemberEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.LIST_BP_OR_TUPLE_TYPE_MEMBER_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseListBindingPatternMemberOrTupleMemberEnd(solution.tokenKind);
+        }
+    }
+
+    private boolean isTypeFollowingToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case OPEN_BRACKET_TOKEN: // array type
+            case PIPE_TOKEN: // union type
+            case BITWISE_AND_TOKEN: // intersection type
+            case QUESTION_MARK_TOKEN: // optional type
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private SyntaxKind getParsingNodeType(STNode memberNode) {
+        if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+                memberNode.kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0) {
+            return SyntaxKind.TUPLE_TYPE_DESC;
+        }
+
+        switch (memberNode.kind) {
+            case CAPTURE_BINDING_PATTERN:
+            case LIST_BINDING_PATTERN:
+            case REST_BINDING_PATTERN:
+                return SyntaxKind.LIST_BINDING_PATTERN;
+            case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
+            case REST_TYPE:
+                return SyntaxKind.TUPLE_TYPE_DESC;
+            case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
+            case LIST_BP_OR_TUPLE_TYPE_DESC: // member is again ambiguous
+            default:
+                return SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC;
+        }
+    }
+
+    private STNode parseListBindingPatternOrTupleType(STNode openBracket, List<STNode> members, STNode closeBracket,
+                                                      boolean isRoot) {
+        if (!isRoot) {
+            // This means, currently parsing ambiguous list, is a child of another ambiguous
+            // list. So parse it as an ambiguous list for now. Once the ambiguity is broken,
+            // it will revisit this node and convert to the correct node, if required.
+            return new STAmbiguousListNode(SyntaxKind.LIST_BP_OR_TUPLE_TYPE_DESC, openBracket, members, closeBracket);
+        }
+
+        switch (peek().kind) {
+            case EQUAL_TOKEN:
+                STNode memberBindingPatterns = STNodeFactory.createNodeList(getBindingPattern(members));
+                STNode restBindingPattern = STNodeFactory.createEmptyNode();
+                return STNodeFactory.createListBindingPatternNode(openBracket, memberBindingPatterns,
+                        restBindingPattern, closeBracket);
+            default:
+                if (members.isEmpty()) {
+                    this.errorHandler.reportMissingTokenError("missing member");
+                }
+                STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
+                return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
+        }
+    }
+
+    private boolean isWildcardBP(STNode node) {
+        if (node.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return false;
+        }
+
+        STToken nameToken = (STToken) ((STSimpleNameReferenceNode) node).name;
+        return "_".equals(nameToken.text());
     }
 }

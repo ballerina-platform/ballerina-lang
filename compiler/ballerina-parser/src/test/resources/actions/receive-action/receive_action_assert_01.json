@@ -47,7 +47,7 @@
                             "kind": "ACTION_STATEMENT",
                             "children": [
                                 {
-                                    "kind": "RECEIVE_SEND_ACTION",
+                                    "kind": "RECEIVE_ACTION",
                                     "children": [
                                         {
                                             "kind": "LEFT_ARROW_TOKEN"
@@ -66,7 +66,7 @@
                             "kind": "ACTION_STATEMENT",
                             "children": [
                                 {
-                                    "kind": "RECEIVE_SEND_ACTION",
+                                    "kind": "RECEIVE_ACTION",
                                     "children": [
                                         {
                                             "kind": "LEFT_ARROW_TOKEN"
@@ -93,7 +93,7 @@
                                     "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "RECEIVE_SEND_ACTION",
+                                    "kind": "RECEIVE_ACTION",
                                     "children": [
                                         {
                                             "kind": "LEFT_ARROW_TOKEN"
@@ -120,7 +120,7 @@
                                     "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "RECEIVE_SEND_ACTION",
+                                    "kind": "RECEIVE_ACTION",
                                     "children": [
                                         {
                                             "kind": "LEFT_ARROW_TOKEN"
@@ -163,7 +163,7 @@
                                     "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "RECEIVE_SEND_ACTION",
+                                    "kind": "RECEIVE_ACTION",
                                     "children": [
                                         {
                                             "kind": "LEFT_ARROW_TOKEN"
@@ -225,7 +225,7 @@
                             "kind": "ACTION_STATEMENT",
                             "children": [
                                 {
-                                    "kind": "RECEIVE_SEND_ACTION",
+                                    "kind": "RECEIVE_ACTION",
                                     "children": [
                                         {
                                             "kind": "LEFT_ARROW_TOKEN"

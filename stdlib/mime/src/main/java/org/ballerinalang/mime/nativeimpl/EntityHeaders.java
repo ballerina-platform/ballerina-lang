@@ -147,13 +147,14 @@ public class EntityHeaders {
     }
 
     private static HttpHeaders getHeadersBasedOnPosition(ObjectValue entityObj, Object position) {
-        return position.equals(LEADING_HEADER) ? (HttpHeaders) entityObj.getNativeData(
-                ENTITY_HEADERS) : (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+        return position.equals(StringUtils.fromString(LEADING_HEADER)) ?
+                (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS) :
+                (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
     }
 
     private static HttpHeaders getOrCreateHeadersBasedOnPosition(ObjectValue entityObj, Object position) {
-        return position.equals(LEADING_HEADER) ? getHeaders(entityObj) : getTrailerHeaders(
-                entityObj);
+        return position.equals(StringUtils.fromString(LEADING_HEADER)) ?
+                getHeaders(entityObj) : getTrailerHeaders(entityObj);
     }
 
     private static HttpHeaders getHeaders(ObjectValue entityObj) {

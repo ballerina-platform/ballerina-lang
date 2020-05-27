@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * <p>
@@ -34,9 +35,9 @@ public interface ObjectValue extends BObject, RefValue {
 
     FutureValue start(Strand strand, String funcName, Object... args);
 
-    MapValue getMapValue(String fieldName);
+    MapValue getMapValue(BString fieldName);
 
-    ObjectValue getObjectValue(String fieldName);
+    ObjectValue getObjectValue(BString fieldName);
 
-    ArrayValue getArrayValue(String fieldName);
+    ArrayValue getArrayValue(BString fieldName);
 }

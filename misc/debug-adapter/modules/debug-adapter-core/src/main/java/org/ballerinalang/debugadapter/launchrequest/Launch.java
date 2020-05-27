@@ -16,7 +16,7 @@
 
 package org.ballerinalang.debugadapter.launchrequest;
 
-import com.sun.jdi.VirtualMachine;
+import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 
 import java.io.IOException;
 
@@ -24,7 +24,9 @@ import java.io.IOException;
  * Launcher interface.
  */
 public interface Launch {
-    VirtualMachine attachToLaunchedProcess();
+
+    void attachToLaunchedProcess(JBallerinaDebugServer server);
+
     Process start() throws IOException;
 }
 

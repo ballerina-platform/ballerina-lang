@@ -39,12 +39,10 @@ import java.io.IOException;
  */
 public class RetryHandshakeListener implements ExtendedHandshakeListener {
 
-    private RetryContext retryContext;
+    private final RetryContext retryContext;
     private final WebSocketService wsService;
-    private ExtendedHandshakeListener handshakeListener;
+    private final ExtendedHandshakeListener handshakeListener;
     private static final Logger logger = LoggerFactory.getLogger(RetryHandshakeListener.class);
-    public static final String CONNECTED_TO = "Connected to ";
-    public static final String LOG_MESSAGE = "{} {}";
 
     public RetryHandshakeListener(ExtendedHandshakeListener handshakeListener,
                                   RetryContext retryContext, WebSocketService wsService) {
@@ -57,7 +55,7 @@ public class RetryHandshakeListener implements ExtendedHandshakeListener {
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
         handshakeListener.onSuccess(webSocketConnection, response);
         if (logger.isDebugEnabled()) {
-            logger.debug(LOG_MESSAGE, CONNECTED_TO, getWebSocketClient().getStringValue(WebSocketConstants.
+            logger.debug("{} {}", "Connected to ", getWebSocketClient().getStringValue(WebSocketConstants.
                     CLIENT_URL_CONFIG));
         }
         retryContext.setFirstConnectionEstablished();

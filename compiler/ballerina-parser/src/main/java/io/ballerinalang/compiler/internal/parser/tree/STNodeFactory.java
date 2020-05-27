@@ -1781,6 +1781,38 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endExpression);
     }
 
+    public static STNode createEnumDeclarationNode(
+            STNode metadata,
+            STNode qualifier,
+            STNode enumKeywordToken,
+            STNode identifier,
+            STNode openBraceToken,
+            STNode enumMemberList,
+            STNode closeBraceToken) {
+
+        return new STEnumDeclarationNode(
+                metadata,
+                qualifier,
+                enumKeywordToken,
+                identifier,
+                openBraceToken,
+                enumMemberList,
+                closeBraceToken);
+    }
+
+    public static STNode createEnumMemberNode(
+            STNode metadata,
+            STNode identifier,
+            STNode equalToken,
+            STNode constExprNode) {
+
+        return new STEnumMemberNode(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode);
+    }
+
     public static STNode createArrayTypeDescriptorNode(
             STNode memberTypeDesc,
             STNode openBracket,
@@ -1792,6 +1824,53 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBracket,
                 arrayLength,
                 closeBracket);
+    }
+
+    public static STNode createTransactionStatementNode(
+            STNode transactionKeyword,
+            STNode blockStatement) {
+
+        return new STTransactionStatementNode(
+                transactionKeyword,
+                blockStatement);
+    }
+
+    public static STNode createRollbackStatementNode(
+            STNode rollbackKeyword,
+            STNode expression,
+            STNode semicolon) {
+
+        return new STRollbackStatementNode(
+                rollbackKeyword,
+                expression,
+                semicolon);
+    }
+
+    public static STNode createRetryStatementNode(
+            STNode retryKeyword,
+            STNode typeParameter,
+            STNode arguments,
+            STNode retryBody) {
+
+        return new STRetryStatementNode(
+                retryKeyword,
+                typeParameter,
+                arguments,
+                retryBody);
+    }
+
+    public static STNode createCommitActionNode(
+            STNode commitKeyword) {
+
+        return new STCommitActionNode(
+                commitKeyword);
+    }
+
+    public static STNode createTransactionalExpressionNode(
+            STNode transactionalKeyword) {
+
+        return new STTransactionalExpressionNode(
+                transactionalKeyword);
     }
 }
 

@@ -66,7 +66,7 @@ public class Publish {
                                                                 NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                         return Utils.createNatsError("Cannot find subscription configuration");
                     }
-                    String replyToSubject = subscriptionConfig.getStringValue(Constants.SUBJECT);
+                    String replyToSubject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
                     natsConnection.publish(subject, replyToSubject, byteContent);
                 } else {
                     natsConnection.publish(subject, byteContent);
