@@ -23,11 +23,14 @@ import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,6 +49,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTE
  */
 public class ChoreoClientHolder {
     private static final Logger LOGGER = LogFactory.getLogger();
+    public static final String PROJECT_SECRET_CONFIG_KEY = "PROJECT_SECRET";
 
     private static ChoreoClient choreoClient;
     private static Set<AutoCloseable> choreoClientDependents = new HashSet<>();
@@ -73,7 +77,14 @@ public class ChoreoClientHolder {
                     String.valueOf(DEFAULT_REPORTER_PORT)));
             boolean useSSL = Boolean.parseBoolean(configRegistry.getConfigOrDefault(
                     getFullQualifiedConfig(REPORTER_USE_SSL_CONFIG), String.valueOf(DEFAULT_REPORTER_USE_SSL)));
-            String appSecret = getAppSecret(configRegistry);
+
+            String appSecret;
+            try {
+                appSecret = getAppSecret(configRegistry);
+            } catch (IOException e) {
+                LOGGER.error("Failed to initialize Choreo client. " + e.getMessage());
+                return null;
+            }
 
             String nodeId = getNodeId();
             initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, nodeId, appSecret);
@@ -96,7 +107,7 @@ public class ChoreoClientHolder {
         return choreoClient;
     }
 
-    private static String getAppSecret(ConfigRegistry configRegistry) {
+    private static String getAppSecret(ConfigRegistry configRegistry) throws IOException {
         String appSecretFromConfig = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
                 EMPTY_APPLICATION_SECRET);
 
@@ -107,8 +118,32 @@ public class ChoreoClientHolder {
         }
     }
 
-    private static String locallyStoredAppSecret() {
-        return UUID.randomUUID().toString();
+    private static String locallyStoredAppSecret() throws IOException {
+        final String workingDir = System.getProperty("user.dir");
+        Path projectPropertiesFileLocation = Paths.get(workingDir + File.separator + ".choreoProject");
+        if (Files.exists(projectPropertiesFileLocation)) {
+            return readStoreSecret(projectPropertiesFileLocation);
+        } else {
+            return generateAndStoreSecret(projectPropertiesFileLocation);
+        }
+    }
+
+    private static String readStoreSecret(Path projectPropertiesFileLocation) throws IOException {
+        try (InputStream inputStream = Files.newInputStream(projectPropertiesFileLocation)) {
+            Properties props = new Properties();
+            props.load(inputStream);
+            return props.getProperty(PROJECT_SECRET_CONFIG_KEY);
+        }
+    }
+
+    private static String generateAndStoreSecret(Path projectPropertiesFileLocation) throws IOException {
+        final String generatedProjectSecret = UUID.randomUUID().toString();
+        try (OutputStream outputStream = Files.newOutputStream(projectPropertiesFileLocation)) {
+            Properties props = new Properties();
+            props.setProperty(PROJECT_SECRET_CONFIG_KEY, generatedProjectSecret);
+            props.store(outputStream, null);
+        }
+        return generatedProjectSecret;
     }
 
     /**
@@ -123,10 +158,13 @@ public class ChoreoClientHolder {
         return getChoreoClient();
     }
 
-    private static String getNodeId() {
+    private static Path getGlobalChoreoConfigDir() {
         final String userHome = System.getProperty("user.home");
-        Path instanceIdConfigFilePath = Paths.get(userHome + File.separator + ".config" + File.separator + "choreo"
-                + File.separator + "instanceId");
+        return Paths.get(userHome + File.separator + ".config" + File.separator + "choreo");
+    }
+
+    private static String getNodeId() {
+        Path instanceIdConfigFilePath = getGlobalChoreoConfigDir().resolve("instanceId");
 
         String instanceId;
         if (!Files.exists(instanceIdConfigFilePath)) {
