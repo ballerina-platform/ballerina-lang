@@ -610,7 +610,7 @@ public class BuildCommandTest extends CommandTest {
                         Path platformLibDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
                         Assert.assertTrue(Files.exists(platformLibDir));
 
-                        Path jarFile = platformLibDir.resolve("toml4j.jar");
+                        Path jarFile = platformLibDir.resolve("toml4j-0.7.2.jar");
                         Assert.assertTrue(Files.exists(jarFile));
 
                         // check if MODULE.toml and BALO.toml can be serialise to
