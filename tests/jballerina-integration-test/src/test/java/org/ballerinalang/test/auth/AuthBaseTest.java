@@ -44,13 +44,10 @@ public class AuthBaseTest extends BaseTest {
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
-//        int[] requiredPorts = new int[]{20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010,
-//                20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20021, 20022, 20023, 20024,
-//                20025, 20026, 20027, 20028, 20029, 20101, 20102};
-        int[] basicAuthRequiredPorts = new int[]{20000, 20001, 20002, 20003, 20004, 20005, 20006, 20023, 20024,
-                20025, 20026};
-        int[] jwtAuthRequiredPorts = new int[]{20007, 20008, 20009, 20010,
-                20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20029};
+        int[] basicAuthRequiredPorts = new int[]{20000, 20001, 20002, 20003, 20004, 20005, 20006, 20023, 20024, 20025,
+                20026};
+        int[] jwtAuthRequiredPorts = new int[]{20007, 20008, 20009, 20010, 20011, 20012, 20013, 20014, 20015, 20016,
+                20017, 20018, 20019, 20020, 20029};
         int[] oauth2RequiredPorts = new int[]{20027, 20028, 20101, 20102};
         int[] ldapAuthRequiredPorts = new int[]{20021};
 
@@ -67,10 +64,10 @@ public class AuthBaseTest extends BaseTest {
         String usersLdifPath = basePath + File.separator + "src" + File.separator + "ldap" + File.separator + "users.ldif";
 
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
-        embeddedDirectoryServer.startLdapServer(20100);
+        embeddedDirectoryServer.startLdapServer(20100, usersLdifPath);
 
-        String[] args = new String[] { "--b7a.config.file=" + usersTomlPath, "--keystore=" + keyStore,
-                "--truststore=" + trustStore };
+        String[] args = new String[]{"--b7a.config.file=" + usersTomlPath, "--keystore=" + keyStore,
+                "--truststore=" + trustStore};
 
         basicAuthServerInstance = new BServerInstance(balServer);
         jwtAuthServerInstance = new BServerInstance(balServer);
