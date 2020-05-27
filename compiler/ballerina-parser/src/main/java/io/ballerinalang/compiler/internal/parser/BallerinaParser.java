@@ -8712,7 +8712,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
         }
 
-        return STNodeFactory.createTypeCastParamNode(annot, type);
+        return STNodeFactory.createTypeCastParamNode(getAnnotations(annot), type);
     }
 
     /**
