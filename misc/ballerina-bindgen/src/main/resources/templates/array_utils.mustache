@@ -1,7 +1,7 @@
 import ballerina/java;
 import ballerina/java.arrays as jarrays;
 
-public function getArrayFromHandle(handle arg, typedesc<any> t = handle) returns any[] {
+function getArrayFromHandle(handle arg, typedesc<any> t = handle) returns any[] {
     any[] returnArray = [];
     if (!java:isNull(arg)) {
         int count = jarrays:getLength(arg);
@@ -21,7 +21,7 @@ public function getArrayFromHandle(handle arg, typedesc<any> t = handle) returns
     return returnArray;
 }
 
-public function getHandleFromArray(any[] arg, string className) returns handle|error {
+function getHandleFromArray(any[] arg, string className) returns handle|error {
     handle returnHandle = jarrays:newInstance(check java:getClass(className), arg.length());
     int count=0;
     while (count < arg.length()) {

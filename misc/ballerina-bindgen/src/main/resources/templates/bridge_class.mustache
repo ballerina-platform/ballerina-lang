@@ -13,24 +13,24 @@ import ballerina/java;{{/if}}
 #
 # + _{{shortClassName}} - The field that represents this Ballerina object, which is used for Java subtyping.{{#each superClasses}}
 # + _{{this}} - The field that represents the superclass object `{{this}}`.{{/each}}
-public type {{shortClassName}} object {
+{{accessModifier}}type {{shortClassName}} object {
 
     *JObject;
 
-    public {{shortClassName}}T _{{shortClassName}} = {{shortClassName}}T;{{#each superClasses}}
-    public {{this}}T _{{this}} = {{this}}T;{{/each}}
+    {{accessModifier}}{{shortClassName}}T _{{shortClassName}} = {{shortClassName}}T;{{#each superClasses}}
+    {{accessModifier}}{{this}}T _{{this}} = {{this}}T;{{/each}}
 
     # The init function of the Ballerina object mapping `{{#replace className "." "/"}}{{/replace}}` Java class.
     #
     # + obj - The `handle` value containing the Java reference of the object.
-    public function __init(handle obj) {
+    {{accessModifier}}function __init(handle obj) {
         self.jObj = obj;
     }
 
     # The function to retrieve the string value of a Ballerina object mapping a Java class.
     #
     # + return - The `string` form of the object instance.
-    public function toString() returns string {
+    {{accessModifier}}function toString() returns string {
         return jObjToString(self.jObj);
     }{{#methodList}}{{#unless isStatic}}
 
@@ -39,7 +39,7 @@ public type {{shortClassName}} object {
     # + {{fieldName}} - The `{{shortTypeName}}` value required to map with the Java method parameter.{{/each}}{{/if}}{{#if (getReturn this "")}}{{#unless parameters}}
     # {{/unless}}
     # + return - The `{{#replace (getReturn this "") "returns " ""}}{{/replace}}` value returning from the Java mapping.{{/if}}
-    public function {{#if reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{else}}{{methodName}}{{/if}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{{#if (getReturn this "")}} {{/if}}{
+    {{accessModifier}}function {{#if reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{else}}{{methodName}}{{/if}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{{#if (getReturn this "")}} {{/if}}{
         {{#if hasReturn}}{{externalType}}{{#if handleException}}|error{{/if}} externalObj = {{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
         if (externalObj is error) {
             {{exceptionName}} e = {{exceptionName}}(message = externalObj.reason(), cause = externalObj);
@@ -66,7 +66,7 @@ public type {{shortClassName}} object {
     # The function to set the value of the public field {{fieldName}}.
     #
     # + arg - The `{{fieldType}}` value that is to be set for the field.
-    public function {{fieldMethodName}}({{fieldType}} arg) {
+    {{accessModifier}}function {{fieldMethodName}}({{fieldType}} arg) {
 
         _ = {{prefix}}_{{fieldMethodName}}(self.jObj, {{#getParams fieldObj ""}}{{/getParams}});
     }{{else}}
@@ -74,7 +74,7 @@ public type {{shortClassName}} object {
     # The function that retrieves the value of the public field {{fieldName}}.
     #
     # + return - The `{{fieldType}}` value of the field.
-    public function {{fieldMethodName}}() returns {{fieldType}}{{#if isString}}?{{/if}} {
+    {{accessModifier}}function {{fieldMethodName}}() returns {{fieldType}}{{#if isString}}?{{/if}} {
 
         return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>getArrayFromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(self.jObj){{#if isString}}){{else if isArray}}){{/if}};
     }{{/if}}{{/unless}}{{/fieldList}}
@@ -84,7 +84,7 @@ public type {{shortClassName}} object {
 #{{#if parameters}}{{#each parameters}}
 # + {{fieldName}} - The `{{shortTypeName}}` value required to map with the Java constructor parameter.{{/each}}{{/if}}
 # + return - The new `{{shortClassName}}` object {{#if hasException}}or `{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}` error {{/if}}generated.
-public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns {{shortClassName}}{{#if hasException}}{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}{{/if}} {
+{{accessModifier}}function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns {{shortClassName}}{{#if hasException}}{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}{{/if}} {
     handle{{#if handleException}}|error{{/if}} obj = {{prefix}}_{{externalFunctionName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
     if (obj is error) {
         {{exceptionName}} e = {{exceptionName}}(message = obj.reason(), cause = obj);
@@ -100,7 +100,7 @@ public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortT
 # + {{fieldName}} - The `{{shortTypeName}}` value required to map with the Java method parameter.{{/each}}{{/if}}{{#if (getReturn this "")}}{{#unless parameters}}
 # {{/unless}}
 # + return - The `{{#replace (getReturn this "") "returns " ""}}{{/replace}}` value returning from the Java mapping.{{/if}}
-public function {{shortClassName}}_{{methodName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{{#if (getReturn this "")}} {{/if}}{
+{{accessModifier}}function {{shortClassName}}_{{methodName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{{#if (getReturn this "")}} {{/if}}{
     {{#if hasReturn}}{{externalType}}{{#if handleException}}|error{{/if}} externalObj = {{prefix}}_{{methodName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
     if (externalObj is error) {
         {{exceptionName}} e = {{exceptionName}}(message = externalObj.reason(), cause = externalObj);
@@ -127,14 +127,14 @@ public function {{shortClassName}}_{{methodName}}({{#parameters}}{{shortTypeName
 # The function to set the value of the public field {{fieldName}}.
 #
 # + arg - The `{{fieldType}}` value that is to be set for the field.
-public function {{shortClassName}}_{{fieldMethodName}}({{fieldType}} arg) {
+{{accessModifier}}function {{shortClassName}}_{{fieldMethodName}}({{fieldType}} arg) {
     _ = {{prefix}}_{{fieldMethodName}}({{#getParams fieldObj ""}}{{/getParams}});
 }
 {{else}}
 # The function that retrieves the value of the public field {{fieldName}}.
 #
 # + return - The `{{fieldType}}` value of the field.
-public function {{shortClassName}}_{{fieldMethodName}}() returns {{fieldType}}{{#if isString}}?{{/if}} {
+{{accessModifier}}function {{shortClassName}}_{{fieldMethodName}}() returns {{fieldType}}{{#if isString}}?{{/if}} {
     {{#if isObject}}
     {{fieldType}} obj = new({{#if handleException}}check {{/if}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{fieldMethodName}}(){{#if isStringReturn}}){{/if}});
     return obj;{{else}}
