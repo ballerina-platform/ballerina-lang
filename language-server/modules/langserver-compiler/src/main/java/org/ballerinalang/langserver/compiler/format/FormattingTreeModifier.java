@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.compiler.format;
 
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
@@ -54,7 +55,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0))
-                .withFunctionName((IdentifierToken) formatToken(functionName, 0, 0, 0))
+                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0))
                 .withFunctionSignature(functionSignatureNode
                         .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
                                 functionSignatureClosePara, null))
@@ -64,7 +65,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
-
         Token functionBodyOpenBrace = getToken(functionBodyBlockNode.openBraceToken());
         Token functionBodyCloseBrace = getToken(functionBodyBlockNode.closeBraceToken());
 
@@ -94,7 +94,6 @@ public class FormattingTreeModifier extends TreeModifier {
         Token functionCallOpenPara = getToken(functionCallExpressionNode.openParenToken());
         Token functionCallClosePara = getToken(functionCallExpressionNode.closeParenToken());
         NodeList<FunctionArgumentNode> arguments = this.modifyNodeList(functionCallExpressionNode.arguments());
-        ;
 
         return functionCallExpressionNode.modify()
                 .withFunctionName(functionName)
@@ -108,20 +107,52 @@ public class FormattingTreeModifier extends TreeModifier {
     public QualifiedNameReferenceNode transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
         Token modulePrefix = getToken(qualifiedNameReferenceNode.modulePrefix());
         Token identifier = getToken(qualifiedNameReferenceNode.identifier());
+        Token colon = getToken((Token) qualifiedNameReferenceNode.colon());
 
         return qualifiedNameReferenceNode.modify()
                 .withModulePrefix(formatToken(modulePrefix, 4, 0, 1))
                 .withIdentifier((IdentifierToken) formatToken(identifier, 0, 0, 0))
+                .withColon(formatToken(colon, 0, 0, 0))
                 .apply();
     }
+
+//    @Override
+//    public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
+//        ExpressionNode expression = this.modifyNode(positionalArgumentNode.expression());
+//        Token leadingComma = positionalArgumentNode.leadingComma();
+//        if (leadingComma != null) {
+//            leadingComma = getToken(leadingComma);
+//        }
+//
+//        if (leadingComma != null) {
+//            return positionalArgumentNode.modify()
+//                    .withExpression(expression)
+//                    .withLeadingComma(formatToken(leadingComma, 0, 0, 0))
+//                    .apply();
+//        }
+//        return positionalArgumentNode.modify()
+//                .withExpression(expression)
+//                .withLeadingComma(positionalArgumentNode.leadingComma())
+//                .apply();
+//    }
+//
+//    @Override
+//    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
+//        Token literalToken = getToken(basicLiteralNode.literalToken());
+//
+//        return basicLiteralNode.modify()
+//                .withLiteralToken(formatToken(literalToken, 0, 0, 0))
+//                .apply();
+//    }
 
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int newLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
         MinutiaeList trailingMinutiaeList = token.trailingMinutiae();
 
         MinutiaeList newLeadingMinutiaeList = modifyMinutiaeList(leadingMinutiaeList, leadingSpaces, newLines);
+        MinutiaeList newTrailingMinutiaeList = modifyMinutiaeList(trailingMinutiaeList, trailingSpaces, 0);
 
-        return token.modify(newLeadingMinutiaeList, trailingMinutiaeList);
+        return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
     private MinutiaeList modifyMinutiaeList(MinutiaeList minutiaeList, int spaces, int newLines) {
