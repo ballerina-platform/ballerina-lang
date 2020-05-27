@@ -3053,7 +3053,8 @@
                 },
                 {
                     "name": "waitFutureExpr",
-                    "type": "Node"
+                    "type": "ExpressionNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },

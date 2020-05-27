@@ -64,6 +64,7 @@ import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
@@ -127,6 +128,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import io.ballerinalang.compiler.syntax.tree.XMLComment;
 import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
@@ -202,6 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -218,6 +221,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -1550,6 +1554,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(LockStatementNode lockStatementNode) {
+        BLangLock lockNode = (BLangLock) TreeBuilder.createLockNode();
+        lockNode.pos = getPosition(lockStatementNode);
+        BLangBlockStmt lockBlock = (BLangBlockStmt) lockStatementNode.blockStatement().apply(this);
+        lockBlock.pos = getPosition(lockStatementNode.blockStatement());
+        lockNode.setBody(lockBlock);
+        return lockNode;
+    }
+
+    @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
         BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         bLVarDef.pos = getPosition(varDeclaration);
@@ -1593,6 +1607,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return workerSendNode;
     }
 
+    @Override
+    public BLangNode transform(WaitActionNode waitActionNode) {
+        BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
+        waitExpr.exprList = createExpressionList(waitActionNode.waitFutureExpr());
+        waitExpr.pos = getPosition(waitActionNode);
+        return waitExpr;
+    }
     // -------------------------------------------------Misc------------------------------------------------------------
 
     @Override
@@ -1897,6 +1918,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
+    private List<BLangExpression> createExpressionList(
+            SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> expressionNodes) {
+        List<BLangExpression> expressionsList = new ArrayList<>();
+        for (Node node : expressionNodes) {
+            expressionsList.add(createExpression(node));
+        }
+
+        return expressionsList;
+    }
 
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes) {
         List<BLangStatement> statements = new ArrayList<>();
