@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.packerina;
 
 import com.moandjiezana.toml.Toml;
@@ -40,7 +57,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_
 /**
  * Resolves jars and native libs for modules.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class NativeDependencyResolverImpl implements NativeDependencyResolver {
     private static final CompilerContext.Key<NativeDependencyResolver> JAR_RESOLVER_KEY = new CompilerContext.Key<>();
@@ -69,7 +86,7 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
         this.sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        supportedPlatforms.add("any");
+        supportedPlatforms.add(ProgramFileConstants.ANY_PLATFORM);
     }
 
     @Override
@@ -154,7 +171,7 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
     private void addLibsFromHomeBaloCache(PackageID packageID, List<Path> modulePlatformLibs) {
         for (String platform : supportedPlatforms) {
             Path baloPath = buildContext.getBaloFromHomeCache(packageID, platform);
-            if (baloPath != null && Files.exists(baloPath)) {
+            if (baloPath != null && baloPath.toFile().exists()) {
                 addLibsFromBalo(baloPath, modulePlatformLibs);
             }
         }
@@ -225,10 +242,9 @@ public class NativeDependencyResolverImpl implements NativeDependencyResolver {
     }
 
     private void addLibsFromBalo(Path baloFilePath, List<Path> moduleDependencySet) {
-
         String fileName = baloFilePath.getFileName().toString();
         Path baloFileUnzipDirectory = Paths.get(baloFilePath.getParent().toString(),
-                fileName.substring(0, fileName.lastIndexOf(".")));
+                fileName.substring(0, fileName.lastIndexOf('.')));
         File destFile = baloFileUnzipDirectory.toFile();
 
         // Read from .balo file if directory not exist.
