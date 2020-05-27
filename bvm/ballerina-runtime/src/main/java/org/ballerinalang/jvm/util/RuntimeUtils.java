@@ -137,6 +137,14 @@ public class RuntimeUtils {
         Runtime.getRuntime().exit(1);
     }
 
+    public static void handleRuntimeErrorWithoutShutDown(Throwable throwable) {
+        if (throwable instanceof ErrorValue) {
+            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
+        } else {
+            silentlyLogBadSad(throwable);
+        }
+    }
+
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;

@@ -168,9 +168,9 @@ public class JvmConstants {
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
     public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
-    public static final String HANDLE_STOP_PANIC_METHOD = "silentlyLogBadSad";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
+    public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrorWithoutShutDown";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "___init";
