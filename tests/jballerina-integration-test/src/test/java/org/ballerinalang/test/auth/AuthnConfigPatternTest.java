@@ -28,11 +28,11 @@ import java.util.Map;
 /**
  * Test cases for authentication config pattern test scenarios.
  * The followings are the config patterns used for authentication handlers:
- * Pattern 1 - authHandlers: [basicAuthHandler19_1]
- * Pattern 2 - authHandlers: [basicAuthHandler19_1, basicAuthHandler19_2]
- * Pattern 3 - authHandlers: [[basicAuthHandler19_1]]
- * Pattern 4 - authHandlers: [[basicAuthHandler19_1], [basicAuthHandler19_3]]
- * Pattern 5 - authHandlers: [[basicAuthHandler19_1, basicAuthHandler19_2], [basicAuthHandler19_3, basicAuthHandler19_4]]
+ * Pattern 1 - authHandlers: [basicAuthHandler1]
+ * Pattern 2 - authHandlers: [basicAuthHandler1, basicAuthHandler2]
+ * Pattern 3 - authHandlers: [[basicAuthHandler1]]
+ * Pattern 4 - authHandlers: [[basicAuthHandler1], [basicAuthHandler3]]
+ * Pattern 5 - authHandlers: [[basicAuthHandler1, basicAuthHandler2], [basicAuthHandler3, basicAuthHandler4]]
  */
 @Test(groups = "auth-test")
 public class AuthnConfigPatternTest extends AuthBaseTest {
