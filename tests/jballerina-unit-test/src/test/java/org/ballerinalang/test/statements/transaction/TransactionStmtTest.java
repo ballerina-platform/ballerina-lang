@@ -24,7 +24,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -34,17 +33,10 @@ import org.testng.annotations.Test;
 @Test(enabled = false)
 public class TransactionStmtTest {
 
-    private CompileResult programFile;
-    private CompileResult resultNegative;
-
-    @BeforeClass
-    public void setup() {
-//        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
-    }
-
 //    @Test
     public void testTransactionStmtSuccess() {
+        CompileResult programFile =
+                BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
         BValue[] args = {new BInteger(10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
 
@@ -54,6 +46,8 @@ public class TransactionStmtTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
+        CompileResult resultNegative =
+                BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 20);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 5, 5);
