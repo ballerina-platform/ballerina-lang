@@ -22,18 +22,23 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 /**
  * Test visible endpoint detection.
  */
 public class SyntaxTreeModifyTest {
 
+    private static final String OS = System.getProperty("os.name").toLowerCase();
     private Endpoint serviceEndpoint;
 
     private Path mainFile = FileUtils.RES_DIR.resolve("extensions")
@@ -88,18 +93,33 @@ public class SyntaxTreeModifyTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
+    private Path createTempFile(Path filePath) throws IOException {
+        Path tempFilePath = FileUtils.BUILD_DIR.resolve("tmp")
+                .resolve(UUID.randomUUID() + ".bal");
+        Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
+        return tempFilePath;
+    }
+
+    public static void skipOnWindows() {
+        if (OS.contains("win")) {
+            throw new SkipException("Skipping the test case on Windows");
+        }
+    }
+
     @Test(description = "Remove content.")
     public void testDelete() throws IOException {
-        TestUtil.openDocument(serviceEndpoint, mainFile);
+        skipOnWindows();
+        Path tempFile = createTempFile(mainFile);
+        TestUtil.openDocument(serviceEndpoint, tempFile);
         ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaSyntaxTree(mainFile.toString(),
+                .modifyAndGetBallerinaSyntaxTree(tempFile.toString(),
                         new ASTModification[]{modification}, this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
         BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
                 mainEmptyFile.toString(), this.serviceEndpoint);
         Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
-        TestUtil.closeDocument(this.serviceEndpoint, mainFile);
+        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
     }
 
 //    @Test(description = "Insert content.", dependsOnMethods = "testDelete")
