@@ -157,6 +157,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_SUCCESS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
@@ -793,7 +795,7 @@ public class JvmMethodGen {
         // Create a schedular. A new schedular is used here, to make the stop function to not to
         // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
 
-        mv.visitFieldInsn(GETSTATIC, moduleClass, "moduleStartAttempted", "Z");
+        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_ATTEMPTED, "Z");
         Label labelIf = new Label();
         mv.visitJumpInsn(IFEQ, labelIf);
         mv.visitVarInsn(ALOAD, schedulerIndex);
@@ -830,7 +832,7 @@ public class JvmMethodGen {
 
         // handle any runtime errors
         mv.visitJumpInsn(IFNULL, labelIf);
-        mv.visitFieldInsn(GETSTATIC, moduleClass, "moduleStartSuccess", "Z");
+        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_SUCCESS, "Z");
         mv.visitJumpInsn(IFEQ, labelIf);
 
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -1493,7 +1495,7 @@ public class JvmMethodGen {
         mv.visitCode();
         if (func == module.functions.get(1)) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, "moduleStartAttempted", "Z");
+            mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
         }
 
         Label tryStart = null;
@@ -1705,7 +1707,7 @@ public class JvmMethodGen {
         mv.visitLabel(methodEndLabel);
         if (func == module.functions.get(1)) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, "moduleStartSuccess", "Z");
+            mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_SUCCESS, "Z");
         }
         termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, false, -1);
 
@@ -1938,10 +1940,10 @@ public class JvmMethodGen {
                 caseIndex += 1;
 
                 //set module start success to true for ___init class
-                if (func == module.functions.get(1) && terminator instanceof Return) {
+                if (func == module.functions.get(1) && terminator.kind == InstructionKind.RETURN) {
                     mv.visitInsn(ICONST_1);
                     mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
-                            module.version.value, MODULE_INIT_CLASS_NAME), "moduleStartSuccess", "Z");
+                            module.version.value, MODULE_INIT_CLASS_NAME), MODULE_START_SUCCESS, "Z");
                 }
             }
 

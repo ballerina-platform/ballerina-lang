@@ -91,6 +91,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_SUCCESS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -243,17 +245,17 @@ public class JvmPackageGen {
 
     private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
 
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "moduleStartAttempted", "Z", null, null);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_ATTEMPTED, "Z", null, null);
         fv.visitEnd();
 
         mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, initClass, "moduleStartAttempted", "Z");
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_ATTEMPTED, "Z");
 
-        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "moduleStartSuccess", "Z", null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_SUCCESS, "Z", null, null);
         fv.visitEnd();
 
         mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, initClass, "moduleStartSuccess", "Z");
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_SUCCESS, "Z");
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,

@@ -187,6 +187,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
+    public static final String MODULE_START_ATTEMPTED = "moduleStartAttempted";
+    public static final String MODULE_START_SUCCESS = "moduleStartSuccess";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
