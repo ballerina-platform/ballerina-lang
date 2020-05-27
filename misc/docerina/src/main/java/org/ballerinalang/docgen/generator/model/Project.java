@@ -23,6 +23,7 @@ import java.util.List;
  * Represents a Ballerina Project.
  */
 public class Project {
+    @Expose
     public boolean isSingleFile;
     @Expose
     public String sourceFileName;
