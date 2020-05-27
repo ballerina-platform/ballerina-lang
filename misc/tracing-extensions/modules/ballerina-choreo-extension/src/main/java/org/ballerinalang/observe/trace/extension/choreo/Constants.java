@@ -36,6 +36,6 @@ public class Constants {
     public static final String REPORTER_USE_SSL_CONFIG = "reporter.useSSL";
     public static final boolean DEFAULT_REPORTER_USE_SSL = true;
 
-    public static final String APPLICATION_ID_CONFIG = "application.id";
-    public static final String DEFAULT_APPLICATION_ID = "";
+    public static final String APPLICATION_ID_CONFIG = "application.secret";
+    public static final String EMPTY_APPLICATION_SECRET = "";
 }

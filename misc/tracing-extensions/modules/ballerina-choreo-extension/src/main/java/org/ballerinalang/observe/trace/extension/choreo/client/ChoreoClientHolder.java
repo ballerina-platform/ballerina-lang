@@ -32,10 +32,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.APPLICATION_ID_CONFIG;
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_APPLICATION_ID;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_HOSTNAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_PORT;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_USE_SSL;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.EMPTY_APPLICATION_SECRET;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_HOST_NAME_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_PORT_CONFIG;
@@ -73,11 +73,10 @@ public class ChoreoClientHolder {
                     String.valueOf(DEFAULT_REPORTER_PORT)));
             boolean useSSL = Boolean.parseBoolean(configRegistry.getConfigOrDefault(
                     getFullQualifiedConfig(REPORTER_USE_SSL_CONFIG), String.valueOf(DEFAULT_REPORTER_USE_SSL)));
-            String appSecret = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
-                    DEFAULT_APPLICATION_ID);
+            String appSecret = getAppSecret(configRegistry);
 
-            String instanceId = getInstanceId();
-            initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, instanceId, appSecret);
+            String nodeId = getNodeId();
+            initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, nodeId, appSecret);
             Thread shutdownHook = new Thread(() -> {
                 try {
                     choreoClientDependents.forEach(dependent -> {
@@ -97,6 +96,21 @@ public class ChoreoClientHolder {
         return choreoClient;
     }
 
+    private static String getAppSecret(ConfigRegistry configRegistry) {
+        String appSecretFromConfig = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
+                EMPTY_APPLICATION_SECRET);
+
+        if (EMPTY_APPLICATION_SECRET.equals(appSecretFromConfig)) {
+            return locallyStoredAppSecret();
+        } else {
+            return appSecretFromConfig;
+        }
+    }
+
+    private static String locallyStoredAppSecret() {
+        return UUID.randomUUID().toString();
+    }
+
     /**
      * Get the client that can be used to communicate with Choreo cloud. When the Choreo client is
      * closed the passed dependent object will also be closed.
@@ -109,7 +123,7 @@ public class ChoreoClientHolder {
         return getChoreoClient();
     }
 
-    private static String getInstanceId() {
+    private static String getNodeId() {
         final String userHome = System.getProperty("user.home");
         Path instanceIdConfigFilePath = Paths.get(userHome + File.separator + ".config" + File.separator + "choreo"
                 + File.separator + "instanceId");
