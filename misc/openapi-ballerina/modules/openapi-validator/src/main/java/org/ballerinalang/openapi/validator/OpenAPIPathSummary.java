@@ -23,10 +23,8 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * Summary of the OpenAPI documentation for a API path.
@@ -67,7 +65,17 @@ class OpenAPIPathSummary {
         if (operation == null) {
             return false;
         }
-        return operation.getTags().containsAll(tags);
+//        return tags.containsAll(operation.getTags());
+        return !Collections.disjoint(tags, operation.getTags());
+    }
+
+    boolean hasOperations( List<String> operationslist, String method){
+        Operation operation = operations.get(method);
+        if (operation == null) {
+            return false;
+        }
+        return operationslist.contains(operation.getOperationId());
+
     }
 
     List<OpenAPIParameter> getParamNamesForOperation(String operation) {

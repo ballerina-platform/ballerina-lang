@@ -40,4 +40,6 @@ public class Constants {
     static final String OPERATIONS = "operations";
     static final String BODY = "body";
     static final String FAILONERRORS = "failOnErrors";
+    static final String EXCLUDETAGS = "excludeTags";
+    static final String EXCLUDEOPERATIONS = "excludeOperations";
 }

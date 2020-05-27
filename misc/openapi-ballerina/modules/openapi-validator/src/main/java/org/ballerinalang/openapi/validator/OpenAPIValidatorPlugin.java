@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,6 +70,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         AnnotationAttachmentNode annotation = null;
         List<String> tags = new ArrayList<>();
         List<String> operations = new ArrayList<>();
+        List<String> excludeTags = new ArrayList<>();
+        List<String> excludeOperations = new ArrayList<>();
         this.openAPIComponentSummary = new OpenAPIComponentSummary();
         String contractURI = null;
         Boolean failOnErrors = true;
@@ -111,8 +114,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 Path sourceDir = sourceDirectoryManager.getSourceDirectory().getPath();
                                 Path pkg = Paths.get(serviceNode.getPosition().getSource().getPackageName());
                                 Path filePath = Paths.get((pkg.toString().equals(".") ? "" : pkg.toString()),
-                                      serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
-                                              "\\w*\\.bal", "").replaceAll("^/+", ""));
+                                        serviceNode.getPosition().getSource().getCompilationUnitName().replaceAll(
+                                                "\\w*\\.bal", "").replaceAll("^/+", ""));
 
                                 String projectDir = filePath.toString().
                                         contains(sourceDir.toString().replaceAll("^/+", "")) ?
@@ -136,7 +139,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     }
                                 } else {
                                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                       "Contract path should be applied as a string value");
+                                            "Contract path should be applied as a string value");
                                 }
                             }
                         } else if (key.equals(Constants.TAGS)) {
@@ -150,7 +153,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                             tags.add((String) expression.getValue());
                                         } else {
                                             dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                               "Tags should be applied as string values");
+                                                    "Tags should be applied as string values");
                                         }
                                     }
                                 }
@@ -166,22 +169,51 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                             operations.add((String) expression.getValue());
                                         } else {
                                             dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                               "Operations should be applied as string values");
+                                                    "Operations should be applied as string values");
                                         }
                                     }
                                 }
                             }
                         }  else if (key.equals(Constants.FAILONERRORS)) {
-
                             if (valueExpr instanceof BLangLiteral) {
-
                                 BLangLiteral value = (BLangLiteral) valueExpr;
-
                                 if (value.getValue() instanceof Boolean) {
                                     failOnErrors = (Boolean) value.getValue();
                                 } else {
                                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
                                             "FailOnErrors should be applied as boolean values");
+                                }
+                            }
+                        } else if (key.equals(Constants.EXCLUDETAGS)) {
+                            if (valueExpr instanceof  BLangListConstructorExpr) {
+                                BLangListConstructorExpr bLangListConstructorExpr =
+                                        (BLangListConstructorExpr) valueExpr;
+                                for (BLangExpression bLangExpression: bLangListConstructorExpr.getExpressions()) {
+                                    if (bLangExpression instanceof BLangLiteral) {
+                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
+                                        if (expression.getValue() instanceof String) {
+                                            excludeTags.add((String) expression.getValue());
+                                        } else {
+                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                                    "ExcludeTags should be applied as string values");
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (key.equals(Constants.EXCLUDEOPERATIONS)) {
+                            if (valueExpr instanceof  BLangListConstructorExpr) {
+                                BLangListConstructorExpr bLangListConstructorExpr =
+                                        (BLangListConstructorExpr) valueExpr;
+                                for (BLangExpression bLangExpression: bLangListConstructorExpr.getExpressions()) {
+                                    if (bLangExpression instanceof BLangLiteral) {
+                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
+                                        if (expression.getValue() instanceof String) {
+                                            excludeOperations.add((String) expression.getValue());
+                                        } else {
+                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                                    "ExcludeOperations should be applied as string values");
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -195,21 +227,35 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 kind = Diagnostic.Kind.WARNING;
             }
 
+//            Checking both tags and excludeTags include same tags and operations
+            if (!Collections.disjoint(tags,excludeTags)) {
+                dLog.logDiagnostic(Diagnostic.Kind.WARNING, annotation.getPosition(),
+                        ErrorMessages.tagFilterEnable());
+                excludeTags.clear();
+
+            }else if (!Collections.disjoint(operations, excludeOperations)) {
+                dLog.logDiagnostic(Diagnostic.Kind.WARNING, annotation.getPosition(),
+                        ErrorMessages.operationFilterEnable());
+                excludeOperations.clear();
+            }
+
             if (contractURI != null) {
                 try {
                     OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
                     ValidatorUtil.summarizeResources(this.resourceSummaryList, serviceNode);
                     ValidatorUtil.summarizeOpenAPI(this.openAPISummaryList, openAPI, this.openAPIComponentSummary);
-                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind,
-                                                                  this.resourceSummaryList, this.openAPISummaryList,
-                                                                  this.openAPIComponentSummary, dLog);
-                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind,
-                                                                  this.resourceSummaryList,
-                                                                  this.openAPISummaryList, this.openAPIComponentSummary,
-                                                                  dLog);
+                    ValidatorUtil.validateOpenApiAgainstResources(serviceNode, tags, operations, kind, excludeTags,
+                            excludeOperations,
+                            this.resourceSummaryList, this.openAPISummaryList,
+                            this.openAPIComponentSummary, dLog);
+                    ValidatorUtil.validateResourcesAgainstOpenApi(tags, operations, kind, excludeTags,
+                            excludeOperations,
+                            this.resourceSummaryList,
+                            this.openAPISummaryList, this.openAPIComponentSummary,
+                            dLog);
                 } catch (OpenApiValidatorException e) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                       e.getMessage());
+                            e.getMessage());
                 }
             }
         }
