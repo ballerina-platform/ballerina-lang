@@ -73,11 +73,11 @@ public class ChoreoClientHolder {
                     String.valueOf(DEFAULT_REPORTER_PORT)));
             boolean useSSL = Boolean.parseBoolean(configRegistry.getConfigOrDefault(
                     getFullQualifiedConfig(REPORTER_USE_SSL_CONFIG), String.valueOf(DEFAULT_REPORTER_USE_SSL)));
-            String appId = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
+            String appSecret = configRegistry.getConfigOrDefault(getFullQualifiedConfig(APPLICATION_ID_CONFIG),
                     DEFAULT_APPLICATION_ID);
 
             String instanceId = getInstanceId();
-            initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, instanceId, appId);
+            initializeLinkWithChoreo(hostname, port, useSSL, metadataReader, instanceId, appSecret);
             Thread shutdownHook = new Thread(() -> {
                 try {
                     choreoClientDependents.forEach(dependent -> {
@@ -136,9 +136,9 @@ public class ChoreoClientHolder {
     }
 
     private static void initializeLinkWithChoreo(String hostname, int port, boolean useSSL,
-                                                 MetadataReader metadataReader, String instanceId, String appId) {
+                                                 MetadataReader metadataReader, String nodeId, String appSecret) {
         choreoClient = new ChoreoClient(hostname, port, useSSL);
-        String observabilityUrl = choreoClient.register(metadataReader, instanceId, appId);
+        String observabilityUrl = choreoClient.register(metadataReader, nodeId, appSecret);
         LOGGER.info("visit " + observabilityUrl.replaceAll("%", "%%") + " to access observability data");
     }
 
