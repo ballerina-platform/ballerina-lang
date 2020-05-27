@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
  */
 public class ASTModifyTest {
 
+    private static String OS = System.getProperty("os.name").toLowerCase();
     private Endpoint serviceEndpoint;
 
     private Path mainFile = FileUtils.RES_DIR.resolve("extensions")
@@ -84,6 +86,10 @@ public class ASTModifyTest {
             .resolve("ast")
             .resolve("modify");
 
+    public static boolean isWindows() {
+        return (OS.contains("win"));
+    }
+
     @BeforeClass
     public void startLangServer() throws IOException {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -91,6 +97,9 @@ public class ASTModifyTest {
 
     @Test(description = "Remove content.")
     public void testDelete() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Skipping the test case on Windows");
+        }
         TestUtil.openDocument(serviceEndpoint, mainFile);
         ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
