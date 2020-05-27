@@ -61,6 +61,8 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -98,6 +100,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private static final String DELETE = "delete";
+    private static final Logger log = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -389,7 +392,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                         LinePosition endLinePos = LinePosition.from(astModification.getEndLine() - 1,
                                 astModification.getEndColumn() - 1);
                         int startOffset = oldTextDocument.textPositionFrom(startLinePos);
-                        int endOffset = oldTextDocument.textPositionFrom(endLinePos) + 1;
+                        int endOffset = oldTextDocument.textPositionFrom(endLinePos);
                         edits.add(io.ballerinalang.compiler.text.TextEdit.from(
                                 io.ballerinalang.compiler.text.TextRange.from(startOffset,
                                         endOffset - startOffset), mapping));
@@ -401,7 +404,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     new io.ballerinalang.compiler.text.TextEdit[0]));
             SyntaxTree updatedTree = SyntaxTree.from(oldTree, textDocumentChange);
             documentManager.updateFile(compilationPath, updatedTree.toString());
-
+            log.info("Updated tree " + updatedTree.toString());
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             reply.setSyntaxTree(mapGenerator.transform(updatedTree.modulePart()));
             reply.setParseSuccess(true);
