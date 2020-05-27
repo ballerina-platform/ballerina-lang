@@ -145,7 +145,7 @@ public enum SyntaxKind {
     LT_TOKEN(558, "<"),
     LT_EQUAL_TOKEN(559, "<="),
     GT_TOKEN(560, ">"),
-    RIGHT_DOUBLE_ARROW(561, "=>"),
+    RIGHT_DOUBLE_ARROW_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
     GT_EQUAL_TOKEN(564, ">="),
