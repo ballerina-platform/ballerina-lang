@@ -115,6 +115,12 @@ public class Names {
     public static final Name TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = new Name("beginLocalParticipant");
     public static final Name TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = new Name("beginRemoteParticipant");
     public static final Name CREATE_INT_RANGE = new Name("createIntRange");
+    public static final Name START_TRANSACTION = new Name("startTransaction");
+    public static final Name ROLLBACK_TRANSACTION = new Name("rollbackTransaction");
+    public static final Name END_TRANSACTION = new Name("endTransaction");
+    public static final Name GET_AND_CLEAR_FAILURE_TRANSACTION = new Name("getAndClearFailure");
+    public static final Name TRANSACTION_MODULE = new Name("transactions");
+
     public static final Name CONSTRUCT_STREAM = new Name("construct");
 
     public CompilerContext context;

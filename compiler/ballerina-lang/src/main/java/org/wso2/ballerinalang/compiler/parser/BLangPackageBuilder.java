@@ -3205,6 +3205,16 @@ public class BLangPackageBuilder {
         transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
         addStmtToCurrentBlock(transaction);
 
+        // implicit import of transaction module, user doesn't want to import explicitly
+        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_MODULE.value);
+        BLangImportPackage importDcl = getImportPackage(pos, null, Names.BALLERINA_ORG.value, nameComps, null,
+                nameComps.get(nameComps.size() - 1));
+        if (!this.imports.contains(importDcl)) {
+            List<TopLevelNode> topLevelNodes = this.compUnit.getTopLevelNodes();
+            topLevelNodes.add(0, importDcl);
+            this.imports.add(importDcl);
+        }
+
 //        // TODO This is a temporary workaround to flag coordinator service start
 //        boolean transactionsModuleAlreadyImported = this.imports.stream()
 //                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)

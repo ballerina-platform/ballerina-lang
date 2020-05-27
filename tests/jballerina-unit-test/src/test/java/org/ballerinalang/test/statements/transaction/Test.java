@@ -20,6 +20,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 
 /**
@@ -38,17 +39,18 @@ public class Test {
     public void testRollback() {
         BValue[] params = {};
         BRunUtil.invoke(programFile, "testRollback", params);
+        Assert.fail();
     }
-
-    @org.testng.annotations.Test
-    public void testCommit() {
-        BValue[] params = {};
-        BRunUtil.invoke(programFile, "testCommit", params);
-    }
-
-    @org.testng.annotations.Test
-    public void testPanic() {
-        BValue[] params = {};
-        BRunUtil.invoke(programFile, "testPanic", params);
-    }
+//
+//    @org.testng.annotations.Test
+//    public void testCommit() {
+//        BValue[] params = {};
+//        BRunUtil.invoke(programFile, "testCommit", params);
+//    }
+//
+//    @org.testng.annotations.Test
+//    public void testPanic() {
+//        BValue[] params = {};
+//        BRunUtil.invoke(programFile, "testPanic", params);
+//    }
 }
