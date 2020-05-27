@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.format;
 
+import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
@@ -40,8 +41,6 @@ import io.ballerinalang.compiler.syntax.tree.TreeModifier;
  * @since 2.0.0
  */
 public class FormattingTreeModifier extends TreeModifier {
-    private final MinutiaeList EMPTY_SPACE = MinutiaeList.emptyList();
-
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
         Token functionKeyword = getToken(functionDefinitionNode.functionKeyword());
@@ -143,6 +142,7 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     private <T extends Token> Token getToken(T node) {
-        return node.modify(EMPTY_SPACE, EMPTY_SPACE);
+        return node.modify(AbstractNodeFactory.createEmptyMinutiaeList(),
+                AbstractNodeFactory.createEmptyMinutiaeList());
     }
 }
