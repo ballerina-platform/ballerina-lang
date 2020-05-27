@@ -187,7 +187,7 @@ dependencies {
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')

@@ -115,7 +115,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')

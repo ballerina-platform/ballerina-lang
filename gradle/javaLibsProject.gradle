@@ -142,7 +142,7 @@ dependencies {
 
     // Lang libs
     dist project(':ballerina-lang:annotations')
-    dist project(':ballerina-lang:java')
+    dist project(':ballerina-java')
     dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:array')
     dist project(':ballerina-lang:decimal')
