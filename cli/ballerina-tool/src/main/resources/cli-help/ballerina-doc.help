@@ -42,10 +42,13 @@ OPTIONS
            Build documentation for all the modules of a project.
 
        -toJSON, --toJSON
-            Generates a JSON containing all the documentation data.
+           Generates a JSON containing all the documentation data.
 
-        -fromJSON, --fromJSON
-            Generates documentation from a specified JSON.
+       -fromJSON, --fromJSON
+           Generates documentation from a specified JSON.
+
+       -excludeIndex, --excludeIndex
+           Prevents project index from being generated.
 
 
 EXAMPLES

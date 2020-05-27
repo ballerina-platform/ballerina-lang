@@ -143,7 +143,7 @@ public class BallerinaDocGenerator {
             out.println("docerina: successfully created the output directory: " + output);
         }
 
-        writeAPIDocsForModules(docsMap, output);
+        writeAPIDocsForModules(docsMap, output, false);
 
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: documentation generation is done.");
@@ -167,14 +167,14 @@ public class BallerinaDocGenerator {
         }
     }
 
-    public static void writeAPIDocsForModulesFromJson(Path jsonpath, String output) {
+    public static void writeAPIDocsForModulesFromJson(Path jsonpath, String output, boolean excludeIndex) {
         if (jsonpath.toFile().exists()) {
             try (BufferedReader br = Files.newBufferedReader(jsonpath, StandardCharsets.UTF_8)) {
                 Project project = gson.fromJson(br, Project.class);
                 if (Files.notExists(Paths.get(output))) {
                     Files.createDirectory(Paths.get(output));
                 }
-                writeAPIDocs(project, output);
+                writeAPIDocs(project, output, excludeIndex);
             } catch (IOException e) {
                 String errorMsg = String.format("API documentation generation failed. Cause: %s",
                         e.getMessage());
@@ -184,27 +184,29 @@ public class BallerinaDocGenerator {
             }
         }
     }
-    public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output) {
+    public static void writeAPIDocsForModules(Map<String, ModuleDoc> docsMap, String output, boolean excludeIndex) {
         // Sort modules by module path
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
 
         // Generate project model
         Project project = getDocsGenModel(moduleDocList);
-        writeAPIDocs(project, output);
+        writeAPIDocs(project, output, excludeIndex);
     }
 
-    public static void writeAPIDocs(Project project, String output) {
+    public static void writeAPIDocs(Project project, String output, boolean excludeIndex) {
 
-        // Generate index.html for the project
-        String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
-        String indexFilePath = output + File.separator + "index" + HTML;
-        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
-        try {
-            Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexFilePath);
-        } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
-            log.error("Failed to create the index.html file.", e);
+        if (!excludeIndex) {
+            // Generate index.html for the project
+            String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
+            String indexFilePath = output + File.separator + "index" + HTML;
+            ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
+            try {
+                Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexFilePath);
+            } catch (IOException e) {
+                out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
+                log.error("Failed to create the index.html file.", e);
+            }
         }
 
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");

@@ -81,6 +81,10 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
 
+    @CommandLine.Option(names = {"--excludeIndex", "-excludeIndex"}, description = "Prevents project index from " +
+            "being generated.")
+    private boolean excludeIndex;
+
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
                                                               "dependencies.")
     private boolean offline;
@@ -138,7 +142,7 @@ public class DocCommand implements BLauncherCmd {
             buildContext.setErr(errStream);
             TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                     .addTask(new CreateTargetDirTask()) // create target directory.
-                    .addTask(new CreateDocsTask(toJson, jsonPath)) // creates API documentation
+                    .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex)) // creates API documentation
                     .build();
 
             taskExecutor.executeTasks(buildContext);
@@ -263,7 +267,7 @@ public class DocCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateDocsTask(toJson, jsonPath)) // creates API documentation
+                .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex)) // creates API documentation
                 .build();
         
         taskExecutor.executeTasks(buildContext);
