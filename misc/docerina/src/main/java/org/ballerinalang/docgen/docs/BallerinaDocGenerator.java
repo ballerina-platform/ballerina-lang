@@ -140,7 +140,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    public static void writeAPIDocsToJSON(Map<String, ModuleDoc> docsMap, String output){
+    public static void writeAPIDocsToJSON(Map<String, ModuleDoc> docsMap, String output) {
         // Sort modules by module path
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
