@@ -44,7 +44,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_EXTENSION_NAME;
 
 /**
  * Ballerina MetricReporter extension for Choreo cloud.
@@ -80,7 +80,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
 
     @Override
     public String getName() {
-        return EXTENSION_NAME;
+        return CHOREO_EXTENSION_NAME;
     }
 
     @Override

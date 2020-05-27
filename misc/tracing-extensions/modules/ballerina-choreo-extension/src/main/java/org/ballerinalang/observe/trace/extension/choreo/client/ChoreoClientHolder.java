@@ -39,7 +39,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_PORT;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.DEFAULT_REPORTER_USE_SSL;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.EMPTY_APPLICATION_SECRET;
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_EXTENSION_NAME;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_HOST_NAME_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_PORT_CONFIG;
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTER_USE_SSL_CONFIG;
@@ -195,6 +195,6 @@ public class ChoreoClientHolder {
     }
 
     public static String getFullQualifiedConfig(String configName) {
-        return ObservabilityConstants.CONFIG_TABLE_TRACING + "." + EXTENSION_NAME + "." + configName;
+        return ObservabilityConstants.CONFIG_TABLE_OBSERVABILITY + "." + CHOREO_EXTENSION_NAME + "." + configName;
     }
 }

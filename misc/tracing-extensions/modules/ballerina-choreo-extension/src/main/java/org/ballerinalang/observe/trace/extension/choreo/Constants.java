@@ -25,7 +25,7 @@ public class Constants {
 
     private Constants() {}
 
-    public static final String EXTENSION_NAME = "choreo";
+    public static final String CHOREO_EXTENSION_NAME = "choreo";
 
     public static final String REPORTER_HOST_NAME_CONFIG = "reporter.hostname";
     public static final String DEFAULT_REPORTER_HOSTNAME = "periscope.choreo.dev";
