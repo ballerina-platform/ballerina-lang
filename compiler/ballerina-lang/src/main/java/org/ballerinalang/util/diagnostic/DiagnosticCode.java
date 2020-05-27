@@ -152,7 +152,7 @@ public enum DiagnosticCode {
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE("transaction.cannot.be.used.within.transactional.scope"),
-    TRANSACTIONAL_FUNC_CANNOT_BE_INVOKED_OUTSIDE_TRANSACTIONAL_SCOPE("transactional.function.cannot.be.invoked.outside.transactional.scope"),
+    TRANSACTIONAL_FUNC_INVOKE_PROHIBITED("transactional.function.prohibited.outside.transactional.scope"),
     NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
     USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED("usage.of.start.within.transaction.is.prohibited"),

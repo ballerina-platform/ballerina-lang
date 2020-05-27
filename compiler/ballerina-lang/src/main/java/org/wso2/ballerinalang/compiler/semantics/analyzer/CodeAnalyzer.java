@@ -2073,7 +2073,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
                 dlog.error(invocationExpr.pos,
-                        DiagnosticCode.TRANSACTIONAL_FUNC_CANNOT_BE_INVOKED_OUTSIDE_TRANSACTIONAL_SCOPE,
+                        DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
                         invocationExpr);
                 return;
             }
@@ -2100,7 +2100,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
             dlog.error(actionInvocation.pos,
-                    DiagnosticCode.TRANSACTIONAL_FUNC_CANNOT_BE_INVOKED_OUTSIDE_TRANSACTIONAL_SCOPE);
+                    DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
             return;
         }
 
