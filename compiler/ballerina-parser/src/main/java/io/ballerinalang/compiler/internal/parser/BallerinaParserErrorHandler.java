@@ -2645,6 +2645,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case QUERY_EXPRESSION:
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
+            case SERVICE_CONSTRUCTOR_EXPRESSION:
                 return true;
             default:
                 return false;

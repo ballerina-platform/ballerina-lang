@@ -3862,6 +3862,7 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
+            case SERVICE_KEYWORD:
                 return true;
             default:
                 return false;
@@ -10251,6 +10252,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case NEW_KEYWORD:
             case LEFT_ARROW_TOKEN:
+            case SERVICE_KEYWORD:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
