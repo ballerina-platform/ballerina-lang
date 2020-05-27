@@ -63,7 +63,7 @@ public class ObjectFieldDefaultValueTest {
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
         Map<String, List<Path>> resources = new HashMap<>();
 
-        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList, resources);
+        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList);
         testModule = project.modules.get(0);
         objects = testModule.objects;
     }

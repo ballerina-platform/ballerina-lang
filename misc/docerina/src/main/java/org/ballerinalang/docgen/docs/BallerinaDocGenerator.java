@@ -152,8 +152,8 @@ public class BallerinaDocGenerator {
             String json = gson.toJson(project);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the module.json. Cause: %s", e.getMessage()));
-            log.error("Failed to create module.json file.", e);
+            out.println(String.format("docerina: failed to create the " + DOC_JSON + ". Cause: %s", e.getMessage()));
+            log.error("Failed to create " + DOC_JSON + " file.", e);
         }
     }
 

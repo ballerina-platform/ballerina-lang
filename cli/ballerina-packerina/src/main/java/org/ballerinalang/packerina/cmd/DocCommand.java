@@ -59,7 +59,6 @@ public class DocCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path sourceRootPath;
     private Path jsonPath;
-    private Path outputPath;
 
     public DocCommand() {
         this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
