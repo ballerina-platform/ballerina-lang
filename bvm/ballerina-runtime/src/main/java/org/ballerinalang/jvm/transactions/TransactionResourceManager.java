@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.transactions;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
@@ -311,7 +312,7 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         FPValue fp = committedFuncRegistry.get(transactionBlockId);
-        Object[] args = { strand, (transactionId + ":" + transactionBlockId), true };
+        Object[] args = {strand, StringUtils.fromString(transactionId + ":" + transactionBlockId), true};
         if (fp != null) {
             strand.scheduler.schedule(args, fp.getFunction(), strand, null);
         }

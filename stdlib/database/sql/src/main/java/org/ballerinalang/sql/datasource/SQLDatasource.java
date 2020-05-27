@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.utils.ErrorGenerator;
 
@@ -153,7 +154,7 @@ public class SQLDatasource {
                     //It is required to set the url to the datasource property when the
                     //datasource class name is provided. Because according to hikari
                     //either jdbcUrl or datasourceClassName will be honoured.
-                    config.addDataSourceProperty(Constants.Options.URL, sqlDatasourceParams.url);
+                    config.addDataSourceProperty(Constants.Options.URL.getValue(), sqlDatasourceParams.url);
                 }
             }
             config.setDataSourceClassName(sqlDatasourceParams.datasourceName);
@@ -180,10 +181,10 @@ public class SQLDatasource {
                 }
             }
             if (sqlDatasourceParams.options != null) {
-                MapValue<String, Object> optionMap = (MapValue<String, Object>) sqlDatasourceParams.options;
+                MapValue<BString, Object> optionMap = (MapValue<BString, Object>) sqlDatasourceParams.options;
                 optionMap.entrySet().forEach(entry -> {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(entry.getValue())) {
-                        config.addDataSourceProperty(entry.getKey(), entry.getValue());
+                        config.addDataSourceProperty(entry.getKey().getValue(), entry.getValue());
                     } else {
                         throw ErrorGenerator.getSQLApplicationError("unsupported type " + entry.getKey()
                                 + " for the db option");

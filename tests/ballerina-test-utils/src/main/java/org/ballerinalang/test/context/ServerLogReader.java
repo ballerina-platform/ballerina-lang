@@ -73,6 +73,15 @@ public class ServerLogReader implements Runnable {
     }
 
     /**
+     * Getter method for the set of attached leechers.
+     *
+     * @return all leechers attached this log reader instance.
+     */
+    public Set<LogLeecher> getAllLeechers() {
+        return leechers;
+    }
+
+    /**
      * Add a Leecher to this log reader.
      *
      * @param leecher The Leecher instance that is going to listen to each log line for expected text

@@ -41,7 +41,7 @@ public class ForkInFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testForkAndWaitForAll", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 234);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 500);
     }

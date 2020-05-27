@@ -90,9 +90,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 
 /**
@@ -679,11 +677,10 @@ class JvmObservabilityGen {
     private void injectObserveStartCall(BIRBasicBlock observeStartBB, DiagnosticPos desugaredInsPos,
                                         boolean isResourceObservation, BIROperand serviceOrObjectOperand,
                                         BIROperand resourceOrActionOperand, BIROperand tagsOperand) {
-        String stringType = IS_BSTRING ? B_STRING_VALUE : STRING_VALUE;
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", stringType, stringType,
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", B_STRING_VALUE, B_STRING_VALUE,
                 MAP_VALUE);
         observeStartCallTerminator.name = isResourceObservation
                 ? START_RESOURCE_OBSERVATION_METHOD : START_CALLABLE_OBSERVATION_METHOD;

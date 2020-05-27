@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -82,7 +83,7 @@ public class BMapType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new MapValueImpl<String, V>(new BMapType(constraint));
+        return (V) new MapValueImpl<BString, V>(new BMapType(constraint));
     }
 
     @Override

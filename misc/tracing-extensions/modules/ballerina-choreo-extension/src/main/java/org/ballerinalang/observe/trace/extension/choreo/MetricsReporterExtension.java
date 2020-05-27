@@ -60,6 +60,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final String METRIC_MAX_POSTFIX = "_max";
     private static final String METRIC_MIN_POSTFIX = "_min";
     private static final String METRIC_STD_DEV_POSTFIX = "_stdDev";
+    private static final String METRIC_PERCENTILE_POSTFIX = "_percentile";
 
     private ScheduledExecutorService executorService;
     private Task task;
@@ -83,7 +84,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         LOGGER.info("sending metrics to Choreo");
         executorService.execute(task);
         executorService.shutdown();
@@ -120,33 +121,37 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
                             ((Counter) metric).getValueThenReset(), tags);
                     choreoMetrics.add(counterMetric);
                 } else if (metric instanceof Gauge) {
-                    for (Snapshot snapshot : ((Gauge) metric).getSnapshots()) {
-                        Map<String, String> tags = generateTagsMap(metric, 1);
-                        tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(snapshot.getTimeWindow().toMillis()));
+                    Gauge gauge = (Gauge) metric;
+                    Map<String, String> tags = generateTagsMap(metric, 0);
+                    ChoreoMetric gaugeMetric = new ChoreoMetric(currentTimestamp, metricName, gauge.getValue(), tags);
+                    choreoMetrics.add(gaugeMetric);
+                    for (Snapshot snapshot : gauge.getSnapshots()) {
+                        Map<String, String> snapshotTags = new HashMap<>(tags.size() + 1);
+                        snapshotTags.put(TIME_WINDOW_TAG_KEY, String.valueOf(snapshot.getTimeWindow().toMillis()));
 
                         ChoreoMetric meanMetric = new ChoreoMetric(currentTimestamp, metricName
-                                + METRIC_MEAN_POSTFIX, snapshot.getMean(), tags);
+                                + METRIC_MEAN_POSTFIX, snapshot.getMean(), snapshotTags);
                         choreoMetrics.add(meanMetric);
 
                         ChoreoMetric maxMetric = new ChoreoMetric(currentTimestamp, metricName
-                                + METRIC_MAX_POSTFIX, snapshot.getMax(), tags);
+                                + METRIC_MAX_POSTFIX, snapshot.getMax(), snapshotTags);
                         choreoMetrics.add(maxMetric);
 
                         ChoreoMetric minMetric = new ChoreoMetric(currentTimestamp, metricName
-                                + METRIC_MIN_POSTFIX, snapshot.getMin(), tags);
+                                + METRIC_MIN_POSTFIX, snapshot.getMin(), snapshotTags);
                         choreoMetrics.add(minMetric);
 
                         ChoreoMetric stdDevMetric = new ChoreoMetric(currentTimestamp, metricName
-                                + METRIC_STD_DEV_POSTFIX, snapshot.getStdDev(), tags);
+                                + METRIC_STD_DEV_POSTFIX, snapshot.getStdDev(), snapshotTags);
                         choreoMetrics.add(stdDevMetric);
 
                         for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                            Map<String, String> percentileTags = new HashMap<>(tags.size() + 1);
-                            percentileTags.putAll(tags);
+                            Map<String, String> percentileTags = new HashMap<>(snapshotTags.size() + 1);
+                            percentileTags.putAll(snapshotTags);
                             percentileTags.put(PERCENTILE_TAG_KEY, String.valueOf(percentileValue.getPercentile()));
 
-                            ChoreoMetric percentileMetric = new ChoreoMetric(currentTimestamp, metricName,
-                                    percentileValue.getValue(), percentileTags);
+                            ChoreoMetric percentileMetric = new ChoreoMetric(currentTimestamp, metricName
+                                    + METRIC_PERCENTILE_POSTFIX, percentileValue.getValue(), percentileTags);
                             choreoMetrics.add(percentileMetric);
                         }
                     }

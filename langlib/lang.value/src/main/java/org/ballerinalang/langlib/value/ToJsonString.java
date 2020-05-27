@@ -40,11 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ToJsonString {
 
-    public static String toJsonString(Strand strand, Object value) {
-        return StringUtils.getJsonString(value);
-    }
-
-    public static BString toJsonString_bstring(Strand strand, Object value) {
-        return org.ballerinalang.jvm.StringUtils.fromString(toJsonString(strand, value));
+    public static BString toJsonString(Strand strand, Object value) {
+        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getJsonString(value));
     }
 }
