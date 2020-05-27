@@ -572,8 +572,12 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(mappingBindingPatternNode);
     }
 
-    public T transform(FieldBindingPatternNode fieldBindingPatternNode) {
-        return transformSyntaxNode(fieldBindingPatternNode);
+    public T transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+        return transformSyntaxNode(fieldBindingPatternFullNode);
+    }
+
+    public T transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        return transformSyntaxNode(fieldBindingPatternVarnameNode);
     }
 
     public T transform(RestBindingPatternNode restBindingPatternNode) {

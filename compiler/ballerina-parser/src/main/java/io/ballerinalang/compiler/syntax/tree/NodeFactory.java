@@ -2196,17 +2196,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMappingBindingPatternNode.createUnlinkedFacade();
     }
 
-    public static FieldBindingPatternNode createFieldBindingPatternNode(
+    public static FieldBindingPatternFullNode createFieldBindingPatternFullNode(
             SimpleNameReferenceNode variableName,
             Token colon,
             BindingPatternNode bindingPattern) {
         Objects.requireNonNull(variableName, "variableName must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
 
-        STNode stFieldBindingPatternNode = STNodeFactory.createFieldBindingPatternNode(
+        STNode stFieldBindingPatternFullNode = STNodeFactory.createFieldBindingPatternFullNode(
                 variableName.internalNode(),
-                getOptionalSTNode(colon),
-                getOptionalSTNode(bindingPattern));
-        return stFieldBindingPatternNode.createUnlinkedFacade();
+                colon.internalNode(),
+                bindingPattern.internalNode());
+        return stFieldBindingPatternFullNode.createUnlinkedFacade();
+    }
+
+    public static FieldBindingPatternVarnameNode createFieldBindingPatternVarnameNode(
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stFieldBindingPatternVarnameNode = STNodeFactory.createFieldBindingPatternVarnameNode(
+                variableName.internalNode());
+        return stFieldBindingPatternVarnameNode.createUnlinkedFacade();
     }
 
     public static RestBindingPatternNode createRestBindingPatternNode(

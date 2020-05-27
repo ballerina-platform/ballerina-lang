@@ -17,6 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -24,9 +27,19 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public abstract class STFieldBindingPatternNode extends STNode {
+public class STFieldBindingPatternVarnameNode extends STFieldBindingPatternNode {
+    public final STNode variableName;
 
-    STFieldBindingPatternNode(SyntaxKind kind) {
-        super(kind);
+    STFieldBindingPatternVarnameNode(
+            STNode variableName) {
+        super(SyntaxKind.FIELD_BINDING_PATTERN);
+        this.variableName = variableName;
+
+        addChildren(
+                variableName);
+    }
+
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new FieldBindingPatternVarnameNode(this, position, parent);
     }
 }

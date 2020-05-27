@@ -402,8 +402,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseTupleMemberRhs();
             case LIST_BINDING_PATTERN_END_OR_CONTINUE:
                 return parseListBindingpatternRhs();
-            case MAPPING_BINDING_PATTERN_END_OR_CONTINUE:
-                return parseMappingBindingpatternRhs();
+            case MAPPING_BINDING_PATTERN_END:
+                return parseMappingBindingpatternEnd();
+            case FIELD_BINDING_PATTERN:
+                return parseFieldBindingPattern();
             case CONSTANT_EXPRESSION_START:
                 return parseConstExprInternal();
             case LIST_CONSTRUCTOR_MEMBER_END:
@@ -10230,35 +10232,39 @@ public class BallerinaParser extends AbstractParser {
         ArrayList<STNode> bindingPatterns = new ArrayList<>();
         STNode openBrace = parseOpenBrace();
 
-        STNode mappingBindingPatternMember = parseMappingBindingPatternMember();
-        bindingPatterns.add(mappingBindingPatternMember);
-
-        // parsing the main chunck of mapping-binding-pattern
-        STToken token = peek(); // get next valid token
-        STNode mappingBindingPatternRhs = null;
-        while (!isEndOfMappingBindingPattern(token.kind) &&
-                mappingBindingPatternMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
-            mappingBindingPatternRhs = parseMappingBindingpatternRhs(token.kind);
-            if (mappingBindingPatternRhs == null) {
-                break;
-            }
-
-            bindingPatterns.add(mappingBindingPatternRhs);
+        STNode mappingBindingPatternMember;
+        STNode restBindingPattern = STNodeFactory.createEmptyNode();
+        STToken token = peek();
+        if (!isEndOfMappingBindingPattern(token.kind)) {
             mappingBindingPatternMember = parseMappingBindingPatternMember();
             bindingPatterns.add(mappingBindingPatternMember);
-            token = peek();
+
+            // parsing the main chunck of mapping-binding-pattern
+            token = peek(); // get next valid token
+            STNode mappingBindingPatternRhs = null;
+            while (!isEndOfMappingBindingPattern(token.kind) &&
+                    mappingBindingPatternMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
+                mappingBindingPatternRhs = parseMappingBindingpatternEnd(token.kind);
+                if (mappingBindingPatternRhs == null) {
+                    break;
+                }
+
+                bindingPatterns.add(mappingBindingPatternRhs);
+                mappingBindingPatternMember = parseMappingBindingPatternMember();
+                if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+                    break;
+                }
+                bindingPatterns.add(mappingBindingPatternMember);
+                token = peek();
+            }
+
+            // seperating out the rest-binding-pattern
+            if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+                restBindingPattern = mappingBindingPatternMember;
+            }
         }
 
         STNode closeBrace = parseCloseBrace();
-
-        // seperating out the rest-binding-pattern
-        STNode restBindingPattern;
-        if (mappingBindingPatternMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
-            restBindingPattern = bindingPatterns.remove(bindingPatterns.size() - 1);
-        } else {
-            restBindingPattern = STNodeFactory.createEmptyNode();
-        }
-
         STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatterns);
         endContext();
         return STNodeFactory.createMappingBindingPatternNode(openBrace, bindingPatternsNode, restBindingPattern,
@@ -10288,18 +10294,18 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseMappingBindingpatternRhs() {
-        return parseMappingBindingpatternRhs(peek().kind);
+    private STNode parseMappingBindingpatternEnd() {
+        return parseMappingBindingpatternEnd(peek().kind);
     }
 
-    private STNode parseMappingBindingpatternRhs(SyntaxKind nextTokenKind) {
+    private STNode parseMappingBindingpatternEnd(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACE_TOKEN:
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.MAPPING_BINDING_PATTERN_END_OR_CONTINUE);
+                Solution solution = recover(peek(), ParserRuleContext.MAPPING_BINDING_PATTERN_END);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -10308,8 +10314,12 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseMappingBindingpatternRhs(solution.tokenKind);
+                return parseMappingBindingpatternEnd(solution.tokenKind);
         }
+    }
+
+    private STNode parseFieldBindingPattern() {
+        return parseFieldBindingPattern(peek().kind);
     }
 
     /**
@@ -10319,28 +10329,44 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return field-binding-pattern node
      */
-    private STNode parseFieldBindingPattern() {
-        startContext(ParserRuleContext.FIELD_BINDING_PATTERN);
-        STNode fieldName = parseVariableName();
-        STNode colon = STNodeFactory.createEmptyNode();
-        STNode bindingPattern = STNodeFactory.createEmptyNode();
+    private STNode parseFieldBindingPattern(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                startContext(ParserRuleContext.FIELD_BINDING_PATTERN);
+                STNode identifier = parseIdentifier(ParserRuleContext.FIELD_BINDING_PATTERN);
+                STNode fieldBindingPattern = parseFieldBindingPattern(identifier);
+                endContext();
+                return fieldBindingPattern;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_BINDING_PATTERN);
 
-        if (!isEndOfFieldBindingPattern(peek().kind)) {
-            colon = parseColon();
-            bindingPattern = parseBindingPattern();
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldBindingPattern(solution.tokenKind);
         }
-        endContext();
-        return STNodeFactory.createFieldBindingPatternNode(fieldName,
+    }
+
+    private STNode parseFieldBindingPattern(STNode identifier) {
+        if (isEndOfFieldBindingPattern(peek().kind)) {
+            return STNodeFactory.createFieldBindingPatternVarnameNode(identifier);
+        }
+
+        STNode colon = parseColon();
+        STNode bindingPattern = parseBindingPattern();
+
+        return STNodeFactory.createFieldBindingPatternFullNode(identifier,
                 colon,
                 bindingPattern);
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
+        if (isFollowTypedBindingPattern(nextTokenKind)) {
+            return true;
+        }
         switch (nextTokenKind) {
-            case IN_KEYWORD:
             case CLOSE_BRACE_TOKEN:
-            case EOF_TOKEN:
-            case EQUAL_TOKEN:
                 return true;
             default:
                 return false;

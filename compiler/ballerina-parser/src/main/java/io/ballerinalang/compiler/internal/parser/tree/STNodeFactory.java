@@ -1635,15 +1635,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createFieldBindingPatternNode(
+    public static STNode createFieldBindingPatternFullNode(
             STNode variableName,
             STNode colon,
             STNode bindingPattern) {
 
-        return new STFieldBindingPatternNode(
+        return new STFieldBindingPatternFullNode(
                 variableName,
                 colon,
                 bindingPattern);
+    }
+
+    public static STNode createFieldBindingPatternVarnameNode(
+            STNode variableName) {
+
+        return new STFieldBindingPatternVarnameNode(
+                variableName);
     }
 
     public static STNode createRestBindingPatternNode(

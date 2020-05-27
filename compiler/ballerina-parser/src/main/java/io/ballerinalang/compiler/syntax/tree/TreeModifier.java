@@ -2215,18 +2215,27 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FieldBindingPatternNode transform(
-            FieldBindingPatternNode fieldBindingPatternNode) {
+    public FieldBindingPatternFullNode transform(
+            FieldBindingPatternFullNode fieldBindingPatternFullNode) {
         SimpleNameReferenceNode variableName =
-                modifyNode(fieldBindingPatternNode.variableName());
+                modifyNode(fieldBindingPatternFullNode.variableName());
         Token colon =
-                modifyToken(fieldBindingPatternNode.colon().orElse(null));
+                modifyToken(fieldBindingPatternFullNode.colon());
         BindingPatternNode bindingPattern =
-                modifyNode(fieldBindingPatternNode.bindingPattern().orElse(null));
-        return fieldBindingPatternNode.modify(
+                modifyNode(fieldBindingPatternFullNode.bindingPattern());
+        return fieldBindingPatternFullNode.modify(
                 variableName,
                 colon,
                 bindingPattern);
+    }
+
+    @Override
+    public FieldBindingPatternVarnameNode transform(
+            FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+        SimpleNameReferenceNode variableName =
+                modifyNode(fieldBindingPatternVarnameNode.variableName());
+        return fieldBindingPatternVarnameNode.modify(
+                variableName);
     }
 
     @Override

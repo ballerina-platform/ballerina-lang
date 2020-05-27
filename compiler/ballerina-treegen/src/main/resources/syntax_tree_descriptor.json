@@ -2945,6 +2945,11 @@
         {
             "name": "FieldBindingPatternNode",
             "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "FieldBindingPatternFullNode",
+            "base": "FieldBindingPatternNode",
             "kind": "FIELD_BINDING_PATTERN",
             "attributes": [
                 {
@@ -2953,13 +2958,22 @@
                 },
                 {
                     "name": "colon",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "bindingPattern",
-                    "type": "BindingPatternNode",
-                    "isOptional": true
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
+            "name": "FieldBindingPatternVarnameNode",
+            "base": "FieldBindingPatternNode",
+            "kind": "FIELD_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
