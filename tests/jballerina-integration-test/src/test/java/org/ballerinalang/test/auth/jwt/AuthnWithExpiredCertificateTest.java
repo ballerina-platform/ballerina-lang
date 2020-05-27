@@ -90,7 +90,7 @@ public class AuthnWithExpiredCertificateTest extends AuthBaseTest {
                 "B9DkUDdEF9DIc3uYDTxOgys8fAyK-6hLsgjln65slb627bTTWwIcUszKeZLTIw1z4XKDShe9gQJGLiOCWOQ1YxmrnDM6HgOQb" +
                 "18xqUzweCRL-DLAAYwjbzGQ56ekbEdAg02sFco4aozOyt8OUDwS9cH_JlhUn2JEHmVKaatljEnfgRc8fOW6Y5IJ7dOPp7ra5e" +
                 "00sk7JwYY8wKaZWxAGSgRpWgTY6C4XRjGIsR5ZWQdXCAnV27idGDrtR2uG4YQwCWUCzA");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2,"echo/test"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort2, "echo/test"),
                                                          headersMap, serverInstance.getServerHome());
         assertOK(response);
     }

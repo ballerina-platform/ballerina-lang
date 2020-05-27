@@ -60,8 +60,10 @@ public class AuthBaseTest extends BaseTest {
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                            "auth").getAbsolutePath();
-        String usersTomlPath = basePath + File.separator + "src" + File.separator + "basic" + File.separator + "users.toml";
-        String usersLdifPath = basePath + File.separator + "src" + File.separator + "ldap" + File.separator + "users.ldif";
+        String usersTomlPath = basePath + File.separator + "src" + File.separator + "basic" + File.separator +
+                "users.toml";
+        String usersLdifPath = basePath + File.separator + "src" + File.separator + "ldap" + File.separator +
+                "users.ldif";
 
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(20100, usersLdifPath);
