@@ -1307,7 +1307,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType, env.scope.owner);
-            // todo: need to support string subtypes as reason type.
+            // TODO: detail type need to be a union representing all details of members of `errorType
             errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
             return validateErrorVariable(errorVariable);
         }

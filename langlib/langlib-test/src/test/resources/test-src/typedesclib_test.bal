@@ -66,8 +66,8 @@ type Baz record {|
 function testAmbiguousTargetType() returns boolean {
     Foo f = { s: "test string" };
     Bar|Baz|error bbe = (Bar|Baz).constructFrom(f);
-    return bbe is error && bbe.reason() == "{ballerina/lang.typedesc}ConversionError" &&
-            bbe.detail()?.message == "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type";
+    return bbe is error && bbe.message() == "{ballerina/lang.typedesc}ConversionError" &&
+            bbe.detail()["message"].toString() == "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type";
 }
 
 function testConstructFromForNilPositive() returns boolean {
@@ -81,7 +81,7 @@ function testConstructFromForNilNegative() returns boolean {
     anydata a = ();
     string|int|error c1 = (string|int).constructFrom(a);
     Foo|Bar|error c2 = (Foo|Bar).constructFrom(a);
-    return c1 is error && c2 is error && c1.detail()?.message == "cannot convert '()' to type 'string|int'";
+    return c1 is error && c2 is error && c1.detail()["message"].toString() == "cannot convert '()' to type 'string|int'";
 }
 
 function testConstructFromWithNumericConversion1() returns boolean {
@@ -151,8 +151,8 @@ function testConstructFromSuccessWithMoreThanOneNumericTarget() returns boolean 
 function testConstructFromFailureWithAmbiguousNumericConversionTarget() returns boolean {
     int[] i = [1, 2];
     (float|decimal|boolean)[]|error j = (float|decimal|boolean)[].constructFrom(i); // two possible conversion types
-    return j is error && j.reason() == "{ballerina/lang.typedesc}ConversionError" &&
-            j.detail()?.message == "'int[]' value cannot be converted to '(float|decimal|boolean)[]'";
+    return j is error && j.message() == "{ballerina/lang.typedesc}ConversionError" &&
+            j.detail()["message"].toString() == "'int[]' value cannot be converted to '(float|decimal|boolean)[]'";
 }
 
 type A record {
