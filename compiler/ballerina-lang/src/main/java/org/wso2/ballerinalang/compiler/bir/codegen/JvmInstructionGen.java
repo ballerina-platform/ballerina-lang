@@ -1329,6 +1329,15 @@ public class JvmInstructionGen {
         addBoxInsn(this.mv, valueType);
 
         // invoke set() method
+        if (objectStoreIns.onInitialization) {
+            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
+            this.mv.visitMethodInsn(INVOKESPECIAL,
+                                    getTypeValueClassName(objectType.tsymbol.pkgID, toNameString(objectType)),
+                                    "setOnInitialization",
+                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+            return;
+        }
+
         this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
                                     String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
     }

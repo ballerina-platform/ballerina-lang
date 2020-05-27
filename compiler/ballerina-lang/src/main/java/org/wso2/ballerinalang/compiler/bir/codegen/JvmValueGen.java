@@ -489,8 +489,19 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                                              String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
+        createObjectSetMethod(cw, fields, className, "set", "checkFieldUpdate");
+    }
+
+    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+
+        createObjectSetMethod(cw, fields, className, "setOnInitialization", "checkFieldUpdateOnInitialization");
+    }
+
+    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       String setFuncName, String checkFieldUpdateFuncName) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setFuncName,
+                                          String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -505,7 +516,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         fieldNameRegIndex = 3;
         mv.visitVarInsn(ASTORE, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, checkFieldUpdateFuncName,
                            String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
@@ -514,7 +525,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
 
         List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
         List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
-                defaultCaseLabel);
+                                                             defaultCaseLabel);
 
         // case body
         int i = 0;
@@ -1369,6 +1380,7 @@ private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String
         this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
+        this.createObjectSetOnInitializationMethod(cw, fields, className);
         this.createLambdas(cw, lambdaGenMetadata);
 
         cw.visitEnd();

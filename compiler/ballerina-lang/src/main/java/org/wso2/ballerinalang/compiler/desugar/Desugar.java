@@ -3411,8 +3411,23 @@ public class Desugar extends BLangNodeVisitor {
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
+                boolean isStoreOnCreation = false;
+
+                if (varRefTypeTag == TypeTags.OBJECT && env.enclInvokable != null) {
+                    BInvokableSymbol originalFuncSymbol = ((BLangFunction) env.enclInvokable).originalFuncSymbol;
+                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) varRefType.tsymbol;
+                    BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+                    BAttachedFunction generatedInitializerFunc = objectTypeSymbol.generatedInitializerFunc;
+
+                    if ((generatedInitializerFunc != null && originalFuncSymbol == generatedInitializerFunc.symbol) ||
+                            (initializerFunc != null && originalFuncSymbol == initializerFunc.symbol)) {
+                        isStoreOnCreation = true;
+                    }
+                }
+
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                        (BVarSymbol) fieldAccessExpr.symbol, false);
+                                                              (BVarSymbol) fieldAccessExpr.symbol, false,
+                                                              isStoreOnCreation);
                 // Only supporting object field lock at the moment
             }
         } else if (varRefTypeTag == TypeTags.RECORD ||
@@ -3576,16 +3591,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                                                  indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
         } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                           indexAccessExpr.indexExpr,
-                                                          (BVarSymbol) indexAccessExpr.symbol, false,
-                                                          indexAccessExpr.isStoreOnCreation);
+                                                          (BVarSymbol) indexAccessExpr.symbol, false);
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                                                    indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
+                                                    indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
