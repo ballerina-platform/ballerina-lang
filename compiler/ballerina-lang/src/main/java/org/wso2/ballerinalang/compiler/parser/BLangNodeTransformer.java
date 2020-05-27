@@ -1217,8 +1217,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         Node fieldName = fieldAccessExprNode.fieldName();
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
-        BLangNameReference nameRef = createBLangNameReference(fieldName);
-        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
+        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), fieldName.text());
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
@@ -1231,8 +1230,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         Node fieldName = optionalFieldAccessExpressionNode.fieldName();
         bLFieldBasedAccess.pos = getPosition(optionalFieldAccessExpressionNode);
-        BLangNameReference nameRef = createBLangNameReference(fieldName);
-        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), nameRef.name.getValue());
+        bLFieldBasedAccess.field = createIdentifier(getPosition(fieldName), fieldName.text());
         bLFieldBasedAccess.field.pos = getPosition(optionalFieldAccessExpressionNode);
         bLFieldBasedAccess.expr = createExpression(optionalFieldAccessExpressionNode.expression());
         bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
