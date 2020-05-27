@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -370,7 +371,6 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
-//            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
@@ -381,7 +381,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     private LSContext modifyTree(BallerinaSyntaxTreeModifyRequest request, String fileUri, Path compilationPath)
-            throws CompilationFailedException, WorkspaceDocumentException {
+            throws CompilationFailedException, WorkspaceDocumentException, IOException {
         LSContext astContext = new DocumentOperationContext
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
@@ -454,7 +454,14 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 new io.ballerinalang.compiler.text.TextEdit[0]));
         SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
         logger.info("Updated Tree : " + updatedSyntaxTree);
-        documentManager.updateFile(compilationPath, updatedSyntaxTree.toString());
+        String updatedSyntaxTreeString = updatedSyntaxTree.toString();
+        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+        astContext.put(UPDATED_SYNTAX_TREE, updatedSyntaxTree);
+
+        File outputFile = compilationPath.toFile();
+        try (FileWriter writer = new FileWriter(outputFile)) {
+            writer.write(updatedSyntaxTreeString);
+        }
         astContext.put(UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         return astContext;
     }

@@ -29,14 +29,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 /**
  * Test visible endpoint detection.
  */
 public class ASTModifyTest {
 
-    private static String OS = System.getProperty("os.name").toLowerCase();
+    private static final String OS = System.getProperty("os.name").toLowerCase();
     private Endpoint serviceEndpoint;
 
     private Path mainFile = FileUtils.RES_DIR.resolve("extensions")
@@ -86,30 +89,15 @@ public class ASTModifyTest {
             .resolve("ast")
             .resolve("modify");
 
-    public static boolean isWindows() {
-        return (OS.contains("win"));
+    public static void skipOnWindows() {
+        if (OS.contains("win")) {
+            throw new SkipException("Skipping the test case on Windows");
+        }
     }
 
     @BeforeClass
     public void startLangServer() throws IOException {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
-
-    @Test(description = "Remove content.")
-    public void testDelete() throws IOException {
-        if (isWindows()) {
-            throw new SkipException("Skipping the test case on Windows");
-        }
-        TestUtil.openDocument(serviceEndpoint, mainFile);
-        ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
-        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaAST(mainFile.toString(),
-                        new ASTModification[]{modification}, this.serviceEndpoint);
-        Assert.assertTrue(astModifyResponse.isParseSuccess());
-        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
-                mainEmptyFile.toString(), this.serviceEndpoint);
-        assertTree(astModifyResponse.getAst(), astResponse.getAst());
-        TestUtil.closeDocument(this.serviceEndpoint, mainFile);
     }
 
     private void assertTree(JsonElement actual, JsonElement expected) {
@@ -136,6 +124,29 @@ public class ASTModifyTest {
         }
     }
 
+    private Path createTempFile(Path filePath) throws IOException {
+        Path tempFilePath = FileUtils.BUILD_DIR.resolve("tmp")
+                .resolve(UUID.randomUUID() + ".bal");
+        Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
+        return tempFilePath;
+    }
+
+    @Test(description = "Remove content.")
+    public void testDelete() throws IOException {
+        skipOnWindows();
+        Path tempFile = createTempFile(mainFile);
+        TestUtil.openDocument(serviceEndpoint, tempFile);
+        ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
+        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+                .modifyAndGetBallerinaAST(tempFile.toString(),
+                        new ASTModification[]{modification}, this.serviceEndpoint);
+        Assert.assertTrue(astModifyResponse.isParseSuccess());
+        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
+                mainEmptyFile.toString(), this.serviceEndpoint);
+        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+    }
+//
 //    @Test(description = "Insert content.")
 //    public void testInsert() throws IOException {
 //        TestUtil.openDocument(serviceEndpoint, mainFile);
