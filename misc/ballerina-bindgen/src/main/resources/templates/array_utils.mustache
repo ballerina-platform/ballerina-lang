@@ -134,26 +134,6 @@ public function fromHandle(handle array, string jType, string bType = "default")
     return returnArray;
 }
 
-function getArrayFromHandle(handle arg, typedesc<any> t = handle) returns any[] {
-    any[] returnArray = [];
-    if (!java:isNull(arg)) {
-        int count = jarrays:getLength(arg);
-        foreach int i in 0 ... count-1 {
-            any element = jarrays:get(arg, i);
-            if (element is int|boolean|float|byte) {
-                returnArray[i] = element;
-            } else if (element is handle) {
-                if (t is typedesc<string>) {
-                    returnArray[i] = java:toString(element);
-                } else if (t is typedesc<handle>) {
-                    returnArray[i] = element;
-                }
-            }
-        }
-    }
-    return returnArray;
-}
-
 # Returns a handle value representation for a Ballerina array.
 # ```ballerina
 # handle handleValue = check java.arrays:toHandle(array, "char");

@@ -523,6 +523,19 @@ public class BindgenUtils {
         return returnType;
     }
 
+    public static String getJavaType(Class javaType) {
+        if (javaType.isArray()) {
+            javaType = javaType.getComponentType();
+        }
+        if (javaType.isPrimitive()) {
+            return javaType.getSimpleName();
+        } else if (javaType.getSimpleName().equals(JAVA_STRING)) {
+            return BALLERINA_STRING;
+        } else {
+            return HANDLE;
+        }
+    }
+
     private static String getBalType(String type) {
         switch (type) {
             case INT:
