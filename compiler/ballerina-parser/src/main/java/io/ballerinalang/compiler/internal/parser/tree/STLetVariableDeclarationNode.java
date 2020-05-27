@@ -29,28 +29,24 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STLetVariableDeclarationNode extends STNode {
     public final STNode annotations;
-    public final STNode typeName;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode equalsToken;
     public final STNode expression;
 
     STLetVariableDeclarationNode(
             STNode annotations,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode expression) {
         super(SyntaxKind.LET_VAR_DECL);
         this.annotations = annotations;
-        this.typeName = typeName;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
         addChildren(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }

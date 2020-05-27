@@ -26,13 +26,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
+
 /**
  * Native implementation of assertError(anydata|error value).
  *
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertError",
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertError",
         args = {@Argument(name = "value", type = TypeKind.UNION)},
         isPublic = true
 )

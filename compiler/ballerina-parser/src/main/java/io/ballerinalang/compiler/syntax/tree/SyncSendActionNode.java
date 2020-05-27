@@ -40,7 +40,7 @@ public class SyncSendActionNode extends ActionNode {
         return childInBucket(1);
     }
 
-    public NameReferenceNode peerWorker() {
+    public SimpleNameReferenceNode peerWorker() {
         return childInBucket(2);
     }
 
@@ -65,7 +65,7 @@ public class SyncSendActionNode extends ActionNode {
     public SyncSendActionNode modify(
             ExpressionNode expression,
             Token syncSendToken,
-            NameReferenceNode peerWorker) {
+            SimpleNameReferenceNode peerWorker) {
         if (checkForReferenceEquality(
                 expression,
                 syncSendToken,
@@ -92,7 +92,7 @@ public class SyncSendActionNode extends ActionNode {
         private final SyncSendActionNode oldNode;
         private ExpressionNode expression;
         private Token syncSendToken;
-        private NameReferenceNode peerWorker;
+        private SimpleNameReferenceNode peerWorker;
 
         public SyncSendActionNodeModifier(SyncSendActionNode oldNode) {
             this.oldNode = oldNode;
@@ -116,7 +116,7 @@ public class SyncSendActionNode extends ActionNode {
         }
 
         public SyncSendActionNodeModifier withPeerWorker(
-                NameReferenceNode peerWorker) {
+                SimpleNameReferenceNode peerWorker) {
             Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;

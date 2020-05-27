@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * A factory that constructs internal tree nodes.
@@ -32,12 +32,13 @@ import java.util.List;
  * @since 1.3.0
  */
 public abstract class STAbstractNodeFactory {
+    private static final STNodeList EMPTY_LIST = new STNodeList();
 
     public static STToken createIdentifierToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
         return new STIdentifierToken(text, leadingTrivia, trailingTrivia);
     }
 
-    public static STNode createNodeList(List<STNode> children) {
+    public static STNode createNodeList(Collection<STNode> children) {
         return new STNodeList(children);
     }
 
@@ -45,13 +46,22 @@ public abstract class STAbstractNodeFactory {
         return new STNodeList(children);
     }
 
+    public static STNode createEmptyNodeList() {
+        return EMPTY_LIST;
+    }
+
     public static STNode createEmptyNode() {
         return null;
     }
 
-    public static STNode createMissingToken(SyntaxKind kind) {
+    public static STToken createMissingToken(SyntaxKind kind) {
         // TODO Seems like we can get these tokens from a cache
         return new STMissingToken(kind);
+    }
+
+    public static STToken createMissingToken(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        // TODO Seems like we can get these tokens from a cache
+        return new STMissingToken(kind, diagnostics);
     }
 
     public static STToken createToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {

@@ -1,36 +1,36 @@
 {
-    "kind": "LIST_CONSTRUCTOR",
-    "children": [
+  "kind": "LIST_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACKET_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "COMMA_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                },
-                {
-                    "kind": "COMMA_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
-                }
-            ]
+          "kind": "COMMA_TOKEN",
+          "isMissing": true
         },
         {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "isMissing": true
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

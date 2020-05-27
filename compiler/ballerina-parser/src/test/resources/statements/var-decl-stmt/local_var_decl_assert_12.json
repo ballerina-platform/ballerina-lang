@@ -1,24 +1,33 @@
 {
-    "kind": "LOCAL_VAR_DECL",
-    "children": [
+  "kind": "LOCAL_VAR_DECL",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FINAL_KEYWORD"
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
         {
-            "kind": "LIST",
-            "children": [
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Person"
         },
         {
-            "kind": "FINAL_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "Person"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "p"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "p"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

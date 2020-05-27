@@ -280,12 +280,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -1449,12 +1445,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -2053,12 +2045,8 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "typeName",
-                    "type": "Node"
-                },
-                {
-                    "name": "variableName",
-                    "type": "Token"
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
                 },
                 {
                     "name": "equalsToken",
@@ -3007,7 +2995,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -3026,7 +3014,7 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -3041,7 +3029,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "Node"
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         },
@@ -3414,6 +3402,26 @@
                 {
                     "name": "transactionalKeyword",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ServiceConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "SERVICE_CONSTRUCTOR_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "serviceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "serviceBody",
+                    "type": "Node"
                 }
             ]
         }

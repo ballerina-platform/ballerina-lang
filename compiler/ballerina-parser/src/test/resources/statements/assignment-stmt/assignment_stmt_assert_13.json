@@ -1,44 +1,44 @@
 {
-    "kind": "ASSIGNMENT_STATEMENT",
-    "children": [
+  "kind": "ASSIGNMENT_STATEMENT",
+  "children": [
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
         {
-            "kind": "BINARY_EXPRESSION",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "PLUS_TOKEN"
-                },
-                {
-                    "kind": "BINARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "b"
-                        },
-                        {
-                            "kind": "PLUS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
-                        }
-                    ]
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         },
         {
-            "kind": "EQUAL_TOKEN",
-            "isMissing": true
+          "kind": "PLUS_TOKEN"
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "d"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "BINARY_EXPRESSION",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            },
+            {
+              "kind": "PLUS_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EQUAL_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "d"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

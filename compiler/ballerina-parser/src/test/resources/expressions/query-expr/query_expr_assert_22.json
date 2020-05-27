@@ -1,63 +1,62 @@
 {
-    "kind": "QUERY_EXPRESSION",
-    "children": [
+  "kind": "QUERY_EXPRESSION",
+  "children": [
+    {
+      "kind": "QUERY_PIPELINE",
+      "children": [
         {
-            "kind": "QUERY_PIPELINE",
-            "children": [
+          "kind": "FROM_CLAUSE",
+          "children": [
+            {
+              "kind": "FROM_KEYWORD"
+            },
+            {
+              "kind": "INT_KEYWORD"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            },
+            {
+              "kind": "IN_KEYWORD"
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
+              "children": [
                 {
-                    "kind": "FROM_CLAUSE",
-                    "children": [
-                        {
-                            "kind": "FROM_KEYWORD"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        },
-                        {
-                            "kind": "IN_KEYWORD"
-                        },
-                        {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                },
-                                {
-                                    "kind": "PLUS_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                }
-                            ]
-                        }
-                    ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
+                  "kind": "PLUS_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "SELECT_CLAUSE",
-            "children": [
-                {
-                    "kind": "SELECT_KEYWORD",
-                    "isMissing": true
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "isMissing": true
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD",
+          "isMissing": true
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        }
+      ]
+    }
+  ]
 }

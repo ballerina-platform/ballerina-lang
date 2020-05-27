@@ -17,7 +17,19 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static io.ballerinalang.compiler.internal.syntax.NodeListUtils.rangeCheck;
+import static io.ballerinalang.compiler.internal.syntax.NodeListUtils.rangeCheckForAdd;
 
 /**
  * Represents a list of {@code Node}s.
@@ -25,24 +37,100 @@ import java.util.Iterator;
  * @param <T> the type of the constituent node instance
  */
 public class NodeList<T extends Node> implements Iterable<T> {
-
-    protected final NonTerminalNode node;
+    protected final STNodeList internalListNode;
+    protected final NonTerminalNode nonTerminalNode;
     protected final int size;
 
-    NodeList(NonTerminalNode node) {
-        this.node = node;
-        this.size = node.bucketCount();
+    NodeList(NonTerminalNode nonTerminalNode) {
+        this(nonTerminalNode, nonTerminalNode.bucketCount());
     }
 
-    protected NodeList(NonTerminalNode node, int size) {
-        this.node = node;
+    protected NodeList(NonTerminalNode nonTerminalNode, int size) {
+        if (!NodeListUtils.isSTNodeList(nonTerminalNode.internalNode())) {
+            throw new IllegalArgumentException("An STNodeList instance is expected");
+        }
+
+        this.internalListNode = (STNodeList) nonTerminalNode.internalNode();
+        this.nonTerminalNode = nonTerminalNode;
         this.size = size;
     }
 
+    // Positional access methods
+
     public T get(int index) {
         rangeCheck(index, size);
-        return this.node.childInBucket(index);
+        return this.nonTerminalNode.childInBucket(index);
     }
+
+    // Modification methods
+
+    public NodeList<T> add(T node) {
+        Objects.requireNonNull(node, "node should not be null");
+        return new NodeList<>(internalListNode.add(node.internalNode()).createUnlinkedFacade());
+    }
+
+    public NodeList<T> add(int index, T node) {
+        Objects.requireNonNull(node, "node should not be null");
+        rangeCheckForAdd(index, size);
+        return new NodeList<>(internalListNode.add(index, node.internalNode()).createUnlinkedFacade());
+    }
+
+    public NodeList<T> addAll(Collection<T> c) {
+        if (c.isEmpty()) {
+            return this;
+        }
+
+        List<STNode> stNodesToBeAdded = c.stream()
+                .map(node -> Objects.requireNonNull(node, "node should not be null"))
+                .map(Node::internalNode)
+                .collect(Collectors.toList());
+        return new NodeList<>(internalListNode.addAll(stNodesToBeAdded).createUnlinkedFacade());
+    }
+
+    public NodeList<T> set(int index, T node) {
+        Objects.requireNonNull(node, "node should not be null");
+        rangeCheck(index, size);
+        if (nonTerminalNode.checkForReferenceEquality(index, node)) {
+            return this;
+        }
+
+        return new NodeList<>(internalListNode.set(index, node.internalNode()).createUnlinkedFacade());
+    }
+
+    public NodeList<T> remove(int index) {
+        rangeCheck(index, size);
+        return new NodeList<>(internalListNode.remove(index).createUnlinkedFacade());
+    }
+
+    public NodeList<T> remove(T node) {
+        Objects.requireNonNull(node, "node should not be null");
+        for (int bucket = 0; bucket < nonTerminalNode.bucketCount(); bucket++) {
+            if (nonTerminalNode.checkForReferenceEquality(bucket, node)) {
+                return remove(bucket);
+            }
+        }
+        return this;
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    public NodeList<T> removeAll(Collection<T> c) {
+        if (c.isEmpty()) {
+            return this;
+        }
+        c.forEach(node -> Objects.requireNonNull(node, "node should not be null"));
+
+        List<STNode> toBeDeletedList = new ArrayList<>();
+        for (int bucket = 0; bucket < nonTerminalNode.bucketCount(); bucket++) {
+            Node childNode = nonTerminalNode.childBuckets[bucket];
+            if (c.contains(childNode)) {
+                toBeDeletedList.add(childNode.internalNode());
+            }
+        }
+
+        return new NodeList<>(internalListNode.removeAll(toBeDeletedList).createUnlinkedFacade());
+    }
+
+    //query methods
 
     public int size() {
         return this.size;
@@ -57,14 +145,8 @@ public class NodeList<T extends Node> implements Iterable<T> {
         return new NodeListIterator();
     }
 
-    protected void rangeCheck(int index, int size) {
-        if (index >= size || index < 0) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
-    }
-
     NonTerminalNode underlyingListNode() {
-        return this.node;
+        return this.nonTerminalNode;
     }
 
     /**

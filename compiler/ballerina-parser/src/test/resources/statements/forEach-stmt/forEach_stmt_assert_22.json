@@ -232,14 +232,6 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "isMissing": true
-                                },
-                                {
-                                  "kind": "COLON_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true
                                 }
                               ]
                             }
@@ -276,11 +268,21 @@
                               "children": []
                             },
                             {
-                              "kind": "INT_KEYWORD"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "k"
+                              "kind": "TYPED_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                },
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k"
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "EQUAL_TOKEN"

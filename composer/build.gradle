@@ -23,6 +23,7 @@ configurations {
     composer
     fonts
     highlighter
+    docsearch
 }
 
 npmBuild {
@@ -40,6 +41,7 @@ npmBuild {
     outputs.dir("packages/distribution/build")
     outputs.dir("packages/font/build")
     outputs.dir("packages/syntax-highlighter/lib")
+    outputs.dir("packages/doc-search/lib")
     outputs.cacheIf { true }
     doFirst {
         exec {
@@ -90,6 +92,7 @@ task test() {
 artifacts.add('composer', file("packages/distribution/build/"))
 artifacts.add('highlighter', file("packages/syntax-highlighter/lib/"))
 artifacts.add('fonts', file("packages/font/build/"))
+artifacts.add('docsearch', file("packages/doc-search/lib/"))
 
 check {
     dependsOn test

@@ -1,16 +1,16 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "BITWISE_AND_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "b"
-        }
-    ]
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "BITWISE_AND_TOKEN"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "b"
+    }
+  ]
 }

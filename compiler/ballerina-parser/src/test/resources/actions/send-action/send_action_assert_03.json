@@ -1,209 +1,229 @@
 {
-    "kind": "FUNCTION_DEFINITION",
-    "children": [
+  "kind": "FUNCTION_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "FUNCTION_SIGNATURE",
-            "children": [
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": []
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_BODY_BLOCK",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                        {
-                            "kind": "ACTION_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "ASYNC_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "RIGHT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "DEFAULT_KEYWORD",
-                                            "isMissing": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "ASYNC_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "RIGHT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "DEFAULT_KEYWORD",
-                                            "isMissing": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "ANY_KEYWORD"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN",
-                                    "isMissing": true
-                                },
-                                {
-                                    "kind": "ASYNC_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "RIGHT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "DEFAULT_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "ASSIGNMENT_STATEMENT",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "x"
-                                },
-                                {
-                                    "kind": "EQUAL_TOKEN"
-                                },
-                                {
-                                    "kind": "ASYNC_SEND_ACTION",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "a"
-                                        },
-                                        {
-                                            "kind": "RIGHT_ARROW_TOKEN"
-                                        },
-                                        {
-                                            "kind": "DEFAULT_KEYWORD"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN",
-                                    "isMissing": true
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "LOCAL_VAR_DECL",
-                            "children": [
-                                {
-                                    "kind": "LIST",
-                                    "children": []
-                                },
-                                {
-                                    "kind": "SINGLETON_TYPE_DESC",
-                                    "children": [
-                                        {
-                                            "kind": "UNARY_EXPRESSION",
-                                            "children": [
-                                                {
-                                                    "kind": "PLUS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                    "isMissing": true
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                },
-                                {
-                                    "kind": "SEMICOLON_TOKEN"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "ACTION_STATEMENT",
+              "children": [
+                {
+                  "kind": "ASYNC_SEND_ACTION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "RIGHT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "DEFAULT_KEYWORD",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "ASYNC_SEND_ACTION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "RIGHT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "DEFAULT_KEYWORD",
+                      "isMissing": true
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "ANY_KEYWORD"
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "isMissing": true
+                },
+                {
+                  "kind": "ASYNC_SEND_ACTION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "RIGHT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "DEFAULT_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                },
+                {
+                  "kind": "EQUAL_TOKEN"
+                },
+                {
+                  "kind": "ASYNC_SEND_ACTION",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "RIGHT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "DEFAULT_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "UNARY_EXPRESSION",
+                          "children": [
+                            {
+                              "kind": "PLUS_TOKEN"
+                            },
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "isMissing": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    }
+  ]
 }
