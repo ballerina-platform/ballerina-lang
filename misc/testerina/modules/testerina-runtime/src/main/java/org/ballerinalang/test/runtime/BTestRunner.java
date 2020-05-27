@@ -40,6 +40,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -601,7 +602,7 @@ public class BTestRunner {
         Class<?> type;
         // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
         if (elementType instanceof BStringType) {
-            type = String.class;
+            type = BString.class;
         } else if (elementType instanceof BIntegerType) {
             type = Long.TYPE;
         } else if (elementType instanceof BBooleanType) {
